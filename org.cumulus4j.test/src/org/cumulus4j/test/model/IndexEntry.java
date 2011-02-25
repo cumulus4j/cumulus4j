@@ -2,28 +2,27 @@ package org.cumulus4j.test.model;
 
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.IdentityType;
-import javax.jdo.annotations.Index;
 import javax.jdo.annotations.NullValue;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 @PersistenceCapable(identityType=IdentityType.APPLICATION)
+//@Unique(members={"fieldMeta", "indexKeyLong", "indexKeyString"})
 public class IndexEntry
 {
 	@PrimaryKey
 	private long indexEntryID;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
-	@Index(name="mainUniqueKey", unique="true")
 	private FieldMeta fieldMeta;
 
-	@Index(name="mainUniqueKey", unique="true")
 	private long indexKeyLong;
 
-	@Column(sqlType="TEXT")
-	@Index(name="mainUniqueKey", unique="true")
+	@Column(jdbcType="CLOB")
 	private String indexKeyString;
+
+	private byte[] indexValue;
 
 	protected IndexEntry() { }
 
@@ -53,4 +52,11 @@ public class IndexEntry
 		return indexKeyString;
 	}
 
+	public byte[] getIndexValue() {
+		return indexValue;
+	}
+
+	public void setIndexValue(byte[] indexValue) {
+		this.indexValue = indexValue;
+	}
 }

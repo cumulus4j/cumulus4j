@@ -18,6 +18,12 @@ public class DataEntry
 
 	private byte[] value;
 
+	protected DataEntry() { }
+
+	public DataEntry(byte[] value) {
+		setValue(value);
+	}
+
 	public long getDataEntryID() {
 		return dataEntryID;
 	}

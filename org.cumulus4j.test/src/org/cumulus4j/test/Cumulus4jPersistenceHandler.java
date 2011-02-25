@@ -1,8 +1,16 @@
 package org.cumulus4j.test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+
+import javax.jdo.PersistenceManager;
+
+import org.cumulus4j.test.model.DataEntry;
 import org.datanucleus.store.AbstractPersistenceHandler;
 import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.ObjectProvider;
+import org.datanucleus.store.connection.ManagedConnection;
 
 public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 {
@@ -46,7 +54,50 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		// Check if read-only so update not permitted
 		storeManager.assertReadOnlyForUpdateOfObject(op);
 
+//		if (sm.getClassMetaData().getIdentityType() == IdentityType.APPLICATION)
+//        {
+//            // Check existence of the object since XML doesn't enforce application identity
+//            try
+//            {
+//                locateObject(sm);
+//                throw new NucleusUserException(LOCALISER.msg("XML.Insert.ObjectWithIdAlreadyExists",
+//                    sm.toPrintableID(), sm.getInternalObjectId()));
+//            }
+//            catch (NucleusObjectNotFoundException onfe)
+//            {
+//                // Do nothing since object with this id doesn't exist
+//            }
+//        }
 
+		ManagedConnection mconn = storeManager.getConnection(op.getExecutionContext());
+		try {
+			PersistenceManager pm = (PersistenceManager) mconn.getConnection();
+			pm.currentTransaction().begin(); // TODO make aware of JTA and skip Tx handling if JTA is used
+			try {
+				Object object = op.getObject();
+
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				try {
+					ObjectOutputStream objOut = new ObjectOutputStream(out);
+					objOut.writeObject(object);
+					objOut.close();
+				} catch (IOException x) {
+					throw new RuntimeException(x);
+				}
+
+				DataEntry dataEntry = new DataEntry(out.toByteArray()); // TODO this should be encrypted
+				dataEntry = pm.makePersistent(dataEntry);
+
+				// TODO create/update index entries
+
+				pm.currentTransaction().commit();
+			} finally {
+				if (pm.currentTransaction().isActive())
+					pm.currentTransaction().rollback();
+			}
+		} finally {
+			mconn.release();
+		}
 	}
 
 	@Override
