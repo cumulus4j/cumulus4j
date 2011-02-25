@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+	<extension point="org.datanucleus.store_manager">
+        <store-manager class-name="org.cumulus4j.test.Cumulus4jStoreManager" key="cumulus4j" url-key="cumulus4j"/>
+    </extension>
+ <extension
+       point="org.datanucleus.store_connectionfactory">
+    <connectionfactory
+          class-name="org.cumulus4j.test.Cumulus4jConnectionFactory"
+          datastore="cumulus4j"
+          name="org.cumulus4j.test.Cumulus4jConnectionFactory"
+          transactional="true">
+    </connectionfactory>
+ </extension>
+</plugin>
