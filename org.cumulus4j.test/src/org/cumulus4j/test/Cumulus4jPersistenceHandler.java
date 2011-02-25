@@ -6,11 +6,16 @@ import java.io.ObjectOutputStream;
 
 import javax.jdo.PersistenceManager;
 
+import org.cumulus4j.test.model.ClassMeta;
 import org.cumulus4j.test.model.DataEntry;
+import org.cumulus4j.test.model.ObjectContainer;
+import org.datanucleus.exceptions.NucleusObjectNotFoundException;
+import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.store.AbstractPersistenceHandler;
 import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.ObjectProvider;
 import org.datanucleus.store.connection.ManagedConnection;
+import org.datanucleus.store.fieldmanager.PersistFieldManager;
 
 public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 {
@@ -54,56 +59,106 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		// Check if read-only so update not permitted
 		storeManager.assertReadOnlyForUpdateOfObject(op);
 
-//		if (sm.getClassMetaData().getIdentityType() == IdentityType.APPLICATION)
-//        {
-//            // Check existence of the object since XML doesn't enforce application identity
-//            try
-//            {
-//                locateObject(sm);
-//                throw new NucleusUserException(LOCALISER.msg("XML.Insert.ObjectWithIdAlreadyExists",
-//                    sm.toPrintableID(), sm.getInternalObjectId()));
-//            }
-//            catch (NucleusObjectNotFoundException onfe)
-//            {
-//                // Do nothing since object with this id doesn't exist
-//            }
-//        }
-
-		ManagedConnection mconn = storeManager.getConnection(op.getExecutionContext());
+		ExecutionContext executionContext = op.getExecutionContext();
+		ManagedConnection mconn = storeManager.getConnection(executionContext);
 		try {
 			PersistenceManager pm = (PersistenceManager) mconn.getConnection();
-			pm.currentTransaction().begin(); // TODO make aware of JTA and skip Tx handling if JTA is used
-			try {
+//			pm.currentTransaction().begin(); // TODO proper tx handling - this should definitely not be done here!
+//			try {
 				Object object = op.getObject();
+				Object objectID = op.getExternalObjectId();
+				ClassMeta classMeta = storeManager.getClassMeta(executionContext, object.getClass());
+				AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), executionContext.getClassLoaderResolver());
+
+				int[] fieldNumbers = dnClassMetaData.getAllMemberPositions();
+				ObjectContainer objectContainer = new ObjectContainer();
+				op.provideFields(fieldNumbers, new InsertFieldManager(op, classMeta, dnClassMetaData, objectContainer));
 
 				ByteArrayOutputStream out = new ByteArrayOutputStream();
 				try {
 					ObjectOutputStream objOut = new ObjectOutputStream(out);
-					objOut.writeObject(object);
+					objOut.writeObject(objectContainer);
 					objOut.close();
 				} catch (IOException x) {
 					throw new RuntimeException(x);
 				}
 
-				DataEntry dataEntry = new DataEntry(out.toByteArray()); // TODO this should be encrypted
+				DataEntry dataEntry = new DataEntry(classMeta, objectID.toString(), out.toByteArray()); // TODO this should be encrypted
 				dataEntry = pm.makePersistent(dataEntry);
 
-				// TODO create/update index entries
-
-				pm.currentTransaction().commit();
-			} finally {
-				if (pm.currentTransaction().isActive())
-					pm.currentTransaction().rollback();
-			}
+				// Perform any reachability
+//	            int[] fieldNumbers = op.getClassMetaData().getAllMemberPositions();
+	            op.provideFields(fieldNumbers, new PersistFieldManager(op, true));
 		} finally {
 			mconn.release();
 		}
 	}
 
-	@Override
-	public void locateObject(ObjectProvider op) {
-		// TODO Auto-generated method stub
+//	private void internalInsertOrUpdate(ExecutionContext executionContext, PersistenceManager pm, Object object)
+//	{
+//		ClassMeta classMeta = storeManager.getClassMeta(executionContext, object.getClass());
+//		AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), executionContext.getClassLoaderResolver());
+//
+//		ObjectContainer objectContainer = new ObjectContainer();
+//		for (AbstractMemberMetaData memberMetaData : dnClassMetaData.getManagedMembers()) {
+//			FieldMeta fieldMeta = classMeta.getFieldMeta(memberMetaData.getName());
+//			if (fieldMeta == null)
+//				continue; // TODO add logging here!
+//
+//			if (memberMetaData.getCollection() != null) {
+//				// 1-n- or m-n-relationship via collection
+//
+//			}
+//			else if (memberMetaData.getMap() != null) {
+//				// 1-n- or m-n-relationship via map
+//
+//			}
+//			else if (memberMetaData.getArray() != null) {
+//				// 1-n- or m-n-relationship via array
+//				throw new UnsupportedOperationException("Arrays not yet supported!");
+//			}
+//			else if (PersistenceCapable.class.isAssignableFrom(memberMetaData.getType())) {
+//				// 1-1-relationship
+//
+//				objectContainer.setValue(fieldMeta.getFieldID(), value);
+//			}
+//			else {
+//
+//				objectContainer.setValue(fieldMeta.getFieldID(), value);
+//			}
+//		}
+//
+//
+//		ByteArrayOutputStream out = new ByteArrayOutputStream();
+//		try {
+//			ObjectOutputStream objOut = new ObjectOutputStream(out);
+//			objOut.writeObject(object);
+//			objOut.close();
+//		} catch (IOException x) {
+//			throw new RuntimeException(x);
+//		}
+//
+//		DataEntry dataEntry = new DataEntry(classMeta, objectID.toString(), out.toByteArray()); // TODO this should be encrypted
+//		dataEntry = pm.makePersistent(dataEntry);
+//	}
 
+	@Override
+	public void locateObject(ObjectProvider op)
+	{
+		ManagedConnection mconn = storeManager.getConnection(op.getExecutionContext());
+		try {
+			PersistenceManager pm = (PersistenceManager) mconn.getConnection();
+
+			ClassMeta classMeta = storeManager.getClassMeta(op.getExecutionContext(), op.getObject().getClass());
+			Object objectID = op.getExternalObjectId();
+			String objectIDString = objectID.toString();
+
+			DataEntry dataEntry = DataEntry.getDataEntry(pm, classMeta, objectIDString);
+			if (dataEntry == null)
+				throw new NucleusObjectNotFoundException("Object does not exist in datastore: class=" + classMeta.getClassName() + " oid=" + objectIDString);
+		} finally {
+			mconn.release();
+		}
 	}
 
 	@Override

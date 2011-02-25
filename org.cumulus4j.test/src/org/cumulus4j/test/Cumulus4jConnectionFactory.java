@@ -67,7 +67,6 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 		public Object getConnection() {
 			return pm;
 		}
-
 	}
 
 }

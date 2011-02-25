@@ -7,10 +7,24 @@ import javax.jdo.annotations.NullValue;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+import javax.jdo.annotations.Unique;
 
-@PersistenceCapable(identityType=IdentityType.APPLICATION)
+@PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
+@Unique(name="FieldMeta_classMeta_fieldName", members={"classMeta", "fieldName"})
+//@Queries({
+//		@Query(
+//				name="getFieldMetaByClassMetaAndFieldName",
+//				value="SELECT UNIQUE WHERE this.classMeta == :classMeta && this.fieldName == :fieldName"
+//		)
+//})
 public class FieldMeta
 {
+//	public static FieldMeta getFieldMeta(PersistenceManager pm, ClassMeta classMeta, String fieldName)
+//	{
+//		javax.jdo.Query q = pm.newNamedQuery(FieldMeta.class, "getFieldMetaByClassMetaAndFieldName");
+//		return (FieldMeta) q.execute(classMeta, fieldName);
+//	}
+
 	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
 	private long fieldID = -1;
@@ -81,5 +95,19 @@ public class FieldMeta
 
 	public String getFieldName() {
 		return fieldName;
+	}
+
+	@Override
+	public int hashCode() {
+		return (int) (fieldID ^ (fieldID >>> 32));
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		FieldMeta other = (FieldMeta) obj;
+		return this.fieldID == other.fieldID;
 	}
 }

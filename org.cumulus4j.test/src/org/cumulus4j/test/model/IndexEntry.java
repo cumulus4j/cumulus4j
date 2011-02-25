@@ -7,7 +7,7 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-@PersistenceCapable(identityType=IdentityType.APPLICATION)
+@PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 //@Unique(members={"fieldMeta", "indexKeyLong", "indexKeyString"})
 public class IndexEntry
 {
@@ -58,5 +58,19 @@ public class IndexEntry
 
 	public void setIndexValue(byte[] indexValue) {
 		this.indexValue = indexValue;
+	}
+
+	@Override
+	public int hashCode() {
+		return (int) (indexEntryID ^ (indexEntryID >>> 32));
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		IndexEntry other = (IndexEntry) obj;
+		return this.indexEntryID == other.indexEntryID;
 	}
 }
