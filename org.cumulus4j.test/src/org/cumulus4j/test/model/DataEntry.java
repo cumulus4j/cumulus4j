@@ -49,10 +49,9 @@ public class DataEntry
 
 	protected DataEntry() { }
 
-	public DataEntry(ClassMeta classMeta, String objectID, byte[] value) {
+	public DataEntry(ClassMeta classMeta, String objectID) {
 		this.classMeta = classMeta;
 		this.objectID = objectID;
-		setValue(value);
 	}
 
 	public long getDataEntryID() {

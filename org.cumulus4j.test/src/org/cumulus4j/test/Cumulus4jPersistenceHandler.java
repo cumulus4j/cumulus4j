@@ -15,6 +15,7 @@ import org.cumulus4j.test.model.FieldMeta;
 import org.cumulus4j.test.model.IndexEntry;
 import org.cumulus4j.test.model.IndexValue;
 import org.cumulus4j.test.model.ObjectContainer;
+import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.exceptions.NucleusObjectNotFoundException;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
@@ -44,7 +45,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		// Check if read-only so update not permitted
 		storeManager.assertReadOnlyForUpdateOfObject(op);
 
-		op.getObjectId();
+		// TODO implement this!
 	}
 
 	@Override
@@ -59,31 +60,18 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			ClassMeta classMeta = storeManager.getClassMeta(executionContext, object.getClass());
 			AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), executionContext.getClassLoaderResolver());
 
-			// We always load ALL SIMPLE fields, because the decryption happens on a per-row-level and thus loading
-			// only some fields makes no sense performance-wise. Marco.
-			// TODO Check, if this strategy is really good (the above is only my assumption). Marco.
-//			int[] allFieldNumbers = dnClassMetaData.getAllMemberPositions();
-//			fieldNumbers = allFieldNumbers;
-			// TODO implement this correctly (only simple fields! no 1-n-relations! and maybe not even 1-1-relations!).
+			// TODO Mabe we should load ALL *SIMPLE* fields, because the decryption happens on a per-row-level and thus
+			// loading only some fields makes no sense performance-wise. However, maybe DataNucleus already optimizes
+			// calls to this method. It makes definitely no sense to load 1-n- or 1-1-fields and it makes no sense to
+			// optimize things that already are optimal. Hence we have to analyze first, how often this method is really
+			// called in normal operation.
+			// Marco.
 
 			DataEntry dataEntry = DataEntry.getDataEntry(pm, classMeta, objectIDString);
 			if (dataEntry == null)
 				throw new NucleusObjectNotFoundException("Object does not exist in datastore: class=" + classMeta.getClassName() + " oid=" + objectIDString);
 
-			byte[] plainValue = dataEntry.getValue(); // TODO decrypt!
-
-			ObjectContainer objectContainer;
-			ByteArrayInputStream in = new ByteArrayInputStream(plainValue);
-			try {
-				// TODO is this fine for the class-loading of object-id-classes?
-				ObjectInputStream objIn = new DataNucleusObjectInputStream(in, executionContext.getClassLoaderResolver());
-				objectContainer = (ObjectContainer) objIn.readObject();
-				objIn.close();
-			} catch (IOException x) {
-				throw new RuntimeException(x);
-			} catch (ClassNotFoundException x) {
-				throw new RuntimeException(x);
-			}
+			ObjectContainer objectContainer = decryptDataEntry(dataEntry, executionContext.getClassLoaderResolver());
 
 			op.replaceFields(fieldNumbers, new FetchFieldManager(op, classMeta, dnClassMetaData, objectContainer));
 			if (op.getVersion() == null) // null-check prevents overwriting in case this method is called multiple times (for different field-numbers) - TODO necessary?
@@ -119,17 +107,9 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			op.provideFields(allFieldNumbers, new InsertFieldManager(op, classMeta, dnClassMetaData, objectContainer));
 			objectContainer.setVersion(op.getVersion());
 
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			try {
-				ObjectOutputStream objOut = new ObjectOutputStream(out);
-				objOut.writeObject(objectContainer);
-				objOut.close();
-			} catch (IOException x) {
-				throw new RuntimeException(x);
-			}
-
 			// persist data
-			DataEntry dataEntry = new DataEntry(classMeta, objectID.toString(), out.toByteArray()); // TODO encrypt this!!!
+			DataEntry dataEntry = new DataEntry(classMeta, objectID.toString());
+			encryptDataEntry(dataEntry, objectContainer);
 			dataEntry = pm.makePersistent(dataEntry);
 
 			// persist index
@@ -168,10 +148,9 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 				}
 
 				if (indexEntry != null) {
-					byte[] indexValueByteArray = indexEntry.getIndexValue(); // TODO decrypt!
-					IndexValue indexValue = new IndexValue(indexValueByteArray);
+					IndexValue indexValue = decryptIndexEntry(indexEntry);
 					indexValue.addDataEntryID(dataEntry.getDataEntryID());
-					indexEntry.setIndexValue(indexValue.toByteArray()); // TODO encrypt!
+					encryptIndexEntry(indexEntry, indexValue);
 				}
 			}
 
@@ -209,6 +188,102 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		// Check if read-only so update not permitted
 		storeManager.assertReadOnlyForUpdateOfObject(op);
 
+		// TODO implement this!
 	}
 
+
+
+
+
+
+	private static final byte[] dummyKey = { 43, -113, 119, 2 };
+
+	private static byte[] dummyEncrypt(byte[] plain)
+	{
+		if (plain == null)
+			return null;
+
+		byte[] result = new byte[plain.length];
+		int keyIdx = 0;
+		for (int i = 0; i < plain.length; i++) {
+			result[i] = (byte) (plain[i] ^ dummyKey[keyIdx]);
+
+			if (++keyIdx >= dummyKey.length)
+				keyIdx = 0;
+		}
+		return result;
+	}
+
+	private static byte[] dummyDecrypt(byte[] encrypted)
+	{
+		// it is symmetric => use dummyEncrypt.
+		return dummyEncrypt(encrypted);
+	}
+
+	/**
+	 * Get a plain (unencrypted) {@link ObjectContainer} from the encrypted byte-array in
+	 * the {@link DataEntry#getValue() DataEntry.value} property.
+	 * @param dataEntry the {@link DataEntry} holding the encrypted data.
+	 * @param classLoaderResolver the {@link ClassLoaderResolver} to use for deserialising the {@link ObjectContainer}.
+	 * @return the plain {@link ObjectContainer}
+	 */
+	private ObjectContainer decryptDataEntry(DataEntry dataEntry, ClassLoaderResolver classLoaderResolver)
+	{
+		byte[] encrypted = dataEntry.getValue();
+
+		// TODO *real* decryption here!
+		byte[] plain = dummyDecrypt(encrypted);
+
+		ObjectContainer objectContainer;
+		ByteArrayInputStream in = new ByteArrayInputStream(plain);
+		try {
+			ObjectInputStream objIn = new DataNucleusObjectInputStream(in, classLoaderResolver);
+			objectContainer = (ObjectContainer) objIn.readObject();
+			objIn.close();
+		} catch (IOException x) {
+			throw new RuntimeException(x);
+		} catch (ClassNotFoundException x) {
+			throw new RuntimeException(x);
+		}
+		return objectContainer;
+	}
+
+	private void encryptDataEntry(DataEntry dataEntry, ObjectContainer objectContainer)
+	{
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		try {
+			ObjectOutputStream objOut = new ObjectOutputStream(out);
+			objOut.writeObject(objectContainer);
+			objOut.close();
+		} catch (IOException x) {
+			throw new RuntimeException(x);
+		}
+		byte[] plain = out.toByteArray(); out = null;
+
+		// TODO *real* encryption here!
+		byte[] encrypted = dummyEncrypt(plain);
+
+		dataEntry.setValue(encrypted);
+	}
+
+	private IndexValue decryptIndexEntry(IndexEntry indexEntry)
+	{
+		byte[] encrypted = indexEntry.getIndexValue();
+
+		// TODO *real* decryption here!
+		byte[] plain = dummyDecrypt(encrypted);
+
+		IndexValue indexValue = new IndexValue(plain);
+		return indexValue;
+	}
+
+	private void encryptIndexEntry(IndexEntry indexEntry, IndexValue indexValue)
+	{
+		byte[] plain = indexValue.toByteArray();
+
+		// TODO *real* encryption here!
+		byte[] encrypted = dummyEncrypt(plain);
+
+		indexEntry.setIndexValue(encrypted);
+	}
 }
