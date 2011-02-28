@@ -14,6 +14,9 @@ import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.annotations.Queries;
 import javax.jdo.annotations.Query;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 //@Unique(members={"fieldMeta", "indexKeyDouble", "indexKeyLong", "indexKeyString"})
 @Queries({

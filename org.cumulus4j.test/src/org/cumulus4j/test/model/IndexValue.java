@@ -1,13 +1,15 @@
 package org.cumulus4j.test.model;
 
 import java.util.Collections;
-import java.util.Random;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class IndexValue
 {
-	private Set<Long> dataEntryIDs = new TreeSet<Long>();
+	private Set<Long> dataEntryIDs = new HashSet<Long>(); // A HashSet is faster than a TreeSet and I don't see a need for the sorting.
 
 	public IndexValue() {
 		this(null);
@@ -34,7 +36,6 @@ public class IndexValue
 				;
 				dataEntryIDs.add(dataEntryID);
 			}
-
 		}
 	}
 
@@ -84,34 +85,34 @@ public class IndexValue
 		return this.dataEntryIDs.equals(other.dataEntryIDs);
 	}
 
-	public static void main(String[] args) {
-		Random random = new Random();
-		IndexValue indexValue1 = new IndexValue();
-		for (int i = 0; i < 100; ++i) {
-			long dataEntryID = random.nextLong();
-			indexValue1.addDataEntryID(dataEntryID);
-		}
-
-		for (Long dataEntryID : indexValue1.getDataEntryIDs()) {
-			System.out.println(dataEntryID);
-		}
-
-		System.out.println();
-		System.out.println();
-		System.out.println();
-
-		byte[] byteArray = indexValue1.toByteArray();
-
-		IndexValue indexValue2 = new IndexValue(byteArray);
-		for (Long dataEntryID : indexValue2.getDataEntryIDs()) {
-			System.out.println(dataEntryID);
-		}
-
-		System.out.println();
-		System.out.println();
-		System.out.println();
-
-		System.out.println(indexValue1.equals(indexValue2));
-	}
+//	public static void main(String[] args) {
+//		Random random = new Random();
+//		IndexValue indexValue1 = new IndexValue();
+//		for (int i = 0; i < 100; ++i) {
+//			long dataEntryID = random.nextLong();
+//			indexValue1.addDataEntryID(dataEntryID);
+//		}
+//
+//		for (Long dataEntryID : indexValue1.getDataEntryIDs()) {
+//			System.out.println(dataEntryID);
+//		}
+//
+//		System.out.println();
+//		System.out.println();
+//		System.out.println();
+//
+//		byte[] byteArray = indexValue1.toByteArray();
+//
+//		IndexValue indexValue2 = new IndexValue(byteArray);
+//		for (Long dataEntryID : indexValue2.getDataEntryIDs()) {
+//			System.out.println(dataEntryID);
+//		}
+//
+//		System.out.println();
+//		System.out.println();
+//		System.out.println();
+//
+//		System.out.println(indexValue1.equals(indexValue2));
+//	}
 
 }

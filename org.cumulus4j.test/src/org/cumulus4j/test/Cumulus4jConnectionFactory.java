@@ -16,6 +16,9 @@ import org.datanucleus.store.connection.AbstractConnectionFactory;
 import org.datanucleus.store.connection.AbstractManagedConnection;
 import org.datanucleus.store.connection.ManagedConnection;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 {
 	private PersistenceManagerFactory pmf;

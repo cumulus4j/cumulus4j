@@ -2,15 +2,21 @@ package org.cumulus4j.test.model;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class ObjectContainer
 implements Serializable
 {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
 	private Map<Long, Object> fieldID2value = new HashMap<Long, Object>();
+
+	private Object version;
 
 	public ObjectContainer() { }
 
@@ -45,5 +51,17 @@ implements Serializable
 
 	public Map<Long, Object> getFieldID2value() {
 		return Collections.unmodifiableMap(fieldID2value);
+	}
+
+	/**
+	 * Get the object's version or <code>null</code>, if the persistence-capable class has no versioning enabled.
+	 * The version can be a {@link Long}, a {@link Date} or anything else supported by DataNucleus/JDO.
+	 * @return the object's version or <code>null</code>.
+	 */
+	public Object getVersion() {
+		return version;
+	}
+	public void setVersion(Object version) {
+		this.version = version;
 	}
 }

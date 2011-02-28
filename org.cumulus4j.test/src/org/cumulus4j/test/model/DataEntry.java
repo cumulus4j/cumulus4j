@@ -12,6 +12,9 @@ import javax.jdo.annotations.Queries;
 import javax.jdo.annotations.Query;
 import javax.jdo.annotations.Unique;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 // We use single-field-identity, thus no object-id-class:
 //   http://www.datanucleus.org/products/accessplatform_3_0/jdo/primary_key.html

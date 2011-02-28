@@ -11,6 +11,9 @@ import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.annotations.Unique;
 import javax.jdo.listener.DetachCallback;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 @Unique(name="FieldMeta_classMeta_fieldName", members={"classMeta", "fieldName"})
 //@Queries({

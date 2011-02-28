@@ -11,12 +11,17 @@ import org.cumulus4j.test.model.ObjectContainer;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.Relation;
+import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.ObjectProvider;
 import org.datanucleus.store.fieldmanager.AbstractFieldManager;
 
-public class InsertFieldManager extends AbstractFieldManager {
-
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
+public class InsertFieldManager extends AbstractFieldManager
+{
 	private ObjectProvider op;
+	private ExecutionContext executionContext;
 	private ClassMeta classMeta;
 	private AbstractClassMetaData dnClassMetaData;
 	private ObjectContainer objectContainer;
@@ -29,6 +34,7 @@ public class InsertFieldManager extends AbstractFieldManager {
 	)
 	{
 		this.op = op;
+		this.executionContext = op.getExecutionContext();
 		this.classMeta = classMeta;
 		this.dnClassMetaData = dnClassMetaData;
 		this.objectContainer = objectContainer;
@@ -101,18 +107,18 @@ public class InsertFieldManager extends AbstractFieldManager {
 		if (fieldMeta == null)
 			throw new IllegalStateException("Unknown field! class=" + dnClassMetaData.getFullClassName() + " fieldNumber=" + fieldNumber + " fieldName=" + mmd.getName());
 
-		int relationType = mmd.getRelationType(op.getExecutionContext().getClassLoaderResolver());
+		int relationType = mmd.getRelationType(executionContext.getClassLoaderResolver());
 
 		if (relationType == Relation.NONE)
 		{
-			objectContainer.setValue(getFieldID(fieldNumber), value);
+			objectContainer.setValue(fieldMeta.getFieldID(), value);
 		}
 		else if (Relation.isRelationSingleValued(relationType))
 		{
 			// Persistable object - persist the related object and store the identity in the cell
-			Object valuePC = op.getExecutionContext().persistObjectInternal(value, op, fieldNumber, -1);
-			Object valueID = op.getExecutionContext().getApiAdapter().getIdForObject(valuePC);
-			objectContainer.setValue(getFieldID(fieldNumber), valueID);
+			Object valuePC = executionContext.persistObjectInternal(value, op, fieldNumber, -1);
+			Object valueID = executionContext.getApiAdapter().getIdForObject(valuePC);
+			objectContainer.setValue(fieldMeta.getFieldID(), valueID);
 		}
 		else if (Relation.isRelationMultiValued(relationType))
 		{
@@ -123,11 +129,11 @@ public class InsertFieldManager extends AbstractFieldManager {
 				Object[] ids = new Object[collection.size()];
 				int idx = -1;
 				for (Object element : collection) {
-					Object elementPC = op.getExecutionContext().persistObjectInternal(element, op, fieldNumber, -1);
-					Object elementID = op.getExecutionContext().getApiAdapter().getIdForObject(elementPC);
+					Object elementPC = executionContext.persistObjectInternal(element, op, fieldNumber, -1);
+					Object elementID = executionContext.getApiAdapter().getIdForObject(elementPC);
 					ids[++idx] = elementID;
 				}
-				objectContainer.setValue(getFieldID(fieldNumber), ids);
+				objectContainer.setValue(fieldMeta.getFieldID(), ids);
 			}
 			else if (mmd.hasMap())
 			{
@@ -144,17 +150,18 @@ public class InsertFieldManager extends AbstractFieldManager {
 					Object v = me.getValue();
 
 					if (keyIsPersistent) {
-						k = op.getExecutionContext().persistObjectInternal(k, op, fieldNumber, -1);
-						k = op.getExecutionContext().getApiAdapter().getIdForObject(k);
+						k = executionContext.persistObjectInternal(k, op, fieldNumber, -1);
+						k = executionContext.getApiAdapter().getIdForObject(k);
 					}
 
 					if (valueIsPersistent) {
-						v = op.getExecutionContext().persistObjectInternal(v, op, fieldNumber, -1);
-						v = op.getExecutionContext().getApiAdapter().getIdForObject(v);
+						v = executionContext.persistObjectInternal(v, op, fieldNumber, -1);
+						v = executionContext.getApiAdapter().getIdForObject(v);
 					}
 
 					idMap.put(k, v);
 				}
+				objectContainer.setValue(fieldMeta.getFieldID(), idMap);
 			}
 			else if (mmd.hasArray())
 			{
@@ -162,13 +169,15 @@ public class InsertFieldManager extends AbstractFieldManager {
 				for (int i=0;i<Array.getLength(value);i++)
 				{
 					Object element = Array.get(value, i);
-					Object elementPC = op.getExecutionContext().persistObjectInternal(element, op, fieldNumber, -1);
-					Object elementID = op.getExecutionContext().getApiAdapter().getIdForObject(elementPC);
+					Object elementPC = executionContext.persistObjectInternal(element, op, fieldNumber, -1);
+					Object elementID = executionContext.getApiAdapter().getIdForObject(elementPC);
 					ids[i] = elementID;
 				}
-				objectContainer.setValue(getFieldID(fieldNumber), ids);
+				objectContainer.setValue(fieldMeta.getFieldID(), ids);
 			}
 		}
+		else
+			throw new IllegalStateException("Unexpected relationType: " + relationType);
 	}
 
 }

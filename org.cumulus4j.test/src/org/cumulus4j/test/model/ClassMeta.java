@@ -19,6 +19,9 @@ import javax.jdo.annotations.Queries;
 import javax.jdo.annotations.Query;
 import javax.jdo.annotations.Unique;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 @Unique(name="ClassMeta_fullyQualifiedClassName", members={"packageName", "simpleClassName"})
 @Queries({
