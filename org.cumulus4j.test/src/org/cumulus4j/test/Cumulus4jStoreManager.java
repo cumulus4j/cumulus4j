@@ -89,6 +89,7 @@ extends AbstractStoreManager
 				fieldMeta = new FieldMeta(classMeta, memberMetaData.getType(), memberMetaData.getName());
 				classMeta.addFieldMeta(fieldMeta);
 			}
+			fieldMeta.setDataNucleusAbsoluteFieldNumber(memberMetaData.getAbsoluteFieldNumber());
 		}
 
 		for (FieldMeta fieldMeta : new ArrayList<FieldMeta>(classMeta.getFieldMetas())) {

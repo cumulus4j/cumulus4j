@@ -3,11 +3,13 @@ package org.cumulus4j.test.model;
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
+import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.NullValue;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.annotations.Unique;
+import javax.jdo.listener.DetachCallback;
 
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 @Unique(name="FieldMeta_classMeta_fieldName", members={"classMeta", "fieldName"})
@@ -18,6 +20,7 @@ import javax.jdo.annotations.Unique;
 //		)
 //})
 public class FieldMeta
+implements DetachCallback
 {
 //	public static FieldMeta getFieldMeta(PersistenceManager pm, ClassMeta classMeta, String fieldName)
 //	{
@@ -43,6 +46,9 @@ public class FieldMeta
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	@Column(length=255)
 	private String fieldName;
+
+	@NotPersistent
+	private int dataNucleusAbsoluteFieldNumber = -1;
 
 	protected FieldMeta() { }
 
@@ -95,6 +101,23 @@ public class FieldMeta
 
 	public String getFieldName() {
 		return fieldName;
+	}
+
+	public int getDataNucleusAbsoluteFieldNumber() {
+		return dataNucleusAbsoluteFieldNumber;
+	}
+	public void setDataNucleusAbsoluteFieldNumber(int dataNucleusAbsoluteFieldNumber) {
+		this.dataNucleusAbsoluteFieldNumber = dataNucleusAbsoluteFieldNumber;
+	}
+
+	@Override
+	public void jdoPreDetach() { }
+
+	@Override
+	public void jdoPostDetach(Object o) {
+		FieldMeta attached = (FieldMeta) o;
+		FieldMeta detached = this;
+		detached.dataNucleusAbsoluteFieldNumber = attached.dataNucleusAbsoluteFieldNumber;
 	}
 
 	@Override

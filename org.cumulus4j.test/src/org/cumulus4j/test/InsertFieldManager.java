@@ -21,7 +21,13 @@ public class InsertFieldManager extends AbstractFieldManager {
 	private AbstractClassMetaData dnClassMetaData;
 	private ObjectContainer objectContainer;
 
-	public InsertFieldManager(ObjectProvider op, ClassMeta classMeta, AbstractClassMetaData dnClassMetaData, ObjectContainer objectContainer) {
+	public InsertFieldManager(
+			ObjectProvider op,
+			ClassMeta classMeta,
+			AbstractClassMetaData dnClassMetaData,
+			ObjectContainer objectContainer // populated by this class
+	)
+	{
 		this.op = op;
 		this.classMeta = classMeta;
 		this.dnClassMetaData = dnClassMetaData;

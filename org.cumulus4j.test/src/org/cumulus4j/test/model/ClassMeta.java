@@ -10,6 +10,7 @@ import javax.jdo.annotations.Column;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.Key;
+import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.NullValue;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
@@ -66,6 +67,9 @@ public class ClassMeta
 	@Persistent(mappedBy="classMeta")
 	@Key(mappedBy="fieldName")
 	private Map<String, FieldMeta> fieldName2fieldMeta;
+
+	@NotPersistent
+	private Map<Long, FieldMeta> fieldID2fieldMeta;
 
 	protected ClassMeta() { }
 
@@ -127,11 +131,34 @@ public class ClassMeta
 			return null;
 	}
 
+	public FieldMeta getFieldMeta(long fieldID)
+	{
+		Map<Long, FieldMeta> m = fieldID2fieldMeta;
+
+		if (m == null) {
+			m = new HashMap<Long, FieldMeta>(fieldName2fieldMeta.size());
+			for (FieldMeta fieldMeta : fieldName2fieldMeta.values())
+				m.put(fieldMeta.getFieldID(), fieldMeta);
+
+			fieldID2fieldMeta = m;
+		}
+
+		FieldMeta fieldMeta = m.get(fieldID);
+		if (fieldMeta != null)
+			return fieldMeta;
+
+		if (superClassMeta != null)
+			return superClassMeta.getFieldMeta(fieldID);
+		else
+			return null;
+	}
+
 	public void addFieldMeta(FieldMeta fieldMeta) {
 		if (!this.equals(fieldMeta.getClassMeta()))
 			throw new IllegalArgumentException("fieldMeta.classMeta != this");
 
 		fieldName2fieldMeta.put(fieldMeta.getFieldName(), fieldMeta);
+		fieldID2fieldMeta = null;
 	}
 
 	public void removeFieldMeta(FieldMeta fieldMeta) {
@@ -139,6 +166,7 @@ public class ClassMeta
 			throw new IllegalArgumentException("fieldMeta.classMeta != this");
 
 		fieldName2fieldMeta.remove(fieldMeta.getFieldName());
+		fieldID2fieldMeta = null;
 	}
 
 	@Override

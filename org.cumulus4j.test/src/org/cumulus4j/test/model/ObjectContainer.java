@@ -1,6 +1,7 @@
 package org.cumulus4j.test.model;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,4 +43,7 @@ implements Serializable
 		fieldID2value.put(fieldID, value);
 	}
 
+	public Map<Long, Object> getFieldID2value() {
+		return Collections.unmodifiableMap(fieldID2value);
+	}
 }
