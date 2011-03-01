@@ -1,4 +1,4 @@
-package org.datanucleus.test;
+package org.cumulus4j.datanucleus.test;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -16,7 +16,7 @@ import javax.jdo.annotations.PersistenceModifier;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-import org.datanucleus.test.id.LocalAccountantDelegateID;
+import org.cumulus4j.datanucleus.test.id.LocalAccountantDelegateID;
 
 @PersistenceCapable(
 	objectIdClass=LocalAccountantDelegateID.class,

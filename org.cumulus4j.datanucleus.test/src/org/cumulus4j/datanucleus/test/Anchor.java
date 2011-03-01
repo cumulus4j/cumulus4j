@@ -1,4 +1,4 @@
-package org.datanucleus.test;
+package org.cumulus4j.datanucleus.test;
 
 import java.io.Serializable;
 
@@ -11,7 +11,7 @@ import javax.jdo.annotations.InheritanceStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.PrimaryKey;
 
-import org.datanucleus.test.id.AnchorID;
+import org.cumulus4j.datanucleus.test.id.AnchorID;
 
 @PersistenceCapable(
 	objectIdClass=AnchorID.class,

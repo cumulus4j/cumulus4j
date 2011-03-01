@@ -1,4 +1,4 @@
-package org.datanucleus.test;
+package org.cumulus4j.datanucleus.test;
 
 import java.io.File;
 import java.io.FileNotFoundException;

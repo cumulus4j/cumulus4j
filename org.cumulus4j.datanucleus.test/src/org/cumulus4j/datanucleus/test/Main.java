@@ -1,4 +1,4 @@
-package org.datanucleus.test;
+package org.cumulus4j.datanucleus.test;
 
 import java.io.IOException;
 import java.net.URL;
@@ -9,8 +9,8 @@ import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 
 import org.apache.log4j.Logger;
-import org.datanucleus.test.id.AnchorID;
-import org.datanucleus.test.id.LocalAccountantDelegateID;
+import org.cumulus4j.datanucleus.test.id.AnchorID;
+import org.cumulus4j.datanucleus.test.id.LocalAccountantDelegateID;
 
 public class Main {
 	private static final Logger logger = Logger.getLogger(Main.class);
@@ -117,7 +117,6 @@ public class Main {
 				URL url = resources.nextElement();
 				logger.info(url);
 			}
-
 
 			// Ensure we have a completely empty database, before we start up DataNucleus.
 			CleanupUtil.dropAllTables();
