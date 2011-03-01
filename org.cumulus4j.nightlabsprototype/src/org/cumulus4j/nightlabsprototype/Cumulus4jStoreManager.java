@@ -1,4 +1,4 @@
-package org.cumulus4j.test;
+package org.cumulus4j.nightlabsprototype;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,9 +11,9 @@ import java.util.Set;
 import javax.jdo.FetchPlan;
 import javax.jdo.PersistenceManager;
 
-import org.cumulus4j.test.model.ClassMeta;
-import org.cumulus4j.test.model.DataEntry;
-import org.cumulus4j.test.model.FieldMeta;
+import org.cumulus4j.nightlabsprototype.model.ClassMeta;
+import org.cumulus4j.nightlabsprototype.model.DataEntry;
+import org.cumulus4j.nightlabsprototype.model.FieldMeta;
 import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.NucleusContext;
 import org.datanucleus.identity.OID;

@@ -1,4 +1,4 @@
-package org.cumulus4j.test.model;
+package org.cumulus4j.nightlabsprototype.model;
 
 import java.util.Collection;
 import java.util.HashMap;

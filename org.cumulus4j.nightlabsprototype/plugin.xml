@@ -2,13 +2,13 @@
 <?eclipse version="3.4"?>
 <plugin>
 	<extension point="org.datanucleus.store_manager">
-        <store-manager class-name="org.cumulus4j.test.Cumulus4jStoreManager" key="cumulus4j" url-key="cumulus4j"/>
+        <store-manager class-name="org.cumulus4j.nightlabsprototype.Cumulus4jStoreManager" key="cumulus4j" url-key="cumulus4j"/>
     </extension>
  <extension
        point="org.datanucleus.store_connectionfactory">
     <connectionfactory
           name="cumulus4j"
-          class-name="org.cumulus4j.test.Cumulus4jConnectionFactory"
+          class-name="org.cumulus4j.nightlabsprototype.Cumulus4jConnectionFactory"
           datastore="cumulus4j"
           transactional="true">
     </connectionfactory>

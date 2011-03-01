@@ -1,4 +1,4 @@
-package org.cumulus4j.test;
+package org.cumulus4j.nightlabsprototype;
 
 import java.util.Map;
 
@@ -6,11 +6,11 @@ import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 
-import org.cumulus4j.test.model.ClassMeta;
-import org.cumulus4j.test.model.DataEntry;
-import org.cumulus4j.test.model.FieldMeta;
-import org.cumulus4j.test.model.IndexEntry;
-import org.cumulus4j.test.resource.ResourceHelper;
+import org.cumulus4j.nightlabsprototype.model.ClassMeta;
+import org.cumulus4j.nightlabsprototype.model.DataEntry;
+import org.cumulus4j.nightlabsprototype.model.FieldMeta;
+import org.cumulus4j.nightlabsprototype.model.IndexEntry;
+import org.cumulus4j.nightlabsprototype.resource.ResourceHelper;
 import org.datanucleus.store.StoreManager;
 import org.datanucleus.store.connection.AbstractConnectionFactory;
 import org.datanucleus.store.connection.AbstractManagedConnection;

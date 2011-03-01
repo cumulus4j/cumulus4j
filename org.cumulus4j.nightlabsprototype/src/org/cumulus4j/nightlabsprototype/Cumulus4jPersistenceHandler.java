@@ -1,4 +1,4 @@
-package org.cumulus4j.test;
+package org.cumulus4j.nightlabsprototype;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -9,12 +9,12 @@ import java.util.Map;
 
 import javax.jdo.PersistenceManager;
 
-import org.cumulus4j.test.model.ClassMeta;
-import org.cumulus4j.test.model.DataEntry;
-import org.cumulus4j.test.model.FieldMeta;
-import org.cumulus4j.test.model.IndexEntry;
-import org.cumulus4j.test.model.IndexValue;
-import org.cumulus4j.test.model.ObjectContainer;
+import org.cumulus4j.nightlabsprototype.model.ClassMeta;
+import org.cumulus4j.nightlabsprototype.model.DataEntry;
+import org.cumulus4j.nightlabsprototype.model.FieldMeta;
+import org.cumulus4j.nightlabsprototype.model.IndexEntry;
+import org.cumulus4j.nightlabsprototype.model.IndexValue;
+import org.cumulus4j.nightlabsprototype.model.ObjectContainer;
 import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.exceptions.NucleusObjectNotFoundException;
 import org.datanucleus.metadata.AbstractClassMetaData;

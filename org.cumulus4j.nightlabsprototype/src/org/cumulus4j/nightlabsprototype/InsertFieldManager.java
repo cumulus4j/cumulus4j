@@ -1,13 +1,13 @@
-package org.cumulus4j.test;
+package org.cumulus4j.nightlabsprototype;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.cumulus4j.test.model.ClassMeta;
-import org.cumulus4j.test.model.FieldMeta;
-import org.cumulus4j.test.model.ObjectContainer;
+import org.cumulus4j.nightlabsprototype.model.ClassMeta;
+import org.cumulus4j.nightlabsprototype.model.FieldMeta;
+import org.cumulus4j.nightlabsprototype.model.ObjectContainer;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.Relation;

@@ -1,4 +1,4 @@
-package org.cumulus4j.test.resource;
+package org.cumulus4j.nightlabsprototype.resource;
 
 import java.io.InputStream;
 
