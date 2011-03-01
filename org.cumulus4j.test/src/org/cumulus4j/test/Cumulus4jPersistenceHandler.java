@@ -45,11 +45,77 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		// Check if read-only so update not permitted
 		storeManager.assertReadOnlyForUpdateOfObject(op);
 
-		// TODO implement this!
+		ExecutionContext executionContext = op.getExecutionContext();
+		ManagedConnection mconn = storeManager.getConnection(executionContext);
+		try {
+			PersistenceManager pm = (PersistenceManager) mconn.getConnection();
+			Object object = op.getObject();
+			Object objectID = op.getExternalObjectId();
+			String objectIDString = objectID.toString();
+			ClassMeta classMeta = storeManager.getClassMeta(executionContext, object.getClass());
+			DataEntry dataEntry = DataEntry.getDataEntry(pm, classMeta, objectIDString);
+//			if (dataEntry == null)
+//				throw new NucleusObjectNotFoundException("Object does not exist in datastore: class=" + classMeta.getClassName() + " oid=" + objectIDString);
+
+			if (dataEntry != null) {
+				// decrypt object-container in order to identify index entries for deletion
+				ObjectContainer objectContainer = decryptDataEntry(dataEntry, executionContext.getClassLoaderResolver());
+				AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), executionContext.getClassLoaderResolver());
+
+				for (Map.Entry<Long, ?> me : objectContainer.getFieldID2value().entrySet()) {
+					long fieldID = me.getKey();
+					Object fieldValue = me.getValue();
+					FieldMeta fieldMeta = classMeta.getFieldMeta(fieldID);
+					AbstractMemberMetaData dnMemberMetaData = dnClassMetaData.getMetaDataForManagedMemberAtAbsolutePosition(fieldMeta.getDataNucleusAbsoluteFieldNumber());
+
+					// sanity checks
+					if (dnMemberMetaData == null)
+						throw new IllegalStateException("dnMemberMetaData == null!!! class == \"" + classMeta.getClassName() + "\" fieldMeta.dataNucleusAbsoluteFieldNumber == " + fieldMeta.getDataNucleusAbsoluteFieldNumber() + " fieldMeta.fieldName == \"" + fieldMeta.getFieldName() + "\"");
+
+					if (!fieldMeta.getFieldName().equals(dnMemberMetaData.getName()))
+						throw new IllegalStateException("Meta data inconsistency!!! class == \"" + classMeta.getClassName() + "\" fieldMeta.dataNucleusAbsoluteFieldNumber == " + fieldMeta.getDataNucleusAbsoluteFieldNumber() + " fieldMeta.fieldName == \"" + fieldMeta.getFieldName() + "\" != dnMemberMetaData.name == \"" + dnMemberMetaData.getName() + "\"");
+
+					Class<?> fieldType = dnMemberMetaData.getType();
+
+					IndexEntry indexEntry = null;
+					if (String.class.isAssignableFrom(fieldType)) {
+						indexEntry = IndexEntry.getIndexEntry(pm, fieldMeta, (String)fieldValue);
+						if (indexEntry == null)
+							indexEntry = pm.makePersistent(new IndexEntry(fieldMeta, (String)fieldValue));
+					}
+					else if (Long.class.isAssignableFrom(fieldType) || Integer.class.isAssignableFrom(fieldType) || Short.class.isAssignableFrom(fieldType) || Byte.class.isAssignableFrom(fieldType) || long.class == fieldType || int.class == fieldType || short.class == fieldType || byte.class == fieldType) {
+						Long v = fieldValue == null ? null : ((Number)fieldValue).longValue();
+						indexEntry = IndexEntry.getIndexEntry(pm, fieldMeta, v);
+						if (indexEntry == null)
+							indexEntry = pm.makePersistent(new IndexEntry(fieldMeta, v));
+					}
+					else if (Double.class.isAssignableFrom(fieldType) || Float.class.isAssignableFrom(fieldType) || double.class == fieldType || float.class == fieldType) {
+						Long v = fieldValue == null ? null : ((Number)fieldValue).longValue();
+						indexEntry = IndexEntry.getIndexEntry(pm, fieldMeta, v);
+						if (indexEntry == null)
+							indexEntry = pm.makePersistent(new IndexEntry(fieldMeta, v));
+					}
+
+					if (indexEntry != null) {
+						IndexValue indexValue = decryptIndexEntry(indexEntry);
+						indexValue.removeDataEntryID(dataEntry.getDataEntryID());
+						if (indexValue.isEmpty())
+							pm.deletePersistent(indexEntry);
+						else
+							encryptIndexEntry(indexEntry, indexValue);
+					}
+				}
+				pm.deletePersistent(dataEntry);
+			}
+
+		} finally {
+			mconn.release();
+		}
 	}
 
 	@Override
-	public void fetchObject(ObjectProvider op, int[] fieldNumbers) {
+	public void fetchObject(ObjectProvider op, int[] fieldNumbers)
+	{
 		ExecutionContext executionContext = op.getExecutionContext();
 		ManagedConnection mconn = storeManager.getConnection(executionContext);
 		try {

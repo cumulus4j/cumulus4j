@@ -61,6 +61,11 @@ public class IndexValue
 		return Collections.unmodifiableSet(dataEntryIDs);
 	}
 
+	public boolean isEmpty()
+	{
+		return dataEntryIDs.isEmpty();
+	}
+
 	public boolean addDataEntryID(long dataEntryID)
 	{
 		return dataEntryIDs.add(dataEntryID);
