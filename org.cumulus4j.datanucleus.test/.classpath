@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/local.repository/log4j/jars/log4j-1.2.14.jar"/>
+	<classpathentry kind="lib" path="/home/marco/workspaces/jfire-max.trunk.6/target-jee-jfire-max-jboss/target/server/all/lib/mysql-connector-java.jar"/>
+	<classpathentry kind="lib" path="/home/marco/workspaces/jfire-max.trunk.6/target-jee-jfire-max-jboss/target/server/all/lib/derby.jar"/>
+	<classpathentry kind="lib" path="/local.repository/asm/jars/asm-3.3.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/core"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/enhancer"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/store.rdbms"/>
+	<classpathentry kind="lib" path="/local.repository/javax.jdo/jars/jdo-api-3.1-SNAPSHOT.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/api.jdo"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.cumulus4j.nightlabsprototype"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
