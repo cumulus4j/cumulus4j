@@ -45,10 +45,20 @@ public class LocalAccountantDelegate implements Serializable {
 	@Persistent(persistenceModifier=PersistenceModifier.PERSISTENT)
 	private LocalAccountantDelegate extendedAccountantDelegate;
 
+	private String name;
+
+	public LocalAccountantDelegate(LocalAccountantDelegateID localAccountantDelegateID) {
+		this(localAccountantDelegateID.organisationID, localAccountantDelegateID.localAccountantDelegateID);
+	}
+
 	public LocalAccountantDelegate(String organisationID, String localAccountantDelegateID) {
 		this.organisationID = organisationID;
 		this.localAccountantDelegateID = localAccountantDelegateID;
 		accounts = new HashMap<String, Account>();
+	}
+
+	public LocalAccountantDelegate(LocalAccountantDelegate parent, LocalAccountantDelegateID localAccountantDelegateID) {
+		this(parent, localAccountantDelegateID.organisationID, localAccountantDelegateID.localAccountantDelegateID);
 	}
 
 	public LocalAccountantDelegate(LocalAccountantDelegate parent, String organisationID, String localAccountantDelegateID) {
@@ -67,6 +77,14 @@ public class LocalAccountantDelegate implements Serializable {
 
 	public LocalAccountantDelegate getExtendedAccountantDelegate() {
 		return extendedAccountantDelegate;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	@Join

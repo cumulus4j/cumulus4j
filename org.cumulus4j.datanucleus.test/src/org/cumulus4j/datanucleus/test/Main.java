@@ -56,21 +56,18 @@ public class Main {
 	}
 
 	private static final String ORGANISATION_ID = "jfire.my.org";
+	private static final LocalAccountantDelegateID LOCAL_ACCOUNTANT_DELEGATE_ID_0 = LocalAccountantDelegateID.create(ORGANISATION_ID, "0");
+	private static final AnchorID ACCOUNT_ID_0 = AnchorID.create(ORGANISATION_ID, Account.ANCHOR_TYPE_ID_ACCOUNT, "voucher.00");
+	private static final AnchorID ACCOUNT_ID_1 = AnchorID.create(ORGANISATION_ID, Account.ANCHOR_TYPE_ID_ACCOUNT, "voucher.01");
 
 	private static class CreateDataTransRunnable implements TransRunnable
 	{
 		public void run(PersistenceManager pm)
 		{
-//			Account account = new Account(ORGANISATION_ID, "voucher.00");
-//			LocalAccountantDelegate localAccountantDelegate = pm.makePersistent(
-//					new LocalAccountantDelegate(ORGANISATION_ID, "0")
-//			);
-//			localAccountantDelegate.setAccount("EUR", account);
-
-			Account account = new Account(ORGANISATION_ID, "voucher.00");
-			LocalAccountantDelegate localAccountantDelegate = new LocalAccountantDelegate(ORGANISATION_ID, "0");
+			Account account = new Account(ACCOUNT_ID_0);
+			LocalAccountantDelegate localAccountantDelegate = new LocalAccountantDelegate(LOCAL_ACCOUNTANT_DELEGATE_ID_0);
 			localAccountantDelegate.setAccount("EUR", account);
-			pm.makePersistent(localAccountantDelegate);
+			pm.makePersistent(localAccountantDelegate); // this should implicitely persist the account
 		}
 	}
 
@@ -78,9 +75,30 @@ public class Main {
 	{
 		public void run(PersistenceManager pm) throws IOException
 		{
-			LocalAccountantDelegateID id = LocalAccountantDelegateID.create(ORGANISATION_ID, "0");
-			LocalAccountantDelegate localAccountantDelegate = (LocalAccountantDelegate) pm.getObjectById(id);
+			LocalAccountantDelegate localAccountantDelegate = (LocalAccountantDelegate) pm.getObjectById(LOCAL_ACCOUNTANT_DELEGATE_ID_0);
 			localAccountantDelegate.test();
+
+			Account account = (Account) pm.getObjectById(ACCOUNT_ID_0);
+			account.getBalance();
+		}
+	}
+
+	private static class UpdateDataTransRunnable0 implements TransRunnable
+	{
+		public void run(PersistenceManager pm) throws IOException
+		{
+			LocalAccountantDelegate localAccountantDelegate = (LocalAccountantDelegate) pm.getObjectById(LOCAL_ACCOUNTANT_DELEGATE_ID_0);
+			localAccountantDelegate.setName("Test 0000");
+		}
+	}
+
+	private static class UpdateDataTransRunnable1 implements TransRunnable
+	{
+		public void run(PersistenceManager pm) throws IOException
+		{
+			LocalAccountantDelegate localAccountantDelegate = (LocalAccountantDelegate) pm.getObjectById(LOCAL_ACCOUNTANT_DELEGATE_ID_0);
+			localAccountantDelegate.setAccount("CHF", new Account(ACCOUNT_ID_1));
+			localAccountantDelegate.setName("New test bla bla bla.");
 		}
 	}
 
@@ -97,12 +115,13 @@ public class Main {
 	{
 		public void run(PersistenceManager pm) throws IOException
 		{
-			LocalAccountantDelegateID localAccountantDelegateID = LocalAccountantDelegateID.create(ORGANISATION_ID, "0");
-			LocalAccountantDelegate localAccountantDelegate = (LocalAccountantDelegate) pm.getObjectById(localAccountantDelegateID);
+			LocalAccountantDelegate localAccountantDelegate = (LocalAccountantDelegate) pm.getObjectById(LOCAL_ACCOUNTANT_DELEGATE_ID_0);
 			pm.deletePersistent(localAccountantDelegate);
 
-			AnchorID accountID = AnchorID.create(ORGANISATION_ID, Account.ANCHOR_TYPE_ID_ACCOUNT, "voucher.00");
-			Account account = (Account) pm.getObjectById(accountID);
+			Account account = (Account) pm.getObjectById(ACCOUNT_ID_0);
+			pm.deletePersistent(account);
+
+			account = (Account) pm.getObjectById(ACCOUNT_ID_1);
 			pm.deletePersistent(account);
 		}
 	}
@@ -129,6 +148,16 @@ public class Main {
 			QueryDataTransRunnable0 queryDataTransRunnable0 = new QueryDataTransRunnable0();
 			test.executeInTransaction(queryDataTransRunnable0);
 			logger.info("*** Successfully executed query 0 ***");
+
+			logger.info("*** Update data 0 ***");
+			UpdateDataTransRunnable0 updateDataTransRunnable0 = new UpdateDataTransRunnable0();
+			test.executeInTransaction(updateDataTransRunnable0);
+			logger.info("*** Successfully updated data 0 ***");
+
+			logger.info("*** Update data 1 ***");
+			UpdateDataTransRunnable1 updateDataTransRunnable1 = new UpdateDataTransRunnable1();
+			test.executeInTransaction(updateDataTransRunnable1);
+			logger.info("*** Successfully updated data 1 ***");
 
 //			logger.info("*** Executing query 1 ***");
 //			QueryDataTransRunnable1 queryDataTransRunnable1 = new QueryDataTransRunnable1();

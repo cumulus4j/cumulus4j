@@ -15,6 +15,8 @@ import javax.jdo.annotations.PersistenceModifier;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.listener.AttachCallback;
 
+import org.cumulus4j.datanucleus.test.id.AnchorID;
+
 @PersistenceCapable(
 	identityType=IdentityType.APPLICATION,
 	detachable="true",
@@ -37,6 +39,13 @@ implements AttachCallback
 	protected Account() { }
 
 	public static final String ANCHOR_TYPE_ID_ACCOUNT = "Account";
+
+	public Account(AnchorID anchorID)
+	{
+		this(anchorID.organisationID, anchorID.anchorID);
+		if (!ANCHOR_TYPE_ID_ACCOUNT.equals(anchorID.anchorTypeID))
+			throw new IllegalArgumentException("anchorID.anchorTypeID != ANCHOR_TYPE_ID_ACCOUNT");
+	}
 
 	public Account(String organisationID, String anchorID)
 	{

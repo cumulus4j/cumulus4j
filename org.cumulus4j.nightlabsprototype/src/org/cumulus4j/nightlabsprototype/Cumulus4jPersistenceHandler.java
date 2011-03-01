@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Arrays;
 import java.util.Map;
 
 import javax.jdo.PersistenceManager;
@@ -76,40 +77,38 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 						throw new IllegalStateException("Meta data inconsistency!!! class == \"" + classMeta.getClassName() + "\" fieldMeta.dataNucleusAbsoluteFieldNumber == " + fieldMeta.getDataNucleusAbsoluteFieldNumber() + " fieldMeta.fieldName == \"" + fieldMeta.getFieldName() + "\" != dnMemberMetaData.name == \"" + dnMemberMetaData.getName() + "\"");
 
 					Class<?> fieldType = dnMemberMetaData.getType();
-
-					IndexEntry indexEntry = null;
-					if (String.class.isAssignableFrom(fieldType)) {
-						indexEntry = IndexEntry.getIndexEntry(pm, fieldMeta, (String)fieldValue);
-						if (indexEntry == null)
-							indexEntry = pm.makePersistent(new IndexEntry(fieldMeta, (String)fieldValue));
-					}
-					else if (Long.class.isAssignableFrom(fieldType) || Integer.class.isAssignableFrom(fieldType) || Short.class.isAssignableFrom(fieldType) || Byte.class.isAssignableFrom(fieldType) || long.class == fieldType || int.class == fieldType || short.class == fieldType || byte.class == fieldType) {
-						Long v = fieldValue == null ? null : ((Number)fieldValue).longValue();
-						indexEntry = IndexEntry.getIndexEntry(pm, fieldMeta, v);
-						if (indexEntry == null)
-							indexEntry = pm.makePersistent(new IndexEntry(fieldMeta, v));
-					}
-					else if (Double.class.isAssignableFrom(fieldType) || Float.class.isAssignableFrom(fieldType) || double.class == fieldType || float.class == fieldType) {
-						Long v = fieldValue == null ? null : ((Number)fieldValue).longValue();
-						indexEntry = IndexEntry.getIndexEntry(pm, fieldMeta, v);
-						if (indexEntry == null)
-							indexEntry = pm.makePersistent(new IndexEntry(fieldMeta, v));
-					}
-
-					if (indexEntry != null) {
-						IndexValue indexValue = decryptIndexEntry(indexEntry);
-						indexValue.removeDataEntryID(dataEntry.getDataEntryID());
-						if (indexValue.isEmpty())
-							pm.deletePersistent(indexEntry);
-						else
-							encryptIndexEntry(indexEntry, indexValue);
-					}
+					removeIndexEntry(pm, dataEntry.getDataEntryID(), fieldMeta, fieldType, fieldValue);
 				}
 				pm.deletePersistent(dataEntry);
 			}
 
 		} finally {
 			mconn.release();
+		}
+	}
+
+	private void removeIndexEntry(PersistenceManager pm, long dataEntryID, FieldMeta fieldMeta, Class<?> fieldType, Object fieldValue)
+	{
+		IndexEntry indexEntry = null;
+		if (String.class.isAssignableFrom(fieldType)) {
+			indexEntry = IndexEntry.getIndexEntry(pm, fieldMeta, (String)fieldValue);
+		}
+		else if (Long.class.isAssignableFrom(fieldType) || Integer.class.isAssignableFrom(fieldType) || Short.class.isAssignableFrom(fieldType) || Byte.class.isAssignableFrom(fieldType) || long.class == fieldType || int.class == fieldType || short.class == fieldType || byte.class == fieldType) {
+			Long v = fieldValue == null ? null : ((Number)fieldValue).longValue();
+			indexEntry = IndexEntry.getIndexEntry(pm, fieldMeta, v);
+		}
+		else if (Double.class.isAssignableFrom(fieldType) || Float.class.isAssignableFrom(fieldType) || double.class == fieldType || float.class == fieldType) {
+			Long v = fieldValue == null ? null : ((Number)fieldValue).longValue();
+			indexEntry = IndexEntry.getIndexEntry(pm, fieldMeta, v);
+		}
+
+		if (indexEntry != null) {
+			IndexValue indexValue = decryptIndexEntry(indexEntry);
+			indexValue.removeDataEntryID(dataEntryID);
+			if (indexValue.isEmpty())
+				pm.deletePersistent(indexEntry);
+			else
+				encryptIndexEntry(indexEntry, indexValue);
 		}
 	}
 
@@ -171,7 +170,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			int[] allFieldNumbers = dnClassMetaData.getAllMemberPositions();
 			ObjectContainer objectContainer = new ObjectContainer();
 			op.provideFields(allFieldNumbers, new InsertFieldManager(op, classMeta, dnClassMetaData, objectContainer));
-			objectContainer.setVersion(op.getVersion());
+			objectContainer.setVersion(op.getTransactionalVersion());
 
 			// persist data
 			DataEntry dataEntry = new DataEntry(classMeta, objectID.toString());
@@ -193,31 +192,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 					throw new IllegalStateException("Meta data inconsistency!!! class == \"" + classMeta.getClassName() + "\" fieldMeta.dataNucleusAbsoluteFieldNumber == " + fieldMeta.getDataNucleusAbsoluteFieldNumber() + " fieldMeta.fieldName == \"" + fieldMeta.getFieldName() + "\" != dnMemberMetaData.name == \"" + dnMemberMetaData.getName() + "\"");
 
 				Class<?> fieldType = dnMemberMetaData.getType();
-
-				IndexEntry indexEntry = null;
-				if (String.class.isAssignableFrom(fieldType)) {
-					indexEntry = IndexEntry.getIndexEntry(pm, fieldMeta, (String)fieldValue);
-					if (indexEntry == null)
-						indexEntry = pm.makePersistent(new IndexEntry(fieldMeta, (String)fieldValue));
-				}
-				else if (Long.class.isAssignableFrom(fieldType) || Integer.class.isAssignableFrom(fieldType) || Short.class.isAssignableFrom(fieldType) || Byte.class.isAssignableFrom(fieldType) || long.class == fieldType || int.class == fieldType || short.class == fieldType || byte.class == fieldType) {
-					Long v = fieldValue == null ? null : ((Number)fieldValue).longValue();
-					indexEntry = IndexEntry.getIndexEntry(pm, fieldMeta, v);
-					if (indexEntry == null)
-						indexEntry = pm.makePersistent(new IndexEntry(fieldMeta, v));
-				}
-				else if (Double.class.isAssignableFrom(fieldType) || Float.class.isAssignableFrom(fieldType) || double.class == fieldType || float.class == fieldType) {
-					Long v = fieldValue == null ? null : ((Number)fieldValue).longValue();
-					indexEntry = IndexEntry.getIndexEntry(pm, fieldMeta, v);
-					if (indexEntry == null)
-						indexEntry = pm.makePersistent(new IndexEntry(fieldMeta, v));
-				}
-
-				if (indexEntry != null) {
-					IndexValue indexValue = decryptIndexEntry(indexEntry);
-					indexValue.addDataEntryID(dataEntry.getDataEntryID());
-					encryptIndexEntry(indexEntry, indexValue);
-				}
+				addIndexEntry(pm, dataEntry.getDataEntryID(), fieldMeta, fieldType, fieldValue);
 			}
 
 // necessary?! probably not.
@@ -226,6 +201,34 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 //			op.provideFields(allFieldNumbers, new PersistFieldManager(op, true));
 		} finally {
 			mconn.release();
+		}
+	}
+
+	private void addIndexEntry(PersistenceManager pm, long dataEntryID, FieldMeta fieldMeta, Class<?> fieldType, Object fieldValue)
+	{
+		IndexEntry indexEntry = null;
+		if (String.class.isAssignableFrom(fieldType)) {
+			indexEntry = IndexEntry.getIndexEntry(pm, fieldMeta, (String)fieldValue);
+			if (indexEntry == null)
+				indexEntry = pm.makePersistent(new IndexEntry(fieldMeta, (String)fieldValue));
+		}
+		else if (Long.class.isAssignableFrom(fieldType) || Integer.class.isAssignableFrom(fieldType) || Short.class.isAssignableFrom(fieldType) || Byte.class.isAssignableFrom(fieldType) || long.class == fieldType || int.class == fieldType || short.class == fieldType || byte.class == fieldType) {
+			Long v = fieldValue == null ? null : ((Number)fieldValue).longValue();
+			indexEntry = IndexEntry.getIndexEntry(pm, fieldMeta, v);
+			if (indexEntry == null)
+				indexEntry = pm.makePersistent(new IndexEntry(fieldMeta, v));
+		}
+		else if (Double.class.isAssignableFrom(fieldType) || Float.class.isAssignableFrom(fieldType) || double.class == fieldType || float.class == fieldType) {
+			Long v = fieldValue == null ? null : ((Number)fieldValue).longValue();
+			indexEntry = IndexEntry.getIndexEntry(pm, fieldMeta, v);
+			if (indexEntry == null)
+				indexEntry = pm.makePersistent(new IndexEntry(fieldMeta, v));
+		}
+
+		if (indexEntry != null) {
+			IndexValue indexValue = decryptIndexEntry(indexEntry);
+			indexValue.addDataEntryID(dataEntryID);
+			encryptIndexEntry(indexEntry, indexValue);
 		}
 	}
 
@@ -254,10 +257,60 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		// Check if read-only so update not permitted
 		storeManager.assertReadOnlyForUpdateOfObject(op);
 
-		// TODO implement this!
+		ExecutionContext executionContext = op.getExecutionContext();
+		ManagedConnection mconn = storeManager.getConnection(executionContext);
+		try {
+			PersistenceManager pm = (PersistenceManager) mconn.getConnection();
+			Object object = op.getObject();
+			Object objectID = op.getExternalObjectId();
+			String objectIDString = objectID.toString();
+			ClassMeta classMeta = storeManager.getClassMeta(executionContext, object.getClass());
+			AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), executionContext.getClassLoaderResolver());
+
+			DataEntry dataEntry = DataEntry.getDataEntry(pm, classMeta, objectIDString);
+			if (dataEntry == null)
+				throw new NucleusObjectNotFoundException("Object does not exist in datastore: class=" + classMeta.getClassName() + " oid=" + objectIDString);
+
+			long dataEntryID = dataEntry.getDataEntryID();
+
+			ObjectContainer objectContainerOld = decryptDataEntry(dataEntry, executionContext.getClassLoaderResolver());
+			ObjectContainer objectContainerNew = objectContainerOld.clone();
+
+			op.provideFields(fieldNumbers, new InsertFieldManager(op, classMeta, dnClassMetaData, objectContainerNew));
+			objectContainerNew.setVersion(op.getTransactionalVersion());
+
+			// update persistent data
+			encryptDataEntry(dataEntry, objectContainerNew);
+
+			// update persistent index
+			for (int fieldNumber : fieldNumbers) {
+				AbstractMemberMetaData dnMemberMetaData = dnClassMetaData.getMetaDataForManagedMemberAtAbsolutePosition(fieldNumber);
+				if (dnMemberMetaData == null)
+					throw new IllegalStateException("dnMemberMetaData == null!!! class == \"" + classMeta.getClassName() + "\" fieldNumber == " + fieldNumber);
+
+				FieldMeta fieldMeta = classMeta.getFieldMeta(dnMemberMetaData.getClassName(), dnMemberMetaData.getName());
+				if (fieldMeta == null)
+					throw new IllegalStateException("fieldMeta == null!!! class == \"" + classMeta.getClassName() + "\" dnMemberMetaData.className == \"" + dnMemberMetaData.getClassName() + "\" dnMemberMetaData.name == \"" + dnMemberMetaData.getName() + "\"");
+
+				Object fieldValueOld = objectContainerOld.getValue(fieldMeta.getFieldID());
+				Object fieldValueNew = objectContainerNew.getValue(fieldMeta.getFieldID());
+
+				if (!equals(fieldValueOld, fieldValueNew)) {
+					Class<?> fieldType = dnMemberMetaData.getType();
+					removeIndexEntry(pm, dataEntryID, fieldMeta, fieldType, fieldValueOld);
+					addIndexEntry(pm, dataEntryID, fieldMeta, fieldType, fieldValueNew);
+				}
+			}
+		} finally {
+			mconn.release();
+		}
 	}
 
-
+	private static boolean equals(Object obj0, Object obj1) {
+		if (obj0 instanceof Object[] && obj1 instanceof Object[])
+			return obj0 == obj1 || Arrays.equals((Object[])obj0, (Object[])obj1);
+		return obj0 == obj1 || (obj0 != null && obj0.equals(obj1));
+	}
 
 
 

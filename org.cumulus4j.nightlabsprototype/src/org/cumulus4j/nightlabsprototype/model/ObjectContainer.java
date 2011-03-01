@@ -10,7 +10,7 @@ import java.util.Map;
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class ObjectContainer
-implements Serializable
+implements Serializable, Cloneable
 {
 	private static final long serialVersionUID = 2L;
 
@@ -63,5 +63,18 @@ implements Serializable
 	}
 	public void setVersion(Object version) {
 		this.version = version;
+	}
+
+	@Override
+	public ObjectContainer clone()
+	{
+		ObjectContainer clone;
+		try {
+			clone = (ObjectContainer) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new RuntimeException(e); // should never happen => wrap as RuntimeException!
+		}
+		clone.fieldID2value = new HashMap<Long, Object>(this.fieldID2value);
+		return clone;
 	}
 }
