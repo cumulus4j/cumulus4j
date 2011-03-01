@@ -4,9 +4,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.jdo.FetchPlan;
 import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
 import javax.jdo.annotations.Column;
+import javax.jdo.annotations.FetchGroup;
+import javax.jdo.annotations.FetchGroups;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.Key;
@@ -24,6 +27,11 @@ import javax.jdo.annotations.Unique;
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 @Unique(name="ClassMeta_fullyQualifiedClassName", members={"packageName", "simpleClassName"})
+@FetchGroups({
+	@FetchGroup(name=FetchPlan.ALL, members={
+			@Persistent(name="superClassMeta", recursionDepth=-1)
+	})
+})
 @Queries({
 		@Query(
 				name="getClassMetaByPackageNameAndSimpleClassName",

@@ -159,10 +159,10 @@ public class Main {
 			test.executeInTransaction(updateDataTransRunnable1);
 			logger.info("*** Successfully updated data 1 ***");
 
-//			logger.info("*** Executing query 1 ***");
-//			QueryDataTransRunnable1 queryDataTransRunnable1 = new QueryDataTransRunnable1();
-//			test.executeInTransaction(queryDataTransRunnable1);
-//			logger.info("*** Successfully executed query 1 ***");
+			logger.info("*** Executing query 1 ***");
+			QueryDataTransRunnable1 queryDataTransRunnable1 = new QueryDataTransRunnable1();
+			test.executeInTransaction(queryDataTransRunnable1);
+			logger.info("*** Successfully executed query 1 ***");
 
 			logger.info("*** Deleting data ***");
 			DeleteDataTransRunnable deleteDataTransRunnable = new DeleteDataTransRunnable();

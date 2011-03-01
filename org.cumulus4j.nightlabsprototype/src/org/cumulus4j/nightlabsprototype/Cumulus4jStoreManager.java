@@ -32,13 +32,48 @@ extends AbstractStoreManager
 {
 	private Map<Class<?>, ClassMeta> class2classMeta = Collections.synchronizedMap(new HashMap<Class<?>, ClassMeta>());
 
+	/**
+	 * For every class, we keep a set of all known sub-classes (all inheritance-levels down). Note, that the class in
+	 * the map-key is contained in the Set (in the map-value).
+	 */
+	private Map<Class<?>, Set<Class<?>>> class2subclasses = Collections.synchronizedMap(new HashMap<Class<?>, Set<Class<?>>>());
+
+	private EncryptionHandler encryptionHandler;
+
 	public Cumulus4jStoreManager(ClassLoaderResolver clr, NucleusContext nucleusContext, Map<String, Object> props)
 	{
 		super("cumulus4j", clr, nucleusContext, props);
 
+		encryptionHandler = new EncryptionHandler();
 		persistenceHandler = new Cumulus4jPersistenceHandler(this);
 	}
 
+	public EncryptionHandler getEncryptionHandler() {
+		return encryptionHandler;
+	}
+
+	/**
+	 * Get all known classes that are subclasses of the given <code>clazz</code> (including this class).
+	 * @param clazz the {@link Class} of which to get all known sub-classes.
+	 * @return all classes that are either the given class itself or direct or indirect subclass.
+	 */
+	public Set<? extends Class<?>> getSubclasses(Class<?> clazz)
+	{
+		// TODO should we initialise this with all persistent data we have in order to make sure we query
+		// *all* objects that we have? Current lazy loading is not such a great thing as we might silently
+		// skip objects. Marco.
+
+		return class2subclasses.get(clazz);
+	}
+
+	/**
+	 * Get the persistent meta-data of a certain class. This persistent meta-data is primarily used for efficient
+	 * mapping using long-identifiers instead of fully qualified class names.
+	 *
+	 * @param executionContext
+	 * @param clazz the {@link Class} for which to query the meta-data.
+	 * @return the meta-data. Never returns <code>null</code>.
+	 */
 	public ClassMeta getClassMeta(ExecutionContext executionContext, Class<?> clazz)
 	{
 		ClassMeta result = class2classMeta.get(clazz);
@@ -50,14 +85,47 @@ extends AbstractStoreManager
 			PersistenceManager pm = (PersistenceManager) mconn.getConnection();
 			pm.getFetchPlan().setGroup(FetchPlan.ALL);
 			result = registerClass(executionContext, pm, clazz);
+
+			// We set the fetch-plan again, just in case registerClass modified it.
 			pm.getFetchPlan().setGroup(FetchPlan.ALL);
 			pm.getFetchPlan().setMaxFetchDepth(-1);
+
+			// Detach in order to cache only detached objects.
 			result = pm.detachCopy(result);
 
 			class2classMeta.put(clazz, result);
 
-			// TODO Later, we should register the super-class' infos here, too, but that's just optimization (not essentially necessary).
+			// register in class2subclasses-map
+			Set<Class<?>> currentSubclasses = new HashSet<Class<?>>();
+			Class<?> c = clazz;
+			ClassMeta cm = result;
+			while (cm != null) {
+				currentSubclasses.add(c);
 
+				Set<Class<?>> subclasses;
+				synchronized (class2subclasses) {
+					subclasses = class2subclasses.get(c);
+					if (subclasses == null) {
+						subclasses = Collections.synchronizedSet(new HashSet<Class<?>>());
+						class2subclasses.put(c, subclasses);
+					}
+				}
+
+				subclasses.addAll(currentSubclasses);
+
+				c = c.getSuperclass();
+				cm = cm.getSuperClassMeta();
+				if (cm != null) {
+					if (c == null)
+						throw new IllegalStateException("c == null && cm.className == " + cm.getClassName());
+
+					if (!cm.getClassName().equals(c.getName()))
+						throw new IllegalStateException("cm.className != c.name :: cm.className=" + cm.getClassName() + " c.name=" + c.getName());
+
+					// Store the super-class-meta-data for optimisation reasons (not necessary, but [hopefully] better).
+					class2classMeta.put(c, cm);
+				}
+			}
 		} finally {
 			mconn.release();
 		}

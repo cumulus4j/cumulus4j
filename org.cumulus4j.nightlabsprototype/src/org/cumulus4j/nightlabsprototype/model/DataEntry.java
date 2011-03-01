@@ -25,6 +25,11 @@ import javax.jdo.annotations.Unique;
 			name="getDataEntryByClassMetaAndObjectID",
 			value="SELECT UNIQUE WHERE this.classMeta == :classMeta && this.objectID == :objectID"
 	)
+//	,
+//	@Query(
+//			name="getObjectIDsByClassMetas",
+//			value="SELECT this.objectID WHERE :classMetas.contains(this.classMeta) PARAMETERS java.util.Set classMetas"
+//	)
 })
 public class DataEntry
 {
@@ -33,6 +38,16 @@ public class DataEntry
 		javax.jdo.Query q = pm.newNamedQuery(DataEntry.class, "getDataEntryByClassMetaAndObjectID");
 		return (DataEntry) q.execute(classMeta, objectID);
 	}
+
+//	public static Collection<String> getObjectIDs(PersistenceManager pm, Set<ClassMeta> classMetas)
+//	{
+//		javax.jdo.Query q = pm.newNamedQuery(DataEntry.class, "getDataEntriesByClassMetas");
+//		@SuppressWarnings("unchecked")
+//		Collection<String> c = (Collection<String>) q.execute(classMetas);
+//		c = new ArrayList<String>(c);
+//		q.closeAll();
+//		return c;
+//	}
 
 	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)

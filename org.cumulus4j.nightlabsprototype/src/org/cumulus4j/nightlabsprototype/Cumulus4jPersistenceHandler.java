@@ -1,10 +1,5 @@
 package org.cumulus4j.nightlabsprototype;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -16,7 +11,6 @@ import org.cumulus4j.nightlabsprototype.model.FieldMeta;
 import org.cumulus4j.nightlabsprototype.model.IndexEntry;
 import org.cumulus4j.nightlabsprototype.model.IndexValue;
 import org.cumulus4j.nightlabsprototype.model.ObjectContainer;
-import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.exceptions.NucleusObjectNotFoundException;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
@@ -28,12 +22,14 @@ import org.datanucleus.store.connection.ManagedConnection;
 public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 {
 	private Cumulus4jStoreManager storeManager;
+	private EncryptionHandler encryptionHandler;
 
 	public Cumulus4jPersistenceHandler(Cumulus4jStoreManager storeManager) {
 		if (storeManager == null)
 			throw new IllegalArgumentException("storeManager == null");
 
 		this.storeManager = storeManager;
+		this.encryptionHandler = storeManager.getEncryptionHandler();
 	}
 
 	@Override
@@ -60,7 +56,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 
 			if (dataEntry != null) {
 				// decrypt object-container in order to identify index entries for deletion
-				ObjectContainer objectContainer = decryptDataEntry(dataEntry, executionContext.getClassLoaderResolver());
+				ObjectContainer objectContainer = encryptionHandler.decryptDataEntry(dataEntry, executionContext.getClassLoaderResolver());
 				AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), executionContext.getClassLoaderResolver());
 
 				for (Map.Entry<Long, ?> me : objectContainer.getFieldID2value().entrySet()) {
@@ -103,12 +99,12 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		}
 
 		if (indexEntry != null) {
-			IndexValue indexValue = decryptIndexEntry(indexEntry);
+			IndexValue indexValue = encryptionHandler.decryptIndexEntry(indexEntry);
 			indexValue.removeDataEntryID(dataEntryID);
 			if (indexValue.isEmpty())
 				pm.deletePersistent(indexEntry);
 			else
-				encryptIndexEntry(indexEntry, indexValue);
+				encryptionHandler.encryptIndexEntry(indexEntry, indexValue);
 		}
 	}
 
@@ -136,7 +132,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			if (dataEntry == null)
 				throw new NucleusObjectNotFoundException("Object does not exist in datastore: class=" + classMeta.getClassName() + " oid=" + objectIDString);
 
-			ObjectContainer objectContainer = decryptDataEntry(dataEntry, executionContext.getClassLoaderResolver());
+			ObjectContainer objectContainer = encryptionHandler.decryptDataEntry(dataEntry, executionContext.getClassLoaderResolver());
 
 			op.replaceFields(fieldNumbers, new FetchFieldManager(op, classMeta, dnClassMetaData, objectContainer));
 			if (op.getVersion() == null) // null-check prevents overwriting in case this method is called multiple times (for different field-numbers) - TODO necessary?
@@ -174,7 +170,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 
 			// persist data
 			DataEntry dataEntry = new DataEntry(classMeta, objectID.toString());
-			encryptDataEntry(dataEntry, objectContainer);
+			encryptionHandler.encryptDataEntry(dataEntry, objectContainer);
 			dataEntry = pm.makePersistent(dataEntry);
 
 			// persist index
@@ -226,9 +222,9 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		}
 
 		if (indexEntry != null) {
-			IndexValue indexValue = decryptIndexEntry(indexEntry);
+			IndexValue indexValue = encryptionHandler.decryptIndexEntry(indexEntry);
 			indexValue.addDataEntryID(dataEntryID);
-			encryptIndexEntry(indexEntry, indexValue);
+			encryptionHandler.encryptIndexEntry(indexEntry, indexValue);
 		}
 	}
 
@@ -273,14 +269,14 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 
 			long dataEntryID = dataEntry.getDataEntryID();
 
-			ObjectContainer objectContainerOld = decryptDataEntry(dataEntry, executionContext.getClassLoaderResolver());
+			ObjectContainer objectContainerOld = encryptionHandler.decryptDataEntry(dataEntry, executionContext.getClassLoaderResolver());
 			ObjectContainer objectContainerNew = objectContainerOld.clone();
 
 			op.provideFields(fieldNumbers, new InsertFieldManager(op, classMeta, dnClassMetaData, objectContainerNew));
 			objectContainerNew.setVersion(op.getTransactionalVersion());
 
 			// update persistent data
-			encryptDataEntry(dataEntry, objectContainerNew);
+			encryptionHandler.encryptDataEntry(dataEntry, objectContainerNew);
 
 			// update persistent index
 			for (int fieldNumber : fieldNumbers) {
@@ -315,94 +311,5 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 
 
 
-	private static final byte[] dummyKey = { 43, -113, 119, 2 };
 
-	private static byte[] dummyEncrypt(byte[] plain)
-	{
-		if (plain == null)
-			return null;
-
-		byte[] result = new byte[plain.length];
-		int keyIdx = 0;
-		for (int i = 0; i < plain.length; i++) {
-			result[i] = (byte) (plain[i] ^ dummyKey[keyIdx]);
-
-			if (++keyIdx >= dummyKey.length)
-				keyIdx = 0;
-		}
-		return result;
-	}
-
-	private static byte[] dummyDecrypt(byte[] encrypted)
-	{
-		// it is symmetric => use dummyEncrypt.
-		return dummyEncrypt(encrypted);
-	}
-
-	/**
-	 * Get a plain (unencrypted) {@link ObjectContainer} from the encrypted byte-array in
-	 * the {@link DataEntry#getValue() DataEntry.value} property.
-	 * @param dataEntry the {@link DataEntry} holding the encrypted data.
-	 * @param classLoaderResolver the {@link ClassLoaderResolver} to use for deserialising the {@link ObjectContainer}.
-	 * @return the plain {@link ObjectContainer}
-	 */
-	private ObjectContainer decryptDataEntry(DataEntry dataEntry, ClassLoaderResolver classLoaderResolver)
-	{
-		byte[] encrypted = dataEntry.getValue();
-
-		// TODO *real* decryption here!
-		byte[] plain = dummyDecrypt(encrypted);
-
-		ObjectContainer objectContainer;
-		ByteArrayInputStream in = new ByteArrayInputStream(plain);
-		try {
-			ObjectInputStream objIn = new DataNucleusObjectInputStream(in, classLoaderResolver);
-			objectContainer = (ObjectContainer) objIn.readObject();
-			objIn.close();
-		} catch (IOException x) {
-			throw new RuntimeException(x);
-		} catch (ClassNotFoundException x) {
-			throw new RuntimeException(x);
-		}
-		return objectContainer;
-	}
-
-	private void encryptDataEntry(DataEntry dataEntry, ObjectContainer objectContainer)
-	{
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		try {
-			ObjectOutputStream objOut = new ObjectOutputStream(out);
-			objOut.writeObject(objectContainer);
-			objOut.close();
-		} catch (IOException x) {
-			throw new RuntimeException(x);
-		}
-		byte[] plain = out.toByteArray(); out = null;
-
-		// TODO *real* encryption here!
-		byte[] encrypted = dummyEncrypt(plain);
-
-		dataEntry.setValue(encrypted);
-	}
-
-	private IndexValue decryptIndexEntry(IndexEntry indexEntry)
-	{
-		byte[] encrypted = indexEntry.getIndexValue();
-
-		// TODO *real* decryption here!
-		byte[] plain = dummyDecrypt(encrypted);
-
-		IndexValue indexValue = new IndexValue(plain);
-		return indexValue;
-	}
-
-	private void encryptIndexEntry(IndexEntry indexEntry, IndexValue indexValue)
-	{
-		byte[] plain = indexValue.toByteArray();
-
-		// TODO *real* encryption here!
-		byte[] encrypted = dummyEncrypt(plain);
-
-		indexEntry.setIndexValue(encrypted);
-	}
 }
