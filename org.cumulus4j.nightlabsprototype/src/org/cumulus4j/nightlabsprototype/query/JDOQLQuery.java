@@ -45,7 +45,7 @@ public class JDOQLQuery extends AbstractJDOQLQuery
 			}
 			else {
 				if (candidateExtent != null) {
-					this.setClass(candidateExtent.getCandidateClass());
+					this.setCandidateClass(candidateExtent.getCandidateClass());
 					this.setSubclasses(candidateExtent.hasSubclasses());
 				}
 

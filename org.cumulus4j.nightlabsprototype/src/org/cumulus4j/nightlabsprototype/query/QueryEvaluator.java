@@ -11,15 +11,22 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.jdo.PersistenceManager;
+import javax.jdo.identity.LongIdentity;
 
 import org.cumulus4j.nightlabsprototype.Cumulus4jStoreManager;
 import org.cumulus4j.nightlabsprototype.EncryptionHandler;
 import org.cumulus4j.nightlabsprototype.model.ClassMeta;
 import org.cumulus4j.nightlabsprototype.model.DataEntry;
+import org.cumulus4j.nightlabsprototype.model.FieldMeta;
+import org.cumulus4j.nightlabsprototype.model.IndexEntry;
+import org.cumulus4j.nightlabsprototype.model.IndexValue;
 import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.query.QueryUtils;
 import org.datanucleus.query.compiler.QueryCompilation;
 import org.datanucleus.query.expression.Expression;
+import org.datanucleus.query.expression.ParameterExpression;
+import org.datanucleus.query.expression.PrimaryExpression;
+import org.datanucleus.query.symbol.Symbol;
 import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.query.Query;
 
@@ -67,7 +74,7 @@ public abstract class QueryEvaluator
 		this.compilation = compilation;
 		this.parameterValues = parameterValues;
 		this.clr = clr;
-		this.ec = query.getObjectManager();
+		this.ec = query.getExecutionContext();
 		this.storeManager = (Cumulus4jStoreManager) query.getStoreManager();
 		this.pm = pm;
 		this.encryptionHandler = storeManager.getEncryptionHandler();
@@ -130,17 +137,77 @@ public abstract class QueryEvaluator
 			return getAllForCandidateClasses(candidateClassMetas);
 		}
 		else {
-			Expression exprFilter = compilation.getExprFilter();
-			exprFilter.getLeft();
+			ArrayList<Object> resultList = new ArrayList<Object>();
 
-			throw new UnsupportedOperationException("NYI");
+			Expression exprFilter = compilation.getExprFilter();
+			PrimaryExpression left = (PrimaryExpression) exprFilter.getLeft();
+
+			String classAlias = left.getTuples().get(0);
+			Symbol classAliasSymbol = compilation.getSymbolTable().getSymbol(classAlias);
+			Class<?> clazz = classAliasSymbol.getValueType();
+			ClassMeta classMeta = storeManager.getClassMeta(ec, clazz);
+
+			ParameterExpression right = (ParameterExpression) exprFilter.getRight();
+			Object rightValue = QueryUtils.getValueForParameterExpression(parameterValues, right);
+
+			String fieldName = left.getTuples().get(1);
+			FieldMeta fieldMeta = classMeta.getFieldMeta(null, fieldName);
+			if (Expression.OP_EQ.equals(exprFilter.getOperator())) {
+				if (left.getSymbol().getValueType() == String.class) {
+					IndexEntry indexEntry = IndexEntry.getIndexEntry(pm, fieldMeta, (String) rightValue);
+					if (indexEntry == null)
+						return resultList;
+
+					IndexValue indexValue = encryptionHandler.decryptIndexEntry(indexEntry);
+					for (Long dataEntryID : indexValue.getDataEntryIDs()) {
+						LongIdentity id = new LongIdentity(DataEntry.class, dataEntryID);
+						DataEntry dataEntry = (DataEntry) pm.getObjectById(id);
+						Object entity = getObjectForDataEntry(dataEntry);
+						resultList.add(entity);
+					}
+					return resultList;
+				}
+				throw new UnsupportedOperationException("NYI");
+			}
+			else
+				throw new UnsupportedOperationException("NYI");
+
+//			List<Object> candidates = getAllForCandidateClasses(candidateClassMetas);
+//			JavaQueryEvaluator evaluator = new JDOQLEvaluator(
+//					query, candidates, compilation, parameterValues, ec.getClassLoaderResolver()
+//			);
+//			Collection<Object> results = evaluator.execute(true, true, true, true, true);
+//			return new ArrayList<Object>(results);
 		}
+	}
+
+	private Map<ClassMeta, Class<?>> classMeta2Class = new HashMap<ClassMeta, Class<?>>();
+
+	private Class<?> getClassForClassMeta(ClassMeta classMeta)
+	{
+		Class<?> clazz = classMeta2Class.get(classMeta);
+		if (clazz == null) {
+			clazz = clr.classForName(classMeta.getClassName());
+			classMeta2Class.put(classMeta, clazz);
+		}
+		return clazz;
+	}
+
+	private Object getObjectForDataEntry(DataEntry dataEntry)
+	{
+		return getObjectForClassMetaAndObjectIDString(dataEntry.getClassMeta(), dataEntry.getObjectID());
+	}
+
+	private Object getObjectForClassMetaAndObjectIDString(ClassMeta classMeta, String objectIDString)
+	{
+		Class<?> clazz = getClassForClassMeta(classMeta);
+		Object objectID = ec.newObjectId(clazz, objectIDString);
+		Object object = ec.findObject(objectID, true, true, classMeta.getClassName());
+		return object;
 	}
 
 	private List<Object> getAllForCandidateClasses(Set<ClassMeta> candidateClassMetas)
 	{
-		Map<ClassMeta, Class<?>> classMeta2Class = new HashMap<ClassMeta, Class<?>>();
-
 		javax.jdo.Query q = pm.newQuery(
 				"SELECT this.classMeta, this.objectID " +
 				"FROM " + DataEntry.class.getName() + ' ' +
@@ -154,15 +221,7 @@ public abstract class QueryEvaluator
 			for (Object[] oa : c) {
 				ClassMeta classMeta = (ClassMeta) oa[0];
 				String objectIDString = (String) oa[1];
-
-				Class<?> clazz = classMeta2Class.get(classMeta);
-				if (clazz == null) {
-					clazz = clr.classForName(classMeta.getClassName());
-					classMeta2Class.put(classMeta, clazz);
-				}
-
-				Object objectID = ec.newObjectId(clazz, objectIDString);
-				Object object = ec.findObject(objectID, true, true, classMeta.getClassName());
+				Object object = getObjectForClassMetaAndObjectIDString(classMeta, objectIDString);
 				resultList.add(object);
 			}
 			return resultList;

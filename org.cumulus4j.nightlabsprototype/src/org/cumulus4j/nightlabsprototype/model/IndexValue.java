@@ -16,7 +16,11 @@ public class IndexValue
 	}
 
 	/**
-	 * @param indexValueByteArray the plain-text (decrypted) byte-array of {@link IndexEntry#getIndexValue()}.
+	 * Create an <code>IndexValue</code> instance from the decrypted (plain-text) byte-array
+	 * which is stored in {@link IndexEntry#getIndexValue()}.
+	 *
+	 * @param indexValueByteArray the plain-text (decrypted) byte-array of {@link IndexEntry#getIndexValue()} or <code>null</code>
+	 * (<code>null</code> is equivalent to an empty byte-array). This byte-array is what is created by {@link #toByteArray()}.
 	 */
 	public IndexValue(byte[] indexValueByteArray) {
 		if (indexValueByteArray != null) {
@@ -39,6 +43,11 @@ public class IndexValue
 		}
 	}
 
+	/**
+	 * Get a byte-array with all {@link #getDataEntryIDs() dataEntryIDs}. It can be passed to
+	 * {@link #IndexValue(byte[])} later (e.g. after encrypting, persisting, loading &amp; decrypting).
+	 * @return a byte-array holding all dataEntryIDs managed by this instance.
+	 */
 	public byte[] toByteArray()
 	{
 		byte[] result = new byte[dataEntryIDs.size() * 8];
@@ -57,11 +66,16 @@ public class IndexValue
 		return result;
 	}
 
+	/**
+	 * Get {@link DataEntry#getDataEntryID() dataEntryID}s referencing those {@link DataEntry}s which this <code>IndexValue</code>
+	 * (or more precisely the {@link IndexEntry} from which this <code>IndexValue</code> was created) points to.
+	 * @return the object-IDs of the <code>DataEntry</code> instances that are referenced by this index entry.
+	 */
 	public Set<Long> getDataEntryIDs() {
 		return Collections.unmodifiableSet(dataEntryIDs);
 	}
 
-	public boolean isEmpty()
+	public boolean isDataEntryIDsEmpty()
 	{
 		return dataEntryIDs.isEmpty();
 	}

@@ -101,7 +101,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		if (indexEntry != null) {
 			IndexValue indexValue = encryptionHandler.decryptIndexEntry(indexEntry);
 			indexValue.removeDataEntryID(dataEntryID);
-			if (indexValue.isEmpty())
+			if (indexValue.isDataEntryIDsEmpty())
 				pm.deletePersistent(indexEntry);
 			else
 				encryptionHandler.encryptIndexEntry(indexEntry, indexValue);

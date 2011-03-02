@@ -11,26 +11,20 @@ import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.annotations.Unique;
 import javax.jdo.listener.DetachCallback;
 
+import org.cumulus4j.nightlabsprototype.Cumulus4jStoreManager;
+
 /**
+ * Persistent meta-data for a field of a persistence-capable class. Since class- and field-names are very
+ * long we reference them indirectly via the long-identifiers of {@link ClassMeta} and {@link FieldMeta},
+ * e.g. in the relation {@link IndexEntry#getFieldMeta() IndexEntry.fieldMeta}.
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 @Unique(name="FieldMeta_classMeta_fieldName", members={"classMeta", "fieldName"})
-//@Queries({
-//		@Query(
-//				name="getFieldMetaByClassMetaAndFieldName",
-//				value="SELECT UNIQUE WHERE this.classMeta == :classMeta && this.fieldName == :fieldName"
-//		)
-//})
 public class FieldMeta
 implements DetachCallback
 {
-//	public static FieldMeta getFieldMeta(PersistenceManager pm, ClassMeta classMeta, String fieldName)
-//	{
-//		javax.jdo.Query q = pm.newNamedQuery(FieldMeta.class, "getFieldMetaByClassMetaAndFieldName");
-//		return (FieldMeta) q.execute(classMeta, fieldName);
-//	}
-
 	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
 	private long fieldID = -1;
@@ -76,6 +70,11 @@ implements DetachCallback
 		return fieldID;
 	}
 
+	/**
+	 * Get the {@link ClassMeta} to which this <code>FieldMeta</code> belongs. Every FieldMeta
+	 * belongs to exactly one {@link ClassMeta} just like a field is declared in exactly one Java class.
+	 * @return the {@link ClassMeta} to which this instance of <code>FieldMeta</code> belongs.
+	 */
 	public ClassMeta getClassMeta() {
 		return classMeta;
 	}
@@ -102,10 +101,21 @@ implements DetachCallback
 			return fieldTypePackageName + '.' + fieldTypeSimpleClassName;
 	}
 
+	/**
+	 * Get the simple field name (no class prefix) of the field referenced by this meta-data-instance.
+	 * @return the simple field name.
+	 */
 	public String getFieldName() {
 		return fieldName;
 	}
 
+	/**
+	 * Get the non-persistent field-number in DataNucleus' meta-data. This is only a usable value,
+	 * if this <code>FieldMeta</code> was obtained via
+	 * {@link Cumulus4jStoreManager#getClassMeta(org.datanucleus.store.ExecutionContext, Class)}; otherwise
+	 * it is -1.
+	 * @return the non-persistent field-number in DataNucleus' meta-data or -1.
+	 */
 	public int getDataNucleusAbsoluteFieldNumber() {
 		return dataNucleusAbsoluteFieldNumber;
 	}

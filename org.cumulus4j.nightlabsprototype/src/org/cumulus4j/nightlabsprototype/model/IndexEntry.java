@@ -15,6 +15,8 @@ import javax.jdo.annotations.Queries;
 import javax.jdo.annotations.Query;
 
 /**
+ * Persistent index information with encrypted pointers to {@link DataEntry} instances.
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
@@ -105,6 +107,11 @@ public class IndexEntry
 		this.indexKeyString = indexKeyString;
 	}
 
+	/**
+	 * Get the single primary key field (= object-identifier) of this <code>IndexEntry</code>.
+	 *
+	 * @return the object-identifier (= primary key).
+	 */
 	public long getIndexEntryID() {
 		return indexEntryID;
 	}
@@ -125,6 +132,12 @@ public class IndexEntry
 		return indexKeyString;
 	}
 
+	/**
+	 * Get the <b>encrypted</b> pointers to {@link DataEntry}. After decrypting
+	 * this byte array, you can pass it to {@link IndexValue#IndexValue(byte[])}.
+	 *
+	 * @return the <b>encrypted</b> pointers to {@link DataEntry}s.
+	 */
 	public byte[] getIndexValue() {
 		return indexValue;
 	}

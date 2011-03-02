@@ -13,6 +13,8 @@ import javax.jdo.annotations.Query;
 import javax.jdo.annotations.Unique;
 
 /**
+ * Persistent container holding an entity's data in <b>encrypted</b> form.
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
@@ -69,18 +71,35 @@ public class DataEntry
 		this.objectID = objectID;
 	}
 
+	/**
+	 * Get the single primary key field (= object-identifier) of <code>DataEntry</code>.
+	 * @return the object-identifier (= primary key).
+	 */
 	public long getDataEntryID() {
 		return dataEntryID;
 	}
 
+	/**
+	 * Get the type of the entity persisted in this container.
+	 * @return the type of the entity.
+	 */
 	public ClassMeta getClassMeta() {
 		return classMeta;
 	}
 
+	/**
+	 * Get the String-representation of the entity's identifier.
+	 * @return the OID in String-form.
+	 */
 	public String getObjectID() {
 		return objectID;
 	}
 
+	/**
+	 * Get the <b>encrypted</b> data of an entity. The entity is transformed ("made flat") into an {@link ObjectContainer}
+	 * which is then serialised using Java native serialisation and finally encrypted.
+	 * @return the <b>encrypted</b> serialised data of an {@link ObjectContainer} holding the entity's data.
+	 */
 	public byte[] getValue() {
 		return value;
 	}

@@ -23,6 +23,10 @@ import javax.jdo.annotations.Query;
 import javax.jdo.annotations.Unique;
 
 /**
+ * Persistent meta-data for a persistence-capable {@link Class}. Since class names are very long,
+ * we use the {@link #getClassID() classID} instead in our index and data entities (e.g. in the relation
+ * {@link DataEntry#getClassMeta() DataEntry.classMeta}).
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
@@ -59,7 +63,6 @@ public class ClassMeta
 		String simpleClassName = clazz.getSimpleName();
 		return getClassMeta(pm, packageName, simpleClassName, throwExceptionIfNotFound);
 	}
-
 
 	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
@@ -125,23 +128,80 @@ public class ClassMeta
 		this.superClassMeta = superClassMeta;
 	}
 
+	/**
+	 * Get all {@link FieldMeta} instances known to this instance. This is the meta-data for all fields
+	 * <b>directly declared</b> in the class referenced by this <code>ClassMeta</code> <b>not
+	 * including super-classes</b>.
+	 * @return
+	 */
 	public Collection<FieldMeta> getFieldMetas() {
 		return fieldName2fieldMeta.values();
 	}
 
+	/**
+	 * Get the {@link FieldMeta} for a field that is <b>directly declared</b> in the class referenced by
+	 * this <code>ClassMeta</code>. This method thus does not take super-classes into account.
+	 *
+	 * @param fieldName the simple field name (no class prefix).
+	 * @return the {@link FieldMeta} corresponding to the specified <code>fieldName</code> or <code>null</code>, if no such field
+	 * exists.
+	 * @see #getFieldMeta(long)
+	 * @see #getFieldMeta(String, String)
+	 */
 	public FieldMeta getFieldMeta(String fieldName) {
 		return fieldName2fieldMeta.get(fieldName);
 	}
 
+	/**
+	 * <p>
+	 * Get the {@link FieldMeta} for a field that is either directly declared in the class referenced by this
+	 * <code>ClassMeta</code> or in a super-class.
+	 * </p>
+	 * <p>
+	 * If <code>className</code> is <code>null</code>, this method
+	 * searches recursively in the inheritance hierarchy upwards (i.e. first this class then the super-class,
+	 * then the next super-class etc.) until it finds a field matching the given <code>fieldName</code>.
+	 * </p>
+	 * <p>
+	 * If <code>className</code> is not <code>null</code>, this method searches only in the specified class.
+	 * If <code>className</code> is neither the current class nor any super-class, this method always returns
+	 * <code>null</code>.
+	 * </p>
+	 *
+	 * @param className the fully qualified class-name of the class referenced by this <code>ClassMeta</code>
+	 * or any super-class. <code>null</code> to search the entire class hierarchy upwards (through all super-classes
+	 * until the field is found or the last super-class was investigated).
+	 * @param fieldName the simple field name (no class prefix).
+	 * @return the {@link FieldMeta} matching the given criteria or <code>null</code> if no such field could be found.
+	 */
 	public FieldMeta getFieldMeta(String className, String fieldName) {
-		if (getClassName().equals(className))
-			return getFieldMeta(fieldName);
-		else if (superClassMeta != null)
-			return superClassMeta.getFieldMeta(className, fieldName);
-		else
-			return null;
+		if (className == null) {
+			FieldMeta fieldMeta = getFieldMeta(fieldName);
+			if (fieldMeta != null)
+				return fieldMeta;
+
+			if (superClassMeta != null)
+				return superClassMeta.getFieldMeta(className, fieldName);
+			else
+				return null;
+		}
+		else {
+			if (getClassName().equals(className))
+				return getFieldMeta(fieldName);
+			else if (superClassMeta != null)
+				return superClassMeta.getFieldMeta(className, fieldName);
+			else
+				return null;
+		}
 	}
 
+	/**
+	 * Get the {@link FieldMeta} with the specified {@link FieldMeta#getFieldID() fieldID}. It does not matter, if
+	 * this field is directly in the class referenced by this <code>ClassMeta</code> or in a super-class.
+	 * @param fieldID the {@link FieldMeta#getFieldID() fieldID} of the <code>FieldMeta</code> to be found.
+	 * @return the {@link FieldMeta} referenced by the given <code>fieldID</code> or <code>null</code>, if no such
+	 * field exists in the class or any super-class.
+	 */
 	public FieldMeta getFieldMeta(long fieldID)
 	{
 		Map<Long, FieldMeta> m = fieldID2fieldMeta;
