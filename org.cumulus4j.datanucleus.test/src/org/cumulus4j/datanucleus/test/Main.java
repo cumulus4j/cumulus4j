@@ -3,10 +3,12 @@ package org.cumulus4j.datanucleus.test;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.List;
 
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
+import javax.jdo.Query;
 
 import org.apache.log4j.Logger;
 import org.cumulus4j.datanucleus.test.id.AnchorID;
@@ -111,6 +113,31 @@ public class Main {
 		}
 	}
 
+	private static class QueryDataTransRunnable2 implements TransRunnable
+	{
+		public void run(PersistenceManager pm) throws IOException
+		{
+			Query q = pm.newQuery(LocalAccountantDelegate.class);
+//			q.setFilter("this.name.indexOf(:needle) >= 0");
+			q.setFilter("this.name == :name");
+
+			@SuppressWarnings("unchecked")
+			List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("New test bla bla bla.");
+			System.out.println();
+			System.out.println();
+			System.out.println();
+			System.out.println();
+			System.out.println("result.size=" + result.size());
+			for (LocalAccountantDelegate localAccountantDelegate : result) {
+				System.out.println("  * " + localAccountantDelegate);
+			}
+			System.out.println();
+			System.out.println();
+			System.out.println();
+			System.out.println();
+		}
+	}
+
 	private static class DeleteDataTransRunnable implements TransRunnable
 	{
 		public void run(PersistenceManager pm) throws IOException
@@ -163,6 +190,11 @@ public class Main {
 			QueryDataTransRunnable1 queryDataTransRunnable1 = new QueryDataTransRunnable1();
 			test.executeInTransaction(queryDataTransRunnable1);
 			logger.info("*** Successfully executed query 1 ***");
+
+			logger.info("*** Executing query 2 ***");
+			QueryDataTransRunnable2 queryDataTransRunnable2 = new QueryDataTransRunnable2();
+			test.executeInTransaction(queryDataTransRunnable2);
+			logger.info("*** Successfully executed query 2 ***");
 
 			logger.info("*** Deleting data ***");
 			DeleteDataTransRunnable deleteDataTransRunnable = new DeleteDataTransRunnable();

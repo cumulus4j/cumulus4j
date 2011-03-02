@@ -20,9 +20,15 @@ import org.cumulus4j.nightlabsprototype.model.DataEntry;
 import org.cumulus4j.nightlabsprototype.model.FieldMeta;
 import org.cumulus4j.nightlabsprototype.model.IndexEntry;
 import org.cumulus4j.nightlabsprototype.model.IndexValue;
+import org.cumulus4j.nightlabsprototype.query.filter.AbstractExpressionEvaluator;
+import org.cumulus4j.nightlabsprototype.query.filter.AndExpressionEvaluator;
+import org.cumulus4j.nightlabsprototype.query.filter.EqualsExpressionEvaluator;
+import org.cumulus4j.nightlabsprototype.query.filter.ParameterExpressionEvaluator;
+import org.cumulus4j.nightlabsprototype.query.filter.PrimaryExpressionEvaluator;
 import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.query.QueryUtils;
 import org.datanucleus.query.compiler.QueryCompilation;
+import org.datanucleus.query.expression.DyadicExpression;
 import org.datanucleus.query.expression.Expression;
 import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
@@ -137,10 +143,17 @@ public abstract class QueryEvaluator
 			return getAllForCandidateClasses(candidateClassMetas);
 		}
 		else {
+//			AbstractExpressionEvaluator<?> evaluator = createExpressionEvaluatorTree(compilation.getExprFilter());
+//			return evaluator.queryResultObjects();
+
+
+			// TODO put this logic into the ExpressionEvaluatorTree and use the above two lines instead of this experiment!
 			ArrayList<Object> resultList = new ArrayList<Object>();
 
 			Expression exprFilter = compilation.getExprFilter();
 			PrimaryExpression left = (PrimaryExpression) exprFilter.getLeft();
+
+//			Symbol symbolBound = left.bind(compilation.getSymbolTable());
 
 			String classAlias = left.getTuples().get(0);
 			Symbol classAliasSymbol = compilation.getSymbolTable().getSymbol(classAlias);
@@ -172,6 +185,8 @@ public abstract class QueryEvaluator
 			else
 				throw new UnsupportedOperationException("NYI");
 
+
+
 //			List<Object> candidates = getAllForCandidateClasses(candidateClassMetas);
 //			JavaQueryEvaluator evaluator = new JDOQLEvaluator(
 //					query, candidates, compilation, parameterValues, ec.getClassLoaderResolver()
@@ -181,9 +196,62 @@ public abstract class QueryEvaluator
 		}
 	}
 
+	private AbstractExpressionEvaluator<?> createExpressionEvaluatorTree(Expression expression)
+	{
+		return createExpressionEvaluatorTreeRecursive(null, expression);
+	}
+
+	private AbstractExpressionEvaluator<?> createExpressionEvaluatorTreeRecursive(AbstractExpressionEvaluator<?> parent, Expression expression)
+	{
+		AbstractExpressionEvaluator<?> eval = createExpressionEvaluator(parent, expression);
+
+		if (expression.getLeft() != null) {
+			AbstractExpressionEvaluator<?> childEval = createExpressionEvaluatorTreeRecursive(eval, expression.getLeft());
+			eval.setLeft(childEval);
+		}
+
+		if (expression.getRight() != null) {
+			AbstractExpressionEvaluator<?> childEval = createExpressionEvaluatorTreeRecursive(eval, expression.getRight());
+			eval.setRight(childEval);
+		}
+
+		return eval;
+	}
+
+	private AbstractExpressionEvaluator<?> createExpressionEvaluator(
+			AbstractExpressionEvaluator<?> parent,
+			Expression expr
+	)
+	{
+		if (expr instanceof DyadicExpression) {
+			DyadicExpression expression = (DyadicExpression) expr;
+			if (Expression.OP_EQ.equals(expression.getOperator()))
+				return new EqualsExpressionEvaluator(this, parent, expression);
+			else if (Expression.OP_AND.equals(expression.getOperator()))
+				return new AndExpressionEvaluator(this, parent, expression);
+			else
+				throw new UnsupportedOperationException("Unsupported operator for DyadicExpression: " + expr);
+		}
+		else if (expr instanceof PrimaryExpression) {
+			PrimaryExpression expression = (PrimaryExpression) expr;
+			return new PrimaryExpressionEvaluator(this, parent, expression);
+		}
+		else if (expr instanceof ParameterExpression) {
+			ParameterExpression expression = (ParameterExpression) expr;
+			return new ParameterExpressionEvaluator(this, parent, expression);
+		}
+		else
+			throw new UnsupportedOperationException("Don't know what to do with this expression: " + expr);
+	}
+
+
+	public PersistenceManager getPersistenceManager() {
+		return pm;
+	}
+
 	private Map<ClassMeta, Class<?>> classMeta2Class = new HashMap<ClassMeta, Class<?>>();
 
-	private Class<?> getClassForClassMeta(ClassMeta classMeta)
+	public Class<?> getClassForClassMeta(ClassMeta classMeta)
 	{
 		Class<?> clazz = classMeta2Class.get(classMeta);
 		if (clazz == null) {
@@ -193,12 +261,12 @@ public abstract class QueryEvaluator
 		return clazz;
 	}
 
-	private Object getObjectForDataEntry(DataEntry dataEntry)
+	public Object getObjectForDataEntry(DataEntry dataEntry)
 	{
 		return getObjectForClassMetaAndObjectIDString(dataEntry.getClassMeta(), dataEntry.getObjectID());
 	}
 
-	private Object getObjectForClassMetaAndObjectIDString(ClassMeta classMeta, String objectIDString)
+	public Object getObjectForClassMetaAndObjectIDString(ClassMeta classMeta, String objectIDString)
 	{
 		Class<?> clazz = getClassForClassMeta(classMeta);
 		Object objectID = ec.newObjectId(clazz, objectIDString);
