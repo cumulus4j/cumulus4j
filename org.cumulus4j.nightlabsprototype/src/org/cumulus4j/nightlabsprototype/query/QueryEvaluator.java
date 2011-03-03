@@ -18,7 +18,9 @@ import org.cumulus4j.nightlabsprototype.model.ClassMeta;
 import org.cumulus4j.nightlabsprototype.model.DataEntry;
 import org.cumulus4j.nightlabsprototype.query.filter.AbstractExpressionEvaluator;
 import org.cumulus4j.nightlabsprototype.query.filter.AndExpressionEvaluator;
-import org.cumulus4j.nightlabsprototype.query.filter.EqualsExpressionEvaluator;
+import org.cumulus4j.nightlabsprototype.query.filter.ComparisonExpressionEvaluator;
+import org.cumulus4j.nightlabsprototype.query.filter.InvokeExpressionEvaluator;
+import org.cumulus4j.nightlabsprototype.query.filter.LiteralEvaluator;
 import org.cumulus4j.nightlabsprototype.query.filter.ParameterExpressionEvaluator;
 import org.cumulus4j.nightlabsprototype.query.filter.PrimaryExpressionEvaluator;
 import org.datanucleus.ClassLoaderResolver;
@@ -26,6 +28,8 @@ import org.datanucleus.query.QueryUtils;
 import org.datanucleus.query.compiler.QueryCompilation;
 import org.datanucleus.query.expression.DyadicExpression;
 import org.datanucleus.query.expression.Expression;
+import org.datanucleus.query.expression.InvokeExpression;
+import org.datanucleus.query.expression.Literal;
 import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.store.ExecutionContext;
@@ -264,33 +268,43 @@ public abstract class QueryEvaluator
 	{
 		if (expr instanceof DyadicExpression) {
 			DyadicExpression expression = (DyadicExpression) expr;
-			if (Expression.OP_EQ.equals(expression.getOperator()))
-				return new EqualsExpressionEvaluator(this, parent, expression);
-			else if (Expression.OP_AND.equals(expression.getOperator()))
+			if (
+					Expression.OP_EQ == expression.getOperator() ||
+					Expression.OP_LT == expression.getOperator() ||
+					Expression.OP_LTEQ == expression.getOperator() ||
+					Expression.OP_GT == expression.getOperator() ||
+					Expression.OP_GTEQ == expression.getOperator()
+			)
+				return new ComparisonExpressionEvaluator(this, parent, expression);
+			else if (Expression.OP_AND == expression.getOperator())
 				return new AndExpressionEvaluator(this, parent, expression);
 			else
 				throw new UnsupportedOperationException("Unsupported operator for DyadicExpression: " + expr);
 		}
-		else if (expr instanceof PrimaryExpression) {
-			PrimaryExpression expression = (PrimaryExpression) expr;
-			return new PrimaryExpressionEvaluator(this, parent, expression);
-		}
-		else if (expr instanceof ParameterExpression) {
-			ParameterExpression expression = (ParameterExpression) expr;
-			return new ParameterExpressionEvaluator(this, parent, expression);
-		}
-		else
-			throw new UnsupportedOperationException("Don't know what to do with this expression: " + expr);
+
+		if (expr instanceof PrimaryExpression)
+			return new PrimaryExpressionEvaluator(this, parent, (PrimaryExpression) expr);
+
+		if (expr instanceof ParameterExpression)
+			return new ParameterExpressionEvaluator(this, parent, (ParameterExpression) expr);
+
+		if (expr instanceof Literal)
+			return new LiteralEvaluator(this, parent, (Literal) expr);
+
+		if (expr instanceof InvokeExpression)
+			return new InvokeExpressionEvaluator(this, parent, (InvokeExpression) expr);
+
+		throw new UnsupportedOperationException("Don't know what to do with this expression: " + expr);
 	}
 
-	private Map<ClassMeta, Class<?>> classMeta2Class = new HashMap<ClassMeta, Class<?>>();
+	private Map<String, Class<?>> className2Class = new HashMap<String, Class<?>>();
 
-	public Class<?> getClassForClassMeta(ClassMeta classMeta)
+	public Class<?> getClass(String className)
 	{
-		Class<?> clazz = classMeta2Class.get(classMeta);
+		Class<?> clazz = className2Class.get(className);
 		if (clazz == null) {
-			clazz = clr.classForName(classMeta.getClassName());
-			classMeta2Class.put(classMeta, clazz);
+			clazz = clr.classForName(className);
+			className2Class.put(className, clazz);
 		}
 		return clazz;
 	}
@@ -302,7 +316,7 @@ public abstract class QueryEvaluator
 
 	public Object getObjectForClassMetaAndObjectIDString(ClassMeta classMeta, String objectIDString)
 	{
-		Class<?> clazz = getClassForClassMeta(classMeta);
+		Class<?> clazz = getClass(classMeta.getClassName());
 		Object objectID = ec.newObjectId(clazz, objectIDString);
 		Object object = ec.findObject(objectID, true, true, classMeta.getClassName());
 		return object;

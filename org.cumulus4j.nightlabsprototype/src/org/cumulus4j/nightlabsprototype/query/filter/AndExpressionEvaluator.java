@@ -25,15 +25,18 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 			Set<Long> dataEntryIDs1 = getLeft().queryResultDataEntryIDs();
 			Set<Long> dataEntryIDs2 = getRight().queryResultDataEntryIDs();
 
-			// Swap them, if the first set is bigger than the 2nd (for optimization).
+			// Swap them, if the first set is bigger than the 2nd (to always iterate the smaller set => faster).
 			if (dataEntryIDs1.size() > dataEntryIDs2.size()) {
 				Set<Long> tmp = dataEntryIDs1;
 				dataEntryIDs1 = dataEntryIDs2;
 				dataEntryIDs2 = tmp;
 			}
 
-			Set<Long> result = new HashSet<Long>(dataEntryIDs1);
-			result.retainAll(dataEntryIDs2);
+			Set<Long> result = new HashSet<Long>(dataEntryIDs1.size());
+			for (Long dataEntryID : dataEntryIDs1) {
+				if (dataEntryIDs2.contains(dataEntryID))
+					result.add(dataEntryID);
+			}
 			return result;
 		}
 		else

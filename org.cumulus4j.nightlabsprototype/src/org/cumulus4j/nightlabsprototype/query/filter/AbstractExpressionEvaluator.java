@@ -1,6 +1,5 @@
 package org.cumulus4j.nightlabsprototype.query.filter;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -84,48 +83,48 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 		this.right = right;
 	}
 
-	public <R extends AbstractExpressionEvaluator<?>> R getLeftOrRightExactlyOne(Class<R> evaluatorClass, boolean throwExceptionIfNotMatching)
-	{
-		if (evaluatorClass.isInstance(left) && evaluatorClass.isInstance(right)) {
-			if (throwExceptionIfNotMatching)
-				throw new IllegalStateException("Both [left and right] are instances of " + evaluatorClass + ", but only exactly one should be!");
-
-			return null;
-		}
-
-		if (!evaluatorClass.isInstance(left) && !evaluatorClass.isInstance(right)) {
-			if (throwExceptionIfNotMatching)
-				throw new IllegalStateException("Neither left nor right is an instances of " + evaluatorClass + ", but exactly one should be!");
-
-			return null;
-		}
-
-		if (evaluatorClass.isInstance(left))
-			return evaluatorClass.cast(left);
-
-		if (evaluatorClass.isInstance(right))
-			return evaluatorClass.cast(right);
-
-		throw new IllegalStateException("This should never happen!");
-	}
-
-	public <R extends AbstractExpressionEvaluator<?>> R[] getLeftOrRightAtLeastOne(Class<R> evaluatorClass, boolean throwExceptionIfNoneFound)
-	{
-		List<R> resultList = new ArrayList<R>(2);
-
-		if (evaluatorClass.isInstance(left))
-			resultList.add(evaluatorClass.cast(left));
-
-		if (evaluatorClass.isInstance(right))
-			resultList.add(evaluatorClass.cast(right));
-
-		if (resultList.isEmpty() && throwExceptionIfNoneFound)
-			throw new IllegalStateException("Neither left nor right is an instances of " + evaluatorClass + ", but at least one should be!");
-
-		@SuppressWarnings("unchecked")
-		R[] resultArray = (R[]) Array.newInstance(evaluatorClass, resultList.size());
-		return resultList.toArray(resultArray);
-	}
+//	public <R extends AbstractExpressionEvaluator<?>> R getLeftOrRightExactlyOne(Class<R> evaluatorClass, boolean throwExceptionIfNotMatching)
+//	{
+//		if (evaluatorClass.isInstance(left) && evaluatorClass.isInstance(right)) {
+//			if (throwExceptionIfNotMatching)
+//				throw new IllegalStateException("Both [left and right] are instances of " + evaluatorClass + ", but only exactly one should be!");
+//
+//			return null;
+//		}
+//
+//		if (!evaluatorClass.isInstance(left) && !evaluatorClass.isInstance(right)) {
+//			if (throwExceptionIfNotMatching)
+//				throw new IllegalStateException("Neither left nor right is an instances of " + evaluatorClass + ", but exactly one should be!");
+//
+//			return null;
+//		}
+//
+//		if (evaluatorClass.isInstance(left))
+//			return evaluatorClass.cast(left);
+//
+//		if (evaluatorClass.isInstance(right))
+//			return evaluatorClass.cast(right);
+//
+//		throw new IllegalStateException("This should never happen!");
+//	}
+//
+//	public <R extends AbstractExpressionEvaluator<?>> R[] getLeftOrRightAtLeastOne(Class<R> evaluatorClass, boolean throwExceptionIfNoneFound)
+//	{
+//		List<R> resultList = new ArrayList<R>(2);
+//
+//		if (evaluatorClass.isInstance(left))
+//			resultList.add(evaluatorClass.cast(left));
+//
+//		if (evaluatorClass.isInstance(right))
+//			resultList.add(evaluatorClass.cast(right));
+//
+//		if (resultList.isEmpty() && throwExceptionIfNoneFound)
+//			throw new IllegalStateException("Neither left nor right is an instances of " + evaluatorClass + ", but at least one should be!");
+//
+//		@SuppressWarnings("unchecked")
+//		R[] resultArray = (R[]) Array.newInstance(evaluatorClass, resultList.size());
+//		return resultList.toArray(resultArray);
+//	}
 
 	public Set<Long> getResultDataEntryIDs() {
 		return resultDataEntryIDs;
