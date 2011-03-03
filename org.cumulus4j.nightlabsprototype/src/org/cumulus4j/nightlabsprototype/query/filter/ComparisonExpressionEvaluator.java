@@ -107,7 +107,10 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 			else
 				throw new UnsupportedOperationException("NYI");
 
-			return handleEquals(((PrimaryExpressionEvaluator)getLeft()).getFieldMeta(), compareToArgument);
+			if (Expression.OP_EQ == getExpression().getOperator())
+				return handleEquals(((PrimaryExpressionEvaluator)getLeft()).getFieldMeta(), compareToArgument);
+
+			throw new UnsupportedOperationException("NYI"); // TODO other operators [<, >, <=, >=]!
 		}
 
 		if (getRight() instanceof PrimaryExpressionEvaluator) {
@@ -119,7 +122,10 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 			else
 				throw new UnsupportedOperationException("NYI");
 
-			return handleEquals(((PrimaryExpressionEvaluator)getRight()).getFieldMeta(), compareToArgument);
+			if (Expression.OP_EQ == getExpression().getOperator())
+				return handleEquals(((PrimaryExpressionEvaluator)getRight()).getFieldMeta(), compareToArgument);
+
+			throw new UnsupportedOperationException("NYI"); // TODO other operators [<, >, <=, >=]!
 		}
 
 		throw new UnsupportedOperationException("NYI");
