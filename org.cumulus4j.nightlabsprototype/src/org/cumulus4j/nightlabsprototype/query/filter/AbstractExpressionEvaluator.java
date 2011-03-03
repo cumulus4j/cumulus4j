@@ -1,6 +1,8 @@
 package org.cumulus4j.nightlabsprototype.query.filter;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -13,13 +15,11 @@ import org.datanucleus.query.expression.Expression;
 
 public abstract class AbstractExpressionEvaluator<X extends Expression>
 {
-	protected PersistenceManager pm;
+	private QueryEvaluator queryEvaluator;
 
-	protected QueryEvaluator queryEvaluator;
+	private AbstractExpressionEvaluator<?> parent;
 
-	protected AbstractExpressionEvaluator<?> parent;
-
-	protected X expression;
+	private X expression;
 
 	private Set<Long> resultDataEntryIDs;
 
@@ -34,7 +34,6 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 			throw new IllegalArgumentException("expression == null");
 
 		this.queryEvaluator = queryEvaluator;
-		this.pm = queryEvaluator.getPersistenceManager();
 
 		this.parent = parent;
 		this.expression = expression;
@@ -50,6 +49,11 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 
 	public X getExpression() {
 		return expression;
+	}
+
+	public PersistenceManager getPersistenceManager()
+	{
+		return getQueryEvaluator().getPersistenceManager();
 	}
 
 	private AbstractExpressionEvaluator<? extends Expression> left;
@@ -80,6 +84,49 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 		this.right = right;
 	}
 
+	public <R extends AbstractExpressionEvaluator<?>> R getLeftOrRightExactlyOne(Class<R> evaluatorClass, boolean throwExceptionIfNotMatching)
+	{
+		if (evaluatorClass.isInstance(left) && evaluatorClass.isInstance(right)) {
+			if (throwExceptionIfNotMatching)
+				throw new IllegalStateException("Both [left and right] are instances of " + evaluatorClass + ", but only exactly one should be!");
+
+			return null;
+		}
+
+		if (!evaluatorClass.isInstance(left) && !evaluatorClass.isInstance(right)) {
+			if (throwExceptionIfNotMatching)
+				throw new IllegalStateException("Neither left nor right is an instances of " + evaluatorClass + ", but exactly one should be!");
+
+			return null;
+		}
+
+		if (evaluatorClass.isInstance(left))
+			return evaluatorClass.cast(left);
+
+		if (evaluatorClass.isInstance(right))
+			return evaluatorClass.cast(right);
+
+		throw new IllegalStateException("This should never happen!");
+	}
+
+	public <R extends AbstractExpressionEvaluator<?>> R[] getLeftOrRightAtLeastOne(Class<R> evaluatorClass, boolean throwExceptionIfNoneFound)
+	{
+		List<R> resultList = new ArrayList<R>(2);
+
+		if (evaluatorClass.isInstance(left))
+			resultList.add(evaluatorClass.cast(left));
+
+		if (evaluatorClass.isInstance(right))
+			resultList.add(evaluatorClass.cast(right));
+
+		if (resultList.isEmpty() && throwExceptionIfNoneFound)
+			throw new IllegalStateException("Neither left nor right is an instances of " + evaluatorClass + ", but at least one should be!");
+
+		@SuppressWarnings("unchecked")
+		R[] resultArray = (R[]) Array.newInstance(evaluatorClass, resultList.size());
+		return resultList.toArray(resultArray);
+	}
+
 	public Set<Long> getResultDataEntryIDs() {
 		return resultDataEntryIDs;
 	}
@@ -90,7 +137,7 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 
 	public Set<Long> queryResultDataEntryIDs() {
 		if (resultDataEntryIDs == null)
-			resultDataEntryIDs = _queryResultDataEntryIDs();
+			resultDataEntryIDs = Collections.unmodifiableSet(_queryResultDataEntryIDs());
 
 		return resultDataEntryIDs;
 	}
@@ -99,7 +146,7 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 
 	public List<Object> queryResultObjects() {
 		if (resultObjects == null)
-			resultObjects = _queryResultObjects();
+			resultObjects = Collections.unmodifiableList(_queryResultObjects());
 
 		return resultObjects;
 	}
@@ -109,6 +156,7 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 		Set<Long> dataEntryIDs = queryResultDataEntryIDs();
 		List<Object> resultList = new ArrayList<Object>(dataEntryIDs.size());
 
+		PersistenceManager pm = getPersistenceManager();
 		for (Long dataEntryID : dataEntryIDs) {
 			LongIdentity id = new LongIdentity(DataEntry.class, dataEntryID);
 			DataEntry dataEntry = (DataEntry) pm.getObjectById(id);

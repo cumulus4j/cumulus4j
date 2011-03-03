@@ -1,5 +1,6 @@
 package org.cumulus4j.nightlabsprototype.query.filter;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.cumulus4j.nightlabsprototype.query.QueryEvaluator;
@@ -14,7 +15,28 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 	@Override
 	protected Set<Long> _queryResultDataEntryIDs() {
-		// TODO Auto-generated method stub
-		return null;
+		if (getLeft() == null)
+			throw new IllegalStateException("getLeft() == null");
+
+		if (getRight() == null)
+			throw new IllegalStateException("getRight() == null");
+
+		if (getLeft().getQueryEvaluator().getCandidateAlias().equals(getRight().getQueryEvaluator().getCandidateAlias())) {
+			Set<Long> dataEntryIDs1 = getLeft().queryResultDataEntryIDs();
+			Set<Long> dataEntryIDs2 = getRight().queryResultDataEntryIDs();
+
+			// Swap them, if the first set is bigger than the 2nd (for optimization).
+			if (dataEntryIDs1.size() > dataEntryIDs2.size()) {
+				Set<Long> tmp = dataEntryIDs1;
+				dataEntryIDs1 = dataEntryIDs2;
+				dataEntryIDs2 = tmp;
+			}
+
+			Set<Long> result = new HashSet<Long>(dataEntryIDs1);
+			result.retainAll(dataEntryIDs2);
+			return result;
+		}
+		else
+			throw new UnsupportedOperationException("NYI");
 	}
 }

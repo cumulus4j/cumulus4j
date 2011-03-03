@@ -91,6 +91,35 @@ public class Main {
 		{
 			LocalAccountantDelegate localAccountantDelegate = (LocalAccountantDelegate) pm.getObjectById(LOCAL_ACCOUNTANT_DELEGATE_ID_0);
 			localAccountantDelegate.setName("Test 0000");
+			localAccountantDelegate.setDescription(
+					"This is a very long description bla bla bla trallalala tröt tröt. And " +
+					"I don't know exactly what I should write here, bla bla bla, but it should " +
+					"be really really long! Very likely this is sufficient now, but I'd better " +
+					"add some more words.\n\n" +
+					"\n" +
+					"Freude, schöner Götterfunken,\n" +
+					"Tochter aus Elisium,\n" +
+					"Wir betreten feuertrunken\n" +
+					"Himmlische, dein Heiligthum.\n" +
+					"Deine Zauber binden wieder,\n" +
+					"was der Mode Schwerd getheilt;\n" +
+					"Bettler werden Fürstenbrüder,\n" +
+					"wo dein sanfter Flügel weilt.\n" +
+					"\n" +
+					"Seid umschlungen, Millionen!\n" +
+					"Diesen Kuß der ganzen Welt!\n" +
+					"Brüder – überm Sternenzelt\n" +
+					"muß ein lieber Vater wohnen.\n" +
+					"\n" +
+					"Wem der große Wurf gelungen,\n" +
+					"eines Freundes Freund zu seyn;\n" +
+					"wer ein holdes Weib errungen,\n" +
+					"mische seinen Jubel ein!\n" +
+					"Ja – wer auch nur eine Seele\n" +
+					"sein nennt auf dem Erdenrund!\n" +
+					"Und wer’s nie gekonnt, der stehle\n" +
+					"weinend sich aus diesem Bund!\n"
+			);
 		}
 	}
 
@@ -101,6 +130,7 @@ public class Main {
 			LocalAccountantDelegate localAccountantDelegate = (LocalAccountantDelegate) pm.getObjectById(LOCAL_ACCOUNTANT_DELEGATE_ID_0);
 			localAccountantDelegate.setAccount("CHF", new Account(ACCOUNT_ID_1));
 			localAccountantDelegate.setName("New test bla bla bla.");
+			localAccountantDelegate.setDescription("description");
 		}
 	}
 
@@ -123,6 +153,32 @@ public class Main {
 
 			@SuppressWarnings("unchecked")
 			List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("New test bla bla bla.");
+			System.out.println();
+			System.out.println();
+			System.out.println();
+			System.out.println();
+			System.out.println("result.size=" + result.size());
+			for (LocalAccountantDelegate localAccountantDelegate : result) {
+				System.out.println("  * " + localAccountantDelegate);
+			}
+			System.out.println();
+			System.out.println();
+			System.out.println();
+			System.out.println();
+		}
+	}
+
+	private static class QueryDataTransRunnable3 implements TransRunnable
+	{
+		public void run(PersistenceManager pm) throws IOException
+		{
+			Query q = pm.newQuery(LocalAccountantDelegate.class);
+			q.setFilter("this.name == :pName && this.description == :pDesc");
+
+			@SuppressWarnings("unchecked")
+			List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute(
+					"New test bla bla bla.", "description"
+			);
 			System.out.println();
 			System.out.println();
 			System.out.println();
@@ -195,6 +251,11 @@ public class Main {
 			QueryDataTransRunnable2 queryDataTransRunnable2 = new QueryDataTransRunnable2();
 			test.executeInTransaction(queryDataTransRunnable2);
 			logger.info("*** Successfully executed query 2 ***");
+
+			logger.info("*** Executing query 3 ***");
+			QueryDataTransRunnable3 queryDataTransRunnable3 = new QueryDataTransRunnable3();
+			test.executeInTransaction(queryDataTransRunnable3);
+			logger.info("*** Successfully executed query 3 ***");
 
 			logger.info("*** Deleting data ***");
 			DeleteDataTransRunnable deleteDataTransRunnable = new DeleteDataTransRunnable();

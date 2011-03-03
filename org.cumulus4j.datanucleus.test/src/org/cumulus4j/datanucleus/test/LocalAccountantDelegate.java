@@ -47,6 +47,9 @@ public class LocalAccountantDelegate implements Serializable {
 
 	private String name;
 
+	@Column(jdbcType="CLOB")
+	private String description;
+
 	public LocalAccountantDelegate(LocalAccountantDelegateID localAccountantDelegateID) {
 		this(localAccountantDelegateID.organisationID, localAccountantDelegateID.localAccountantDelegateID);
 	}
@@ -85,6 +88,14 @@ public class LocalAccountantDelegate implements Serializable {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	@Join

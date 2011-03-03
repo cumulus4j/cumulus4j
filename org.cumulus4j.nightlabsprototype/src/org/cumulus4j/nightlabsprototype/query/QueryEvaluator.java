@@ -11,15 +11,11 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.jdo.PersistenceManager;
-import javax.jdo.identity.LongIdentity;
 
 import org.cumulus4j.nightlabsprototype.Cumulus4jStoreManager;
 import org.cumulus4j.nightlabsprototype.EncryptionHandler;
 import org.cumulus4j.nightlabsprototype.model.ClassMeta;
 import org.cumulus4j.nightlabsprototype.model.DataEntry;
-import org.cumulus4j.nightlabsprototype.model.FieldMeta;
-import org.cumulus4j.nightlabsprototype.model.IndexEntry;
-import org.cumulus4j.nightlabsprototype.model.IndexValue;
 import org.cumulus4j.nightlabsprototype.query.filter.AbstractExpressionEvaluator;
 import org.cumulus4j.nightlabsprototype.query.filter.AndExpressionEvaluator;
 import org.cumulus4j.nightlabsprototype.query.filter.EqualsExpressionEvaluator;
@@ -32,7 +28,6 @@ import org.datanucleus.query.expression.DyadicExpression;
 import org.datanucleus.query.expression.Expression;
 import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
-import org.datanucleus.query.symbol.Symbol;
 import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.query.Query;
 
@@ -41,31 +36,75 @@ public abstract class QueryEvaluator
 	/** Name under which any set of results are stored in the state map. Used for aggregation. */
 	public static final String RESULTS_SET = "DATANUCLEUS_RESULTS_SET";
 
-	protected final String language;
+	private final String language;
 
-	protected String candidateAlias = "this";
+	private String candidateAlias = "this";
 
 	/** Underlying "string-based" query. */
-	protected Query query;
+	private Query query;
 
 	/** Compilation of the underlying query, that we are evaluating. */
-	protected QueryCompilation compilation;
+	private QueryCompilation compilation;
 
 	/** Map of input parameter values, keyed by the parameter name. */
-	protected Map<String, Object> parameterValues;
+	private Map<String, Object> parameterValues;
 
 	/** Map of state symbols for the query evaluation. */
-	protected Map<String, Object> state;
+	private Map<String, Object> state;
 
-	protected ClassLoaderResolver clr;
+	private ClassLoaderResolver clr;
 
-	protected ExecutionContext ec;
+	private ExecutionContext ec;
 
-	protected Cumulus4jStoreManager storeManager;
+	private Cumulus4jStoreManager storeManager;
 
-	protected PersistenceManager pm;
+	private PersistenceManager pm;
 
-	protected EncryptionHandler encryptionHandler;
+	private EncryptionHandler encryptionHandler;
+
+	public String getLanguage() {
+		return language;
+	}
+
+	public String getCandidateAlias() {
+		return candidateAlias;
+	}
+
+	public Query getQuery() {
+		return query;
+	}
+
+	public QueryCompilation getCompilation() {
+		return compilation;
+	}
+
+	public Map<String, Object> getParameterValues() {
+		return parameterValues;
+	}
+
+	public Map<String, Object> getState() {
+		return state;
+	}
+
+	public ClassLoaderResolver getClassLoaderResolver() {
+		return clr;
+	}
+
+	public ExecutionContext getExecutionContext() {
+		return ec;
+	}
+
+	public Cumulus4jStoreManager getStoreManager() {
+		return storeManager;
+	}
+
+	public PersistenceManager getPersistenceManager() {
+		return pm;
+	}
+
+	public EncryptionHandler getEncryptionHandler() {
+		return encryptionHandler;
+	}
 
 	/**
 	 * @param pm our <b>backend</b>-<code>PersistenceManager</code>.
@@ -143,47 +182,47 @@ public abstract class QueryEvaluator
 			return getAllForCandidateClasses(candidateClassMetas);
 		}
 		else {
-//			AbstractExpressionEvaluator<?> evaluator = createExpressionEvaluatorTree(compilation.getExprFilter());
-//			return evaluator.queryResultObjects();
+			AbstractExpressionEvaluator<?> evaluator = createExpressionEvaluatorTree(compilation.getExprFilter());
+			return evaluator.queryResultObjects();
 
 
-			// TODO put this logic into the ExpressionEvaluatorTree and use the above two lines instead of this experiment!
-			ArrayList<Object> resultList = new ArrayList<Object>();
-
-			Expression exprFilter = compilation.getExprFilter();
-			PrimaryExpression left = (PrimaryExpression) exprFilter.getLeft();
-
-//			Symbol symbolBound = left.bind(compilation.getSymbolTable());
-
-			String classAlias = left.getTuples().get(0);
-			Symbol classAliasSymbol = compilation.getSymbolTable().getSymbol(classAlias);
-			Class<?> clazz = classAliasSymbol.getValueType();
-			ClassMeta classMeta = storeManager.getClassMeta(ec, clazz);
-
-			ParameterExpression right = (ParameterExpression) exprFilter.getRight();
-			Object rightValue = QueryUtils.getValueForParameterExpression(parameterValues, right);
-
-			String fieldName = left.getTuples().get(1);
-			FieldMeta fieldMeta = classMeta.getFieldMeta(null, fieldName);
-			if (Expression.OP_EQ.equals(exprFilter.getOperator())) {
-				if (left.getSymbol().getValueType() == String.class) {
-					IndexEntry indexEntry = IndexEntry.getIndexEntry(pm, fieldMeta, (String) rightValue);
-					if (indexEntry == null)
-						return resultList;
-
-					IndexValue indexValue = encryptionHandler.decryptIndexEntry(indexEntry);
-					for (Long dataEntryID : indexValue.getDataEntryIDs()) {
-						LongIdentity id = new LongIdentity(DataEntry.class, dataEntryID);
-						DataEntry dataEntry = (DataEntry) pm.getObjectById(id);
-						Object entity = getObjectForDataEntry(dataEntry);
-						resultList.add(entity);
-					}
-					return resultList;
-				}
-				throw new UnsupportedOperationException("NYI");
-			}
-			else
-				throw new UnsupportedOperationException("NYI");
+//			// TODO put this logic into the ExpressionEvaluatorTree and use the above two lines instead of this experiment!
+//			ArrayList<Object> resultList = new ArrayList<Object>();
+//
+//			Expression exprFilter = compilation.getExprFilter();
+//			PrimaryExpression left = (PrimaryExpression) exprFilter.getLeft();
+//
+////			Symbol symbolBound = left.bind(compilation.getSymbolTable());
+//
+//			String classAlias = left.getTuples().get(0);
+//			Symbol classAliasSymbol = compilation.getSymbolTable().getSymbol(classAlias);
+//			Class<?> clazz = classAliasSymbol.getValueType();
+//			ClassMeta classMeta = storeManager.getClassMeta(ec, clazz);
+//
+//			ParameterExpression right = (ParameterExpression) exprFilter.getRight();
+//			Object rightValue = QueryUtils.getValueForParameterExpression(parameterValues, right);
+//
+//			String fieldName = left.getTuples().get(1);
+//			FieldMeta fieldMeta = classMeta.getFieldMeta(null, fieldName);
+//			if (Expression.OP_EQ.equals(exprFilter.getOperator())) {
+//				if (left.getSymbol().getValueType() == String.class) {
+//					IndexEntry indexEntry = IndexEntry.getIndexEntry(pm, fieldMeta, (String) rightValue);
+//					if (indexEntry == null)
+//						return resultList;
+//
+//					IndexValue indexValue = encryptionHandler.decryptIndexEntry(indexEntry);
+//					for (Long dataEntryID : indexValue.getDataEntryIDs()) {
+//						LongIdentity id = new LongIdentity(DataEntry.class, dataEntryID);
+//						DataEntry dataEntry = (DataEntry) pm.getObjectById(id);
+//						Object entity = getObjectForDataEntry(dataEntry);
+//						resultList.add(entity);
+//					}
+//					return resultList;
+//				}
+//				throw new UnsupportedOperationException("NYI");
+//			}
+//			else
+//				throw new UnsupportedOperationException("NYI");
 
 
 
@@ -242,11 +281,6 @@ public abstract class QueryEvaluator
 		}
 		else
 			throw new UnsupportedOperationException("Don't know what to do with this expression: " + expr);
-	}
-
-
-	public PersistenceManager getPersistenceManager() {
-		return pm;
 	}
 
 	private Map<ClassMeta, Class<?>> classMeta2Class = new HashMap<ClassMeta, Class<?>>();
