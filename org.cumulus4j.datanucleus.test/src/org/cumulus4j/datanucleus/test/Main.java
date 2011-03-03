@@ -194,6 +194,30 @@ public class Main {
 		}
 	}
 
+	private static class QueryDataTransRunnable4 implements TransRunnable
+	{
+		public void run(PersistenceManager pm) throws IOException
+		{
+			Query q = pm.newQuery(LocalAccountantDelegate.class);
+			q.setFilter("this.name.indexOf(:needle) >= 0");
+
+			@SuppressWarnings("unchecked")
+			List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("bla");
+			System.out.println();
+			System.out.println();
+			System.out.println();
+			System.out.println();
+			System.out.println("result.size=" + result.size());
+			for (LocalAccountantDelegate localAccountantDelegate : result) {
+				System.out.println("  * " + localAccountantDelegate);
+			}
+			System.out.println();
+			System.out.println();
+			System.out.println();
+			System.out.println();
+		}
+	}
+
 	private static class DeleteDataTransRunnable implements TransRunnable
 	{
 		public void run(PersistenceManager pm) throws IOException
@@ -252,10 +276,15 @@ public class Main {
 			test.executeInTransaction(queryDataTransRunnable2);
 			logger.info("*** Successfully executed query 2 ***");
 
-			logger.info("*** Executing query 3 ***");
-			QueryDataTransRunnable3 queryDataTransRunnable3 = new QueryDataTransRunnable3();
-			test.executeInTransaction(queryDataTransRunnable3);
-			logger.info("*** Successfully executed query 3 ***");
+//			logger.info("*** Executing query 3 ***");
+//			QueryDataTransRunnable3 queryDataTransRunnable3 = new QueryDataTransRunnable3();
+//			test.executeInTransaction(queryDataTransRunnable3);
+//			logger.info("*** Successfully executed query 3 ***");
+
+			logger.info("*** Executing query 4 ***");
+			QueryDataTransRunnable4 queryDataTransRunnable4 = new QueryDataTransRunnable4();
+			test.executeInTransaction(queryDataTransRunnable4);
+			logger.info("*** Successfully executed query 4 ***");
 
 			logger.info("*** Deleting data ***");
 			DeleteDataTransRunnable deleteDataTransRunnable = new DeleteDataTransRunnable();
