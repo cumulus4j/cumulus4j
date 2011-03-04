@@ -1,6 +1,7 @@
 package org.cumulus4j.nightlabsprototype;
 
 import java.util.Map;
+import java.util.Properties;
 
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
@@ -11,6 +12,7 @@ import org.cumulus4j.nightlabsprototype.model.DataEntry;
 import org.cumulus4j.nightlabsprototype.model.FieldMeta;
 import org.cumulus4j.nightlabsprototype.model.IndexEntry;
 import org.cumulus4j.nightlabsprototype.resource.ResourceHelper;
+import org.datanucleus.PersistenceConfiguration;
 import org.datanucleus.store.StoreManager;
 import org.datanucleus.store.connection.AbstractConnectionFactory;
 import org.datanucleus.store.connection.AbstractManagedConnection;
@@ -23,9 +25,35 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 {
 	private PersistenceManagerFactory pmf;
 
+	private String[] propertiesToForward = {
+			"datanucleus.ConnectionDriverName",
+			"datanucleus.ConnectionURL",
+			"datanucleus.ConnectionUserName",
+
+			"datanucleus.ConnectionFactory",
+			"datanucleus.ConnectionFactoryName",
+			"datanucleus.ConnectionFactory2",
+			"datanucleus.ConnectionFactory2Name"
+	};
+
 	public Cumulus4jConnectionFactory(StoreManager storeMgr, String resourceType) {
 		super(storeMgr, resourceType);
-		pmf = JDOHelper.getPersistenceManagerFactory(ResourceHelper.openCumulus4jBackendProperties());
+
+		Properties cumulus4jBackendProperties = ResourceHelper.getCumulus4jBackendProperties();
+
+		PersistenceConfiguration persistenceConfiguration = storeMgr.getNucleusContext().getPersistenceConfiguration();
+		for (String propKey : propertiesToForward) {
+			Object propValue = persistenceConfiguration.getProperty(propKey);
+			if (propValue != null)
+				cumulus4jBackendProperties.setProperty(propKey, String.valueOf(propValue));
+		}
+
+		// The password is encrypted, but the getConnectionPassword(...) method decrypts it.
+		String pw = storeMgr.getConnectionPassword();
+		if (pw != null)
+			cumulus4jBackendProperties.put("datanucleus.ConnectionPassword", pw);
+
+		pmf = JDOHelper.getPersistenceManagerFactory(cumulus4jBackendProperties);
 
 		// initialise meta-data (which partially tests it)
 		PersistenceManager pm = pmf.getPersistenceManager();
