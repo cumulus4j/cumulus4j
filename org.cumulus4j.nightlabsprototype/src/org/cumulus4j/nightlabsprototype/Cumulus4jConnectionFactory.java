@@ -6,6 +6,10 @@ import java.util.Properties;
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
+import javax.jdo.Transaction;
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
 
 import org.cumulus4j.nightlabsprototype.model.ClassMeta;
 import org.cumulus4j.nightlabsprototype.model.DataEntry;
@@ -48,7 +52,7 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 				cumulus4jBackendProperties.setProperty(propKey, String.valueOf(propValue));
 		}
 
-		// The password is encrypted, but the getConnectionPassword(...) method decrypts it.
+		// The password might be encrypted, but the getConnectionPassword(...) method decrypts it.
 		String pw = storeMgr.getConnectionPassword();
 		if (pw != null)
 			cumulus4jBackendProperties.put("datanucleus.ConnectionPassword", pw);
@@ -83,6 +87,12 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 
 		private PersistenceManager pm;
 
+		@Override
+		public XAResource getXAResource() {
+			// TODO How to handle REAL XA?
+			return new Cumulus4jXAResource(pm);
+		}
+
 		public Cumulus4jManagedConnection(Object poolKey, @SuppressWarnings("unchecked") Map options) {
 			this.poolKey = poolKey;
 			this.options = options;
@@ -100,4 +110,91 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 		}
 	}
 
+	class Cumulus4jXAResource implements XAResource
+    {
+        private PersistenceManager pm;
+        private Transaction tx;
+//        private Xid xid;
+
+        Cumulus4jXAResource(PersistenceManager pm)
+        {
+            this.pm = pm;
+            this.tx = pm.currentTransaction();
+        }
+
+        public void commit(Xid xid, boolean arg1) throws XAException
+        {
+//        	if (this.xid == null)
+//        		throw new IllegalStateException("Transaction not active!");
+//
+//        	if (!this.xid.equals(xid))
+//        		throw new IllegalStateException("Transaction mismatch! this.xid=" + this.xid + " otherXid=" + xid);
+
+            tx.commit();
+//            this.xid = null;
+        }
+
+        public void end(Xid arg0, int arg1) throws XAException
+        {
+            //ignore
+        }
+
+        public void forget(Xid arg0) throws XAException
+        {
+            //ignore
+        }
+
+        public int getTransactionTimeout() throws XAException
+        {
+            return 0;
+        }
+
+        public boolean isSameRM(XAResource resource) throws XAException
+        {
+            if (resource instanceof Cumulus4jXAResource)
+            {
+                if (pm.equals(((Cumulus4jXAResource)resource).pm))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public int prepare(Xid arg0) throws XAException
+        {
+            return 0;
+        }
+
+        public Xid[] recover(int arg0) throws XAException
+        {
+            throw new XAException("Unsupported operation");
+        }
+
+        public void rollback(Xid xid) throws XAException
+        {
+//        	if (this.xid == null)
+//        		throw new IllegalStateException("Transaction not active!");
+//
+//        	if (!this.xid.equals(xid))
+//        		throw new IllegalStateException("Transaction mismatch! this.xid=" + this.xid + " otherXid=" + xid);
+
+            tx.rollback();
+//            this.xid = null;
+        }
+
+        public boolean setTransactionTimeout(int arg0) throws XAException
+        {
+            return false;
+        }
+
+        public void start(Xid xid, int arg1) throws XAException
+        {
+//        	if (this.xid != null)
+//        		throw new IllegalStateException("Transaction already started! Cannot start twice!");
+
+        	tx.begin();
+//        	this.xid = xid;
+        }
+    }
 }
