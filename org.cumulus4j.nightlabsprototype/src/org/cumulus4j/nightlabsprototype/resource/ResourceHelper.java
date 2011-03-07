@@ -2,6 +2,9 @@ package org.cumulus4j.nightlabsprototype.resource;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -20,7 +23,7 @@ public class ResourceHelper
 		return in;
 	}
 
-	public static Properties getCumulus4jBackendProperties()
+	public static Map<String, Object> getCumulus4jBackendProperties()
 	{
 		Properties properties = new Properties();
 		try {
@@ -30,6 +33,11 @@ public class ResourceHelper
 		} catch (IOException e) { // should never happen as it is a resource => rethrow as RuntimeException
 			throw new RuntimeException(e);
 		}
-		return properties;
+
+		Map<String, Object> result = new HashMap<String, Object>(properties.size());
+		for (Map.Entry<?, ?> me : properties.entrySet())
+			result.put(String.valueOf(me.getKey()).toLowerCase(Locale.ENGLISH), String.valueOf(me.getValue()));
+
+		return result;
 	}
 }

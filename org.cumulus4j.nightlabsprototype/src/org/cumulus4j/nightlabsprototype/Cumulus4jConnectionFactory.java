@@ -1,7 +1,7 @@
 package org.cumulus4j.nightlabsprototype;
 
+import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
@@ -40,22 +40,40 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 			"datanucleus.ConnectionFactory2Name"
 	};
 
+	private static final String CUMULUS4J_PROPERTY_PREFIX = "cumulus4j.";
+	private static final String[] CUMULUS4J_FORWARD_PROPERTY_PREFIXES = {
+		CUMULUS4J_PROPERTY_PREFIX + "datanucleus.",
+		CUMULUS4J_PROPERTY_PREFIX + "javax."
+	};
+
 	public Cumulus4jConnectionFactory(StoreManager storeMgr, String resourceType) {
 		super(storeMgr, resourceType);
 
-		Properties cumulus4jBackendProperties = ResourceHelper.getCumulus4jBackendProperties();
+		Map<String, Object> cumulus4jBackendProperties = ResourceHelper.getCumulus4jBackendProperties();
 
 		PersistenceConfiguration persistenceConfiguration = storeMgr.getNucleusContext().getPersistenceConfiguration();
 		for (String propKey : propertiesToForward) {
 			Object propValue = persistenceConfiguration.getProperty(propKey);
 			if (propValue != null)
-				cumulus4jBackendProperties.setProperty(propKey, String.valueOf(propValue));
+				cumulus4jBackendProperties.put(propKey.toLowerCase(Locale.ENGLISH), propValue);
 		}
 
 		// The password might be encrypted, but the getConnectionPassword(...) method decrypts it.
 		String pw = storeMgr.getConnectionPassword();
 		if (pw != null)
 			cumulus4jBackendProperties.put("datanucleus.ConnectionPassword", pw);
+
+		for (Map.Entry<String, Object> me : persistenceConfiguration.getPersistenceProperties().entrySet()) {
+			if (me.getKey() == null) // don't know if null keys can ever occur, but better play safe
+				continue;
+
+			for (String prefix : CUMULUS4J_FORWARD_PROPERTY_PREFIXES) {
+				if (me.getKey().startsWith(prefix)) {
+					String propKey = me.getKey().substring(CUMULUS4J_PROPERTY_PREFIX.length());
+					cumulus4jBackendProperties.put(propKey.toLowerCase(Locale.ENGLISH), me.getValue());
+				}
+			}
+		}
 
 		pmf = JDOHelper.getPersistenceManagerFactory(cumulus4jBackendProperties);
 
