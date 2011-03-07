@@ -52,17 +52,15 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 		Map<String, Object> cumulus4jBackendProperties = ResourceHelper.getCumulus4jBackendProperties();
 
 		PersistenceConfiguration persistenceConfiguration = storeMgr.getNucleusContext().getPersistenceConfiguration();
+
+		// Copy the properties that are directly (as is) forwarded.
 		for (String propKey : propertiesToForward) {
 			Object propValue = persistenceConfiguration.getProperty(propKey);
 			if (propValue != null)
 				cumulus4jBackendProperties.put(propKey.toLowerCase(Locale.ENGLISH), propValue);
 		}
 
-		// The password might be encrypted, but the getConnectionPassword(...) method decrypts it.
-		String pw = storeMgr.getConnectionPassword();
-		if (pw != null)
-			cumulus4jBackendProperties.put("datanucleus.ConnectionPassword", pw);
-
+		// Copy the properties that are prefixed with "cumulus4j." and thus forwarded.
 		for (Map.Entry<String, Object> me : persistenceConfiguration.getPersistenceProperties().entrySet()) {
 			if (me.getKey() == null) // don't know if null keys can ever occur, but better play safe
 				continue;
@@ -74,6 +72,11 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 				}
 			}
 		}
+
+		// The password might be encrypted, but the getConnectionPassword(...) method decrypts it.
+		String pw = storeMgr.getConnectionPassword();
+		if (pw != null)
+			cumulus4jBackendProperties.put("datanucleus.ConnectionPassword".toLowerCase(Locale.ENGLISH), pw);
 
 		pmf = JDOHelper.getPersistenceManagerFactory(cumulus4jBackendProperties);
 
