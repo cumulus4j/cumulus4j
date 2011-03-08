@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import javax.jdo.FetchPlan;
 import javax.jdo.PersistenceManager;
@@ -182,58 +183,73 @@ extends AbstractStoreManager
 		return classMeta;
 	}
 
+	private Map<Object, String> objectID2className = Collections.synchronizedMap(new WeakHashMap<Object, String>());
+
+	/**
+	 * Store the association between an objectID and the class-name of the corresponding persistable object in
+	 * a {@link WeakHashMap}. This is used for performance optimization of
+	 * {@link #getClassNameForObjectID(Object, ClassLoaderResolver, ExecutionContext)}.
+	 */
+	public void setClassNameForObjectID(Object id, String className)
+	{
+		objectID2className.put(id, className);
+	}
+
 	@Override
 	public String getClassNameForObjectID(Object id, ClassLoaderResolver clr, ExecutionContext ec)
 	{
-		// Copied all except for the application-identity part from the super-implementation.
-		// The super-implementation simply returns the first (maybe abstract) class and not necessarily
-		// the one that really matches the object referenced by id.
-
 		if (id == null)
-        {
-            // User stupidity
-            return null;
-        }
-        else if (id instanceof SCOID)
-        {
-            // Object is a SCOID
-            return ((SCOID) id).getSCOClass();
-        }
-        else if (id instanceof OID)
-        {
-            // Object is an OID
-            return ((OID)id).getPcClass();
-        }
-        else if (getApiAdapter().isSingleFieldIdentity(id))
-        {
-            // Using SingleFieldIdentity so can assume that object is of the target class
-            return getApiAdapter().getTargetClassNameForSingleFieldIdentity(id);
-        }
-        else
-        {
-            // Application identity with user PK class, so find all using this PK
-            Collection<AbstractClassMetaData> cmds = getMetaDataManager().getClassMetaDataWithApplicationId(id.getClass().getName());
-            if (cmds != null) {
-            	if (cmds.size() == 1)
-            		return cmds.iterator().next().getFullClassName();
+			return null;
 
-            	ManagedConnection mconn = this.getConnection(ec);
-            	try {
-            		PersistenceManager pm = (PersistenceManager) mconn.getConnection();
-            		String objectIDString = id.toString();
-            		for (AbstractClassMetaData cmd : cmds) {
-            			Class<?> clazz = clr.classForName(cmd.getFullClassName());
-            			ClassMeta classMeta = getClassMeta(ec, clazz);
-            			DataEntry dataEntry = DataEntry.getDataEntry(pm, classMeta, objectIDString);
-            			if (dataEntry != null)
-            				return cmd.getFullClassName();
-            		}
-        		} finally {
-        			mconn.release();
-        		}
-            }
-            return null;
-        }
+		String className = objectID2className.get(id);
+		if (className != null)
+			return className;
+
+		if (id instanceof SCOID)
+		{
+			// Object is a SCOID
+			className = ((SCOID) id).getSCOClass();
+		}
+		else if (id instanceof OID)
+		{
+			// Object is an OID
+			className = ((OID)id).getPcClass();
+		}
+		else if (getApiAdapter().isSingleFieldIdentity(id))
+		{
+			// Using SingleFieldIdentity so can assume that object is of the target class
+			className = getApiAdapter().getTargetClassNameForSingleFieldIdentity(id);
+		}
+		else
+		{
+			// Application identity with user PK class, so find all using this PK
+			Collection<AbstractClassMetaData> cmds = getMetaDataManager().getClassMetaDataWithApplicationId(id.getClass().getName());
+			if (cmds != null) {
+				if (cmds.size() == 1)
+					className = cmds.iterator().next().getFullClassName();
+				else {
+					ManagedConnection mconn = this.getConnection(ec);
+					try {
+						PersistenceManager pm = (PersistenceManager) mconn.getConnection();
+						String objectIDString = id.toString();
+						for (AbstractClassMetaData cmd : cmds) {
+							Class<?> clazz = clr.classForName(cmd.getFullClassName());
+							ClassMeta classMeta = getClassMeta(ec, clazz);
+							DataEntry dataEntry = DataEntry.getDataEntry(pm, classMeta, objectIDString);
+							if (dataEntry != null)
+								className = cmd.getFullClassName();
+						}
+					} finally {
+						mconn.release();
+					}
+				}
+			}
+		}
+
+		if (className != null)
+			objectID2className.put(id, className);
+
+		return className;
 	}
 
 	@Override

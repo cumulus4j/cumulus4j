@@ -12,6 +12,9 @@ import javax.jdo.annotations.Unique;
 import javax.jdo.listener.DetachCallback;
 
 import org.cumulus4j.nightlabsprototype.Cumulus4jStoreManager;
+import org.datanucleus.metadata.AbstractClassMetaData;
+import org.datanucleus.metadata.AbstractMemberMetaData;
+import org.datanucleus.store.ExecutionContext;
 
 /**
  * Persistent meta-data for a field of a persistence-capable class. Since class- and field-names are very
@@ -82,10 +85,18 @@ implements DetachCallback
 	/**
 	 * Get the package name or an empty <code>String</code> for the default package.
 	 * @return the package name (maybe empty, but never <code>null</code>).
+	 * @deprecated We should not store this information, since it is available in DataNucleus' meta-data and not complete anyway
+	 * (we'd either need to extend it (e.g. store generic type information), or better remove it completely).
 	 */
+	@Deprecated
 	public String getFieldTypePackageName() {
 		return fieldTypePackageName;
 	}
+	/**
+	 * @deprecated We should not store this information, since it is available in DataNucleus' meta-data and not complete anyway
+	 * (we'd either need to extend it (e.g. store generic type information), or better remove it completely).
+	 */
+	@Deprecated
 	public String getFieldTypeSimpleClassName() {
 		return fieldTypeSimpleClassName;
 	}
@@ -93,7 +104,10 @@ implements DetachCallback
 	/**
 	 * Get the fully qualified class-name of the field's type.
 	 * @return the fully qualified class-name of the field's type.
+	 * @deprecated We should not store this information, since it is available in DataNucleus' meta-data and not complete anyway
+	 * (we'd either need to extend it (e.g. store generic type information), or better remove it completely).
 	 */
+	@Deprecated
 	public String getFieldTypeClassName() {
 		if (fieldTypePackageName.isEmpty())
 			return fieldTypeSimpleClassName;
@@ -145,5 +159,20 @@ implements DetachCallback
 		if (getClass() != obj.getClass()) return false;
 		FieldMeta other = (FieldMeta) obj;
 		return this.fieldID == other.fieldID;
+	}
+
+	public AbstractMemberMetaData getDataNucleusMemberMetaData(ExecutionContext executionContext)
+	{
+		AbstractClassMetaData dnClassMetaData = classMeta.getDataNucleusClassMetaData(executionContext);
+
+		int dnFieldNumber = getDataNucleusAbsoluteFieldNumber();
+		if (dnFieldNumber < 0)
+			throw new IllegalStateException("The method getDataNucleusMemberMetaData(...) can only be called on FieldMeta instances that were obtained via Cumulus4jStoreManager#getClassMeta(org.datanucleus.store.ExecutionContext, Class)!!!");
+
+		AbstractMemberMetaData dnMemberMetaData = dnClassMetaData.getMetaDataForManagedMemberAtAbsolutePosition(dnFieldNumber);
+		if (dnMemberMetaData == null)
+			throw new IllegalStateException("DataNucleus has no meta-data for this field: fieldID=" + getFieldID() + " className=" + classMeta.getClassName() + " fieldName=" + getFieldName());
+
+		return dnMemberMetaData;
 	}
 }

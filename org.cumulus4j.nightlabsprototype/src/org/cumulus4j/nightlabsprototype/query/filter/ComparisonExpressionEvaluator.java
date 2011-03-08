@@ -17,6 +17,8 @@ import org.cumulus4j.nightlabsprototype.model.IndexEntryLong;
 import org.cumulus4j.nightlabsprototype.model.IndexEntryString;
 import org.cumulus4j.nightlabsprototype.model.IndexValue;
 import org.cumulus4j.nightlabsprototype.query.QueryEvaluator;
+import org.datanucleus.metadata.AbstractMemberMetaData;
+import org.datanucleus.metadata.Relation;
 import org.datanucleus.query.QueryUtils;
 import org.datanucleus.query.expression.DyadicExpression;
 import org.datanucleus.query.expression.Expression;
@@ -136,7 +138,8 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 	{
 		PersistenceManager pm = getPersistenceManager();
 
-		Class<?> fieldType = getQueryEvaluator().getClass(fieldMeta.getFieldTypeClassName());
+		AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(getQueryEvaluator().getExecutionContext());
+		Class<?> fieldType = mmd.getType();
 
 		if (String.class.isAssignableFrom(fieldType)) {
 			IndexEntry indexEntry = IndexEntryString.getIndexEntry(pm, fieldMeta, (String) value);
@@ -173,6 +176,13 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 			IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
 			return indexValue.getDataEntryIDs();
+		}
+
+		int relationType = mmd.getRelationType(getQueryEvaluator().getExecutionContext().getClassLoaderResolver());
+
+		if (Relation.isRelationSingleValued(relationType)) {
+			// TODO
+
 		}
 
 		throw new UnsupportedOperationException("NYI");

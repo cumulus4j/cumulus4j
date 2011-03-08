@@ -299,17 +299,17 @@ public abstract class QueryEvaluator
 		throw new UnsupportedOperationException("Don't know what to do with this expression: " + expr);
 	}
 
-	private Map<String, Class<?>> className2Class = new HashMap<String, Class<?>>();
-
-	public Class<?> getClass(String className)
-	{
-		Class<?> clazz = className2Class.get(className);
-		if (clazz == null) {
-			clazz = clr.classForName(className);
-			className2Class.put(className, clazz);
-		}
-		return clazz;
-	}
+//	private Map<String, Class<?>> className2Class = new HashMap<String, Class<?>>();
+//
+//	public Class<?> getClass(String className)
+//	{
+//		Class<?> clazz = className2Class.get(className);
+//		if (clazz == null) {
+//			clazz = clr.classForName(className);
+//			className2Class.put(className, clazz);
+//		}
+//		return clazz;
+//	}
 
 	public Object getObjectForDataEntry(DataEntry dataEntry)
 	{

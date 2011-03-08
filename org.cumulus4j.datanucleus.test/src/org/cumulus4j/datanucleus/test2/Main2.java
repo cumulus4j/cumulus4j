@@ -1,10 +1,12 @@
 package org.cumulus4j.datanucleus.test2;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
@@ -235,18 +237,24 @@ public class Main2 {
 		}
 	}
 
-//	private static class QueryDataTransRunnable0 implements TransRunnable
-//	{
-//		public void run(PersistenceManager pm) throws IOException
-//		{
-//			LocalAccountantDelegate localAccountantDelegate = (LocalAccountantDelegate) pm.getObjectById(LOCAL_ACCOUNTANT_DELEGATE_ID_0);
-//			localAccountantDelegate.test();
-//
-//			Account account = (Account) pm.getObjectById(ACCOUNT_ID_0);
-//			account.getBalance();
-//		}
-//	}
-//
+	private static class QueryDataTransRunnable0 implements TransRunnable
+	{
+		public void run(PersistenceManager pm) throws IOException
+		{
+			Rating rating = pm.getExtent(Rating.class).iterator().next();
+
+			Query q = pm.newQuery(Movie.class);
+			q.setFilter("this.rating == :rating");
+
+			@SuppressWarnings("unchecked")
+			List<Movie> movies = (List<Movie>) q.execute(rating);
+			logger.info("QueryDataTransRunnable0.run: found " + movies.size() + " movies with rating \"" + rating.getName() + "\":");
+			for (Movie movie : movies) {
+				logger.info("QueryDataTransRunnable0.run:   * " + movie.getMovieID() + ": " + movie.getName());
+			}
+		}
+	}
+
 //	private static class UpdateDataTransRunnable0 implements TransRunnable
 //	{
 //		public void run(PersistenceManager pm) throws IOException
@@ -428,11 +436,11 @@ public class Main2 {
 			test.executeInTransaction(createDataTransRunnable);
 			logger.info("*** Creating data took " + (System.currentTimeMillis() - startTimestamp) + " msec ***");
 
-//			logger.info("*** Executing query 0 ***");
-//			QueryDataTransRunnable0 queryDataTransRunnable0 = new QueryDataTransRunnable0();
-//			test.executeInTransaction(queryDataTransRunnable0);
-//			logger.info("*** Successfully executed query 0 ***");
-//
+			logger.info("*** Executing query 0 ***");
+			QueryDataTransRunnable0 queryDataTransRunnable0 = new QueryDataTransRunnable0();
+			test.executeInTransaction(queryDataTransRunnable0);
+			logger.info("*** Successfully executed query 0 ***");
+
 //			logger.info("*** Update data 0 ***");
 //			UpdateDataTransRunnable0 updateDataTransRunnable0 = new UpdateDataTransRunnable0();
 //			test.executeInTransaction(updateDataTransRunnable0);

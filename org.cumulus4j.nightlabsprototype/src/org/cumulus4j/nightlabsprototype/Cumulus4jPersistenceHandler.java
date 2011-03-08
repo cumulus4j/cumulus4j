@@ -17,6 +17,7 @@ import org.cumulus4j.nightlabsprototype.model.ObjectContainer;
 import org.datanucleus.exceptions.NucleusObjectNotFoundException;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
+import org.datanucleus.metadata.Relation;
 import org.datanucleus.store.AbstractPersistenceHandler;
 import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.ObjectProvider;
@@ -75,8 +76,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 					if (!fieldMeta.getFieldName().equals(dnMemberMetaData.getName()))
 						throw new IllegalStateException("Meta data inconsistency!!! class == \"" + classMeta.getClassName() + "\" fieldMeta.dataNucleusAbsoluteFieldNumber == " + fieldMeta.getDataNucleusAbsoluteFieldNumber() + " fieldMeta.fieldName == \"" + fieldMeta.getFieldName() + "\" != dnMemberMetaData.name == \"" + dnMemberMetaData.getName() + "\"");
 
-					Class<?> fieldType = dnMemberMetaData.getType();
-					removeIndexEntry(pm, dataEntry.getDataEntryID(), fieldMeta, fieldType, fieldValue);
+					removeIndexEntry(executionContext, pm, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, fieldValue);
 				}
 				pm.deletePersistent(dataEntry);
 			}
@@ -86,8 +86,15 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		}
 	}
 
-	private void removeIndexEntry(PersistenceManager pm, long dataEntryID, FieldMeta fieldMeta, Class<?> fieldType, Object fieldValue)
+	private void removeIndexEntry(
+			ExecutionContext executionContext,
+			PersistenceManager pm, long dataEntryID,
+			FieldMeta fieldMeta, AbstractMemberMetaData dnMemberMetaData,
+			Object fieldValue
+	)
 	{
+		Class<?> fieldType = dnMemberMetaData.getType();
+
 		IndexEntry indexEntry = null;
 		if (String.class.isAssignableFrom(fieldType)) {
 			indexEntry = IndexEntryString.getIndexEntry(pm, fieldMeta, (String)fieldValue);
@@ -99,6 +106,29 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		else if (Double.class.isAssignableFrom(fieldType) || Float.class.isAssignableFrom(fieldType) || double.class == fieldType || float.class == fieldType) {
 			Double v = fieldValue == null ? null : ((Number)fieldValue).doubleValue();
 			indexEntry = IndexEntryDouble.getIndexEntry(pm, fieldMeta, v);
+		}
+		else {
+			int relationType = dnMemberMetaData.getRelationType(executionContext.getClassLoaderResolver());
+
+			if (Relation.isRelationSingleValued(relationType)) {
+				// 1-1-relationship to another persistence-capable object.
+				// The fieldValue is already the object-id, hence find out the type of the original object.
+				Long otherDataEntryID = null;
+				if (fieldValue != null) {
+					// The fieldValue is only the object-id, hence we need to find out the type of the persistable object.
+					String fieldValueClassName = storeManager.getClassNameForObjectID(fieldValue, executionContext.getClassLoaderResolver(), executionContext);
+					Class<?> fieldValueClass = executionContext.getClassLoaderResolver().classForName(fieldValueClassName);
+					ClassMeta classMeta = storeManager.getClassMeta(executionContext, fieldValueClass);
+					otherDataEntryID = DataEntry.getDataEntryID(pm, classMeta, fieldValue.toString());
+				}
+				indexEntry = IndexEntryLong.getIndexEntry(pm, fieldMeta, otherDataEntryID);
+			}
+			else if (Relation.isRelationMultiValued(relationType)) {
+				// collection
+				// map
+				// TODO index collections and maps, too!
+
+			}
 		}
 
 		if (indexEntry != null) {
@@ -190,8 +220,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 				if (!fieldMeta.getFieldName().equals(dnMemberMetaData.getName()))
 					throw new IllegalStateException("Meta data inconsistency!!! class == \"" + classMeta.getClassName() + "\" fieldMeta.dataNucleusAbsoluteFieldNumber == " + fieldMeta.getDataNucleusAbsoluteFieldNumber() + " fieldMeta.fieldName == \"" + fieldMeta.getFieldName() + "\" != dnMemberMetaData.name == \"" + dnMemberMetaData.getName() + "\"");
 
-				Class<?> fieldType = dnMemberMetaData.getType();
-				addIndexEntry(pm, dataEntry.getDataEntryID(), fieldMeta, fieldType, fieldValue);
+				addIndexEntry(executionContext, pm, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, fieldValue);
 			}
 
 // necessary?! probably not.
@@ -203,8 +232,14 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		}
 	}
 
-	private void addIndexEntry(PersistenceManager pm, long dataEntryID, FieldMeta fieldMeta, Class<?> fieldType, Object fieldValue)
+	private void addIndexEntry(
+			ExecutionContext executionContext, PersistenceManager pm, long dataEntryID,
+			FieldMeta fieldMeta, AbstractMemberMetaData dnMemberMetaData,
+			Object fieldValue
+	)
 	{
+		Class<?> fieldType = dnMemberMetaData.getType();
+
 		IndexEntry indexEntry = null;
 		if (String.class.isAssignableFrom(fieldType)) {
 			indexEntry = IndexEntryString.createIndexEntry(pm, fieldMeta, (String)fieldValue);
@@ -216,6 +251,28 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		else if (Double.class.isAssignableFrom(fieldType) || Float.class.isAssignableFrom(fieldType) || double.class == fieldType || float.class == fieldType) {
 			Double v = fieldValue == null ? null : ((Number)fieldValue).doubleValue();
 			indexEntry = IndexEntryDouble.createIndexEntry(pm, fieldMeta, v);
+		}
+		else {
+			int relationType = dnMemberMetaData.getRelationType(executionContext.getClassLoaderResolver());
+
+			if (Relation.isRelationSingleValued(relationType)) {
+				// 1-1-relationship to another persistence-capable object.
+				Long otherDataEntryID = null;
+				if (fieldValue != null) {
+					// The fieldValue is only the object-id, hence we need to find out the type of the persistable object.
+					String fieldValueClassName = storeManager.getClassNameForObjectID(fieldValue, executionContext.getClassLoaderResolver(), executionContext);
+					Class<?> fieldValueClass = executionContext.getClassLoaderResolver().classForName(fieldValueClassName);
+					ClassMeta classMeta = storeManager.getClassMeta(executionContext, fieldValueClass);
+					otherDataEntryID = DataEntry.getDataEntryID(pm, classMeta, fieldValue.toString());
+				}
+				indexEntry = IndexEntryLong.createIndexEntry(pm, fieldMeta, otherDataEntryID);
+			}
+			else if (Relation.isRelationMultiValued(relationType)) {
+				// collection
+				// map
+				// TODO index collections and maps, too!
+
+			}
 		}
 
 		if (indexEntry != null) {
@@ -289,9 +346,8 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 				Object fieldValueNew = objectContainerNew.getValue(fieldMeta.getFieldID());
 
 				if (!equals(fieldValueOld, fieldValueNew)) {
-					Class<?> fieldType = dnMemberMetaData.getType();
-					removeIndexEntry(pm, dataEntryID, fieldMeta, fieldType, fieldValueOld);
-					addIndexEntry(pm, dataEntryID, fieldMeta, fieldType, fieldValueNew);
+					removeIndexEntry(executionContext, pm, dataEntryID, fieldMeta, dnMemberMetaData, fieldValueOld);
+					addIndexEntry(executionContext, pm, dataEntryID, fieldMeta, dnMemberMetaData, fieldValueNew);
 				}
 			}
 		} finally {

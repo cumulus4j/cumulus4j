@@ -22,6 +22,9 @@ import javax.jdo.annotations.Queries;
 import javax.jdo.annotations.Query;
 import javax.jdo.annotations.Unique;
 
+import org.datanucleus.metadata.AbstractClassMetaData;
+import org.datanucleus.store.ExecutionContext;
+
 /**
  * Persistent meta-data for a persistence-capable {@link Class}. Since class names are very long,
  * we use the {@link #getClassID() classID} instead in our index and data entities (e.g. in the relation
@@ -252,5 +255,14 @@ public class ClassMeta
 		if (getClass() != obj.getClass()) return false;
 		ClassMeta other = (ClassMeta) obj;
 		return this.classID == other.classID;
+	}
+
+	public AbstractClassMetaData getDataNucleusClassMetaData(ExecutionContext executionContext)
+	{
+		AbstractClassMetaData dnClassMetaData = executionContext.getMetaDataManager().getMetaDataForClass(getClassName(), executionContext.getClassLoaderResolver());
+		if (dnClassMetaData == null)
+			throw new IllegalStateException("DataNucleus does not know any meta-data for this class: classID=" + getClassID() + " className=" + getClassName());
+
+		return dnClassMetaData;
 	}
 }
