@@ -57,11 +57,14 @@ extends AbstractStoreManager
 	 * @param clazz the {@link Class} of which to get all known sub-classes.
 	 * @return all classes that are either the given class itself or direct or indirect subclass.
 	 */
-	public Set<? extends Class<?>> getSubclasses(Class<?> clazz)
+	public Set<? extends Class<?>> getSubclasses(ExecutionContext executionContext, Class<?> clazz)
 	{
 		// TODO should we initialise this with all persistent data we have in order to make sure we query
 		// *all* objects that we have? Current lazy loading is not such a great thing as we might silently
 		// skip objects. Marco.
+
+		// At least we have to initialise the current class
+		getClassMeta(executionContext, clazz);
 
 		return class2subclasses.get(clazz);
 	}
@@ -231,5 +234,15 @@ extends AbstractStoreManager
             }
             return null;
         }
+	}
+
+	@Override
+	protected String getStrategyForNative(AbstractClassMetaData cmd, int absFieldNumber) {
+		return "increment";
+//		AbstractMemberMetaData mmd = cmd.getMetaDataForManagedMemberAtAbsolutePosition(absFieldNumber);
+//		if (String.class.isAssignableFrom(mmd.getType()) || UUID.class.isAssignableFrom(mmd.getType()))
+//			return "uuid-hex";
+//		else
+//			return "increment";
 	}
 }

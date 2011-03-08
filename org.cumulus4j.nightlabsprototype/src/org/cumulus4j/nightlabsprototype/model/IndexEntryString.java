@@ -17,7 +17,12 @@ import javax.jdo.annotations.Query;
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 @Inheritance(strategy=InheritanceStrategy.NEW_TABLE)
-//@Unique(members={"fieldMeta", "indexKeyString"}) // TODO this does not work at all in Derby and only with special syntax in MySQL => file a bug in DataNucleus' issue tracker (should log a warning, if the underlying DB doesn't support it).
+// TODO The following "@Unique" does not work at all in Derby and only with special syntax in MySQL
+// (note the length "(255)" behind the "indexkeystring"):
+//    ALTER TABLE indexentrystring ADD CONSTRAINT UNIQUE KEY (indexkeystring(255), fieldmeta_fieldid_oid)
+// => file a bug in DataNucleus' issue tracker (should log a warning, if the underlying DB doesn't support
+// it and should use RDBMS-specific syntax, if necessary).
+//@Unique(members={"fieldMeta", "indexKeyString"})
 @Queries({
 	@Query(
 			name="getIndexEntryByUniqueKeyFields",

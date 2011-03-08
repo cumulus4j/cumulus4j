@@ -20,4 +20,10 @@
           datastore="cumulus4j" name="JDOQL">
     </query>
  </extension>
+ <extension point="org.datanucleus.store_valuegenerator">
+    <valuegenerator name="increment" class-name="org.cumulus4j.nightlabsprototype.Cumulus4jIncrementGenerator"
+            datastore="cumulus4j"/>
+    <valuegenerator name="sequence" class-name="org.cumulus4j.nightlabsprototype.Cumulus4jIncrementGenerator"
+            datastore="cumulus4j"/>
+ </extension>
 </plugin>

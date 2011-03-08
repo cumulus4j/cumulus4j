@@ -305,8 +305,4 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		return obj0 == obj1 || (obj0 != null && obj0.equals(obj1));
 	}
 
-
-
-
-
 }

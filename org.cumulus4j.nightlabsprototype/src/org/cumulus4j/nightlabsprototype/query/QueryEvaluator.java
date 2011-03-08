@@ -24,6 +24,8 @@ import org.cumulus4j.nightlabsprototype.query.filter.LiteralEvaluator;
 import org.cumulus4j.nightlabsprototype.query.filter.ParameterExpressionEvaluator;
 import org.cumulus4j.nightlabsprototype.query.filter.PrimaryExpressionEvaluator;
 import org.datanucleus.ClassLoaderResolver;
+import org.datanucleus.identity.IdentityUtils;
+import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.query.QueryUtils;
 import org.datanucleus.query.compiler.QueryCompilation;
 import org.datanucleus.query.expression.DyadicExpression;
@@ -145,7 +147,7 @@ public abstract class QueryEvaluator
 
 		Set<? extends Class<?>> candidateClasses;
 		if (withSubclasses)
-			candidateClasses = storeManager.getSubclasses(candidateClass);
+			candidateClasses = storeManager.getSubclasses(getExecutionContext(), candidateClass);
 		else
 			candidateClasses = Collections.singleton(candidateClass);
 
@@ -316,10 +318,12 @@ public abstract class QueryEvaluator
 
 	public Object getObjectForClassMetaAndObjectIDString(ClassMeta classMeta, String objectIDString)
 	{
-		Class<?> clazz = getClass(classMeta.getClassName());
-		Object objectID = ec.newObjectId(clazz, objectIDString);
-		Object object = ec.findObject(objectID, true, true, classMeta.getClassName());
-		return object;
+		AbstractClassMetaData cmd = getStoreManager().getMetaDataManager().getMetaDataForClass(classMeta.getClassName(), getClassLoaderResolver());
+		return IdentityUtils.getObjectFromIdString(objectIDString, cmd, ec, true);
+//		Class<?> clazz = getClass(classMeta.getClassName());
+//		Object objectID = ec.newObjectId(clazz, objectIDString);
+//		Object object = ec.findObject(objectID, true, true, classMeta.getClassName());
+//		return object;
 	}
 
 	private List<Object> getAllForCandidateClasses(Set<ClassMeta> candidateClassMetas)
