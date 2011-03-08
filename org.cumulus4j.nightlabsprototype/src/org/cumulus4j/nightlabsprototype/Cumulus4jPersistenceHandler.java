@@ -9,6 +9,9 @@ import org.cumulus4j.nightlabsprototype.model.ClassMeta;
 import org.cumulus4j.nightlabsprototype.model.DataEntry;
 import org.cumulus4j.nightlabsprototype.model.FieldMeta;
 import org.cumulus4j.nightlabsprototype.model.IndexEntry;
+import org.cumulus4j.nightlabsprototype.model.IndexEntryDouble;
+import org.cumulus4j.nightlabsprototype.model.IndexEntryLong;
+import org.cumulus4j.nightlabsprototype.model.IndexEntryString;
 import org.cumulus4j.nightlabsprototype.model.IndexValue;
 import org.cumulus4j.nightlabsprototype.model.ObjectContainer;
 import org.datanucleus.exceptions.NucleusObjectNotFoundException;
@@ -87,15 +90,15 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 	{
 		IndexEntry indexEntry = null;
 		if (String.class.isAssignableFrom(fieldType)) {
-			indexEntry = IndexEntry.getIndexEntry(pm, fieldMeta, (String)fieldValue);
+			indexEntry = IndexEntryString.getIndexEntry(pm, fieldMeta, (String)fieldValue);
 		}
 		else if (Long.class.isAssignableFrom(fieldType) || Integer.class.isAssignableFrom(fieldType) || Short.class.isAssignableFrom(fieldType) || Byte.class.isAssignableFrom(fieldType) || long.class == fieldType || int.class == fieldType || short.class == fieldType || byte.class == fieldType) {
 			Long v = fieldValue == null ? null : ((Number)fieldValue).longValue();
-			indexEntry = IndexEntry.getIndexEntry(pm, fieldMeta, v);
+			indexEntry = IndexEntryLong.getIndexEntry(pm, fieldMeta, v);
 		}
 		else if (Double.class.isAssignableFrom(fieldType) || Float.class.isAssignableFrom(fieldType) || double.class == fieldType || float.class == fieldType) {
-			Long v = fieldValue == null ? null : ((Number)fieldValue).longValue();
-			indexEntry = IndexEntry.getIndexEntry(pm, fieldMeta, v);
+			Double v = fieldValue == null ? null : ((Number)fieldValue).doubleValue();
+			indexEntry = IndexEntryDouble.getIndexEntry(pm, fieldMeta, v);
 		}
 
 		if (indexEntry != null) {
@@ -204,21 +207,15 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 	{
 		IndexEntry indexEntry = null;
 		if (String.class.isAssignableFrom(fieldType)) {
-			indexEntry = IndexEntry.getIndexEntry(pm, fieldMeta, (String)fieldValue);
-			if (indexEntry == null)
-				indexEntry = pm.makePersistent(new IndexEntry(fieldMeta, (String)fieldValue));
+			indexEntry = IndexEntryString.createIndexEntry(pm, fieldMeta, (String)fieldValue);
 		}
 		else if (Long.class.isAssignableFrom(fieldType) || Integer.class.isAssignableFrom(fieldType) || Short.class.isAssignableFrom(fieldType) || Byte.class.isAssignableFrom(fieldType) || long.class == fieldType || int.class == fieldType || short.class == fieldType || byte.class == fieldType) {
 			Long v = fieldValue == null ? null : ((Number)fieldValue).longValue();
-			indexEntry = IndexEntry.getIndexEntry(pm, fieldMeta, v);
-			if (indexEntry == null)
-				indexEntry = pm.makePersistent(new IndexEntry(fieldMeta, v));
+			indexEntry = IndexEntryLong.createIndexEntry(pm, fieldMeta, v);
 		}
 		else if (Double.class.isAssignableFrom(fieldType) || Float.class.isAssignableFrom(fieldType) || double.class == fieldType || float.class == fieldType) {
-			Long v = fieldValue == null ? null : ((Number)fieldValue).longValue();
-			indexEntry = IndexEntry.getIndexEntry(pm, fieldMeta, v);
-			if (indexEntry == null)
-				indexEntry = pm.makePersistent(new IndexEntry(fieldMeta, v));
+			Double v = fieldValue == null ? null : ((Number)fieldValue).doubleValue();
+			indexEntry = IndexEntryDouble.createIndexEntry(pm, fieldMeta, v);
 		}
 
 		if (indexEntry != null) {

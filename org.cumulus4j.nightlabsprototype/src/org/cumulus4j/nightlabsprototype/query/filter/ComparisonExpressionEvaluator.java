@@ -12,6 +12,9 @@ import javax.jdo.Query;
 
 import org.cumulus4j.nightlabsprototype.model.FieldMeta;
 import org.cumulus4j.nightlabsprototype.model.IndexEntry;
+import org.cumulus4j.nightlabsprototype.model.IndexEntryDouble;
+import org.cumulus4j.nightlabsprototype.model.IndexEntryLong;
+import org.cumulus4j.nightlabsprototype.model.IndexEntryString;
 import org.cumulus4j.nightlabsprototype.model.IndexValue;
 import org.cumulus4j.nightlabsprototype.query.QueryEvaluator;
 import org.datanucleus.query.QueryUtils;
@@ -69,11 +72,9 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 						throw new UnsupportedOperationException("NYI");
 
 					if (String.class.isAssignableFrom(parameterType)) {
-						Query q = pm.newQuery(IndexEntry.class);
+						Query q = pm.newQuery(IndexEntryString.class);
 						q.setFilter(
 								"this.fieldMeta == :fieldMeta && " +
-								"this.indexKeyDouble == null && " +
-								"this.indexKeyLong == null && " +
 								"this.indexKeyString.indexOf(:invokeArgument) " + getOperatorAsJDOQLSymbol() + " :compareToArgument"
 						);
 						Map<String, Object> params = new HashMap<String, Object>(3);
@@ -138,7 +139,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		Class<?> fieldType = getQueryEvaluator().getClass(fieldMeta.getFieldTypeClassName());
 
 		if (String.class.isAssignableFrom(fieldType)) {
-			IndexEntry indexEntry = IndexEntry.getIndexEntry(pm, fieldMeta, (String) value);
+			IndexEntry indexEntry = IndexEntryString.getIndexEntry(pm, fieldMeta, (String) value);
 			if (indexEntry == null)
 				return Collections.emptySet();
 
@@ -153,7 +154,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 				short.class.isAssignableFrom(fieldType) || byte.class.isAssignableFrom(fieldType)
 		)
 		{
-			IndexEntry indexEntry = IndexEntry.getIndexEntry(pm, fieldMeta, (Long) value);
+			IndexEntry indexEntry = IndexEntryLong.getIndexEntry(pm, fieldMeta, (Long) value);
 			if (indexEntry == null)
 				return Collections.emptySet();
 
@@ -166,7 +167,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 				double.class.isAssignableFrom(fieldType) || float.class.isAssignableFrom(fieldType)
 		)
 		{
-			IndexEntry indexEntry = IndexEntry.getIndexEntry(pm, fieldMeta, (Double) value);
+			IndexEntry indexEntry = IndexEntryDouble.getIndexEntry(pm, fieldMeta, (Double) value);
 			if (indexEntry == null)
 				return Collections.emptySet();
 
