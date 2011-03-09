@@ -10,6 +10,8 @@ import java.util.Set;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 
+import org.cumulus4j.nightlabsprototype.model.ClassMeta;
+import org.cumulus4j.nightlabsprototype.model.DataEntry;
 import org.cumulus4j.nightlabsprototype.model.FieldMeta;
 import org.cumulus4j.nightlabsprototype.model.IndexEntry;
 import org.cumulus4j.nightlabsprototype.model.IndexEntryDouble;
@@ -111,7 +113,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 				throw new UnsupportedOperationException("NYI");
 
 			if (Expression.OP_EQ == getExpression().getOperator())
-				return handleEquals(((PrimaryExpressionEvaluator)getLeft()).getFieldMeta(), compareToArgument);
+				return handleEqualsWithConcreteValue(((PrimaryExpressionEvaluator)getLeft()).getFieldMeta(), compareToArgument);
 
 			throw new UnsupportedOperationException("NYI"); // TODO other operators [<, >, <=, >=]!
 		}
@@ -126,7 +128,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 				throw new UnsupportedOperationException("NYI");
 
 			if (Expression.OP_EQ == getExpression().getOperator())
-				return handleEquals(((PrimaryExpressionEvaluator)getRight()).getFieldMeta(), compareToArgument);
+				return handleEqualsWithConcreteValue(((PrimaryExpressionEvaluator)getRight()).getFieldMeta(), compareToArgument);
 
 			throw new UnsupportedOperationException("NYI"); // TODO other operators [<, >, <=, >=]!
 		}
@@ -134,7 +136,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		throw new UnsupportedOperationException("NYI");
 	}
 
-	private Set<Long> handleEquals(FieldMeta fieldMeta, Object value)
+	private Set<Long> handleEqualsWithConcreteValue(FieldMeta fieldMeta, Object value)
 	{
 		PersistenceManager pm = getPersistenceManager();
 
@@ -181,8 +183,19 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		int relationType = mmd.getRelationType(getQueryEvaluator().getExecutionContext().getClassLoaderResolver());
 
 		if (Relation.isRelationSingleValued(relationType)) {
-			// TODO
+			Long valueDataEntryID = null;
+			if (value != null) {
+				ClassMeta valueClassMeta = getQueryEvaluator().getStoreManager().getClassMeta(getQueryEvaluator().getExecutionContext(), value.getClass());
+				Object valueID = getQueryEvaluator().getExecutionContext().getApiAdapter().getIdForObject(value);
+				if (valueID == null)
+					throw new IllegalStateException("The ApiAdapter returned null as object-ID for: " + value);
 
+				valueDataEntryID = DataEntry.getDataEntryID(pm, valueClassMeta, valueID.toString());
+			}
+			IndexEntry indexEntry = IndexEntryLong.getIndexEntry(pm, fieldMeta, valueDataEntryID);
+
+			IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
+			return indexValue.getDataEntryIDs();
 		}
 
 		throw new UnsupportedOperationException("NYI");

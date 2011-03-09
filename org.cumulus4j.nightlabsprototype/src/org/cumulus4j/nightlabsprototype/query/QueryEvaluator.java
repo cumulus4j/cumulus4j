@@ -146,8 +146,16 @@ public abstract class QueryEvaluator
 		boolean withSubclasses = query.isSubclasses();
 
 		Set<? extends Class<?>> candidateClasses;
-		if (withSubclasses)
-			candidateClasses = storeManager.getSubclasses(getExecutionContext(), candidateClass);
+		if (withSubclasses) {
+			HashSet<String> classNames = storeManager.getSubClassesForClass(candidateClass.getName(), true, clr);
+			Set<Class<?>> classes = new HashSet<Class<?>>(classNames.size() + 1);
+			classes.add(candidateClass);
+			for (String className : classNames) {
+				Class<?> clazz = clr.classForName(className);
+				classes.add(clazz);
+			}
+			candidateClasses = classes;
+		}
 		else
 			candidateClasses = Collections.singleton(candidateClass);
 

@@ -54,23 +54,6 @@ extends AbstractStoreManager
 	}
 
 	/**
-	 * Get all known classes that are subclasses of the given <code>clazz</code> (including this class).
-	 * @param clazz the {@link Class} of which to get all known sub-classes.
-	 * @return all classes that are either the given class itself or direct or indirect subclass.
-	 */
-	public Set<? extends Class<?>> getSubclasses(ExecutionContext executionContext, Class<?> clazz)
-	{
-		// TODO should we initialise this with all persistent data we have in order to make sure we query
-		// *all* objects that we have? Current lazy loading is not such a great thing as we might silently
-		// skip objects. Marco.
-
-		// At least we have to initialise the current class
-		getClassMeta(executionContext, clazz);
-
-		return class2subclasses.get(clazz);
-	}
-
-	/**
 	 * Get the persistent meta-data of a certain class. This persistent meta-data is primarily used for efficient
 	 * mapping using long-identifiers instead of fully qualified class names.
 	 *

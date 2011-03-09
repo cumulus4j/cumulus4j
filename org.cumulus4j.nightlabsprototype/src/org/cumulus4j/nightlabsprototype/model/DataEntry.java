@@ -75,7 +75,20 @@ public class DataEntry
 	}
 
 	/**
+	 * <p>
 	 * Get the type of the entity persisted in this container.
+	 * </p>
+	 * <p>
+	 * Note, that this is the concrete type of the persisted object and <b>not</b> the root-type of the
+	 * persistable hierarchy. For example, if <code>bbb</code> is persisted and <code>bbb</code> is an instance of
+	 * class <code>BBB</code> which extends <code>AAA</code>
+	 * and both classes are persistable, this will point to class <code>BBB</code> (and <b>not</b> <code>AAA</code>).
+	 * </p>
+	 * <p>
+	 * Therefore, if you want to query all instances of a certain type including subclasses, you have to
+	 * ask for the sub-classes via {@link org.datanucleus.store.StoreManager#getSubClassesForClass(String, boolean, org.datanucleus.ClassLoaderResolver)}
+	 * first and then query for all these classes individually.
+	 * </p>
 	 * @return the type of the entity.
 	 */
 	public ClassMeta getClassMeta() {
