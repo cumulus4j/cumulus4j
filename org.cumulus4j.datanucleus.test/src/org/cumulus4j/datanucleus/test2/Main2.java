@@ -255,6 +255,24 @@ public class Main2 {
 		}
 	}
 
+	private static class QueryDataTransRunnable1 implements TransRunnable
+	{
+		public void run(PersistenceManager pm) throws IOException
+		{
+			Query q = pm.newQuery(Movie.class);
+			q.setFilter("this.rating.name.indexOf(:ratingNamePart) >= 0");
+
+			String ratingNamePart = "G";
+
+			@SuppressWarnings("unchecked")
+			List<Movie> movies = (List<Movie>) q.execute(ratingNamePart);
+			logger.info("QueryDataTransRunnable0.run: found " + movies.size() + " movies with rating.name containing \"" + ratingNamePart + "\":");
+			for (Movie movie : movies) {
+				logger.info("QueryDataTransRunnable0.run:   * " + movie.getMovieID() + ": " + movie.getName() + " (" + movie.getRating().getName() + ")");
+			}
+		}
+	}
+
 //	private static class UpdateDataTransRunnable0 implements TransRunnable
 //	{
 //		public void run(PersistenceManager pm) throws IOException
@@ -440,6 +458,11 @@ public class Main2 {
 			QueryDataTransRunnable0 queryDataTransRunnable0 = new QueryDataTransRunnable0();
 			test.executeInTransaction(queryDataTransRunnable0);
 			logger.info("*** Successfully executed query 0 ***");
+
+			logger.info("*** Executing query 1 ***");
+			QueryDataTransRunnable1 queryDataTransRunnable1 = new QueryDataTransRunnable1();
+			test.executeInTransaction(queryDataTransRunnable1);
+			logger.info("*** Successfully executed query 1 ***");
 
 //			logger.info("*** Update data 0 ***");
 //			UpdateDataTransRunnable0 updateDataTransRunnable0 = new UpdateDataTransRunnable0();
