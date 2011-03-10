@@ -27,7 +27,7 @@ import javax.jdo.annotations.Unique;
 	)
 })
 public class IndexEntryDouble
-extends IndexEntry
+extends IndexEntry<Double>
 {
 	/**
 	 * Get an {@link IndexEntryDouble} for the specified unique key fields or <code>null</code>, if no such instance

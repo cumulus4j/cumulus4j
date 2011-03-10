@@ -27,7 +27,7 @@ import javax.jdo.annotations.Unique;
 	)
 })
 public class IndexEntryLong
-extends IndexEntry
+extends IndexEntry<Long>
 {
 	/**
 	 * Get an {@link IndexEntryLong} for the specified unique key fields or <code>null</code>, if no such instance

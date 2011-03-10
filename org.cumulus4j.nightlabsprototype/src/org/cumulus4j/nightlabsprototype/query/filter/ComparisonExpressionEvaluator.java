@@ -4,8 +4,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,7 +28,6 @@ import org.datanucleus.query.expression.Literal;
 import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.query.expression.Expression.Operator;
-import org.datanucleus.query.symbol.Symbol;
 
 /**
  * Handles the comparisons ==, &lt;, &lt;=, &gt;, &gt;=.
@@ -76,29 +73,9 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 					else
 						throw new UnsupportedOperationException("NYI");
 
-					if (String.class.isAssignableFrom(parameterType)) {
-						return handleStringIndexOf(primaryEval, invokeArgument, compareToArgument);
-//						Query q = pm.newQuery(IndexEntryString.class);
-//						q.setFilter(
-//								"this.fieldMeta == :fieldMeta && " +
-//								"this.indexKeyString.indexOf(:invokeArgument) " + getOperatorAsJDOQLSymbol() + " :compareToArgument"
-//						);
-//						Map<String, Object> params = new HashMap<String, Object>(3);
-//						params.put("fieldMeta", primaryEval.getFieldMeta());
-//						params.put("invokeArgument", invokeArgument);
-//						params.put("compareToArgument", compareToArgument);
-//
-//						@SuppressWarnings("unchecked")
-//						Collection<? extends IndexEntry> indexEntries = (Collection<? extends IndexEntry>) q.executeWithMap(params);
-//
-//						Set<Long> result = new HashSet<Long>();
-//						for (IndexEntry indexEntry : indexEntries) {
-//							IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
-//							result.addAll(indexValue.getDataEntryIDs());
-//						}
-//						q.closeAll();
-//						return result;
-					}
+					if (String.class.isAssignableFrom(parameterType))
+						return new StringIndexOfResolver(getQueryEvaluator(), primaryExpr, invokeArgument, compareToArgument).query();
+
 					throw new UnsupportedOperationException("NYI");
 				}
 				throw new UnsupportedOperationException("NYI");
@@ -116,7 +93,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 				throw new UnsupportedOperationException("NYI");
 
 			if (Expression.OP_EQ == getExpression().getOperator())
-				return handleEqualsWithConcreteValue(((PrimaryExpressionEvaluator)getLeft()).getFieldMeta(), compareToArgument);
+				return new EqualsWithConcreteValueResolver(getQueryEvaluator(), ((PrimaryExpressionEvaluator)getLeft()).getExpression(), compareToArgument).query();
 
 			throw new UnsupportedOperationException("NYI"); // TODO other operators [<, >, <=, >=]!
 		}
@@ -131,7 +108,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 				throw new UnsupportedOperationException("NYI");
 
 			if (Expression.OP_EQ == getExpression().getOperator())
-				return handleEqualsWithConcreteValue(((PrimaryExpressionEvaluator)getRight()).getFieldMeta(), compareToArgument);
+				return new EqualsWithConcreteValueResolver(getQueryEvaluator(), ((PrimaryExpressionEvaluator)getRight()).getExpression(), compareToArgument).query();
 
 			throw new UnsupportedOperationException("NYI"); // TODO other operators [<, >, <=, >=]!
 		}
@@ -139,160 +116,124 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		throw new UnsupportedOperationException("NYI");
 	}
 
-	private Set<Long> handleStringIndexOf(
-			PrimaryExpressionEvaluator primaryEval,
-			Object invokeArgument, Object compareToArgument
-	)
+	private class StringIndexOfResolver extends PrimaryExpressionResolver
 	{
-		List<String> tuples = new LinkedList<String>(primaryEval.getExpression().getTuples());
-		if (tuples.size() < 1)
-			throw new IllegalStateException("primaryExpression.tuples.size < 1");
+		private Object invokeArgument;
+		private Object compareToArgument;
 
-		if (getQueryEvaluator().getCandidateAlias().equals(tuples.get(0))) {
-			tuples.remove(0);
+		public StringIndexOfResolver(
+				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
+				Object invokeArgument, // the xxx in 'indexOf(xxx)'
+				Object compareToArgument // the yyy in 'indexOf(xxx) >= yyy'
+		)
+		{
+			super(queryEvaluator, primaryExpression);
+			this.invokeArgument = invokeArgument;
+			this.compareToArgument = compareToArgument;
 		}
-		Symbol symbol = getQueryEvaluator().getCompilation().getSymbolTable().getSymbol(getQueryEvaluator().getCandidateAlias());
-		if (symbol == null)
-			throw new IllegalStateException("getQueryEvaluator().getCompilation().getSymbolTable().getSymbol(getQueryEvaluator().getCandidateAlias()) returned null! candidateAlias=" + getQueryEvaluator().getCandidateAlias());
 
-		Class<?> clazz = symbol.getValueType();
-		ClassMeta classMeta = getQueryEvaluator().getStoreManager().getClassMeta(
-				getQueryEvaluator().getExecutionContext(), clazz
-		);
-		return handleStringIndexOf(classMeta, tuples, invokeArgument, compareToArgument);
-	}
-
-	private Set<Long> handleStringIndexOf(
-			ClassMeta classMeta, List<String> tuples,
-			Object invokeArgument, Object compareToArgument
-	)
-	{
-		if (tuples.size() < 1)
-			throw new IllegalStateException("tuples.size < 1");
-
-		tuples = new LinkedList<String>(tuples);
-		String nextTuple = tuples.remove(0);
-		FieldMeta fieldMetaForNextTuple = classMeta.getFieldMeta(null, nextTuple);
-		if (fieldMetaForNextTuple == null)
-			throw new IllegalStateException("Neither the class " + classMeta.getClassName() + " nor one of its superclasses contain a field named \"" + nextTuple + "\"!");
-
-		if (tuples.isEmpty()) {
-			return handleStringIndexOf(fieldMetaForNextTuple, invokeArgument, compareToArgument);
-		}
-		else {
-			// join
-			Class<?> nextTupleType = fieldMetaForNextTuple.getDataNucleusMemberMetaData(getQueryEvaluator().getExecutionContext()).getType();
-			ClassMeta classMetaForNextTupleType = getQueryEvaluator().getStoreManager().getClassMeta(
-					getQueryEvaluator().getExecutionContext(),
-					nextTupleType
+		@Override
+		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
+			Query q = getPersistenceManager().newQuery(IndexEntryString.class);
+			q.setFilter(
+					"this.fieldMeta == :fieldMeta && " +
+					"this.indexKeyString.indexOf(:invokeArgument) " + getOperatorAsJDOQLSymbol() + " :compareToArgument"
 			);
-			Set<Long> dataSetEntryIDsForNextTuple = handleStringIndexOf(
-					classMetaForNextTupleType, tuples, invokeArgument, compareToArgument
-			);
+			Map<String, Object> params = new HashMap<String, Object>(3);
+			params.put("fieldMeta", fieldMeta);
+			params.put("invokeArgument", invokeArgument);
+			params.put("compareToArgument", compareToArgument);
+
+			@SuppressWarnings("unchecked")
+			Collection<? extends IndexEntry> indexEntries = (Collection<? extends IndexEntry>) q.executeWithMap(params);
+
 			Set<Long> result = new HashSet<Long>();
-			for (Long dataSetEntryIDForNextTuple : dataSetEntryIDsForNextTuple) {
-				IndexEntry indexEntry = IndexEntryLong.getIndexEntry(
-						getPersistenceManager(), fieldMetaForNextTuple, dataSetEntryIDForNextTuple
-				);
-				if (indexEntry != null) {
-					IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
-					result.addAll(indexValue.getDataEntryIDs());
-				}
+			for (IndexEntry indexEntry : indexEntries) {
+				IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
+				result.addAll(indexValue.getDataEntryIDs());
 			}
+			q.closeAll();
 			return result;
 		}
-	}
+	};
 
-	private Set<Long> handleStringIndexOf(
-			FieldMeta fieldMeta,
-			Object invokeArgument, Object compareToArgument
-	)
+	private class EqualsWithConcreteValueResolver extends PrimaryExpressionResolver
 	{
-		Query q = getPersistenceManager().newQuery(IndexEntryString.class);
-		q.setFilter(
-				"this.fieldMeta == :fieldMeta && " +
-				"this.indexKeyString.indexOf(:invokeArgument) " + getOperatorAsJDOQLSymbol() + " :compareToArgument"
-		);
-		Map<String, Object> params = new HashMap<String, Object>(3);
-		params.put("fieldMeta", fieldMeta);
-		params.put("invokeArgument", invokeArgument);
-		params.put("compareToArgument", compareToArgument);
+		private Object value;
 
-		@SuppressWarnings("unchecked")
-		Collection<? extends IndexEntry> indexEntries = (Collection<? extends IndexEntry>) q.executeWithMap(params);
-
-		Set<Long> result = new HashSet<Long>();
-		for (IndexEntry indexEntry : indexEntries) {
-			IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
-			result.addAll(indexValue.getDataEntryIDs());
-		}
-		q.closeAll();
-		return result;
-	}
-
-	private Set<Long> handleEqualsWithConcreteValue(FieldMeta fieldMeta, Object value)
-	{
-		PersistenceManager pm = getPersistenceManager();
-
-		AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(getQueryEvaluator().getExecutionContext());
-		Class<?> fieldType = mmd.getType();
-
-		if (String.class.isAssignableFrom(fieldType)) {
-			IndexEntry indexEntry = IndexEntryString.getIndexEntry(pm, fieldMeta, (String) value);
-			if (indexEntry == null)
-				return Collections.emptySet();
-
-			IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
-			return indexValue.getDataEntryIDs();
-		}
-
-		if (
-				Long.class.isAssignableFrom(fieldType) || Integer.class.isAssignableFrom(fieldType) ||
-				Short.class.isAssignableFrom(fieldType) || Byte.class.isAssignableFrom(fieldType) ||
-				long.class.isAssignableFrom(fieldType) || int.class.isAssignableFrom(fieldType) ||
-				short.class.isAssignableFrom(fieldType) || byte.class.isAssignableFrom(fieldType)
+		public EqualsWithConcreteValueResolver(
+				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
+				Object value
 		)
 		{
-			IndexEntry indexEntry = IndexEntryLong.getIndexEntry(pm, fieldMeta, (Long) value);
-			if (indexEntry == null)
-				return Collections.emptySet();
-
-			IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
-			return indexValue.getDataEntryIDs();
+			super(queryEvaluator, primaryExpression);
+			this.value = value;
 		}
 
-		if (
-				Double.class.isAssignableFrom(fieldType) || Float.class.isAssignableFrom(fieldType) ||
-				double.class.isAssignableFrom(fieldType) || float.class.isAssignableFrom(fieldType)
-		)
-		{
-			IndexEntry indexEntry = IndexEntryDouble.getIndexEntry(pm, fieldMeta, (Double) value);
-			if (indexEntry == null)
-				return Collections.emptySet();
+		@Override
+		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
+			PersistenceManager pm = getPersistenceManager();
 
-			IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
-			return indexValue.getDataEntryIDs();
-		}
+			AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(getQueryEvaluator().getExecutionContext());
+			Class<?> fieldType = mmd.getType();
 
-		int relationType = mmd.getRelationType(getQueryEvaluator().getExecutionContext().getClassLoaderResolver());
+			if (String.class.isAssignableFrom(fieldType)) {
+				IndexEntry indexEntry = IndexEntryString.getIndexEntry(pm, fieldMeta, (String) value);
+				if (indexEntry == null)
+					return Collections.emptySet();
 
-		if (Relation.isRelationSingleValued(relationType)) {
-			Long valueDataEntryID = null;
-			if (value != null) {
-				ClassMeta valueClassMeta = getQueryEvaluator().getStoreManager().getClassMeta(getQueryEvaluator().getExecutionContext(), value.getClass());
-				Object valueID = getQueryEvaluator().getExecutionContext().getApiAdapter().getIdForObject(value);
-				if (valueID == null)
-					throw new IllegalStateException("The ApiAdapter returned null as object-ID for: " + value);
-
-				valueDataEntryID = DataEntry.getDataEntryID(pm, valueClassMeta, valueID.toString());
+				IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
+				return indexValue.getDataEntryIDs();
 			}
-			IndexEntry indexEntry = IndexEntryLong.getIndexEntry(pm, fieldMeta, valueDataEntryID);
 
-			IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
-			return indexValue.getDataEntryIDs();
+			if (
+					Long.class.isAssignableFrom(fieldType) || Integer.class.isAssignableFrom(fieldType) ||
+					Short.class.isAssignableFrom(fieldType) || Byte.class.isAssignableFrom(fieldType) ||
+					long.class.isAssignableFrom(fieldType) || int.class.isAssignableFrom(fieldType) ||
+					short.class.isAssignableFrom(fieldType) || byte.class.isAssignableFrom(fieldType)
+			)
+			{
+				IndexEntry indexEntry = IndexEntryLong.getIndexEntry(pm, fieldMeta, (Long) value);
+				if (indexEntry == null)
+					return Collections.emptySet();
+
+				IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
+				return indexValue.getDataEntryIDs();
+			}
+
+			if (
+					Double.class.isAssignableFrom(fieldType) || Float.class.isAssignableFrom(fieldType) ||
+					double.class.isAssignableFrom(fieldType) || float.class.isAssignableFrom(fieldType)
+			)
+			{
+				IndexEntry indexEntry = IndexEntryDouble.getIndexEntry(pm, fieldMeta, (Double) value);
+				if (indexEntry == null)
+					return Collections.emptySet();
+
+				IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
+				return indexValue.getDataEntryIDs();
+			}
+
+			int relationType = mmd.getRelationType(getQueryEvaluator().getExecutionContext().getClassLoaderResolver());
+
+			if (Relation.isRelationSingleValued(relationType)) {
+				Long valueDataEntryID = null;
+				if (value != null) {
+					ClassMeta valueClassMeta = getQueryEvaluator().getStoreManager().getClassMeta(getQueryEvaluator().getExecutionContext(), value.getClass());
+					Object valueID = getQueryEvaluator().getExecutionContext().getApiAdapter().getIdForObject(value);
+					if (valueID == null)
+						throw new IllegalStateException("The ApiAdapter returned null as object-ID for: " + value);
+
+					valueDataEntryID = DataEntry.getDataEntryID(pm, valueClassMeta, valueID.toString());
+				}
+				IndexEntry indexEntry = IndexEntryLong.getIndexEntry(pm, fieldMeta, valueDataEntryID);
+
+				IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
+				return indexValue.getDataEntryIDs();
+			}
+
+			throw new UnsupportedOperationException("NYI");
 		}
-
-		throw new UnsupportedOperationException("NYI");
 	}
 
 	private String getOperatorAsJDOQLSymbol()

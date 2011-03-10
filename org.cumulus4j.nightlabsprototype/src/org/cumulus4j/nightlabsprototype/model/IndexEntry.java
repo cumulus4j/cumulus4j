@@ -29,7 +29,7 @@ import javax.jdo.annotations.Query;
 					"this.indexKeyString == :indexKeyString"
 	)
 })
-public abstract class IndexEntry
+public abstract class IndexEntry<FieldType>
 {
 	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
@@ -63,7 +63,7 @@ public abstract class IndexEntry
 		return fieldMeta;
 	}
 
-	public abstract Object getIndexKey();
+	public abstract FieldType getIndexKey();
 
 	/**
 	 * Get the <b>encrypted</b> pointers to {@link DataEntry}. After decrypting
@@ -89,7 +89,7 @@ public abstract class IndexEntry
 		if (this == obj) return true;
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
-		IndexEntry other = (IndexEntry) obj;
+		IndexEntry<?> other = (IndexEntry<?>) obj;
 		return this.indexEntryID == other.indexEntryID;
 	}
 }

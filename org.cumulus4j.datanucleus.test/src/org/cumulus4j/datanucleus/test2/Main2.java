@@ -273,6 +273,24 @@ public class Main2 {
 		}
 	}
 
+	private static class QueryDataTransRunnable2 implements TransRunnable
+	{
+		public void run(PersistenceManager pm) throws IOException
+		{
+			Query q = pm.newQuery(Movie.class);
+			q.setFilter("this.rating.name == :ratingName");
+
+			String ratingName = "PG-13 (USA)";
+
+			@SuppressWarnings("unchecked")
+			List<Movie> movies = (List<Movie>) q.execute(ratingName);
+			logger.info("QueryDataTransRunnable0.run: found " + movies.size() + " movies with rating.name == \"" + ratingName + "\":");
+			for (Movie movie : movies) {
+				logger.info("QueryDataTransRunnable0.run:   * " + movie.getMovieID() + ": " + movie.getName() + " (" + movie.getRating().getName() + ")");
+			}
+		}
+	}
+
 //	private static class UpdateDataTransRunnable0 implements TransRunnable
 //	{
 //		public void run(PersistenceManager pm) throws IOException
@@ -463,6 +481,11 @@ public class Main2 {
 			QueryDataTransRunnable1 queryDataTransRunnable1 = new QueryDataTransRunnable1();
 			test.executeInTransaction(queryDataTransRunnable1);
 			logger.info("*** Successfully executed query 1 ***");
+
+			logger.info("*** Executing query 2 ***");
+			QueryDataTransRunnable2 queryDataTransRunnable2 = new QueryDataTransRunnable2();
+			test.executeInTransaction(queryDataTransRunnable2);
+			logger.info("*** Successfully executed query 2 ***");
 
 //			logger.info("*** Update data 0 ***");
 //			UpdateDataTransRunnable0 updateDataTransRunnable0 = new UpdateDataTransRunnable0();

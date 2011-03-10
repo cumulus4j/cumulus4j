@@ -32,7 +32,7 @@ import javax.jdo.annotations.Query;
 	)
 })
 public class IndexEntryString
-extends IndexEntry
+extends IndexEntry<String>
 {
 	/**
 	 * Get an {@link IndexEntryString} for the specified unique key fields or <code>null</code>, if no such instance
