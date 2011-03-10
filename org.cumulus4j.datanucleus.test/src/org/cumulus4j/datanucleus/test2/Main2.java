@@ -435,7 +435,7 @@ public class Main2 {
 			long startTimestamp;
 
 			// Ensure we have a completely empty database, before we start up DataNucleus.
-			if (true)
+			if (false)
 				CleanupUtil.dropAllTables();
 
 			startTimestamp = System.currentTimeMillis();
@@ -443,16 +443,16 @@ public class Main2 {
 			test.executeInTransaction(initialiseMetaDataTransRunnable);
 			logger.info("*** Initialising meta-data took " + (System.currentTimeMillis() - startTimestamp) + " msec ***");
 
-			startTimestamp = System.currentTimeMillis();
-			DeleteEntitiesTransRunnable deleteEntitiesTransRunnable = new DeleteEntitiesTransRunnable();
-			test.executeInTransaction(deleteEntitiesTransRunnable);
-			logger.info("*** Deleting data took " + (System.currentTimeMillis() - startTimestamp) + " msec ***");
-
-			// Create the data required for our test.
-			startTimestamp = System.currentTimeMillis();
-			CreateDataTransRunnable createDataTransRunnable = new CreateDataTransRunnable();
-			test.executeInTransaction(createDataTransRunnable);
-			logger.info("*** Creating data took " + (System.currentTimeMillis() - startTimestamp) + " msec ***");
+//			startTimestamp = System.currentTimeMillis();
+//			DeleteEntitiesTransRunnable deleteEntitiesTransRunnable = new DeleteEntitiesTransRunnable();
+//			test.executeInTransaction(deleteEntitiesTransRunnable);
+//			logger.info("*** Deleting data took " + (System.currentTimeMillis() - startTimestamp) + " msec ***");
+//
+//			// Create the data required for our test.
+//			startTimestamp = System.currentTimeMillis();
+//			CreateDataTransRunnable createDataTransRunnable = new CreateDataTransRunnable();
+//			test.executeInTransaction(createDataTransRunnable);
+//			logger.info("*** Creating data took " + (System.currentTimeMillis() - startTimestamp) + " msec ***");
 
 			logger.info("*** Executing query 0 ***");
 			QueryDataTransRunnable0 queryDataTransRunnable0 = new QueryDataTransRunnable0();

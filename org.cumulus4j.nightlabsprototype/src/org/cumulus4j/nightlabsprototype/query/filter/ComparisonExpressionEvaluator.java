@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,6 +30,7 @@ import org.datanucleus.query.expression.Literal;
 import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.query.expression.Expression.Operator;
+import org.datanucleus.query.symbol.Symbol;
 
 /**
  * Handles the comparisons ==, &lt;, &lt;=, &gt;, &gt;=.
@@ -44,8 +47,6 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 	@Override
 	protected Set<Long> _queryResultDataEntryIDs()
 	{
-		PersistenceManager pm = getPersistenceManager();
-
 		if (getLeft() instanceof InvokeExpressionEvaluator) {
 			InvokeExpressionEvaluator invokeEval = (InvokeExpressionEvaluator) getLeft();
 			if ("indexOf".equals(invokeEval.getExpression().getOperation())) {
@@ -76,25 +77,27 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 						throw new UnsupportedOperationException("NYI");
 
 					if (String.class.isAssignableFrom(parameterType)) {
-						Query q = pm.newQuery(IndexEntryString.class);
-						q.setFilter(
-								"this.fieldMeta == :fieldMeta && " +
-								"this.indexKeyString.indexOf(:invokeArgument) " + getOperatorAsJDOQLSymbol() + " :compareToArgument"
-						);
-						Map<String, Object> params = new HashMap<String, Object>(3);
-						params.put("fieldMeta", primaryEval.getFieldMeta());
-						params.put("invokeArgument", invokeArgument);
-						params.put("compareToArgument", compareToArgument);
-
-						@SuppressWarnings("unchecked")
-						Collection<? extends IndexEntry> indexEntries = (Collection<? extends IndexEntry>) q.executeWithMap(params);
-
-						Set<Long> result = new HashSet<Long>();
-						for (IndexEntry indexEntry : indexEntries) {
-							IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
-							result.addAll(indexValue.getDataEntryIDs());
-						}
-						return result;
+						return handleStringIndexOf(primaryEval, invokeArgument, compareToArgument);
+//						Query q = pm.newQuery(IndexEntryString.class);
+//						q.setFilter(
+//								"this.fieldMeta == :fieldMeta && " +
+//								"this.indexKeyString.indexOf(:invokeArgument) " + getOperatorAsJDOQLSymbol() + " :compareToArgument"
+//						);
+//						Map<String, Object> params = new HashMap<String, Object>(3);
+//						params.put("fieldMeta", primaryEval.getFieldMeta());
+//						params.put("invokeArgument", invokeArgument);
+//						params.put("compareToArgument", compareToArgument);
+//
+//						@SuppressWarnings("unchecked")
+//						Collection<? extends IndexEntry> indexEntries = (Collection<? extends IndexEntry>) q.executeWithMap(params);
+//
+//						Set<Long> result = new HashSet<Long>();
+//						for (IndexEntry indexEntry : indexEntries) {
+//							IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
+//							result.addAll(indexValue.getDataEntryIDs());
+//						}
+//						q.closeAll();
+//						return result;
 					}
 					throw new UnsupportedOperationException("NYI");
 				}
@@ -134,6 +137,97 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		}
 
 		throw new UnsupportedOperationException("NYI");
+	}
+
+	private Set<Long> handleStringIndexOf(
+			PrimaryExpressionEvaluator primaryEval,
+			Object invokeArgument, Object compareToArgument
+	)
+	{
+		List<String> tuples = new LinkedList<String>(primaryEval.getExpression().getTuples());
+		if (tuples.size() < 1)
+			throw new IllegalStateException("primaryExpression.tuples.size < 1");
+
+		if (getQueryEvaluator().getCandidateAlias().equals(tuples.get(0))) {
+			tuples.remove(0);
+		}
+		Symbol symbol = getQueryEvaluator().getCompilation().getSymbolTable().getSymbol(getQueryEvaluator().getCandidateAlias());
+		if (symbol == null)
+			throw new IllegalStateException("getQueryEvaluator().getCompilation().getSymbolTable().getSymbol(getQueryEvaluator().getCandidateAlias()) returned null! candidateAlias=" + getQueryEvaluator().getCandidateAlias());
+
+		Class<?> clazz = symbol.getValueType();
+		ClassMeta classMeta = getQueryEvaluator().getStoreManager().getClassMeta(
+				getQueryEvaluator().getExecutionContext(), clazz
+		);
+		return handleStringIndexOf(classMeta, tuples, invokeArgument, compareToArgument);
+	}
+
+	private Set<Long> handleStringIndexOf(
+			ClassMeta classMeta, List<String> tuples,
+			Object invokeArgument, Object compareToArgument
+	)
+	{
+		if (tuples.size() < 1)
+			throw new IllegalStateException("tuples.size < 1");
+
+		tuples = new LinkedList<String>(tuples);
+		String nextTuple = tuples.remove(0);
+		FieldMeta fieldMetaForNextTuple = classMeta.getFieldMeta(null, nextTuple);
+		if (fieldMetaForNextTuple == null)
+			throw new IllegalStateException("Neither the class " + classMeta.getClassName() + " nor one of its superclasses contain a field named \"" + nextTuple + "\"!");
+
+		if (tuples.isEmpty()) {
+			return handleStringIndexOf(fieldMetaForNextTuple, invokeArgument, compareToArgument);
+		}
+		else {
+			// join
+			Class<?> nextTupleType = fieldMetaForNextTuple.getDataNucleusMemberMetaData(getQueryEvaluator().getExecutionContext()).getType();
+			ClassMeta classMetaForNextTupleType = getQueryEvaluator().getStoreManager().getClassMeta(
+					getQueryEvaluator().getExecutionContext(),
+					nextTupleType
+			);
+			Set<Long> dataSetEntryIDsForNextTuple = handleStringIndexOf(
+					classMetaForNextTupleType, tuples, invokeArgument, compareToArgument
+			);
+			Set<Long> result = new HashSet<Long>();
+			for (Long dataSetEntryIDForNextTuple : dataSetEntryIDsForNextTuple) {
+				IndexEntry indexEntry = IndexEntryLong.getIndexEntry(
+						getPersistenceManager(), fieldMetaForNextTuple, dataSetEntryIDForNextTuple
+				);
+				if (indexEntry != null) {
+					IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
+					result.addAll(indexValue.getDataEntryIDs());
+				}
+			}
+			return result;
+		}
+	}
+
+	private Set<Long> handleStringIndexOf(
+			FieldMeta fieldMeta,
+			Object invokeArgument, Object compareToArgument
+	)
+	{
+		Query q = getPersistenceManager().newQuery(IndexEntryString.class);
+		q.setFilter(
+				"this.fieldMeta == :fieldMeta && " +
+				"this.indexKeyString.indexOf(:invokeArgument) " + getOperatorAsJDOQLSymbol() + " :compareToArgument"
+		);
+		Map<String, Object> params = new HashMap<String, Object>(3);
+		params.put("fieldMeta", fieldMeta);
+		params.put("invokeArgument", invokeArgument);
+		params.put("compareToArgument", compareToArgument);
+
+		@SuppressWarnings("unchecked")
+		Collection<? extends IndexEntry> indexEntries = (Collection<? extends IndexEntry>) q.executeWithMap(params);
+
+		Set<Long> result = new HashSet<Long>();
+		for (IndexEntry indexEntry : indexEntries) {
+			IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
+			result.addAll(indexValue.getDataEntryIDs());
+		}
+		q.closeAll();
+		return result;
 	}
 
 	private Set<Long> handleEqualsWithConcreteValue(FieldMeta fieldMeta, Object value)
