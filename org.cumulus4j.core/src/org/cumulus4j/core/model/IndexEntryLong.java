@@ -1,4 +1,4 @@
-package org.cumulus4j.nightlabsprototype.model;
+package org.cumulus4j.core.model;
 
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.Inheritance;

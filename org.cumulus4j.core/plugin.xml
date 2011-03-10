@@ -2,13 +2,13 @@
 <?eclipse version="3.4"?>
 <plugin>
 	<extension point="org.datanucleus.store_manager">
-        <store-manager class-name="org.cumulus4j.nightlabsprototype.Cumulus4jStoreManager" key="cumulus4j" url-key="cumulus4j"/>
+        <store-manager class-name="org.cumulus4j.core.Cumulus4jStoreManager" key="cumulus4j" url-key="cumulus4j"/>
     </extension>
  <extension
        point="org.datanucleus.store_connectionfactory">
     <connectionfactory
           name="cumulus4j"
-          class-name="org.cumulus4j.nightlabsprototype.Cumulus4jConnectionFactory"
+          class-name="org.cumulus4j.core.Cumulus4jConnectionFactory"
           datastore="cumulus4j"
           transactional="true">
     </connectionfactory>
@@ -16,14 +16,14 @@
  <extension
        point="org.datanucleus.store_query_query">
     <query
-          class-name="org.cumulus4j.nightlabsprototype.query.JDOQLQuery"
+          class-name="org.cumulus4j.core.query.JDOQLQuery"
           datastore="cumulus4j" name="JDOQL">
     </query>
  </extension>
  <extension point="org.datanucleus.store_valuegenerator">
-    <valuegenerator name="increment" class-name="org.cumulus4j.nightlabsprototype.Cumulus4jIncrementGenerator"
+    <valuegenerator name="increment" class-name="org.cumulus4j.core.Cumulus4jIncrementGenerator"
             datastore="cumulus4j"/>
-    <valuegenerator name="sequence" class-name="org.cumulus4j.nightlabsprototype.Cumulus4jIncrementGenerator"
+    <valuegenerator name="sequence" class-name="org.cumulus4j.core.Cumulus4jIncrementGenerator"
             datastore="cumulus4j"/>
  </extension>
 </plugin>

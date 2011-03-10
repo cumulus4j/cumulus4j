@@ -1,4 +1,4 @@
-package org.cumulus4j.nightlabsprototype.query.filter;
+package org.cumulus4j.core.query.filter;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -10,15 +10,15 @@ import java.util.Set;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 
-import org.cumulus4j.nightlabsprototype.model.ClassMeta;
-import org.cumulus4j.nightlabsprototype.model.DataEntry;
-import org.cumulus4j.nightlabsprototype.model.FieldMeta;
-import org.cumulus4j.nightlabsprototype.model.IndexEntry;
-import org.cumulus4j.nightlabsprototype.model.IndexEntryFactory;
-import org.cumulus4j.nightlabsprototype.model.IndexEntryFactoryRegistry;
-import org.cumulus4j.nightlabsprototype.model.IndexEntryOneToOneRelationHelper;
-import org.cumulus4j.nightlabsprototype.model.IndexValue;
-import org.cumulus4j.nightlabsprototype.query.QueryEvaluator;
+import org.cumulus4j.core.model.ClassMeta;
+import org.cumulus4j.core.model.DataEntry;
+import org.cumulus4j.core.model.FieldMeta;
+import org.cumulus4j.core.model.IndexEntry;
+import org.cumulus4j.core.model.IndexEntryFactory;
+import org.cumulus4j.core.model.IndexEntryFactoryRegistry;
+import org.cumulus4j.core.model.IndexEntryOneToOneRelationHelper;
+import org.cumulus4j.core.model.IndexValue;
+import org.cumulus4j.core.query.QueryEvaluator;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.Relation;
 import org.datanucleus.query.QueryUtils;

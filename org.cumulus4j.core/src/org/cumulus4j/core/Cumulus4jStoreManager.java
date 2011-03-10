@@ -1,4 +1,4 @@
-package org.cumulus4j.nightlabsprototype;
+package org.cumulus4j.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,9 +12,9 @@ import java.util.WeakHashMap;
 import javax.jdo.FetchPlan;
 import javax.jdo.PersistenceManager;
 
-import org.cumulus4j.nightlabsprototype.model.ClassMeta;
-import org.cumulus4j.nightlabsprototype.model.DataEntry;
-import org.cumulus4j.nightlabsprototype.model.FieldMeta;
+import org.cumulus4j.core.model.ClassMeta;
+import org.cumulus4j.core.model.DataEntry;
+import org.cumulus4j.core.model.FieldMeta;
 import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.NucleusContext;
 import org.datanucleus.identity.OID;

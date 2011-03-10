@@ -1,4 +1,4 @@
-package org.cumulus4j.nightlabsprototype.model;
+package org.cumulus4j.core.model;
 
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.IdGeneratorStrategy;
@@ -11,7 +11,7 @@ import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.annotations.Unique;
 import javax.jdo.listener.DetachCallback;
 
-import org.cumulus4j.nightlabsprototype.Cumulus4jStoreManager;
+import org.cumulus4j.core.Cumulus4jStoreManager;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.store.ExecutionContext;

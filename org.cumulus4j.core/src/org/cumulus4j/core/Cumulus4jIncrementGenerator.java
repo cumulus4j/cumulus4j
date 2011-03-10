@@ -1,10 +1,10 @@
-package org.cumulus4j.nightlabsprototype;
+package org.cumulus4j.core;
 
 import java.util.Properties;
 
 import javax.jdo.PersistenceManager;
 
-import org.cumulus4j.nightlabsprototype.model.Sequence;
+import org.cumulus4j.core.model.Sequence;
 import org.datanucleus.store.connection.ManagedConnection;
 import org.datanucleus.store.valuegenerator.AbstractDatastoreGenerator;
 import org.datanucleus.store.valuegenerator.ValueGenerationBlock;

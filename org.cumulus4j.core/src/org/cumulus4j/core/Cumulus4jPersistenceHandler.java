@@ -1,19 +1,19 @@
-package org.cumulus4j.nightlabsprototype;
+package org.cumulus4j.core;
 
 import java.util.Arrays;
 import java.util.Map;
 
 import javax.jdo.PersistenceManager;
 
-import org.cumulus4j.nightlabsprototype.model.ClassMeta;
-import org.cumulus4j.nightlabsprototype.model.DataEntry;
-import org.cumulus4j.nightlabsprototype.model.FieldMeta;
-import org.cumulus4j.nightlabsprototype.model.IndexEntry;
-import org.cumulus4j.nightlabsprototype.model.IndexEntryFactory;
-import org.cumulus4j.nightlabsprototype.model.IndexEntryFactoryRegistry;
-import org.cumulus4j.nightlabsprototype.model.IndexEntryOneToOneRelationHelper;
-import org.cumulus4j.nightlabsprototype.model.IndexValue;
-import org.cumulus4j.nightlabsprototype.model.ObjectContainer;
+import org.cumulus4j.core.model.ClassMeta;
+import org.cumulus4j.core.model.DataEntry;
+import org.cumulus4j.core.model.FieldMeta;
+import org.cumulus4j.core.model.IndexEntry;
+import org.cumulus4j.core.model.IndexEntryFactory;
+import org.cumulus4j.core.model.IndexEntryFactoryRegistry;
+import org.cumulus4j.core.model.IndexEntryOneToOneRelationHelper;
+import org.cumulus4j.core.model.IndexValue;
+import org.cumulus4j.core.model.ObjectContainer;
 import org.datanucleus.exceptions.NucleusObjectNotFoundException;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;

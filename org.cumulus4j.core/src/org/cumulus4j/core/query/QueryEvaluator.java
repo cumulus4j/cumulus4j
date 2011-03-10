@@ -1,4 +1,4 @@
-package org.cumulus4j.nightlabsprototype.query;
+package org.cumulus4j.core.query;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,17 +12,17 @@ import java.util.Set;
 
 import javax.jdo.PersistenceManager;
 
-import org.cumulus4j.nightlabsprototype.Cumulus4jStoreManager;
-import org.cumulus4j.nightlabsprototype.EncryptionHandler;
-import org.cumulus4j.nightlabsprototype.model.ClassMeta;
-import org.cumulus4j.nightlabsprototype.model.DataEntry;
-import org.cumulus4j.nightlabsprototype.query.filter.AbstractExpressionEvaluator;
-import org.cumulus4j.nightlabsprototype.query.filter.AndExpressionEvaluator;
-import org.cumulus4j.nightlabsprototype.query.filter.ComparisonExpressionEvaluator;
-import org.cumulus4j.nightlabsprototype.query.filter.InvokeExpressionEvaluator;
-import org.cumulus4j.nightlabsprototype.query.filter.LiteralEvaluator;
-import org.cumulus4j.nightlabsprototype.query.filter.ParameterExpressionEvaluator;
-import org.cumulus4j.nightlabsprototype.query.filter.PrimaryExpressionEvaluator;
+import org.cumulus4j.core.Cumulus4jStoreManager;
+import org.cumulus4j.core.EncryptionHandler;
+import org.cumulus4j.core.model.ClassMeta;
+import org.cumulus4j.core.model.DataEntry;
+import org.cumulus4j.core.query.filter.AbstractExpressionEvaluator;
+import org.cumulus4j.core.query.filter.AndExpressionEvaluator;
+import org.cumulus4j.core.query.filter.ComparisonExpressionEvaluator;
+import org.cumulus4j.core.query.filter.InvokeExpressionEvaluator;
+import org.cumulus4j.core.query.filter.LiteralEvaluator;
+import org.cumulus4j.core.query.filter.ParameterExpressionEvaluator;
+import org.cumulus4j.core.query.filter.PrimaryExpressionEvaluator;
 import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.identity.IdentityUtils;
 import org.datanucleus.metadata.AbstractClassMetaData;

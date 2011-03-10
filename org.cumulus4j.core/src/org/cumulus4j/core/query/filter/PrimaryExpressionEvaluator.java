@@ -1,11 +1,11 @@
-package org.cumulus4j.nightlabsprototype.query.filter;
+package org.cumulus4j.core.query.filter;
 
 import java.util.List;
 import java.util.Set;
 
-import org.cumulus4j.nightlabsprototype.model.ClassMeta;
-import org.cumulus4j.nightlabsprototype.model.FieldMeta;
-import org.cumulus4j.nightlabsprototype.query.QueryEvaluator;
+import org.cumulus4j.core.model.ClassMeta;
+import org.cumulus4j.core.model.FieldMeta;
+import org.cumulus4j.core.query.QueryEvaluator;
 import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.query.symbol.Symbol;
 

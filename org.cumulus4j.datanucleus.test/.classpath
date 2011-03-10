@@ -10,7 +10,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/enhancer"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/store.rdbms"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/api.jdo"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.cumulus4j.nightlabsprototype"/>
 	<classpathentry kind="lib" path="/local.repository/javax.jdo/jars/jdo-api-3.1-SNAPSHOT-20110223.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.cumulus4j.core"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

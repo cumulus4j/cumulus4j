@@ -1,4 +1,4 @@
-package org.cumulus4j.nightlabsprototype.model;
+package org.cumulus4j.core.model;
 
 import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
@@ -10,7 +10,7 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.identity.StringIdentity;
 
-import org.cumulus4j.nightlabsprototype.Cumulus4jIncrementGenerator;
+import org.cumulus4j.core.Cumulus4jIncrementGenerator;
 
 /**
  * Persistent sequence entity used by {@link Cumulus4jIncrementGenerator}.

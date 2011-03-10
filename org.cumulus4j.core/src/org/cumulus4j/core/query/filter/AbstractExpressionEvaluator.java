@@ -1,4 +1,4 @@
-package org.cumulus4j.nightlabsprototype.query.filter;
+package org.cumulus4j.core.query.filter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,8 +8,8 @@ import java.util.Set;
 import javax.jdo.PersistenceManager;
 import javax.jdo.identity.LongIdentity;
 
-import org.cumulus4j.nightlabsprototype.model.DataEntry;
-import org.cumulus4j.nightlabsprototype.query.QueryEvaluator;
+import org.cumulus4j.core.model.DataEntry;
+import org.cumulus4j.core.query.QueryEvaluator;
 import org.datanucleus.query.expression.Expression;
 
 public abstract class AbstractExpressionEvaluator<X extends Expression>

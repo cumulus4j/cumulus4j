@@ -1,4 +1,4 @@
-package org.cumulus4j.nightlabsprototype;
+package org.cumulus4j.core;
 
 import java.io.IOException;
 import java.io.InputStream;

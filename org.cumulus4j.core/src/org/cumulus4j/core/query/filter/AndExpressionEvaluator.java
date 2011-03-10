@@ -1,9 +1,9 @@
-package org.cumulus4j.nightlabsprototype.query.filter;
+package org.cumulus4j.core.query.filter;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import org.cumulus4j.nightlabsprototype.query.QueryEvaluator;
+import org.cumulus4j.core.query.QueryEvaluator;
 import org.datanucleus.query.expression.DyadicExpression;
 
 public class AndExpressionEvaluator

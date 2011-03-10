@@ -1,8 +1,8 @@
-package org.cumulus4j.nightlabsprototype.query.filter;
+package org.cumulus4j.core.query.filter;
 
 import java.util.Set;
 
-import org.cumulus4j.nightlabsprototype.query.QueryEvaluator;
+import org.cumulus4j.core.query.QueryEvaluator;
 import org.datanucleus.query.expression.InvokeExpression;
 
 public class InvokeExpressionEvaluator

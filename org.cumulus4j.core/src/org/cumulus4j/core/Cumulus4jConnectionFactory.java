@@ -1,4 +1,4 @@
-package org.cumulus4j.nightlabsprototype;
+package org.cumulus4j.core;
 
 import java.util.Locale;
 import java.util.Map;
@@ -11,15 +11,15 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import org.cumulus4j.nightlabsprototype.model.ClassMeta;
-import org.cumulus4j.nightlabsprototype.model.DataEntry;
-import org.cumulus4j.nightlabsprototype.model.FieldMeta;
-import org.cumulus4j.nightlabsprototype.model.IndexEntryDouble;
-import org.cumulus4j.nightlabsprototype.model.IndexEntryLong;
-import org.cumulus4j.nightlabsprototype.model.IndexEntryStringLong;
-import org.cumulus4j.nightlabsprototype.model.IndexEntryStringShort;
-import org.cumulus4j.nightlabsprototype.model.Sequence;
-import org.cumulus4j.nightlabsprototype.resource.ResourceHelper;
+import org.cumulus4j.core.model.ClassMeta;
+import org.cumulus4j.core.model.DataEntry;
+import org.cumulus4j.core.model.FieldMeta;
+import org.cumulus4j.core.model.IndexEntryDouble;
+import org.cumulus4j.core.model.IndexEntryLong;
+import org.cumulus4j.core.model.IndexEntryStringLong;
+import org.cumulus4j.core.model.IndexEntryStringShort;
+import org.cumulus4j.core.model.Sequence;
+import org.cumulus4j.core.resource.ResourceHelper;
 import org.datanucleus.PersistenceConfiguration;
 import org.datanucleus.store.StoreManager;
 import org.datanucleus.store.connection.AbstractConnectionFactory;

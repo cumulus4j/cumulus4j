@@ -1,4 +1,4 @@
-package org.cumulus4j.nightlabsprototype.model;
+package org.cumulus4j.core.model;
 
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.ColumnMetaData;

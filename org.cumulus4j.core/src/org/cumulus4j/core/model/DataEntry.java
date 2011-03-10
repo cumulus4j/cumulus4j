@@ -1,4 +1,4 @@
-package org.cumulus4j.nightlabsprototype.model;
+package org.cumulus4j.core.model;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.annotations.Column;

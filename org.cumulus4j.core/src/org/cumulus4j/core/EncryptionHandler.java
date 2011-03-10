@@ -1,4 +1,4 @@
-package org.cumulus4j.nightlabsprototype;
+package org.cumulus4j.core;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -8,10 +8,10 @@ import java.io.ObjectOutputStream;
 
 import javax.jdo.PersistenceManagerFactory;
 
-import org.cumulus4j.nightlabsprototype.model.DataEntry;
-import org.cumulus4j.nightlabsprototype.model.IndexEntry;
-import org.cumulus4j.nightlabsprototype.model.IndexValue;
-import org.cumulus4j.nightlabsprototype.model.ObjectContainer;
+import org.cumulus4j.core.model.DataEntry;
+import org.cumulus4j.core.model.IndexEntry;
+import org.cumulus4j.core.model.IndexValue;
+import org.cumulus4j.core.model.ObjectContainer;
 import org.datanucleus.ClassLoaderResolver;
 
 /**

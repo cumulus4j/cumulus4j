@@ -1,4 +1,4 @@
-package org.cumulus4j.nightlabsprototype.query;
+package org.cumulus4j.core.query;
 
 import java.util.Collection;
 import java.util.Map;
