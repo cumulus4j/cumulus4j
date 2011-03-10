@@ -9,9 +9,9 @@ import org.cumulus4j.nightlabsprototype.model.ClassMeta;
 import org.cumulus4j.nightlabsprototype.model.DataEntry;
 import org.cumulus4j.nightlabsprototype.model.FieldMeta;
 import org.cumulus4j.nightlabsprototype.model.IndexEntry;
-import org.cumulus4j.nightlabsprototype.model.IndexEntryDouble;
-import org.cumulus4j.nightlabsprototype.model.IndexEntryLong;
-import org.cumulus4j.nightlabsprototype.model.IndexEntryString;
+import org.cumulus4j.nightlabsprototype.model.IndexEntryFactory;
+import org.cumulus4j.nightlabsprototype.model.IndexEntryFactoryRegistry;
+import org.cumulus4j.nightlabsprototype.model.IndexEntryOneToOneRelationHelper;
 import org.cumulus4j.nightlabsprototype.model.IndexValue;
 import org.cumulus4j.nightlabsprototype.model.ObjectContainer;
 import org.datanucleus.exceptions.NucleusObjectNotFoundException;
@@ -93,42 +93,32 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			Object fieldValue
 	)
 	{
-		Class<?> fieldType = dnMemberMetaData.getType();
-
 		IndexEntry indexEntry = null;
-		if (String.class.isAssignableFrom(fieldType)) {
-			indexEntry = IndexEntryString.getIndexEntry(pm, fieldMeta, (String)fieldValue);
-		}
-		else if (Long.class.isAssignableFrom(fieldType) || Integer.class.isAssignableFrom(fieldType) || Short.class.isAssignableFrom(fieldType) || Byte.class.isAssignableFrom(fieldType) || long.class == fieldType || int.class == fieldType || short.class == fieldType || byte.class == fieldType) {
-			Long v = fieldValue == null ? null : ((Number)fieldValue).longValue();
-			indexEntry = IndexEntryLong.getIndexEntry(pm, fieldMeta, v);
-		}
-		else if (Double.class.isAssignableFrom(fieldType) || Float.class.isAssignableFrom(fieldType) || double.class == fieldType || float.class == fieldType) {
-			Double v = fieldValue == null ? null : ((Number)fieldValue).doubleValue();
-			indexEntry = IndexEntryDouble.getIndexEntry(pm, fieldMeta, v);
-		}
-		else {
-			int relationType = dnMemberMetaData.getRelationType(executionContext.getClassLoaderResolver());
 
-			if (Relation.isRelationSingleValued(relationType)) {
-				// 1-1-relationship to another persistence-capable object.
-				// The fieldValue is already the object-id, hence find out the type of the original object.
-				Long otherDataEntryID = null;
-				if (fieldValue != null) {
-					// The fieldValue is only the object-id, hence we need to find out the type of the persistable object.
-					String fieldValueClassName = storeManager.getClassNameForObjectID(fieldValue, executionContext.getClassLoaderResolver(), executionContext);
-					Class<?> fieldValueClass = executionContext.getClassLoaderResolver().classForName(fieldValueClassName);
-					ClassMeta classMeta = storeManager.getClassMeta(executionContext, fieldValueClass);
-					otherDataEntryID = DataEntry.getDataEntryID(pm, classMeta, fieldValue.toString());
-				}
-				indexEntry = IndexEntryLong.getIndexEntry(pm, fieldMeta, otherDataEntryID);
-			}
-			else if (Relation.isRelationMultiValued(relationType)) {
-				// collection
-				// map
-				// TODO index collections and maps, too!
+		int relationType = dnMemberMetaData.getRelationType(executionContext.getClassLoaderResolver());
 
+		if (Relation.NONE == relationType) {
+			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(dnMemberMetaData, false);
+			indexEntry = indexEntryFactory == null ? null : indexEntryFactory.getIndexEntry(pm, fieldMeta, fieldValue);
+		}
+		else if (Relation.isRelationSingleValued(relationType)) {
+			// 1-1-relationship to another persistence-capable object.
+			// The fieldValue is already the object-id, hence find out the type of the original object.
+			Long otherDataEntryID = null;
+			if (fieldValue != null) {
+				// The fieldValue is only the object-id, hence we need to find out the type of the persistable object.
+				String fieldValueClassName = storeManager.getClassNameForObjectID(fieldValue, executionContext.getClassLoaderResolver(), executionContext);
+				Class<?> fieldValueClass = executionContext.getClassLoaderResolver().classForName(fieldValueClassName);
+				ClassMeta classMeta = storeManager.getClassMeta(executionContext, fieldValueClass);
+				otherDataEntryID = DataEntry.getDataEntryID(pm, classMeta, fieldValue.toString());
 			}
+			indexEntry = IndexEntryOneToOneRelationHelper.getIndexEntry(pm, fieldMeta, otherDataEntryID);
+		}
+		else if (Relation.isRelationMultiValued(relationType)) {
+			// collection
+			// map
+			// TODO index collections and maps, too!
+
 		}
 
 		if (indexEntry != null) {
@@ -238,41 +228,31 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			Object fieldValue
 	)
 	{
-		Class<?> fieldType = dnMemberMetaData.getType();
-
 		IndexEntry indexEntry = null;
-		if (String.class.isAssignableFrom(fieldType)) {
-			indexEntry = IndexEntryString.createIndexEntry(pm, fieldMeta, (String)fieldValue);
-		}
-		else if (Long.class.isAssignableFrom(fieldType) || Integer.class.isAssignableFrom(fieldType) || Short.class.isAssignableFrom(fieldType) || Byte.class.isAssignableFrom(fieldType) || long.class == fieldType || int.class == fieldType || short.class == fieldType || byte.class == fieldType) {
-			Long v = fieldValue == null ? null : ((Number)fieldValue).longValue();
-			indexEntry = IndexEntryLong.createIndexEntry(pm, fieldMeta, v);
-		}
-		else if (Double.class.isAssignableFrom(fieldType) || Float.class.isAssignableFrom(fieldType) || double.class == fieldType || float.class == fieldType) {
-			Double v = fieldValue == null ? null : ((Number)fieldValue).doubleValue();
-			indexEntry = IndexEntryDouble.createIndexEntry(pm, fieldMeta, v);
-		}
-		else {
-			int relationType = dnMemberMetaData.getRelationType(executionContext.getClassLoaderResolver());
 
-			if (Relation.isRelationSingleValued(relationType)) {
-				// 1-1-relationship to another persistence-capable object.
-				Long otherDataEntryID = null;
-				if (fieldValue != null) {
-					// The fieldValue is only the object-id, hence we need to find out the type of the persistable object.
-					String fieldValueClassName = storeManager.getClassNameForObjectID(fieldValue, executionContext.getClassLoaderResolver(), executionContext);
-					Class<?> fieldValueClass = executionContext.getClassLoaderResolver().classForName(fieldValueClassName);
-					ClassMeta classMeta = storeManager.getClassMeta(executionContext, fieldValueClass);
-					otherDataEntryID = DataEntry.getDataEntryID(pm, classMeta, fieldValue.toString());
-				}
-				indexEntry = IndexEntryLong.createIndexEntry(pm, fieldMeta, otherDataEntryID);
-			}
-			else if (Relation.isRelationMultiValued(relationType)) {
-				// collection
-				// map
-				// TODO index collections and maps, too!
+		int relationType = dnMemberMetaData.getRelationType(executionContext.getClassLoaderResolver());
 
+		if (Relation.NONE == relationType) {
+			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(dnMemberMetaData, false);
+			indexEntry = indexEntryFactory == null ? null : indexEntryFactory.createIndexEntry(pm, fieldMeta, fieldValue);
+		}
+		else if (Relation.isRelationSingleValued(relationType)) {
+			// 1-1-relationship to another persistence-capable object.
+			Long otherDataEntryID = null;
+			if (fieldValue != null) {
+				// The fieldValue is only the object-id, hence we need to find out the type of the persistable object.
+				String fieldValueClassName = storeManager.getClassNameForObjectID(fieldValue, executionContext.getClassLoaderResolver(), executionContext);
+				Class<?> fieldValueClass = executionContext.getClassLoaderResolver().classForName(fieldValueClassName);
+				ClassMeta classMeta = storeManager.getClassMeta(executionContext, fieldValueClass);
+				otherDataEntryID = DataEntry.getDataEntryID(pm, classMeta, fieldValue.toString());
 			}
+			indexEntry = IndexEntryOneToOneRelationHelper.createIndexEntry(pm, fieldMeta, otherDataEntryID);
+		}
+		else if (Relation.isRelationMultiValued(relationType)) {
+			// collection
+			// map
+			// TODO index collections and maps, too!
+
 		}
 
 		if (indexEntry != null) {

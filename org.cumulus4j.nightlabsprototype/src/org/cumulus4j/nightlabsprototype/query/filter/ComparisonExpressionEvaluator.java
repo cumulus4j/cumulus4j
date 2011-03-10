@@ -14,8 +14,9 @@ import org.cumulus4j.nightlabsprototype.model.ClassMeta;
 import org.cumulus4j.nightlabsprototype.model.DataEntry;
 import org.cumulus4j.nightlabsprototype.model.FieldMeta;
 import org.cumulus4j.nightlabsprototype.model.IndexEntry;
-import org.cumulus4j.nightlabsprototype.model.IndexEntryDouble;
-import org.cumulus4j.nightlabsprototype.model.IndexEntryLong;
+import org.cumulus4j.nightlabsprototype.model.IndexEntryFactory;
+import org.cumulus4j.nightlabsprototype.model.IndexEntryFactoryRegistry;
+import org.cumulus4j.nightlabsprototype.model.IndexEntryOneToOneRelationHelper;
 import org.cumulus4j.nightlabsprototype.model.IndexEntryString;
 import org.cumulus4j.nightlabsprototype.model.IndexValue;
 import org.cumulus4j.nightlabsprototype.query.QueryEvaluator;
@@ -94,8 +95,8 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 			if (Expression.OP_EQ == getExpression().getOperator())
 				return new EqualsWithConcreteValueResolver(getQueryEvaluator(), ((PrimaryExpressionEvaluator)getLeft()).getExpression(), compareToArgument).query();
-
-			throw new UnsupportedOperationException("NYI"); // TODO other operators [<, >, <=, >=]!
+			else
+				return new CompareWithConcreteValueResolver(getQueryEvaluator(), ((PrimaryExpressionEvaluator)getLeft()).getExpression(), compareToArgument).query();
 		}
 
 		if (getRight() instanceof PrimaryExpressionEvaluator) {
@@ -109,8 +110,8 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 			if (Expression.OP_EQ == getExpression().getOperator())
 				return new EqualsWithConcreteValueResolver(getQueryEvaluator(), ((PrimaryExpressionEvaluator)getRight()).getExpression(), compareToArgument).query();
-
-			throw new UnsupportedOperationException("NYI"); // TODO other operators [<, >, <=, >=]!
+			else
+				return new CompareWithConcreteValueResolver(getQueryEvaluator(), ((PrimaryExpressionEvaluator)getRight()).getExpression(), compareToArgument).query();
 		}
 
 		throw new UnsupportedOperationException("NYI");
@@ -137,7 +138,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 			Query q = getPersistenceManager().newQuery(IndexEntryString.class);
 			q.setFilter(
 					"this.fieldMeta == :fieldMeta && " +
-					"this.indexKeyString.indexOf(:invokeArgument) " + getOperatorAsJDOQLSymbol() + " :compareToArgument"
+					"this.indexKey.indexOf(:invokeArgument) " + getOperatorAsJDOQLSymbol() + " :compareToArgument"
 			);
 			Map<String, Object> params = new HashMap<String, Object>(3);
 			params.put("fieldMeta", fieldMeta);
@@ -155,7 +156,45 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 			q.closeAll();
 			return result;
 		}
-	};
+	}
+
+	private class CompareWithConcreteValueResolver extends PrimaryExpressionResolver
+	{
+		private Object value;
+
+		public CompareWithConcreteValueResolver(
+				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
+				Object value
+		)
+		{
+			super(queryEvaluator, primaryExpression);
+			this.value = value;
+		}
+
+		@Override
+		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
+			AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(getQueryEvaluator().getExecutionContext());
+
+			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(mmd, true);
+
+			Query q = getPersistenceManager().newQuery(indexEntryFactory.getIndexEntryClass());
+			q.setFilter(
+					"this.fieldMeta == :fieldMeta && " +
+					"this.indexKey " + getOperatorAsJDOQLSymbol() + " :value"
+			);
+
+			@SuppressWarnings("unchecked")
+			Collection<? extends IndexEntry> indexEntries = (Collection<? extends IndexEntry>) q.execute(fieldMeta, value);
+
+			Set<Long> result = new HashSet<Long>();
+			for (IndexEntry indexEntry : indexEntries) {
+				IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
+				result.addAll(indexValue.getDataEntryIDs());
+			}
+			q.closeAll();
+			return result;
+		}
+	}
 
 	private class EqualsWithConcreteValueResolver extends PrimaryExpressionResolver
 	{
@@ -175,48 +214,18 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 			PersistenceManager pm = getPersistenceManager();
 
 			AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(getQueryEvaluator().getExecutionContext());
-			Class<?> fieldType = mmd.getType();
-
-			if (String.class.isAssignableFrom(fieldType)) {
-				IndexEntry indexEntry = IndexEntryString.getIndexEntry(pm, fieldMeta, (String) value);
-				if (indexEntry == null)
-					return Collections.emptySet();
-
-				IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
-				return indexValue.getDataEntryIDs();
-			}
-
-			if (
-					Long.class.isAssignableFrom(fieldType) || Integer.class.isAssignableFrom(fieldType) ||
-					Short.class.isAssignableFrom(fieldType) || Byte.class.isAssignableFrom(fieldType) ||
-					long.class.isAssignableFrom(fieldType) || int.class.isAssignableFrom(fieldType) ||
-					short.class.isAssignableFrom(fieldType) || byte.class.isAssignableFrom(fieldType)
-			)
-			{
-				IndexEntry indexEntry = IndexEntryLong.getIndexEntry(pm, fieldMeta, (Long) value);
-				if (indexEntry == null)
-					return Collections.emptySet();
-
-				IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
-				return indexValue.getDataEntryIDs();
-			}
-
-			if (
-					Double.class.isAssignableFrom(fieldType) || Float.class.isAssignableFrom(fieldType) ||
-					double.class.isAssignableFrom(fieldType) || float.class.isAssignableFrom(fieldType)
-			)
-			{
-				IndexEntry indexEntry = IndexEntryDouble.getIndexEntry(pm, fieldMeta, (Double) value);
-				if (indexEntry == null)
-					return Collections.emptySet();
-
-				IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
-				return indexValue.getDataEntryIDs();
-			}
-
 			int relationType = mmd.getRelationType(getQueryEvaluator().getExecutionContext().getClassLoaderResolver());
 
-			if (Relation.isRelationSingleValued(relationType)) {
+			if (Relation.NONE == relationType) {
+				IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(mmd, true);
+				IndexEntry indexEntry = indexEntryFactory == null ? null : indexEntryFactory.getIndexEntry(pm, fieldMeta, value);
+				if (indexEntry == null)
+					return Collections.emptySet();
+
+				IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
+				return indexValue.getDataEntryIDs();
+			}
+			else if (Relation.isRelationSingleValued(relationType)) {
 				Long valueDataEntryID = null;
 				if (value != null) {
 					ClassMeta valueClassMeta = getQueryEvaluator().getStoreManager().getClassMeta(getQueryEvaluator().getExecutionContext(), value.getClass());
@@ -226,7 +235,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 					valueDataEntryID = DataEntry.getDataEntryID(pm, valueClassMeta, valueID.toString());
 				}
-				IndexEntry indexEntry = IndexEntryLong.getIndexEntry(pm, fieldMeta, valueDataEntryID);
+				IndexEntry indexEntry = IndexEntryOneToOneRelationHelper.getIndexEntry(pm, fieldMeta, valueDataEntryID);
 
 				IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
 				return indexValue.getDataEntryIDs();

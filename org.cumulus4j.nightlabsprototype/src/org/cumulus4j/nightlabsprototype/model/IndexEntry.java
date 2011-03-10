@@ -8,8 +8,6 @@ import javax.jdo.annotations.NullValue;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
-import javax.jdo.annotations.Queries;
-import javax.jdo.annotations.Query;
 
 /**
  * Persistent index information with encrypted pointers to {@link DataEntry} instances.
@@ -19,17 +17,7 @@ import javax.jdo.annotations.Query;
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 @Inheritance(strategy=InheritanceStrategy.SUBCLASS_TABLE)
 //@Unique(members={"fieldMeta", "indexKeyDouble", "indexKeyLong", "indexKeyString"})
-@Queries({
-	@Query(
-			name="getIndexEntryByUniqueKeyFields",
-			value="SELECT UNIQUE WHERE " +
-					"this.fieldMeta == :fieldMeta && " +
-					"this.indexKeyDouble == :indexKeyDouble && " +
-					"this.indexKeyLong == :indexKeyLong && " +
-					"this.indexKeyString == :indexKeyString"
-	)
-})
-public abstract class IndexEntry<FieldType>
+public abstract class IndexEntry
 {
 	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
@@ -39,16 +27,6 @@ public abstract class IndexEntry<FieldType>
 	private FieldMeta fieldMeta;
 
 	private byte[] indexValue;
-
-	protected IndexEntry() { }
-
-	protected IndexEntry(FieldMeta fieldMeta)
-	{
-		if (fieldMeta == null)
-			throw new IllegalArgumentException("fieldMeta == null");
-
-		this.fieldMeta = fieldMeta;
-	}
 
 	/**
 	 * Get the single primary key field (= object-identifier) of this <code>IndexEntry</code>.
@@ -63,7 +41,16 @@ public abstract class IndexEntry<FieldType>
 		return fieldMeta;
 	}
 
-	public abstract FieldType getIndexKey();
+	protected void setFieldMeta(FieldMeta fieldMeta) {
+		if (this.fieldMeta != null && !this.fieldMeta.equals(fieldMeta))
+			throw new IllegalStateException("The property fieldMeta cannot be modified after being set once!");
+
+		this.fieldMeta = fieldMeta;
+	}
+
+	public abstract Object getIndexKey();
+
+	protected abstract void setIndexKey(Object indexKey);
 
 	/**
 	 * Get the <b>encrypted</b> pointers to {@link DataEntry}. After decrypting
@@ -89,7 +76,7 @@ public abstract class IndexEntry<FieldType>
 		if (this == obj) return true;
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
-		IndexEntry<?> other = (IndexEntry<?>) obj;
+		IndexEntry other = (IndexEntry) obj;
 		return this.indexEntryID == other.indexEntryID;
 	}
 }

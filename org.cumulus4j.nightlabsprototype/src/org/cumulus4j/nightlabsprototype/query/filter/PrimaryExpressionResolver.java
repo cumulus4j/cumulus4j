@@ -8,12 +8,15 @@ import java.util.Set;
 import org.cumulus4j.nightlabsprototype.model.ClassMeta;
 import org.cumulus4j.nightlabsprototype.model.FieldMeta;
 import org.cumulus4j.nightlabsprototype.model.IndexEntry;
-import org.cumulus4j.nightlabsprototype.model.IndexEntryLong;
+import org.cumulus4j.nightlabsprototype.model.IndexEntryOneToOneRelationHelper;
 import org.cumulus4j.nightlabsprototype.model.IndexValue;
 import org.cumulus4j.nightlabsprototype.query.QueryEvaluator;
 import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.query.symbol.Symbol;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public abstract class PrimaryExpressionResolver
 {
 	protected QueryEvaluator queryEvaluator;
@@ -74,7 +77,7 @@ public abstract class PrimaryExpressionResolver
 			Set<Long> dataSetEntryIDsForNextTuple = queryMiddle(classMetaForNextTupleType, tuples);
 			Set<Long> result = new HashSet<Long>();
 			for (Long dataSetEntryIDForNextTuple : dataSetEntryIDsForNextTuple) {
-				IndexEntry indexEntry = IndexEntryLong.getIndexEntry(
+				IndexEntry indexEntry = IndexEntryOneToOneRelationHelper.getIndexEntry(
 						queryEvaluator.getPersistenceManager(), fieldMetaForNextTuple, dataSetEntryIDForNextTuple
 				);
 				if (indexEntry != null) {
