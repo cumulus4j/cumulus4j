@@ -1,6 +1,7 @@
 package org.cumulus4j.nightlabsprototype.model;
 
 import org.datanucleus.metadata.AbstractMemberMetaData;
+import org.datanucleus.metadata.ColumnMetaData;
 import org.datanucleus.store.exceptions.UnsupportedDataTypeException;
 
 /**
@@ -17,14 +18,36 @@ public class IndexEntryFactoryRegistry
 
 	private IndexEntryFactory indexEntryFactoryDouble = new IndexEntryFactoryDouble();
 	private IndexEntryFactory indexEntryFactoryLong = new IndexEntryFactoryLong();
-	private IndexEntryFactory indexEntryFactoryString = new IndexEntryFactoryString();
+	private IndexEntryFactory indexEntryFactoryStringShort = new IndexEntryFactoryStringShort();
+	private IndexEntryFactory indexEntryFactoryStringLong = new IndexEntryFactoryStringLong();
 
 	public IndexEntryFactory getIndexEntryFactory(AbstractMemberMetaData mmd, boolean throwExceptionIfNotFound)
 	{
 		Class<?> fieldType = mmd.getType();
 
-		if (String.class.isAssignableFrom(fieldType))
-			return indexEntryFactoryString;
+		if (String.class.isAssignableFrom(fieldType)) {
+			// TODO is this the right way to find out whether we need a long CLOB index or a short VARCHAR index?
+			if (mmd.getColumnMetaData() != null && mmd.getColumnMetaData().length > 0) {
+				ColumnMetaData columnMetaData = mmd.getColumnMetaData()[0];
+
+				if (columnMetaData.getScale() != null && columnMetaData.getScale().intValue() > 255)
+					return indexEntryFactoryStringLong;
+
+				if ("CLOB".equalsIgnoreCase(columnMetaData.getJdbcType()))
+					return indexEntryFactoryStringLong;
+
+				if ("TEXT".equalsIgnoreCase(columnMetaData.getJdbcType()))
+					return indexEntryFactoryStringLong;
+
+				if ("CLOB".equalsIgnoreCase(columnMetaData.getSqlType()))
+					return indexEntryFactoryStringLong;
+
+				if ("TEXT".equalsIgnoreCase(columnMetaData.getSqlType()))
+					return indexEntryFactoryStringLong;
+			}
+
+			return indexEntryFactoryStringShort;
+		}
 
 		if (Long.class.isAssignableFrom(fieldType) || Integer.class.isAssignableFrom(fieldType) || Short.class.isAssignableFrom(fieldType) || Byte.class.isAssignableFrom(fieldType) || long.class == fieldType || int.class == fieldType || short.class == fieldType || byte.class == fieldType)
 			return indexEntryFactoryLong;

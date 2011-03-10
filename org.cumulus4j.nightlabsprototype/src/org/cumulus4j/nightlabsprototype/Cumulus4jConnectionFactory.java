@@ -16,7 +16,8 @@ import org.cumulus4j.nightlabsprototype.model.DataEntry;
 import org.cumulus4j.nightlabsprototype.model.FieldMeta;
 import org.cumulus4j.nightlabsprototype.model.IndexEntryDouble;
 import org.cumulus4j.nightlabsprototype.model.IndexEntryLong;
-import org.cumulus4j.nightlabsprototype.model.IndexEntryString;
+import org.cumulus4j.nightlabsprototype.model.IndexEntryStringLong;
+import org.cumulus4j.nightlabsprototype.model.IndexEntryStringShort;
 import org.cumulus4j.nightlabsprototype.model.Sequence;
 import org.cumulus4j.nightlabsprototype.resource.ResourceHelper;
 import org.datanucleus.PersistenceConfiguration;
@@ -91,7 +92,8 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 			pm.getExtent(FieldMeta.class);
 			pm.getExtent(IndexEntryDouble.class);
 			pm.getExtent(IndexEntryLong.class);
-			pm.getExtent(IndexEntryString.class);
+			pm.getExtent(IndexEntryStringShort.class);
+			pm.getExtent(IndexEntryStringLong.class);
 			pm.getExtent(Sequence.class);
 		} finally {
 			pm.close();

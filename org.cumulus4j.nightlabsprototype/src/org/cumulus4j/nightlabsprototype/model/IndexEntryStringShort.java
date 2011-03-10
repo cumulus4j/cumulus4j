@@ -5,22 +5,18 @@ import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.Inheritance;
 import javax.jdo.annotations.InheritanceStrategy;
 import javax.jdo.annotations.PersistenceCapable;
+import javax.jdo.annotations.Unique;
 
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 @Inheritance(strategy=InheritanceStrategy.NEW_TABLE)
-// TODO The following "@Unique" does not work at all in Derby and only with special syntax in MySQL
-// (note the length "(255)" behind the "indexkeystring"):
-//    ALTER TABLE indexentrystring ADD CONSTRAINT UNIQUE KEY (indexkeystring(255), fieldmeta_fieldid_oid)
-// => file a bug in DataNucleus' issue tracker (should log a warning, if the underlying DB doesn't support
-// it and should use RDBMS-specific syntax, if necessary).
-//@Unique(members={"fieldMeta", "indexKeyString"})
-public class IndexEntryString
+@Unique(members={"fieldMeta", "indexKey"})
+public class IndexEntryStringShort
 extends IndexEntry
 {
-	@Column(jdbcType="CLOB")
+	@Column(length=255)
 	private String indexKey;
 
 	@Override

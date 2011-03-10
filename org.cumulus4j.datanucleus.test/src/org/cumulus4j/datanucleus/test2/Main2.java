@@ -453,7 +453,7 @@ public class Main2 {
 			long startTimestamp;
 
 			// Ensure we have a completely empty database, before we start up DataNucleus.
-			if (true)
+			if (false)
 				CleanupUtil.dropAllTables();
 
 			startTimestamp = System.currentTimeMillis();

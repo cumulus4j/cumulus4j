@@ -17,7 +17,6 @@ import org.cumulus4j.nightlabsprototype.model.IndexEntry;
 import org.cumulus4j.nightlabsprototype.model.IndexEntryFactory;
 import org.cumulus4j.nightlabsprototype.model.IndexEntryFactoryRegistry;
 import org.cumulus4j.nightlabsprototype.model.IndexEntryOneToOneRelationHelper;
-import org.cumulus4j.nightlabsprototype.model.IndexEntryString;
 import org.cumulus4j.nightlabsprototype.model.IndexValue;
 import org.cumulus4j.nightlabsprototype.query.QueryEvaluator;
 import org.datanucleus.metadata.AbstractMemberMetaData;
@@ -135,7 +134,11 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 		@Override
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
-			Query q = getPersistenceManager().newQuery(IndexEntryString.class);
+			AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(getQueryEvaluator().getExecutionContext());
+
+			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(mmd, true);
+
+			Query q = getPersistenceManager().newQuery(indexEntryFactory.getIndexEntryClass());
 			q.setFilter(
 					"this.fieldMeta == :fieldMeta && " +
 					"this.indexKey.indexOf(:invokeArgument) " + getOperatorAsJDOQLSymbol() + " :compareToArgument"
