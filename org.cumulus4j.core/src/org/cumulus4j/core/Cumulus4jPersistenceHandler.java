@@ -213,7 +213,8 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 				addIndexEntry(executionContext, pm, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, fieldValue);
 			}
 
-// necessary?! probably not.
+// necessary?! probably not. TODO Why Marco ? If the user has an object with relations and using pessimistic txns
+// then you are responsible for initiating reachability so that all reachable objects are persisted too.
 //			// Perform any reachability
 //			// int[] fieldNumbers = op.getClassMetaData().getAllMemberPositions();
 //			op.provideFields(allFieldNumbers, new PersistFieldManager(op, true));
