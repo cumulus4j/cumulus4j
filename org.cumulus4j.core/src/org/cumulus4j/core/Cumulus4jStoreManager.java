@@ -26,6 +26,7 @@ import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.connection.ManagedConnection;
 
 /**
+ * TODO Support one StoreManager for persistable objects and one StoreManager for indexed data
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class Cumulus4jStoreManager

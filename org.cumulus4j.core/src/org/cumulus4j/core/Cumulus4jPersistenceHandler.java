@@ -23,6 +23,11 @@ import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.ObjectProvider;
 import org.datanucleus.store.connection.ManagedConnection;
 
+/**
+ * TODO Support one StoreManager for persistable data and one for indexed data. With this you could
+ * just hand off all persistable data to storeManager1.persistenceHandler, and hand off all indexed data
+ * to storeManager2.persistenceHandler
+ */
 public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 {
 	private Cumulus4jStoreManager storeManager;
@@ -188,6 +193,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 
 			int[] allFieldNumbers = dnClassMetaData.getAllMemberPositions();
 			ObjectContainer objectContainer = new ObjectContainer();
+			// This performs reachability on this input object so that all related objects are persisted
 			op.provideFields(allFieldNumbers, new InsertFieldManager(op, classMeta, dnClassMetaData, objectContainer));
 			objectContainer.setVersion(op.getTransactionalVersion());
 
@@ -212,12 +218,6 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 
 				addIndexEntry(executionContext, pm, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, fieldValue);
 			}
-
-// necessary?! probably not. TODO Why Marco ? If the user has an object with relations and using pessimistic txns
-// then you are responsible for initiating reachability so that all reachable objects are persisted too.
-//			// Perform any reachability
-//			// int[] fieldNumbers = op.getClassMetaData().getAllMemberPositions();
-//			op.provideFields(allFieldNumbers, new PersistFieldManager(op, true));
 		} finally {
 			mconn.release();
 		}
@@ -307,6 +307,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			ObjectContainer objectContainerOld = encryptionHandler.decryptDataEntry(dataEntry, executionContext.getClassLoaderResolver());
 			ObjectContainer objectContainerNew = objectContainerOld.clone();
 
+            // This performs reachability on this input object so that all related objects are persisted
 			op.provideFields(fieldNumbers, new InsertFieldManager(op, classMeta, dnClassMetaData, objectContainerNew));
 			objectContainerNew.setVersion(op.getTransactionalVersion());
 
