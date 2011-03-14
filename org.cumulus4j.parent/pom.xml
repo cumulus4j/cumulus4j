@@ -77,17 +77,10 @@
 						<target>6</target>
 					</configuration>
 				</plugin>
-
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-jar-plugin</artifactId>
-					<configuration>
-						<archive>
-							<manifestFile>META-INF/MANIFEST.MF</manifestFile>
-						</archive>
-					</configuration>
-				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
+	<properties>
+		<cumulus4j.version>1.0.0-SNAPSHOT</cumulus4j.version>
+	</properties>
 </project>
