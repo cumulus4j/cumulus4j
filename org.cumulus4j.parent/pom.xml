@@ -43,8 +43,53 @@
 				<artifactId>datanucleus-core</artifactId>
 				<version>3.0.0-m3-SNAPSHOT</version>
 			</dependency>
+			<dependency>
+				<groupId>org.datanucleus</groupId>
+				<artifactId>datanucleus-api-jdo</artifactId>
+				<version>3.0.0-m3-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>org.datanucleus</groupId>
+				<artifactId>datanucleus-rdbms</artifactId>
+				<version>3.0.0-m3-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.8.1</version>
+				<type>jar</type>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>log4j</groupId>
+				<artifactId>log4j</artifactId>
+				<version>1.2.16</version>
+				<type>jar</type>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${slf4j.version}</version>
+				<type>jar</type>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-log4j12</artifactId>
+				<version>${slf4j.version}</version>
+				<type>jar</type>
+				<scope>provided</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
+
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
+	</dependencies>
 
 	<build>
 		<sourceDirectory>src/java</sourceDirectory>
@@ -55,12 +100,18 @@
 					<exclude>**/*.java</exclude>
 				</excludes>
 			</resource>
+			<resource>
+				<directory>.</directory>
+				<includes>
+					<include>plugin.xml</include>
+				</includes>
+			</resource>
 		</resources>
 
 		<testSourceDirectory>src/test</testSourceDirectory>
 		<testResources>
 			<testResource>
-				<directory>src/java</directory>
+				<directory>src/test</directory>
 				<excludes>
 					<exclude>**/*.java</exclude>
 				</excludes>
@@ -82,5 +133,6 @@
 	</build>
 	<properties>
 		<cumulus4j.version>1.0.0-SNAPSHOT</cumulus4j.version>
+		<slf4j.version>1.6.1</slf4j.version>
 	</properties>
 </project>
