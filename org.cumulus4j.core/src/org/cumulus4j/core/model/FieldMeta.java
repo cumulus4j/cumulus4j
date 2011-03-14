@@ -1,14 +1,23 @@
 package org.cumulus4j.core.model;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
+import javax.jdo.annotations.Key;
 import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.NullValue;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.annotations.Unique;
+import javax.jdo.annotations.Uniques;
 import javax.jdo.listener.DetachCallback;
 
 import org.cumulus4j.core.Cumulus4jStoreManager;
@@ -24,7 +33,9 @@ import org.datanucleus.store.ExecutionContext;
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
-@Unique(name="FieldMeta_classMeta_fieldName", members={"classMeta", "fieldName"})
+@Uniques({
+	@Unique(name="FieldMeta_classMeta_ownerFieldMeta_fieldName_role", members={"classMeta", "ownerFieldMeta", "fieldName", "role"})
+})
 public class FieldMeta
 implements DetachCallback
 {
@@ -32,41 +43,53 @@ implements DetachCallback
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
 	private long fieldID = -1;
 
-	@Persistent(nullValue=NullValue.EXCEPTION)
 	private ClassMeta classMeta;
 
-	@Persistent(nullValue=NullValue.EXCEPTION)
-	@Column(length=255)
-	private String fieldTypePackageName;
-
-	@Persistent(nullValue=NullValue.EXCEPTION)
-	@Column(length=255)
-	private String fieldTypeSimpleClassName;
+	private FieldMeta ownerFieldMeta;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	@Column(length=255)
 	private String fieldName;
 
+	@Persistent(nullValue=NullValue.EXCEPTION)
+	private FieldMetaRole role;
+
 	@NotPersistent
 	private int dataNucleusAbsoluteFieldNumber = -1;
 
+	@Persistent(mappedBy="ownerFieldMeta", dependentValue="true")
+	@Key(mappedBy="role")
+	private Map<FieldMetaRole, FieldMeta> role2subFieldMeta = new HashMap<FieldMetaRole, FieldMeta>();
+
 	protected FieldMeta() { }
 
-	public FieldMeta(ClassMeta classMeta, Class<?> fieldType, String fieldName)
+	public FieldMeta(ClassMeta classMeta, String fieldName)
 	{
-		if (classMeta == null)
-			throw new IllegalArgumentException("classMeta == null");
+		this(classMeta, null, fieldName, FieldMetaRole.primary);
+	}
+	public FieldMeta(FieldMeta ownerFieldMeta, String fieldName, FieldMetaRole role)
+	{
+		this(null, ownerFieldMeta, fieldName, role);
+	}
 
-		if (fieldType == null)
-			throw new IllegalArgumentException("fieldType == null");
+	protected FieldMeta(ClassMeta classMeta, FieldMeta ownerFieldMeta, String fieldName, FieldMetaRole role)
+	{
+		if (classMeta == null && ownerFieldMeta == null)
+			throw new IllegalArgumentException("classMeta == null && ownerFieldMeta == null");
+
+		if (classMeta != null && ownerFieldMeta != null)
+			throw new IllegalArgumentException("classMeta != null && ownerFieldMeta != null");
 
 		if (fieldName == null)
 			throw new IllegalArgumentException("fieldName == null");
 
+		if (role == null)
+			throw new IllegalArgumentException("role == null");
+
 		this.classMeta = classMeta;
-		this.fieldTypePackageName = fieldType.getPackage() == null ? "" : fieldType.getPackage().getName();
-		this.fieldTypeSimpleClassName = fieldType.getSimpleName();
+		this.ownerFieldMeta = ownerFieldMeta;
 		this.fieldName = fieldName;
+		this.role = role;
 	}
 
 	public long getFieldID() {
@@ -76,43 +99,25 @@ implements DetachCallback
 	/**
 	 * Get the {@link ClassMeta} to which this <code>FieldMeta</code> belongs. Every FieldMeta
 	 * belongs to exactly one {@link ClassMeta} just like a field is declared in exactly one Java class.
+	 * Note, that a {@link FieldMeta} might belong to another FieldMeta in order to reference sub-field-properties,
+	 * e.g. a {@link Map}'s key. In this case, the direct property <code>classMeta</code> is <code>null</code>, but this method
+	 * still returns the correct {@link ClassMeta} by resolving it indirectly via the {@link #getOwnerFieldMeta() ownerFieldMeta}.
 	 * @return the {@link ClassMeta} to which this instance of <code>FieldMeta</code> belongs.
 	 */
 	public ClassMeta getClassMeta() {
+		if (ownerFieldMeta != null)
+			return ownerFieldMeta.getClassMeta();
+
 		return classMeta;
 	}
 
 	/**
-	 * Get the package name or an empty <code>String</code> for the default package.
-	 * @return the package name (maybe empty, but never <code>null</code>).
-	 * @deprecated We should not store this information, since it is available in DataNucleus' meta-data and not complete anyway
-	 * (we'd either need to extend it (e.g. store generic type information), or better remove it completely).
+	 * Get the {@link FieldMetaRole#primary primary} {@link FieldMeta}, to which this sub-<code>FieldMeta</code> belongs
+	 * or <code>null</code>, if this <code>FieldMeta</code> is primary.
+	 * @return the owning primary field-meta or <code>null</code>.
 	 */
-	@Deprecated
-	public String getFieldTypePackageName() {
-		return fieldTypePackageName;
-	}
-	/**
-	 * @deprecated We should not store this information, since it is available in DataNucleus' meta-data and not complete anyway
-	 * (we'd either need to extend it (e.g. store generic type information), or better remove it completely).
-	 */
-	@Deprecated
-	public String getFieldTypeSimpleClassName() {
-		return fieldTypeSimpleClassName;
-	}
-
-	/**
-	 * Get the fully qualified class-name of the field's type.
-	 * @return the fully qualified class-name of the field's type.
-	 * @deprecated We should not store this information, since it is available in DataNucleus' meta-data and not complete anyway
-	 * (we'd either need to extend it (e.g. store generic type information), or better remove it completely).
-	 */
-	@Deprecated
-	public String getFieldTypeClassName() {
-		if (fieldTypePackageName.isEmpty())
-			return fieldTypeSimpleClassName;
-		else
-			return fieldTypePackageName + '.' + fieldTypeSimpleClassName;
+	public FieldMeta getOwnerFieldMeta() {
+		return ownerFieldMeta;
 	}
 
 	/**
@@ -121,6 +126,10 @@ implements DetachCallback
 	 */
 	public String getFieldName() {
 		return fieldName;
+	}
+
+	public FieldMetaRole getRole() {
+		return role;
 	}
 
 	/**
@@ -135,6 +144,51 @@ implements DetachCallback
 	}
 	public void setDataNucleusAbsoluteFieldNumber(int dataNucleusAbsoluteFieldNumber) {
 		this.dataNucleusAbsoluteFieldNumber = dataNucleusAbsoluteFieldNumber;
+	}
+
+	public FieldMeta getSubFieldMeta(FieldMetaRole role)
+	{
+		return role2subFieldMeta.get(role);
+	}
+
+	public Collection<FieldMeta> getSubFieldMetas()
+	{
+		return role2subFieldMeta.values();
+	}
+
+	public void addSubFieldMeta(FieldMeta subFieldMeta)
+	{
+		if (!this.equals(subFieldMeta.getOwnerFieldMeta()))
+			throw new IllegalArgumentException("this != subFieldMeta.ownerFieldMeta");
+
+		if (!this.fieldName.equals(subFieldMeta.getFieldName()))
+			throw new IllegalArgumentException("this.fieldName != subFieldMeta.fieldName");
+
+		if (getSubFieldMeta(subFieldMeta.getRole()) != null)
+			throw new IllegalArgumentException("There is already a subFieldMeta with role \"" + subFieldMeta.getRole() + "\"!");
+
+		role2subFieldMeta.put(subFieldMeta.getRole(), subFieldMeta);
+	}
+
+	public void removeSubFieldMeta(FieldMeta fieldMeta)
+	{
+		role2subFieldMeta.remove(fieldMeta.getRole());
+	}
+
+	public void removeAllSubFieldMetasExcept(FieldMetaRole ... roles)
+	{
+		if (roles == null)
+			roles = new FieldMetaRole[0];
+
+		Set<FieldMetaRole> rolesToKeep = new HashSet<FieldMetaRole>(roles.length);
+		for (FieldMetaRole role : roles)
+			rolesToKeep.add(role);
+
+		Collection<FieldMetaRole> oldRoles = new ArrayList<FieldMetaRole>(role2subFieldMeta.keySet());
+		for (FieldMetaRole role : oldRoles) {
+			if (!rolesToKeep.contains(role))
+				role2subFieldMeta.remove(role);
+		}
 	}
 
 	@Override

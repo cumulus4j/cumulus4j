@@ -81,7 +81,7 @@ public class ClassMeta
 
 	private ClassMeta superClassMeta;
 
-	@Persistent(mappedBy="classMeta")
+	@Persistent(mappedBy="classMeta", dependentValue="true")
 	@Key(mappedBy="fieldName")
 	private Map<String, FieldMeta> fieldName2fieldMeta;
 

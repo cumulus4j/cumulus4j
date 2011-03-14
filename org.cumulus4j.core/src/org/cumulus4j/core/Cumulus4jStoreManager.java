@@ -15,6 +15,7 @@ import javax.jdo.PersistenceManager;
 import org.cumulus4j.core.model.ClassMeta;
 import org.cumulus4j.core.model.DataEntry;
 import org.cumulus4j.core.model.FieldMeta;
+import org.cumulus4j.core.model.FieldMetaRole;
 import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.NucleusContext;
 import org.datanucleus.identity.OID;
@@ -146,13 +147,58 @@ extends AbstractStoreManager
 				continue;
 
 			persistentMemberNames.add(memberMetaData.getName());
-			FieldMeta fieldMeta = classMeta.getFieldMeta(memberMetaData.getName());
-			if (fieldMeta == null) {
+			int dnAbsoluteFieldNumber = memberMetaData.getAbsoluteFieldNumber();
+
+			// register primary field-meta
+			FieldMeta primaryFieldMeta = classMeta.getFieldMeta(memberMetaData.getName());
+			if (primaryFieldMeta == null) {
 				// adding field that's so far unknown
-				fieldMeta = new FieldMeta(classMeta, memberMetaData.getType(), memberMetaData.getName());
-				classMeta.addFieldMeta(fieldMeta);
+				primaryFieldMeta = new FieldMeta(classMeta, memberMetaData.getName());
+				classMeta.addFieldMeta(primaryFieldMeta);
 			}
-			fieldMeta.setDataNucleusAbsoluteFieldNumber(memberMetaData.getAbsoluteFieldNumber());
+			primaryFieldMeta.setDataNucleusAbsoluteFieldNumber(dnAbsoluteFieldNumber);
+
+			if (memberMetaData.hasCollection()) {
+				// register "collection" field-meta, if appropriate
+				primaryFieldMeta.removeAllSubFieldMetasExcept(FieldMetaRole.collectionElement);
+				FieldMeta subFieldMeta = primaryFieldMeta.getSubFieldMeta(FieldMetaRole.collectionElement);
+				if (subFieldMeta == null) {
+					// adding field that's so far unknown
+					subFieldMeta = new FieldMeta(primaryFieldMeta, memberMetaData.getName(), FieldMetaRole.collectionElement);
+					primaryFieldMeta.addSubFieldMeta(subFieldMeta);
+				}
+			}
+			else if (memberMetaData.hasArray()) {
+				// register "array" field-meta, if appropriate
+				// TODO shouldn't we handle it exactly as a collection, including reusing 'FieldMetaRole.collectionElement' for this case?
+				primaryFieldMeta.removeAllSubFieldMetasExcept(FieldMetaRole.arrayElement);
+				FieldMeta subFieldMeta = primaryFieldMeta.getSubFieldMeta(FieldMetaRole.arrayElement);
+				if (subFieldMeta == null) {
+					// adding field that's so far unknown
+					subFieldMeta = new FieldMeta(primaryFieldMeta, memberMetaData.getName(), FieldMetaRole.arrayElement);
+					primaryFieldMeta.addSubFieldMeta(subFieldMeta);
+				}
+			}
+			else if (memberMetaData.hasMap()) {
+				// register "map" field-meta, if appropriate
+				primaryFieldMeta.removeAllSubFieldMetasExcept(FieldMetaRole.mapKey, FieldMetaRole.mapValue);
+
+				FieldMeta subFieldMeta = primaryFieldMeta.getSubFieldMeta(FieldMetaRole.mapKey);
+				if (subFieldMeta == null) {
+					// adding field that's so far unknown
+					subFieldMeta = new FieldMeta(primaryFieldMeta, memberMetaData.getName(), FieldMetaRole.mapKey);
+					primaryFieldMeta.addSubFieldMeta(subFieldMeta);
+				}
+
+				subFieldMeta = primaryFieldMeta.getSubFieldMeta(FieldMetaRole.mapValue);
+				if (subFieldMeta == null) {
+					// adding field that's so far unknown
+					subFieldMeta = new FieldMeta(primaryFieldMeta, memberMetaData.getName(), FieldMetaRole.mapValue);
+					primaryFieldMeta.addSubFieldMeta(subFieldMeta);
+				}
+			}
+			else
+				primaryFieldMeta.removeAllSubFieldMetasExcept();
 		}
 
 		for (FieldMeta fieldMeta : new ArrayList<FieldMeta>(classMeta.getFieldMetas())) {
