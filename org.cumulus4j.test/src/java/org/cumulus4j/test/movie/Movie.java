@@ -1,4 +1,4 @@
-package org.cumulus4j.test.model;
+package org.cumulus4j.test.movie;
 
 import java.util.HashSet;
 import java.util.Set;

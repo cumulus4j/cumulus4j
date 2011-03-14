@@ -10,7 +10,7 @@
 	<groupId>org.cumulus4j</groupId>
 	<artifactId>org.cumulus4j.test</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
-	<name>org.cumulus4j.test.model</name>
+	<name>org.cumulus4j.test.movie</name>
 	<description>Various example data models for tests</description>
 	<dependencies>
 		<dependency>
