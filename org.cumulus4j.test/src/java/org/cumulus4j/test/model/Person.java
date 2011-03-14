@@ -1,4 +1,4 @@
-package org.cumulus4j.datanucleus.test2;
+package org.cumulus4j.test.model;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;

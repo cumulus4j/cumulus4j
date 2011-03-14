@@ -1,4 +1,4 @@
-package org.cumulus4j.datanucleus.test2;
+package org.cumulus4j.test.model;
 
 import java.util.HashSet;
 import java.util.Set;

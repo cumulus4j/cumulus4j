@@ -1,4 +1,4 @@
-package org.cumulus4j.datanucleus.test2;
+package org.cumulus4j.test.model;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
@@ -8,17 +8,17 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
-public class Rating
+public class Language
 {
 	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
-	private long ratingID = -1;
+	private long languageID = -1;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	private String name;
 
-	public long getRatingID() {
-		return ratingID;
+	public long getLanguageID() {
+		return languageID;
 	}
 
 	public String getName() {
@@ -31,17 +31,18 @@ public class Rating
 
 	@Override
 	public int hashCode() {
-		return (int) (ratingID ^ (ratingID >>> 32));
+		return (int) (languageID ^ (languageID >>> 32));
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(Object obj)
+	{
 		if (this == obj) return true;
-		if (this.ratingID < 0) return false;
+		if (this.languageID < 0) return false;
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
-		Rating other = (Rating) obj;
-		if (ratingID != other.ratingID)
+		Language other = (Language) obj;
+		if (languageID != other.languageID)
 			return false;
 		return true;
 	}
