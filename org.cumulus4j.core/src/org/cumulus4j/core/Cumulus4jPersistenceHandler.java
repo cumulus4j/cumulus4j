@@ -189,6 +189,16 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			Object object = op.getObject();
 			Object objectID = op.getExternalObjectId();
 			ClassMeta classMeta = storeManager.getClassMeta(executionContext, object.getClass());
+
+			// BEGIN workaround for changed behaviour of DN's core
+			// TODO DN calls this insertObject(...) *instead* of updateObject(...) - this needs to be removed once the original behaviour is restored.
+			if (DataEntry.getDataEntryID(pm, classMeta, objectID.toString()) != null) {
+				// Delegate to updateObject(...) instead.
+				updateObject(op, op.getDirtyFieldNumbers());
+				return;
+			}
+			// END workaround for changed behaviour of DN's core
+
 			AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), executionContext.getClassLoaderResolver());
 
 			int[] allFieldNumbers = dnClassMetaData.getAllMemberPositions();

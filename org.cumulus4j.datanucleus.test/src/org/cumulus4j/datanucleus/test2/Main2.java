@@ -231,7 +231,7 @@ public class Main2 {
 				else
 					movie.setRating(null);
 
-
+				pm.flush();
 			}
 			r.close();
 		}

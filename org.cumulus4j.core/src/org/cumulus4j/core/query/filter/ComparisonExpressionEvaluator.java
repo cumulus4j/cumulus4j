@@ -239,6 +239,8 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 					valueDataEntryID = DataEntry.getDataEntryID(pm, valueClassMeta, valueID.toString());
 				}
 				IndexEntry indexEntry = IndexEntryOneToOneRelationHelper.getIndexEntry(pm, fieldMeta, valueDataEntryID);
+				if (indexEntry == null)
+					return Collections.emptySet();
 
 				IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
 				return indexValue.getDataEntryIDs();
