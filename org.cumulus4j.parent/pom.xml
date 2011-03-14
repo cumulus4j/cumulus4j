@@ -1,9 +1,71 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.cumulus4j</groupId>
-  <artifactId>org.cumulus4j.parent</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <name>org.cumulus4j.parent</name>
-  <description>Cumulus4j Parent POM</description>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.cumulus4j</groupId>
+	<artifactId>org.cumulus4j.parent</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>org.cumulus4j.parent</name>
+	<description>Cumulus4j Parent POM</description>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>javax.jdo</groupId>
+				<artifactId>jdo-api</artifactId>
+				<version>[3.0, )</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.datanucleus</groupId>
+				<artifactId>datanucleus-core</artifactId>
+				<version>3.0.0-m3-SNAPSHOT</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<sourceDirectory>src/java</sourceDirectory>
+		<resources>
+			<resource>
+				<directory>src/java</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</resource>
+		</resources>
+
+		<testSourceDirectory>src/test</testSourceDirectory>
+		<testResources>
+			<resource>
+				<directory>src/java</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</resource>
+		</testResources>
+
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<configuration>
+						<source>6</source>
+						<target>6</target>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<configuration>
+						<archive>
+							<manifestFile>META-INF/MANIFEST.MF</manifestFile>
+						</archive>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
 </project>
