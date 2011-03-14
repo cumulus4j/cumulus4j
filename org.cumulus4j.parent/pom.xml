@@ -14,6 +14,11 @@
 			<name>DataNucleus Maven2 Repository</name>
 			<url>http://www.datanucleus.org/downloads/maven2</url>
 		</repository>
+		<repository>
+			<id>DataNucleus_M2-nightly</id>
+			<name>DataNucleus Maven2 Nightly Repository</name>
+			<url>http://www.datanucleus.org/downloads/maven2-nightly</url>
+		</repository>
 		<repository> <!-- Required for transaction-api transitive dep -->
 			<id>Java_Net_LEGACY</id>
 			<name>Java.Net legacy</name>
@@ -41,17 +46,17 @@
 			<dependency>
 				<groupId>org.datanucleus</groupId>
 				<artifactId>datanucleus-core</artifactId>
-				<version>3.0.0-m3-SNAPSHOT</version>
+				<version>[3.0.0-m3-SNAPSHOT, )</version>
 			</dependency>
 			<dependency>
 				<groupId>org.datanucleus</groupId>
 				<artifactId>datanucleus-api-jdo</artifactId>
-				<version>3.0.0-m3-SNAPSHOT</version>
+				<version>[3.0.0-m3-SNAPSHOT, )</version>
 			</dependency>
 			<dependency>
 				<groupId>org.datanucleus</groupId>
 				<artifactId>datanucleus-rdbms</artifactId>
-				<version>3.0.0-m3-SNAPSHOT</version>
+				<version>[3.0.0-m3-SNAPSHOT, )</version>
 			</dependency>
 			<dependency>
 				<groupId>junit</groupId>
