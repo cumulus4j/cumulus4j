@@ -1,9 +1,6 @@
-package org.cumulus4j.test.core;
+package org.cumulus4j.test.framework;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -27,18 +24,26 @@ public class CleanupUtil
 	private static final Logger logger = Logger.getLogger(CleanupUtil.class);
 
 	public static void dropAllTables() throws Exception {
-		Properties properties = new Properties();
-		loadPropertiesFile(properties, "datanucleus.properties");
+		Properties properties = TestUtil.loadProperties("datanucleus.properties");
 
 		logger.debug("Deleting all tables");
 		String connectionDriverName = properties.getProperty("javax.jdo.option.ConnectionDriverName");
-		
+
 		if (connectionDriverName == null) {
 			logger.warn("dropAllTables: Property 'javax.jdo.option.ConnectionDriverName' is not set! Skipping!");
 			return;
 		}
-		
+
+		Class.forName(connectionDriverName);
+
 		if ("org.apache.derby.jdbc.EmbeddedDriver".equals(connectionDriverName)) {
+			// First shut down derby, in case it is open
+			try {
+				DriverManager.getConnection("jdbc:derby:;shutdown=true");
+			} catch (SQLException x) {
+				// ignore, because this is to be expected according to http://db.apache.org/derby/docs/dev/devguide/tdevdvlp40464.html
+			}
+
 			// simply delete the directory - the drop table commands failed and I don't have time to find out why
 			String url = properties.getProperty("javax.jdo.option.ConnectionURL");
 			if (!url.startsWith("jdbc:derby:"))
@@ -54,8 +59,6 @@ public class CleanupUtil
 
 			return;
 		}
-
-		Class.forName(connectionDriverName);
 
 		String url = properties.getProperty("javax.jdo.option.ConnectionURL");
 		java.sql.Connection con = DriverManager.getConnection(
@@ -91,19 +94,6 @@ public class CleanupUtil
 			}
 		} finally {
 			con.close();
-		}
-	}
-
-	private static void loadPropertiesFile(Properties properties, String filename) throws IOException
-	{
-		InputStream is = CleanupUtil.class.getClassLoader().getResourceAsStream(filename);
-		try {
-			if (is == null)
-				throw new FileNotFoundException("Could not find \""+filename+"\"!");
-			properties.load(is);
-		} finally {
-			if (is != null)
-				is.close();
 		}
 	}
 

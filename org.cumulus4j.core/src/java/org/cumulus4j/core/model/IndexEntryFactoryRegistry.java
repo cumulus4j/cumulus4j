@@ -2,6 +2,7 @@ package org.cumulus4j.core.model;
 
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.ColumnMetaData;
+import org.datanucleus.properties.PropertyStore;
 import org.datanucleus.store.exceptions.UnsupportedDataTypeException;
 
 /**
@@ -9,10 +10,21 @@ import org.datanucleus.store.exceptions.UnsupportedDataTypeException;
  */
 public class IndexEntryFactoryRegistry
 {
-	private static IndexEntryFactoryRegistry sharedInstance = new IndexEntryFactoryRegistry();
+	private static IndexEntryFactoryRegistry sharedInstance = null;
+
+	public static void createSharedInstance(PropertyStore propertyStore)
+	{
+		sharedInstance = new IndexEntryFactoryRegistry();
+
+		if (!propertyStore.getBooleanProperty("cumulus4j.index.clob.enabled", true))
+			sharedInstance.indexEntryFactoryStringLong = null;
+	}
 
 	public static IndexEntryFactoryRegistry sharedInstance()
 	{
+		if (sharedInstance == null)
+			throw new IllegalStateException("createSharedInstance(...) not yet called!");
+
 		return sharedInstance;
 	}
 

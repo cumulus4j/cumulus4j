@@ -1,4 +1,4 @@
-package org.cumulus4j.test.core;
+package org.cumulus4j.test.framework;
 
 import javax.jdo.PersistenceManager;
 

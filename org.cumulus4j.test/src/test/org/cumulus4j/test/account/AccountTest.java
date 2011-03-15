@@ -7,7 +7,7 @@ import javax.jdo.Query;
 
 import org.cumulus4j.test.account.id.AnchorID;
 import org.cumulus4j.test.account.id.LocalAccountantDelegateID;
-import org.cumulus4j.test.core.AbstractTransactionalTest;
+import org.cumulus4j.test.framework.AbstractTransactionalTest;
 import org.junit.Test;
 
 public class AccountTest

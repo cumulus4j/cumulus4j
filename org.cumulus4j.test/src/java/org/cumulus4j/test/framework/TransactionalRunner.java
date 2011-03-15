@@ -1,4 +1,4 @@
-package org.cumulus4j.test.core;
+package org.cumulus4j.test.framework;
 
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
@@ -31,7 +31,7 @@ public class TransactionalRunner extends BlockJUnit4ClassRunner
 		}
 
 		logger.info("run: Setting up PersistenceManagerFactory.");
-		pmf = JDOHelper.getPersistenceManagerFactory("datanucleus.properties");
+		pmf = JDOHelper.getPersistenceManagerFactory(TestUtil.loadProperties("datanucleus.properties"));
 		try {
 			super.run(notifier);
 		} finally {
@@ -53,6 +53,7 @@ public class TransactionalRunner extends BlockJUnit4ClassRunner
 
 	private class TransactionalInvokeMethod extends Statement
 	{
+		@SuppressWarnings("unused")
 		private FrameworkMethod method;
 		private Object test;
 		private Statement delegate;

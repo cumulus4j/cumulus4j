@@ -16,6 +16,7 @@ import org.cumulus4j.core.model.ClassMeta;
 import org.cumulus4j.core.model.DataEntry;
 import org.cumulus4j.core.model.FieldMeta;
 import org.cumulus4j.core.model.FieldMetaRole;
+import org.cumulus4j.core.model.IndexEntryFactoryRegistry;
 import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.NucleusContext;
 import org.datanucleus.identity.OID;
@@ -47,6 +48,7 @@ extends AbstractStoreManager
 	{
 		super("cumulus4j", clr, nucleusContext, props);
 
+		IndexEntryFactoryRegistry.createSharedInstance(this);
 		encryptionHandler = new EncryptionHandler();
 		persistenceHandler = new Cumulus4jPersistenceHandler(this);
 	}

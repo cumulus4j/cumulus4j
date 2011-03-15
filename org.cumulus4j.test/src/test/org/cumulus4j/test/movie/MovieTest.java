@@ -7,7 +7,8 @@ import java.util.List;
 
 import javax.jdo.Query;
 
-import org.cumulus4j.test.core.AbstractTransactionalTest;
+import org.cumulus4j.test.framework.AbstractTransactionalTest;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,17 +154,26 @@ extends AbstractTransactionalTest
 	@Test
 	public void query0() throws IOException
 	{
-		Rating rating = pm.getExtent(Rating.class).iterator().next();
+		Rating rating;
+		{
+			String ratingName = "R (USA)";
+
+			Query q = pm.newQuery(Rating.class);
+			q.setFilter("this.name == :name");
+			q.setUnique(true);
+			rating = (Rating) q.execute(ratingName);
+		}
 
 		Query q = pm.newQuery(Movie.class);
 		q.setFilter("this.rating == :rating");
 
 		@SuppressWarnings("unchecked")
 		List<Movie> movies = (List<Movie>) q.execute(rating);
-		logger.info("QueryDataTransRunnable0.run: found " + movies.size() + " movies with rating \"" + rating.getName() + "\":");
+		logger.info("query0: found " + movies.size() + " movies with rating \"" + rating.getName() + "\":");
 		for (Movie movie : movies) {
-			logger.info("QueryDataTransRunnable0.run:   * " + movie.getMovieID() + ": " + movie.getName());
+			logger.info("query0:   * " + movie.getMovieID() + ": " + movie.getName());
 		}
+		Assert.assertEquals("Query returned wrong number of results!", 39, movies.size());
 	}
 
 	@Test
@@ -176,10 +186,11 @@ extends AbstractTransactionalTest
 
 		@SuppressWarnings("unchecked")
 		List<Movie> movies = (List<Movie>) q.execute(ratingNamePart);
-		logger.info("QueryDataTransRunnable0.run: found " + movies.size() + " movies with rating.name containing \"" + ratingNamePart + "\":");
+		logger.info("query1: found " + movies.size() + " movies with rating.name containing \"" + ratingNamePart + "\":");
 		for (Movie movie : movies) {
-			logger.info("QueryDataTransRunnable0.run:   * " + movie.getMovieID() + ": " + movie.getName() + " (" + movie.getRating().getName() + ")");
+			logger.info("query1:   * " + movie.getMovieID() + ": " + movie.getName() + " (" + movie.getRating().getName() + ")");
 		}
+		Assert.assertEquals("Query returned wrong number of results!", 34, movies.size());
 	}
 
 	@Test
@@ -192,10 +203,11 @@ extends AbstractTransactionalTest
 
 		@SuppressWarnings("unchecked")
 		List<Movie> movies = (List<Movie>) q.execute(ratingName);
-		logger.info("QueryDataTransRunnable0.run: found " + movies.size() + " movies with rating.name == \"" + ratingName + "\":");
+		logger.info("query2: found " + movies.size() + " movies with rating.name == \"" + ratingName + "\":");
 		for (Movie movie : movies) {
-			logger.info("QueryDataTransRunnable0.run:   * " + movie.getMovieID() + ": " + movie.getName() + " (" + movie.getRating().getName() + ")");
+			logger.info("query2:   * " + movie.getMovieID() + ": " + movie.getName() + " (" + movie.getRating().getName() + ")");
 		}
+		Assert.assertEquals("Query returned wrong number of results!", 18, movies.size());
 	}
 
 }

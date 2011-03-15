@@ -19,17 +19,6 @@
 			<version>${cumulus4j.version}</version>
 			<scope>test</scope>
 		</dependency>
-<!--
-		<dependency>
-			<groupId>org.datanucleus</groupId>
-			<artifactId>datanucleus-api-jdo</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.jdo</groupId>
-			<artifactId>jdo-api</artifactId>
-		</dependency>
--->
 		<dependency>
 			<groupId>org.datanucleus</groupId>
 			<artifactId>datanucleus-rdbms</artifactId>
@@ -61,6 +50,16 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.1.6</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.derby</groupId>
+			<artifactId>derby</artifactId>
+			<version>10.7.1.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.nightlabs</groupId>
+			<artifactId>org.nightlabs.util</artifactId>
 		</dependency>
 	</dependencies>
 </project>
