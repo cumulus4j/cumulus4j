@@ -14,6 +14,7 @@
 	<description>Cumulus4j Core</description>
 
 	<dependencies>
+<!--
 		<dependency>
 			<groupId>javax.jdo</groupId>
 			<artifactId>jdo-api</artifactId>
@@ -22,6 +23,11 @@
 			<groupId>org.datanucleus</groupId>
 			<artifactId>datanucleus-core</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.datanucleus</groupId>
+			<artifactId>datanucleus-api-jdo</artifactId>
+		</dependency>
+-->
 	</dependencies>
 
 	<build>

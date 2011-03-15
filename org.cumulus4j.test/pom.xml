@@ -19,19 +19,21 @@
 			<version>${cumulus4j.version}</version>
 			<scope>test</scope>
 		</dependency>
+<!--
 		<dependency>
 			<groupId>org.datanucleus</groupId>
 			<artifactId>datanucleus-api-jdo</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>javax.jdo</groupId>
+			<artifactId>jdo-api</artifactId>
+		</dependency>
+-->
+		<dependency>
 			<groupId>org.datanucleus</groupId>
 			<artifactId>datanucleus-rdbms</artifactId>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.jdo</groupId>
-			<artifactId>jdo-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
@@ -53,6 +55,12 @@
 				scope=compile, because we have the test framework in the main
 				sources - not the test sources.
 			-->
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.6</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

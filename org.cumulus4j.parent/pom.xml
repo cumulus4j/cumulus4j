@@ -86,6 +86,12 @@
 				<type>jar</type>
 				<scope>provided</scope>
 			</dependency>
+			<dependency>
+				<groupId>mysql</groupId>
+				<artifactId>mysql-connector-java</artifactId>
+				<version>5.1.6</version>
+				<scope>provided</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -93,6 +99,18 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.jdo</groupId>
+			<artifactId>jdo-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.datanucleus</groupId>
+			<artifactId>datanucleus-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.datanucleus</groupId>
+			<artifactId>datanucleus-api-jdo</artifactId>
 		</dependency>
 	</dependencies>
 
@@ -133,8 +151,36 @@
 						<target>6</target>
 					</configuration>
 				</plugin>
+
+				<plugin>
+					<groupId>org.datanucleus</groupId>
+					<artifactId>maven-datanucleus-plugin</artifactId>
+					<version>3.0.0-m1</version>
+					<configuration>
+						<log4jConfiguration>${basedir}/enhancer-log4j.properties</log4jConfiguration>
+						<verbose>true</verbose>
+						<!--
+					<props>${basedir}/datanucleus.properties</props>
+					-->
+					</configuration>
+					<executions>
+						<execution>
+							<phase>process-classes</phase>
+							<goals>
+								<goal>enhance</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
 			</plugins>
 		</pluginManagement>
+
+		<plugins>
+			<plugin>
+				<groupId>org.datanucleus</groupId>
+				<artifactId>maven-datanucleus-plugin</artifactId>
+			</plugin>
+		</plugins>
 	</build>
 	<properties>
 		<cumulus4j.version>1.0.0-SNAPSHOT</cumulus4j.version>
