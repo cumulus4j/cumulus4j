@@ -31,7 +31,9 @@
 		<repository>
 			<id>NightLabs</id>
 			<name>NightLabs Repository</name>
-			<url>http://dev.nightlabs.org/maven-repository</url>
+			<url>http://dev.nightlabs.org/maven-repository/repo</url>
+			<snapshots><enabled>true</enabled></snapshots>
+			<releases><enabled>true</enabled></releases>
 		</repository>
 	</repositories>
 
