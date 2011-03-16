@@ -31,7 +31,7 @@ public class TransactionalRunner extends BlockJUnit4ClassRunner
 		}
 
 		logger.info("run: Setting up PersistenceManagerFactory.");
-		pmf = JDOHelper.getPersistenceManagerFactory(TestUtil.loadProperties("datanucleus.properties"));
+		pmf = JDOHelper.getPersistenceManagerFactory(TestUtil.loadProperties("cumulus4j-test-datanucleus.properties"));
 		try {
 			super.run(notifier);
 		} finally {

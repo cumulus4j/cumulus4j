@@ -24,7 +24,7 @@ public class CleanupUtil
 	private static final Logger logger = Logger.getLogger(CleanupUtil.class);
 
 	public static void dropAllTables() throws Exception {
-		Properties properties = TestUtil.loadProperties("datanucleus.properties");
+		Properties properties = TestUtil.loadProperties("cumulus4j-test-datanucleus.properties");
 
 		logger.debug("Deleting all tables");
 		String connectionDriverName = properties.getProperty("javax.jdo.option.ConnectionDriverName");
