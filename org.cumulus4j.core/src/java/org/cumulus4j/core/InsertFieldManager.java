@@ -14,6 +14,7 @@ import org.datanucleus.metadata.Relation;
 import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.ObjectProvider;
 import org.datanucleus.store.fieldmanager.AbstractFieldManager;
+import org.datanucleus.store.types.sco.SCO;
 
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
@@ -101,15 +102,27 @@ public class InsertFieldManager extends AbstractFieldManager
 	@Override
 	public void storeObjectField(int fieldNumber, Object value)
 	{
-		if (value == null)
-			return;
-
 		AbstractMemberMetaData mmd = dnClassMetaData.getMetaDataForManagedMemberAtAbsolutePosition(fieldNumber);
+
+		// mapped-by => skip storing it
+		if (mmd.getMappedBy() != null)
+			return; // TODO is this sufficient to take 'mapped-by' into account? Needs testing // TODO maybe clear the value in case it was not mapped-by before? - what about other migrations?
+
 		FieldMeta fieldMeta = classMeta.getFieldMeta(mmd.getClassName(), mmd.getName());
 		if (fieldMeta == null)
 			throw new IllegalStateException("Unknown field! class=" + dnClassMetaData.getFullClassName() + " fieldNumber=" + fieldNumber + " fieldName=" + mmd.getName());
 
+		if (value == null) {
+			objectContainer.setValue(fieldMeta.getFieldID(), null);
+			return;
+		}
+
 		int relationType = mmd.getRelationType(executionContext.getClassLoaderResolver());
+
+		// Replace any SCO field that isn't already a wrapper, with its wrapper object
+		boolean[] secondClassMutableFieldFlags = dnClassMetaData.getSCOMutableMemberFlags();
+		if (secondClassMutableFieldFlags[fieldNumber] && !(value instanceof SCO))
+			value = op.wrapSCOField(fieldNumber, value, false, true, true);
 
 		if (relationType == Relation.NONE)
 		{

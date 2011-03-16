@@ -144,6 +144,8 @@ implements DetachCallback
 	}
 	public void setDataNucleusAbsoluteFieldNumber(int dataNucleusAbsoluteFieldNumber) {
 		this.dataNucleusAbsoluteFieldNumber = dataNucleusAbsoluteFieldNumber;
+		for (FieldMeta subFM : role2subFieldMeta.values())
+			subFM.setDataNucleusAbsoluteFieldNumber(dataNucleusAbsoluteFieldNumber);
 	}
 
 	public FieldMeta getSubFieldMeta(FieldMetaRole role)
@@ -167,6 +169,7 @@ implements DetachCallback
 		if (getSubFieldMeta(subFieldMeta.getRole()) != null)
 			throw new IllegalArgumentException("There is already a subFieldMeta with role \"" + subFieldMeta.getRole() + "\"!");
 
+		subFieldMeta.setDataNucleusAbsoluteFieldNumber(dataNucleusAbsoluteFieldNumber);
 		role2subFieldMeta.put(subFieldMeta.getRole(), subFieldMeta);
 	}
 

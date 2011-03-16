@@ -19,7 +19,7 @@ extends AbstractTransactionalTest
 	private static final Logger logger = LoggerFactory.getLogger(MovieTest.class);
 
 	@Test
-	public void createOneMovie()
+	public void createOneMovieWithRating()
 	throws Exception
 	{
 		pm.getExtent(Movie.class);
@@ -33,6 +33,23 @@ extends AbstractTransactionalTest
 		rating = pm.makePersistent(rating);
 
 		movie.setRating(rating);
+	}
+
+	@Test
+	public void createOneMovieWithOneStarring()
+	throws Exception
+	{
+		pm.getExtent(Movie.class);
+
+		Movie movie = new Movie();
+		movie.setName("MMM " + System.currentTimeMillis());
+		movie = pm.makePersistent(movie);
+
+		Person person = new Person();
+		person.setName("PPP " + System.currentTimeMillis());
+		person = pm.makePersistent(person);
+
+		movie.getStarring().add(person);
 	}
 
 	@Test

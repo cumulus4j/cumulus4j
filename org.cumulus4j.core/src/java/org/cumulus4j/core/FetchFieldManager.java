@@ -114,6 +114,9 @@ public class FetchFieldManager extends AbstractFieldManager
 		if (fieldMeta == null)
 			throw new IllegalStateException("Unknown field! class=" + dnClassMetaData.getFullClassName() + " fieldNumber=" + fieldNumber + " fieldName=" + mmd.getName());
 
+		if (mmd.getMappedBy() != null)
+			throw new UnsupportedOperationException("NYI"); // TODO we have to look the value up in a different way than reading it directly from our ObjectContainer!
+
 		int relationType = mmd.getRelationType(executionContext.getClassLoaderResolver());
 
 		if (relationType == Relation.NONE)

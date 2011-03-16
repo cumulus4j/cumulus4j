@@ -159,7 +159,7 @@ extends AbstractTransactionalTest
 	}
 
 	@Test
-	public void query4() throws IOException
+	public void deleteAll() throws IOException
 	{
 		LocalAccountantDelegate localAccountantDelegate = (LocalAccountantDelegate) pm.getObjectById(LOCAL_ACCOUNTANT_DELEGATE_ID_0);
 		pm.deletePersistent(localAccountantDelegate);
