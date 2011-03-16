@@ -26,4 +26,6 @@ extends IndexEntry
 	protected void setIndexKey(Object indexKey) {
 		this.indexKey = (Double) indexKey;
 	}
+
+
 }

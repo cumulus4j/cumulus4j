@@ -48,6 +48,11 @@ public abstract class IndexEntry
 		this.fieldMeta = fieldMeta;
 	}
 
+	/**
+	 * Get the value which is indexed by this instance. It serves as 2nd part of the unique key together
+	 * with the property {@link #getFieldMeta() fieldMeta}.
+	 * @return the key.
+	 */
 	public abstract Object getIndexKey();
 
 	protected abstract void setIndexKey(Object indexKey);
