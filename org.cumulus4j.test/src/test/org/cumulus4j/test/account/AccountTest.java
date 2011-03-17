@@ -84,8 +84,7 @@ extends AbstractTransactionalTest
 		localAccountantDelegate.setName(name);
 		localAccountantDelegate.setDescription(description);
 
-		pm.currentTransaction().commit();
-		pm.currentTransaction().begin();
+		commitAndBeginNewTransaction();
 
 		localAccountantDelegate = (LocalAccountantDelegate) pm.getObjectById(LOCAL_ACCOUNTANT_DELEGATE_ID_0);
 		Assert.assertEquals(name, localAccountantDelegate.getName());

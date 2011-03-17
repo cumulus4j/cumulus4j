@@ -36,8 +36,7 @@ extends AbstractTransactionalTest
 			pm.makePersistent(localAccountantDelegate); // this should implicitely persist the account
 		}
 
-		pm.currentTransaction().commit();
-		pm.currentTransaction().begin();
+		commitAndBeginNewTransaction();
 
 		{
 			LocalAccountantDelegate localAccountantDelegate = (LocalAccountantDelegate) pm.getObjectById(LOCAL_ACCOUNTANT_DELEGATE_ID_0);
