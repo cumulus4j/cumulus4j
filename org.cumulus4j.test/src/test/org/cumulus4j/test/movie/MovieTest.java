@@ -205,6 +205,8 @@ extends AbstractTransactionalTest
 		List<Movie> movies = (List<Movie>) q.execute(rating);
 		logger.info("query0: found " + movies.size() + " movies with rating \"" + rating.getName() + "\":");
 		for (Movie movie : movies) {
+			Assert.assertNotNull("Query returned a movie whose rating is null!", movie.getRating());
+			Assert.assertTrue("Query returned a movie whose rating is not \"" + rating.getName() + "\"!", rating.equals(movie.getRating()));
 			logger.info("query0:   * " + movie.getMovieID() + ": " + movie.getName());
 		}
 		Assert.assertEquals("Query returned wrong number of results!", 39, movies.size());
@@ -222,6 +224,9 @@ extends AbstractTransactionalTest
 		List<Movie> movies = (List<Movie>) q.execute(ratingNamePart);
 		logger.info("query1: found " + movies.size() + " movies with rating.name containing \"" + ratingNamePart + "\":");
 		for (Movie movie : movies) {
+			Assert.assertNotNull("Query returned a movie whose rating is null!", movie.getRating());
+			Assert.assertNotNull("Query returned a movie whose rating.name is null!", movie.getRating().getName());
+			Assert.assertTrue("Query returned a movie whose rating.name does not contain \"" + ratingNamePart + "\"!", movie.getRating().getName().contains(ratingNamePart));
 			logger.info("query1:   * " + movie.getMovieID() + ": " + movie.getName() + " (" + movie.getRating().getName() + ")");
 		}
 		Assert.assertEquals("Query returned wrong number of results!", 34, movies.size());
@@ -239,9 +244,18 @@ extends AbstractTransactionalTest
 		List<Movie> movies = (List<Movie>) q.execute(ratingName);
 		logger.info("query2: found " + movies.size() + " movies with rating.name == \"" + ratingName + "\":");
 		for (Movie movie : movies) {
+			Assert.assertNotNull("Query returned a movie whose rating is null!", movie.getRating());
+			Assert.assertEquals("Query returned a movie whose rating.name is not equal to \"" + ratingName + "\"!", ratingName, movie.getRating().getName());
 			logger.info("query2:   * " + movie.getMovieID() + ": " + movie.getName() + " (" + movie.getRating().getName() + ")");
 		}
 		Assert.assertEquals("Query returned wrong number of results!", 18, movies.size());
 	}
 
+//	@Test
+//	public void query3() throws IOException
+//	{
+//		Query q = pm.newQuery(Movie.class);
+//		q.setFilter("this.starring.contains(:starring)");
+//
+//	}
 }
