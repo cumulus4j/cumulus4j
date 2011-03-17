@@ -23,12 +23,16 @@ public class TestUtil
 			propertiesMap.put(me.getKey() == null ? null : me.getKey().toString(), me.getValue() == null ? null : me.getValue().toString());
 
 		for (Map.Entry<?, ?> me : source.entrySet()) {
+			String key = me.getKey() == null ? null : me.getKey().toString();
 			String value = me.getValue() == null ? null : me.getValue().toString();
 
 			if (value != null)
 				value = IOUtil.replaceTemplateVariables(value, propertiesMap);
 
-			destination.put(me.getKey() == null ? null : me.getKey().toString(), value);
+			if (value == null || "_NULL_".equals(value))
+				destination.remove(key);
+			else
+				destination.put(key, value);
 		}
 	}
 
