@@ -66,6 +66,7 @@ public class TransactionalRunner extends BlockJUnit4ClassRunner
 	protected List<MethodRule> rules(Object test) {
 		List<MethodRule> superRules = super.rules(test);
 		List<MethodRule> result = new ArrayList<MethodRule>(superRules.size() + 1);
+		result.addAll(superRules);
 		result.add(transactionalRule);
 		return result;
 	}
