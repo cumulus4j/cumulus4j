@@ -1,5 +1,7 @@
 package org.cumulus4j.test.framework;
 
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,21 +28,20 @@ public class TransactionalRunner extends BlockJUnit4ClassRunner
 
 	@Override
 	public void run(RunNotifier notifier) {
-//		logger.info("run: Clearing database (dropping all tables).");
-//		try {
-//			CleanupUtil.dropAllTables();
-//		} catch (Exception e) {
-//			logger.error("Dropping all tables failed!", e);
-//			notifier.fireTestFailure(new Failure(getDescription(), e));
-//			return;
-//		}
-
-		logger.info("run: ************ children begin ************");
-		List<FrameworkMethod> children = getChildren();
-		for (FrameworkMethod child : children) {
-			logger.info("run: " + child.getName());
+		logger.info("run: Shutting down Derby (in case it was used before).");
+		// First shut down derby, in case it is open
+		try {
+			DriverManager.getConnection("jdbc:derby:;shutdown=true");
+		} catch (SQLException x) {
+			// ignore, because this is to be expected according to http://db.apache.org/derby/docs/dev/devguide/tdevdvlp40464.html
 		}
-		logger.info("run: ************ children end ************");
+
+//		logger.info("run: ************ children begin ************");
+//		List<FrameworkMethod> children = getChildren();
+//		for (FrameworkMethod child : children) {
+//			logger.info("run: " + child.getName());
+//		}
+//		logger.info("run: ************ children end ************");
 
 //		logger.info("run: Setting up PersistenceManagerFactory.");
 //		pmf = JDOHelper.getPersistenceManagerFactory(TestUtil.loadProperties("cumulus4j-test-datanucleus.properties"));
