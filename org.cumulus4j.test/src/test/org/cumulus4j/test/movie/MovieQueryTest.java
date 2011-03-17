@@ -5,58 +5,43 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
+import javax.jdo.Extent;
 import javax.jdo.Query;
 
 import org.cumulus4j.test.framework.AbstractTransactionalTest;
+import org.cumulus4j.test.framework.CleanupUtil;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MovieTest
+public class MovieQueryTest
 extends AbstractTransactionalTest
 {
-	private static final Logger logger = LoggerFactory.getLogger(MovieTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(MovieQueryTest.class);
 
-	@Test
-	public void createOneMovieWithRating()
+	@BeforeClass
+	public static void clearDatabase()
 	throws Exception
 	{
-		pm.getExtent(Movie.class);
-
-		Movie movie = new Movie();
-		movie.setName("MMM " + System.currentTimeMillis());
-		movie = pm.makePersistent(movie);
-
-		Rating rating = new Rating();
-		rating.setName("RRR " + System.currentTimeMillis());
-		rating = pm.makePersistent(rating);
-
-		movie.setRating(rating);
+		logger.info("clearDatabase: Clearing database (dropping all tables).");
+		CleanupUtil.dropAllTables();
 	}
 
-	@Test
-	public void createOneMovieWithOneStarring()
-	throws Exception
-	{
-		pm.getExtent(Movie.class);
-
-		Movie movie = new Movie();
-		movie.setName("MMM " + System.currentTimeMillis());
-		movie = pm.makePersistent(movie);
-
-		Person person = new Person();
-		person.setName("PPP " + System.currentTimeMillis());
-		person = pm.makePersistent(person);
-
-		movie.getStarring().add(person);
-	}
-
-	@Test
+	@Before
 	public void importDataCsv()
 	throws Exception
 	{
-		pm.getExtent(Movie.class);
+		logger.info("importDataCsv: entered");
+		Extent<Movie> movieExtent = pm.getExtent(Movie.class);
+		Assert.assertNotNull("pm.getExtent(Movie.class) returned null!", movieExtent);
+		if (movieExtent.iterator().hasNext()) {
+			logger.info("importDataCsv: already imported before => skipping.");
+			return;
+		}
+		logger.info("importDataCsv: nothing imported before => importing now.");
 
 		Query queryMovieByName = pm.newQuery(Movie.class);
 		queryMovieByName.setFilter("this.name == :name");
@@ -75,7 +60,7 @@ extends AbstractTransactionalTest
 		queryRatingByName.setUnique(true);
 
 		BufferedReader r = new BufferedReader(
-				new InputStreamReader(MovieTest.class.getResourceAsStream("data.csv"), "UTF-8")
+				new InputStreamReader(MovieQueryTest.class.getResourceAsStream("data.csv"), "UTF-8")
 		);
 		String line;
 		while ((line = r.readLine()) != null) {
@@ -188,6 +173,7 @@ extends AbstractTransactionalTest
 	@Test
 	public void query0() throws IOException
 	{
+		logger.info("query0: entered");
 		Rating rating;
 		{
 			String ratingName = "R (USA)";
@@ -196,6 +182,7 @@ extends AbstractTransactionalTest
 			q.setFilter("this.name == :name");
 			q.setUnique(true);
 			rating = (Rating) q.execute(ratingName);
+			Assert.assertNotNull("No rating found with rating.name==\"" + ratingName + "\"!", rating);
 		}
 
 		Query q = pm.newQuery(Movie.class);
@@ -216,6 +203,7 @@ extends AbstractTransactionalTest
 	@Test
 	public void query1() throws IOException
 	{
+		logger.info("query1: entered");
 		Query q = pm.newQuery(Movie.class);
 		q.setFilter("this.rating.name.indexOf(:ratingNamePart) >= 0");
 
@@ -237,6 +225,7 @@ extends AbstractTransactionalTest
 	@Test
 	public void query2() throws IOException
 	{
+		logger.info("query2: entered");
 		Query q = pm.newQuery(Movie.class);
 		q.setFilter("this.rating.name == :ratingName");
 

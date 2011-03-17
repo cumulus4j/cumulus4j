@@ -1,10 +1,13 @@
 package org.cumulus4j.test.framework;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 
-import org.junit.runner.notification.Failure;
+import org.junit.rules.MethodRule;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
@@ -21,22 +24,30 @@ public class TransactionalRunner extends BlockJUnit4ClassRunner
 
 	@Override
 	public void run(RunNotifier notifier) {
-		logger.info("run: Clearing database (dropping all tables).");
-		try {
-			CleanupUtil.dropAllTables();
-		} catch (Exception e) {
-			logger.error("Dropping all tables failed!", e);
-			notifier.fireTestFailure(new Failure(getDescription(), e));
-			return;
-		}
+//		logger.info("run: Clearing database (dropping all tables).");
+//		try {
+//			CleanupUtil.dropAllTables();
+//		} catch (Exception e) {
+//			logger.error("Dropping all tables failed!", e);
+//			notifier.fireTestFailure(new Failure(getDescription(), e));
+//			return;
+//		}
 
-		logger.info("run: Setting up PersistenceManagerFactory.");
-		pmf = JDOHelper.getPersistenceManagerFactory(TestUtil.loadProperties("cumulus4j-test-datanucleus.properties"));
+		logger.info("run: ************ children begin ************");
+		List<FrameworkMethod> children = getChildren();
+		for (FrameworkMethod child : children) {
+			logger.info("run: " + child.getName());
+		}
+		logger.info("run: ************ children end ************");
+
+//		logger.info("run: Setting up PersistenceManagerFactory.");
+//		pmf = JDOHelper.getPersistenceManagerFactory(TestUtil.loadProperties("cumulus4j-test-datanucleus.properties"));
 		try {
 			super.run(notifier);
 		} finally {
 			logger.info("run: Shutting down PersistenceManagerFactory.");
-			pmf.close();
+			if (pmf != null)
+				pmf.close();
 		}
 	}
 
@@ -44,12 +55,27 @@ public class TransactionalRunner extends BlockJUnit4ClassRunner
 		super(testClass);
 	}
 
+//	@Override
+//	protected Statement methodInvoker(FrameworkMethod method, Object test)
+//	{
+//		Statement superMethodInvoker = super.methodInvoker(method, test);
+//		return new TransactionalInvokeMethod(method, test, superMethodInvoker);
+//	}
+
 	@Override
-	protected Statement methodInvoker(FrameworkMethod method, Object test)
-	{
-		Statement superMethodInvoker = super.methodInvoker(method, test);
-		return new TransactionalInvokeMethod(method, test, superMethodInvoker);
+	protected List<MethodRule> rules(Object test) {
+		List<MethodRule> superRules = super.rules(test);
+		List<MethodRule> result = new ArrayList<MethodRule>(superRules.size() + 1);
+		result.add(transactionalRule);
+		return result;
 	}
+
+	private MethodRule transactionalRule = new MethodRule() {
+		@Override
+		public Statement apply(Statement base, FrameworkMethod method, Object target) {
+			return new TransactionalInvokeMethod(method, target, base);
+		}
+	};
 
 	private class TransactionalInvokeMethod extends Statement
 	{
@@ -70,6 +96,12 @@ public class TransactionalRunner extends BlockJUnit4ClassRunner
 			TransactionalTest transactionalTest = null;
 			if (test instanceof TransactionalTest) {
 				transactionalTest = (TransactionalTest) test;
+
+				if (pmf == null) {
+					logger.info("run: Setting up PersistenceManagerFactory.");
+					pmf = JDOHelper.getPersistenceManagerFactory(TestUtil.loadProperties("cumulus4j-test-datanucleus.properties"));
+				}
+
 				pm = pmf.getPersistenceManager();
 				transactionalTest.setPersistenceManager(pm);
 				pm.currentTransaction().begin();
