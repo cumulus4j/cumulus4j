@@ -110,7 +110,7 @@ public class TransactionalRunner extends BlockJUnit4ClassRunner
 				delegate.evaluate();
 
 				pm = transactionalTest.getPersistenceManager();
-				if (pm != null)
+				if (pm != null && !pm.isClosed() && pm.currentTransaction().isActive())
 					pm.currentTransaction().commit();
 			} finally {
 				pm = transactionalTest.getPersistenceManager();
