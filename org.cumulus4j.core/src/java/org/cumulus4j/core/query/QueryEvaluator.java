@@ -198,54 +198,6 @@ public abstract class QueryEvaluator
 		else {
 			AbstractExpressionEvaluator<?> evaluator = createExpressionEvaluatorTree(compilation.getExprFilter());
 			return evaluator.queryResultObjects();
-
-
-//			// TODO put this logic into the ExpressionEvaluatorTree and use the above two lines instead of this experiment!
-//			ArrayList<Object> resultList = new ArrayList<Object>();
-//
-//			Expression exprFilter = compilation.getExprFilter();
-//			PrimaryExpression left = (PrimaryExpression) exprFilter.getLeft();
-//
-////			Symbol symbolBound = left.bind(compilation.getSymbolTable());
-//
-//			String classAlias = left.getTuples().get(0);
-//			Symbol classAliasSymbol = compilation.getSymbolTable().getSymbol(classAlias);
-//			Class<?> clazz = classAliasSymbol.getValueType();
-//			ClassMeta classMeta = storeManager.getClassMeta(ec, clazz);
-//
-//			ParameterExpression right = (ParameterExpression) exprFilter.getRight();
-//			Object rightValue = QueryUtils.getValueForParameterExpression(parameterValues, right);
-//
-//			String fieldName = left.getTuples().get(1);
-//			FieldMeta fieldMeta = classMeta.getFieldMeta(null, fieldName);
-//			if (Expression.OP_EQ.equals(exprFilter.getOperator())) {
-//				if (left.getSymbol().getValueType() == String.class) {
-//					IndexEntry indexEntry = IndexEntry.getIndexEntry(pm, fieldMeta, (String) rightValue);
-//					if (indexEntry == null)
-//						return resultList;
-//
-//					IndexValue indexValue = encryptionHandler.decryptIndexEntry(indexEntry);
-//					for (Long dataEntryID : indexValue.getDataEntryIDs()) {
-//						LongIdentity id = new LongIdentity(DataEntry.class, dataEntryID);
-//						DataEntry dataEntry = (DataEntry) pm.getObjectById(id);
-//						Object entity = getObjectForDataEntry(dataEntry);
-//						resultList.add(entity);
-//					}
-//					return resultList;
-//				}
-//				throw new UnsupportedOperationException("NYI");
-//			}
-//			else
-//				throw new UnsupportedOperationException("NYI");
-
-
-
-//			List<Object> candidates = getAllForCandidateClasses(candidateClassMetas);
-//			JavaQueryEvaluator evaluator = new JDOQLEvaluator(
-//					query, candidates, compilation, parameterValues, ec.getClassLoaderResolver()
-//			);
-//			Collection<Object> results = evaluator.execute(true, true, true, true, true);
-//			return new ArrayList<Object>(results);
 		}
 	}
 
@@ -307,18 +259,6 @@ public abstract class QueryEvaluator
 		throw new UnsupportedOperationException("Don't know what to do with this expression: " + expr);
 	}
 
-//	private Map<String, Class<?>> className2Class = new HashMap<String, Class<?>>();
-//
-//	public Class<?> getClass(String className)
-//	{
-//		Class<?> clazz = className2Class.get(className);
-//		if (clazz == null) {
-//			clazz = clr.classForName(className);
-//			className2Class.put(className, clazz);
-//		}
-//		return clazz;
-//	}
-
 	public Object getObjectForDataEntry(DataEntry dataEntry)
 	{
 		return getObjectForClassMetaAndObjectIDString(dataEntry.getClassMeta(), dataEntry.getObjectID());
@@ -328,10 +268,6 @@ public abstract class QueryEvaluator
 	{
 		AbstractClassMetaData cmd = getStoreManager().getMetaDataManager().getMetaDataForClass(classMeta.getClassName(), getClassLoaderResolver());
 		return IdentityUtils.getObjectFromIdString(objectIDString, cmd, ec, true);
-//		Class<?> clazz = getClass(classMeta.getClassName());
-//		Object objectID = ec.newObjectId(clazz, objectIDString);
-//		Object object = ec.findObject(objectID, true, true, classMeta.getClassName());
-//		return object;
 	}
 
 	private List<Object> getAllForCandidateClasses(Set<ClassMeta> candidateClassMetas)

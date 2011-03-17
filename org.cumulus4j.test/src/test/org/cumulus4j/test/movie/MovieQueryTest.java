@@ -9,10 +9,8 @@ import javax.jdo.Extent;
 import javax.jdo.Query;
 
 import org.cumulus4j.test.framework.AbstractTransactionalTest;
-import org.cumulus4j.test.framework.CleanupUtil;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,12 +20,31 @@ extends AbstractTransactionalTest
 {
 	private static final Logger logger = LoggerFactory.getLogger(MovieQueryTest.class);
 
-	@BeforeClass
-	public static void clearDatabase()
-	throws Exception
+//	@BeforeClass
+//	public static void clearDatabase()
+//	throws Exception
+//	{
+//		logger.info("clearDatabase: Clearing database (dropping all tables).");
+//		CleanupUtil.dropAllTables();
+//	}
+
+	private static String safeTrim(String s)
 	{
-		logger.info("clearDatabase: Clearing database (dropping all tables).");
-		CleanupUtil.dropAllTables();
+		if (s == null)
+			return null;
+
+		return s.trim();
+	}
+
+	private static String[] safeTrim(String[] ss)
+	{
+		if (ss == null)
+			return null;
+
+		for (int i = 0; i < ss.length; i++)
+			ss[i] = safeTrim(ss[i]);
+
+		return ss;
 	}
 
 	@Before
@@ -66,18 +83,18 @@ extends AbstractTransactionalTest
 		while ((line = r.readLine()) != null) {
 			String[] fields = line.split("\t");
 			int fieldNo = -1;
-			String movieName = fields.length <= ++fieldNo ? null : fields[fieldNo];
-			String starringName = fields.length <= ++fieldNo ? null : fields[fieldNo];
-			String[] writtenByNames = fields.length <= ++fieldNo ? null : fields[fieldNo].split(",");
-			String[] languageNames = fields.length <= ++fieldNo ? null : fields[fieldNo].split(",");
-			String[] directedByNames = fields.length <= ++fieldNo ? null : fields[fieldNo].split(",");
-			String[] producedByNames = fields.length <= ++fieldNo ? null : fields[fieldNo].split(",");
-			String tagline = fields.length <= ++fieldNo ? null : fields[fieldNo];
-			String initialReleaseDate = fields.length <= ++fieldNo ? null : fields[fieldNo];
-			String ratingName = fields.length <= ++fieldNo ? null : fields[fieldNo];
-			String estimatedBudget = fields.length <= ++fieldNo ? null : fields[fieldNo];
-			String sequel = fields.length <= ++fieldNo ? null : fields[fieldNo];
-			String prequel = fields.length <= ++fieldNo ? null : fields[fieldNo];
+			String movieName = safeTrim(fields.length <= ++fieldNo ? null : fields[fieldNo]);
+			String starringName = safeTrim(fields.length <= ++fieldNo ? null : fields[fieldNo]);
+			String[] writtenByNames = safeTrim(fields.length <= ++fieldNo ? null : fields[fieldNo].split(","));
+			String[] languageNames = safeTrim(fields.length <= ++fieldNo ? null : fields[fieldNo].split(","));
+			String[] directedByNames = safeTrim(fields.length <= ++fieldNo ? null : fields[fieldNo].split(","));
+			String[] producedByNames = safeTrim(fields.length <= ++fieldNo ? null : fields[fieldNo].split(","));
+			String tagline = safeTrim(fields.length <= ++fieldNo ? null : fields[fieldNo]);
+			String initialReleaseDate = safeTrim(fields.length <= ++fieldNo ? null : fields[fieldNo]);
+			String ratingName = safeTrim(fields.length <= ++fieldNo ? null : fields[fieldNo]);
+			String estimatedBudget = safeTrim(fields.length <= ++fieldNo ? null : fields[fieldNo]);
+			String sequel = safeTrim(fields.length <= ++fieldNo ? null : fields[fieldNo]);
+			String prequel = safeTrim(fields.length <= ++fieldNo ? null : fields[fieldNo]);
 
 //			System.out.println("movieName = " + movieName);
 
@@ -165,7 +182,7 @@ extends AbstractTransactionalTest
 			else
 				movie.setRating(null);
 
-			pm.flush();
+//			pm.flush();
 		}
 		r.close();
 	}
@@ -192,12 +209,12 @@ extends AbstractTransactionalTest
 		List<Movie> movies = (List<Movie>) q.execute(rating);
 		Assert.assertNotNull("Query returned null as result when a List was expected!", movies);
 		logger.info("query0: found " + movies.size() + " movies with rating \"" + rating.getName() + "\":");
+		Assert.assertEquals("Query returned wrong number of results!", 39, movies.size());
 		for (Movie movie : movies) {
 			Assert.assertNotNull("Query returned a movie whose rating is null!", movie.getRating());
 			Assert.assertTrue("Query returned a movie whose rating is not \"" + rating.getName() + "\"!", rating.equals(movie.getRating()));
 			logger.info("query0:   * " + movie.getMovieID() + ": " + movie.getName());
 		}
-		Assert.assertEquals("Query returned wrong number of results!", 39, movies.size());
 	}
 
 	@Test
@@ -213,13 +230,13 @@ extends AbstractTransactionalTest
 		List<Movie> movies = (List<Movie>) q.execute(ratingNamePart);
 		Assert.assertNotNull("Query returned null as result when a List was expected!", movies);
 		logger.info("query1: found " + movies.size() + " movies with rating.name containing \"" + ratingNamePart + "\":");
+		Assert.assertEquals("Query returned wrong number of results!", 34, movies.size());
 		for (Movie movie : movies) {
 			Assert.assertNotNull("Query returned a movie whose rating is null!", movie.getRating());
 			Assert.assertNotNull("Query returned a movie whose rating.name is null!", movie.getRating().getName());
 			Assert.assertTrue("Query returned a movie whose rating.name does not contain \"" + ratingNamePart + "\"!", movie.getRating().getName().contains(ratingNamePart));
 			logger.info("query1:   * " + movie.getMovieID() + ": " + movie.getName() + " (" + movie.getRating().getName() + ")");
 		}
-		Assert.assertEquals("Query returned wrong number of results!", 34, movies.size());
 	}
 
 	@Test
@@ -235,19 +252,50 @@ extends AbstractTransactionalTest
 		List<Movie> movies = (List<Movie>) q.execute(ratingName);
 		Assert.assertNotNull("Query returned null as result when a List was expected!", movies);
 		logger.info("query2: found " + movies.size() + " movies with rating.name == \"" + ratingName + "\":");
+		Assert.assertEquals("Query returned wrong number of results!", 18, movies.size());
 		for (Movie movie : movies) {
 			Assert.assertNotNull("Query returned a movie whose rating is null!", movie.getRating());
 			Assert.assertEquals("Query returned a movie whose rating.name is not equal to \"" + ratingName + "\"!", ratingName, movie.getRating().getName());
 			logger.info("query2:   * " + movie.getMovieID() + ": " + movie.getName() + " (" + movie.getRating().getName() + ")");
 		}
-		Assert.assertEquals("Query returned wrong number of results!", 18, movies.size());
 	}
 
-//	@Test
-//	public void query3() throws IOException
-//	{
-//		Query q = pm.newQuery(Movie.class);
-//		q.setFilter("this.starring.contains(:starring)");
-//
-//	}
+	@Test
+	public void query3() throws IOException
+	{
+		Person person;
+		{
+			String personName = "Katharine Hepburn";
+
+			Query q = pm.newQuery(Person.class);
+			q.setFilter("this.name == :name");
+			q.setUnique(true);
+			person = (Person) q.execute(personName);
+			Assert.assertNotNull("No person found with person.name==\"" + personName + "\"!", person);
+		}
+
+		Query q = pm.newQuery(Movie.class);
+		q.setFilter("this.starring.contains(:person)");
+		@SuppressWarnings("unchecked")
+		List<Movie> movies = (List<Movie>) q.execute(person);
+		Assert.assertNotNull("Query returned null as result when a List was expected!", movies);
+		logger.info("query3: found " + movies.size() + " movies with starring.contains(\"" + person.getName() + "\"):");
+		Assert.assertEquals("Query returned wrong number of results!", 2, movies.size());
+		for (Movie movie : movies) {
+			Assert.assertNotNull("Query returned a movie whose starring is null!", movie.getStarring());
+			Assert.assertFalse("Query returned a movie whose starring is empty!", movie.getStarring().isEmpty());
+
+			StringBuilder starringSB = new StringBuilder();
+			for (Person p : movie.getStarring()) {
+				Assert.assertNotNull("Query returned a movie whose starring contains a null entry!", p);
+
+				if (starringSB.length() > 0)
+					starringSB.append(", ");
+
+				starringSB.append(p.getName());
+			}
+
+			logger.info("query3:   * " + movie.getMovieID() + ": " + movie.getName() + " (" + starringSB + ")");
+		}
+	}
 }

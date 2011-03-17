@@ -7,7 +7,9 @@ import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 
-import org.junit.rules.MethodRule;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.internal.runners.model.MultipleFailureException;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
@@ -55,28 +57,143 @@ public class TransactionalRunner extends BlockJUnit4ClassRunner
 		super(testClass);
 	}
 
-//	@Override
-//	protected Statement methodInvoker(FrameworkMethod method, Object test)
-//	{
-//		Statement superMethodInvoker = super.methodInvoker(method, test);
-//		return new TransactionalInvokeMethod(method, test, superMethodInvoker);
-//	}
-
 	@Override
-	protected List<MethodRule> rules(Object test) {
-		List<MethodRule> superRules = super.rules(test);
-		List<MethodRule> result = new ArrayList<MethodRule>(superRules.size() + 1);
-		result.addAll(superRules);
-		result.add(transactionalRule);
-		return result;
+	protected Statement methodInvoker(FrameworkMethod method, Object test)
+	{
+		Statement superMethodInvoker = super.methodInvoker(method, test);
+		return new TransactionalInvokeMethod(method, test, superMethodInvoker);
 	}
 
-	private MethodRule transactionalRule = new MethodRule() {
-		@Override
-		public Statement apply(Statement base, FrameworkMethod method, Object target) {
-			return new TransactionalInvokeMethod(method, target, base);
+	private class TxRunBefores extends Statement {
+		private final Statement fNext;
+
+		private final Object fTarget;
+
+		private final List<FrameworkMethod> fBefores;
+
+		public TxRunBefores(Statement next, List<FrameworkMethod> befores, Object target) {
+			fNext= next;
+			fBefores= befores;
+			fTarget= target;
 		}
-	};
+
+		@Override
+		public void evaluate() throws Throwable {
+			for (FrameworkMethod before : fBefores)
+				runInTransaction(fTarget, before);
+			fNext.evaluate();
+		}
+	}
+
+	private class TxRunAfters extends Statement {
+		private final Statement fNext;
+
+		private final Object fTarget;
+
+		private final List<FrameworkMethod> fAfters;
+
+		public TxRunAfters(Statement next, List<FrameworkMethod> afters, Object target) {
+			fNext= next;
+			fAfters= afters;
+			fTarget= target;
+		}
+
+		@Override
+		public void evaluate() throws Throwable {
+			List<Throwable> errors = new ArrayList<Throwable>();
+			errors.clear();
+			try {
+				fNext.evaluate();
+			} catch (Throwable e) {
+				errors.add(e);
+			} finally {
+				for (FrameworkMethod each : fAfters)
+					try {
+						runInTransaction(fTarget, each);
+					} catch (Throwable e) {
+						errors.add(e);
+					}
+			}
+			MultipleFailureException.assertEmpty(errors);
+		}
+	}
+
+	@Override
+	protected Statement withBefores(FrameworkMethod method, Object target, Statement statement) {
+		List<FrameworkMethod> befores = getTestClass().getAnnotatedMethods(Before.class);
+		return befores.isEmpty() ? statement : new TxRunBefores(statement, befores, target);
+	}
+
+	@Override
+	protected Statement withAfters(FrameworkMethod method, Object target, Statement statement) {
+		List<FrameworkMethod> afters= getTestClass().getAnnotatedMethods(After.class);
+		return afters.isEmpty() ? statement : new TxRunAfters(statement, afters, target);
+	}
+
+//	@Override
+//	protected List<MethodRule> rules(Object test) {
+//		List<MethodRule> superRules = super.rules(test);
+//		List<MethodRule> result = new ArrayList<MethodRule>(superRules.size() + 1);
+//		result.addAll(superRules);
+//		result.add(transactionalRule);
+//		return result;
+//	}
+//
+//	private MethodRule transactionalRule = new MethodRule() {
+//		@Override
+//		public Statement apply(Statement base, FrameworkMethod method, Object target) {
+//			return new TransactionalInvokeMethod(method, target, base);
+//		}
+//	};
+
+	private void runInTransaction(final Object test, final FrameworkMethod method)
+	throws Throwable
+	{
+		runInTransaction(test, new Statement() {
+			@Override
+			public void evaluate() throws Throwable {
+				method.invokeExplosively(test);
+			}
+		});
+	}
+
+	private void runInTransaction(Object test, Statement statement)
+	throws Throwable
+	{
+		PersistenceManager pm = null;
+		TransactionalTest transactionalTest = null;
+		if (test instanceof TransactionalTest) {
+			transactionalTest = (TransactionalTest) test;
+
+			if (pmf == null) {
+				logger.info("run: Setting up PersistenceManagerFactory.");
+				pmf = JDOHelper.getPersistenceManagerFactory(TestUtil.loadProperties("cumulus4j-test-datanucleus.properties"));
+			}
+
+			pm = pmf.getPersistenceManager();
+			transactionalTest.setPersistenceManager(pm);
+			pm.currentTransaction().begin();
+		}
+		try {
+			statement.evaluate();
+
+			pm = transactionalTest.getPersistenceManager();
+			if (pm != null && !pm.isClosed() && pm.currentTransaction().isActive())
+				pm.currentTransaction().commit();
+		} finally {
+			pm = transactionalTest.getPersistenceManager();
+			if (pm != null && !pm.isClosed()) {
+				try {
+					if (pm.currentTransaction().isActive())
+						pm.currentTransaction().rollback();
+
+					pm.close();
+				} catch (Throwable t) {
+					logger.warn("Rolling back or closing PM failed: " + t, t);
+				}
+			}
+		}
+	}
 
 	private class TransactionalInvokeMethod extends Statement
 	{
@@ -93,39 +210,41 @@ public class TransactionalRunner extends BlockJUnit4ClassRunner
 
 		@Override
 		public void evaluate() throws Throwable {
-			PersistenceManager pm = null;
-			TransactionalTest transactionalTest = null;
-			if (test instanceof TransactionalTest) {
-				transactionalTest = (TransactionalTest) test;
+			runInTransaction(test, delegate);
 
-				if (pmf == null) {
-					logger.info("run: Setting up PersistenceManagerFactory.");
-					pmf = JDOHelper.getPersistenceManagerFactory(TestUtil.loadProperties("cumulus4j-test-datanucleus.properties"));
-				}
-
-				pm = pmf.getPersistenceManager();
-				transactionalTest.setPersistenceManager(pm);
-				pm.currentTransaction().begin();
-			}
-			try {
-				delegate.evaluate();
-
-				pm = transactionalTest.getPersistenceManager();
-				if (pm != null && !pm.isClosed() && pm.currentTransaction().isActive())
-					pm.currentTransaction().commit();
-			} finally {
-				pm = transactionalTest.getPersistenceManager();
-				if (pm != null && !pm.isClosed()) {
-					try {
-						if (pm.currentTransaction().isActive())
-							pm.currentTransaction().rollback();
-
-						pm.close();
-					} catch (Throwable t) {
-						logger.warn("Rolling back or closing PM failed: " + t, t);
-					}
-				}
-			}
+//			PersistenceManager pm = null;
+//			TransactionalTest transactionalTest = null;
+//			if (test instanceof TransactionalTest) {
+//				transactionalTest = (TransactionalTest) test;
+//
+//				if (pmf == null) {
+//					logger.info("run: Setting up PersistenceManagerFactory.");
+//					pmf = JDOHelper.getPersistenceManagerFactory(TestUtil.loadProperties("cumulus4j-test-datanucleus.properties"));
+//				}
+//
+//				pm = pmf.getPersistenceManager();
+//				transactionalTest.setPersistenceManager(pm);
+//				pm.currentTransaction().begin();
+//			}
+//			try {
+//				delegate.evaluate();
+//
+//				pm = transactionalTest.getPersistenceManager();
+//				if (pm != null && !pm.isClosed() && pm.currentTransaction().isActive())
+//					pm.currentTransaction().commit();
+//			} finally {
+//				pm = transactionalTest.getPersistenceManager();
+//				if (pm != null && !pm.isClosed()) {
+//					try {
+//						if (pm.currentTransaction().isActive())
+//							pm.currentTransaction().rollback();
+//
+//						pm.close();
+//					} catch (Throwable t) {
+//						logger.warn("Rolling back or closing PM failed: " + t, t);
+//					}
+//				}
+//			}
 		}
 	}
 }
