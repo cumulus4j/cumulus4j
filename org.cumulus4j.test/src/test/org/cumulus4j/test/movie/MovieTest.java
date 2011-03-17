@@ -203,6 +203,7 @@ extends AbstractTransactionalTest
 
 		@SuppressWarnings("unchecked")
 		List<Movie> movies = (List<Movie>) q.execute(rating);
+		Assert.assertNotNull("Query returned null as result when a List was expected!", movies);
 		logger.info("query0: found " + movies.size() + " movies with rating \"" + rating.getName() + "\":");
 		for (Movie movie : movies) {
 			Assert.assertNotNull("Query returned a movie whose rating is null!", movie.getRating());
@@ -222,6 +223,7 @@ extends AbstractTransactionalTest
 
 		@SuppressWarnings("unchecked")
 		List<Movie> movies = (List<Movie>) q.execute(ratingNamePart);
+		Assert.assertNotNull("Query returned null as result when a List was expected!", movies);
 		logger.info("query1: found " + movies.size() + " movies with rating.name containing \"" + ratingNamePart + "\":");
 		for (Movie movie : movies) {
 			Assert.assertNotNull("Query returned a movie whose rating is null!", movie.getRating());
@@ -242,6 +244,7 @@ extends AbstractTransactionalTest
 
 		@SuppressWarnings("unchecked")
 		List<Movie> movies = (List<Movie>) q.execute(ratingName);
+		Assert.assertNotNull("Query returned null as result when a List was expected!", movies);
 		logger.info("query2: found " + movies.size() + " movies with rating.name == \"" + ratingName + "\":");
 		for (Movie movie : movies) {
 			Assert.assertNotNull("Query returned a movie whose rating is null!", movie.getRating());
