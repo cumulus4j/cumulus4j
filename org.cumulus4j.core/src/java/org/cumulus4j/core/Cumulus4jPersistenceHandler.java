@@ -219,7 +219,10 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 
 	@Override
 	public boolean useReferentialIntegrity() {
-		return false; // TODO this should be false (or better this method *not* overridden), but due to a bug in DN, we need this to be true.
+		return true; // TODO this should be false (or better this method *not* overridden).
+		// Due to a bug in DN, we needed this to be true. The bug is fixed sind 2011-03-17, but the new DN core is not yet in
+		// DN's maven-nightly-repository and thus the build still fails on our integration server. We should remove this method in
+		// a few days. Marco.
 	}
 
 	@Override
