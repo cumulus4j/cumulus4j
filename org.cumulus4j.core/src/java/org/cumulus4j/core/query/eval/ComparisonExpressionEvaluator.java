@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,6 +21,7 @@ import org.cumulus4j.core.model.IndexEntryFactoryRegistry;
 import org.cumulus4j.core.model.IndexEntryOneToOneRelationHelper;
 import org.cumulus4j.core.model.IndexValue;
 import org.cumulus4j.core.query.QueryEvaluator;
+import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.Relation;
 import org.datanucleus.query.QueryUtils;
@@ -27,7 +30,9 @@ import org.datanucleus.query.expression.Expression;
 import org.datanucleus.query.expression.Literal;
 import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
+import org.datanucleus.query.expression.VariableExpression;
 import org.datanucleus.query.expression.Expression.Operator;
+import org.datanucleus.query.symbol.Symbol;
 
 /**
  * Handles the comparisons ==, &lt;, &lt;=, &gt;, &gt;=.
@@ -41,16 +46,51 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		super(queryEvaluator, parent, expression);
 	}
 
+	private Class<?> getFieldType(Class<?> clazz, List<String> tuples) {
+		tuples = new LinkedList<String>(tuples);
+		String nextTuple = tuples.remove(0);
+		AbstractClassMetaData clazzMetaData = getQueryEvaluator().getStoreManager().getMetaDataManager().getMetaDataForClass(clazz, getQueryEvaluator().getClassLoaderResolver());
+		if (clazzMetaData == null)
+			throw new IllegalStateException("No meta-data found for class " + clazz.getName());
+
+		AbstractMemberMetaData metaDataForMember = clazzMetaData.getMetaDataForMember(nextTuple);
+		if (metaDataForMember == null)
+			throw new IllegalStateException("No meta-data found for field \"" + nextTuple + "\" of class \"" + clazz.getName() + "\"!");
+
+		if (tuples.isEmpty())
+			return metaDataForMember.getType();
+		else
+			return getFieldType(metaDataForMember.getType(), tuples);
+	}
+
+	private Class<?> getFieldType(PrimaryExpression primaryExpression) {
+		if (primaryExpression.getSymbol() != null)
+			return primaryExpression.getSymbol().getValueType();
+
+		if (primaryExpression.getLeft() instanceof VariableExpression) {
+			Symbol classSymbol = ((VariableExpression)primaryExpression.getLeft()).getSymbol();
+			if (classSymbol == null)
+				throw new IllegalStateException("((VariableExpression)primaryExpression.getLeft()).getSymbol() returned null!");
+
+			return getFieldType(classSymbol.getValueType(), primaryExpression.getTuples());
+		}
+		else
+			throw new UnsupportedOperationException("NYI");
+	}
+
 	@Override
-	protected Set<Long> _queryResultDataEntryIDs()
+	protected Set<Long> _queryResultDataEntryIDs(Symbol resultSymbol)
 	{
 		if (getLeft() instanceof InvokeExpressionEvaluator) {
+			if (!getLeft().getResultSymbols().contains(resultSymbol))
+				return null;
+
 			InvokeExpressionEvaluator invokeEval = (InvokeExpressionEvaluator) getLeft();
 			if ("indexOf".equals(invokeEval.getExpression().getOperation())) {
 				if (invokeEval.getLeft() instanceof PrimaryExpressionEvaluator) {
 					PrimaryExpressionEvaluator primaryEval = (PrimaryExpressionEvaluator) invokeEval.getLeft();
 					PrimaryExpression primaryExpr = primaryEval.getExpression();
-					Class<?> parameterType = primaryExpr.getSymbol().getValueType();
+					Class<?> parameterType = getFieldType(primaryExpr);
 
 					if (invokeEval.getExpression().getArguments().size() != 1)
 						throw new IllegalStateException("indexOf(...) expects exactly one argument, but there are " + invokeEval.getExpression().getArguments().size());
@@ -84,6 +124,9 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		}
 
 		if (getLeft() instanceof PrimaryExpressionEvaluator) {
+			if (!getLeft().getResultSymbols().contains(resultSymbol))
+				return null;
+
 			Object compareToArgument;
 			if (getRight() instanceof LiteralEvaluator)
 				compareToArgument = ((LiteralEvaluator)getRight()).getLiteralValue();
@@ -99,6 +142,9 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		}
 
 		if (getRight() instanceof PrimaryExpressionEvaluator) {
+			if (!getRight().getResultSymbols().contains(resultSymbol))
+				return null;
+
 			Object compareToArgument;
 			if (getLeft() instanceof LiteralEvaluator)
 				compareToArgument = ((LiteralEvaluator)getRight()).getLiteralValue();

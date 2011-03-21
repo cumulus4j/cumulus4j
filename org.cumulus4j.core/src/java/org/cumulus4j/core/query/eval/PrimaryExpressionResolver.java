@@ -12,6 +12,7 @@ import org.cumulus4j.core.model.IndexEntryOneToOneRelationHelper;
 import org.cumulus4j.core.model.IndexValue;
 import org.cumulus4j.core.query.QueryEvaluator;
 import org.datanucleus.query.expression.PrimaryExpression;
+import org.datanucleus.query.expression.VariableExpression;
 import org.datanucleus.query.symbol.Symbol;
 
 /**
@@ -39,12 +40,22 @@ public abstract class PrimaryExpressionResolver
 		if (tuples.size() < 1)
 			throw new IllegalStateException("primaryExpression.tuples.size < 1");
 
-		if (queryEvaluator.getCandidateAlias().equals(tuples.get(0))) {
-			tuples.remove(0);
+		Symbol symbol;
+		if (primaryExpression.getLeft() instanceof VariableExpression) {
+			symbol = ((VariableExpression)primaryExpression.getLeft()).getSymbol();
+			if (symbol == null)
+				throw new IllegalStateException("((VariableExpression)primaryExpression.getLeft()).getSymbol() returned null!");
 		}
-		Symbol symbol = queryEvaluator.getCompilation().getSymbolTable().getSymbol(queryEvaluator.getCandidateAlias());
-		if (symbol == null)
-			throw new IllegalStateException("getQueryEvaluator().getCompilation().getSymbolTable().getSymbol(getQueryEvaluator().getCandidateAlias()) returned null! candidateAlias=" + queryEvaluator.getCandidateAlias());
+		else if (primaryExpression.getLeft() == null) {
+			if (queryEvaluator.getCandidateAlias().equals(tuples.get(0)))
+				tuples.remove(0);
+
+			symbol = queryEvaluator.getCompilation().getSymbolTable().getSymbol(queryEvaluator.getCandidateAlias());
+			if (symbol == null)
+				throw new IllegalStateException("getQueryEvaluator().getCompilation().getSymbolTable().getSymbol(getQueryEvaluator().getCandidateAlias()) returned null! candidateAlias=" + queryEvaluator.getCandidateAlias());
+		}
+		else
+			throw new UnsupportedOperationException("NYI");
 
 		Class<?> clazz = symbol.getValueType();
 		ClassMeta classMeta = queryEvaluator.getStoreManager().getClassMeta(

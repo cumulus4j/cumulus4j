@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.cumulus4j.core.query.QueryEvaluator;
 import org.datanucleus.query.expression.DyadicExpression;
+import org.datanucleus.query.symbol.Symbol;
 
 public class AndExpressionEvaluator
 extends AbstractExpressionEvaluator<DyadicExpression>
@@ -14,22 +15,28 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 	}
 
 	@Override
-	protected Set<Long> _queryResultDataEntryIDs() {
+	protected Set<Long> _queryResultDataEntryIDs(Symbol resultSymbol) {
 		if (getLeft() == null)
 			throw new IllegalStateException("getLeft() == null");
 
 		if (getRight() == null)
 			throw new IllegalStateException("getRight() == null");
 
-		if (getLeft().getQueryEvaluator().getCandidateAlias().equals(getRight().getQueryEvaluator().getCandidateAlias())) {
-			Set<Long> dataEntryIDs1 = getLeft().queryResultDataEntryIDs();
-			Set<Long> dataEntryIDs2 = getRight().queryResultDataEntryIDs();
+		Set<Long> leftResult = getLeft().queryResultDataEntryIDs(resultSymbol);
+		Set<Long> rightResult = getRight().queryResultDataEntryIDs(resultSymbol);
 
-			// Swap them, if the first set is bigger than the 2nd (to always iterate the smaller set => faster).
-			if (dataEntryIDs1.size() > dataEntryIDs2.size()) {
-				Set<Long> tmp = dataEntryIDs1;
-				dataEntryIDs1 = dataEntryIDs2;
-				dataEntryIDs2 = tmp;
+		if (leftResult != null && rightResult != null) {
+			Set<Long> dataEntryIDs1;
+			Set<Long> dataEntryIDs2;
+
+			// Swap them, if the first set is bigger than the 2nd (we want to always iterate the smaller set => faster).
+			if (leftResult.size() > rightResult.size()) {
+				dataEntryIDs1 = rightResult;
+				dataEntryIDs2 = leftResult;
+			}
+			else {
+				dataEntryIDs1 = leftResult;
+				dataEntryIDs2 = rightResult;
 			}
 
 			Set<Long> result = new HashSet<Long>(dataEntryIDs1.size());
@@ -39,7 +46,9 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 			}
 			return result;
 		}
+		else if (leftResult != null)
+			return leftResult;
 		else
-			throw new UnsupportedOperationException("NYI");
+			return rightResult;
 	}
 }

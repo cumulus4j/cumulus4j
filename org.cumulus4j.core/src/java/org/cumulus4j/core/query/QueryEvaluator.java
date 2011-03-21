@@ -23,6 +23,7 @@ import org.cumulus4j.core.query.eval.InvokeExpressionEvaluator;
 import org.cumulus4j.core.query.eval.LiteralEvaluator;
 import org.cumulus4j.core.query.eval.ParameterExpressionEvaluator;
 import org.cumulus4j.core.query.eval.PrimaryExpressionEvaluator;
+import org.cumulus4j.core.query.eval.VariableExpressionEvaluator;
 import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.identity.IdentityUtils;
 import org.datanucleus.metadata.AbstractClassMetaData;
@@ -34,6 +35,8 @@ import org.datanucleus.query.expression.InvokeExpression;
 import org.datanucleus.query.expression.Literal;
 import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
+import org.datanucleus.query.expression.VariableExpression;
+import org.datanucleus.query.symbol.Symbol;
 import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.query.Query;
 
@@ -202,9 +205,19 @@ public abstract class QueryEvaluator
 			return getAllForCandidateClasses(candidateClassMetas);
 		}
 		else {
-			AbstractExpressionEvaluator<?> evaluator = createExpressionEvaluatorTree(compilation.getExprFilter());
-			return evaluator.queryResultObjects();
+			expressionEvaluator = createExpressionEvaluatorTree(compilation.getExprFilter());
+			Symbol resultSymbol = getCompilation().getSymbolTable().getSymbol(getCandidateAlias());
+			if (resultSymbol == null)
+				throw new IllegalStateException("getCompilation().getSymbolTable().getSymbol(getCandidateAlias()) returned null! getCandidateAlias()==\"" + getCandidateAlias() + "\"");
+
+			return expressionEvaluator.queryResultObjects(resultSymbol);
 		}
+	}
+
+	private AbstractExpressionEvaluator<?> expressionEvaluator;
+
+	public AbstractExpressionEvaluator<?> getExpressionEvaluator() {
+		return expressionEvaluator;
 	}
 
 	private AbstractExpressionEvaluator<?> createExpressionEvaluatorTree(Expression expression)
@@ -261,6 +274,9 @@ public abstract class QueryEvaluator
 
 		if (expr instanceof InvokeExpression)
 			return new InvokeExpressionEvaluator(this, parent, (InvokeExpression) expr);
+
+		if (expr instanceof VariableExpression)
+			return new VariableExpressionEvaluator(this, parent, (VariableExpression) expr);
 
 		throw new UnsupportedOperationException("Don't know what to do with this expression: " + expr);
 	}

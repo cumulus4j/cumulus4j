@@ -5,6 +5,7 @@ import java.util.Set;
 import org.cumulus4j.core.query.QueryEvaluator;
 import org.datanucleus.query.QueryUtils;
 import org.datanucleus.query.expression.ParameterExpression;
+import org.datanucleus.query.symbol.Symbol;
 
 public class ParameterExpressionEvaluator
 extends AbstractExpressionEvaluator<ParameterExpression>
@@ -14,7 +15,8 @@ extends AbstractExpressionEvaluator<ParameterExpression>
 	}
 
 	@Override
-	protected Set<Long> _queryResultDataEntryIDs() {
+	protected Set<Long> _queryResultDataEntryIDs(Symbol resultSymbol)
+	{
 		throw new UnsupportedOperationException("It is impossible to get a result set for a ParameterExpression alone!");
 	}
 

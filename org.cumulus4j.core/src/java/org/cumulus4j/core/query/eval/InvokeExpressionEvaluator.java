@@ -2,6 +2,7 @@ package org.cumulus4j.core.query.eval;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.jdo.PersistenceManager;
@@ -23,6 +24,8 @@ import org.datanucleus.query.expression.InvokeExpression;
 import org.datanucleus.query.expression.Literal;
 import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
+import org.datanucleus.query.expression.VariableExpression;
+import org.datanucleus.query.symbol.Symbol;
 
 public class InvokeExpressionEvaluator
 extends AbstractExpressionEvaluator<InvokeExpression>
@@ -33,9 +36,13 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 	}
 
 	@Override
-	protected Set<Long> _queryResultDataEntryIDs() {
-		if ("contains".equals(this.getExpression().getOperation())) {
-			if (this.getLeft() instanceof PrimaryExpressionEvaluator) {
+	protected Set<Long> _queryResultDataEntryIDs(Symbol resultSymbol)
+	{
+		if (this.getLeft() instanceof PrimaryExpressionEvaluator) {
+			if (!getLeft().getResultSymbols().contains(resultSymbol))
+				return null;
+
+			if ("contains".equals(this.getExpression().getOperation())) {
 				PrimaryExpressionEvaluator primaryEval = (PrimaryExpressionEvaluator) this.getLeft();
 				PrimaryExpression primaryExpr = primaryEval.getExpression();
 				Class<?> parameterType = primaryExpr.getSymbol().getValueType();
@@ -45,16 +52,21 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 
 				Expression invokeArgExpr = this.getExpression().getArguments().get(0);
 
-				Object invokeArgument;
-				if (invokeArgExpr instanceof Literal)
-					invokeArgument = ((Literal)invokeArgExpr).getLiteral();
-				else if (invokeArgExpr instanceof ParameterExpression)
-					invokeArgument = QueryUtils.getValueForParameterExpression(getQueryEvaluator().getParameterValues(), (ParameterExpression)invokeArgExpr);
-				else
-					throw new UnsupportedOperationException("NYI");
+				if (Collection.class.isAssignableFrom(parameterType)) {
+					Object invokeArgument;
+					if (invokeArgExpr instanceof Literal)
+						invokeArgument = ((Literal)invokeArgExpr).getLiteral();
+					else if (invokeArgExpr instanceof ParameterExpression)
+						invokeArgument = QueryUtils.getValueForParameterExpression(getQueryEvaluator().getParameterValues(), (ParameterExpression)invokeArgExpr);
+					else if (invokeArgExpr instanceof VariableExpression)
+						return new CollectionContainsVariableResolver(
+								getQueryEvaluator(), primaryExpr, (VariableExpression) invokeArgExpr
+						).query();
+					else
+						throw new UnsupportedOperationException("NYI");
 
-				if (Collection.class.isAssignableFrom(parameterType))
 					return new CollectionContainsValueResolver(getQueryEvaluator(), primaryExpr, invokeArgument).query();
+				}
 
 				throw new UnsupportedOperationException("NYI");
 			}
@@ -63,6 +75,51 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 
 		throw new UnsupportedOperationException("Cannot be evaluated alone without loading *ALL* records of a certain type!");
 	}
+
+
+	private class CollectionContainsVariableResolver extends PrimaryExpressionResolver
+	{
+		private VariableExpression variableExpr;
+
+		public CollectionContainsVariableResolver(
+				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
+				VariableExpression variableExpr
+		)
+		{
+			super(queryEvaluator, primaryExpression);
+			this.variableExpr = variableExpr;
+
+			if (variableExpr == null)
+				throw new IllegalArgumentException("variableExpr == null");
+
+			if (variableExpr.getSymbol() == null)
+				throw new IllegalArgumentException("variableExpr.getSymbol() == null");
+		}
+
+		@Override
+		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
+			PersistenceManager pm = getPersistenceManager();
+//			AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(getQueryEvaluator().getExecutionContext());
+			FieldMeta subFieldMeta = fieldMeta.getSubFieldMeta(FieldMetaRole.collectionElement);
+
+//			if (mmd.getCollection().elementIsPersistent()) {
+				Set<Long> result = new HashSet<Long>();
+				AbstractExpressionEvaluator<?> eval = getQueryEvaluator().getExpressionEvaluator();
+				Collection<Long> valueDataEntryIDs = eval.queryResultDataEntryIDs(variableExpr.getSymbol());
+				for (Long valueDataEntryID : valueDataEntryIDs) {
+					IndexEntry indexEntry = IndexEntryOneToOneRelationHelper.getIndexEntry(pm, subFieldMeta, valueDataEntryID);
+					if (indexEntry != null) {
+						IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
+						result.addAll(indexValue.getDataEntryIDs());
+					}
+				}
+				return result;
+//			}
+//			else
+//				throw new UnsupportedOperationException("Variable of a simple type is not yet implemented! Variable must be of a persistence-capable class!");
+		}
+	}
+
 
 	private class CollectionContainsValueResolver extends PrimaryExpressionResolver
 	{

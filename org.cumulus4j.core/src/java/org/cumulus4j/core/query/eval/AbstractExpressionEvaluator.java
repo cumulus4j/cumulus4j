@@ -2,7 +2,10 @@ package org.cumulus4j.core.query.eval;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.jdo.PersistenceManager;
@@ -11,6 +14,7 @@ import javax.jdo.identity.LongIdentity;
 import org.cumulus4j.core.model.DataEntry;
 import org.cumulus4j.core.query.QueryEvaluator;
 import org.datanucleus.query.expression.Expression;
+import org.datanucleus.query.symbol.Symbol;
 
 public abstract class AbstractExpressionEvaluator<X extends Expression>
 {
@@ -20,9 +24,9 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 
 	private X expression;
 
-	private Set<Long> resultDataEntryIDs;
+	private Map<Symbol, Set<Long>> symbol2resultDataEntryIDs = new HashMap<Symbol, Set<Long>>();
 
-	private List<Object> resultObjects;
+	private Map<Symbol, List<Object>> symbol2resultObjects = new HashMap<Symbol, List<Object>>();
 
 	public AbstractExpressionEvaluator(QueryEvaluator queryEvaluator, AbstractExpressionEvaluator<?> parent, X expression)
 	{
@@ -83,76 +87,89 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 		this.right = right;
 	}
 
-//	public <R extends AbstractExpressionEvaluator<?>> R getLeftOrRightExactlyOne(Class<R> evaluatorClass, boolean throwExceptionIfNotMatching)
-//	{
-//		if (evaluatorClass.isInstance(left) && evaluatorClass.isInstance(right)) {
-//			if (throwExceptionIfNotMatching)
-//				throw new IllegalStateException("Both [left and right] are instances of " + evaluatorClass + ", but only exactly one should be!");
-//
-//			return null;
-//		}
-//
-//		if (!evaluatorClass.isInstance(left) && !evaluatorClass.isInstance(right)) {
-//			if (throwExceptionIfNotMatching)
-//				throw new IllegalStateException("Neither left nor right is an instances of " + evaluatorClass + ", but exactly one should be!");
-//
-//			return null;
-//		}
-//
-//		if (evaluatorClass.isInstance(left))
-//			return evaluatorClass.cast(left);
-//
-//		if (evaluatorClass.isInstance(right))
-//			return evaluatorClass.cast(right);
-//
-//		throw new IllegalStateException("This should never happen!");
-//	}
-//
-//	public <R extends AbstractExpressionEvaluator<?>> R[] getLeftOrRightAtLeastOne(Class<R> evaluatorClass, boolean throwExceptionIfNoneFound)
-//	{
-//		List<R> resultList = new ArrayList<R>(2);
-//
-//		if (evaluatorClass.isInstance(left))
-//			resultList.add(evaluatorClass.cast(left));
-//
-//		if (evaluatorClass.isInstance(right))
-//			resultList.add(evaluatorClass.cast(right));
-//
-//		if (resultList.isEmpty() && throwExceptionIfNoneFound)
-//			throw new IllegalStateException("Neither left nor right is an instances of " + evaluatorClass + ", but at least one should be!");
-//
-//		@SuppressWarnings("unchecked")
-//		R[] resultArray = (R[]) Array.newInstance(evaluatorClass, resultList.size());
-//		return resultList.toArray(resultArray);
-//	}
-
-	public Set<Long> getResultDataEntryIDs() {
-		return resultDataEntryIDs;
+	public Set<Long> getResultDataEntryIDs(Symbol resultSymbol) {
+		return symbol2resultDataEntryIDs.get(resultSymbol);
 	}
 
-	public List<Object> getResultObjects() {
-		return resultObjects;
-	}
+	private Set<Symbol> resultSymbols;
 
-	public Set<Long> queryResultDataEntryIDs() {
-		if (resultDataEntryIDs == null)
-			resultDataEntryIDs = Collections.unmodifiableSet(_queryResultDataEntryIDs());
-
-		return resultDataEntryIDs;
-	}
-
-	protected abstract Set<Long> _queryResultDataEntryIDs();
-
-	public List<Object> queryResultObjects() {
-		if (resultObjects == null)
-			resultObjects = Collections.unmodifiableList(_queryResultObjects());
-
-		return resultObjects;
-	}
-
-	protected List<Object> _queryResultObjects()
+	public Set<Symbol> getResultSymbols()
 	{
-		Set<Long> dataEntryIDs = queryResultDataEntryIDs();
+		if (resultSymbols == null) {
+			if (left != null && right == null)
+				resultSymbols = left.getResultSymbols();
+			else if (left == null && right != null)
+				resultSymbols = right.getResultSymbols();
+			else if (left == null && right == null)
+				resultSymbols = Collections.emptySet();
+			else {
+				Set<Symbol> result = new HashSet<Symbol>(left.getResultSymbols().size() + right.getResultSymbols().size());
+				result.addAll(left.getResultSymbols());
+				result.addAll(right.getResultSymbols());
+				resultSymbols =Collections.unmodifiableSet(result);
+			}
+		}
+		return resultSymbols;
+	}
+
+//	public Symbol getResultSymbol()
+//	{
+//		Symbol resultSymbol = null;
+//
+//		if (left != null)
+//			resultSymbol = left.getResultSymbol();
+//
+//		if (right != null) {
+//			if (resultSymbol == null)
+//				resultSymbol = right.getResultSymbol();
+//			else {
+//				if (!resultSymbol.equals(right.getResultSymbol()))
+//					throw new IllegalStateException("left.resultSymbol != right.resultSymbol :: " + left.getResultSymbol() + " != " + right.getResultSymbol() + " :: Override this method, if this is a legal situation!");
+//			}
+//		}
+//		return resultSymbol;
+//	}
+
+	public List<Object> getResultObjects(Symbol resultSymbol) {
+		return symbol2resultObjects.get(resultSymbol);
+	}
+
+	public Set<Long> queryResultDataEntryIDs(Symbol resultSymbol) {
+		Set<Long> resultDataEntryIDs = symbol2resultDataEntryIDs.get(resultSymbol);
+		if (!symbol2resultDataEntryIDs.containsKey(resultSymbol)) {
+			resultDataEntryIDs = _queryResultDataEntryIDs(resultSymbol);
+
+			if (resultDataEntryIDs != null)
+				resultDataEntryIDs = Collections.unmodifiableSet(resultDataEntryIDs);
+
+			symbol2resultDataEntryIDs.put(resultSymbol, resultDataEntryIDs);
+		}
+
+		return resultDataEntryIDs;
+	}
+
+	protected abstract Set<Long> _queryResultDataEntryIDs(Symbol resultSymbol);
+
+	public List<Object> queryResultObjects(Symbol resultSymbol) {
+		List<Object> resultObjects = symbol2resultObjects.get(resultSymbol);
+		if (!symbol2resultObjects.containsKey(resultSymbol)) {
+			resultObjects = _queryResultObjects(resultSymbol);
+
+			if (resultObjects != null)
+				resultObjects = Collections.unmodifiableList(resultObjects);
+
+			symbol2resultObjects.put(resultSymbol, resultObjects);
+		}
+
+		return resultObjects;
+	}
+
+	protected List<Object> _queryResultObjects(Symbol resultSymbol)
+	{
+		Set<Long> dataEntryIDs = queryResultDataEntryIDs(resultSymbol);
+		if (dataEntryIDs == null)
+			return null;
+
 		List<Object> resultList = new ArrayList<Object>(dataEntryIDs.size());
 
 		PersistenceManager pm = getPersistenceManager();

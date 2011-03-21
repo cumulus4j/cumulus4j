@@ -301,37 +301,67 @@ extends AbstractTransactionalTest
 		}
 	}
 
-//	@Test
-//	public void query4() throws IOException
-//	{
-//		String personName = "Katharine Hepburn";
-//
-//		Query q = pm.newQuery(Movie.class);
-//		q.setFilter("this.starring.contains(personVariable) && personVariable.name == :personName");
-////		q.setFilter("this.starring.contains(personVariable) && personVariable.name == :personName && this.rating.name.indexOf(:ratingNamePart) >= 0");
-////		q.setFilter("this.starring.contains(personVariable) || personVariable.name == :personName");
-//		q.declareVariables(Person.class.getName() + " personVariable");
-//
-//		@SuppressWarnings("unchecked")
-//		List<Movie> movies = (List<Movie>) q.execute(personName);
-//		Assert.assertNotNull("Query returned null as result when a List was expected!", movies);
-//		logger.info("query4: found " + movies.size() + " movies query=\"" + q + "\" and personName=\"" + personName + "\"):");
-//		Assert.assertEquals("Query returned wrong number of results!", 2, movies.size());
-//		for (Movie movie : movies) {
-//			Assert.assertNotNull("Query returned a movie whose starring is null!", movie.getStarring());
-//			Assert.assertFalse("Query returned a movie whose starring is empty!", movie.getStarring().isEmpty());
-//
-//			StringBuilder starringSB = new StringBuilder();
-//			for (Person p : movie.getStarring()) {
-//				Assert.assertNotNull("Query returned a movie whose starring contains a null entry!", p);
-//
-//				if (starringSB.length() > 0)
-//					starringSB.append(", ");
-//
-//				starringSB.append(p.getName());
-//			}
-//
-//			logger.info("query4:   * " + movie.getMovieID() + ": " + movie.getName() + " (" + starringSB + ")");
-//		}
-//	}
+	@Test
+	public void query4() throws IOException
+	{
+		String personName = "Katharine Hepburn";
+
+		Query q = pm.newQuery(Movie.class);
+		q.setFilter("this.starring.contains(personVariable) && personVariable.name == :personName");
+		q.declareVariables(Person.class.getName() + " personVariable");
+
+		@SuppressWarnings("unchecked")
+		List<Movie> movies = (List<Movie>) q.execute(personName);
+		Assert.assertNotNull("Query returned null as result when a List was expected!", movies);
+		logger.info("query4: found " + movies.size() + " movies query=\"" + q + "\" and personName=\"" + personName + "\"):");
+		Assert.assertEquals("Query returned wrong number of results!", 2, movies.size());
+		for (Movie movie : movies) {
+			Assert.assertNotNull("Query returned a movie whose starring is null!", movie.getStarring());
+			Assert.assertFalse("Query returned a movie whose starring is empty!", movie.getStarring().isEmpty());
+
+			StringBuilder starringSB = new StringBuilder();
+			for (Person p : movie.getStarring()) {
+				Assert.assertNotNull("Query returned a movie whose starring contains a null entry!", p);
+
+				if (starringSB.length() > 0)
+					starringSB.append(", ");
+
+				starringSB.append(p.getName());
+			}
+
+			logger.info("query4:   * " + movie.getMovieID() + ": " + movie.getName() + " (" + starringSB + ")");
+		}
+	}
+
+	@Test
+	public void query5() throws IOException
+	{
+		String personNamePart = "Kat";
+
+		Query q = pm.newQuery(Movie.class);
+		q.setFilter("this.starring.contains(personVariable) && personVariable.name.indexOf(:personNamePart) >= 0");
+		q.declareVariables(Person.class.getName() + " personVariable");
+
+		@SuppressWarnings("unchecked")
+		List<Movie> movies = (List<Movie>) q.execute(personNamePart);
+		Assert.assertNotNull("Query returned null as result when a List was expected!", movies);
+		logger.info("query5: found " + movies.size() + " movies query=\"" + q + "\" and personNamePart=\"" + personNamePart + "\"):");
+		Assert.assertEquals("Query returned wrong number of results!", 16, movies.size());
+		for (Movie movie : movies) {
+			Assert.assertNotNull("Query returned a movie whose starring is null!", movie.getStarring());
+			Assert.assertFalse("Query returned a movie whose starring is empty!", movie.getStarring().isEmpty());
+
+			StringBuilder starringSB = new StringBuilder();
+			for (Person p : movie.getStarring()) {
+				Assert.assertNotNull("Query returned a movie whose starring contains a null entry!", p);
+
+				if (starringSB.length() > 0)
+					starringSB.append(", ");
+
+				starringSB.append(p.getName());
+			}
+
+			logger.info("query5:   * " + movie.getMovieID() + ": " + movie.getName() + " (" + starringSB + ")");
+		}
+	}
 }

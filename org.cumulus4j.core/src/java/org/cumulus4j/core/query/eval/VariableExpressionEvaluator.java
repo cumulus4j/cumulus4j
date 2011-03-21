@@ -1,0 +1,32 @@
+package org.cumulus4j.core.query.eval;
+
+import java.util.Collections;
+import java.util.Set;
+
+import org.cumulus4j.core.query.QueryEvaluator;
+import org.datanucleus.query.expression.VariableExpression;
+import org.datanucleus.query.symbol.Symbol;
+
+public class VariableExpressionEvaluator extends AbstractExpressionEvaluator<VariableExpression>
+{
+	public VariableExpressionEvaluator(QueryEvaluator queryEvaluator, AbstractExpressionEvaluator<?> parent, VariableExpression expression)
+	{
+		super(queryEvaluator, parent, expression);
+	}
+
+	@Override
+	protected Set<Long> _queryResultDataEntryIDs(Symbol resultSymbol)
+	{
+		throw new UnsupportedOperationException("Cannot evaluate a variable without any context!");
+	}
+
+	@Override
+	public Set<Symbol> getResultSymbols()
+	{
+		Symbol symbol = getExpression().getSymbol();
+		if (symbol == null)
+			throw new IllegalStateException("getExpression().getSymbol() returned null!");
+
+		return Collections.singleton(symbol);
+	}
+}
