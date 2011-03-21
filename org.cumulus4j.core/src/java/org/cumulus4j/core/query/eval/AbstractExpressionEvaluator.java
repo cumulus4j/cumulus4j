@@ -16,6 +16,21 @@ import org.cumulus4j.core.query.QueryEvaluator;
 import org.datanucleus.query.expression.Expression;
 import org.datanucleus.query.symbol.Symbol;
 
+/**
+ * <p>
+ * Abstract base class for all {@link Expression} evaluators.
+ * </p>
+ * <p>
+ * DataNucleus gives the query implementation a tree composed of {@link Expression}s. This tree is nothing more
+ * than an object-oriented representation of the query to be executed. In order to actually query data, there
+ * needs to be evaluation logic applying the <code>Expression</code> to the Cumulus4j data structure. This logic is
+ * implemented in subclasses of <code>AbstractExpressionEvaluator</code>.
+ * </p>
+ *
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ *
+ * @param <X> the {@link Expression} to be evaluated.
+ */
 public abstract class AbstractExpressionEvaluator<X extends Expression>
 {
 	private QueryEvaluator queryEvaluator;

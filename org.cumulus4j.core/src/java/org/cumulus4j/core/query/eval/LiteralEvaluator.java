@@ -6,6 +6,11 @@ import org.cumulus4j.core.query.QueryEvaluator;
 import org.datanucleus.query.expression.Literal;
 import org.datanucleus.query.symbol.Symbol;
 
+/**
+ * Evaluator representing literals.
+ *
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class LiteralEvaluator extends AbstractExpressionEvaluator<Literal>
 {
 	public LiteralEvaluator(QueryEvaluator queryEvaluator, AbstractExpressionEvaluator<?> parent, Literal expression) {

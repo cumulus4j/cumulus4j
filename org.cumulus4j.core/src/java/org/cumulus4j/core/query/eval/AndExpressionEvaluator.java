@@ -7,6 +7,11 @@ import org.cumulus4j.core.query.QueryEvaluator;
 import org.datanucleus.query.expression.DyadicExpression;
 import org.datanucleus.query.symbol.Symbol;
 
+/**
+ * Evaluator handling the boolean operation &amp;&amp;.
+ *
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class AndExpressionEvaluator
 extends AbstractExpressionEvaluator<DyadicExpression>
 {

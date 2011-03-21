@@ -7,6 +7,11 @@ import org.cumulus4j.core.query.QueryEvaluator;
 import org.datanucleus.query.expression.VariableExpression;
 import org.datanucleus.query.symbol.Symbol;
 
+/**
+ * Evaluator representing variables.
+ *
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class VariableExpressionEvaluator extends AbstractExpressionEvaluator<VariableExpression>
 {
 	public VariableExpressionEvaluator(QueryEvaluator queryEvaluator, AbstractExpressionEvaluator<?> parent, VariableExpression expression)

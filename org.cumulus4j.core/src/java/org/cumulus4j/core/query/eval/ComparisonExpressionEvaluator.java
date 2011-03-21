@@ -35,7 +35,7 @@ import org.datanucleus.query.expression.Expression.Operator;
 import org.datanucleus.query.symbol.Symbol;
 
 /**
- * Handles the comparisons ==, &lt;, &lt;=, &gt;, &gt;=.
+ * Evaluator handling the comparisons ==, &lt;, &lt;=, &gt;, &gt;=.
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */

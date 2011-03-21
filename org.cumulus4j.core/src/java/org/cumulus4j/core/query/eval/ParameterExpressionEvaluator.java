@@ -7,6 +7,11 @@ import org.datanucleus.query.QueryUtils;
 import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.symbol.Symbol;
 
+/**
+ * Evaluator representing query parameters.
+ *
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class ParameterExpressionEvaluator
 extends AbstractExpressionEvaluator<ParameterExpression>
 {

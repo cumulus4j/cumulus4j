@@ -27,6 +27,11 @@ import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.query.expression.VariableExpression;
 import org.datanucleus.query.symbol.Symbol;
 
+/**
+ * Evaluator handling method invocations like <code>Collection.contains(...)</code>.
+ *
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class InvokeExpressionEvaluator
 extends AbstractExpressionEvaluator<InvokeExpression>
 {

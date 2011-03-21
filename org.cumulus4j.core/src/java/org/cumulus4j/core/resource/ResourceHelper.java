@@ -24,7 +24,7 @@ public class ResourceHelper
 
 	/**
 	 * <p>
-	 * Open an {@link InputStream} from the backend-properties (file {@value #CUMULUS4J_BACKEND_PROPERTIES}).
+	 * Open an {@link InputStream} reading the file {@value #CUMULUS4J_BACKEND_PROPERTIES}.
 	 * </p>
 	 * <p>
 	 * <b>Important:</b> You must close this <code>InputStream</code>!!!
@@ -54,7 +54,7 @@ public class ResourceHelper
 	 * <p>
 	 * Additionally, all properties in the frontend-PMF's configuration starting with
 	 * "cumulus4j.datanucleus." or "cumulus4j.javax." are forwarded to the backend-PMF
-	 * (without the "cumulus4j."-prefix, of course) *OVERRIDING* the default settings here.
+	 * (without the "cumulus4j."-prefix, of course) <b>overriding</b> the default settings.
 	 * </p>
 	 * @return a {@link Map} containing all settings from the backend-properties; never <code>null</code>.
 	 */

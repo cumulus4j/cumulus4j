@@ -7,6 +7,11 @@ import org.cumulus4j.core.query.QueryEvaluator;
 import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.query.symbol.Symbol;
 
+/**
+ * Evaluator representing {@link PrimaryExpression}s.
+ *
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class PrimaryExpressionEvaluator extends AbstractExpressionEvaluator<PrimaryExpression>
 {
 	public PrimaryExpressionEvaluator(QueryEvaluator queryEvaluator, AbstractExpressionEvaluator<?> parent, PrimaryExpression expression) {
