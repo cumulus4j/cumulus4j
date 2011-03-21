@@ -107,11 +107,17 @@ public class DataEntry
 	 * Get the <b>encrypted</b> data of an entity. The entity is transformed ("made flat") into an {@link ObjectContainer}
 	 * which is then serialised using Java native serialisation and finally encrypted.
 	 * @return the <b>encrypted</b> serialised data of an {@link ObjectContainer} holding the entity's data.
+	 * @see #setValue(byte[])
 	 */
 	public byte[] getValue() {
 		return value;
 	}
 
+	/**
+	 * Set the <b>encrypted</b> data of an entity.
+	 * @param value the <b>encrypted</b> serialised data of an {@link ObjectContainer} holding the entity's data.
+	 * @see #getValue()
+	 */
 	public void setValue(byte[] value) {
 		this.value = value;
 	}

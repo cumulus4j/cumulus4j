@@ -5,21 +5,29 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * Helper for en- &amp; decoding the decrypted (plain) contents of
+ * {@link IndexEntry#getIndexValue() IndexEntry.indexValue}. This byte-array holds
+ * references to {@link DataEntry#getDataEntryID() DataEntry.dataEntryID}s.
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class IndexValue
 {
 	private Set<Long> dataEntryIDs = new HashSet<Long>(); // A HashSet is faster than a TreeSet and I don't see a need for the sorting.
 
+	/**
+	 * Create an empty instance of <code>IndexValue</code>. This is equivalent to
+	 * calling {@link #IndexValue(byte[])} with a <code>null</code> or an empty argument.
+	 */
 	public IndexValue() {
 		this(null);
 	}
 
 	/**
-	 * Create an <code>IndexValue</code> instance from the decrypted (plain-text) byte-array
-	 * which is stored in {@link IndexEntry#getIndexValue()}.
+	 * Create an <code>IndexValue</code> instance from the decrypted (plain) byte-array
+	 * which is stored in {@link IndexEntry#getIndexValue() IndexEntry.indexValue}.
 	 *
-	 * @param indexValueByteArray the plain-text (decrypted) byte-array of {@link IndexEntry#getIndexValue()} or <code>null</code>
+	 * @param indexValueByteArray the plain (decrypted) byte-array of {@link IndexEntry#getIndexValue()} or <code>null</code>
 	 * (<code>null</code> is equivalent to an empty byte-array). This byte-array is what is created by {@link #toByteArray()}.
 	 */
 	public IndexValue(byte[] indexValueByteArray) {

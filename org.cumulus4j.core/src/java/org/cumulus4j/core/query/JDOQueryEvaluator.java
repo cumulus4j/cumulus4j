@@ -9,6 +9,11 @@ import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.query.compiler.QueryCompilation;
 import org.datanucleus.store.query.Query;
 
+/**
+ * JDO-specific sub-class of {@link QueryEvaluator} binding the JDO-agnostic query logic
+ * to the JDO API.
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class JDOQueryEvaluator extends QueryEvaluator {
 
 	public JDOQueryEvaluator(

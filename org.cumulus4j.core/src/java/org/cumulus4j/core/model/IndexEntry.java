@@ -10,7 +10,52 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 /**
- * Persistent index information with encrypted pointers to {@link DataEntry} instances.
+ * <p>
+ * Persistent index information with <b>encrypted</b> pointers to {@link DataEntry}s.
+ * </p>
+ * <p>
+ * Since the index is type-specific, there are sub-classes for each data type. One
+ * {@link IndexEntry} instance is used for each distinct value of one certain field.
+ * Therefore, the field (represented by the property {@link #getFieldMeta() fieldMeta})
+ * and the value together form a unique key of <code>IndexEntry</code> - thus the value
+ * is represented by the property {@link #getIndexKey() indexKey}.
+ * </p>
+ * <p>
+ * Example:
+ * </p>
+ * <pre>
+ * // persistent class:
+ * &#64;PersistenceCapable
+ * class Person
+ * {
+ * 	public Person(String firstName, String lastName) {
+ * 		this.firstName = firstName;
+ * 		this.lastName = lastName;
+ * 	}
+ *
+ * 	private String firstName;
+ * 	private String lastName;
+ *
+ * 	// ...
+ * }
+ *
+ * class SomeTest
+ * {
+ * 	&#64;Test
+ * 	public void persistPersons()
+ * 	{
+ * 		pm.makePersistent(new Person("Alice", "Müller"));
+ * 		pm.makePersistent(new Person("Alice", "Meier"));
+ * 	}
+ * }
+ * </pre>
+ * <p>
+ * After running this test, there would be three instances of {@link IndexEntryStringShort} in the database
+ * indexing the values "Alice", "Müller" and "Meier". Note, that "Alice" occurs only once in the index, even though
+ * there are two <code>Person</code> instances using it. The two persons would be referenced from the one index-entry
+ * via {@link #getIndexValue()}.
+ * </p>
+ *
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */

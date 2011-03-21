@@ -1,6 +1,6 @@
 /**
  * <p>
- * Cumulus4j is a plug-in for DataNucleus providing encrypted data-storage.
+ * Cumulus4j is a plug-in for <a href="http://www.datanucleus.org">DataNucleus</a> providing encrypted data-storage.
  * </p>
  * <p>
  * Most classes in this package are extensions using DataNucleus' extension-points in order to implement

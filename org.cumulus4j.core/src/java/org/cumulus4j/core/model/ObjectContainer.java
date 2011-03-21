@@ -7,12 +7,25 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * <p>
+ * Container holding the values of a persistent object.
+ * </p>
+ * <p>
+ * Objects to be stored in the database, are first represented by an instance of {@link ObjectContainer} and
+ * then serialised into a byte-array, which is finally encrypted and put into a {@link DataEntry}'s {@link DataEntry#getValue() value}.
+ * </p>
+ * <p>
+ * Note, that references to other objects
+ * are either not stored at all (in a "mapped-by"-relationship) or stored via the other object's
+ * OID (object-ID); a persistent object is never stored as-is.
+ * </p>
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class ObjectContainer
 implements Serializable, Cloneable
 {
-	private static final long serialVersionUID = 3L;
+	private static final long serialVersionUID = 4L;
 
 	/**
 	 * Stores the concrete value of a field mapped by the persistent {@link FieldMeta#getFieldID() fieldID}.
@@ -20,17 +33,12 @@ implements Serializable, Cloneable
 	 */
 	private Map<Long, Object> fieldID2value = new HashMap<Long, Object>();
 
-//	/**
-//	 * The key is a reference to {@link ClassMeta#getClassID()} by the object's ID.
-//	 * This contains only an entry, if the field's value is a persistable object (not <code>null</code>
-//	 * and not a "simple" type).
-//	 */
-//	private Map<Object, Long> objectID2classID = new HashMap<Object, Long>();
-
 	private Object version;
 
 	public ObjectContainer() { }
 
+// TODO maybe do custom serialisation/deserialisation in order to better keep compatibility? Or should we maybe instead use
+// ObjectContainer2, ObjectContainer3 etc. (i.e. other classes)?
 //	private void writeObject(java.io.ObjectOutputStream out)
 //	throws IOException
 //	{
@@ -50,15 +58,15 @@ implements Serializable, Cloneable
 //		// no special handling necessary
 //	}
 
+	/**
+	 * Get a value.
+	 * @param fieldID the field's persistent ID, i.e. a reference to {@link FieldMeta#getFieldID() FieldMeta.fieldID}.
+	 * @return the value or <code>null</code>.
+	 */
 	public Object getValue(long fieldID)
 	{
 		return fieldID2value.get(fieldID);
 	}
-
-//	public Long getValueTypeClassID(long fieldID)
-//	{
-//		return fieldID2classID.get(fieldID);
-//	}
 
 	/**
 	 * Set a value.
@@ -75,11 +83,6 @@ implements Serializable, Cloneable
 			fieldID2value.remove(fieldID);
 		else
 			fieldID2value.put(fieldID, value);
-
-//		if (valueTypeClassID == null)
-//			fieldID2classID.remove(fieldID);
-//		else
-//			fieldID2classID.put(fieldID, valueTypeClassID);
 	}
 
 	public Map<Long, Object> getFieldID2value() {

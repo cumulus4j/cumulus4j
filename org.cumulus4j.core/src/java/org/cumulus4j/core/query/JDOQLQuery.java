@@ -13,6 +13,12 @@ import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.connection.ManagedConnection;
 import org.datanucleus.store.query.AbstractJDOQLQuery;
 
+/**
+ * JDO query implementation. Delegates to the JDO-agnostic {@link QueryEvaluator} via
+ * its thin wrapper sub-class {@link JDOQueryEvaluator}.
+ *
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class JDOQLQuery extends AbstractJDOQLQuery
 {
 	private static final long serialVersionUID = 1L;

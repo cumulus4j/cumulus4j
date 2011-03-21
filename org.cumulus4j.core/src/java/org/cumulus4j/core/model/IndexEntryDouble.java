@@ -7,6 +7,10 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Unique;
 
 /**
+ * <p>
+ * Persistent index information for fields of type <code>double</code> or {@link Double}.
+ * </p>
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")

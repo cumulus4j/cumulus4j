@@ -7,6 +7,9 @@ import javax.jdo.annotations.InheritanceStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 
 /**
+ * <p>
+ * Persistent index information for fields of type {@link String} being longer than 255 characters (e.g. <code>CLOB</code>).
+ * </p>
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")

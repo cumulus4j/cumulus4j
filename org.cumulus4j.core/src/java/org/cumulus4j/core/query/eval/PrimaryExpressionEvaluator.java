@@ -1,4 +1,4 @@
-package org.cumulus4j.core.query.filter;
+package org.cumulus4j.core.query.eval;
 
 import java.util.List;
 import java.util.Set;

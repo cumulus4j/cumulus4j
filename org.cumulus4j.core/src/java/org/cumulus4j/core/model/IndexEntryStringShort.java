@@ -8,6 +8,9 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Unique;
 
 /**
+ * <p>
+ * Persistent index information for fields of type {@link String} being shorter than 256 characters (e.g. <code>VARCHAR(255)</code>).
+ * </p>
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")

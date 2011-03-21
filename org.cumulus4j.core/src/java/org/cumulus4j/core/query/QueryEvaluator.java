@@ -16,13 +16,13 @@ import org.cumulus4j.core.Cumulus4jStoreManager;
 import org.cumulus4j.core.EncryptionHandler;
 import org.cumulus4j.core.model.ClassMeta;
 import org.cumulus4j.core.model.DataEntry;
-import org.cumulus4j.core.query.filter.AbstractExpressionEvaluator;
-import org.cumulus4j.core.query.filter.AndExpressionEvaluator;
-import org.cumulus4j.core.query.filter.ComparisonExpressionEvaluator;
-import org.cumulus4j.core.query.filter.InvokeExpressionEvaluator;
-import org.cumulus4j.core.query.filter.LiteralEvaluator;
-import org.cumulus4j.core.query.filter.ParameterExpressionEvaluator;
-import org.cumulus4j.core.query.filter.PrimaryExpressionEvaluator;
+import org.cumulus4j.core.query.eval.AbstractExpressionEvaluator;
+import org.cumulus4j.core.query.eval.AndExpressionEvaluator;
+import org.cumulus4j.core.query.eval.ComparisonExpressionEvaluator;
+import org.cumulus4j.core.query.eval.InvokeExpressionEvaluator;
+import org.cumulus4j.core.query.eval.LiteralEvaluator;
+import org.cumulus4j.core.query.eval.ParameterExpressionEvaluator;
+import org.cumulus4j.core.query.eval.PrimaryExpressionEvaluator;
 import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.identity.IdentityUtils;
 import org.datanucleus.metadata.AbstractClassMetaData;
@@ -37,6 +37,12 @@ import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.query.Query;
 
+/**
+ * API-agnostic query implementation. An instance of this class performs the actual query.
+ * It is used by both APIs, JDO and JPA.
+ *
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public abstract class QueryEvaluator
 {
 	/** Name under which any set of results are stored in the state map. Used for aggregation. */
