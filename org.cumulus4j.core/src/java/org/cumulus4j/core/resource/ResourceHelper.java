@@ -16,7 +16,11 @@ import javax.jdo.PersistenceManagerFactory;
  */
 public class ResourceHelper
 {
-	private static final String CUMULUS4J_BACKEND_PROPERTIES = "cumulus4j-backend.properties";
+	/**
+	 * File name of the backend-properties.
+	 * @see #getCumulus4jBackendProperties()
+	 */
+	protected static final String CUMULUS4J_BACKEND_PROPERTIES = "cumulus4j-backend.properties";
 
 	/**
 	 * <p>
