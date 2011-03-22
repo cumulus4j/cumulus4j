@@ -1,9 +1,5 @@
 package org.cumulus4j.core.model;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.CollectionMetaData;
@@ -19,6 +15,8 @@ import org.datanucleus.store.exceptions.UnsupportedDataTypeException;
 public class IndexEntryFactoryRegistry
 {
 	private static IndexEntryFactoryRegistry sharedInstance = null;
+
+	protected IndexEntryFactoryRegistry() { }
 
 	public static void createSharedInstance(PropertyStore propertyStore)
 	{
@@ -41,53 +39,18 @@ public class IndexEntryFactoryRegistry
 	private IndexEntryFactory indexEntryFactoryStringShort = new IndexEntryFactoryStringShort();
 	private IndexEntryFactory indexEntryFactoryStringLong = new IndexEntryFactoryStringLong();
 
-	private Map<String, Class<?>> typeName2ClassMap = Collections.synchronizedMap(new HashMap<String, Class<?>>());
-
 	/**
-	 * @param typeName the type name from {@link CollectionMetaData#getElementType()}, {@link MapMetaData#getKeyType()},
-	 * {@link MapMetaData#getValueType()} or similar. Since this String might contain multiple comma-separated entries,
-	 * this method tries to find the closest common super-type.
-	 * @return the type
-	 */
-	private Class<?> getType(ClassLoaderResolver clr, String typeName)
-	{
-		Class<?> result = typeName2ClassMap.get(typeName);
-		if (result != null)
-			return result;
-
-		int commaIndex = typeName.indexOf(',');
-		if (commaIndex < 0) {
-			result = clr.classForName(typeName);
-		}
-		else {
-			throw new UnsupportedOperationException("typeName really contains a comma: " + typeName); // DN's code seems to never expect this.
-//			Set<Class<?>> classes = new HashSet<Class<?>>();
-//			String[] typeNames = typeName.split(",");
-//			for (String tn : typeNames) {
-//				tn = tn.trim();
-//				if (!tn.isEmpty()) {
-//					Class<?> c = clr.classForName(tn);
-//					classes.add(c);
-//				}
-//			}
-//
-//			result = classes.iterator().next();
-//			boolean
-		}
-
-		typeName2ClassMap.put(typeName, result);
-		return result;
-	}
-
-	/**
+	 * Get the appropriate {@link IndexEntryFactory} subclass instance for the given {@link FieldMeta}.
 	 * @param executionContext the context.
 	 * @param fieldMeta either a {@link FieldMeta} for a {@link FieldMetaRole#primary primary} field or a sub-<code>FieldMeta</code>,
 	 * if a <code>Collection</code> element, a <code>Map</code> key, a <code>Map</code> value or similar are indexed.
-	 * @param throwExceptionIfNotFound
-	 * @return
+	 * @param throwExceptionIfNotFound throw an exception instead of returning <code>null</code>, if there is no {@link IndexEntryFactory} for
+	 * the given <code>fieldMeta</code>.
+	 * @return the appropriate {@link IndexEntryFactory} or <code>null</code>, if none is registered and <code>throwExceptionIfNotFound == false</code>.
 	 */
 	public IndexEntryFactory getIndexEntryFactory(ExecutionContext executionContext, FieldMeta fieldMeta, boolean throwExceptionIfNotFound)
 	{
+		ClassLoaderResolver clr = executionContext.getClassLoaderResolver();
 		AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(executionContext);
 		Class<?> fieldType = null;
 		switch (fieldMeta.getRole()) {
@@ -96,27 +59,40 @@ public class IndexEntryFactoryRegistry
 				break;
 			case collectionElement: {
 				CollectionMetaData cmd = mmd.getCollection();
-				if (cmd != null)
-					fieldType = getType(executionContext.getClassLoaderResolver(), cmd.getElementType());
+				if (cmd != null) {
+					// Even though the documentation of CollectionMetaData.getElementType() says there could be a comma-separated
+					// list of class names, the whole DataNucleus code-base currently ignores this possibility.
+					// To verify, I just tried the following field annotation:
+					//
+					// @Join
+					// @Element(types={String.class, Long.class})
+					// private Set<Object> set = new HashSet<Object>();
+					//
+					// The result was that DataNucleus ignored the String.class and only took the Long.class into account - cmd.getElementType()
+					// contained only "java.lang.Long" here. Since it would make our indexing much more complicated and we cannot test it anyway
+					// as long as DN does not support it, we ignore this situation for now.
+					// We can still implement it later (major refactoring, though), if DN ever supports it one day.
+					fieldType = clr.classForName(cmd.getElementType());
+				}
 			}
 			break;
 			case mapKey: {
 				MapMetaData mapMetaData = mmd.getMap();
-				if (mapMetaData != null)
-					fieldType = getType(executionContext.getClassLoaderResolver(), mapMetaData.getKeyType());
+				if (mapMetaData != null) {
+					// Here, the same applies as for the CollectionMetaData.getElementType().
+					fieldType = clr.classForName(mapMetaData.getKeyType());
+				}
 			}
 			break;
 			case mapValue: {
 				MapMetaData mapMetaData = mmd.getMap();
-				if (mapMetaData != null)
-					fieldType = getType(executionContext.getClassLoaderResolver(), mapMetaData.getValueType());
+				if (mapMetaData != null) {
+					// Here, the same applies as for the CollectionMetaData.getElementType().
+					fieldType = clr.classForName(mapMetaData.getValueType());
+				}
 			}
 			break;
 		}
-
-//	public IndexEntryFactory getIndexEntryFactory(AbstractMemberMetaData mmd, boolean throwExceptionIfNotFound)
-//	{
-//		Class<?> fieldType = mmd.getType();
 
 		if (String.class.isAssignableFrom(fieldType)) {
 			// TODO is this the right way to find out whether we need a long CLOB index or a short VARCHAR index?
