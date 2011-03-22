@@ -129,13 +129,13 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 
 					return new ContainsConstantResolver(getQueryEvaluator(), primaryExpr, FieldMetaRole.mapValue, invokeArgument).query();
 				}
-				throw new UnsupportedOperationException("The method 'containsKey' is not supported for the data type " + parameterType.getName() + '!');
+				throw new UnsupportedOperationException("The method 'containsValue' is not supported for the data type " + parameterType.getName() + '!');
 			}
 
 			throw new UnsupportedOperationException("NYI");
 		}
 
-		throw new UnsupportedOperationException("Cannot be evaluated alone without loading *ALL* records of a certain type!");
+		throw new UnsupportedOperationException("NYI");
 	}
 
 	private abstract class AbstractContainsResolver extends PrimaryExpressionResolver
