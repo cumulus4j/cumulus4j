@@ -8,7 +8,7 @@ import java.util.Set;
 import org.cumulus4j.core.model.ClassMeta;
 import org.cumulus4j.core.model.FieldMeta;
 import org.cumulus4j.core.model.IndexEntry;
-import org.cumulus4j.core.model.IndexEntryOneToOneRelationHelper;
+import org.cumulus4j.core.model.IndexEntryObjectRelationHelper;
 import org.cumulus4j.core.model.IndexValue;
 import org.cumulus4j.core.query.QueryEvaluator;
 import org.datanucleus.query.expression.PrimaryExpression;
@@ -88,7 +88,7 @@ public abstract class PrimaryExpressionResolver
 			Set<Long> dataSetEntryIDsForNextTuple = queryMiddle(classMetaForNextTupleType, tuples);
 			Set<Long> result = new HashSet<Long>();
 			for (Long dataSetEntryIDForNextTuple : dataSetEntryIDsForNextTuple) {
-				IndexEntry indexEntry = IndexEntryOneToOneRelationHelper.getIndexEntry(
+				IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(
 						queryEvaluator.getPersistenceManager(), fieldMetaForNextTuple, dataSetEntryIDForNextTuple
 				);
 				if (indexEntry != null) {

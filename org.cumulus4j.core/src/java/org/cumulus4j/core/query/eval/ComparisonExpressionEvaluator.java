@@ -18,7 +18,7 @@ import org.cumulus4j.core.model.FieldMeta;
 import org.cumulus4j.core.model.IndexEntry;
 import org.cumulus4j.core.model.IndexEntryFactory;
 import org.cumulus4j.core.model.IndexEntryFactoryRegistry;
-import org.cumulus4j.core.model.IndexEntryOneToOneRelationHelper;
+import org.cumulus4j.core.model.IndexEntryObjectRelationHelper;
 import org.cumulus4j.core.model.IndexValue;
 import org.cumulus4j.core.query.QueryEvaluator;
 import org.datanucleus.metadata.AbstractClassMetaData;
@@ -284,7 +284,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 					valueDataEntryID = DataEntry.getDataEntryID(pm, valueClassMeta, valueID.toString());
 				}
-				IndexEntry indexEntry = IndexEntryOneToOneRelationHelper.getIndexEntry(pm, fieldMeta, valueDataEntryID);
+				IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, fieldMeta, valueDataEntryID);
 				if (indexEntry == null)
 					return Collections.emptySet();
 

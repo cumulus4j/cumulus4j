@@ -14,7 +14,7 @@ import org.cumulus4j.core.model.FieldMetaRole;
 import org.cumulus4j.core.model.IndexEntry;
 import org.cumulus4j.core.model.IndexEntryFactory;
 import org.cumulus4j.core.model.IndexEntryFactoryRegistry;
-import org.cumulus4j.core.model.IndexEntryOneToOneRelationHelper;
+import org.cumulus4j.core.model.IndexEntryObjectRelationHelper;
 import org.cumulus4j.core.model.IndexValue;
 import org.cumulus4j.core.query.QueryEvaluator;
 import org.datanucleus.metadata.AbstractMemberMetaData;
@@ -104,24 +104,24 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 		@Override
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
 			PersistenceManager pm = getPersistenceManager();
-//			AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(getQueryEvaluator().getExecutionContext());
+			AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(getQueryEvaluator().getExecutionContext());
 			FieldMeta subFieldMeta = fieldMeta.getSubFieldMeta(FieldMetaRole.collectionElement);
 
-//			if (mmd.getCollection().elementIsPersistent()) {
+			if (mmd.getCollection().elementIsPersistent()) {
 				Set<Long> result = new HashSet<Long>();
 				AbstractExpressionEvaluator<?> eval = getQueryEvaluator().getExpressionEvaluator();
 				Collection<Long> valueDataEntryIDs = eval.queryResultDataEntryIDs(variableExpr.getSymbol());
 				for (Long valueDataEntryID : valueDataEntryIDs) {
-					IndexEntry indexEntry = IndexEntryOneToOneRelationHelper.getIndexEntry(pm, subFieldMeta, valueDataEntryID);
+					IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, subFieldMeta, valueDataEntryID);
 					if (indexEntry != null) {
 						IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
 						result.addAll(indexValue.getDataEntryIDs());
 					}
 				}
 				return result;
-//			}
-//			else
-//				throw new UnsupportedOperationException("Variable of a simple type is not yet implemented! Variable must be of a persistence-capable class!");
+			}
+			else
+				throw new UnsupportedOperationException("Variable of a simple type is not yet implemented! Variable must be of a persistence-capable class!");
 		}
 	}
 
@@ -155,7 +155,7 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 
 					valueDataEntryID = DataEntry.getDataEntryID(pm, valueClassMeta, valueID.toString());
 				}
-				IndexEntry indexEntry = IndexEntryOneToOneRelationHelper.getIndexEntry(pm, subFieldMeta, valueDataEntryID);
+				IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, subFieldMeta, valueDataEntryID);
 				if (indexEntry == null)
 					return Collections.emptySet();
 

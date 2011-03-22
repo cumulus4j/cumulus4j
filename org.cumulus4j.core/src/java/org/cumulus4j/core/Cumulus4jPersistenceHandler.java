@@ -12,7 +12,7 @@ import org.cumulus4j.core.model.FieldMetaRole;
 import org.cumulus4j.core.model.IndexEntry;
 import org.cumulus4j.core.model.IndexEntryFactory;
 import org.cumulus4j.core.model.IndexEntryFactoryRegistry;
-import org.cumulus4j.core.model.IndexEntryOneToOneRelationHelper;
+import org.cumulus4j.core.model.IndexEntryObjectRelationHelper;
 import org.cumulus4j.core.model.IndexValue;
 import org.cumulus4j.core.model.ObjectContainer;
 import org.datanucleus.exceptions.NucleusObjectNotFoundException;
@@ -117,7 +117,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 				ClassMeta classMeta = storeManager.getClassMeta(executionContext, fieldValueClass);
 				otherDataEntryID = DataEntry.getDataEntryID(pm, classMeta, fieldValue.toString());
 			}
-			IndexEntry indexEntry = IndexEntryOneToOneRelationHelper.getIndexEntry(pm, fieldMeta, otherDataEntryID);
+			IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, fieldMeta, otherDataEntryID);
 			removeIndexEntry(pm, indexEntry, dataEntryID);
 		}
 		else if (Relation.isRelationMultiValued(relationType)) {
@@ -134,12 +134,12 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 				for (Map.Entry<?, ?> me : fieldValueMap.entrySet()) {
 					if (keyIsPersistent) {
 						Long otherDataEntryID = getDataEntryIDForObjectID(executionContext, pm, me.getKey());
-						IndexEntry indexEntry = IndexEntryOneToOneRelationHelper.getIndexEntry(pm, subFieldMetaKey, otherDataEntryID);
+						IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, subFieldMetaKey, otherDataEntryID);
 						removeIndexEntry(pm, indexEntry, dataEntryID);
 					}
 					if (valueIsPersistent) {
 						Long otherDataEntryID = getDataEntryIDForObjectID(executionContext, pm, me.getValue());
-						IndexEntry indexEntry = IndexEntryOneToOneRelationHelper.getIndexEntry(pm, subFieldMetaValue, otherDataEntryID);
+						IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, subFieldMetaValue, otherDataEntryID);
 						removeIndexEntry(pm, indexEntry, dataEntryID);
 					}
 				}
@@ -156,7 +156,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 				Object[] fieldValueArray = (Object[]) fieldValue;
 				for (Object element : fieldValueArray) {
 					Long otherDataEntryID = getDataEntryIDForObjectID(executionContext, pm, element);
-					IndexEntry indexEntry = IndexEntryOneToOneRelationHelper.getIndexEntry(pm, subFieldMeta, otherDataEntryID);
+					IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, subFieldMeta, otherDataEntryID);
 					removeIndexEntry(pm, indexEntry, dataEntryID);
 				}
 			}
@@ -292,7 +292,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		else if (Relation.isRelationSingleValued(relationType)) {
 			// 1-1-relationship to another persistence-capable object.
 			Long otherDataEntryID = getDataEntryIDForObjectID(executionContext, pm, fieldValue);
-			IndexEntry indexEntry = IndexEntryOneToOneRelationHelper.createIndexEntry(pm, fieldMeta, otherDataEntryID);
+			IndexEntry indexEntry = IndexEntryObjectRelationHelper.createIndexEntry(pm, fieldMeta, otherDataEntryID);
 			addIndexEntry(pm, indexEntry, dataEntryID);
 		}
 		else if (Relation.isRelationMultiValued(relationType)) {
@@ -309,12 +309,12 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 				for (Map.Entry<?, ?> me : fieldValueMap.entrySet()) {
 					if (keyIsPersistent) {
 						Long otherDataEntryID = getDataEntryIDForObjectID(executionContext, pm, me.getKey());
-						IndexEntry indexEntry = IndexEntryOneToOneRelationHelper.createIndexEntry(pm, subFieldMetaKey, otherDataEntryID);
+						IndexEntry indexEntry = IndexEntryObjectRelationHelper.createIndexEntry(pm, subFieldMetaKey, otherDataEntryID);
 						addIndexEntry(pm, indexEntry, dataEntryID);
 					}
 					if (valueIsPersistent) {
 						Long otherDataEntryID = getDataEntryIDForObjectID(executionContext, pm, me.getValue());
-						IndexEntry indexEntry = IndexEntryOneToOneRelationHelper.createIndexEntry(pm, subFieldMetaValue, otherDataEntryID);
+						IndexEntry indexEntry = IndexEntryObjectRelationHelper.createIndexEntry(pm, subFieldMetaValue, otherDataEntryID);
 						addIndexEntry(pm, indexEntry, dataEntryID);
 					}
 				}
@@ -331,7 +331,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 				Object[] fieldValueArray = (Object[]) fieldValue;
 				for (Object element : fieldValueArray) {
 					Long otherDataEntryID = getDataEntryIDForObjectID(executionContext, pm, element);
-					IndexEntry indexEntry = IndexEntryOneToOneRelationHelper.createIndexEntry(pm, subFieldMeta, otherDataEntryID);
+					IndexEntry indexEntry = IndexEntryObjectRelationHelper.createIndexEntry(pm, subFieldMeta, otherDataEntryID);
 					addIndexEntry(pm, indexEntry, dataEntryID);
 				}
 			}
