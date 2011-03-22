@@ -8,6 +8,7 @@ import java.util.Map;
 import org.cumulus4j.core.model.ClassMeta;
 import org.cumulus4j.core.model.FieldMeta;
 import org.cumulus4j.core.model.ObjectContainer;
+import org.datanucleus.exceptions.NucleusDataStoreException;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.Relation;
@@ -15,6 +16,7 @@ import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.ObjectProvider;
 import org.datanucleus.store.fieldmanager.AbstractFieldManager;
 import org.datanucleus.store.types.sco.SCO;
+import org.datanucleus.store.types.sco.SCOUtils;
 
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
@@ -126,7 +128,33 @@ public class InsertFieldManager extends AbstractFieldManager
 
 		if (relationType == Relation.NONE)
 		{
-			objectContainer.setValue(fieldMeta.getFieldID(), value);
+			if (mmd.hasCollection()) {
+				// Replace the special DN collection by a simple array.
+				Collection<?> collection = (Collection<?>)value;
+				Object[] values = collection.toArray(new Object[collection.size()]);
+				objectContainer.setValue(fieldMeta.getFieldID(), values);
+			}
+			else if (mmd.hasMap()) {
+				// replace the special DN Map by a simple HashMap.
+				Map<?,?> valueMap = (Map<?, ?>) value;
+
+				Map<Object, Object> map;
+				@SuppressWarnings("unchecked")
+				Class<? extends Map<Object, Object>> instanceType = SCOUtils.getContainerInstanceType(mmd.getType(), mmd.getOrderMetaData() != null);
+				try {
+					map = instanceType.newInstance();
+				} catch (InstantiationException e) {
+					throw new NucleusDataStoreException(e.getMessage(), e);
+				} catch (IllegalAccessException e) {
+					throw new NucleusDataStoreException(e.getMessage(), e);
+				}
+
+				map.putAll(valueMap);
+
+				objectContainer.setValue(fieldMeta.getFieldID(), map);
+			}
+			else // arrays are not managed (no special DN instances) and thus stored 'as is'...
+				objectContainer.setValue(fieldMeta.getFieldID(), value);
 		}
 		else if (Relation.isRelationSingleValued(relationType))
 		{

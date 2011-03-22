@@ -104,6 +104,34 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 				throw new UnsupportedOperationException("The method 'containsKey' is not supported for the data type " + parameterType.getName() + '!');
 			}
 
+			if ("containsValue".equals(this.getExpression().getOperation())) {
+				PrimaryExpressionEvaluator primaryEval = (PrimaryExpressionEvaluator) this.getLeft();
+				PrimaryExpression primaryExpr = primaryEval.getExpression();
+				Class<?> parameterType = getFieldType(primaryExpr);
+
+				if (this.getExpression().getArguments().size() != 1)
+					throw new IllegalStateException("containsValue(...) expects exactly one argument, but there are " + this.getExpression().getArguments().size());
+
+				Expression invokeArgExpr = this.getExpression().getArguments().get(0);
+
+				if (Map.class.isAssignableFrom(parameterType)) {
+					Object invokeArgument;
+					if (invokeArgExpr instanceof Literal)
+						invokeArgument = ((Literal)invokeArgExpr).getLiteral();
+					else if (invokeArgExpr instanceof ParameterExpression)
+						invokeArgument = QueryUtils.getValueForParameterExpression(getQueryEvaluator().getParameterValues(), (ParameterExpression)invokeArgExpr);
+					else if (invokeArgExpr instanceof VariableExpression)
+						return new ContainsVariableResolver(
+								getQueryEvaluator(), primaryExpr, FieldMetaRole.mapValue, (VariableExpression) invokeArgExpr
+						).query();
+					else
+						throw new UnsupportedOperationException("NYI");
+
+					return new ContainsConstantResolver(getQueryEvaluator(), primaryExpr, FieldMetaRole.mapValue, invokeArgument).query();
+				}
+				throw new UnsupportedOperationException("The method 'containsKey' is not supported for the data type " + parameterType.getName() + '!');
+			}
+
 			throw new UnsupportedOperationException("NYI");
 		}
 

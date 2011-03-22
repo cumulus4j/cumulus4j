@@ -70,7 +70,7 @@ extends AbstractTransactionalTest
 		@SuppressWarnings("unchecked")
 		List<StringSetOwner> resultList = (List<StringSetOwner>) q.execute(element);
 		Assert.assertNotNull("Query returned null as result when a List was expected!", resultList);
-		logger.info("query0: found " + resultList.size() + " elements being equal to \"" + element + "\":");
+		logger.info("query0: found " + resultList.size() + " containing the element \"" + element + "\":");
 		Assert.assertEquals("Query returned wrong number of results!", 2, resultList.size());
 		for (StringSetOwner resultElement : resultList) {
 			Assert.assertNotNull("Query returned a StringSetOwner with the set property being null!", resultElement.getSet());

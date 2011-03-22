@@ -121,6 +121,34 @@ public class FetchFieldManager extends AbstractFieldManager
 
 		if (relationType == Relation.NONE)
 		{
+			if (mmd.hasCollection())
+			{
+				Collection<Object> collection;
+				@SuppressWarnings("unchecked")
+				Class<? extends Collection<Object>> instanceType = SCOUtils.getContainerInstanceType(mmd.getType(), mmd.getOrderMetaData() != null);
+				try {
+					collection = instanceType.newInstance();
+				} catch (InstantiationException e) {
+					throw new NucleusDataStoreException(e.getMessage(), e);
+				} catch (IllegalAccessException e) {
+					throw new NucleusDataStoreException(e.getMessage(), e);
+				}
+
+				Object array = objectContainer.getValue(fieldMeta.getFieldID());
+				for (int idx = 0; idx < Array.getLength(array); ++idx) {
+					Object element = Array.get(array, idx);
+					collection.add(element);
+				}
+				return op.wrapSCOField(fieldNumber, collection, false, false, true);
+			}
+
+			if (mmd.hasMap())
+			{
+				Map<?,?> map = (Map<?,?>) objectContainer.getValue(fieldMeta.getFieldID());
+				return op.wrapSCOField(fieldNumber, map, false, false, true);
+			}
+
+			// Arrays are stored 'as is', thus no conversion necessary.
 			return objectContainer.getValue(getFieldID(fieldNumber));
 		}
 		else if (Relation.isRelationSingleValued(relationType))
@@ -138,41 +166,42 @@ public class FetchFieldManager extends AbstractFieldManager
 			{
 				Collection<Object> collection;
 				@SuppressWarnings("unchecked")
-		        Class<? extends Collection<Object>> instanceType = SCOUtils.getContainerInstanceType(mmd.getType(), mmd.getOrderMetaData() != null);
-		        try {
-		            collection = instanceType.newInstance();
-		        } catch (InstantiationException e) {
-		            throw new NucleusDataStoreException(e.getMessage(), e);
-		        } catch (IllegalAccessException e) {
-		            throw new NucleusDataStoreException(e.getMessage(), e);
-		        }
-
-		        Object[] ids = (Object[]) objectContainer.getValue(fieldMeta.getFieldID());
-		        for (Object id : ids) {
-		        	Object element = executionContext.findObject(id, true, true, null);
-		        	collection.add(element);
+				Class<? extends Collection<Object>> instanceType = SCOUtils.getContainerInstanceType(mmd.getType(), mmd.getOrderMetaData() != null);
+				try {
+					collection = instanceType.newInstance();
+				} catch (InstantiationException e) {
+					throw new NucleusDataStoreException(e.getMessage(), e);
+				} catch (IllegalAccessException e) {
+					throw new NucleusDataStoreException(e.getMessage(), e);
 				}
-		        return op.wrapSCOField(fieldNumber, collection, false, false, true);
+
+				Object ids = objectContainer.getValue(fieldMeta.getFieldID());
+				for (int idx = 0; idx < Array.getLength(ids); ++idx) {
+					Object id = Array.get(ids, idx);
+					Object element = executionContext.findObject(id, true, true, null);
+					collection.add(element);
+				}
+				return op.wrapSCOField(fieldNumber, collection, false, false, true);
 			}
 			else if (mmd.hasMap())
 			{
 				Map<Object, Object> map;
 				@SuppressWarnings("unchecked")
-		        Class<? extends Map<Object, Object>> instanceType = SCOUtils.getContainerInstanceType(mmd.getType(), mmd.getOrderMetaData() != null);
-		        try {
-		            map = instanceType.newInstance();
-		        } catch (InstantiationException e) {
-		            throw new NucleusDataStoreException(e.getMessage(), e);
-		        } catch (IllegalAccessException e) {
-		            throw new NucleusDataStoreException(e.getMessage(), e);
-		        }
+				Class<? extends Map<Object, Object>> instanceType = SCOUtils.getContainerInstanceType(mmd.getType(), mmd.getOrderMetaData() != null);
+				try {
+					map = instanceType.newInstance();
+				} catch (InstantiationException e) {
+					throw new NucleusDataStoreException(e.getMessage(), e);
+				} catch (IllegalAccessException e) {
+					throw new NucleusDataStoreException(e.getMessage(), e);
+				}
 
-		        boolean keyIsPersistent = mmd.getMap().keyIsPersistent();
-		        boolean valueIsPersistent = mmd.getMap().valueIsPersistent();
+				boolean keyIsPersistent = mmd.getMap().keyIsPersistent();
+				boolean valueIsPersistent = mmd.getMap().valueIsPersistent();
 
-		        Map<?,?> idMap = (Map<?,?>) objectContainer.getValue(fieldMeta.getFieldID());
-		        for (Map.Entry<?, ?> me : idMap.entrySet()) {
-		        	Object k = me.getKey();
+				Map<?,?> idMap = (Map<?,?>) objectContainer.getValue(fieldMeta.getFieldID());
+				for (Map.Entry<?, ?> me : idMap.entrySet()) {
+					Object k = me.getKey();
 					Object v = me.getValue();
 
 					if (keyIsPersistent) {
@@ -184,8 +213,8 @@ public class FetchFieldManager extends AbstractFieldManager
 					}
 
 					map.put(k, v);
-		        }
-		        return op.wrapSCOField(fieldNumber, map, false, false, true);
+				}
+				return op.wrapSCOField(fieldNumber, map, false, false, true);
 			}
 			else if (mmd.hasArray())
 			{
@@ -198,12 +227,13 @@ public class FetchFieldManager extends AbstractFieldManager
 					throw new NucleusDataStoreException(e.getMessage(), e);
 				}
 
-				Object[] ids = (Object[]) objectContainer.getValue(fieldMeta.getFieldID());
-		        for (int i = 0; i < ids.length; ++i) {
-		        	Object element = executionContext.findObject(ids[i], true, true, null);
-		        	Array.set(array, i, element);
+				Object ids = objectContainer.getValue(fieldMeta.getFieldID());
+				for (int i = 0; i < Array.getLength(ids); ++i) {
+					Object id = Array.get(ids, i);
+					Object element = executionContext.findObject(id, true, true, null);
+					Array.set(array, i, element);
 				}
-		        return array;
+				return array;
 			}
 			else
 				throw new IllegalStateException("Unexpected multi-valued relationType: " + relationType);

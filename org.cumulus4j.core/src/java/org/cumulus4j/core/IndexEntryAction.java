@@ -1,5 +1,6 @@
 package org.cumulus4j.core;
 
+import java.lang.reflect.Array;
 import java.util.Map;
 
 import javax.jdo.PersistenceManager;
@@ -46,9 +47,44 @@ abstract class IndexEntryAction
 		int relationType = dnMemberMetaData.getRelationType(executionContext.getClassLoaderResolver());
 
 		if (Relation.NONE == relationType) {
-			IndexEntryFactory indexEntryFactory = indexEntryFactoryRegistry.getIndexEntryFactory(executionContext, fieldMeta, false);
-			IndexEntry indexEntry = getIndexEntry(indexEntryFactory, pm, fieldMeta, fieldValue);
-			_perform(pm, indexEntry, dataEntryID);
+			// The field contains no other persistent entity. It might contain a collection/array/map, though.
+
+			if (dnMemberMetaData.hasCollection() || dnMemberMetaData.hasArray()) {
+				FieldMetaRole role;
+				if (dnMemberMetaData.hasCollection())
+					role = FieldMetaRole.collectionElement;
+				else
+					role = FieldMetaRole.arrayElement;
+
+				FieldMeta subFieldMeta = fieldMeta.getSubFieldMeta(role);
+				IndexEntryFactory indexEntryFactory = indexEntryFactoryRegistry.getIndexEntryFactory(executionContext, subFieldMeta, false);
+				for (int idx = 0; idx < Array.getLength(fieldValue); ++idx) {
+					Object element = Array.get(fieldValue, idx);
+					IndexEntry indexEntry = getIndexEntry(indexEntryFactory, pm, subFieldMeta, element);
+					_perform(pm, indexEntry, dataEntryID);
+				}
+			}
+			else if (dnMemberMetaData.hasMap()) {
+				Map<?,?> fieldValueMap = (Map<?,?>) fieldValue;
+
+				FieldMeta subFieldMetaKey = fieldMeta.getSubFieldMeta(FieldMetaRole.mapKey);
+				FieldMeta subFieldMetaValue = fieldMeta.getSubFieldMeta(FieldMetaRole.mapValue);
+				IndexEntryFactory indexEntryFactoryKey = indexEntryFactoryRegistry.getIndexEntryFactory(executionContext, subFieldMetaKey, false);
+				IndexEntryFactory indexEntryFactoryValue = indexEntryFactoryRegistry.getIndexEntryFactory(executionContext, subFieldMetaValue, false);
+
+				for (Map.Entry<?, ?> me : fieldValueMap.entrySet()) {
+					IndexEntry indexEntryKey = getIndexEntry(indexEntryFactoryKey, pm, subFieldMetaKey, me.getKey());
+					_perform(pm, indexEntryKey, dataEntryID);
+
+					IndexEntry indexEntryValue = getIndexEntry(indexEntryFactoryValue, pm, subFieldMetaValue, me.getValue());
+					_perform(pm, indexEntryValue, dataEntryID);
+				}
+			}
+			else {
+				IndexEntryFactory indexEntryFactory = indexEntryFactoryRegistry.getIndexEntryFactory(executionContext, fieldMeta, false);
+				IndexEntry indexEntry = getIndexEntry(indexEntryFactory, pm, fieldMeta, fieldValue);
+				_perform(pm, indexEntry, dataEntryID);
+			}
 		}
 		else if (Relation.isRelationSingleValued(relationType)) {
 			// 1-1-relationship to another persistence-capable object.
@@ -92,33 +128,18 @@ abstract class IndexEntryAction
 				}
 			}
 			else if (dnMemberMetaData.hasCollection() || dnMemberMetaData.hasArray()) {
-				boolean elementIsPersistent;
 				FieldMetaRole role;
-				if (dnMemberMetaData.hasCollection()) { // Collection.class.isAssignableFrom(dnMemberMetaData.getType()))
+				if (dnMemberMetaData.hasCollection()) // Collection.class.isAssignableFrom(dnMemberMetaData.getType()))
 					role = FieldMetaRole.collectionElement;
-					elementIsPersistent = dnMemberMetaData.getCollection().elementIsPersistent();
-				}
-				else {
+				else
 					role = FieldMetaRole.arrayElement;
-					elementIsPersistent = dnMemberMetaData.getArray().elementIsPersistent();
-				}
 
 				FieldMeta subFieldMeta = fieldMeta.getSubFieldMeta(role);
-
 				Object[] fieldValueArray = (Object[]) fieldValue;
-				if (elementIsPersistent) {
-					for (Object element : fieldValueArray) {
-						Long otherDataEntryID = persistenceHandler.getDataEntryIDForObjectID(executionContext, pm, element);
-						IndexEntry indexEntry = IndexEntryObjectRelationHelper.createIndexEntry(pm, subFieldMeta, otherDataEntryID);
-						_perform(pm, indexEntry, dataEntryID);
-					}
-				}
-				else {
-					IndexEntryFactory indexEntryFactory = indexEntryFactoryRegistry.getIndexEntryFactory(executionContext, subFieldMeta, false);
-					for (Object element : fieldValueArray) {
-						IndexEntry indexEntry = getIndexEntry(indexEntryFactory, pm, subFieldMeta, element);
-						_perform(pm, indexEntry, dataEntryID);
-					}
+				for (Object element : fieldValueArray) {
+					Long otherDataEntryID = persistenceHandler.getDataEntryIDForObjectID(executionContext, pm, element);
+					IndexEntry indexEntry = IndexEntryObjectRelationHelper.createIndexEntry(pm, subFieldMeta, otherDataEntryID);
+					_perform(pm, indexEntry, dataEntryID);
 				}
 			}
 		}
