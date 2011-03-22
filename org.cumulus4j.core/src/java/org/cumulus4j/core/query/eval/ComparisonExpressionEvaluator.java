@@ -4,8 +4,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,7 +19,6 @@ import org.cumulus4j.core.model.IndexEntryFactoryRegistry;
 import org.cumulus4j.core.model.IndexEntryObjectRelationHelper;
 import org.cumulus4j.core.model.IndexValue;
 import org.cumulus4j.core.query.QueryEvaluator;
-import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.Relation;
 import org.datanucleus.query.QueryUtils;
@@ -30,7 +27,6 @@ import org.datanucleus.query.expression.Expression;
 import org.datanucleus.query.expression.Literal;
 import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
-import org.datanucleus.query.expression.VariableExpression;
 import org.datanucleus.query.expression.Expression.Operator;
 import org.datanucleus.query.symbol.Symbol;
 
@@ -44,38 +40,6 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 {
 	public ComparisonExpressionEvaluator(QueryEvaluator queryEvaluator, AbstractExpressionEvaluator<?> parent, DyadicExpression expression) {
 		super(queryEvaluator, parent, expression);
-	}
-
-	private Class<?> getFieldType(Class<?> clazz, List<String> tuples) {
-		tuples = new LinkedList<String>(tuples);
-		String nextTuple = tuples.remove(0);
-		AbstractClassMetaData clazzMetaData = getQueryEvaluator().getStoreManager().getMetaDataManager().getMetaDataForClass(clazz, getQueryEvaluator().getClassLoaderResolver());
-		if (clazzMetaData == null)
-			throw new IllegalStateException("No meta-data found for class " + clazz.getName());
-
-		AbstractMemberMetaData metaDataForMember = clazzMetaData.getMetaDataForMember(nextTuple);
-		if (metaDataForMember == null)
-			throw new IllegalStateException("No meta-data found for field \"" + nextTuple + "\" of class \"" + clazz.getName() + "\"!");
-
-		if (tuples.isEmpty())
-			return metaDataForMember.getType();
-		else
-			return getFieldType(metaDataForMember.getType(), tuples);
-	}
-
-	private Class<?> getFieldType(PrimaryExpression primaryExpression) {
-		if (primaryExpression.getSymbol() != null)
-			return primaryExpression.getSymbol().getValueType();
-
-		if (primaryExpression.getLeft() instanceof VariableExpression) {
-			Symbol classSymbol = ((VariableExpression)primaryExpression.getLeft()).getSymbol();
-			if (classSymbol == null)
-				throw new IllegalStateException("((VariableExpression)primaryExpression.getLeft()).getSymbol() returned null!");
-
-			return getFieldType(classSymbol.getValueType(), primaryExpression.getTuples());
-		}
-		else
-			throw new UnsupportedOperationException("NYI");
 	}
 
 	@Override
@@ -180,9 +144,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 		@Override
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
-			AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(getQueryEvaluator().getExecutionContext());
-
-			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(mmd, true);
+			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(getQueryEvaluator().getExecutionContext(), fieldMeta, true);
 
 			Query q = getPersistenceManager().newQuery(indexEntryFactory.getIndexEntryClass());
 			q.setFilter(
@@ -222,9 +184,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 		@Override
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
-			AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(getQueryEvaluator().getExecutionContext());
-
-			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(mmd, true);
+			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(getQueryEvaluator().getExecutionContext(), fieldMeta, true);
 
 			Query q = getPersistenceManager().newQuery(indexEntryFactory.getIndexEntryClass());
 			q.setFilter(
@@ -266,7 +226,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 			int relationType = mmd.getRelationType(getQueryEvaluator().getExecutionContext().getClassLoaderResolver());
 
 			if (Relation.NONE == relationType) {
-				IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(mmd, true);
+				IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(getQueryEvaluator().getExecutionContext(), fieldMeta, true);
 				IndexEntry indexEntry = indexEntryFactory == null ? null : indexEntryFactory.getIndexEntry(pm, fieldMeta, value);
 				if (indexEntry == null)
 					return Collections.emptySet();

@@ -102,7 +102,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		int relationType = dnMemberMetaData.getRelationType(executionContext.getClassLoaderResolver());
 
 		if (Relation.NONE == relationType) {
-			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(dnMemberMetaData, false);
+			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(executionContext, fieldMeta, false);
 			IndexEntry indexEntry = indexEntryFactory == null ? null : indexEntryFactory.getIndexEntry(pm, fieldMeta, fieldValue);
 			removeIndexEntry(pm, indexEntry, dataEntryID);
 		}
@@ -128,8 +128,10 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 				boolean keyIsPersistent = dnMemberMetaData.getMap().keyIsPersistent();
 				boolean valueIsPersistent = dnMemberMetaData.getMap().valueIsPersistent();
 
-				FieldMeta subFieldMetaKey = keyIsPersistent ? fieldMeta.getSubFieldMeta(FieldMetaRole.mapKey) : null;
-				FieldMeta subFieldMetaValue = valueIsPersistent ? fieldMeta.getSubFieldMeta(FieldMetaRole.mapValue) : null;
+				FieldMeta subFieldMetaKey = fieldMeta.getSubFieldMeta(FieldMetaRole.mapKey);
+				FieldMeta subFieldMetaValue = fieldMeta.getSubFieldMeta(FieldMetaRole.mapValue);
+				IndexEntryFactory indexEntryFactoryKey = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(executionContext, subFieldMetaKey, false);
+				IndexEntryFactory indexEntryFactoryValue = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(executionContext, subFieldMetaValue, false);
 
 				for (Map.Entry<?, ?> me : fieldValueMap.entrySet()) {
 					if (keyIsPersistent) {
@@ -137,30 +139,52 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 						IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, subFieldMetaKey, otherDataEntryID);
 						removeIndexEntry(pm, indexEntry, dataEntryID);
 					}
+					else { // TODO if key is mapped-by, we should better not index it?!
+						IndexEntry indexEntry = indexEntryFactoryKey == null ? null : indexEntryFactoryKey.getIndexEntry(pm, subFieldMetaKey, me.getKey());
+						removeIndexEntry(pm, indexEntry, dataEntryID);
+					}
+
 					if (valueIsPersistent) {
 						Long otherDataEntryID = getDataEntryIDForObjectID(executionContext, pm, me.getValue());
 						IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, subFieldMetaValue, otherDataEntryID);
 						removeIndexEntry(pm, indexEntry, dataEntryID);
 					}
+					else { // TODO if value is mapped-by, we should better not index it?!
+						IndexEntry indexEntry = indexEntryFactoryValue == null ? null : indexEntryFactoryValue.getIndexEntry(pm, subFieldMetaValue, me.getValue());
+						removeIndexEntry(pm, indexEntry, dataEntryID);
+					}
 				}
 			}
 			else if (dnMemberMetaData.hasCollection() || dnMemberMetaData.hasArray()) {
+				boolean elementIsPersistent;
 				FieldMetaRole role;
-				if (dnMemberMetaData.hasCollection()) // Collection.class.isAssignableFrom(dnMemberMetaData.getType()))
+				if (dnMemberMetaData.hasCollection()) { // Collection.class.isAssignableFrom(dnMemberMetaData.getType()))
 					role = FieldMetaRole.collectionElement;
-				else
+					elementIsPersistent = dnMemberMetaData.getCollection().elementIsPersistent();
+				}
+				else {
 					role = FieldMetaRole.arrayElement;
+					elementIsPersistent = dnMemberMetaData.getArray().elementIsPersistent();
+				}
 
 				FieldMeta subFieldMeta = fieldMeta.getSubFieldMeta(role);
 
 				Object[] fieldValueArray = (Object[]) fieldValue;
-				for (Object element : fieldValueArray) {
-					Long otherDataEntryID = getDataEntryIDForObjectID(executionContext, pm, element);
-					IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, subFieldMeta, otherDataEntryID);
-					removeIndexEntry(pm, indexEntry, dataEntryID);
+				if (elementIsPersistent) {
+					for (Object element : fieldValueArray) {
+						Long otherDataEntryID = getDataEntryIDForObjectID(executionContext, pm, element);
+						IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, subFieldMeta, otherDataEntryID);
+						removeIndexEntry(pm, indexEntry, dataEntryID);
+					}
+				}
+				else {
+					IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(executionContext, subFieldMeta, false);
+					for (Object element : fieldValueArray) {
+						IndexEntry indexEntry = indexEntryFactory == null ? null : indexEntryFactory.getIndexEntry(pm, subFieldMeta, element);
+						removeIndexEntry(pm, indexEntry, dataEntryID);
+					}
 				}
 			}
-
 		}
 	}
 
@@ -285,7 +309,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		int relationType = dnMemberMetaData.getRelationType(executionContext.getClassLoaderResolver());
 
 		if (Relation.NONE == relationType) {
-			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(dnMemberMetaData, false);
+			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(executionContext, fieldMeta, false);
 			IndexEntry indexEntry = indexEntryFactory == null ? null : indexEntryFactory.createIndexEntry(pm, fieldMeta, fieldValue);
 			addIndexEntry(pm, indexEntry, dataEntryID);
 		}
@@ -303,8 +327,10 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 				boolean keyIsPersistent = dnMemberMetaData.getMap().keyIsPersistent();
 				boolean valueIsPersistent = dnMemberMetaData.getMap().valueIsPersistent();
 
-				FieldMeta subFieldMetaKey = keyIsPersistent ? fieldMeta.getSubFieldMeta(FieldMetaRole.mapKey) : null;
-				FieldMeta subFieldMetaValue = valueIsPersistent ? fieldMeta.getSubFieldMeta(FieldMetaRole.mapValue) : null;
+				FieldMeta subFieldMetaKey = fieldMeta.getSubFieldMeta(FieldMetaRole.mapKey);
+				FieldMeta subFieldMetaValue = fieldMeta.getSubFieldMeta(FieldMetaRole.mapValue);
+				IndexEntryFactory indexEntryFactoryKey = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(executionContext, subFieldMetaKey, false);
+				IndexEntryFactory indexEntryFactoryValue = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(executionContext, subFieldMetaValue, false);
 
 				for (Map.Entry<?, ?> me : fieldValueMap.entrySet()) {
 					if (keyIsPersistent) {
@@ -312,27 +338,50 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 						IndexEntry indexEntry = IndexEntryObjectRelationHelper.createIndexEntry(pm, subFieldMetaKey, otherDataEntryID);
 						addIndexEntry(pm, indexEntry, dataEntryID);
 					}
+					else { // TODO if key is mapped-by, we should better not index it?!
+						IndexEntry indexEntry = indexEntryFactoryKey == null ? null : indexEntryFactoryKey.createIndexEntry(pm, subFieldMetaKey, me.getKey());
+						addIndexEntry(pm, indexEntry, dataEntryID);
+					}
+
 					if (valueIsPersistent) {
 						Long otherDataEntryID = getDataEntryIDForObjectID(executionContext, pm, me.getValue());
 						IndexEntry indexEntry = IndexEntryObjectRelationHelper.createIndexEntry(pm, subFieldMetaValue, otherDataEntryID);
 						addIndexEntry(pm, indexEntry, dataEntryID);
 					}
+					else { // TODO if value is mapped-by, we should better not index it?!
+						IndexEntry indexEntry = indexEntryFactoryValue == null ? null : indexEntryFactoryValue.createIndexEntry(pm, subFieldMetaValue, me.getValue());
+						addIndexEntry(pm, indexEntry, dataEntryID);
+					}
 				}
 			}
 			else if (dnMemberMetaData.hasCollection() || dnMemberMetaData.hasArray()) {
+				boolean elementIsPersistent;
 				FieldMetaRole role;
-				if (dnMemberMetaData.hasCollection()) // Collection.class.isAssignableFrom(dnMemberMetaData.getType()))
+				if (dnMemberMetaData.hasCollection()) { // Collection.class.isAssignableFrom(dnMemberMetaData.getType()))
 					role = FieldMetaRole.collectionElement;
-				else
+					elementIsPersistent = dnMemberMetaData.getCollection().elementIsPersistent();
+				}
+				else {
 					role = FieldMetaRole.arrayElement;
+					elementIsPersistent = dnMemberMetaData.getArray().elementIsPersistent();
+				}
 
 				FieldMeta subFieldMeta = fieldMeta.getSubFieldMeta(role);
 
 				Object[] fieldValueArray = (Object[]) fieldValue;
-				for (Object element : fieldValueArray) {
-					Long otherDataEntryID = getDataEntryIDForObjectID(executionContext, pm, element);
-					IndexEntry indexEntry = IndexEntryObjectRelationHelper.createIndexEntry(pm, subFieldMeta, otherDataEntryID);
-					addIndexEntry(pm, indexEntry, dataEntryID);
+				if (elementIsPersistent) {
+					for (Object element : fieldValueArray) {
+						Long otherDataEntryID = getDataEntryIDForObjectID(executionContext, pm, element);
+						IndexEntry indexEntry = IndexEntryObjectRelationHelper.createIndexEntry(pm, subFieldMeta, otherDataEntryID);
+						addIndexEntry(pm, indexEntry, dataEntryID);
+					}
+				}
+				else {
+					IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(executionContext, subFieldMeta, false);
+					for (Object element : fieldValueArray) {
+						IndexEntry indexEntry = indexEntryFactory == null ? null : indexEntryFactory.createIndexEntry(pm, subFieldMeta, element);
+						addIndexEntry(pm, indexEntry, dataEntryID);
+					}
 				}
 			}
 		}

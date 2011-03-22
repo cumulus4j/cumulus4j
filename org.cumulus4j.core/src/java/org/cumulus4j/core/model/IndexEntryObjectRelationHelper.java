@@ -12,6 +12,8 @@ import javax.jdo.PersistenceManager;
  */
 public class IndexEntryObjectRelationHelper
 {
+	private static final IndexEntryFactoryLong indexEntryFactoryLong = new IndexEntryFactoryLong();
+
 	/**
 	 * Get an existing {@link IndexEntry} or <code>null</code>, if it does not exist.
 	 * This method looks up an <code>IndexEntry</code> for a relation to the object referenced
@@ -24,7 +26,7 @@ public class IndexEntryObjectRelationHelper
 	 */
 	public static IndexEntry getIndexEntry(PersistenceManager pm, FieldMeta fieldMeta, Long indexedDataEntryID)
 	{
-		return new IndexEntryFactoryLong().getIndexEntry(pm, fieldMeta, indexedDataEntryID);
+		return indexEntryFactoryLong.getIndexEntry(pm, fieldMeta, indexedDataEntryID);
 	}
 
 	/**
@@ -39,6 +41,6 @@ public class IndexEntryObjectRelationHelper
 	 */
 	public static IndexEntry createIndexEntry(PersistenceManager pm, FieldMeta fieldMeta, Long indexedDataEntryID)
 	{
-		return new IndexEntryFactoryLong().createIndexEntry(pm, fieldMeta, indexedDataEntryID);
+		return indexEntryFactoryLong.createIndexEntry(pm, fieldMeta, indexedDataEntryID);
 	}
 }

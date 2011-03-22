@@ -3,6 +3,7 @@ package org.cumulus4j.core.query.eval;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.jdo.PersistenceManager;
@@ -50,7 +51,7 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 			if ("contains".equals(this.getExpression().getOperation())) {
 				PrimaryExpressionEvaluator primaryEval = (PrimaryExpressionEvaluator) this.getLeft();
 				PrimaryExpression primaryExpr = primaryEval.getExpression();
-				Class<?> parameterType = primaryExpr.getSymbol().getValueType();
+				Class<?> parameterType = getFieldType(primaryExpr);
 
 				if (this.getExpression().getArguments().size() != 1)
 					throw new IllegalStateException("contains(...) expects exactly one argument, but there are " + this.getExpression().getArguments().size());
@@ -64,34 +65,113 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 					else if (invokeArgExpr instanceof ParameterExpression)
 						invokeArgument = QueryUtils.getValueForParameterExpression(getQueryEvaluator().getParameterValues(), (ParameterExpression)invokeArgExpr);
 					else if (invokeArgExpr instanceof VariableExpression)
-						return new CollectionContainsVariableResolver(
-								getQueryEvaluator(), primaryExpr, (VariableExpression) invokeArgExpr
+						return new ContainsVariableResolver(
+								getQueryEvaluator(), primaryExpr, FieldMetaRole.collectionElement, (VariableExpression) invokeArgExpr
 						).query();
 					else
 						throw new UnsupportedOperationException("NYI");
 
-					return new CollectionContainsValueResolver(getQueryEvaluator(), primaryExpr, invokeArgument).query();
+					return new ContainsConstantResolver(getQueryEvaluator(), primaryExpr, FieldMetaRole.collectionElement, invokeArgument).query();
 				}
-
-				throw new UnsupportedOperationException("NYI");
+				throw new UnsupportedOperationException("The method 'contains' is not supported for the data type " + parameterType.getName() + '!');
 			}
+
+			if ("containsKey".equals(this.getExpression().getOperation())) {
+				PrimaryExpressionEvaluator primaryEval = (PrimaryExpressionEvaluator) this.getLeft();
+				PrimaryExpression primaryExpr = primaryEval.getExpression();
+				Class<?> parameterType = getFieldType(primaryExpr);
+
+				if (this.getExpression().getArguments().size() != 1)
+					throw new IllegalStateException("containsKey(...) expects exactly one argument, but there are " + this.getExpression().getArguments().size());
+
+				Expression invokeArgExpr = this.getExpression().getArguments().get(0);
+
+				if (Map.class.isAssignableFrom(parameterType)) {
+					Object invokeArgument;
+					if (invokeArgExpr instanceof Literal)
+						invokeArgument = ((Literal)invokeArgExpr).getLiteral();
+					else if (invokeArgExpr instanceof ParameterExpression)
+						invokeArgument = QueryUtils.getValueForParameterExpression(getQueryEvaluator().getParameterValues(), (ParameterExpression)invokeArgExpr);
+					else if (invokeArgExpr instanceof VariableExpression)
+						return new ContainsVariableResolver(
+								getQueryEvaluator(), primaryExpr, FieldMetaRole.mapKey, (VariableExpression) invokeArgExpr
+						).query();
+					else
+						throw new UnsupportedOperationException("NYI");
+
+					return new ContainsConstantResolver(getQueryEvaluator(), primaryExpr, FieldMetaRole.mapKey, invokeArgument).query();
+				}
+				throw new UnsupportedOperationException("The method 'containsKey' is not supported for the data type " + parameterType.getName() + '!');
+			}
+
 			throw new UnsupportedOperationException("NYI");
 		}
 
 		throw new UnsupportedOperationException("Cannot be evaluated alone without loading *ALL* records of a certain type!");
 	}
 
-
-	private class CollectionContainsVariableResolver extends PrimaryExpressionResolver
+	private abstract class AbstractContainsResolver extends PrimaryExpressionResolver
 	{
-		private VariableExpression variableExpr;
+		protected FieldMetaRole role;
 
-		public CollectionContainsVariableResolver(
+		public AbstractContainsResolver(
 				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
-				VariableExpression variableExpr
+				FieldMetaRole role
 		)
 		{
 			super(queryEvaluator, primaryExpression);
+			this.role = role;
+
+			if (role != FieldMetaRole.collectionElement && role != FieldMetaRole.mapKey && role != FieldMetaRole.mapValue)
+				throw new IllegalArgumentException("role == " + role);
+		}
+
+		@Override
+		protected final Set<Long> queryEnd(FieldMeta fieldMeta) {
+			PersistenceManager pm = getPersistenceManager();
+			AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(getQueryEvaluator().getExecutionContext());
+			FieldMeta subFieldMeta = fieldMeta.getSubFieldMeta(role);
+
+			boolean argumentIsPersistent;
+			switch (role) {
+				case collectionElement:
+					argumentIsPersistent = mmd.getCollection().elementIsPersistent();
+					break;
+				case mapKey:
+					argumentIsPersistent = mmd.getMap().keyIsPersistent();
+					break;
+				case mapValue:
+					argumentIsPersistent = mmd.getMap().valueIsPersistent();
+					break;
+				default:
+					throw new IllegalStateException("Unknown role: " + role);
+			}
+
+			return _queryEnd(pm, fieldMeta, mmd, subFieldMeta, argumentIsPersistent);
+		}
+
+		protected abstract Set<Long> _queryEnd(
+				PersistenceManager pm, FieldMeta fieldMeta, AbstractMemberMetaData mmd, FieldMeta subFieldMeta, boolean argumentIsPersistent
+		);
+
+	}
+
+
+	/**
+	 * Resolve {@link Collection#contains(Object)} with the argument being a query variable.
+	 *
+	 * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+	 */
+	private class ContainsVariableResolver extends AbstractContainsResolver
+	{
+		private VariableExpression variableExpr;
+
+		public ContainsVariableResolver(
+				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
+				FieldMetaRole role, VariableExpression variableExpr
+		)
+		{
+			super(queryEvaluator, primaryExpression, role);
 			this.variableExpr = variableExpr;
 
 			if (variableExpr == null)
@@ -102,12 +182,13 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 		}
 
 		@Override
-		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
-			PersistenceManager pm = getPersistenceManager();
-			AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(getQueryEvaluator().getExecutionContext());
-			FieldMeta subFieldMeta = fieldMeta.getSubFieldMeta(FieldMetaRole.collectionElement);
-
-			if (mmd.getCollection().elementIsPersistent()) {
+		public Set<Long> _queryEnd(
+				PersistenceManager pm, FieldMeta fieldMeta,
+				AbstractMemberMetaData mmd, FieldMeta subFieldMeta,
+				boolean argumentIsPersistent
+		)
+		{
+			if (argumentIsPersistent) {
 				Set<Long> result = new HashSet<Long>();
 				AbstractExpressionEvaluator<?> eval = getQueryEvaluator().getExpressionEvaluator();
 				Collection<Long> valueDataEntryIDs = eval.queryResultDataEntryIDs(variableExpr.getSymbol());
@@ -125,37 +206,42 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 		}
 	}
 
-
-	private class CollectionContainsValueResolver extends PrimaryExpressionResolver
+	/**
+	 * Resolve {@link Collection#contains(Object)} with the argument being a concrete value (a 'constant').
+	 *
+	 * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+	 */
+	private class ContainsConstantResolver extends AbstractContainsResolver
 	{
-		private Object value;
+		private Object constant;
 
-		public CollectionContainsValueResolver(
+		public ContainsConstantResolver(
 				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
-				Object value
+				FieldMetaRole role, Object constant
 		)
 		{
-			super(queryEvaluator, primaryExpression);
-			this.value = value;
+			super(queryEvaluator, primaryExpression, role);
+			this.constant = constant;
 		}
 
 		@Override
-		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
-			PersistenceManager pm = getPersistenceManager();
-			AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(getQueryEvaluator().getExecutionContext());
-			FieldMeta subFieldMeta = fieldMeta.getSubFieldMeta(FieldMetaRole.collectionElement);
+		public Set<Long> _queryEnd(
+				PersistenceManager pm, FieldMeta fieldMeta,
+				AbstractMemberMetaData mmd, FieldMeta subFieldMeta,
+				boolean argumentIsPersistent
+		)
+		{
+			if (argumentIsPersistent) {
+				Long constantDataEntryID = null;
+				if (constant != null) {
+					ClassMeta constantClassMeta = getQueryEvaluator().getStoreManager().getClassMeta(getQueryEvaluator().getExecutionContext(), constant.getClass());
+					Object constantID = getQueryEvaluator().getExecutionContext().getApiAdapter().getIdForObject(constant);
+					if (constantID == null)
+						throw new IllegalStateException("The ApiAdapter returned null as object-ID for: " + constant);
 
-			if (mmd.getCollection().elementIsPersistent()) {
-				Long valueDataEntryID = null;
-				if (value != null) {
-					ClassMeta valueClassMeta = getQueryEvaluator().getStoreManager().getClassMeta(getQueryEvaluator().getExecutionContext(), value.getClass());
-					Object valueID = getQueryEvaluator().getExecutionContext().getApiAdapter().getIdForObject(value);
-					if (valueID == null)
-						throw new IllegalStateException("The ApiAdapter returned null as object-ID for: " + value);
-
-					valueDataEntryID = DataEntry.getDataEntryID(pm, valueClassMeta, valueID.toString());
+					constantDataEntryID = DataEntry.getDataEntryID(pm, constantClassMeta, constantID.toString());
 				}
-				IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, subFieldMeta, valueDataEntryID);
+				IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, subFieldMeta, constantDataEntryID);
 				if (indexEntry == null)
 					return Collections.emptySet();
 
@@ -163,8 +249,8 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 				return indexValue.getDataEntryIDs();
 			}
 			else {
-				IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(mmd, true);
-				IndexEntry indexEntry = indexEntryFactory == null ? null : indexEntryFactory.getIndexEntry(pm, subFieldMeta, value);
+				IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(getQueryEvaluator().getExecutionContext(), subFieldMeta, true);
+				IndexEntry indexEntry = indexEntryFactory == null ? null : indexEntryFactory.getIndexEntry(pm, subFieldMeta, constant);
 				if (indexEntry == null)
 					return Collections.emptySet();
 

@@ -26,7 +26,7 @@ public class VariableExpressionEvaluator extends AbstractExpressionEvaluator<Var
 	}
 
 	@Override
-	public Set<Symbol> getResultSymbols()
+	protected Set<Symbol> _getResultSymbols()
 	{
 		Symbol symbol = getExpression().getSymbol();
 		if (symbol == null)

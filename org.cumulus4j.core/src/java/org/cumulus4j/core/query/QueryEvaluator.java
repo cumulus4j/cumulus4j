@@ -288,7 +288,7 @@ public abstract class QueryEvaluator
 
 	public Object getObjectForClassMetaAndObjectIDString(ClassMeta classMeta, String objectIDString)
 	{
-		AbstractClassMetaData cmd = getStoreManager().getMetaDataManager().getMetaDataForClass(classMeta.getClassName(), getClassLoaderResolver());
+		AbstractClassMetaData cmd = classMeta.getDataNucleusClassMetaData(ec);
 		return IdentityUtils.getObjectFromIdString(objectIDString, cmd, ec, true);
 	}
 

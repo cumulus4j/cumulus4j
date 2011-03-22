@@ -144,6 +144,8 @@ implements DetachCallback
 	}
 	public void setDataNucleusAbsoluteFieldNumber(int dataNucleusAbsoluteFieldNumber) {
 		this.dataNucleusAbsoluteFieldNumber = dataNucleusAbsoluteFieldNumber;
+		this.dataNucleusMemberMetaData = null;
+
 		for (FieldMeta subFM : role2subFieldMeta.values())
 			subFM.setDataNucleusAbsoluteFieldNumber(dataNucleusAbsoluteFieldNumber);
 	}
@@ -218,9 +220,15 @@ implements DetachCallback
 		return this.fieldID == other.fieldID;
 	}
 
+	@NotPersistent
+	private AbstractMemberMetaData dataNucleusMemberMetaData;
+
 	public AbstractMemberMetaData getDataNucleusMemberMetaData(ExecutionContext executionContext)
 	{
-		AbstractClassMetaData dnClassMetaData = classMeta.getDataNucleusClassMetaData(executionContext);
+		if (dataNucleusMemberMetaData != null)
+			return dataNucleusMemberMetaData;
+
+		AbstractClassMetaData dnClassMetaData = getClassMeta().getDataNucleusClassMetaData(executionContext);
 
 		int dnFieldNumber = getDataNucleusAbsoluteFieldNumber();
 		if (dnFieldNumber < 0)
@@ -230,6 +238,7 @@ implements DetachCallback
 		if (dnMemberMetaData == null)
 			throw new IllegalStateException("DataNucleus has no meta-data for this field: fieldID=" + getFieldID() + " className=" + classMeta.getClassName() + " fieldName=" + getFieldName());
 
+		dataNucleusMemberMetaData = dnMemberMetaData;
 		return dnMemberMetaData;
 	}
 }

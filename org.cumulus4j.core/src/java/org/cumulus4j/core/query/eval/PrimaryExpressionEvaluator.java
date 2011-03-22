@@ -25,7 +25,7 @@ public class PrimaryExpressionEvaluator extends AbstractExpressionEvaluator<Prim
 	}
 
 	@Override
-	public Set<Symbol> getResultSymbols() {
+	protected Set<Symbol> _getResultSymbols() {
 		if (getLeft() instanceof VariableExpressionEvaluator)
 			return getLeft().getResultSymbols();
 

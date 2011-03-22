@@ -257,12 +257,19 @@ public class ClassMeta
 		return this.classID == other.classID;
 	}
 
+	@NotPersistent
+	private AbstractClassMetaData dataNucleusClassMetaData;
+
 	public AbstractClassMetaData getDataNucleusClassMetaData(ExecutionContext executionContext)
 	{
+		if (dataNucleusClassMetaData != null)
+			return dataNucleusClassMetaData;
+
 		AbstractClassMetaData dnClassMetaData = executionContext.getMetaDataManager().getMetaDataForClass(getClassName(), executionContext.getClassLoaderResolver());
 		if (dnClassMetaData == null)
 			throw new IllegalStateException("DataNucleus does not know any meta-data for this class: classID=" + getClassID() + " className=" + getClassName());
 
+		dataNucleusClassMetaData = dnClassMetaData;
 		return dnClassMetaData;
 	}
 }
