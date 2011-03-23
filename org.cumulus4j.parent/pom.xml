@@ -21,6 +21,14 @@
 		<url>http://www.nightlabs.de</url>
 	</organization>
 
+	<licenses>
+		<license>
+			<name>GNU Affero General Public License</name>
+			<distribution>repo</distribution>
+			<url>http://www.gnu.org/licenses/agpl.html</url>
+		</license>
+	</licenses>
+
 	<developers>
 		<developer>
 			<name>Marco หงุ่ยตระกูล-Schulze</name>
