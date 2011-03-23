@@ -30,6 +30,11 @@
 		</license>
 	</licenses>
 
+	<scm>
+		<!-- TODO replace by the public URL as soon as it is released! -->
+		<connection>https://dev.nightlabs.org/svn/private/fzi/src/</connection>
+	</scm>
+
 	<developers>
 		<developer>
 			<name>Marco หงุ่ยตระกูล-Schulze</name>
