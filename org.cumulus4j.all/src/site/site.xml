@@ -24,6 +24,8 @@
 			<item name="Development" href="development.html" />
 			<item name="Javadoc" href="apidocs/index.html" />
 		</menu>
+
+		<menu ref="reports" inherit="bottom" collapse="false" />
 	</body>
 
 </project>
