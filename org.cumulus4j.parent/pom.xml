@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -7,6 +8,20 @@
 	<packaging>pom</packaging>
 	<name>org.cumulus4j.parent</name>
 	<description>Cumulus4j Parent POM</description>
+
+	<organization>
+		<name>NightLabs Consulting GmbH</name>
+		<url>http://www.nightlabs.de</url>
+	</organization>
+
+	<developers>
+		<developer>
+			<name>Marco หงุ่ยตระกูล-Schulze</name>
+			<email>marco[at]nightlabs[dot]de</email>
+			<organization>NightLabs GmbH</organization>
+			<organizationUrl>http://www.nightlabs.de</organizationUrl>
+		</developer>
+	</developers>
 
 	<repositories>
 		<repository>
@@ -169,15 +184,16 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<configuration>
 						<!--
 							Version 6 works fine with Maven, but m2eclipse doesn't understand
-							it (and sets Eclipse to version 1.4)
+							it (and sets Eclipse to version 1.4). Hence I switched to 1.6 instead of 6.
+							Marco.
 						-->
 						<source>1.6</source>
 						<target>1.6</target>
+						<encoding>UTF-8</encoding>
 					</configuration>
 				</plugin>
 
@@ -202,11 +218,31 @@
 					</executions>
 				</plugin>
 
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
+				<!--
+					I commented this out in order to better use the newest version.
+					marco.
+					<plugin>
 					<artifactId>maven-javadoc-plugin</artifactId>
 					<version>2.7</version>
+					</plugin>
+				-->
+
+				<plugin>
+					<artifactId>maven-site-plugin</artifactId>
+					<configuration>
+						<locales>en</locales>
+						<inputencoding>UTF-8</inputencoding>
+						<outputencoding>UTF-8</outputencoding>
+					</configuration>
 				</plugin>
+
+				<plugin>
+					<artifactId>maven-resources-plugin</artifactId>
+					<configuration>
+						<encoding>UTF-8</encoding>
+					</configuration>
+				</plugin>
+
 			</plugins>
 		</pluginManagement>
 
@@ -218,33 +254,31 @@
 		</plugins>
 	</build>
 
-<!--
-TODO auto-deployment
+	<!--
+		TODO auto-deployment When we release Cumulus4j as Free Software, we
+		only have to uncomment this distributionManagement block and change
+		the Jenkins configuration to call 'mvn deploy' instead of 'mvn install
+		javadoc:aggregate javadoc:aggregate-jar' (maybe we still need the
+		javadoc:aggregate-jar, but we'll see then). I just tested it and it
+		works fine. Afterwards, I immediately deleted the artifact from our
+		Artifactory again and deactivated the auto-deployment. Marco.
 
-When we release Cumulus4j as Free Software, we only have to uncomment this distributionManagement block
-and change the Jenkins configuration to call 'mvn deploy' instead of 'mvn install javadoc:aggregate javadoc:aggregate-jar'
-(maybe we still need the javadoc:aggregate-jar, but we'll see then). I just tested it and it works fine. Afterwards, I
-immediately deleted the artifact from our Artifactory again and deactivated the auto-deployment.
-
-Marco.
-
-	<distributionManagement>
-		<repository>
-			<id>dev.nightlabs.org-libs-releases-local</id>
-			<name>dev.nightlabs.org-libs-releases-local</name>
-			<url>https://dev.nightlabs.org/maven-repository/libs-releases-local</url>
-		</repository>
-		<snapshotRepository>
-			<id>dev.nightlabs.org-libs-snapshots-local</id>
-			<name>dev.nightlabs.org-libs-snapshots-local</name>
-			<url>https://dev.nightlabs.org/maven-repository/libs-snapshots-local</url>
-		</snapshotRepository>
-	</distributionManagement>
--->
+		<distributionManagement> <repository>
+		<id>dev.nightlabs.org-libs-releases-local</id>
+		<name>dev.nightlabs.org-libs-releases-local</name>
+		<url>https://dev.nightlabs.org/maven-repository/libs-releases-local</url>
+		</repository> <snapshotRepository>
+		<id>dev.nightlabs.org-libs-snapshots-local</id>
+		<name>dev.nightlabs.org-libs-snapshots-local</name>
+		<url>https://dev.nightlabs.org/maven-repository/libs-snapshots-local</url>
+		</snapshotRepository> </distributionManagement>
+	-->
 
 	<properties>
 		<cumulus4j.version>1.0.0-SNAPSHOT</cumulus4j.version>
 		<slf4j.version>1.6.1</slf4j.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
 
 </project>
