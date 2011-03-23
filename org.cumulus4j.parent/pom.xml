@@ -32,7 +32,7 @@
 
 	<scm>
 		<!-- TODO replace by the public URL as soon as it is released! -->
-		<connection>https://dev.nightlabs.org/svn/private/fzi/src/</connection>
+		<connection>https://dev.nightlabs.org/svn/private/fzi/src/trunk/</connection>
 	</scm>
 
 	<developers>
