@@ -220,12 +220,12 @@
 
 	<distributionManagement>
 		<repository>
-			<id>dev.nightlabs.org-libs-releases</id>
+			<id>dev.nightlabs.org-libs-releases-local</id>
 			<name>dev.nightlabs.org-releases</name>
 			<url>https://dev.nightlabs.org/maven-repository/libs-releases-local</url>
 		</repository>
 		<snapshotRepository>
-			<id>dev.nightlabs.org-libs-snapshots</id>
+			<id>dev.nightlabs.org-libs-snapshots-local</id>
 			<name>dev.nightlabs.org-libs-snapshots</name>
 			<url>https://dev.nightlabs.org/maven-repository/libs-snapshots-local</url>
 		</snapshotRepository>
