@@ -20,7 +20,7 @@
 		<menu name="Documentation">
 			<item name="Theory" href="theory.html" />
 			<item name="Development" href="development.html" />
-			<item name="Javadoc" href="apidocs/" />
+			<item name="Javadoc" href="apidocs/index.html" />
 		</menu>
 	</body>
 
