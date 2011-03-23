@@ -72,6 +72,7 @@ public class IndexEntryFactoryRegistry
 					// contained only "java.lang.Long" here. Since it would make our indexing much more complicated and we cannot test it anyway
 					// as long as DN does not support it, we ignore this situation for now.
 					// We can still implement it later (major refactoring, though), if DN ever supports it one day.
+					// Marco ;-)
 					fieldType = clr.classForName(cmd.getElementType());
 				}
 			}
@@ -79,7 +80,7 @@ public class IndexEntryFactoryRegistry
 			case mapKey: {
 				MapMetaData mapMetaData = mmd.getMap();
 				if (mapMetaData != null) {
-					// Here, the same applies as for the CollectionMetaData.getElementType().
+					// Here, the same applies as for the CollectionMetaData.getElementType(). Marco ;-)
 					fieldType = clr.classForName(mapMetaData.getKeyType());
 				}
 			}
@@ -87,7 +88,7 @@ public class IndexEntryFactoryRegistry
 			case mapValue: {
 				MapMetaData mapMetaData = mmd.getMap();
 				if (mapMetaData != null) {
-					// Here, the same applies as for the CollectionMetaData.getElementType().
+					// Here, the same applies as for the CollectionMetaData.getElementType(). Marco ;-)
 					fieldType = clr.classForName(mapMetaData.getValueType());
 				}
 			}

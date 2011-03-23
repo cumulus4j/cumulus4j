@@ -32,8 +32,12 @@
 			<id>NightLabs</id>
 			<name>NightLabs Repository</name>
 			<url>http://dev.nightlabs.org/maven-repository/repo</url>
-			<snapshots><enabled>true</enabled></snapshots>
-			<releases><enabled>true</enabled></releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
 		</repository>
 	</repositories>
 
@@ -107,7 +111,7 @@
 				<groupId>org.nightlabs</groupId>
 				<artifactId>org.nightlabs.progress</artifactId>
 				<version>1.0.1</version>
-			</dependency>	
+			</dependency>
 			<dependency>
 				<groupId>org.nightlabs</groupId>
 				<artifactId>org.nightlabs.util</artifactId>
@@ -168,7 +172,10 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<configuration>
-					<!-- Version 6 works fine with Maven, but m2eclipse doesn't understand it (and sets Eclipse to version 1.4) -->
+						<!--
+							Version 6 works fine with Maven, but m2eclipse doesn't understand
+							it (and sets Eclipse to version 1.4)
+						-->
 						<source>1.6</source>
 						<target>1.6</target>
 					</configuration>
@@ -210,8 +217,23 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<distributionManagement>
+		<repository>
+			<id>dev.nightlabs.org-libs-releases</id>
+			<name>dev.nightlabs.org-releases</name>
+			<url>https://dev.nightlabs.org/maven-repository/libs-releases-local</url>
+		</repository>
+		<snapshotRepository>
+			<id>dev.nightlabs.org-libs-snapshots</id>
+			<name>dev.nightlabs.org-libs-snapshots</name>
+			<url>https://dev.nightlabs.org/maven-repository/libs-snapshots-local</url>
+		</snapshotRepository>
+	</distributionManagement>
+
 	<properties>
 		<cumulus4j.version>1.0.0-SNAPSHOT</cumulus4j.version>
 		<slf4j.version>1.6.1</slf4j.version>
 	</properties>
+
 </project>
