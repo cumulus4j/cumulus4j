@@ -218,6 +218,16 @@
 		</plugins>
 	</build>
 
+<!--
+TODO auto-deployment
+
+When we release Cumulus4j as Free Software, we only have to uncomment this distributionManagement block
+and change the Jenkins configuration to call 'mvn deploy' instead of 'mvn install javadoc:aggregate javadoc:aggregate-jar'
+(maybe we still need the javadoc:aggregate-jar, but we'll see then). I just tested it and it works fine. Afterwards, I
+immediately deleted the artifact from our Artifactory again and deactivated the auto-deployment.
+
+Marco.
+
 	<distributionManagement>
 		<repository>
 			<id>dev.nightlabs.org-libs-releases-local</id>
@@ -230,6 +240,7 @@
 			<url>https://dev.nightlabs.org/maven-repository/libs-snapshots-local</url>
 		</snapshotRepository>
 	</distributionManagement>
+-->
 
 	<properties>
 		<cumulus4j.version>1.0.0-SNAPSHOT</cumulus4j.version>
