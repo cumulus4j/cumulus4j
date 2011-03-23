@@ -1,0 +1,85 @@
+Workspace-Setup Cumulus4j-DataNucleus-Plug-in
+
+	Cumulus4j is an open-source encryption software released under the {{{license.html}AGPL}}. Its source code
+	is available under this license, enabling you to develop it further. Even though Cumulus4j is already
+	usable in productive environments, there's still a lot left to be done. {{{contact.html}Contact us}}, if
+	you want to lend us a hand.
+
+* Requirements
+
+	First of all, the following software needs to be installed in order to set up a workspace to develop
+	the Cumulus4j-DataNucleus-Plug-in:
+
+	* {{{http://www.eclipse.org/}Eclipse}}
+
+		* {{{http://www.eclipse.org/downloads/}Download}}
+
+		* Either the "Eclipse IDE for Java EE Developers" or the "Eclipse for RCP and RAP Developers" or any
+		other that supports development of Eclipse plug-ins (since DataNucleus uses the Eclipse plug-in mechanism)
+	
+	* {{{http://m2eclipse.sonatype.org/}m2eclipse}}
+
+		* Update site: {{http://m2eclipse.sonatype.org/sites/m2e}}
+
+		* {{{http://m2eclipse.sonatype.org/installing-m2eclipse.html}Installation howto}}
+	
+	* Subclipse
+
+		* Update site: {{http://subclipse.tigris.org/update_1.6.x}}
+
+		* {{{http://subclipse.tigris.org/servlets/ProjectProcess?pageID=p4wYuA}Installation howto}}
+    
+    * {{{http://maven.apache.org/}Maven}}
+
+		* {{{http://maven.apache.org/download.html}Download}}
+
+		* Either version 2 or 3 (both seem to work fine)
+
+* A: Workspace withOUT DataNucleus sources
+
+	If you do not need the DataNucleus source codes, you can set up an Eclipse workspace without them. This is much
+	faster than the version with DN sources, because the SourceForge SVN server hosting DataNucleus is pretty slow.
+
+** A: Step 1
+
+	Start Eclipse, go to the “SVN Repository Exploring” perspective and add the following SVN repository:
+	{{https://dev.nightlabs.org/svn/private/fzi/src}}
+
+** A: Step 2
+
+	Check-out all projects starting on “org.cumulus4j.”.
+
+** A: Step 3
+
+	Open a console (aka shell), go to the directory <<<${workspace}/org.cumulus4j.all/>>> and run one of the following commands:
+
+	* <<<mvn clean install>>>
+
+	* <<<mvn clean install -Dmaven.test.skip=true>>>
+
+	The 2nd command skips all tests, which is faster.
+
+	Maven will automatically download all dependencies (e.g. the DataNucleus nightly builds).
+
+** A: Step 4
+
+	In your Eclipse IDE, go to "Window" => "Preferences…" => "Plug-in Development" => "Target Platform" and check (enable)
+	the "DataNucleus" target definition. Click first "Reload…" and then "OK".
+
+** A: Step 5
+
+	If your projects are not automatically compiled correctly and you still have error markers, select all projects, right-click on them and “Refresh” them. Afterwards go to the main menu “Project” ⇒ “Clean…” and clean all projects. All error markers should disappear now.
+
+* B: Workspace with DataNucleus sources
+
+** B: Step 1
+
+	Follow the {{{http://www.datanucleus.org/development/building_eclipse.html}DataNucleus.org => Development => Building with Eclipse}} howto.
+
+** B: Step 2
+
+	Go to the "SVN Repository Exploring" perspective and add the following SVN repository: {{https://dev.nightlabs.org/svn/private/fzi/src}}
+
+** B: Step 3
+
+	Check-out all projects starting on "org.cumulus4j.".
