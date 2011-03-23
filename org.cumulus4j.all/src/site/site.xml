@@ -17,13 +17,10 @@
 			<item name="License" href="license.html" />
 		</menu>
 
-		<menu name="Usage">
-			<item name="Simple tutorial" href="simple-tutorial.html" />
-		</menu>
-
-		<menu name="Development">
+		<menu name="Documentation">
 			<item name="Theory" href="theory.html" />
-			<item name="Source codes" href="development.html" />
+			<item name="Development" href="development.html" />
+			<item name="Javadoc" href="apidocs/" />
 		</menu>
 	</body>
 
