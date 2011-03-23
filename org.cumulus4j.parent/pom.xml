@@ -192,11 +192,12 @@
 			<plugins>
 				<plugin>
 					<artifactId>maven-compiler-plugin</artifactId>
+					<version>2.3.2</version>
 					<configuration>
 						<!--
 							Version 6 works fine with Maven, but m2eclipse doesn't understand
-							it (and sets Eclipse to version 1.4). Hence I switched to 1.6 instead of 6.
-							Marco.
+							it (and sets Eclipse to version 1.4). Hence I switched to 1.6
+							instead of 6. Marco.
 						-->
 						<source>1.6</source>
 						<target>1.6</target>
@@ -225,17 +226,14 @@
 					</executions>
 				</plugin>
 
-				<!--
-					I commented this out in order to better use the newest version.
-					marco.
-					<plugin>
+				<plugin>
 					<artifactId>maven-javadoc-plugin</artifactId>
 					<version>2.7</version>
-					</plugin>
-				-->
+				</plugin>
 
 				<plugin>
 					<artifactId>maven-site-plugin</artifactId>
+					<version>2.0-beta-7</version>
 					<configuration>
 						<locales>en</locales>
 						<inputencoding>UTF-8</inputencoding>
@@ -245,6 +243,7 @@
 
 				<plugin>
 					<artifactId>maven-resources-plugin</artifactId>
+					<version>2.4.3</version>
 					<configuration>
 						<encoding>UTF-8</encoding>
 					</configuration>
@@ -270,15 +269,18 @@
 		works fine. Afterwards, I immediately deleted the artifact from our
 		Artifactory again and deactivated the auto-deployment. Marco.
 
-		<distributionManagement> <repository>
-		<id>dev.nightlabs.org-libs-releases-local</id>
-		<name>dev.nightlabs.org-libs-releases-local</name>
-		<url>https://dev.nightlabs.org/maven-repository/libs-releases-local</url>
-		</repository> <snapshotRepository>
-		<id>dev.nightlabs.org-libs-snapshots-local</id>
-		<name>dev.nightlabs.org-libs-snapshots-local</name>
-		<url>https://dev.nightlabs.org/maven-repository/libs-snapshots-local</url>
-		</snapshotRepository> </distributionManagement>
+	<distributionManagement>
+		<repository>
+			<id>dev.nightlabs.org-libs-releases-local</id>
+			<name>dev.nightlabs.org-libs-releases-local</name>
+			<url>https://dev.nightlabs.org/maven-repository/libs-releases-local</url>
+		</repository>
+		<snapshotRepository>
+			<id>dev.nightlabs.org-libs-snapshots-local</id>
+			<name>dev.nightlabs.org-libs-snapshots-local</name>
+			<url>https://dev.nightlabs.org/maven-repository/libs-snapshots-local</url>
+		</snapshotRepository>
+	</distributionManagement>
 	-->
 
 	<properties>
