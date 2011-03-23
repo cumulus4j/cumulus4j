@@ -63,12 +63,14 @@ Workspace-Setup Cumulus4j-DataNucleus-Plug-in
 
 ** A: Step 4
 
-	In your Eclipse IDE, go to "Window" => "Preferences…" => "Plug-in Development" => "Target Platform" and check (enable)
-	the "DataNucleus" target definition. Click first "Reload…" and then "OK".
+	In your Eclipse IDE, go to "Window" => "Preferences..." => "Plug-in Development" => "Target Platform" and check (enable)
+	the "DataNucleus" target definition. Click first "Reload..." and then "OK".
 
 ** A: Step 5
 
-	If your projects are not automatically compiled correctly and you still have error markers, select all projects, right-click on them and “Refresh” them. Afterwards go to the main menu “Project” ⇒ “Clean…” and clean all projects. All error markers should disappear now.
+	If your projects are not automatically compiled correctly and you still have error markers, select all projects,
+	right-click on them and "Refresh" them. Afterwards go to the main menu "Project" => "Clean..." and clean all
+	projects. All error markers should disappear now.
 
 * B: Workspace with DataNucleus sources
 
