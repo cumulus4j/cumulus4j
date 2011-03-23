@@ -9,6 +9,8 @@
 	<name>org.cumulus4j.parent</name>
 	<description>Cumulus4j Parent POM</description>
 
+	<url>http://www.cumulus4j.org/</url>
+
 	<organization>
 		<name>NightLabs Consulting GmbH</name>
 		<url>http://www.nightlabs.de</url>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/DECORATION/1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/DECORATION/1.0.0 http://maven.apache.org/xsd/decoration-1.0.1.xsd">
+	<skin>
+		<groupId>org.nightlabs.maven</groupId>
+		<artifactId>nightabs-maven-site-skin</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</skin>
+</project>

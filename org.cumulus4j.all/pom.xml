@@ -17,7 +17,6 @@
 	<modules>
 		<module>../org.cumulus4j.core</module>
 		<module>../org.cumulus4j.parent</module>
-		<module>../org.cumulus4j.site</module>
 		<module>../org.cumulus4j.test</module>
 	</modules>
 </project>
