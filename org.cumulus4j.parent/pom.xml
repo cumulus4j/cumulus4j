@@ -11,6 +11,11 @@
 
 	<url>http://www.cumulus4j.org/</url>
 
+	<ciManagement>
+		<system>jenkins</system>
+		<url>https://dev.nightlabs.org/jenkins/job/Cumulus4j/</url>
+	</ciManagement>
+
 	<organization>
 		<name>NightLabs Consulting GmbH</name>
 		<url>http://www.nightlabs.de</url>
