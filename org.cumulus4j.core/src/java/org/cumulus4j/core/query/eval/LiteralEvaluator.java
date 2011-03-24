@@ -4,7 +4,6 @@ import java.util.Set;
 
 import org.cumulus4j.core.query.QueryEvaluator;
 import org.datanucleus.query.expression.Literal;
-import org.datanucleus.query.symbol.Symbol;
 
 /**
  * Evaluator representing literals.
@@ -18,7 +17,7 @@ public class LiteralEvaluator extends AbstractExpressionEvaluator<Literal>
 	}
 
 	@Override
-	protected Set<Long> _queryResultDataEntryIDs(Symbol resultSymbol)
+	protected Set<Long> _queryResultDataEntryIDs(ResultDescriptor resultDescriptor)
 	{
 		throw new UnsupportedOperationException("Cannot evaluate a literal alone!");
 	}

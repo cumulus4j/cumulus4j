@@ -26,7 +26,6 @@ import org.datanucleus.query.expression.Literal;
 import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.query.expression.VariableExpression;
-import org.datanucleus.query.symbol.Symbol;
 
 /**
  * Evaluator handling method invocations like <code>Collection.contains(...)</code>.
@@ -42,10 +41,10 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 	}
 
 	@Override
-	protected Set<Long> _queryResultDataEntryIDs(Symbol resultSymbol)
+	protected Set<Long> _queryResultDataEntryIDs(ResultDescriptor resultDescriptor)
 	{
 		if (this.getLeft() instanceof PrimaryExpressionEvaluator) {
-			if (!getLeft().getResultSymbols().contains(resultSymbol))
+			if (!getLeft().getResultSymbols().contains(resultDescriptor.getSymbol()))
 				return null;
 
 			if ("contains".equals(this.getExpression().getOperation())) {
@@ -219,7 +218,7 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 			if (argumentIsPersistent) {
 				Set<Long> result = new HashSet<Long>();
 				AbstractExpressionEvaluator<?> eval = getQueryEvaluator().getExpressionEvaluator();
-				Collection<Long> valueDataEntryIDs = eval.queryResultDataEntryIDs(variableExpr.getSymbol());
+				Collection<Long> valueDataEntryIDs = eval.queryResultDataEntryIDs(new ResultDescriptor(variableExpr.getSymbol()));
 				for (Long valueDataEntryID : valueDataEntryIDs) {
 					IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, subFieldMeta, valueDataEntryID);
 					if (indexEntry != null) {

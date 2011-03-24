@@ -9,10 +9,8 @@ import javax.jdo.Extent;
 import javax.jdo.Query;
 
 import org.cumulus4j.test.framework.AbstractTransactionalTest;
-import org.cumulus4j.test.framework.CleanupUtil;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,13 +20,13 @@ extends AbstractTransactionalTest
 {
 	private static final Logger logger = LoggerFactory.getLogger(MovieQueryTest.class);
 
-	@BeforeClass
-	public static void clearDatabase()
-	throws Exception
-	{
-		logger.info("clearDatabase: Clearing database (dropping all tables).");
-		CleanupUtil.dropAllTables();
-	}
+//	@BeforeClass
+//	public static void clearDatabase()
+//	throws Exception
+//	{
+//		logger.info("clearDatabase: Clearing database (dropping all tables).");
+//		CleanupUtil.dropAllTables();
+//	}
 
 	private static String safeTrim(String s)
 	{

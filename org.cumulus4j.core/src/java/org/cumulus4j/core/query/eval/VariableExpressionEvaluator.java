@@ -20,7 +20,7 @@ public class VariableExpressionEvaluator extends AbstractExpressionEvaluator<Var
 	}
 
 	@Override
-	protected Set<Long> _queryResultDataEntryIDs(Symbol resultSymbol)
+	protected Set<Long> _queryResultDataEntryIDs(ResultDescriptor resultDescriptor)
 	{
 		throw new UnsupportedOperationException("Cannot evaluate a variable without any context!");
 	}

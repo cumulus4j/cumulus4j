@@ -44,9 +44,9 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 
 	private X expression;
 
-	private Map<Symbol, Set<Long>> symbol2resultDataEntryIDs = new HashMap<Symbol, Set<Long>>();
+	private Map<ResultDescriptor, Set<Long>> resultDescriptor2resultDataEntryIDs = new HashMap<ResultDescriptor, Set<Long>>();
 
-	private Map<Symbol, List<Object>> symbol2resultObjects = new HashMap<Symbol, List<Object>>();
+	private Map<ResultDescriptor, List<Object>> resultDescriptor2resultObjects = new HashMap<ResultDescriptor, List<Object>>();
 
 	public AbstractExpressionEvaluator(QueryEvaluator queryEvaluator, AbstractExpressionEvaluator<?> parent, X expression)
 	{
@@ -111,8 +111,8 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 
 	/**
 	 * <p>
-	 * Get the {@link Symbol}s for which {@link #queryResultDataEntryIDs(Symbol)} (and thus
-	 * {@link #queryResultObjects(Symbol)}) can return a result. For all other {@link Symbol}s,
+	 * Get the {@link Symbol}s for which {@link #queryResultDataEntryIDs(ResultDescriptor)} (and thus
+	 * {@link #queryResultObjects(ResultDescriptor)}) can return a result. For all other {@link Symbol}s,
 	 * said methods return <code>null</code>.
 	 * </p>
 	 * <p>
@@ -143,8 +143,8 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 
 	/**
 	 * <p>
-	 * Get the {@link Symbol}s for which {@link #queryResultDataEntryIDs(Symbol)} (and thus
-	 * {@link #queryResultObjects(Symbol)}) can return a result. For all other {@link Symbol}s,
+	 * Get the {@link Symbol}s for which {@link #queryResultDataEntryIDs(ResultDescriptor)} (and thus
+	 * {@link #queryResultObjects(ResultDescriptor)}) can return a result. For all other {@link Symbol}s,
 	 * said methods return <code>null</code>.
 	 * </p>
 	 * <p>
@@ -180,42 +180,13 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 	}
 
 	/**
-	 * Get a previously {@link #queryResultDataEntryIDs(Symbol) queried} <code>Set</code>
-	 * of {@link DataEntry#getDataEntryID() dataEntryID}s or <code>null</code>, if it
-	 * was not yet queried.
-	 *
-	 * @param resultSymbol the symbol for which to get the previously queried data.
-	 * @return the previously queried result or <code>null</code>.
-	 * @see #queryResultDataEntryIDs(Symbol)
-	 * @deprecated We don't really need this. {@link #queryResultDataEntryIDs(Symbol)} is totally sufficient.
-	 */
-	@Deprecated
-	public final Set<Long> getResultDataEntryIDs(Symbol resultSymbol) {
-		return symbol2resultDataEntryIDs.get(resultSymbol);
-	}
-
-	/**
-	 * Get a previously {@link #queryResultObjects(Symbol) queried} <code>Set</code> of
-	 * objects or <code>null</code>, if it was not yet queried.
-	 *
-	 * @param resultSymbol the symbol for which to get the previously queried data.
-	 * @return the previously queried result or <code>null</code>.
-	 * @see #queryResultObjects(Symbol)
-	 * @deprecated We don't really need this. {@link #queryResultObjects(Symbol)} is totally sufficient.
-	 */
-	@Deprecated
-	public final List<Object> getResultObjects(Symbol resultSymbol) {
-		return symbol2resultObjects.get(resultSymbol);
-	}
-
-	/**
 	 * <p>
 	 * Get those {@link DataEntry#getDataEntryID() dataEntryID}s that match the query
 	 * criteria for the specified <code>resultSymbol</code> or <code>null</code>, if that
 	 * symbol is not queryable by the evaluator implementation.
 	 * </p>
 	 * <p>
-	 * This method delegates to {@link #_queryResultDataEntryIDs(Symbol)} and caches the
+	 * This method delegates to {@link #_queryResultDataEntryIDs(ResultDescriptor)} and caches the
 	 * result. Thus a second call to this method with the same symbol does not trigger a
 	 * second query but instead immediately returns the cached result.
 	 * </p>
@@ -226,7 +197,7 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 	 * query functionality is not yet implemented.
 	 * </p>
 	 *
-	 * @param resultSymbol the symbol for which to perform a query (or lookup a previously queried
+	 * @param resultDescriptor the symbol for which to perform a query (or lookup a previously queried
 	 * result from the cache).
 	 * @return those {@link DataEntry#getDataEntryID() dataEntryID}s that match the query
 	 * criteria for the specified <code>resultSymbol</code> or <code>null</code>, if the symbol is not
@@ -234,19 +205,19 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 	 * @throws UnsupportedOperationException if the implementation does not support querying at all
 	 * (e.g. because it makes no sense without more context) or if the concrete query situation is not
 	 * yet supported.
-	 * @see #_queryResultDataEntryIDs(Symbol)
+	 * @see #_queryResultDataEntryIDs(ResultDescriptor)
 	 */
-	public final Set<Long> queryResultDataEntryIDs(Symbol resultSymbol)
+	public final Set<Long> queryResultDataEntryIDs(ResultDescriptor resultDescriptor)
 	throws UnsupportedOperationException
 	{
-		Set<Long> resultDataEntryIDs = symbol2resultDataEntryIDs.get(resultSymbol);
-		if (!symbol2resultDataEntryIDs.containsKey(resultSymbol)) {
-			resultDataEntryIDs = _queryResultDataEntryIDs(resultSymbol);
+		Set<Long> resultDataEntryIDs = resultDescriptor2resultDataEntryIDs.get(resultDescriptor);
+		if (!resultDescriptor2resultDataEntryIDs.containsKey(resultDescriptor)) {
+			resultDataEntryIDs = _queryResultDataEntryIDs(resultDescriptor);
 
 			if (resultDataEntryIDs != null)
 				resultDataEntryIDs = Collections.unmodifiableSet(resultDataEntryIDs);
 
-			symbol2resultDataEntryIDs.put(resultSymbol, resultDataEntryIDs);
+			resultDescriptor2resultDataEntryIDs.put(resultDescriptor, resultDataEntryIDs);
 		}
 
 		return resultDataEntryIDs;
@@ -254,19 +225,19 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 
 	/**
 	 * Execute a query for the given <code>resultSymbol</code>. This method should contain
-	 * the concrete logic for {@link #queryResultDataEntryIDs(Symbol)} and must be implemented
+	 * the concrete logic for {@link #queryResultDataEntryIDs(ResultDescriptor)} and must be implemented
 	 * by subclasses.
 	 *
-	 * @param resultSymbol the symbol for which to perform a query.
+	 * @param resultDescriptor the symbol for which to perform a query.
 	 * @return those {@link DataEntry#getDataEntryID() dataEntryID}s that match the query
 	 * criteria for the specified <code>resultSymbol</code> or <code>null</code>, if the symbol is not
 	 * supported (this should be consistent with the implementation of {@link #_getResultSymbols()}).
 	 * @throws UnsupportedOperationException if the implementation does not support querying at all
 	 * (e.g. because it makes no sense without more context) or if the concrete query situation is not
 	 * yet supported.
-	 * @see #queryResultDataEntryIDs(Symbol)
+	 * @see #queryResultDataEntryIDs(ResultDescriptor)
 	 */
-	protected abstract Set<Long> _queryResultDataEntryIDs(Symbol resultSymbol)
+	protected abstract Set<Long> _queryResultDataEntryIDs(ResultDescriptor resultDescriptor)
 	throws UnsupportedOperationException;
 
 	/**
@@ -275,7 +246,7 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 	 * or <code>null</code>, if that symbol is not queryable by the evaluator implementation.
 	 * </p>
 	 * <p>
-	 * This method delegates to {@link #_queryResultObjects(Symbol)} and caches the
+	 * This method delegates to {@link #_queryResultObjects(ResultDescriptor)} and caches the
 	 * result. Thus a second call to this method with the same symbol does not trigger a
 	 * second query but instead immediately returns the cached result.
 	 * </p>
@@ -286,26 +257,26 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 	 * query functionality is not yet implemented.
 	 * </p>
 	 *
-	 * @param resultSymbol the symbol for which to perform a query (or lookup a previously queried
+	 * @param resultDescriptor the symbol for which to perform a query (or lookup a previously queried
 	 * result from the cache).
 	 * @return the objects matching the criteria or <code>null</code>, if the given <code>resultSymbol</code>
 	 * is not supported (this should be consistent with the implementation of {@link #_getResultSymbols()}).
 	 * @throws UnsupportedOperationException if the implementation does not support querying at all
 	 * (e.g. because it makes no sense without more context) or if the concrete query situation is not
 	 * yet supported.
-	 * @see #_queryResultObjects(Symbol)
+	 * @see #_queryResultObjects(ResultDescriptor)
 	 */
-	public final List<Object> queryResultObjects(Symbol resultSymbol)
+	public final List<Object> queryResultObjects(ResultDescriptor resultDescriptor)
 	throws UnsupportedOperationException
 	{
-		List<Object> resultObjects = symbol2resultObjects.get(resultSymbol);
-		if (!symbol2resultObjects.containsKey(resultSymbol)) {
-			resultObjects = _queryResultObjects(resultSymbol);
+		List<Object> resultObjects = resultDescriptor2resultObjects.get(resultDescriptor);
+		if (!resultDescriptor2resultObjects.containsKey(resultDescriptor)) {
+			resultObjects = _queryResultObjects(resultDescriptor);
 
 			if (resultObjects != null)
 				resultObjects = Collections.unmodifiableList(resultObjects);
 
-			symbol2resultObjects.put(resultSymbol, resultObjects);
+			resultDescriptor2resultObjects.put(resultDescriptor, resultObjects);
 		}
 
 		return resultObjects;
@@ -318,20 +289,20 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 	 * </p>
 	 * <p>
 	 * The default implementation of this method in {@link AbstractExpressionEvaluator} calls
-	 * {@link #queryResultDataEntryIDs(Symbol)} and then resolves the corresponding objects
+	 * {@link #queryResultDataEntryIDs(ResultDescriptor)} and then resolves the corresponding objects
 	 * (including decrypting their data).
 	 * </p>
 	 *
-	 * @param resultSymbol the symbol for which to perform a query.
+	 * @param resultDescriptor the symbol for which to perform a query.
 	 * @return the objects matching the criteria or <code>null</code>, if the given <code>resultSymbol</code>
 	 * is not supported (this should be consistent with the implementation of {@link #_getResultSymbols()}).
 	 * @throws UnsupportedOperationException
-	 * @see {@link #queryResultObjects(Symbol)}
+	 * @see {@link #queryResultObjects(ResultDescriptor)}
 	 */
-	protected List<Object> _queryResultObjects(Symbol resultSymbol)
+	protected List<Object> _queryResultObjects(ResultDescriptor resultDescriptor)
 	throws UnsupportedOperationException
 	{
-		Set<Long> dataEntryIDs = queryResultDataEntryIDs(resultSymbol);
+		Set<Long> dataEntryIDs = queryResultDataEntryIDs(resultDescriptor);
 		if (dataEntryIDs == null)
 			return null;
 

@@ -28,7 +28,6 @@ import org.datanucleus.query.expression.Literal;
 import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.query.expression.Expression.Operator;
-import org.datanucleus.query.symbol.Symbol;
 
 /**
  * Evaluator handling the comparisons ==, &lt;, &lt;=, &gt;, &gt;=.
@@ -43,10 +42,10 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 	}
 
 	@Override
-	protected Set<Long> _queryResultDataEntryIDs(Symbol resultSymbol)
+	protected Set<Long> _queryResultDataEntryIDs(ResultDescriptor resultDescriptor)
 	{
 		if (getLeft() instanceof InvokeExpressionEvaluator) {
-			if (!getLeft().getResultSymbols().contains(resultSymbol))
+			if (!getLeft().getResultSymbols().contains(resultDescriptor.getSymbol()))
 				return null;
 
 			InvokeExpressionEvaluator invokeEval = (InvokeExpressionEvaluator) getLeft();
@@ -88,7 +87,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		}
 
 		if (getLeft() instanceof PrimaryExpressionEvaluator) {
-			if (!getLeft().getResultSymbols().contains(resultSymbol))
+			if (!getLeft().getResultSymbols().contains(resultDescriptor.getSymbol()))
 				return null;
 
 			Object compareToArgument;
@@ -106,7 +105,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		}
 
 		if (getRight() instanceof PrimaryExpressionEvaluator) {
-			if (!getRight().getResultSymbols().contains(resultSymbol))
+			if (!getRight().getResultSymbols().contains(resultDescriptor.getSymbol()))
 				return null;
 
 			Object compareToArgument;

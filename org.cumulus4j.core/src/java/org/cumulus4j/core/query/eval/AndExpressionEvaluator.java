@@ -5,7 +5,6 @@ import java.util.Set;
 
 import org.cumulus4j.core.query.QueryEvaluator;
 import org.datanucleus.query.expression.DyadicExpression;
-import org.datanucleus.query.symbol.Symbol;
 
 /**
  * Evaluator handling the boolean operation &amp;&amp;.
@@ -20,15 +19,15 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 	}
 
 	@Override
-	protected Set<Long> _queryResultDataEntryIDs(Symbol resultSymbol) {
+	protected Set<Long> _queryResultDataEntryIDs(ResultDescriptor resultDescriptor) {
 		if (getLeft() == null)
 			throw new IllegalStateException("getLeft() == null");
 
 		if (getRight() == null)
 			throw new IllegalStateException("getRight() == null");
 
-		Set<Long> leftResult = getLeft().queryResultDataEntryIDs(resultSymbol);
-		Set<Long> rightResult = getRight().queryResultDataEntryIDs(resultSymbol);
+		Set<Long> leftResult = getLeft().queryResultDataEntryIDs(resultDescriptor);
+		Set<Long> rightResult = getRight().queryResultDataEntryIDs(resultDescriptor);
 
 		if (leftResult != null && rightResult != null) {
 			Set<Long> dataEntryIDs1;

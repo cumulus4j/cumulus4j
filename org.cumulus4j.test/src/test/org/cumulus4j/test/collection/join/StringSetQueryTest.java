@@ -89,4 +89,35 @@ extends AbstractTransactionalTest
 			logger.info("query0:   * " + resultElement.getId() + ": " + sb);
 		}
 	}
+
+
+	@Test
+	public void query1()
+	{
+		Query q = pm.newQuery(StringSetOwner.class);
+		q.setFilter("this.set.contains(elementVariable) && elementVariable.indexOf(:elementPart) >= 0");
+
+		String elementPart = "Marc";
+
+		@SuppressWarnings("unchecked")
+		List<StringSetOwner> resultList = (List<StringSetOwner>) q.execute(elementPart);
+		Assert.assertNotNull("Query returned null as result when a List was expected!", resultList);
+		logger.info("query1: found " + resultList.size() + " containing elements which contain the part \"" + elementPart + "\":");
+		Assert.assertEquals("Query returned wrong number of results!", 3, resultList.size());
+		for (StringSetOwner resultElement : resultList) {
+			Assert.assertNotNull("Query returned a StringSetOwner with the set property being null!", resultElement.getSet());
+
+			StringBuilder sb = new StringBuilder();
+			for (String setElement : resultElement.getSet()) {
+				Assert.assertNotNull("Query returned a StringSetOwner whose set contains a null entry!", setElement);
+
+				if (sb.length() > 0)
+					sb.append(", ");
+
+				sb.append(setElement);
+			}
+
+			logger.info("query1:   * " + resultElement.getId() + ": " + sb);
+		}
+	}
 }

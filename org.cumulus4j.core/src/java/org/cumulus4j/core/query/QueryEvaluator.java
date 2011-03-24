@@ -23,6 +23,7 @@ import org.cumulus4j.core.query.eval.InvokeExpressionEvaluator;
 import org.cumulus4j.core.query.eval.LiteralEvaluator;
 import org.cumulus4j.core.query.eval.ParameterExpressionEvaluator;
 import org.cumulus4j.core.query.eval.PrimaryExpressionEvaluator;
+import org.cumulus4j.core.query.eval.ResultDescriptor;
 import org.cumulus4j.core.query.eval.VariableExpressionEvaluator;
 import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.identity.IdentityUtils;
@@ -210,7 +211,7 @@ public abstract class QueryEvaluator
 			if (resultSymbol == null)
 				throw new IllegalStateException("getCompilation().getSymbolTable().getSymbol(getCandidateAlias()) returned null! getCandidateAlias()==\"" + getCandidateAlias() + "\"");
 
-			return expressionEvaluator.queryResultObjects(resultSymbol);
+			return expressionEvaluator.queryResultObjects(new ResultDescriptor(resultSymbol));
 		}
 	}
 

@@ -112,6 +112,10 @@ public class ClassMeta
 		return simpleClassName;
 	}
 
+	/**
+	 * Get the fully qualified class name (composed of {@link #getPackageName() packageName} and {@link #getSimpleClassName() simpleClassName}).
+	 * @return the fully qualified class name.
+	 */
 	public String getClassName() {
 		if (packageName.isEmpty())
 			return simpleClassName;

@@ -19,7 +19,7 @@ public class PrimaryExpressionEvaluator extends AbstractExpressionEvaluator<Prim
 	}
 
 	@Override
-	protected Set<Long> _queryResultDataEntryIDs(Symbol resultSymbol)
+	protected Set<Long> _queryResultDataEntryIDs(ResultDescriptor resultDescriptor)
 	{
 		throw new UnsupportedOperationException("It is impossible to get a result set for a PrimaryExpression alone!");
 	}
