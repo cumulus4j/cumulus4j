@@ -59,25 +59,32 @@ extends AbstractTransactionalTest
 		stringSetOwner = pm.makePersistent(new StringSetOwner());
 	}
 
-	@Test
-	public void query0()
+	private void executeQueryAndCheckResult(Query q, String queryParam, boolean indexOf, int expectedResultListSize)
 	{
-		Query q = pm.newQuery(StringSetOwner.class);
-		q.setFilter("this.set.contains(:element)");
-
-		String element = "Marc";
+		String testMethodName = new Exception().getStackTrace()[1].getMethodName();
 
 		@SuppressWarnings("unchecked")
-		List<StringSetOwner> resultList = (List<StringSetOwner>) q.execute(element);
+		List<StringSetOwner> resultList = (List<StringSetOwner>) q.execute(queryParam);
 		Assert.assertNotNull("Query returned null as result when a List was expected!", resultList);
-		logger.info("query0: found " + resultList.size() + " StringSetOwners containing the element \"" + element + "\":");
-		Assert.assertEquals("Query returned wrong number of results!", 2, resultList.size());
+
+		String logMsgPart = indexOf ? "containing at least one element which contains the part" : "containing the element";
+		logger.info(testMethodName + ": found " + resultList.size() + " StringSetOwners " + logMsgPart + " \"" + queryParam + "\":");
+		Assert.assertEquals("Query returned wrong number of results!", expectedResultListSize, resultList.size());
 		for (StringSetOwner resultElement : resultList) {
 			Assert.assertNotNull("Query returned a StringSetOwner with the set property being null!", resultElement.getSet());
 
+			boolean resultElementMatches = false;
 			StringBuilder sb = new StringBuilder();
 			for (String setElement : resultElement.getSet()) {
 				Assert.assertNotNull("Query returned a StringSetOwner whose set contains a null entry!", setElement);
+				if (indexOf) {
+					if (setElement.indexOf(queryParam) >= 0)
+						resultElementMatches = true;
+				}
+				else {
+					if (setElement.equals(queryParam))
+						resultElementMatches = true;
+				}
 
 				if (sb.length() > 0)
 					sb.append(", ");
@@ -85,8 +92,20 @@ extends AbstractTransactionalTest
 				sb.append(setElement);
 			}
 
-			logger.info("query0:   * " + resultElement.getId() + ": " + sb);
+			logger.info(testMethodName + ":   * " + resultElement.getId() + ": " + sb);
+			Assert.assertTrue(
+					"Query returned a StringSetOwner with the set property not containing the searched element: " + resultElement.getId(),
+					resultElementMatches
+			);
 		}
+	}
+
+	@Test
+	public void query0()
+	{
+		Query q = pm.newQuery(StringSetOwner.class);
+		q.setFilter("this.set.contains(:element)");
+		executeQueryAndCheckResult(q, "Marc", false, 2);
 	}
 
 	@Test
@@ -94,29 +113,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringSetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && elementVariable.indexOf(:elementPart) >= 0");
-
-		String elementPart = "Marc";
-
-		@SuppressWarnings("unchecked")
-		List<StringSetOwner> resultList = (List<StringSetOwner>) q.execute(elementPart);
-		Assert.assertNotNull("Query returned null as result when a List was expected!", resultList);
-		logger.info("query1: found " + resultList.size() + " StringSetOwners containing elements which contain the part \"" + elementPart + "\":");
-		Assert.assertEquals("Query returned wrong number of results!", 3, resultList.size());
-		for (StringSetOwner resultElement : resultList) {
-			Assert.assertNotNull("Query returned a StringSetOwner with the set property being null!", resultElement.getSet());
-
-			StringBuilder sb = new StringBuilder();
-			for (String setElement : resultElement.getSet()) {
-				Assert.assertNotNull("Query returned a StringSetOwner whose set contains a null entry!", setElement);
-
-				if (sb.length() > 0)
-					sb.append(", ");
-
-				sb.append(setElement);
-			}
-
-			logger.info("query1:   * " + resultElement.getId() + ": " + sb);
-		}
+		executeQueryAndCheckResult(q, "Marc", true, 3);
 	}
 
 	@Test
@@ -124,28 +121,6 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringSetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && elementVariable == :element");
-
-		String element = "Marc";
-
-		@SuppressWarnings("unchecked")
-		List<StringSetOwner> resultList = (List<StringSetOwner>) q.execute(element);
-		Assert.assertNotNull("Query returned null as result when a List was expected!", resultList);
-		logger.info("query2: found " + resultList.size() + " StringSetOwners containing the element \"" + element + "\":");
-		Assert.assertEquals("Query returned wrong number of results!", 2, resultList.size());
-		for (StringSetOwner resultElement : resultList) {
-			Assert.assertNotNull("Query returned a StringSetOwner with the set property being null!", resultElement.getSet());
-
-			StringBuilder sb = new StringBuilder();
-			for (String setElement : resultElement.getSet()) {
-				Assert.assertNotNull("Query returned a StringSetOwner whose set contains a null entry!", setElement);
-
-				if (sb.length() > 0)
-					sb.append(", ");
-
-				sb.append(setElement);
-			}
-
-			logger.info("query2:   * " + resultElement.getId() + ": " + sb);
-		}
+		executeQueryAndCheckResult(q, "Marc", false, 2);
 	}
 }
