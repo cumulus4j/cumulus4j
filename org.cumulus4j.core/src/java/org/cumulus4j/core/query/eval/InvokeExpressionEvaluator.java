@@ -228,8 +228,10 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 				}
 				return result;
 			}
-			else
-				throw new UnsupportedOperationException("Variable of a simple type is not yet implemented! Variable must be of a persistence-capable class!");
+			else {
+				AbstractExpressionEvaluator<?> eval = getQueryEvaluator().getExpressionEvaluator();
+				return eval.queryResultDataEntryIDs(new ResultDescriptor(variableExpr.getSymbol(), subFieldMeta));
+			}
 		}
 	}
 

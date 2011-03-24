@@ -27,6 +27,7 @@ import org.datanucleus.query.expression.Expression;
 import org.datanucleus.query.expression.Literal;
 import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
+import org.datanucleus.query.expression.VariableExpression;
 import org.datanucleus.query.expression.Expression.Operator;
 
 /**
@@ -50,36 +51,46 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 			InvokeExpressionEvaluator invokeEval = (InvokeExpressionEvaluator) getLeft();
 			if ("indexOf".equals(invokeEval.getExpression().getOperation())) {
+
+				if (invokeEval.getExpression().getArguments().size() != 1)
+					throw new IllegalStateException("indexOf(...) expects exactly one argument, but there are " + invokeEval.getExpression().getArguments().size());
+
+				Expression invokeArgExpr = invokeEval.getExpression().getArguments().get(0);
+
+				Object invokeArgument;
+				if (invokeArgExpr instanceof Literal)
+					invokeArgument = ((Literal)invokeArgExpr).getLiteral();
+				else if (invokeArgExpr instanceof ParameterExpression)
+					invokeArgument = QueryUtils.getValueForParameterExpression(getQueryEvaluator().getParameterValues(), (ParameterExpression)invokeArgExpr);
+				else
+					throw new UnsupportedOperationException("NYI");
+
+				Object compareToArgument = getRightCompareToArgument();
+
 				if (invokeEval.getLeft() instanceof PrimaryExpressionEvaluator) {
 					PrimaryExpressionEvaluator primaryEval = (PrimaryExpressionEvaluator) invokeEval.getLeft();
 					PrimaryExpression primaryExpr = primaryEval.getExpression();
 					Class<?> parameterType = getFieldType(primaryExpr);
 
-					if (invokeEval.getExpression().getArguments().size() != 1)
-						throw new IllegalStateException("indexOf(...) expects exactly one argument, but there are " + invokeEval.getExpression().getArguments().size());
-
-					Expression invokeArgExpr = invokeEval.getExpression().getArguments().get(0);
-
-					Object invokeArgument;
-					if (invokeArgExpr instanceof Literal)
-						invokeArgument = ((Literal)invokeArgExpr).getLiteral();
-					else if (invokeArgExpr instanceof ParameterExpression)
-						invokeArgument = QueryUtils.getValueForParameterExpression(getQueryEvaluator().getParameterValues(), (ParameterExpression)invokeArgExpr);
-					else
-						throw new UnsupportedOperationException("NYI");
-
-					Object compareToArgument;
-					if (getRight() instanceof LiteralEvaluator)
-						compareToArgument = ((LiteralEvaluator)getRight()).getLiteralValue();
-					else if (getRight() instanceof ParameterExpressionEvaluator)
-						compareToArgument = ((ParameterExpressionEvaluator)getRight()).getParameterValue();
-					else
-						throw new UnsupportedOperationException("NYI");
-
 					if (String.class.isAssignableFrom(parameterType))
 						return new StringIndexOfResolver(getQueryEvaluator(), primaryExpr, invokeArgument, compareToArgument).query();
 
 					throw new UnsupportedOperationException("NYI");
+				}
+
+				if (invokeEval.getLeft() instanceof VariableExpressionEvaluator) {
+					VariableExpressionEvaluator varExprEval = (VariableExpressionEvaluator) invokeEval.getLeft();
+					VariableExpression varExpr = varExprEval.getExpression();
+					if (varExpr.getSymbol() == null)
+						throw new IllegalStateException("varExpr.getSymbol() == null");
+
+					if (!varExpr.getSymbol().equals(resultDescriptor.getSymbol())) // searching something else ;-)
+						return null;
+
+					// We query a simple data type (otherwise we would be above in the PrimaryExpressionEvaluator block), hence
+					// we do not need to recursively resolve some tuples.
+					IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(getQueryEvaluator().getExecutionContext(), resultDescriptor.getFieldMeta(), true);
+					return queryStringIndexOf(resultDescriptor.getFieldMeta(), indexEntryFactory, invokeArgument, compareToArgument);
 				}
 				throw new UnsupportedOperationException("NYI");
 			}
@@ -90,13 +101,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 			if (!getLeft().getResultSymbols().contains(resultDescriptor.getSymbol()))
 				return null;
 
-			Object compareToArgument;
-			if (getRight() instanceof LiteralEvaluator)
-				compareToArgument = ((LiteralEvaluator)getRight()).getLiteralValue();
-			else if (getRight() instanceof ParameterExpressionEvaluator)
-				compareToArgument = ((ParameterExpressionEvaluator)getRight()).getParameterValue();
-			else
-				throw new UnsupportedOperationException("NYI");
+			Object compareToArgument = getRightCompareToArgument();
 
 			if (Expression.OP_EQ == getExpression().getOperator())
 				return new EqualsWithConcreteValueResolver(getQueryEvaluator(), ((PrimaryExpressionEvaluator)getLeft()).getExpression(), compareToArgument).query();
@@ -108,13 +113,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 			if (!getRight().getResultSymbols().contains(resultDescriptor.getSymbol()))
 				return null;
 
-			Object compareToArgument;
-			if (getLeft() instanceof LiteralEvaluator)
-				compareToArgument = ((LiteralEvaluator)getRight()).getLiteralValue();
-			else if (getLeft() instanceof ParameterExpressionEvaluator)
-				compareToArgument = ((ParameterExpressionEvaluator)getRight()).getParameterValue();
-			else
-				throw new UnsupportedOperationException("NYI");
+			Object compareToArgument = getLeftCompareToArgument();
 
 			if (Expression.OP_EQ == getExpression().getOperator())
 				return new EqualsWithConcreteValueResolver(getQueryEvaluator(), ((PrimaryExpressionEvaluator)getRight()).getExpression(), compareToArgument).query();
@@ -122,7 +121,72 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 				return new CompareWithConcreteValueResolver(getQueryEvaluator(), ((PrimaryExpressionEvaluator)getRight()).getExpression(), compareToArgument).query();
 		}
 
+		if (getLeft() instanceof VariableExpressionEvaluator) {
+			VariableExpressionEvaluator varExprEval = (VariableExpressionEvaluator) getLeft();
+			VariableExpression varExpr = varExprEval.getExpression();
+			if (varExpr.getSymbol() == null)
+				throw new IllegalStateException("varExpr.getSymbol() == null");
+
+			if (!varExpr.getSymbol().equals(resultDescriptor.getSymbol())) // searching something else ;-)
+				return null;
+
+			// We query a simple data type (otherwise we would be above in the PrimaryExpressionEvaluator block), hence
+			// we do not need to recursively resolve some tuples.
+			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(getQueryEvaluator().getExecutionContext(), resultDescriptor.getFieldMeta(), true);
+			return queryCompareConcreteValue(resultDescriptor.getFieldMeta(), indexEntryFactory, getRightCompareToArgument());
+		}
+
 		throw new UnsupportedOperationException("NYI");
+	}
+
+	private Object getLeftCompareToArgument() {
+		Object compareToArgument;
+		if (getLeft() instanceof LiteralEvaluator)
+			compareToArgument = ((LiteralEvaluator)getRight()).getLiteralValue();
+		else if (getLeft() instanceof ParameterExpressionEvaluator)
+			compareToArgument = ((ParameterExpressionEvaluator)getRight()).getParameterValue();
+		else
+			throw new UnsupportedOperationException("NYI");
+		return compareToArgument;
+	}
+
+	private Object getRightCompareToArgument() {
+		Object compareToArgument;
+		if (getRight() instanceof LiteralEvaluator)
+			compareToArgument = ((LiteralEvaluator)getRight()).getLiteralValue();
+		else if (getRight() instanceof ParameterExpressionEvaluator)
+			compareToArgument = ((ParameterExpressionEvaluator)getRight()).getParameterValue();
+		else
+			throw new UnsupportedOperationException("NYI");
+		return compareToArgument;
+	}
+
+	private Set<Long> queryStringIndexOf(
+			FieldMeta fieldMeta,
+			IndexEntryFactory indexEntryFactory,
+			Object invokeArgument, // the xxx in 'indexOf(xxx)'
+			Object compareToArgument // the yyy in 'indexOf(xxx) >= yyy'
+	) {
+		Query q = getPersistenceManager().newQuery(indexEntryFactory.getIndexEntryClass());
+		q.setFilter(
+				"this.fieldMeta == :fieldMeta && " +
+				"this.indexKey.indexOf(:invokeArgument) " + getOperatorAsJDOQLSymbol() + " :compareToArgument"
+		);
+		Map<String, Object> params = new HashMap<String, Object>(3);
+		params.put("fieldMeta", fieldMeta);
+		params.put("invokeArgument", invokeArgument);
+		params.put("compareToArgument", compareToArgument);
+
+		@SuppressWarnings("unchecked")
+		Collection<? extends IndexEntry> indexEntries = (Collection<? extends IndexEntry>) q.executeWithMap(params);
+
+		Set<Long> result = new HashSet<Long>();
+		for (IndexEntry indexEntry : indexEntries) {
+			IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
+			result.addAll(indexValue.getDataEntryIDs());
+		}
+		q.closeAll();
+		return result;
 	}
 
 	private class StringIndexOfResolver extends PrimaryExpressionResolver
@@ -144,27 +208,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		@Override
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
 			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(getQueryEvaluator().getExecutionContext(), fieldMeta, true);
-
-			Query q = getPersistenceManager().newQuery(indexEntryFactory.getIndexEntryClass());
-			q.setFilter(
-					"this.fieldMeta == :fieldMeta && " +
-					"this.indexKey.indexOf(:invokeArgument) " + getOperatorAsJDOQLSymbol() + " :compareToArgument"
-			);
-			Map<String, Object> params = new HashMap<String, Object>(3);
-			params.put("fieldMeta", fieldMeta);
-			params.put("invokeArgument", invokeArgument);
-			params.put("compareToArgument", compareToArgument);
-
-			@SuppressWarnings("unchecked")
-			Collection<? extends IndexEntry> indexEntries = (Collection<? extends IndexEntry>) q.executeWithMap(params);
-
-			Set<Long> result = new HashSet<Long>();
-			for (IndexEntry indexEntry : indexEntries) {
-				IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
-				result.addAll(indexValue.getDataEntryIDs());
-			}
-			q.closeAll();
-			return result;
+			return queryStringIndexOf(fieldMeta, indexEntryFactory, invokeArgument, compareToArgument);
 		}
 	}
 
@@ -185,23 +229,27 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
 			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(getQueryEvaluator().getExecutionContext(), fieldMeta, true);
 
-			Query q = getPersistenceManager().newQuery(indexEntryFactory.getIndexEntryClass());
-			q.setFilter(
-					"this.fieldMeta == :fieldMeta && " +
-					"this.indexKey " + getOperatorAsJDOQLSymbol() + " :value"
-			);
-
-			@SuppressWarnings("unchecked")
-			Collection<? extends IndexEntry> indexEntries = (Collection<? extends IndexEntry>) q.execute(fieldMeta, value);
-
-			Set<Long> result = new HashSet<Long>();
-			for (IndexEntry indexEntry : indexEntries) {
-				IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
-				result.addAll(indexValue.getDataEntryIDs());
-			}
-			q.closeAll();
-			return result;
+			return queryCompareConcreteValue(fieldMeta, indexEntryFactory, value);
 		}
+	}
+
+	private Set<Long> queryCompareConcreteValue(FieldMeta fieldMeta, IndexEntryFactory indexEntryFactory, Object value) {
+		Query q = getPersistenceManager().newQuery(indexEntryFactory.getIndexEntryClass());
+		q.setFilter(
+				"this.fieldMeta == :fieldMeta && " +
+				"this.indexKey " + getOperatorAsJDOQLSymbol() + " :value"
+		);
+
+		@SuppressWarnings("unchecked")
+		Collection<? extends IndexEntry> indexEntries = (Collection<? extends IndexEntry>) q.execute(fieldMeta, value);
+
+		Set<Long> result = new HashSet<Long>();
+		for (IndexEntry indexEntry : indexEntries) {
+			IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
+			result.addAll(indexValue.getDataEntryIDs());
+		}
+		q.closeAll();
+		return result;
 	}
 
 	private class EqualsWithConcreteValueResolver extends PrimaryExpressionResolver
