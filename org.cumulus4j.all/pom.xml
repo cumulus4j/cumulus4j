@@ -42,31 +42,11 @@
 	-->
 	<description>Cumulus4j is an encryption layer protecting your data from the hosting company.</description>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.cumulus4j</groupId>
-			<artifactId>org.cumulus4j.parent</artifactId>
-			<version>${cumulus4j.version}</version>
-			<type>pom</type>
-		</dependency>
-		<dependency>
-			<groupId>org.cumulus4j</groupId>
-			<artifactId>org.cumulus4j.core</artifactId>
-			<version>${cumulus4j.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.cumulus4j</groupId>
-			<artifactId>org.cumulus4j.test</artifactId>
-			<version>${cumulus4j.version}</version>
-		</dependency>
-	</dependencies>
-
 	<modules>
 		<module>../org.cumulus4j.core</module>
 		<module>../org.cumulus4j.parent</module>
 		<module>../org.cumulus4j.test</module>
 	</modules>
-
 
 	<build>
 		<plugins>
@@ -86,10 +66,12 @@
 								<dependencyLocationsEnabled>true</dependencyLocationsEnabled>
 							</configuration>
 						</plugin>
+<!--
 						<plugin>
 							<groupId>org.apache.maven.plugins</groupId>
 							<artifactId>maven-javadoc-plugin</artifactId>
 						</plugin>
+-->
 					</reportPlugins>
 				</configuration>
 			</plugin>
