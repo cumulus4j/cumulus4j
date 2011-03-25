@@ -16,10 +16,10 @@
 	<url>http://www.cumulus4j.org/</url>
 
 	<!--
-		Added the SCM URL here again, even though the parent already declares it,
-		because that property seems not to be inherited directly, but instead
-		the artifactId "org.cumulus4j.all" is appended to the parent's SCM URL,
-		which is definitely wrong for this aggregator. Marco.
+		Added the SCM URL here again, even though the parent already declares
+		it, because that property seems not to be inherited directly, but
+		instead the artifactId "org.cumulus4j.all" is appended to the parent's
+		SCM URL, which is definitely wrong for this aggregator. Marco.
 	-->
 	<scm>
 		<connection>scm:svn:https://dev.nightlabs.org/svn/private/fzi/src/trunk/</connection>
@@ -41,6 +41,25 @@
 		auto-report's "About") and therefore must be a bit more elaborate.
 	-->
 	<description>Cumulus4j is an encryption layer protecting your data from the hosting company.</description>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.parent</artifactId>
+			<version>${cumulus4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.core</artifactId>
+			<version>${cumulus4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.test</artifactId>
+			<version>${cumulus4j.version}</version>
+		</dependency>
+	</dependencies>
+
 	<modules>
 		<module>../org.cumulus4j.core</module>
 		<module>../org.cumulus4j.parent</module>
