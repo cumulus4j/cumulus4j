@@ -14,6 +14,16 @@
 		which is definitely wrong for this aggregator. Marco.
 	-->
 	<url>http://www.cumulus4j.org/</url>
+
+	<!--
+		Added the SCM URL here again, even though the parent already declares it,
+		because that property seems not to be inherited directly, but instead
+		the artifactId "org.cumulus4j.all" is appended to the parent's SCM URL,
+		which is definitely wrong for this aggregator. Marco.
+	-->
+	<scm>
+		<connection>scm:svn:https://dev.nightlabs.org/svn/private/fzi/src/trunk/</connection>
+	</scm>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.cumulus4j</groupId>
 	<artifactId>org.cumulus4j.all</artifactId>
