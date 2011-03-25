@@ -226,6 +226,7 @@
 					<configuration>
 						<log4jConfiguration>${basedir}/enhancer-log4j.properties</log4jConfiguration>
 						<verbose>true</verbose>
+						<fork>false</fork>
 						<!--
 					<props>${basedir}/datanucleus.properties</props>
 					-->
