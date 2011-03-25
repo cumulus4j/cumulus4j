@@ -8,10 +8,10 @@
 		<relativePath>../org.cumulus4j.parent/pom.xml</relativePath>
 	</parent>
 	<!--
-	Added the URL here again, even though the parent already declares it, because that property seems
-	not to be inherited directly, but instead the artifactId "org.cumulus4j.all" is appended to the parent's URL,
-	which is definitely wrong for this aggregator.
-	Marco.
+		Added the URL here again, even though the parent already declares it,
+		because that property seems not to be inherited directly, but instead
+		the artifactId "org.cumulus4j.all" is appended to the parent's URL,
+		which is definitely wrong for this aggregator. Marco.
 	-->
 	<url>http://www.cumulus4j.org/</url>
 	<modelVersion>4.0.0</modelVersion>
@@ -20,30 +20,53 @@
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<!--
-	I prefer the name "org.cumulus4j.all", but unfortunately I could not get the site to be generated with another name
-	than the one declared here. Thus, I replaced this here by a more end-user-oriented name.
-	Marco.
+		I prefer the name "org.cumulus4j.all", but unfortunately I could not
+		get the site to be generated with another name than the one declared
+		here. Thus, I replaced this here by a more end-user-oriented name.
+		Marco.
 	-->
 	<name>Cumulus4j</name>
 	<!--
-	This description is displayed on the web site's /index.html (the auto-report's "About") and therefore must be a bit more elaborate.
+		This description is displayed on the web site's /index.html (the
+		auto-report's "About") and therefore must be a bit more elaborate.
 	-->
-	<description>
-	<![CDATA[
-	<p>
-	Cumulus4j is an encryption layer protecting your data from the hosting company. Bla bla bla
-	</p>
-	<p>
-	<a href="http://www.cumulus4j.org/documentation/theory.html">How does it work?</a>
-	</p>
-	<p>
-	TODO write some meaningful stuff here.
-	</p>
-	]]>
-	</description>
+	<description>Cumulus4j is an encryption layer protecting your data from the hosting company.</description>
 	<modules>
 		<module>../org.cumulus4j.core</module>
 		<module>../org.cumulus4j.parent</module>
 		<module>../org.cumulus4j.test</module>
 	</modules>
+
+<!--
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+				<version>3.0-beta-3</version>
+				<configuration>
+					<reportPlugins>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-project-info-reports-plugin</artifactId>
+							<configuration>
+								<dependencyDetailsEnabled>true</dependencyDetailsEnabled>
+								<dependencyLocationsEnabled>true</dependencyLocationsEnabled>
+							</configuration>
+							<reports>
+								<report>foo</report>
+								<report>toto</report>
+							</reports>
+						</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-javadoc-plugin</artifactId>
+							<version>2.7</version>
+						</plugin>
+					</reportPlugins>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+-->
 </project>
