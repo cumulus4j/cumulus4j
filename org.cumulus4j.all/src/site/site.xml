@@ -6,9 +6,9 @@
 
 	<body>
 		<links>
-			<item name="Home" href="about/index.html" />
-			<item name="Forum" href="http://sourceforge.net/projects/pdfviewer/forums" target="forum" /> <!-- TODO replace by proper link -->
-			<item name="Tracker" href="http://www.nightlabs.org/projects/pdfviewer/tracker" target="tracker" /> <!-- TODO replace by proper link -->
+			<item name="Home" href="index.html" />
+			<item name="Forum" href="https://sourceforge.net/projects/cumulus4j/forums" target="forum" />
+			<item name="Tracker" href="https://sourceforge.net/tracker/?group_id=517465" target="tracker" />
 			<item name="Documentation" href="documentation/index.html" />
 			<item name="Download" href="download/index.html" />
 		</links>
@@ -16,7 +16,7 @@
 		<menu name="About">
 			<item name="Contact" href="about/contact.html" />
 			<item name="Imprint" href="about/imprint.html" />
-			<item name="License" href="about/license.html" />
+			<item name="License" href="license.html" />
 		</menu>
 
 		<menu name="Documentation">
