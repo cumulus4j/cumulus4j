@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/DECORATION/1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/DECORATION/1.0.0 http://maven.apache.org/xsd/decoration-1.0.1.xsd"
+	name="Cumulus4j - Securing your data in the cloud">
+
+	<body>
+		<links>
+			<item name="Hauptseite" href="index.html" />
+			<item name="Forum" href="https://sourceforge.net/projects/cumulus4j/forums" target="_blank" />
+			<item name="Tracker" href="https://sourceforge.net/tracker/?group_id=517465" target="_blank" />
+			<item name="Dokumentation" href="documentation/index.html" />
+			<item name="Herunterladen" href="download/index.html" />
+		</links>
+
+		<menu name="Über uns">
+			<item name="Kontakt" href="about/contact.html" />
+			<item name="Impressum" href="about/imprint.html" />
+			<item name="Lizenz" href="license.html" />
+		</menu>
+
+		<menu name="Dokumentation">
+			<item name="Theorie" href="documentation/theory.html" />
+			<item name="Entwicklung" href="documentation/development.html" />
+			<item name="Javadoc" href="apidocs/index.html" target="_blank"/>
+		</menu>
+
+		<menu ref="reports" inherit="bottom" collapse="true" />
+	</body>
+
+</project>
