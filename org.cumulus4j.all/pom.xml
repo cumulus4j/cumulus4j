@@ -47,6 +47,18 @@
 		<module>../org.cumulus4j.parent</module>
 		<module>../org.cumulus4j.test</module>
 	</modules>
+	
+	<distributionManagement>
+		<!--
+		We configure the site only here (and not in the parent), because it otherwise uploads all
+		modules individually, which we don't want. We want it to upload only the one from
+		org.cumulus4j.all.
+		-->
+		<site>
+			<id>www.cumulus4j.org</id>
+			<url>scp://cumulus4j@www.cumulus4j.org/srv/www/www.cumulus4j.org/htdocs/</url>
+		</site>
+	</distributionManagement>
 
 	<build>
 		<plugins>
