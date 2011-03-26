@@ -66,6 +66,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
 				<configuration>
+					<locales>en,de</locales>
 					<inputencoding>UTF-8</inputencoding>
 					<outputencoding>UTF-8</outputencoding>
 					<reportPlugins>
