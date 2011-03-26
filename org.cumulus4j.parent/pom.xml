@@ -16,6 +16,11 @@
 		<url>https://dev.nightlabs.org/jenkins/job/Cumulus4j/</url>
 	</ciManagement>
 
+	<issueManagement>
+		<system>SourceForge</system>
+		<url>http://tracker.cumulus4j.org</url>
+	</issueManagement>
+
 	<organization>
 		<name>NightLabs Consulting GmbH</name>
 		<url>http://www.nightlabs.de</url>
