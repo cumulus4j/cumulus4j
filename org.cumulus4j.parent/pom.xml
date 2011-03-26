@@ -275,6 +275,16 @@
 		</plugins>
 	</build>
 
+	<distributionManagement>
+		<!--
+		We configure this "junk" directory here in order to make Maven upload everyting but the
+		'org.cumulus4j.all' to a directory which doesn't disturb us. I did not yet find out how to prevent
+		Maven from uploading the other modules completely. Marco.
+		-->
+		<site>
+			<id>www.cumulus4j.org</id>
+			<url>scp://cumulus4j@www.cumulus4j.org/srv/www/www.cumulus4j.org/junk/</url>
+		</site>
 	<!--
 		TODO auto-deployment When we release Cumulus4j as Free Software, we
 		only have to uncomment this distributionManagement block and change
@@ -284,7 +294,6 @@
 		works fine. Afterwards, I immediately deleted the artifact from our
 		Artifactory again and deactivated the auto-deployment. Marco.
 
-	<distributionManagement>
 		<repository>
 			<id>dev.nightlabs.org-libs-releases-local</id>
 			<name>dev.nightlabs.org-libs-releases-local</name>
@@ -295,8 +304,8 @@
 			<name>dev.nightlabs.org-libs-snapshots-local</name>
 			<url>https://dev.nightlabs.org/maven-repository/libs-snapshots-local</url>
 		</snapshotRepository>
-	</distributionManagement>
 	-->
+	</distributionManagement>
 
 	<properties>
 		<cumulus4j.version>1.0.0-SNAPSHOT</cumulus4j.version>
