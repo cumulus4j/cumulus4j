@@ -1,8 +1,8 @@
 Workspace-Setup Cumulus4j-DataNucleus-Plug-in
 
-	Cumulus4j is an open-source encryption software released under the {{{license.html}AGPL}}. Its source code
+	Cumulus4j is an open-source encryption software released under the {{{/license.html}AGPL}}. Its source code
 	is available under this license, enabling you to develop it further. Even though Cumulus4j is already
-	usable in productive environments, there's still a lot left to be done. {{{contact.html}Contact us}}, if
+	usable in productive environments, there's still a lot left to be done. {{{/about/contact.html}Contact us}}, if
 	you want to lend us a hand.
 
 * Requirements
@@ -80,7 +80,8 @@ Workspace-Setup Cumulus4j-DataNucleus-Plug-in
 
 ** B: Step 2
 
-	Go to the "SVN Repository Exploring" perspective and add the following SVN repository: {{https://dev.nightlabs.org/svn/private/fzi/src}}
+	Go to the "SVN Repository Exploring" perspective and add the following SVN repository:
+	{{https://dev.nightlabs.org/svn/private/fzi/src}}
 
 ** B: Step 3
 

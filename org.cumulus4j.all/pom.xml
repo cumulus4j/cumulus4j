@@ -77,10 +77,17 @@
 								<dependencyLocationsEnabled>true</dependencyLocationsEnabled>
 							</configuration>
 						</plugin>
+<!--
+The Javadoc is deployed on the web-site, even if this is missing. The only difference is that
+it generates links to the Javadoc in the report section (called "Project Documentation"). Since
+we don't need the link twice and I prefer it in our manually managed "Documentation" section, I commented
+this out.
+Marco :-)
 						<plugin>
 							<groupId>org.apache.maven.plugins</groupId>
 							<artifactId>maven-javadoc-plugin</artifactId>
 						</plugin>
+-->
 					</reportPlugins>
 				</configuration>
 			</plugin>

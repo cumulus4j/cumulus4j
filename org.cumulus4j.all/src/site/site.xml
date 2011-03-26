@@ -7,8 +7,8 @@
 	<body>
 		<links>
 			<item name="Home" href="index.html" />
-			<item name="Forum" href="https://sourceforge.net/projects/cumulus4j/forums" target="forum" />
-			<item name="Tracker" href="https://sourceforge.net/tracker/?group_id=517465" target="tracker" />
+			<item name="Forum" href="https://sourceforge.net/projects/cumulus4j/forums" target="_blank" />
+			<item name="Tracker" href="https://sourceforge.net/tracker/?group_id=517465" target="_blank" />
 			<item name="Documentation" href="documentation/index.html" />
 			<item name="Download" href="download/index.html" />
 		</links>
@@ -22,10 +22,10 @@
 		<menu name="Documentation">
 			<item name="Theory" href="documentation/theory.html" />
 			<item name="Development" href="documentation/development.html" />
-			<item name="Javadoc" href="apidocs/index.html" />
+			<item name="Javadoc" href="apidocs/index.html" target="_blank"/>
 		</menu>
 
-		<menu ref="reports" inherit="bottom" collapse="false" />
+		<menu ref="reports" inherit="bottom" collapse="true" />
 	</body>
 
 </project>
