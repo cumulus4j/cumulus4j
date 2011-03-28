@@ -12,6 +12,10 @@
 			<item name="Dokumentation" href="documentation/index.html" />
 			<item name="Herunterladen" href="download/index.html" />
 		</links>
+		
+		<menu name="Sprache wechseln">
+			<item name="English" href="../index.html" img="en.png" />
+		</menu>
 
 		<menu name="Über uns">
 			<item name="Kontakt" href="about/contact.html" />
