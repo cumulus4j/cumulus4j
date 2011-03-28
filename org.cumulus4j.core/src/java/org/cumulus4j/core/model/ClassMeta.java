@@ -40,10 +40,10 @@ import org.datanucleus.store.ExecutionContext;
 	})
 })
 @Queries({
-		@Query(
-				name="getClassMetaByPackageNameAndSimpleClassName",
-				value="SELECT UNIQUE WHERE this.packageName == :packageName && this.simpleClassName == :simpleClassName"
-		)
+	@Query(
+			name="getClassMetaByPackageNameAndSimpleClassName",
+			value="SELECT UNIQUE WHERE this.packageName == :packageName && this.simpleClassName == :simpleClassName"
+	)
 })
 public class ClassMeta
 {
@@ -70,6 +70,9 @@ public class ClassMeta
 	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
 	private long classID = -1;
+
+	@NotPersistent
+	private transient String className;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	@Column(length=255)
@@ -116,11 +119,18 @@ public class ClassMeta
 	 * Get the fully qualified class name (composed of {@link #getPackageName() packageName} and {@link #getSimpleClassName() simpleClassName}).
 	 * @return the fully qualified class name.
 	 */
-	public String getClassName() {
-		if (packageName.isEmpty())
-			return simpleClassName;
-		else
-			return packageName + '.' + simpleClassName;
+	public String getClassName()
+	{
+		String cn = className;
+		if (cn == null) {
+			if (packageName.isEmpty())
+				cn = simpleClassName;
+			else
+				cn = packageName + '.' + simpleClassName;
+
+			className = cn;
+		}
+		return cn;
 	}
 
 	/**
@@ -259,6 +269,16 @@ public class ClassMeta
 		if (getClass() != obj.getClass()) return false;
 		ClassMeta other = (ClassMeta) obj;
 		return this.classID == other.classID;
+	}
+
+	@Override
+	public String toString() {
+		return (
+				this.getClass().getName()
+				+ '@'
+				+ Integer.toHexString(System.identityHashCode(this))
+				+ '[' + classID + ',' + getClassName() + ']'
+		);
 	}
 
 	@NotPersistent

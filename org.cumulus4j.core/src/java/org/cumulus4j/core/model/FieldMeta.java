@@ -196,6 +196,34 @@ implements DetachCallback
 		}
 	}
 
+	@NotPersistent
+	private transient FieldMeta mappedByFieldMeta;
+
+	/**
+	 * Get the {@link FieldMeta} of the opposite end of the mapped-by-relation. If
+	 * this is not a mapped-by field, this method returns <code>null</code>.
+	 *
+	 * @return the {@link FieldMeta} of the other end of the mapped-by-relation.
+	 */
+	public FieldMeta getMappedByFieldMeta(ExecutionContext executionContext)
+	{
+		FieldMeta mbfm = mappedByFieldMeta;
+		if (mbfm != null)
+			return mbfm;
+
+		if (getDataNucleusMemberMetaData(executionContext).getMappedBy() == null)
+			return null;
+
+		Cumulus4jStoreManager storeManager = (Cumulus4jStoreManager) executionContext.getStoreManager();
+		ClassMeta classMetaOppositeSide = storeManager.getClassMeta(executionContext, getDataNucleusMemberMetaData(executionContext).getType());
+		mbfm = classMetaOppositeSide.getFieldMeta(getDataNucleusMemberMetaData(executionContext).getMappedBy());
+		if (mbfm == null)
+			throw new IllegalStateException("Field \"" + getDataNucleusMemberMetaData(executionContext).getMappedBy() + "\" referenced in 'mapped-by' of " + this + " does not exist!");
+
+		mappedByFieldMeta = mbfm;
+		return mbfm;
+	}
+
 	@Override
 	public void jdoPreDetach() { }
 
@@ -207,17 +235,32 @@ implements DetachCallback
 	}
 
 	@Override
-	public int hashCode() {
+	public int hashCode()
+	{
 		return (int) (fieldID ^ (fieldID >>> 32));
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(Object obj)
+	{
 		if (this == obj) return true;
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
 		FieldMeta other = (FieldMeta) obj;
 		return this.fieldID == other.fieldID;
+	}
+
+	@Override
+	public String toString()
+	{
+		return (
+				this.getClass().getName()
+				+ '@'
+				+ Integer.toHexString(System.identityHashCode(this))
+				+ '['
+				+ fieldID + ',' + getClassMeta().getClassName() + '#' + getFieldName() + '[' + role + ']'
+				+ ']'
+		);
 	}
 
 	@NotPersistent

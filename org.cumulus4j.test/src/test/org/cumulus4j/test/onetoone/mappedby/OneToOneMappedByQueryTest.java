@@ -48,52 +48,52 @@ extends AbstractTransactionalTest
 		pm.makePersistent(r1);
 
 
-		Root r2 = pm.makePersistent(new Root());
-		r2.setName("r 2");
-
-		LevelA a2 = new LevelA();
-		a2.setName("a 2");
-		r2.setLevelA(a2);
-
-		LevelB b2 = new LevelB();
-		b2.setName("b 2");
-		a2.setLevelB(b2);
-
-
-		Root r3 = pm.makePersistent(new Root());
-		r3.setName("r 3");
-
-		LevelA a3 = new LevelA();
-		a3.setName("a 3");
-		r3.setLevelA(a3);
-
-		LevelB b3 = new LevelB();
-		b3.setName("b 3");
-		a3.setLevelB(b3);
-
-
-		Root r4 = pm.makePersistent(new Root());
-		r4.setName("r 4");
-
-		LevelA a4 = new LevelA();
-		a4.setName("a 4");
-		r4.setLevelA(a4);
-
-		LevelB b4 = new LevelB();
-		b4.setName("b 4");
-		a4.setLevelB(b4);
-
-
-		Root r5 = pm.makePersistent(new Root());
-		r5.setName("r 5");
-
-		LevelA a5 = new LevelA();
-		a5.setName("a 5");
-		r5.setLevelA(a5);
-
-		LevelB b5 = new LevelB();
-		b5.setName("b 5");
-		a5.setLevelB(b5);
+//		Root r2 = pm.makePersistent(new Root());
+//		r2.setName("r 2");
+//
+//		LevelA a2 = new LevelA();
+//		a2.setName("a 2");
+//		r2.setLevelA(a2);
+//
+//		LevelB b2 = new LevelB();
+//		b2.setName("b 2");
+//		a2.setLevelB(b2);
+//
+//
+//		Root r3 = pm.makePersistent(new Root());
+//		r3.setName("r 3");
+//
+//		LevelA a3 = new LevelA();
+//		a3.setName("a 3");
+//		r3.setLevelA(a3);
+//
+//		LevelB b3 = new LevelB();
+//		b3.setName("b 3");
+//		a3.setLevelB(b3);
+//
+//
+//		Root r4 = pm.makePersistent(new Root());
+//		r4.setName("r 4");
+//
+//		LevelA a4 = new LevelA();
+//		a4.setName("a 4");
+//		r4.setLevelA(a4);
+//
+//		LevelB b4 = new LevelB();
+//		b4.setName("b 4");
+//		a4.setLevelB(b4);
+//
+//
+//		Root r5 = pm.makePersistent(new Root());
+//		r5.setName("r 5");
+//
+//		LevelA a5 = new LevelA();
+//		a5.setName("a 5");
+//		r5.setLevelA(a5);
+//
+//		LevelB b5 = new LevelB();
+//		b5.setName("b 5");
+//		a5.setLevelB(b5);
 	}
 
 	@Test

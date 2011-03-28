@@ -14,6 +14,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.nightlabs.util.Stopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,12 +55,26 @@ extends AbstractTransactionalTest
 	throws Exception
 	{
 		logger.info("importDataCsv: entered");
+		Stopwatch stopwatch = new Stopwatch();
+		stopwatch.start("00.getMovieExtent");
 		Extent<Movie> movieExtent = pm.getExtent(Movie.class);
+		stopwatch.stop("00.getMovieExtent");
 		Assert.assertNotNull("pm.getExtent(Movie.class) returned null!", movieExtent);
-		if (movieExtent.iterator().hasNext()) {
-			logger.info("importDataCsv: already imported before => skipping.");
-			return;
+		stopwatch.start("01.movieExtent.iterator().hasNext()");
+		boolean doReturn = false;
+		try {
+			if (movieExtent.iterator().hasNext()) {
+				logger.info("importDataCsv: already imported before => skipping.");
+				doReturn = true;
+				return;
+			}
+		} finally {
+			stopwatch.stop("01.movieExtent.iterator().hasNext()");
+
+			if (doReturn)
+				logger.info("importDataCsv: " + stopwatch.createHumanReport(true));
 		}
+
 		logger.info("importDataCsv: nothing imported before => importing now.");
 
 		Query queryMovieByName = pm.newQuery(Movie.class);
@@ -77,6 +92,8 @@ extends AbstractTransactionalTest
 		Query queryRatingByName = pm.newQuery(Rating.class);
 		queryRatingByName.setFilter("this.name == :name");
 		queryRatingByName.setUnique(true);
+
+		stopwatch.start("50.importMovies");
 
 		BufferedReader r = new BufferedReader(
 				new InputStreamReader(MovieQueryTest.class.getResourceAsStream("data.csv"), "UTF-8")
@@ -184,9 +201,15 @@ extends AbstractTransactionalTest
 			else
 				movie.setRating(null);
 
-//			pm.flush();
 		}
 		r.close();
+
+		stopwatch.start("55.finalFlush");
+		pm.flush(); // flush to get a correct time measurement.
+		stopwatch.stop("55.finalFlush");
+
+		stopwatch.stop("50.importMovies");
+		logger.info("importDataCsv: " + stopwatch.createHumanReport(true));
 	}
 
 	@Test

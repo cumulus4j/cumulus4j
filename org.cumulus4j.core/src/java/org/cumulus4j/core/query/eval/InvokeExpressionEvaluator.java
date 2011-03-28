@@ -156,7 +156,7 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 		@Override
 		protected final Set<Long> queryEnd(FieldMeta fieldMeta) {
 			PersistenceManager pm = getPersistenceManager();
-			AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(getQueryEvaluator().getExecutionContext());
+			AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(executionContext);
 			FieldMeta subFieldMeta = fieldMeta.getSubFieldMeta(role);
 
 			boolean argumentIsPersistent;
@@ -263,8 +263,8 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 			if (argumentIsPersistent) {
 				Long constantDataEntryID = null;
 				if (constant != null) {
-					ClassMeta constantClassMeta = getQueryEvaluator().getStoreManager().getClassMeta(getQueryEvaluator().getExecutionContext(), constant.getClass());
-					Object constantID = getQueryEvaluator().getExecutionContext().getApiAdapter().getIdForObject(constant);
+					ClassMeta constantClassMeta = getQueryEvaluator().getStoreManager().getClassMeta(executionContext, constant.getClass());
+					Object constantID = executionContext.getApiAdapter().getIdForObject(constant);
 					if (constantID == null)
 						throw new IllegalStateException("The ApiAdapter returned null as object-ID for: " + constant);
 
@@ -278,7 +278,7 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 				return indexValue.getDataEntryIDs();
 			}
 			else {
-				IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(getQueryEvaluator().getExecutionContext(), subFieldMeta, true);
+				IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(executionContext, subFieldMeta, true);
 				IndexEntry indexEntry = indexEntryFactory == null ? null : indexEntryFactory.getIndexEntry(pm, subFieldMeta, constant);
 				if (indexEntry == null)
 					return Collections.emptySet();

@@ -29,6 +29,7 @@ import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.query.expression.VariableExpression;
 import org.datanucleus.query.expression.Expression.Operator;
+import org.datanucleus.store.ExecutionContext;
 
 /**
  * Evaluator handling the comparisons ==, &lt;, &lt;=, &gt;, &gt;=.
@@ -45,6 +46,8 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 	@Override
 	protected Set<Long> _queryResultDataEntryIDs(ResultDescriptor resultDescriptor)
 	{
+		ExecutionContext executionContext = getQueryEvaluator().getExecutionContext();
+
 		if (getLeft() instanceof InvokeExpressionEvaluator) {
 			if (!getLeft().getResultSymbols().contains(resultDescriptor.getSymbol()))
 				return null;
@@ -89,7 +92,9 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 					// We query a simple data type (otherwise we would be above in the PrimaryExpressionEvaluator block), hence
 					// we do not need to recursively resolve some tuples.
-					IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(getQueryEvaluator().getExecutionContext(), resultDescriptor.getFieldMeta(), true);
+					IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
+							executionContext, resultDescriptor.getFieldMeta(), true
+					);
 					return queryStringIndexOf(resultDescriptor.getFieldMeta(), indexEntryFactory, invokeArgument, compareToArgument);
 				}
 				throw new UnsupportedOperationException("NYI");
@@ -132,7 +137,9 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 			// We query a simple data type (otherwise we would be above in the PrimaryExpressionEvaluator block), hence
 			// we do not need to recursively resolve some tuples.
-			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(getQueryEvaluator().getExecutionContext(), resultDescriptor.getFieldMeta(), true);
+			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
+					executionContext, resultDescriptor.getFieldMeta(), true
+			);
 			return queryCompareConcreteValue(resultDescriptor.getFieldMeta(), indexEntryFactory, getRightCompareToArgument());
 		}
 
@@ -207,7 +214,9 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 		@Override
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
-			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(getQueryEvaluator().getExecutionContext(), fieldMeta, true);
+			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
+					executionContext, fieldMeta, true
+			);
 			return queryStringIndexOf(fieldMeta, indexEntryFactory, invokeArgument, compareToArgument);
 		}
 	}
@@ -227,8 +236,9 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 		@Override
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
-			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(getQueryEvaluator().getExecutionContext(), fieldMeta, true);
-
+			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
+					executionContext, fieldMeta, true
+			);
 			return queryCompareConcreteValue(fieldMeta, indexEntryFactory, value);
 		}
 	}
@@ -269,11 +279,13 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
 			PersistenceManager pm = getPersistenceManager();
 
-			AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(getQueryEvaluator().getExecutionContext());
-			int relationType = mmd.getRelationType(getQueryEvaluator().getExecutionContext().getClassLoaderResolver());
+			AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(executionContext);
+			int relationType = mmd.getRelationType(executionContext.getClassLoaderResolver());
 
 			if (Relation.NONE == relationType) {
-				IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(getQueryEvaluator().getExecutionContext(), fieldMeta, true);
+				IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
+						executionContext, fieldMeta, true
+				);
 				IndexEntry indexEntry = indexEntryFactory == null ? null : indexEntryFactory.getIndexEntry(pm, fieldMeta, value);
 				if (indexEntry == null)
 					return Collections.emptySet();
@@ -284,8 +296,8 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 			else if (Relation.isRelationSingleValued(relationType)) {
 				Long valueDataEntryID = null;
 				if (value != null) {
-					ClassMeta valueClassMeta = getQueryEvaluator().getStoreManager().getClassMeta(getQueryEvaluator().getExecutionContext(), value.getClass());
-					Object valueID = getQueryEvaluator().getExecutionContext().getApiAdapter().getIdForObject(value);
+					ClassMeta valueClassMeta = getQueryEvaluator().getStoreManager().getClassMeta(executionContext, value.getClass());
+					Object valueID = executionContext.getApiAdapter().getIdForObject(value);
 					if (valueID == null)
 						throw new IllegalStateException("The ApiAdapter returned null as object-ID for: " + value);
 

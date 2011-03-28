@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.jdo.PersistenceManager;
+
 import org.cumulus4j.core.model.ClassMeta;
 import org.cumulus4j.core.model.FieldMeta;
 import org.cumulus4j.core.model.ObjectContainer;
@@ -24,25 +26,26 @@ import org.datanucleus.store.types.sco.SCOUtils;
 public class InsertFieldManager extends AbstractFieldManager
 {
 	private ObjectProvider op;
+	private PersistenceManager pm;
 	private ExecutionContext executionContext;
 	private ClassMeta classMeta;
 	private AbstractClassMetaData dnClassMetaData;
 	private ObjectContainer objectContainer;
-	private Cumulus4jStoreManager storeManager;
 
 	public InsertFieldManager(
 			ObjectProvider op,
+			PersistenceManager pm,
 			ClassMeta classMeta,
 			AbstractClassMetaData dnClassMetaData,
 			ObjectContainer objectContainer // populated by this class
 	)
 	{
 		this.op = op;
+		this.pm = pm;
 		this.executionContext = op.getExecutionContext();
 		this.classMeta = classMeta;
 		this.dnClassMetaData = dnClassMetaData;
 		this.objectContainer = objectContainer;
-		this.storeManager = (Cumulus4jStoreManager) executionContext.getStoreManager();
 	}
 
 	private long getFieldID(int fieldNumber)
@@ -160,9 +163,8 @@ public class InsertFieldManager extends AbstractFieldManager
 		{
 			// Persistable object - persist the related object and store the identity in the cell
 			Object valuePC = executionContext.persistObjectInternal(value, op, fieldNumber, -1);
-			if (mmd.getMappedBy() != null) {
-				Object valueID = executionContext.getApiAdapter().getIdForObject(valuePC);
-				storeManager.setClassNameForObjectID(valueID, valuePC.getClass().getName());
+			if (mmd.getMappedBy() == null) {
+				Object valueID = ObjectContainerHelper.entityToReference(executionContext, pm, valuePC);
 				objectContainer.setValue(fieldMeta.getFieldID(), valueID);
 			}
 		}
@@ -177,8 +179,7 @@ public class InsertFieldManager extends AbstractFieldManager
 				for (Object element : collection) {
 					Object elementPC = executionContext.persistObjectInternal(element, op, fieldNumber, -1);
 					if (ids != null) {
-						Object elementID = executionContext.getApiAdapter().getIdForObject(elementPC);
-						storeManager.setClassNameForObjectID(elementID, elementPC.getClass().getName());
+						Object elementID = ObjectContainerHelper.entityToReference(executionContext, pm, elementPC);
 						ids[++idx] = elementID;
 					}
 				}
@@ -202,14 +203,12 @@ public class InsertFieldManager extends AbstractFieldManager
 
 					if (keyIsPersistent) {
 						Object kpc = executionContext.persistObjectInternal(k, op, fieldNumber, -1);
-						k = executionContext.getApiAdapter().getIdForObject(kpc);
-						storeManager.setClassNameForObjectID(k, kpc.getClass().getName());
+						k = ObjectContainerHelper.entityToReference(executionContext, pm, kpc);
 					}
 
 					if (valueIsPersistent) {
 						Object vpc = executionContext.persistObjectInternal(v, op, fieldNumber, -1);
-						v = executionContext.getApiAdapter().getIdForObject(vpc);
-						storeManager.setClassNameForObjectID(v, vpc.getClass().getName());
+						v = ObjectContainerHelper.entityToReference(executionContext, pm, vpc);
 					}
 
 					idMap.put(k, v);
@@ -223,8 +222,7 @@ public class InsertFieldManager extends AbstractFieldManager
 				{
 					Object element = Array.get(value, i);
 					Object elementPC = executionContext.persistObjectInternal(element, op, fieldNumber, -1);
-					Object elementID = executionContext.getApiAdapter().getIdForObject(elementPC);
-					storeManager.setClassNameForObjectID(elementID, elementPC.getClass().getName());
+					Object elementID = ObjectContainerHelper.entityToReference(executionContext, pm, elementPC);
 					ids[i] = elementID;
 				}
 				objectContainer.setValue(fieldMeta.getFieldID(), ids);

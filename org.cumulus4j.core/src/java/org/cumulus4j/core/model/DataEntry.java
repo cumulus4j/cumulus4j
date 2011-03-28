@@ -1,5 +1,6 @@
 package org.cumulus4j.core.model;
 
+import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.IdGeneratorStrategy;
@@ -11,6 +12,7 @@ import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.annotations.Queries;
 import javax.jdo.annotations.Query;
 import javax.jdo.annotations.Unique;
+import javax.jdo.identity.LongIdentity;
 
 /**
  * Persistent container holding an entity's data in <b>encrypted</b> form.
@@ -34,6 +36,17 @@ import javax.jdo.annotations.Unique;
 })
 public class DataEntry
 {
+	public static DataEntry getDataEntry(PersistenceManager pm, long dataEntryID)
+	{
+		DataEntry dataEntry;
+		try {
+			dataEntry = (DataEntry) pm.getObjectById(new LongIdentity(DataEntry.class, dataEntryID));
+		} catch (JDOObjectNotFoundException x) {
+			dataEntry = null;
+		}
+		return dataEntry;
+	}
+
 	public static DataEntry getDataEntry(PersistenceManager pm, ClassMeta classMeta, String objectID)
 	{
 		javax.jdo.Query q = pm.newNamedQuery(DataEntry.class, "getDataEntryByClassMetaAndObjectID");

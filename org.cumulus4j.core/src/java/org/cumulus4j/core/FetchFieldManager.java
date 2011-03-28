@@ -4,10 +4,17 @@ import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Map;
 
+import javax.jdo.PersistenceManager;
+
 import org.cumulus4j.core.model.ClassMeta;
+import org.cumulus4j.core.model.DataEntry;
 import org.cumulus4j.core.model.FieldMeta;
+import org.cumulus4j.core.model.IndexEntry;
+import org.cumulus4j.core.model.IndexEntryObjectRelationHelper;
+import org.cumulus4j.core.model.IndexValue;
 import org.cumulus4j.core.model.ObjectContainer;
 import org.datanucleus.exceptions.NucleusDataStoreException;
+import org.datanucleus.identity.IdentityUtils;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.Relation;
@@ -15,13 +22,18 @@ import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.ObjectProvider;
 import org.datanucleus.store.fieldmanager.AbstractFieldManager;
 import org.datanucleus.store.types.sco.SCOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class FetchFieldManager extends AbstractFieldManager
 {
+	private static final Logger logger = LoggerFactory.getLogger(FetchFieldManager.class);
+
 	private ObjectProvider op;
+	private PersistenceManager pm;
 	private ExecutionContext executionContext;
 	private ClassMeta classMeta;
 	private AbstractClassMetaData dnClassMetaData;
@@ -29,16 +41,23 @@ public class FetchFieldManager extends AbstractFieldManager
 
 	public FetchFieldManager(
 			ObjectProvider op,
+			PersistenceManager pm,
 			ClassMeta classMeta,
 			AbstractClassMetaData dnClassMetaData,
 			ObjectContainer objectContainer
 	)
 	{
 		this.op = op;
+		this.pm = pm;
 		this.executionContext = op.getExecutionContext();
 		this.classMeta = classMeta;
 		this.dnClassMetaData = dnClassMetaData;
 		this.objectContainer = objectContainer;
+	}
+
+	protected EncryptionHandler getEncryptionHandler()
+	{
+		return ((Cumulus4jStoreManager) executionContext.getStoreManager()).getEncryptionHandler();
 	}
 
 	private long getFieldID(int fieldNumber)
@@ -106,6 +125,16 @@ public class FetchFieldManager extends AbstractFieldManager
 		return (String)value;
 	}
 
+	private long thisDataEntryID = -1;
+
+	protected long getThisDataEntryID()
+	{
+		if (thisDataEntryID < 0)
+			thisDataEntryID = DataEntry.getDataEntryID(pm, classMeta, op.getObjectId().toString());
+
+		return thisDataEntryID;
+	}
+
 	@Override
 	public Object fetchObjectField(int fieldNumber)
 	{
@@ -114,8 +143,9 @@ public class FetchFieldManager extends AbstractFieldManager
 		if (fieldMeta == null)
 			throw new IllegalStateException("Unknown field! class=" + dnClassMetaData.getFullClassName() + " fieldNumber=" + fieldNumber + " fieldName=" + mmd.getName());
 
-		if (mmd.getMappedBy() != null)
-			throw new UnsupportedOperationException("NYI"); // TODO we have to look the value up in a different way than reading it directly from our ObjectContainer!
+		if (mmd.getMappedBy() != null) { // TODO remove this when all mapped-by-situations are supported!
+			logger.warn("fetchObjectField: fieldNumber=" + fieldNumber + ": NYI", new UnsupportedOperationException("NYI"));
+		}
 
 		int relationType = mmd.getRelationType(executionContext.getClassLoaderResolver());
 
@@ -153,11 +183,25 @@ public class FetchFieldManager extends AbstractFieldManager
 		}
 		else if (Relation.isRelationSingleValued(relationType))
 		{
-			Object valueID = objectContainer.getValue(fieldMeta.getFieldID());
-			if (valueID == null)
-				return null;
+			if (mmd.getMappedBy() != null) {
+				IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, fieldMeta.getMappedByFieldMeta(executionContext), getThisDataEntryID());
+				if (indexEntry == null)
+					return null;
 
-			return executionContext.findObject(valueID, true, true, null);
+				IndexValue indexValue = getEncryptionHandler().decryptIndexEntry(indexEntry);
+				if (indexValue.getDataEntryIDs().isEmpty())
+					return null;
+
+				if (indexValue.getDataEntryIDs().size() != 1)
+					throw new IllegalStateException("There are multiple objects referencing a 1-1-mapped-by-relationship! Expected 0 or 1! fieldMeta=" + fieldMeta + " dataEntryIDsForMappedBy=" + indexValue.getDataEntryIDs());
+
+				long dataEntryID = indexValue.getDataEntryIDs().iterator().next();
+				String idStr = DataEntry.getDataEntry(pm, dataEntryID).getObjectID();
+				return IdentityUtils.getObjectFromIdString(idStr, classMeta.getDataNucleusClassMetaData(executionContext), executionContext, true);
+			}
+
+			Object valueID = objectContainer.getValue(fieldMeta.getFieldID());
+			return ObjectContainerHelper.referenceToEntity(executionContext, pm, valueID);
 		}
 		else if (Relation.isRelationMultiValued(relationType))
 		{
@@ -178,7 +222,7 @@ public class FetchFieldManager extends AbstractFieldManager
 				Object ids = objectContainer.getValue(fieldMeta.getFieldID());
 				for (int idx = 0; idx < Array.getLength(ids); ++idx) {
 					Object id = Array.get(ids, idx);
-					Object element = executionContext.findObject(id, true, true, null);
+					Object element = executionContext.findObject(id, true, true, null); // TODO
 					collection.add(element);
 				}
 				return op.wrapSCOField(fieldNumber, collection, false, false, true);
@@ -205,11 +249,11 @@ public class FetchFieldManager extends AbstractFieldManager
 					Object v = me.getValue();
 
 					if (keyIsPersistent) {
-						k = executionContext.findObject(k, true, true, null);
+						k = executionContext.findObject(k, true, true, null); // TODO
 					}
 
 					if (valueIsPersistent) {
-						v = executionContext.findObject(v, true, true, null);
+						v = executionContext.findObject(v, true, true, null); // TODO
 					}
 
 					map.put(k, v);
@@ -230,7 +274,7 @@ public class FetchFieldManager extends AbstractFieldManager
 				Object ids = objectContainer.getValue(fieldMeta.getFieldID());
 				for (int i = 0; i < Array.getLength(ids); ++i) {
 					Object id = Array.get(ids, i);
-					Object element = executionContext.findObject(id, true, true, null);
+					Object element = executionContext.findObject(id, true, true, null); // TODO
 					Array.set(array, i, element);
 				}
 				return array;
