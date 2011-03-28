@@ -89,6 +89,17 @@ Marco :-)
 							<artifactId>maven-javadoc-plugin</artifactId>
 						</plugin>
 -->
+
+						<plugin>
+							<groupId>org.codehaus.mojo</groupId>
+							<artifactId>cobertura-maven-plugin</artifactId>
+							<configuration>
+								<formats>
+									<format>xml</format>
+									<format>html</format>
+								</formats>
+							</configuration>
+						</plugin>
 					</reportPlugins>
 				</configuration>
 			</plugin>

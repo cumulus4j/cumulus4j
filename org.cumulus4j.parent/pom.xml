@@ -322,6 +322,7 @@
 	-->
 	</distributionManagement>
 
+<!-- This does not work with Maven3!
 	<reporting>
 		<plugins>
 			<plugin>
@@ -330,6 +331,7 @@
 			</plugin>
 		</plugins>
 	</reporting>
+-->
 
 	<properties>
 		<cumulus4j.version>1.0.0-SNAPSHOT</cumulus4j.version>
