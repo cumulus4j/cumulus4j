@@ -22,6 +22,7 @@
 		</buildCommand>
 		<buildCommand>
 			<name>org.maven.ide.eclipse.maven2Builder</name>
+			<triggers>full,incremental,</triggers>
 			<arguments>
 			</arguments>
 		</buildCommand>
