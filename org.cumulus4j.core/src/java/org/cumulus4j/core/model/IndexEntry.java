@@ -1,5 +1,7 @@
 package org.cumulus4j.core.model;
 
+import javax.jdo.JDOHelper;
+import javax.jdo.PersistenceManager;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.Inheritance;
@@ -8,6 +10,7 @@ import javax.jdo.annotations.NullValue;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+import javax.jdo.listener.StoreCallback;
 
 /**
  * <p>
@@ -63,6 +66,7 @@ import javax.jdo.annotations.PrimaryKey;
 @Inheritance(strategy=InheritanceStrategy.SUBCLASS_TABLE)
 //@Unique(members={"fieldMeta", "indexKeyDouble", "indexKeyLong", "indexKeyString"})
 public abstract class IndexEntry
+implements StoreCallback
 {
 	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
@@ -128,5 +132,14 @@ public abstract class IndexEntry
 		if (getClass() != obj.getClass()) return false;
 		IndexEntry other = (IndexEntry) obj;
 		return this.indexEntryID == other.indexEntryID;
+	}
+
+	@Override
+	public void jdoPreStore()
+	{
+		// See: DataEntry#jdoPreStore() - the same applies here to 'this.fieldMeta'.
+		PersistenceManager pm = JDOHelper.getPersistenceManager(this);
+		Object fieldMetaID = JDOHelper.getObjectId(fieldMeta);
+		fieldMeta = (FieldMeta) pm.getObjectById(fieldMetaID);
 	}
 }

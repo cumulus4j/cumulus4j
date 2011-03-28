@@ -1,9 +1,9 @@
 package org.cumulus4j.core.model;
 
+import javax.jdo.JDOHelper;
 import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
 import javax.jdo.annotations.Column;
-import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.NullValue;
 import javax.jdo.annotations.PersistenceCapable;
@@ -13,6 +13,7 @@ import javax.jdo.annotations.Queries;
 import javax.jdo.annotations.Query;
 import javax.jdo.annotations.Unique;
 import javax.jdo.identity.LongIdentity;
+import javax.jdo.listener.StoreCallback;
 
 /**
  * Persistent container holding an entity's data in <b>encrypted</b> form.
@@ -35,6 +36,7 @@ import javax.jdo.identity.LongIdentity;
 	)
 })
 public class DataEntry
+implements StoreCallback
 {
 	public static DataEntry getDataEntry(PersistenceManager pm, long dataEntryID)
 	{
@@ -60,7 +62,7 @@ public class DataEntry
 	}
 
 	@PrimaryKey
-	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
+	//	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
 	private long dataEntryID = -1;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
@@ -74,7 +76,8 @@ public class DataEntry
 
 	protected DataEntry() { }
 
-	public DataEntry(ClassMeta classMeta, String objectID) {
+	public DataEntry(long dataEntryID, ClassMeta classMeta, String objectID) {
+		this.dataEntryID = dataEntryID;
 		this.classMeta = classMeta;
 		this.objectID = objectID;
 	}
@@ -147,5 +150,17 @@ public class DataEntry
 		if (getClass() != obj.getClass()) return false;
 		DataEntry other = (DataEntry) obj;
 		return this.dataEntryID == other.dataEntryID;
+	}
+
+	@Override
+	public void jdoPreStore()
+	{
+		// We replace 'this.classMeta' by a persistent version, because it is a detached object
+		// which slows down the storing process immensely, as it is unnecessarily attached.
+		// Attaching an object is an expensive operation and we neither want nor need to
+		// update the ClassMeta object when persisting a new DataEntry.
+		PersistenceManager pm = JDOHelper.getPersistenceManager(this);
+		Object classMetaID = JDOHelper.getObjectId(classMeta);
+		classMeta = (ClassMeta) pm.getObjectById(classMetaID);
 	}
 }

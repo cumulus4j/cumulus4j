@@ -62,7 +62,14 @@ public abstract class IndexEntryFactory
 			}
 			result.setFieldMeta(fieldMeta);
 			result.setIndexKey(indexKey);
-			result = pm.makePersistent(result);
+
+			// We persist *after* setting all values, because that improves performance a lot.
+			// This way, there is only one INSERT instead of an INSERT AND an UPDATE for each new
+			// index entry.
+			// MovieQueryTest.importDataCsv takes around 145 sec with persisting here, but only
+			// xxx sec when persisting *after* all data is known.
+			// Marco :-)
+//			result = pm.makePersistent(result);
 		}
 
 		return result;

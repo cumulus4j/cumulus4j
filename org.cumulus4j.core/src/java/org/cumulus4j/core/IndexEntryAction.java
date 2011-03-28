@@ -36,6 +36,8 @@ abstract class IndexEntryAction
 			IndexEntryFactory indexEntryFactory, PersistenceManager pm, FieldMeta fieldMeta, Object fieldValue
 	);
 
+	protected abstract IndexEntry getIndexEntryForObjectRelation(PersistenceManager pm, FieldMeta fieldMeta, Long otherDataEntryID);
+
 	protected abstract void _perform(PersistenceManager pm, IndexEntry indexEntry, long dataEntryID);
 
 	public void perform(
@@ -89,7 +91,7 @@ abstract class IndexEntryAction
 		else if (Relation.isRelationSingleValued(relationType)) {
 			// 1-1-relationship to another persistence-capable object.
 			Long otherDataEntryID = persistenceHandler.getDataEntryIDForObjectID(executionContext, pm, fieldValue);
-			IndexEntry indexEntry = IndexEntryObjectRelationHelper.createIndexEntry(pm, fieldMeta, otherDataEntryID);
+			IndexEntry indexEntry = getIndexEntryForObjectRelation(pm, fieldMeta, otherDataEntryID);
 			_perform(pm, indexEntry, dataEntryID);
 		}
 		else if (Relation.isRelationMultiValued(relationType)) {
@@ -108,7 +110,7 @@ abstract class IndexEntryAction
 				for (Map.Entry<?, ?> me : fieldValueMap.entrySet()) {
 					if (keyIsPersistent) {
 						Long otherDataEntryID = persistenceHandler.getDataEntryIDForObjectID(executionContext, pm, me.getKey());
-						IndexEntry indexEntry = IndexEntryObjectRelationHelper.createIndexEntry(pm, subFieldMetaKey, otherDataEntryID);
+						IndexEntry indexEntry = getIndexEntryForObjectRelation(pm, subFieldMetaKey, otherDataEntryID);
 						_perform(pm, indexEntry, dataEntryID);
 					}
 					else { // TODO if key is mapped-by, we should better not index it?!
@@ -118,7 +120,7 @@ abstract class IndexEntryAction
 
 					if (valueIsPersistent) {
 						Long otherDataEntryID = persistenceHandler.getDataEntryIDForObjectID(executionContext, pm, me.getValue());
-						IndexEntry indexEntry = IndexEntryObjectRelationHelper.createIndexEntry(pm, subFieldMetaValue, otherDataEntryID);
+						IndexEntry indexEntry = getIndexEntryForObjectRelation(pm, subFieldMetaValue, otherDataEntryID);
 						_perform(pm, indexEntry, dataEntryID);
 					}
 					else { // TODO if value is mapped-by, we should better not index it?!
@@ -138,7 +140,7 @@ abstract class IndexEntryAction
 				Object[] fieldValueArray = (Object[]) fieldValue;
 				for (Object element : fieldValueArray) {
 					Long otherDataEntryID = persistenceHandler.getDataEntryIDForObjectID(executionContext, pm, element);
-					IndexEntry indexEntry = IndexEntryObjectRelationHelper.createIndexEntry(pm, subFieldMeta, otherDataEntryID);
+					IndexEntry indexEntry = getIndexEntryForObjectRelation(pm, subFieldMeta, otherDataEntryID);
 					_perform(pm, indexEntry, dataEntryID);
 				}
 			}
@@ -158,6 +160,11 @@ abstract class IndexEntryAction
 		}
 
 		@Override
+		public IndexEntry getIndexEntryForObjectRelation(PersistenceManager pm, FieldMeta fieldMeta, Long otherDataEntryID) {
+			return IndexEntryObjectRelationHelper.createIndexEntry(pm, fieldMeta, otherDataEntryID);
+		}
+
+		@Override
 		protected void _perform(PersistenceManager pm, IndexEntry indexEntry, long dataEntryID)
 		{
 			if (indexEntry == null)
@@ -166,6 +173,7 @@ abstract class IndexEntryAction
 			IndexValue indexValue = encryptionHandler.decryptIndexEntry(indexEntry);
 			indexValue.addDataEntryID(dataEntryID);
 			encryptionHandler.encryptIndexEntry(indexEntry, indexValue);
+			pm.makePersistent(indexEntry); // We do not persist directly when creating anymore, thus we must persist here. This is a no-op, if it's already persistent.
 		}
 	}
 
@@ -179,6 +187,11 @@ abstract class IndexEntryAction
 		public IndexEntry getIndexEntry(IndexEntryFactory indexEntryFactory, PersistenceManager pm, FieldMeta fieldMeta, Object fieldValue)
 		{
 			return indexEntryFactory == null ? null : indexEntryFactory.getIndexEntry(pm, fieldMeta, fieldValue);
+		}
+
+		@Override
+		protected IndexEntry getIndexEntryForObjectRelation(PersistenceManager pm, FieldMeta fieldMeta, Long otherDataEntryID) {
+			return IndexEntryObjectRelationHelper.getIndexEntry(pm, fieldMeta, otherDataEntryID);
 		}
 
 		@Override

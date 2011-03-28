@@ -162,17 +162,17 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			int[] allFieldNumbers = dnClassMetaData.getAllMemberPositions();
 			ObjectContainer objectContainer = new ObjectContainer();
 
-			// We have to persist the DataEntry before the call to provideFields(...), because the InsertFieldManager recursively
-			// persists other fields which might back-reference (=> mapped-by) and thus need this DataEntry to already exist.
-			// TODO improve this later for mass-insert-performance (so that we have one insert instead of an insert AND an update).
-			DataEntry dataEntry = pm.makePersistent(new DataEntry(classMeta, objectID.toString()));
+//			// We have to persist the DataEntry before the call to provideFields(...), because the InsertFieldManager recursively
+//			// persists other fields which might back-reference (=> mapped-by) and thus need this DataEntry to already exist.
+//			// TODO improve this later for mass-insert-performance (so that we have one insert instead of an insert AND an update).
+			DataEntry dataEntry = pm.makePersistent(new DataEntry(storeManager.nextDataEntryID(executionContext), classMeta, objectID.toString()));
 
 			// This performs reachability on this input object so that all related objects are persisted
 			op.provideFields(allFieldNumbers, new InsertFieldManager(op, pm, classMeta, dnClassMetaData, objectContainer));
 			objectContainer.setVersion(op.getTransactionalVersion());
 
 			// persist data
-//			DataEntry dataEntry = new DataEntry(classMeta, objectID.toString());
+//			DataEntry dataEntry = new DataEntry(storeManager.nextDataEntryID(executionContext), classMeta, objectID.toString());
 			encryptionHandler.encryptDataEntry(dataEntry, objectContainer);
 //			dataEntry = pm.makePersistent(dataEntry);
 
