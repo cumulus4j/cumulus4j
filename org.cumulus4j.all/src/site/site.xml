@@ -13,10 +13,6 @@
 			<item name="Download" href="download/index.html" />
 		</links>
 
-		<menu name="Switch language">
-			<item name="Deutsch" href="de/index.html" img="de.png" />
-		</menu>
-
 		<menu name="About">
 			<item name="Contact" href="about/contact.html" />
 			<item name="Imprint" href="about/imprint.html" />
@@ -30,6 +26,10 @@
 		</menu>
 
 		<menu ref="reports" inherit="bottom" collapse="true" />
+
+		<menu>
+			<item name="Deutsch" href="de/index.html" img="de.png" />
+		</menu>
 	</body>
 
 </project>
