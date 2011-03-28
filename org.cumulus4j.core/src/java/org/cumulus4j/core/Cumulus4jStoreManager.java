@@ -23,11 +23,8 @@ import org.datanucleus.identity.OID;
 import org.datanucleus.identity.SCOID;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
-import org.datanucleus.metadata.SequenceMetaData;
-import org.datanucleus.metadata.SequenceStrategy;
 import org.datanucleus.store.AbstractStoreManager;
 import org.datanucleus.store.ExecutionContext;
-import org.datanucleus.store.NucleusSequence;
 import org.datanucleus.store.connection.ManagedConnection;
 
 /**
@@ -37,12 +34,12 @@ import org.datanucleus.store.connection.ManagedConnection;
 public class Cumulus4jStoreManager
 extends AbstractStoreManager
 {
-	private static final SequenceMetaData SEQUENCE_META_DATA_DATA_ENTRY;
-	static {
-		SEQUENCE_META_DATA_DATA_ENTRY = new SequenceMetaData(DataEntry.class.getName(), SequenceStrategy.NONTRANSACTIONAL.toString());
-		SEQUENCE_META_DATA_DATA_ENTRY.setAllocationSize(100);
-		SEQUENCE_META_DATA_DATA_ENTRY.setDatastoreSequence(DataEntry.class.getName());
-	}
+//	private static final SequenceMetaData SEQUENCE_META_DATA_DATA_ENTRY;
+//	static {
+//		SEQUENCE_META_DATA_DATA_ENTRY = new SequenceMetaData(DataEntry.class.getName(), SequenceStrategy.NONTRANSACTIONAL.toString());
+//		SEQUENCE_META_DATA_DATA_ENTRY.setAllocationSize(100);
+//		SEQUENCE_META_DATA_DATA_ENTRY.setDatastoreSequence(DataEntry.class.getName());
+//	}
 
 	private Map<Class<?>, ClassMeta> class2classMeta = Collections.synchronizedMap(new HashMap<Class<?>, ClassMeta>());
 
@@ -294,11 +291,11 @@ extends AbstractStoreManager
 		return className;
 	}
 
-	public long nextDataEntryID(ExecutionContext executionContext)
-	{
-		NucleusSequence nucleusSequence = getNucleusSequence(executionContext, SEQUENCE_META_DATA_DATA_ENTRY);
-		return nucleusSequence.nextValue();
-	}
+//	public long nextDataEntryID(ExecutionContext executionContext)
+//	{
+//		NucleusSequence nucleusSequence = getNucleusSequence(executionContext, SEQUENCE_META_DATA_DATA_ENTRY);
+//		return nucleusSequence.nextValue();
+//	}
 
 	@Override
 	protected String getStrategyForNative(AbstractClassMetaData cmd, int absFieldNumber) {

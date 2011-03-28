@@ -162,19 +162,21 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			int[] allFieldNumbers = dnClassMetaData.getAllMemberPositions();
 			ObjectContainer objectContainer = new ObjectContainer();
 
-//			// We have to persist the DataEntry before the call to provideFields(...), because the InsertFieldManager recursively
-//			// persists other fields which might back-reference (=> mapped-by) and thus need this DataEntry to already exist.
-//			// TODO improve this later for mass-insert-performance (so that we have one insert instead of an insert AND an update).
-			DataEntry dataEntry = pm.makePersistent(new DataEntry(storeManager.nextDataEntryID(executionContext), classMeta, objectID.toString()));
+			// We have to persist the DataEntry before the call to provideFields(...), because the InsertFieldManager recursively
+			// persists other fields which might back-reference (=> mapped-by) and thus need this DataEntry to already exist.
+			// TODO Try to make this persistent afterwards and solve the problem by only allocating the ID before [keeping it in memory] (see Cumulus4jStoreManager#nextDataEntryID(), which is commented out currently).
+			//   Even though reducing the INSERT + UPDATE to one single INSERT in the handling of IndexEntry made
+			//   things faster, it seems not to have a performance benefit here. But we should still look at this
+			//   again later.
+			// Marco.
+			DataEntry dataEntry = pm.makePersistent(new DataEntry(classMeta, objectID.toString()));
 
 			// This performs reachability on this input object so that all related objects are persisted
 			op.provideFields(allFieldNumbers, new InsertFieldManager(op, pm, classMeta, dnClassMetaData, objectContainer));
 			objectContainer.setVersion(op.getTransactionalVersion());
 
 			// persist data
-//			DataEntry dataEntry = new DataEntry(storeManager.nextDataEntryID(executionContext), classMeta, objectID.toString());
 			encryptionHandler.encryptDataEntry(dataEntry, objectContainer);
-//			dataEntry = pm.makePersistent(dataEntry);
 
 			// persist index
 			for (Map.Entry<Long, ?> me : objectContainer.getFieldID2value().entrySet()) {

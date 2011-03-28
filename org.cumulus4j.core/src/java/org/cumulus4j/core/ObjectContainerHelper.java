@@ -9,6 +9,12 @@ import org.datanucleus.identity.IdentityUtils;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.store.ExecutionContext;
 
+/**
+ * Helper class for replacing object-references when storing a 1-1- or 1-n- or m-n-relationship
+ * inside an {@link ObjectContainer}.
+ *
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public final class ObjectContainerHelper
 {
 	/**

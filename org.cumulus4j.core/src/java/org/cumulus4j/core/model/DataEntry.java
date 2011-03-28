@@ -4,6 +4,7 @@ import javax.jdo.JDOHelper;
 import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
 import javax.jdo.annotations.Column;
+import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.NullValue;
 import javax.jdo.annotations.PersistenceCapable;
@@ -62,7 +63,7 @@ implements StoreCallback
 	}
 
 	@PrimaryKey
-	//	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
+	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
 	private long dataEntryID = -1;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
@@ -76,8 +77,7 @@ implements StoreCallback
 
 	protected DataEntry() { }
 
-	public DataEntry(long dataEntryID, ClassMeta classMeta, String objectID) {
-		this.dataEntryID = dataEntryID;
+	public DataEntry(ClassMeta classMeta, String objectID) {
 		this.classMeta = classMeta;
 		this.objectID = objectID;
 	}
