@@ -90,7 +90,7 @@ abstract class IndexEntryAction
 		}
 		else if (Relation.isRelationSingleValued(relationType)) {
 			// 1-1-relationship to another persistence-capable object.
-			Long otherDataEntryID = persistenceHandler.getDataEntryIDForObjectID(executionContext, pm, fieldValue);
+			Long otherDataEntryID = ObjectContainerHelper.referenceToDataEntryID(executionContext, pm, fieldValue);
 			IndexEntry indexEntry = getIndexEntryForObjectRelation(pm, fieldMeta, otherDataEntryID);
 			_perform(pm, indexEntry, dataEntryID);
 		}
@@ -109,7 +109,7 @@ abstract class IndexEntryAction
 
 				for (Map.Entry<?, ?> me : fieldValueMap.entrySet()) {
 					if (keyIsPersistent) {
-						Long otherDataEntryID = persistenceHandler.getDataEntryIDForObjectID(executionContext, pm, me.getKey());
+						Long otherDataEntryID = ObjectContainerHelper.referenceToDataEntryID(executionContext, pm, me.getKey());
 						IndexEntry indexEntry = getIndexEntryForObjectRelation(pm, subFieldMetaKey, otherDataEntryID);
 						_perform(pm, indexEntry, dataEntryID);
 					}
@@ -119,7 +119,7 @@ abstract class IndexEntryAction
 					}
 
 					if (valueIsPersistent) {
-						Long otherDataEntryID = persistenceHandler.getDataEntryIDForObjectID(executionContext, pm, me.getValue());
+						Long otherDataEntryID = ObjectContainerHelper.referenceToDataEntryID(executionContext, pm, me.getValue());
 						IndexEntry indexEntry = getIndexEntryForObjectRelation(pm, subFieldMetaValue, otherDataEntryID);
 						_perform(pm, indexEntry, dataEntryID);
 					}
@@ -139,7 +139,7 @@ abstract class IndexEntryAction
 				FieldMeta subFieldMeta = fieldMeta.getSubFieldMeta(role);
 				Object[] fieldValueArray = (Object[]) fieldValue;
 				for (Object element : fieldValueArray) {
-					Long otherDataEntryID = persistenceHandler.getDataEntryIDForObjectID(executionContext, pm, element);
+					Long otherDataEntryID = ObjectContainerHelper.referenceToDataEntryID(executionContext, pm, element);
 					IndexEntry indexEntry = getIndexEntryForObjectRelation(pm, subFieldMeta, otherDataEntryID);
 					_perform(pm, indexEntry, dataEntryID);
 				}

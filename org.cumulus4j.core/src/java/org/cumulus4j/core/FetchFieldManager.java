@@ -222,7 +222,7 @@ public class FetchFieldManager extends AbstractFieldManager
 				Object ids = objectContainer.getValue(fieldMeta.getFieldID());
 				for (int idx = 0; idx < Array.getLength(ids); ++idx) {
 					Object id = Array.get(ids, idx);
-					Object element = executionContext.findObject(id, true, true, null); // TODO
+					Object element = ObjectContainerHelper.referenceToEntity(executionContext, pm, id);
 					collection.add(element);
 				}
 				return op.wrapSCOField(fieldNumber, collection, false, false, true);
@@ -249,11 +249,11 @@ public class FetchFieldManager extends AbstractFieldManager
 					Object v = me.getValue();
 
 					if (keyIsPersistent) {
-						k = executionContext.findObject(k, true, true, null); // TODO
+						k = ObjectContainerHelper.referenceToEntity(executionContext, pm, k);
 					}
 
 					if (valueIsPersistent) {
-						v = executionContext.findObject(v, true, true, null); // TODO
+						v = ObjectContainerHelper.referenceToEntity(executionContext, pm, v);
 					}
 
 					map.put(k, v);
@@ -274,7 +274,7 @@ public class FetchFieldManager extends AbstractFieldManager
 				Object ids = objectContainer.getValue(fieldMeta.getFieldID());
 				for (int i = 0; i < Array.getLength(ids); ++i) {
 					Object id = Array.get(ids, i);
-					Object element = executionContext.findObject(id, true, true, null); // TODO
+					Object element = ObjectContainerHelper.referenceToEntity(executionContext, pm, id);
 					Array.set(array, i, element);
 				}
 				return array;

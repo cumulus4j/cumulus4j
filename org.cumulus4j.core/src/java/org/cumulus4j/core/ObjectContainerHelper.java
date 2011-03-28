@@ -15,7 +15,7 @@ public final class ObjectContainerHelper
 	 * If <code>false</code>, store object-ID in {@link ObjectContainer}.
 	 * If <code>true</code>, store {@link DataEntry#getDataEntryID() dataEntryID} in {@link ObjectContainer}.
 	 */
-	private static final boolean USE_DATA_ENTRY_ID = false;
+	private static final boolean USE_DATA_ENTRY_ID = true;
 
 	private ObjectContainerHelper() { }
 
@@ -44,7 +44,7 @@ public final class ObjectContainerHelper
 		if (USE_DATA_ENTRY_ID) {
 			DataEntry dataEntry = DataEntry.getDataEntry(pm, ((Long)reference).longValue());
 			AbstractClassMetaData cmd = dataEntry.getClassMeta().getDataNucleusClassMetaData(executionContext);
-			reference = IdentityUtils.getObjectFromIdString(dataEntry.getObjectID(), cmd, executionContext, true);
+			return IdentityUtils.getObjectFromIdString(dataEntry.getObjectID(), cmd, executionContext, true);
 		}
 
 		return executionContext.findObject(reference, true, true, null);
