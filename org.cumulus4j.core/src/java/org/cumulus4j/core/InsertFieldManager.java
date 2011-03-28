@@ -107,8 +107,8 @@ public class InsertFieldManager extends AbstractFieldManager
 		AbstractMemberMetaData mmd = dnClassMetaData.getMetaDataForManagedMemberAtAbsolutePosition(fieldNumber);
 
 		// mapped-by => skip storing it
-		if (mmd.getMappedBy() != null)
-			return; // TODO is this sufficient to take 'mapped-by' into account? Needs testing // TODO maybe clear the value in case it was not mapped-by before? - what about other migrations?
+//		if (mmd.getMappedBy() != null)
+//			return; // TODO is this sufficient to take 'mapped-by' into account? Needs testing // TODO maybe clear the value in case it was not mapped-by before? - what about other migrations?
 
 		FieldMeta fieldMeta = classMeta.getFieldMeta(mmd.getClassName(), mmd.getName());
 		if (fieldMeta == null)
@@ -160,9 +160,11 @@ public class InsertFieldManager extends AbstractFieldManager
 		{
 			// Persistable object - persist the related object and store the identity in the cell
 			Object valuePC = executionContext.persistObjectInternal(value, op, fieldNumber, -1);
-			Object valueID = executionContext.getApiAdapter().getIdForObject(valuePC);
-			storeManager.setClassNameForObjectID(valueID, valuePC.getClass().getName());
-			objectContainer.setValue(fieldMeta.getFieldID(), valueID);
+			if (mmd.getMappedBy() != null) {
+				Object valueID = executionContext.getApiAdapter().getIdForObject(valuePC);
+				storeManager.setClassNameForObjectID(valueID, valuePC.getClass().getName());
+				objectContainer.setValue(fieldMeta.getFieldID(), valueID);
+			}
 		}
 		else if (Relation.isRelationMultiValued(relationType))
 		{
@@ -170,15 +172,19 @@ public class InsertFieldManager extends AbstractFieldManager
 			if (mmd.hasCollection())
 			{
 				Collection<?> collection = (Collection<?>)value;
-				Object[] ids = new Object[collection.size()];
+				Object[] ids = mmd.getMappedBy() != null ? null : new Object[collection.size()]; // TODO is this correct? TEST!
 				int idx = -1;
 				for (Object element : collection) {
 					Object elementPC = executionContext.persistObjectInternal(element, op, fieldNumber, -1);
-					Object elementID = executionContext.getApiAdapter().getIdForObject(elementPC);
-					storeManager.setClassNameForObjectID(elementID, elementPC.getClass().getName());
-					ids[++idx] = elementID;
+					if (ids != null) {
+						Object elementID = executionContext.getApiAdapter().getIdForObject(elementPC);
+						storeManager.setClassNameForObjectID(elementID, elementPC.getClass().getName());
+						ids[++idx] = elementID;
+					}
 				}
-				objectContainer.setValue(fieldMeta.getFieldID(), ids);
+
+				if (ids != null)
+					objectContainer.setValue(fieldMeta.getFieldID(), ids);
 			}
 			else if (mmd.hasMap())
 			{
