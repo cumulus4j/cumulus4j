@@ -89,6 +89,10 @@ Marco :-)
 -->
 
 						<plugin>
+							<!--
+							Note, that this requires the mvn command line parameter '-Daggregate=true'!
+							Without this parameter, the test report will be empty.
+							-->
 							<artifactId>maven-surefire-report-plugin</artifactId>
 						</plugin>
 
