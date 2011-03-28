@@ -27,7 +27,7 @@
 
 		<menu ref="reports" inherit="bottom" collapse="true" />
 		
-		<menu>
+		<menu name=""> <!-- The empty name works like a separator. -->
 			<item name="English" href="../index.html" img="en.png" />
 		</menu>
 	</body>
