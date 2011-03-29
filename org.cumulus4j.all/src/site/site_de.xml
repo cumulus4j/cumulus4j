@@ -6,23 +6,23 @@
 
 	<body>
 		<links>
-			<item name="Hauptseite" href="index.html" />
-			<item name="Dokumentation" href="documentation/index.html" />
+			<item name="Hauptseite" href="./index.html" />
+			<item name="Dokumentation" href="./documentation/index.html" />
 			<item name="Forum" href="https://sourceforge.net/projects/cumulus4j/forums" target="_blank" />
 			<item name="Tracker" href="https://sourceforge.net/tracker/?group_id=517465" target="_blank" />
-			<item name="Herunterladen" href="download/index.html" />
+			<item name="Herunterladen" href="./download/index.html" />
 		</links>
 
 		<menu name="Dokumentation">
-			<item name="Theorie" href="documentation/theory.html" />
-			<item name="Entwicklung" href="documentation/development.html" />
-			<item name="Javadoc" href="apidocs/index.html" target="_blank"/>
+			<item name="Theorie" href="./documentation/theory.html" />
+			<item name="Entwicklung" href="./documentation/development.html" />
+			<item name="Javadoc" href="../apidocs/index.html" target="_blank"/>
 		</menu>
 
 		<menu name="Über uns">
-			<item name="Kontakt" href="about/contact.html" />
-			<item name="Impressum" href="about/imprint.html" />
-			<item name="Lizenz" href="license.html" />
+			<item name="Kontakt" href="./about/contact.html" />
+			<item name="Impressum" href="./about/imprint.html" />
+			<item name="Lizenz" href="./license.html" />
 		</menu>
 
 		<menu ref="reports" inherit="bottom" collapse="true" />
