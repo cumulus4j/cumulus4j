@@ -9,7 +9,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.cumulus4j</groupId>
 	<artifactId>org.cumulus4j.test</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>${cumulus4j.version}</version>
 	<name>org.cumulus4j.test</name>
 	<description>Various example data models for tests and jUnit test classes</description>
 	<dependencies>
