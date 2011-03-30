@@ -127,21 +127,43 @@ extends AbstractTransactionalTest
 		}
 	}
 
+	private Element1 getExampleElement()
+	{
+		Query q = pm.newQuery(Element1.class);
+		q.setFilter("this.name == :name");
+		q.setUnique(true);
+		Element1 element = (Element1) q.execute("Element1 3.2");
+		if (element == null)
+			throw new IllegalStateException("No matching Element1 found!");
+
+		return element;
+	}
+
 	@Test
 	public void queryContainsParameter()
 	{
-		Element1 element;
-		{
-			Query q = pm.newQuery(Element1.class);
-			q.setFilter("this.name == :name");
-			q.setUnique(true);
-			element = (Element1) q.execute("Element1 3.2");
-			if (element == null)
-				throw new IllegalStateException("No matching Element1 found!");
-		}
-
+		Element1 element = getExampleElement();
 		Query q = pm.newQuery(Element1SetOwner.class);
 		q.setFilter("this.set.contains(:element)");
+		executeQueryAndCheckResult(q, element, null, false, 1);
+	}
+
+	@Test
+	public void queryContainsVariableAndVariableIndexOf()
+	{
+		Query q = pm.newQuery(Element1SetOwner.class);
+		q.setFilter("this.set.contains(elementVariable) && elementVariable.name.indexOf(:elementPart) >= 0");
+		q.declareVariables(Element1.class.getName() + " elementVariable");
+		executeQueryAndCheckResult(q, null, "4", true, 3);
+	}
+
+	@Test
+	public void queryContainsVariableAndVariableEquals()
+	{
+		Element1 element = getExampleElement();
+		Query q = pm.newQuery(Element1SetOwner.class);
+		q.setFilter("this.set.contains(elementVariable) && elementVariable == :element");
+		q.declareVariables(Element1.class.getName() + " elementVariable");
 		executeQueryAndCheckResult(q, element, null, false, 1);
 	}
 }

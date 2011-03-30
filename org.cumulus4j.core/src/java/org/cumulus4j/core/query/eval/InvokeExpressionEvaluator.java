@@ -234,10 +234,22 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 				AbstractExpressionEvaluator<?> eval = queryEvaluator.getExpressionEvaluator();
 				Collection<Long> valueDataEntryIDs = eval.queryResultDataEntryIDs(new ResultDescriptor(variableExpr.getSymbol()));
 				for (Long valueDataEntryID : valueDataEntryIDs) {
-					IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, subFieldMeta, valueDataEntryID);
-					if (indexEntry != null) {
-						IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(indexEntry);
-						result.addAll(indexValue.getDataEntryIDs());
+					if (mmd.getMappedBy() != null) {
+						DataEntry valueDataEntry = DataEntry.getDataEntry(pm, valueDataEntryID);
+						ObjectContainer constantObjectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(valueDataEntry, executionContext.getClassLoaderResolver());
+						Object value = constantObjectContainer.getValue(
+								fieldMeta.getMappedByFieldMeta(executionContext).getFieldID()
+						);
+						Long mappedByDataEntryID = (Long) value;
+						if (mappedByDataEntryID != null)
+							result.add(mappedByDataEntryID);
+					}
+					else {
+						IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, subFieldMeta, valueDataEntryID);
+						if (indexEntry != null) {
+							IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(indexEntry);
+							result.addAll(indexValue.getDataEntryIDs());
+						}
 					}
 				}
 				return result;
