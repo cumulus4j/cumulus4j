@@ -211,14 +211,31 @@ implements DetachCallback
 		if (mbfm != null)
 			return mbfm;
 
-		if (getDataNucleusMemberMetaData(executionContext).getMappedBy() == null)
+		AbstractMemberMetaData mmd = getDataNucleusMemberMetaData(executionContext);
+		if (mmd.getMappedBy() == null)
 			return null;
 
+		Class<?> typeOppositeSide;
+		if (mmd.hasCollection())
+			typeOppositeSide = executionContext.getClassLoaderResolver().classForName(mmd.getCollection().getElementType());
+		else if (mmd.hasArray())
+			typeOppositeSide = executionContext.getClassLoaderResolver().classForName(mmd.getArray().getElementType());
+		else if (mmd.hasMap()) {
+			if (mmd.getMap().keyIsPersistent())
+				typeOppositeSide = executionContext.getClassLoaderResolver().classForName(mmd.getMap().getKeyType());
+			else if (mmd.getMap().valueIsPersistent())
+				typeOppositeSide = executionContext.getClassLoaderResolver().classForName(mmd.getMap().getValueType());
+			else
+				throw new IllegalStateException("How can a Map be mapped-by without key and value being persistent?! Exactly one of them should be persistent!");
+		}
+		else
+			typeOppositeSide = mmd.getType();
+
 		Cumulus4jStoreManager storeManager = (Cumulus4jStoreManager) executionContext.getStoreManager();
-		ClassMeta classMetaOppositeSide = storeManager.getClassMeta(executionContext, getDataNucleusMemberMetaData(executionContext).getType());
-		mbfm = classMetaOppositeSide.getFieldMeta(getDataNucleusMemberMetaData(executionContext).getMappedBy());
+		ClassMeta classMetaOppositeSide = storeManager.getClassMeta(executionContext, typeOppositeSide);
+		mbfm = classMetaOppositeSide.getFieldMeta(mmd.getMappedBy());
 		if (mbfm == null)
-			throw new IllegalStateException("Field \"" + getDataNucleusMemberMetaData(executionContext).getMappedBy() + "\" referenced in 'mapped-by' of " + this + " does not exist!");
+			throw new IllegalStateException("Field \"" + mmd.getMappedBy() + "\" referenced in 'mapped-by' of " + this + " does not exist!");
 
 		mappedByFieldMeta = mbfm;
 		return mbfm;

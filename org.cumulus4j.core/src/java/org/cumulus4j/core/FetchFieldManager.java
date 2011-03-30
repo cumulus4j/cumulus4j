@@ -2,7 +2,9 @@ package org.cumulus4j.core;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.jdo.PersistenceManager;
 
@@ -143,8 +145,17 @@ public class FetchFieldManager extends AbstractFieldManager
 		if (fieldMeta == null)
 			throw new IllegalStateException("Unknown field! class=" + dnClassMetaData.getFullClassName() + " fieldNumber=" + fieldNumber + " fieldName=" + mmd.getName());
 
-		if (mmd.getMappedBy() != null) { // TODO remove this when all mapped-by-situations are supported!
-			logger.warn("fetchObjectField: fieldNumber=" + fieldNumber + ": NYI", new UnsupportedOperationException("NYI"));
+		Set<Long> mappedByDataEntryIDs = null;
+		if (mmd.getMappedBy() != null) {
+			IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, fieldMeta.getMappedByFieldMeta(executionContext), getThisDataEntryID());
+			if (indexEntry == null)
+				return null;
+
+			IndexValue indexValue = getEncryptionHandler().decryptIndexEntry(indexEntry);
+			if (indexValue.getDataEntryIDs().isEmpty())
+				return null;
+
+			mappedByDataEntryIDs = indexValue.getDataEntryIDs();
 		}
 
 		int relationType = mmd.getRelationType(executionContext.getClassLoaderResolver());
@@ -184,20 +195,11 @@ public class FetchFieldManager extends AbstractFieldManager
 		else if (Relation.isRelationSingleValued(relationType))
 		{
 			if (mmd.getMappedBy() != null) {
-				IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, fieldMeta.getMappedByFieldMeta(executionContext), getThisDataEntryID());
-				if (indexEntry == null)
-					return null;
+				if (mappedByDataEntryIDs.size() != 1)
+					throw new IllegalStateException("There are multiple objects referencing a 1-1-mapped-by-relationship! Expected 0 or 1! fieldMeta=" + fieldMeta + " dataEntryIDsForMappedBy=" + mappedByDataEntryIDs);
 
-				IndexValue indexValue = getEncryptionHandler().decryptIndexEntry(indexEntry);
-				if (indexValue.getDataEntryIDs().isEmpty())
-					return null;
-
-				if (indexValue.getDataEntryIDs().size() != 1)
-					throw new IllegalStateException("There are multiple objects referencing a 1-1-mapped-by-relationship! Expected 0 or 1! fieldMeta=" + fieldMeta + " dataEntryIDsForMappedBy=" + indexValue.getDataEntryIDs());
-
-				long dataEntryID = indexValue.getDataEntryIDs().iterator().next();
-				String idStr = DataEntry.getDataEntry(pm, dataEntryID).getObjectID();
-				return IdentityUtils.getObjectFromIdString(idStr, classMeta.getDataNucleusClassMetaData(executionContext), executionContext, true);
+				long dataEntryID = mappedByDataEntryIDs.iterator().next();
+				return getObjectFromDataEntryID(dataEntryID);
 			}
 
 			Object valueID = objectContainer.getValue(fieldMeta.getFieldID());
@@ -219,11 +221,19 @@ public class FetchFieldManager extends AbstractFieldManager
 					throw new NucleusDataStoreException(e.getMessage(), e);
 				}
 
-				Object ids = objectContainer.getValue(fieldMeta.getFieldID());
-				for (int idx = 0; idx < Array.getLength(ids); ++idx) {
-					Object id = Array.get(ids, idx);
-					Object element = ObjectContainerHelper.referenceToEntity(executionContext, pm, id);
-					collection.add(element);
+				if (mmd.getMappedBy() != null) {
+					for (Long mappedByDataEntryID : mappedByDataEntryIDs) {
+						Object element = getObjectFromDataEntryID(mappedByDataEntryID);
+						collection.add(element);
+					}
+				}
+				else {
+					Object ids = objectContainer.getValue(fieldMeta.getFieldID());
+					for (int idx = 0; idx < Array.getLength(ids); ++idx) {
+						Object id = Array.get(ids, idx);
+						Object element = ObjectContainerHelper.referenceToEntity(executionContext, pm, id);
+						collection.add(element);
+					}
 				}
 				return op.wrapSCOField(fieldNumber, collection, false, false, true);
 			}
@@ -243,39 +253,53 @@ public class FetchFieldManager extends AbstractFieldManager
 				boolean keyIsPersistent = mmd.getMap().keyIsPersistent();
 				boolean valueIsPersistent = mmd.getMap().valueIsPersistent();
 
-				Map<?,?> idMap = (Map<?,?>) objectContainer.getValue(fieldMeta.getFieldID());
-				for (Map.Entry<?, ?> me : idMap.entrySet()) {
-					Object k = me.getKey();
-					Object v = me.getValue();
-
-					if (keyIsPersistent) {
-						k = ObjectContainerHelper.referenceToEntity(executionContext, pm, k);
-					}
-
-					if (valueIsPersistent) {
-						v = ObjectContainerHelper.referenceToEntity(executionContext, pm, v);
-					}
-
-					map.put(k, v);
+				if (mmd.getMappedBy() != null) {
+					throw new UnsupportedOperationException("NYI");
 				}
+				else {
+					Map<?,?> idMap = (Map<?,?>) objectContainer.getValue(fieldMeta.getFieldID());
+					for (Map.Entry<?, ?> me : idMap.entrySet()) {
+						Object k = me.getKey();
+						Object v = me.getValue();
+
+						if (keyIsPersistent) {
+							k = ObjectContainerHelper.referenceToEntity(executionContext, pm, k);
+						}
+
+						if (valueIsPersistent) {
+							v = ObjectContainerHelper.referenceToEntity(executionContext, pm, v);
+						}
+
+						map.put(k, v);
+					}
+				}
+
 				return op.wrapSCOField(fieldNumber, map, false, false, true);
 			}
 			else if (mmd.hasArray())
 			{
-				Object array;
-				try {
-					array = mmd.getType().newInstance();
-				} catch (InstantiationException e) {
-					throw new NucleusDataStoreException(e.getMessage(), e);
-				} catch (IllegalAccessException e) {
-					throw new NucleusDataStoreException(e.getMessage(), e);
-				}
+				Class<?> elementType = executionContext.getClassLoaderResolver().classForName(mmd.getArray().getElementType());
 
-				Object ids = objectContainer.getValue(fieldMeta.getFieldID());
-				for (int i = 0; i < Array.getLength(ids); ++i) {
-					Object id = Array.get(ids, i);
-					Object element = ObjectContainerHelper.referenceToEntity(executionContext, pm, id);
-					Array.set(array, i, element);
+				Object array;
+				if (mmd.getMappedBy() != null) {
+					int arrayLength = mappedByDataEntryIDs.size();
+					array = Array.newInstance(elementType, arrayLength);
+					Iterator<Long> it = mappedByDataEntryIDs.iterator();
+					for (int i = 0; i < arrayLength; ++i) {
+						Long dataEntryID = it.next();
+						Object element = getObjectFromDataEntryID(dataEntryID);
+						Array.set(array, i, element);
+					}
+				}
+				else {
+					Object ids = objectContainer.getValue(fieldMeta.getFieldID());
+					int arrayLength = Array.getLength(ids);
+					array = Array.newInstance(elementType, arrayLength);
+					for (int i = 0; i < arrayLength; ++i) {
+						Object id = Array.get(ids, i);
+						Object element = ObjectContainerHelper.referenceToEntity(executionContext, pm, id);
+						Array.set(array, i, element);
+					}
 				}
 				return array;
 			}
@@ -284,5 +308,13 @@ public class FetchFieldManager extends AbstractFieldManager
 		}
 		else
 			throw new IllegalStateException("Unexpected relationType: " + relationType);
+	}
+
+	private Object getObjectFromDataEntryID(long dataEntryID)
+	{
+		String idStr = DataEntry.getDataEntry(pm, dataEntryID).getObjectID();
+		return IdentityUtils.getObjectFromIdString(
+				idStr, classMeta.getDataNucleusClassMetaData(executionContext), executionContext, true
+		);
 	}
 }

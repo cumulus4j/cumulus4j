@@ -17,6 +17,7 @@ import org.cumulus4j.core.model.IndexEntryFactory;
 import org.cumulus4j.core.model.IndexEntryFactoryRegistry;
 import org.cumulus4j.core.model.IndexEntryObjectRelationHelper;
 import org.cumulus4j.core.model.IndexValue;
+import org.cumulus4j.core.model.ObjectContainer;
 import org.cumulus4j.core.query.QueryEvaluator;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.query.QueryUtils;
@@ -26,6 +27,8 @@ import org.datanucleus.query.expression.Literal;
 import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.query.expression.VariableExpression;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Evaluator handling method invocations like <code>Collection.contains(...)</code>.
@@ -35,6 +38,8 @@ import org.datanucleus.query.expression.VariableExpression;
 public class InvokeExpressionEvaluator
 extends AbstractExpressionEvaluator<InvokeExpression>
 {
+	private static Logger logger = LoggerFactory.getLogger(InvokeExpressionEvaluator.class);
+
 	public InvokeExpressionEvaluator(QueryEvaluator queryEvaluator, AbstractExpressionEvaluator<?> parent, InvokeExpression expression)
 	{
 		super(queryEvaluator, parent, expression);
@@ -137,9 +142,12 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 		throw new UnsupportedOperationException("NYI");
 	}
 
-	private abstract class AbstractContainsResolver extends PrimaryExpressionResolver
+	private static abstract class AbstractContainsResolver extends PrimaryExpressionResolver
 	{
+		private static Logger logger = LoggerFactory.getLogger(AbstractContainsResolver.class);
+
 		protected FieldMetaRole role;
+		protected PersistenceManager pm;
 
 		public AbstractContainsResolver(
 				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
@@ -148,6 +156,7 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 		{
 			super(queryEvaluator, primaryExpression);
 			this.role = role;
+			this.pm = queryEvaluator.getPersistenceManager();
 
 			if (role != FieldMetaRole.collectionElement && role != FieldMetaRole.mapKey && role != FieldMetaRole.mapValue)
 				throw new IllegalArgumentException("role == " + role);
@@ -155,30 +164,33 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 
 		@Override
 		protected final Set<Long> queryEnd(FieldMeta fieldMeta) {
-			PersistenceManager pm = getPersistenceManager();
 			AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(executionContext);
 			FieldMeta subFieldMeta = fieldMeta.getSubFieldMeta(role);
 
 			boolean argumentIsPersistent;
+			Class<?> argumentType;
 			switch (role) {
 				case collectionElement:
 					argumentIsPersistent = mmd.getCollection().elementIsPersistent();
+					argumentType = executionContext.getClassLoaderResolver().classForName(mmd.getCollection().getElementType());
 					break;
 				case mapKey:
 					argumentIsPersistent = mmd.getMap().keyIsPersistent();
+					argumentType = executionContext.getClassLoaderResolver().classForName(mmd.getMap().getKeyType());
 					break;
 				case mapValue:
 					argumentIsPersistent = mmd.getMap().valueIsPersistent();
+					argumentType = executionContext.getClassLoaderResolver().classForName(mmd.getMap().getValueType());
 					break;
 				default:
 					throw new IllegalStateException("Unknown role: " + role);
 			}
 
-			return _queryEnd(pm, fieldMeta, mmd, subFieldMeta, argumentIsPersistent);
+			return _queryEnd(pm, fieldMeta, mmd, subFieldMeta, argumentIsPersistent, argumentType);
 		}
 
 		protected abstract Set<Long> _queryEnd(
-				PersistenceManager pm, FieldMeta fieldMeta, AbstractMemberMetaData mmd, FieldMeta subFieldMeta, boolean argumentIsPersistent
+				PersistenceManager pm, FieldMeta fieldMeta, AbstractMemberMetaData mmd, FieldMeta subFieldMeta, boolean argumentIsPersistent, Class<?> argumentType
 		);
 
 	}
@@ -189,8 +201,10 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 	 *
 	 * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
 	 */
-	private class ContainsVariableResolver extends AbstractContainsResolver
+	private static class ContainsVariableResolver extends AbstractContainsResolver
 	{
+		private static Logger logger = LoggerFactory.getLogger(ContainsVariableResolver.class);
+
 		private VariableExpression variableExpr;
 
 		public ContainsVariableResolver(
@@ -212,24 +226,24 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 		public Set<Long> _queryEnd(
 				PersistenceManager pm, FieldMeta fieldMeta,
 				AbstractMemberMetaData mmd, FieldMeta subFieldMeta,
-				boolean argumentIsPersistent
+				boolean argumentIsPersistent, Class<?> argumentType
 		)
 		{
 			if (argumentIsPersistent) {
 				Set<Long> result = new HashSet<Long>();
-				AbstractExpressionEvaluator<?> eval = getQueryEvaluator().getExpressionEvaluator();
+				AbstractExpressionEvaluator<?> eval = queryEvaluator.getExpressionEvaluator();
 				Collection<Long> valueDataEntryIDs = eval.queryResultDataEntryIDs(new ResultDescriptor(variableExpr.getSymbol()));
 				for (Long valueDataEntryID : valueDataEntryIDs) {
 					IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, subFieldMeta, valueDataEntryID);
 					if (indexEntry != null) {
-						IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
+						IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(indexEntry);
 						result.addAll(indexValue.getDataEntryIDs());
 					}
 				}
 				return result;
 			}
 			else {
-				AbstractExpressionEvaluator<?> eval = getQueryEvaluator().getExpressionEvaluator();
+				AbstractExpressionEvaluator<?> eval = queryEvaluator.getExpressionEvaluator();
 				return eval.queryResultDataEntryIDs(new ResultDescriptor(variableExpr.getSymbol(), subFieldMeta));
 			}
 		}
@@ -240,8 +254,9 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 	 *
 	 * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
 	 */
-	private class ContainsConstantResolver extends AbstractContainsResolver
+	private static class ContainsConstantResolver extends AbstractContainsResolver
 	{
+		private static Logger logger = LoggerFactory.getLogger(ContainsConstantResolver.class);
 		private Object constant;
 
 		public ContainsConstantResolver(
@@ -257,16 +272,39 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 		public Set<Long> _queryEnd(
 				PersistenceManager pm, FieldMeta fieldMeta,
 				AbstractMemberMetaData mmd, FieldMeta subFieldMeta,
-				boolean argumentIsPersistent
+				boolean argumentIsPersistent, Class<?> argumentType
 		)
 		{
 			if (argumentIsPersistent) {
 				Long constantDataEntryID = null;
 				if (constant != null) {
-					ClassMeta constantClassMeta = getQueryEvaluator().getStoreManager().getClassMeta(executionContext, constant.getClass());
+					if (!argumentType.isInstance(constant)) {
+						logger.debug(
+								"_queryEnd: constant {} is of type {} but field {} is of type {} and thus constant cannot be contained. Returning empty set!",
+								new Object[] {
+										constant, constant.getClass().getName(), fieldMeta, argumentType.getClass().getName()
+								}
+						);
+						return Collections.emptySet();
+					}
+
+					ClassMeta constantClassMeta = queryEvaluator.getStoreManager().getClassMeta(executionContext, constant.getClass());
 					Object constantID = executionContext.getApiAdapter().getIdForObject(constant);
 					if (constantID == null)
 						throw new IllegalStateException("The ApiAdapter returned null as object-ID for: " + constant);
+
+					if (mmd.getMappedBy() != null) {
+						DataEntry constantDataEntry = DataEntry.getDataEntry(pm, constantClassMeta, constantID.toString());
+						ObjectContainer constantObjectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(constantDataEntry, executionContext.getClassLoaderResolver());
+						Object value = constantObjectContainer.getValue(
+								fieldMeta.getMappedByFieldMeta(executionContext).getFieldID()
+						);
+						Long mappedByDataEntryID = (Long) value;
+						if (mappedByDataEntryID == null)
+							return Collections.emptySet();
+						else
+							return Collections.singleton(mappedByDataEntryID);
+					}
 
 					constantDataEntryID = DataEntry.getDataEntryID(pm, constantClassMeta, constantID.toString());
 				}
@@ -274,7 +312,7 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 				if (indexEntry == null)
 					return Collections.emptySet();
 
-				IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
+				IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(indexEntry);
 				return indexValue.getDataEntryIDs();
 			}
 			else {
@@ -283,7 +321,7 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 				if (indexEntry == null)
 					return Collections.emptySet();
 
-				IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
+				IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(indexEntry);
 				return indexValue.getDataEntryIDs();
 			}
 		}
