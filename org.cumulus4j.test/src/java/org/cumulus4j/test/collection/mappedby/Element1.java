@@ -5,6 +5,12 @@ import javax.jdo.annotations.PersistenceCapable;
 @PersistenceCapable
 public class Element1
 {
+	protected Element1() { }
+
+	public Element1(String name) {
+		setName(name);
+	}
+
 	private String name;
 
 	private Element1SetOwner owner;

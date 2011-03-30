@@ -1,5 +1,6 @@
 package org.cumulus4j.test.collection.mappedby;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,6 +22,11 @@ public class Element1SetOwner
 		this.name = name;
 	}
 	public Set<Element1> getSet() {
-		return set;
+		return Collections.unmodifiableSet(set);
+	}
+	public void addElement1(Element1 element1)
+	{
+		element1.setOwner(this);
+		set.add(element1);
 	}
 }
