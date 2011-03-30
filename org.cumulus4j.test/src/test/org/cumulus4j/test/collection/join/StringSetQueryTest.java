@@ -101,7 +101,7 @@ extends AbstractTransactionalTest
 	}
 
 	@Test
-	public void query0()
+	public void queryContainsParameter()
 	{
 		Query q = pm.newQuery(StringSetOwner.class);
 		q.setFilter("this.set.contains(:element)");
@@ -109,7 +109,7 @@ extends AbstractTransactionalTest
 	}
 
 	@Test
-	public void query1()
+	public void queryContainsVariableAndVariableIndexOf()
 	{
 		Query q = pm.newQuery(StringSetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && elementVariable.indexOf(:elementPart) >= 0");
@@ -117,7 +117,7 @@ extends AbstractTransactionalTest
 	}
 
 	@Test
-	public void query2()
+	public void queryContainsVariableAndVariableEquals()
 	{
 		Query q = pm.newQuery(StringSetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && elementVariable == :element");

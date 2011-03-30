@@ -121,7 +121,7 @@ extends AbstractTransactionalTest
 	}
 
 	@Test
-	public void query0()
+	public void queryContainsKeyParameter()
 	{
 		Query q = pm.newQuery(StringStringMapOwner.class);
 		q.setFilter("this.map.containsKey(:queryParam)");
@@ -129,7 +129,7 @@ extends AbstractTransactionalTest
 	}
 
 	@Test
-	public void query1()
+	public void queryContainsValueParameter()
 	{
 		Query q = pm.newQuery(StringStringMapOwner.class);
 		q.setFilter("this.map.containsValue(:queryParam)");
@@ -137,7 +137,7 @@ extends AbstractTransactionalTest
 	}
 
 	@Test
-	public void query2()
+	public void queryContainsKeyVariableAndVariableIndexOf()
 	{
 		Query q = pm.newQuery(StringStringMapOwner.class);
 		q.setFilter("this.map.containsKey(variable) && variable.indexOf(:queryParam) >= 0");
@@ -145,7 +145,7 @@ extends AbstractTransactionalTest
 	}
 
 	@Test
-	public void query3()
+	public void queryContainsValueVariableAndVariableIndexOf()
 	{
 		Query q = pm.newQuery(StringStringMapOwner.class);
 		q.setFilter("this.map.containsValue(variable) && variable.indexOf(:queryParam) >= 0");
@@ -153,7 +153,7 @@ extends AbstractTransactionalTest
 	}
 
 	@Test
-	public void query4()
+	public void queryContainsKeyVariableAndVariableEquals()
 	{
 		Query q = pm.newQuery(StringStringMapOwner.class);
 		q.setFilter("this.map.containsKey(variable) && variable == :queryParam");
@@ -161,7 +161,7 @@ extends AbstractTransactionalTest
 	}
 
 	@Test
-	public void query5()
+	public void queryContainsValueVariableAndVariableEquals()
 	{
 		Query q = pm.newQuery(StringStringMapOwner.class);
 		q.setFilter("this.map.containsValue(variable) && variable == :queryParam");
