@@ -4,6 +4,7 @@ import org.cumulus4j.test.framework.AbstractTransactionalTest;
 import org.cumulus4j.test.framework.CleanupUtil;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,6 +61,12 @@ extends AbstractTransactionalTest
 			owner.setName("Owner 4");
 			owner.addElement2(new Element2("ccc", "Element2 4.3"));
 		}
+	}
+
+	@Test
+	public void dummyTest()
+	{
+
 	}
 
 // TODO uncomment all the following and continue implementing.
