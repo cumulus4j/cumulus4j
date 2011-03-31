@@ -27,7 +27,6 @@ import org.datanucleus.query.expression.Expression;
 import org.datanucleus.query.expression.Literal;
 import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
-import org.datanucleus.query.expression.VariableExpression;
 import org.datanucleus.query.expression.Expression.Operator;
 import org.datanucleus.store.ExecutionContext;
 
@@ -54,7 +53,6 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 			InvokeExpressionEvaluator invokeEval = (InvokeExpressionEvaluator) getLeft();
 			if ("indexOf".equals(invokeEval.getExpression().getOperation())) {
-
 				if (invokeEval.getExpression().getArguments().size() != 1)
 					throw new IllegalStateException("indexOf(...) expects exactly one argument, but there are " + invokeEval.getExpression().getArguments().size());
 
@@ -82,13 +80,15 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 				}
 
 				if (invokeEval.getLeft() instanceof VariableExpressionEvaluator) {
-					VariableExpressionEvaluator varExprEval = (VariableExpressionEvaluator) invokeEval.getLeft();
-					VariableExpression varExpr = varExprEval.getExpression();
-					if (varExpr.getSymbol() == null)
-						throw new IllegalStateException("varExpr.getSymbol() == null");
-
-					if (!varExpr.getSymbol().equals(resultDescriptor.getSymbol())) // searching something else ;-)
+					if (!invokeEval.getLeft().getResultSymbols().contains(resultDescriptor.getSymbol()))
 						return null;
+//					VariableExpressionEvaluator varExprEval = (VariableExpressionEvaluator) invokeEval.getLeft();
+//					VariableExpression varExpr = varExprEval.getExpression();
+//					if (varExpr.getSymbol() == null)
+//						throw new IllegalStateException("varExpr.getSymbol() == null");
+//
+//					if (!varExpr.getSymbol().equals(resultDescriptor.getSymbol())) // searching something else ;-)
+//						return null;
 
 					// We query a simple data type (otherwise we would be above in the PrimaryExpressionEvaluator block), hence
 					// we do not need to recursively resolve some tuples.
@@ -127,20 +127,30 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		}
 
 		if (getLeft() instanceof VariableExpressionEvaluator) {
-			VariableExpressionEvaluator varExprEval = (VariableExpressionEvaluator) getLeft();
-			VariableExpression varExpr = varExprEval.getExpression();
-			if (varExpr.getSymbol() == null)
-				throw new IllegalStateException("varExpr.getSymbol() == null");
-
-			if (!varExpr.getSymbol().equals(resultDescriptor.getSymbol())) // searching something else ;-)
+			if (!getLeft().getResultSymbols().contains(resultDescriptor.getSymbol()))
 				return null;
+//			VariableExpressionEvaluator varExprEval = (VariableExpressionEvaluator) getLeft();
+//			VariableExpression varExpr = varExprEval.getExpression();
+//			if (varExpr.getSymbol() == null)
+//				throw new IllegalStateException("varExpr.getSymbol() == null");
+//
+//			if (!varExpr.getSymbol().equals(resultDescriptor.getSymbol())) // searching something else ;-)
+//				return null;
 
-			// We query a simple data type (otherwise we would be above in the PrimaryExpressionEvaluator block), hence
-			// we do not need to recursively resolve some tuples.
-			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
-					executionContext, resultDescriptor.getFieldMeta(), true
-			);
-			return queryCompareConcreteValue(resultDescriptor.getFieldMeta(), indexEntryFactory, getRightCompareToArgument());
+			if (Expression.OP_EQ == getExpression().getOperator()) {
+				if (resultDescriptor.getFieldMeta() != null)
+					return queryEqualsConcreteValue(resultDescriptor.getFieldMeta(), getRightCompareToArgument());
+				else {
+					// The variable is an FCO and directly compared (otherwise it would be a PrimaryExpression - see above) or the FieldMeta would be specified.
+					ClassMeta classMeta = getQueryEvaluator().getStoreManager().getClassMeta(executionContext, resultDescriptor.getResultType());
+					return queryEqualsConcreteValue(classMeta, getRightCompareToArgument());
+				}
+			}
+			else {
+				// We query a simple data type (otherwise it would already have been handled above), hence
+				// we do not need to recursively resolve tuples.
+				return queryCompareConcreteValue(resultDescriptor.getFieldMeta(), getRightCompareToArgument());
+			}
 		}
 
 		throw new UnsupportedOperationException("NYI");
@@ -236,14 +246,16 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 		@Override
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
-			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
-					executionContext, fieldMeta, true
-			);
-			return queryCompareConcreteValue(fieldMeta, indexEntryFactory, value);
+			return queryCompareConcreteValue(fieldMeta, value);
 		}
 	}
 
-	private Set<Long> queryCompareConcreteValue(FieldMeta fieldMeta, IndexEntryFactory indexEntryFactory, Object value) {
+	private Set<Long> queryCompareConcreteValue(FieldMeta fieldMeta, Object value)
+	{
+		IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
+				getQueryEvaluator().getExecutionContext(), fieldMeta, true
+		);
+
 		Query q = getPersistenceManager().newQuery(indexEntryFactory.getIndexEntryClass());
 		q.setFilter(
 				"this.fieldMeta == :fieldMeta && " +
@@ -277,42 +289,58 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 		@Override
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
-			PersistenceManager pm = getPersistenceManager();
-
-			AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(executionContext);
-			int relationType = mmd.getRelationType(executionContext.getClassLoaderResolver());
-
-			if (Relation.NONE == relationType) {
-				IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
-						executionContext, fieldMeta, true
-				);
-				IndexEntry indexEntry = indexEntryFactory == null ? null : indexEntryFactory.getIndexEntry(pm, fieldMeta, value);
-				if (indexEntry == null)
-					return Collections.emptySet();
-
-				IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
-				return indexValue.getDataEntryIDs();
-			}
-			else if (Relation.isRelationSingleValued(relationType)) {
-				Long valueDataEntryID = null;
-				if (value != null) {
-					ClassMeta valueClassMeta = getQueryEvaluator().getStoreManager().getClassMeta(executionContext, value.getClass());
-					Object valueID = executionContext.getApiAdapter().getIdForObject(value);
-					if (valueID == null)
-						throw new IllegalStateException("The ApiAdapter returned null as object-ID for: " + value);
-
-					valueDataEntryID = DataEntry.getDataEntryID(pm, valueClassMeta, valueID.toString());
-				}
-				IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, fieldMeta, valueDataEntryID);
-				if (indexEntry == null)
-					return Collections.emptySet();
-
-				IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
-				return indexValue.getDataEntryIDs();
-			}
-
-			throw new UnsupportedOperationException("NYI");
+			return queryEqualsConcreteValue(fieldMeta, value);
 		}
+	}
+
+	private Set<Long> queryEqualsConcreteValue(ClassMeta classMeta, Object value)
+	{
+		PersistenceManager pm = getPersistenceManager();
+		ExecutionContext executionContext = getQueryEvaluator().getExecutionContext();
+		Object valueID = executionContext.getApiAdapter().getIdForObject(value);
+		if (valueID == null)
+			throw new IllegalStateException("The ApiAdapter returned null as object-ID for: " + value);
+		Long dataEntryID = DataEntry.getDataEntryID(pm, classMeta, valueID.toString());
+		return Collections.singleton(dataEntryID);
+	}
+
+	private Set<Long> queryEqualsConcreteValue(FieldMeta fieldMeta, Object value) {
+		PersistenceManager pm = getPersistenceManager();
+		ExecutionContext executionContext = getQueryEvaluator().getExecutionContext();
+
+		AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(executionContext);
+		int relationType = mmd.getRelationType(executionContext.getClassLoaderResolver());
+
+		if (Relation.NONE == relationType) {
+			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
+					executionContext, fieldMeta, true
+			);
+			IndexEntry indexEntry = indexEntryFactory == null ? null : indexEntryFactory.getIndexEntry(pm, fieldMeta, value);
+			if (indexEntry == null)
+				return Collections.emptySet();
+
+			IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
+			return indexValue.getDataEntryIDs();
+		}
+		else if (Relation.isRelationSingleValued(relationType)) {
+			Long valueDataEntryID = null;
+			if (value != null) {
+				ClassMeta valueClassMeta = getQueryEvaluator().getStoreManager().getClassMeta(executionContext, value.getClass());
+				Object valueID = executionContext.getApiAdapter().getIdForObject(value);
+				if (valueID == null)
+					throw new IllegalStateException("The ApiAdapter returned null as object-ID for: " + value);
+
+				valueDataEntryID = DataEntry.getDataEntryID(pm, valueClassMeta, valueID.toString());
+			}
+			IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, fieldMeta, valueDataEntryID);
+			if (indexEntry == null)
+				return Collections.emptySet();
+
+			IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
+			return indexValue.getDataEntryIDs();
+		}
+
+		throw new UnsupportedOperationException("NYI");
 	}
 
 	private String getOperatorAsJDOQLSymbol()

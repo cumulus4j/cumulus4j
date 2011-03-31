@@ -210,17 +210,24 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 	public final Set<Long> queryResultDataEntryIDs(ResultDescriptor resultDescriptor)
 	throws UnsupportedOperationException
 	{
-		Set<Long> resultDataEntryIDs = resultDescriptor2resultDataEntryIDs.get(resultDescriptor);
-		if (!resultDescriptor2resultDataEntryIDs.containsKey(resultDescriptor)) {
-			resultDataEntryIDs = _queryResultDataEntryIDs(resultDescriptor);
+		getQueryEvaluator().pushResultDescriptor(resultDescriptor);
+		try {
+			Set<Long> resultDataEntryIDs = resultDescriptor2resultDataEntryIDs.get(resultDescriptor);
+			if (!resultDescriptor2resultDataEntryIDs.containsKey(resultDescriptor)) {
+				resultDataEntryIDs = _queryResultDataEntryIDs(resultDescriptor);
 
-			if (resultDataEntryIDs != null)
-				resultDataEntryIDs = Collections.unmodifiableSet(resultDataEntryIDs);
+				if (resultDataEntryIDs != null)
+					resultDataEntryIDs = Collections.unmodifiableSet(resultDataEntryIDs);
 
-			resultDescriptor2resultDataEntryIDs.put(resultDescriptor, resultDataEntryIDs);
+				resultDescriptor2resultDataEntryIDs.put(resultDescriptor, resultDataEntryIDs);
+			}
+
+			return resultDataEntryIDs;
+		} finally {
+			ResultDescriptor popResultDescriptor = getQueryEvaluator().popResultDescriptor();
+			if (resultDescriptor != popResultDescriptor)
+				throw new IllegalStateException("resultDescriptor != popResultDescriptor");
 		}
-
-		return resultDataEntryIDs;
 	}
 
 	/**
@@ -269,6 +276,7 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 	public final List<Object> queryResultObjects(ResultDescriptor resultDescriptor)
 	throws UnsupportedOperationException
 	{
+
 		List<Object> resultObjects = resultDescriptor2resultObjects.get(resultDescriptor);
 		if (!resultDescriptor2resultObjects.containsKey(resultDescriptor)) {
 			resultObjects = _queryResultObjects(resultDescriptor);
@@ -319,7 +327,11 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 		return resultList;
 	}
 
-	private Class<?> getFieldType(Class<?> clazz, List<String> tuples) {
+	private Class<?> getFieldType(Class<?> clazz, List<String> tuples)
+	{
+		if (clazz == null)
+			throw new IllegalArgumentException("clazz == null");
+
 		tuples = new LinkedList<String>(tuples);
 		String nextTuple = tuples.remove(0);
 		AbstractClassMetaData clazzMetaData = getQueryEvaluator().getStoreManager().getMetaDataManager().getMetaDataForClass(clazz, getQueryEvaluator().getClassLoaderResolver());
@@ -351,14 +363,14 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 	 */
 	protected Class<?> getFieldType(PrimaryExpression primaryExpression) {
 		if (primaryExpression.getSymbol() != null)
-			return primaryExpression.getSymbol().getValueType();
+			return getQueryEvaluator().getValueType(primaryExpression.getSymbol());
 
 		if (primaryExpression.getLeft() instanceof VariableExpression) {
 			Symbol classSymbol = ((VariableExpression)primaryExpression.getLeft()).getSymbol();
 			if (classSymbol == null)
 				throw new IllegalStateException("((VariableExpression)primaryExpression.getLeft()).getSymbol() returned null!");
 
-			return getFieldType(classSymbol.getValueType(), primaryExpression.getTuples());
+			return getFieldType(getQueryEvaluator().getValueType(classSymbol), primaryExpression.getTuples());
 		}
 		else
 			throw new UnsupportedOperationException("NYI");

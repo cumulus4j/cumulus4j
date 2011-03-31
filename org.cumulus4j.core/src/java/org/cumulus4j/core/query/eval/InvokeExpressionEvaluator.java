@@ -232,7 +232,7 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 			if (argumentIsPersistent) {
 				Set<Long> result = new HashSet<Long>();
 				AbstractExpressionEvaluator<?> eval = queryEvaluator.getExpressionEvaluator();
-				Collection<Long> valueDataEntryIDs = eval.queryResultDataEntryIDs(new ResultDescriptor(variableExpr.getSymbol()));
+				Collection<Long> valueDataEntryIDs = eval.queryResultDataEntryIDs(new ResultDescriptor(variableExpr.getSymbol(), argumentType));
 				for (Long valueDataEntryID : valueDataEntryIDs) {
 					if (mmd.getMappedBy() != null) {
 						DataEntry valueDataEntry = DataEntry.getDataEntry(pm, valueDataEntryID);
@@ -256,7 +256,7 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 			}
 			else {
 				AbstractExpressionEvaluator<?> eval = queryEvaluator.getExpressionEvaluator();
-				return eval.queryResultDataEntryIDs(new ResultDescriptor(variableExpr.getSymbol(), subFieldMeta));
+				return eval.queryResultDataEntryIDs(new ResultDescriptor(variableExpr.getSymbol(), argumentType, subFieldMeta));
 			}
 		}
 	}

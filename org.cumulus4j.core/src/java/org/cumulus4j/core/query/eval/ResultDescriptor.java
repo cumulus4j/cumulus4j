@@ -6,24 +6,37 @@ import org.datanucleus.query.symbol.Symbol;
 public class ResultDescriptor
 {
 	private Symbol symbol;
+	private Class<?> resultType;
 	private FieldMeta fieldMeta;
 
-	public ResultDescriptor(Symbol symbol)
+	public ResultDescriptor(Symbol symbol, Class<?> resultType)
 	{
 		if (symbol == null)
 			throw new IllegalArgumentException("symbol == null");
 
 		this.symbol = symbol;
+
+		if (symbol.getValueType() != null)
+			this.resultType = symbol.getValueType();
+		else
+			this.resultType = resultType;
+
+		if (this.resultType == null)
+			throw new IllegalArgumentException("resultType could not be determined!");
 	}
 
-	public ResultDescriptor(Symbol symbol, FieldMeta fieldMeta)
+	public ResultDescriptor(Symbol symbol, Class<?> resultType, FieldMeta fieldMeta)
 	{
-		this(symbol);
+		this(symbol, resultType);
 		this.fieldMeta = fieldMeta;
 	}
 
 	public Symbol getSymbol() {
 		return symbol;
+	}
+
+	public Class<?> getResultType() {
+		return resultType;
 	}
 
 	/**
@@ -41,6 +54,7 @@ public class ResultDescriptor
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((symbol == null) ? 0 : symbol.hashCode());
+		result = prime * result + ((resultType == null) ? 0 : resultType.hashCode());
 		result = prime * result + ((fieldMeta == null) ? 0 : fieldMeta.hashCode());
 		return result;
 	}
@@ -55,6 +69,7 @@ public class ResultDescriptor
 		ResultDescriptor other = (ResultDescriptor) obj;
 		return (
 				this.symbol == other.symbol || (this.symbol != null && this.symbol.equals(other.symbol)) &&
+				this.resultType == other.resultType || (this.resultType != null && this.resultType.equals(other.resultType)) &&
 				this.fieldMeta == other.fieldMeta || (this.fieldMeta != null && this.fieldMeta.equals(other.fieldMeta))
 		);
 	}

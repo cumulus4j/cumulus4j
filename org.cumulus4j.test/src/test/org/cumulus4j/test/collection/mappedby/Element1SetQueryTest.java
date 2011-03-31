@@ -153,7 +153,8 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(Element1SetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && elementVariable.name.indexOf(:elementPart) >= 0");
-		q.declareVariables(Element1.class.getName() + " elementVariable");
+		// Implicit variables are now properly supported => don't need to declare them anymore.
+//		q.declareVariables(Element1.class.getName() + " elementVariable");
 		executeQueryAndCheckResult(q, null, "4", true, 3);
 	}
 
@@ -163,7 +164,8 @@ extends AbstractTransactionalTest
 		Element1 element = getExampleElement();
 		Query q = pm.newQuery(Element1SetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && elementVariable == :element");
-		q.declareVariables(Element1.class.getName() + " elementVariable");
+		// Implicit variables are now properly supported => don't need to declare them anymore.
+//		q.declareVariables(Element1.class.getName() + " elementVariable");
 		executeQueryAndCheckResult(q, element, null, false, 1);
 	}
 }

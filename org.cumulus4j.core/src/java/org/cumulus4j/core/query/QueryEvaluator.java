@@ -3,9 +3,11 @@ package org.cumulus4j.core.query;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -122,6 +124,77 @@ public abstract class QueryEvaluator
 		return encryptionHandler;
 	}
 
+	private Deque<ResultDescriptor> resultDescriptors = new LinkedList<ResultDescriptor>();
+
+	/**
+	 * Push a {@link ResultDescriptor} onto the stack.
+	 * @param resultDescriptor the descriptor to be pushed.
+	 */
+	public void pushResultDescriptor(ResultDescriptor resultDescriptor)
+	{
+		resultDescriptors.push(resultDescriptor);
+	}
+
+	/**
+	 * Pop a {@link ResultDescriptor} from the stack.
+	 * @return the popped descriptor (which is the last one pushed).
+	 */
+	public ResultDescriptor popResultDescriptor()
+	{
+		return resultDescriptors.pop();
+	}
+
+	/**
+	 * Get a <code>Symbol</code>'s {@link Symbol#getValueType() valueType} by taking {@link ResultDescriptor}s into account.
+	 * Delegates to {@link #getValueType(Symbol, boolean)} with <code>throwExceptionIfNotFound == true</code>.
+	 *
+	 * @param symbol the symbol whose {@link Symbol#getValueType() valueType} should be resolved.
+	 * @return the type - never <code>null</code>.
+	 * @see #getValueType(Symbol, boolean)
+	 */
+	public Class<?> getValueType(Symbol symbol)
+	{
+		return getValueType(symbol, true);
+	}
+
+	/**
+	 * <p>
+	 * Get a <code>Symbol</code>'s {@link Symbol#getValueType() valueType} by taking {@link ResultDescriptor}s into account.
+	 * </p>
+	 * <p>
+	 * This method (or alternatively {@link #getValueType(Symbol)}) should always be used instead of directly
+	 * accessing {@link Symbol#getValueType()}!!! This allows for implicit variables (which are not declared).
+	 * </p>
+	 * <p>
+	 * This method first checks, if {@link Symbol#getValueType()} returns a value and if so, returns it. Otherwise
+	 * it searches the stack of {@link ResultDescriptor}s (maintained via {@link #pushResultDescriptor(ResultDescriptor)}
+	 * and {@link #popResultDescriptor()}) and returns the first found {@link ResultDescriptor#getResultType()}.
+	 * </p>
+	 *
+	 * @param symbol the symbol whose {@link Symbol#getValueType() valueType} should be resolved.
+	 * @param throwExceptionIfNotFound whether to throw an {@link IllegalStateException} [exception type might be changed without notice!],
+	 * if the type cannot be resolved. If <code>false</code> this method returns <code>null</code> instead.
+	 * @return the type or <code>null</code>, if not resolvable and <code>throwExceptionIfNotFound == false</code>.
+	 * @see #getValueType(Symbol)
+	 * @see #pushResultDescriptor(ResultDescriptor)
+	 * @see #popResultDescriptor()
+	 */
+	public Class<?> getValueType(Symbol symbol, boolean throwExceptionIfNotFound)
+	{
+		if (symbol.getValueType() != null)
+			return symbol.getValueType();
+
+		for (ResultDescriptor resultDescriptor : resultDescriptors) {
+			if (symbol.equals(resultDescriptor.getSymbol()))
+				return resultDescriptor.getResultType();
+		}
+
+		if (throwExceptionIfNotFound)
+			throw new IllegalStateException("Could not determine the resultType of symbol \"" + symbol + "\"! If this is a variable, you might want to declare it.");
+
+		return null;
+	}
+
 	/**
 	 * @param pm our <b>backend</b>-<code>PersistenceManager</code>.
 	 */
@@ -211,7 +284,7 @@ public abstract class QueryEvaluator
 			if (resultSymbol == null)
 				throw new IllegalStateException("getCompilation().getSymbolTable().getSymbol(getCandidateAlias()) returned null! getCandidateAlias()==\"" + getCandidateAlias() + "\"");
 
-			return expressionEvaluator.queryResultObjects(new ResultDescriptor(resultSymbol));
+			return expressionEvaluator.queryResultObjects(new ResultDescriptor(resultSymbol, null));
 		}
 	}
 
