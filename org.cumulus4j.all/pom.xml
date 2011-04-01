@@ -119,19 +119,23 @@ Marco :-)
 -->
 							</configuration>
 						</plugin>
+
+<!--
+Neither findbugs nor cobertura support aggregating. First of all, we probably have to move this whole maven-site-plugin stuff
+from here to the parent pom, as these plugins have to somehow be executed individually per module. And then we maybe have to
+find some manual aggregate solution. For now, we simply deactivate this plugin.
 						<plugin>
 							<groupId>org.codehaus.mojo</groupId>
 							<artifactId>findbugs-maven-plugin</artifactId>
 							<version>2.3.2</version>
 							<configuration>
 								<xmlOutput>true</xmlOutput>
-								<!-- Optional directory to put findbugs xdoc xml report -->
 								<xmlOutputDirectory>target/findbugs</xmlOutputDirectory>
 								<effort>Max</effort>
 								<threshold>Low</threshold>
-								<!-- <excludeFilterFile>src/main/findbugs/findbugs-excludes.xml</excludeFilterFile> -->
 							</configuration>
 						</plugin>
+-->						
 
 <!--
 This does not work due to a bug in Jenkins:
