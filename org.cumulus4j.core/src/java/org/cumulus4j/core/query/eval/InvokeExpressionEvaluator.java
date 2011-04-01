@@ -229,12 +229,15 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 				boolean argumentIsPersistent, Class<?> argumentType
 		)
 		{
-			if (argumentIsPersistent) {
+			if (argumentIsPersistent || subFieldMeta.getMappedByFieldMeta(executionContext) != null) {
 				Set<Long> result = new HashSet<Long>();
 				AbstractExpressionEvaluator<?> eval = queryEvaluator.getExpressionEvaluator();
-				Collection<Long> valueDataEntryIDs = eval.queryResultDataEntryIDs(new ResultDescriptor(variableExpr.getSymbol(), argumentType));
-				for (Long valueDataEntryID : valueDataEntryIDs) {
-					if (mmd.getMappedBy() != null) {
+
+				Collection<Long> valueDataEntryIDs = eval.queryResultDataEntryIDs(
+						new ResultDescriptor(variableExpr.getSymbol(), argumentType, subFieldMeta.getMappedByFieldMeta(executionContext))
+				);
+				if (mmd.getMappedBy() != null) {
+					for (Long valueDataEntryID : valueDataEntryIDs) {
 						DataEntry valueDataEntry = DataEntry.getDataEntry(pm, valueDataEntryID);
 						ObjectContainer constantObjectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(valueDataEntry, executionContext.getClassLoaderResolver());
 						Object value = constantObjectContainer.getValue(
@@ -244,7 +247,9 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 						if (mappedByDataEntryID != null)
 							result.add(mappedByDataEntryID);
 					}
-					else {
+				}
+				else {
+					for (Long valueDataEntryID : valueDataEntryIDs) {
 						IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, subFieldMeta, valueDataEntryID);
 						if (indexEntry != null) {
 							IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(indexEntry);
