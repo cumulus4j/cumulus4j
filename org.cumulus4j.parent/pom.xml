@@ -109,17 +109,17 @@
 			<dependency>
 				<groupId>org.datanucleus</groupId>
 				<artifactId>datanucleus-core</artifactId>
-				<version>[3.0.0-m3-SNAPSHOT, )</version>
+				<version>3.0.0-m3</version>
 			</dependency>
 			<dependency>
 				<groupId>org.datanucleus</groupId>
 				<artifactId>datanucleus-api-jdo</artifactId>
-				<version>[3.0.0-m3-SNAPSHOT, )</version>
+				<version>3.0.0-m3</version>
 			</dependency>
 			<dependency>
 				<groupId>org.datanucleus</groupId>
 				<artifactId>datanucleus-rdbms</artifactId>
-				<version>[3.0.0-m3-SNAPSHOT, )</version>
+				<version>3.0.0-m3</version>
 			</dependency>
 			<dependency>
 				<groupId>junit</groupId>
@@ -239,7 +239,7 @@
 				<plugin>
 					<groupId>org.datanucleus</groupId>
 					<artifactId>maven-datanucleus-plugin</artifactId>
-					<version>3.0.0-m2-SNAPSHOT</version>
+					<version>3.0.0-m1</version>
 					<configuration>
 						<log4jConfiguration>${basedir}/enhancer-log4j.properties</log4jConfiguration>
 						<verbose>true</verbose>
