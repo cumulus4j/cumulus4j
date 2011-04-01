@@ -109,10 +109,6 @@ public class InsertFieldManager extends AbstractFieldManager
 	{
 		AbstractMemberMetaData mmd = dnClassMetaData.getMetaDataForManagedMemberAtAbsolutePosition(fieldNumber);
 
-		// mapped-by => skip storing it
-//		if (mmd.getMappedBy() != null)
-//			return; // TODO is this sufficient to take 'mapped-by' into account? Needs testing // TODO maybe clear the value in case it was not mapped-by before? - what about other migrations?
-
 		FieldMeta fieldMeta = classMeta.getFieldMeta(mmd.getClassName(), mmd.getName());
 		if (fieldMeta == null)
 			throw new IllegalStateException("Unknown field! class=" + dnClassMetaData.getFullClassName() + " fieldNumber=" + fieldNumber + " fieldName=" + mmd.getName());
@@ -174,7 +170,7 @@ public class InsertFieldManager extends AbstractFieldManager
 			if (mmd.hasCollection())
 			{
 				Collection<?> collection = (Collection<?>)value;
-				Object[] ids = mmd.getMappedBy() != null ? null : new Object[collection.size()]; // TODO is this correct? TEST!
+				Object[] ids = mmd.getMappedBy() != null ? null : new Object[collection.size()];
 				int idx = -1;
 				for (Object element : collection) {
 					Object elementPC = executionContext.persistObjectInternal(element, op, fieldNumber, -1);
@@ -189,34 +185,41 @@ public class InsertFieldManager extends AbstractFieldManager
 			}
 			else if (mmd.hasMap())
 			{
-//				AbstractClassMetaData keyClassMetaData = mmd.getMap().getKeyClassMetaData(op.getExecutionContext().getClassLoaderResolver(), op.getExecutionContext().getMetaDataManager());
-//				AbstractClassMetaData valueClassMetaData = mmd.getMap().getValueClassMetaData(op.getExecutionContext().getClassLoaderResolver(), op.getExecutionContext().getMetaDataManager());
-
 				boolean keyIsPersistent = mmd.getMap().keyIsPersistent();
 				boolean valueIsPersistent = mmd.getMap().valueIsPersistent();
 
 				Map<?,?> valueMap = (Map<?, ?>) value;
-				Map<Object,Object> idMap = new HashMap<Object, Object>(valueMap.size());
+				Map<Object,Object> idMap = mmd.getMappedBy() != null ? null : new HashMap<Object, Object>(valueMap.size());
 				for (Map.Entry<?, ?> me : valueMap.entrySet()) {
 					Object k = me.getKey();
 					Object v = me.getValue();
 
 					if (keyIsPersistent) {
 						Object kpc = executionContext.persistObjectInternal(k, op, fieldNumber, -1);
-						k = ObjectContainerHelper.entityToReference(executionContext, pm, kpc);
+
+						if (idMap != null)
+							k = ObjectContainerHelper.entityToReference(executionContext, pm, kpc);
 					}
 
 					if (valueIsPersistent) {
 						Object vpc = executionContext.persistObjectInternal(v, op, fieldNumber, -1);
-						v = ObjectContainerHelper.entityToReference(executionContext, pm, vpc);
+
+						if (idMap != null)
+							v = ObjectContainerHelper.entityToReference(executionContext, pm, vpc);
 					}
 
-					idMap.put(k, v);
+					if (idMap != null)
+						idMap.put(k, v);
 				}
-				objectContainer.setValue(fieldMeta.getFieldID(), idMap);
+
+				if (idMap != null)
+					objectContainer.setValue(fieldMeta.getFieldID(), idMap);
 			}
 			else if (mmd.hasArray())
 			{
+				if (mmd.getMappedBy() != null)
+					throw new UnsupportedOperationException("NYI");
+
 				Object[] ids = new Object[Array.getLength(value)];
 				for (int i=0;i<Array.getLength(value);i++)
 				{

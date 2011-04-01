@@ -113,7 +113,7 @@ abstract class IndexEntryAction
 						IndexEntry indexEntry = getIndexEntryForObjectRelation(pm, subFieldMetaKey, otherDataEntryID);
 						_perform(pm, indexEntry, dataEntryID);
 					}
-					else { // TODO if key is mapped-by, we should better not index it?!
+					else {
 						IndexEntry indexEntry = getIndexEntry(indexEntryFactoryKey, pm, subFieldMetaKey, me.getKey());
 						_perform(pm, indexEntry, dataEntryID);
 					}
@@ -123,7 +123,7 @@ abstract class IndexEntryAction
 						IndexEntry indexEntry = getIndexEntryForObjectRelation(pm, subFieldMetaValue, otherDataEntryID);
 						_perform(pm, indexEntry, dataEntryID);
 					}
-					else { // TODO if value is mapped-by, we should better not index it?!
+					else {
 						IndexEntry indexEntry = getIndexEntry(indexEntryFactoryValue, pm, subFieldMetaValue, me.getValue());
 						_perform(pm, indexEntry, dataEntryID);
 					}

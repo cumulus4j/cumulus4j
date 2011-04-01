@@ -199,35 +199,6 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		}
 	}
 
-
-//	/**
-//	 * Get the {@link DataEntry#getDataEntryID() dataEntryID} for an object-ID.
-//	 *
-//	 * @param executionContext the execution-context. Must not be <code>null</code>.
-//	 * @param pm the backend-<code>PersistenceManager</code>. Must not be <code>null</code>.
-//	 * @param objectID the object-ID. If this is <code>null</code>, this method returns <code>null</code>. Otherwise,
-//	 * it resolves the object's <code>dataEntryID</code>.
-//	 * @return the {@link DataEntry#getDataEntryID() dataEntryID} for the given <code>objectID</code> or <code>null</code>,
-//	 * if <code>objectID == null</code>.
-//	 */
-//	protected Long getDataEntryIDForObjectID(ExecutionContext executionContext, PersistenceManager pm, Object objectID)
-//	{
-//		if (executionContext == null)
-//			throw new IllegalArgumentException("executionContext == null");
-//
-//		if (pm == null)
-//			throw new IllegalArgumentException("pm == null");
-//
-//		Long result = null;
-//		if (objectID != null) {
-//			String fieldValueClassName = storeManager.getClassNameForObjectID(objectID, executionContext.getClassLoaderResolver(), executionContext);
-//			Class<?> fieldValueClass = executionContext.getClassLoaderResolver().classForName(fieldValueClassName);
-//			ClassMeta classMeta = storeManager.getClassMeta(executionContext, fieldValueClass);
-//			result = DataEntry.getDataEntryID(pm, classMeta, objectID.toString());
-//		}
-//		return result;
-//	}
-
 	@Override
 	public void locateObject(ObjectProvider op)
 	{

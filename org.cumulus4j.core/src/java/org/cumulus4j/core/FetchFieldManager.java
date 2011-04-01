@@ -253,8 +253,56 @@ public class FetchFieldManager extends AbstractFieldManager
 				boolean keyIsPersistent = mmd.getMap().keyIsPersistent();
 				boolean valueIsPersistent = mmd.getMap().valueIsPersistent();
 
+				String keyMappedBy = mmd.getKeyMetaData() == null ? null : mmd.getKeyMetaData().getMappedBy();
+				String valueMappedBy = mmd.getValueMetaData() == null ? null : mmd.getValueMetaData().getMappedBy();
+				AbstractClassMetaData keyClassMetaData = mmd.getMap().getKeyClassMetaData(executionContext.getClassLoaderResolver(), executionContext.getMetaDataManager());
+				AbstractClassMetaData valueClassMetaData = mmd.getMap().getValueClassMetaData(executionContext.getClassLoaderResolver(), executionContext.getMetaDataManager());
+
+				int mappedKeyFieldNo = -1;
+				int mappedValueFieldNo = -1;
+
+				if (keyMappedBy != null) {
+					if (valueClassMetaData == null)
+						throw new IllegalStateException("The key is mapped-by, but there is no value-ClassMetaData!");
+
+					mappedKeyFieldNo = valueClassMetaData.getAbsolutePositionOfMember(keyMappedBy);
+				}
+
+				if (valueMappedBy != null) {
+					if (keyClassMetaData == null)
+						throw new IllegalStateException("The value is mapped-by, but there is no key-ClassMetaData!");
+
+					mappedValueFieldNo = valueClassMetaData.getAbsolutePositionOfMember(valueMappedBy);
+				}
+
 				if (mmd.getMappedBy() != null) {
-					throw new UnsupportedOperationException("NYI");
+					if (keyIsPersistent && mappedValueFieldNo < 0)
+						throw new IllegalStateException("The map's key is persistent via mappedBy (without @Join), but there is no @Value(mappedBy=\"...\")! This is invalid! " + mmd);
+
+					if (valueIsPersistent && mappedKeyFieldNo < 0)
+						throw new IllegalStateException("The map's value is persistent via mappedBy (without @Join), but there is no @Key(mappedBy=\"...\")! This is invalid! " + mmd);
+
+					for (Long mappedByDataEntryID : mappedByDataEntryIDs) {
+						Object element = getObjectFromDataEntryID(mappedByDataEntryID);
+						ObjectProvider elementOP = executionContext.findObjectProvider(element);
+						if (elementOP == null)
+							throw new IllegalStateException("executionContext.findObjectProvider(element) returned null for " + element);
+
+
+						Object key;
+						if (keyIsPersistent)
+							key = element;
+						else
+							key = elementOP.provideField(mappedKeyFieldNo);
+
+						Object value;
+						if (valueIsPersistent)
+							value = element;
+						else
+							value = elementOP.provideField(mappedValueFieldNo);
+
+						map.put(key, value);
+					}
 				}
 				else {
 					Map<?,?> idMap = (Map<?,?>) objectContainer.getValue(fieldMeta.getFieldID());

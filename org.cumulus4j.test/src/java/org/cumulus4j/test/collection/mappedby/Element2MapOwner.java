@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.jdo.annotations.Key;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 
@@ -13,6 +14,7 @@ public class Element2MapOwner
 	private String name;
 
 	@Persistent(mappedBy="owner")
+	@Key(mappedBy="key")
 	private Map<String, Element2> map = new HashMap<String, Element2>();
 
 	public String getName() {
