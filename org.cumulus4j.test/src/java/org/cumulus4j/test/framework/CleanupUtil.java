@@ -89,7 +89,7 @@ public class CleanupUtil
 						sb.append(',');
 
 					sb.append(tableName);
-				};
+				}
 				throw new IllegalStateException("Not all tables have been dropped! Still there: " + sb);
 			}
 		} finally {
@@ -127,6 +127,9 @@ public class CleanupUtil
 				return true;
 		} catch(SecurityException e) {
 			// ignore according to docs.
+			if (logger.isDebugEnabled())
+				logger.debug("deleteDirectoryRecursively: Could not delete directory \"" + dir.getAbsolutePath() + "\" (skipping deletion of its contents) due to SecurityException: " + e.getMessage(), e);
+
 			return false; // or should we really ignore this security exception and delete the contents?!?!?! To return false instead is definitely safer.
 		}
 
@@ -140,6 +143,8 @@ public class CleanupUtil
 						f.delete();
 					} catch(SecurityException e) {
 						// ignore according to docs.
+						if (logger.isDebugEnabled())
+							logger.debug("deleteDirectoryRecursively: Could not delete file \"" + f.getAbsolutePath() + "\" due to SecurityException: " + e.getMessage(), e);
 					}
 			}
 		}
