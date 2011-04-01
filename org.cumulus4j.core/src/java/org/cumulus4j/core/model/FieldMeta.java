@@ -200,44 +200,95 @@ implements DetachCallback
 	private transient FieldMeta mappedByFieldMeta;
 
 	/**
+	 * Used by {@link #getMappedByFieldMeta(ExecutionContext)} to mask <code>null</code> and thus
+	 * prevent a second unnecessary resolve process if the first already resolved to <code>null</code>.
+	 */
+	private static final FieldMeta NULL_MAPPED_BY_FIELD_META = new FieldMeta();
+
+	/**
+	 * <p>
 	 * Get the {@link FieldMeta} of the opposite end of the mapped-by-relation. If
 	 * this is not a mapped-by field, this method returns <code>null</code>.
+	 * </p>
+	 * <p>
+	 * Though, it returns always the mapped-by opposite side, the semantics of
+	 * this method still depend on the {@link #getRole() role} of this <code>FieldMeta</code>:
+	 * </p>
+	 * <ul>
+	 * <li>{@link FieldMetaRole#primary}: Returns the owner-field on the opposite side which is referenced by
+	 * &#64;Persistent(mappedBy="owner")</li>
+	 * <li>{@link FieldMetaRole#mapKey}: Returns the key-field on the opposite side which is referenced by
+	 * &#64;Key(mappedBy="key")</li>
+	 * <li>{@link FieldMetaRole#mapValue}: Returns the value-field on the opposite side which is referenced by
+	 * &#64;Value(mappedBy="value")</li>
+	 * </ul>
 	 *
 	 * @return the {@link FieldMeta} of the other end of the mapped-by-relation.
 	 */
 	public FieldMeta getMappedByFieldMeta(ExecutionContext executionContext)
 	{
 		FieldMeta mbfm = mappedByFieldMeta;
+
+		if (NULL_MAPPED_BY_FIELD_META == mbfm)
+			return null;
+
 		if (mbfm != null)
 			return mbfm;
 
 		AbstractMemberMetaData mmd = getDataNucleusMemberMetaData(executionContext);
-		if (mmd.getMappedBy() == null)
-			return null;
 
-		Class<?> typeOppositeSide;
-		if (mmd.hasCollection())
-			typeOppositeSide = executionContext.getClassLoaderResolver().classForName(mmd.getCollection().getElementType());
-		else if (mmd.hasArray())
-			typeOppositeSide = executionContext.getClassLoaderResolver().classForName(mmd.getArray().getElementType());
-		else if (mmd.hasMap()) {
-			if (mmd.getMap().keyIsPersistent())
-				typeOppositeSide = executionContext.getClassLoaderResolver().classForName(mmd.getMap().getKeyType());
-			else if (mmd.getMap().valueIsPersistent())
-				typeOppositeSide = executionContext.getClassLoaderResolver().classForName(mmd.getMap().getValueType());
+		if (mmd.getMappedBy() != null)
+		{
+			Class<?> typeOppositeSide;
+			if (mmd.hasCollection())
+				typeOppositeSide = executionContext.getClassLoaderResolver().classForName(mmd.getCollection().getElementType());
+			else if (mmd.hasArray())
+				typeOppositeSide = executionContext.getClassLoaderResolver().classForName(mmd.getArray().getElementType());
+			else if (mmd.hasMap()) {
+				if (mmd.getMap().keyIsPersistent())
+					typeOppositeSide = executionContext.getClassLoaderResolver().classForName(mmd.getMap().getKeyType());
+				else if (mmd.getMap().valueIsPersistent())
+					typeOppositeSide = executionContext.getClassLoaderResolver().classForName(mmd.getMap().getValueType());
+				else
+					throw new IllegalStateException("How can a Map be mapped-by without key and value being persistent?! Exactly one of them should be persistent!");
+			}
 			else
-				throw new IllegalStateException("How can a Map be mapped-by without key and value being persistent?! Exactly one of them should be persistent!");
+				typeOppositeSide = mmd.getType();
+
+			Cumulus4jStoreManager storeManager = (Cumulus4jStoreManager) executionContext.getStoreManager();
+			ClassMeta classMetaOppositeSide = storeManager.getClassMeta(executionContext, typeOppositeSide);
+			String mappedBy = null;
+
+			switch (role) {
+				case primary:
+					mbfm = classMetaOppositeSide.getFieldMeta(mmd.getMappedBy());
+					break;
+
+				case mapKey:
+					mappedBy = mmd.getKeyMetaData() == null ? null : mmd.getKeyMetaData().getMappedBy();
+					if (mmd.getMap().valueIsPersistent() && mappedBy == null)
+						throw new IllegalStateException("The map's value is persistent via mappedBy (without @Join), but there is no @Key(mappedBy=\"...\")! This is invalid! " + mmd);
+					break;
+
+				case mapValue:
+					mappedBy = mmd.getValueMetaData() == null ? null : mmd.getValueMetaData().getMappedBy();
+					if (mmd.getMap().keyIsPersistent() && mappedBy == null)
+						throw new IllegalStateException("The map's key is persistent via mappedBy (without @Join), but there is no @Value(mappedBy=\"...\")! This is invalid! " + mmd);
+					break;
+			}
+
+			if (mappedBy != null) {
+				mbfm = classMetaOppositeSide.getFieldMeta(mappedBy);
+				if (mbfm == null)
+					throw new IllegalStateException("Field \"" + mappedBy + "\" referenced in 'mappedBy' of " + this + " does not exist!");
+			}
 		}
-		else
-			typeOppositeSide = mmd.getType();
 
-		Cumulus4jStoreManager storeManager = (Cumulus4jStoreManager) executionContext.getStoreManager();
-		ClassMeta classMetaOppositeSide = storeManager.getClassMeta(executionContext, typeOppositeSide);
-		mbfm = classMetaOppositeSide.getFieldMeta(mmd.getMappedBy());
 		if (mbfm == null)
-			throw new IllegalStateException("Field \"" + mmd.getMappedBy() + "\" referenced in 'mapped-by' of " + this + " does not exist!");
+			mappedByFieldMeta = NULL_MAPPED_BY_FIELD_META;
+		else
+			mappedByFieldMeta = mbfm;
 
-		mappedByFieldMeta = mbfm;
 		return mbfm;
 	}
 
@@ -270,12 +321,13 @@ implements DetachCallback
 	@Override
 	public String toString()
 	{
+		ClassMeta cm = getClassMeta();
 		return (
 				this.getClass().getName()
 				+ '@'
 				+ Integer.toHexString(System.identityHashCode(this))
 				+ '['
-				+ fieldID + ',' + getClassMeta().getClassName() + '#' + getFieldName() + '[' + role + ']'
+				+ fieldID + ',' + (cm == null ? null : cm.getClassName()) + '#' + getFieldName() + '[' + role + ']'
 				+ ']'
 		);
 	}

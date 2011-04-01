@@ -11,6 +11,7 @@ import javax.jdo.PersistenceManager;
 import org.cumulus4j.core.model.ClassMeta;
 import org.cumulus4j.core.model.DataEntry;
 import org.cumulus4j.core.model.FieldMeta;
+import org.cumulus4j.core.model.FieldMetaRole;
 import org.cumulus4j.core.model.IndexEntry;
 import org.cumulus4j.core.model.IndexEntryObjectRelationHelper;
 import org.cumulus4j.core.model.IndexValue;
@@ -253,34 +254,9 @@ public class FetchFieldManager extends AbstractFieldManager
 				boolean keyIsPersistent = mmd.getMap().keyIsPersistent();
 				boolean valueIsPersistent = mmd.getMap().valueIsPersistent();
 
-				String keyMappedBy = mmd.getKeyMetaData() == null ? null : mmd.getKeyMetaData().getMappedBy();
-				String valueMappedBy = mmd.getValueMetaData() == null ? null : mmd.getValueMetaData().getMappedBy();
-				AbstractClassMetaData keyClassMetaData = mmd.getMap().getKeyClassMetaData(executionContext.getClassLoaderResolver(), executionContext.getMetaDataManager());
-				AbstractClassMetaData valueClassMetaData = mmd.getMap().getValueClassMetaData(executionContext.getClassLoaderResolver(), executionContext.getMetaDataManager());
-
-				int mappedKeyFieldNo = -1;
-				int mappedValueFieldNo = -1;
-
-				if (keyMappedBy != null) {
-					if (valueClassMetaData == null)
-						throw new IllegalStateException("The key is mapped-by, but there is no value-ClassMetaData!");
-
-					mappedKeyFieldNo = valueClassMetaData.getAbsolutePositionOfMember(keyMappedBy);
-				}
-
-				if (valueMappedBy != null) {
-					if (keyClassMetaData == null)
-						throw new IllegalStateException("The value is mapped-by, but there is no key-ClassMetaData!");
-
-					mappedValueFieldNo = valueClassMetaData.getAbsolutePositionOfMember(valueMappedBy);
-				}
-
 				if (mmd.getMappedBy() != null) {
-					if (keyIsPersistent && mappedValueFieldNo < 0)
-						throw new IllegalStateException("The map's key is persistent via mappedBy (without @Join), but there is no @Value(mappedBy=\"...\")! This is invalid! " + mmd);
-
-					if (valueIsPersistent && mappedKeyFieldNo < 0)
-						throw new IllegalStateException("The map's value is persistent via mappedBy (without @Join), but there is no @Key(mappedBy=\"...\")! This is invalid! " + mmd);
+					FieldMeta oppositeFieldMetaKey = fieldMeta.getSubFieldMeta(FieldMetaRole.mapKey).getMappedByFieldMeta(executionContext);
+					FieldMeta oppositeFieldMetaValue = fieldMeta.getSubFieldMeta(FieldMetaRole.mapValue).getMappedByFieldMeta(executionContext);
 
 					for (Long mappedByDataEntryID : mappedByDataEntryIDs) {
 						Object element = getObjectFromDataEntryID(mappedByDataEntryID);
@@ -288,18 +264,17 @@ public class FetchFieldManager extends AbstractFieldManager
 						if (elementOP == null)
 							throw new IllegalStateException("executionContext.findObjectProvider(element) returned null for " + element);
 
-
 						Object key;
 						if (keyIsPersistent)
 							key = element;
 						else
-							key = elementOP.provideField(mappedKeyFieldNo);
+							key = elementOP.provideField(oppositeFieldMetaKey.getDataNucleusAbsoluteFieldNumber());
 
 						Object value;
 						if (valueIsPersistent)
 							value = element;
 						else
-							value = elementOP.provideField(mappedValueFieldNo);
+							value = elementOP.provideField(oppositeFieldMetaValue.getDataNucleusAbsoluteFieldNumber());
 
 						map.put(key, value);
 					}

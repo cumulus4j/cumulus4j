@@ -311,6 +311,7 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 						Object value = constantObjectContainer.getValue(
 								fieldMeta.getMappedByFieldMeta(executionContext).getFieldID()
 						);
+
 						Long mappedByDataEntryID = (Long) value;
 						if (mappedByDataEntryID == null)
 							return Collections.emptySet();
@@ -326,6 +327,28 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 
 				IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(indexEntry);
 				return indexValue.getDataEntryIDs();
+			}
+			else if (subFieldMeta.getMappedByFieldMeta(executionContext) != null) {
+				FieldMeta oppositeFieldMeta = subFieldMeta.getMappedByFieldMeta(executionContext);
+				IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(executionContext, oppositeFieldMeta, true);
+				IndexEntry indexEntry = indexEntryFactory == null ? null : indexEntryFactory.getIndexEntry(pm, oppositeFieldMeta, constant);
+				if (indexEntry == null)
+					return Collections.emptySet();
+
+				IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(indexEntry);
+				Set<Long> result = new HashSet<Long>(indexValue.getDataEntryIDs().size());
+				for (Long elementDataEntryID : indexValue.getDataEntryIDs()) {
+					DataEntry elementDataEntry = DataEntry.getDataEntry(pm, elementDataEntryID);
+					ObjectContainer elementObjectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(elementDataEntry, executionContext.getClassLoaderResolver());
+					Object value = elementObjectContainer.getValue(
+							fieldMeta.getMappedByFieldMeta(executionContext).getFieldID()
+					);
+
+					Long mappedByDataEntryID = (Long) value;
+					if (mappedByDataEntryID != null)
+						result.add(mappedByDataEntryID);
+				}
+				return result;
 			}
 			else {
 				IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(executionContext, subFieldMeta, true);
