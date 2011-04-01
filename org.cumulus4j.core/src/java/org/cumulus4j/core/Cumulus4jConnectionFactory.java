@@ -180,14 +180,10 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 
         public boolean isSameRM(XAResource resource) throws XAException
         {
-            if (resource instanceof Cumulus4jXAResource)
-            {
-                if (pm.equals(((Cumulus4jXAResource)resource).pm))
-                {
-                    return true;
-                }
-            }
-            return false;
+        	if ((resource instanceof Cumulus4jXAResource) && pm.equals(((Cumulus4jXAResource)resource).pm))
+        		return true;
+        	else
+        		return false;
         }
 
         public int prepare(Xid arg0) throws XAException

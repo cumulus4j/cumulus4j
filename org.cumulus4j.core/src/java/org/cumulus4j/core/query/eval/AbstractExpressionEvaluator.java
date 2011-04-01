@@ -86,11 +86,10 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 	public AbstractExpressionEvaluator<? extends Expression> getLeft() {
 		return left;
 	}
-	public void setLeft(AbstractExpressionEvaluator<? extends Expression> left) {
-		if (left != null) {
-			if (!this.equals(left.getParent()))
-				throw new IllegalArgumentException("this != left.parent");
-		}
+	public void setLeft(AbstractExpressionEvaluator<? extends Expression> left)
+	{
+		if (left != null && !this.equals(left.getParent()))
+			throw new IllegalArgumentException("this != left.parent");
 
 		this.left = left;
 	}
@@ -98,11 +97,10 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 	public AbstractExpressionEvaluator<? extends Expression> getRight() {
 		return right;
 	}
-	public void setRight(AbstractExpressionEvaluator<? extends Expression> right) {
-		if (right != null) {
-			if (!this.equals(right.getParent()))
-				throw new IllegalArgumentException("this != right.parent");
-		}
+	public void setRight(AbstractExpressionEvaluator<? extends Expression> right)
+	{
+		if (right != null && !this.equals(right.getParent()))
+			throw new IllegalArgumentException("this != right.parent");
 
 		this.right = right;
 	}

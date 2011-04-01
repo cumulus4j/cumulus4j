@@ -285,13 +285,11 @@ public class FetchFieldManager extends AbstractFieldManager
 						Object k = me.getKey();
 						Object v = me.getValue();
 
-						if (keyIsPersistent) {
+						if (keyIsPersistent)
 							k = ObjectContainerHelper.referenceToEntity(executionContext, pm, k);
-						}
 
-						if (valueIsPersistent) {
+						if (valueIsPersistent)
 							v = ObjectContainerHelper.referenceToEntity(executionContext, pm, v);
-						}
 
 						map.put(k, v);
 					}

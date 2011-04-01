@@ -105,11 +105,14 @@ Marco :-)
 								<sourceEncoding>utf-8</sourceEncoding>
 								<minimumTokens>100</minimumTokens>
 								<targetJdk>1.6</targetJdk>
-<!--
 								<excludes>
-									<exclude>**/*Bean.java</exclude>
-									<exclude>**/generated/*.java</exclude>
+									<!--
+									ID classes in tests are usually auto-generated (by the NightLabs SDK) and contain heaps
+									of duplicated code (the same in each class).
+									-->
+									<exclude>**/test/**/id/*ID.java</exclude>
 								</excludes>
+<!--
 								<excludeRoots>
 									<excludeRoot>target/generated-sources/stubs</excludeRoot>
 								</excludeRoots>

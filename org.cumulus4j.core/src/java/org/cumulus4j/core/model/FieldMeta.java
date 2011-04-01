@@ -18,6 +18,8 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.annotations.Unique;
 import javax.jdo.annotations.Uniques;
+import javax.jdo.annotations.Version;
+import javax.jdo.annotations.VersionStrategy;
 import javax.jdo.listener.DetachCallback;
 
 import org.cumulus4j.core.Cumulus4jStoreManager;
@@ -33,6 +35,7 @@ import org.datanucleus.store.ExecutionContext;
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
+@Version(strategy=VersionStrategy.VERSION_NUMBER)
 @Uniques({
 	@Unique(name="FieldMeta_classMeta_ownerFieldMeta_fieldName_role", members={"classMeta", "ownerFieldMeta", "fieldName", "role"})
 })

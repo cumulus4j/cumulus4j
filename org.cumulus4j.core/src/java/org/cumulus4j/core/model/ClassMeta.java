@@ -21,6 +21,8 @@ import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.annotations.Queries;
 import javax.jdo.annotations.Query;
 import javax.jdo.annotations.Unique;
+import javax.jdo.annotations.Version;
+import javax.jdo.annotations.VersionStrategy;
 
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.store.ExecutionContext;
@@ -33,6 +35,7 @@ import org.datanucleus.store.ExecutionContext;
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
+@Version(strategy=VersionStrategy.VERSION_NUMBER)
 @Unique(name="ClassMeta_fullyQualifiedClassName", members={"packageName", "simpleClassName"})
 @FetchGroups({
 	@FetchGroup(name=FetchPlan.ALL, members={

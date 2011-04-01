@@ -13,6 +13,8 @@ import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.annotations.Queries;
 import javax.jdo.annotations.Query;
 import javax.jdo.annotations.Unique;
+import javax.jdo.annotations.Version;
+import javax.jdo.annotations.VersionStrategy;
 import javax.jdo.identity.LongIdentity;
 import javax.jdo.listener.StoreCallback;
 
@@ -22,9 +24,7 @@ import javax.jdo.listener.StoreCallback;
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
-// We use single-field-identity, thus no object-id-class:
-//   http://www.datanucleus.org/products/accessplatform_3_0/jdo/primary_key.html
-//   http://db.apache.org/jdo/api20/apidocs/javax/jdo/identity/SingleFieldIdentity.html
+@Version(strategy=VersionStrategy.VERSION_NUMBER)
 @Unique(name="DataEntry_classMeta_objectID", members={"classMeta", "objectID"})
 @Queries({
 	@Query(

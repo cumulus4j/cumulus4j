@@ -10,6 +10,8 @@ import javax.jdo.annotations.NullValue;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+import javax.jdo.annotations.Version;
+import javax.jdo.annotations.VersionStrategy;
 import javax.jdo.listener.StoreCallback;
 
 /**
@@ -64,6 +66,7 @@ import javax.jdo.listener.StoreCallback;
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 @Inheritance(strategy=InheritanceStrategy.SUBCLASS_TABLE)
+@Version(strategy=VersionStrategy.VERSION_NUMBER)
 //@Unique(members={"fieldMeta", "indexKeyDouble", "indexKeyLong", "indexKeyString"})
 public abstract class IndexEntry
 implements StoreCallback
