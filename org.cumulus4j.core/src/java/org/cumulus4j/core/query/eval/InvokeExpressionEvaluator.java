@@ -230,12 +230,15 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 		)
 		{
 			if (argumentIsPersistent || subFieldMeta.getMappedByFieldMeta(executionContext) != null) {
-				Set<Long> result = new HashSet<Long>();
 				AbstractExpressionEvaluator<?> eval = queryEvaluator.getExpressionEvaluator();
 
 				Collection<Long> valueDataEntryIDs = eval.queryResultDataEntryIDs(
 						new ResultDescriptor(variableExpr.getSymbol(), argumentType, subFieldMeta.getMappedByFieldMeta(executionContext))
 				);
+				if (valueDataEntryIDs == null)
+					return null;
+
+				Set<Long> result = new HashSet<Long>();
 				if (mmd.getMappedBy() != null) {
 					for (Long valueDataEntryID : valueDataEntryIDs) {
 						DataEntry valueDataEntry = DataEntry.getDataEntry(pm, valueDataEntryID);
