@@ -12,4 +12,25 @@
 	<version>${cumulus4j.version}</version>
 	<name>org.cumulus4j.api</name>
 	<description>Cumulus4j API providing annotations, interfaces and key management API classes.</description>
+	<packaging>bundle</packaging>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Bundle-SymbolicName>${pom.artifactId};singleton:=true</Bundle-SymbolicName>
+						<Export-Package>org.cumulus4j.api,org.cumulus4j.api.*</Export-Package>
+						<Private-Package>org.cumulus4j.api.internal,org.cumulus4j.api.internal.*</Private-Package>
+<!-- We currently don't have an activator.
+						<Bundle-Activator>com.my.company.Activator</Bundle-Activator>
+-->
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

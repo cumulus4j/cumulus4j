@@ -13,30 +13,39 @@
 	<version>${cumulus4j.version}</version>
 	<name>org.cumulus4j.core</name>
 	<description>Cumulus4j Core</description>
+	<packaging>bundle</packaging>
 
 	<build>
 		<plugins>
 			<plugin>
-				<artifactId>maven-jar-plugin</artifactId>
+				<artifactId>maven-clean-plugin</artifactId>
 				<configuration>
-					<archive>
-						<manifestFile>META-INF/MANIFEST.MF</manifestFile>
-					</archive>
+					<filesets>
+						<fileset>
+							<directory>${basedir}</directory>
+							<includes>
+								<include>*.log</include>
+							</includes>
+						</fileset>
+					</filesets>
 				</configuration>
 			</plugin>
-            <plugin>
-                <artifactId>maven-clean-plugin</artifactId>
-                <configuration>
-                    <filesets>
-                        <fileset>
-                            <directory>${basedir}</directory>
-                            <includes>
-                                <include>*.log</include>
-                            </includes>
-                        </fileset>
-                    </filesets>
-                </configuration>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Bundle-SymbolicName>${pom.artifactId};singleton:=true</Bundle-SymbolicName>
+<!-- We currently don't export anything. The API will probably be separate in the org.cumulus4j.api project. -->
+						<Export-Package>!org.cumulus4j.core</Export-Package>
+						<Private-Package>org.cumulus4j.core.*</Private-Package>
+<!-- We currently don't have an activator.
+						<Bundle-Activator>com.my.company.Activator</Bundle-Activator>
+-->
+					</instructions>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 </project>
