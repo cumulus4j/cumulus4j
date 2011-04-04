@@ -247,11 +247,11 @@
 					<version>3.0.0-m1</version>
 					<configuration>
 						<log4jConfiguration>${basedir}/enhancer-log4j.properties</log4jConfiguration>
-						<verbose>true</verbose>
+						<verbose>false</verbose>
 						<fork>false</fork>
 						<!--
-					<props>${basedir}/datanucleus.properties</props>
-					-->
+					    <props>${basedir}/datanucleus.properties</props>
+					    -->
 					</configuration>
 					<executions>
 						<execution>
