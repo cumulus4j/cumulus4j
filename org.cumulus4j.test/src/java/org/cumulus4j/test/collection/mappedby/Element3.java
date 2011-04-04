@@ -35,4 +35,9 @@ public class Element3
 	protected void setOwner(Element3MapOwner owner) {
 		this.owner = owner;
 	}
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + "[value=\"" + value + "\", name=\"" + name + "\"" + ", owner=" + owner + ']';
+	}
 }

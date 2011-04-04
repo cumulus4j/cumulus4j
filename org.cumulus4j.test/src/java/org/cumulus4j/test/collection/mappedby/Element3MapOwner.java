@@ -31,4 +31,8 @@ public class Element3MapOwner
 		element3.setOwner(this);
 		map.put(element3, element3.getValue());
 	}
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + "[name=\"" + name + "\"]";
+	}
 }

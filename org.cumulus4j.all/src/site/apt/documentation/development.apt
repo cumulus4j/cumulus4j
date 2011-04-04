@@ -37,7 +37,7 @@ Workspace-Setup Cumulus4j-DataNucleus-Plug-in
 
 		* {{{http://maven.apache.org/download.html}Download}}
 
-		* Either version 2 or 3 (both seem to work fine)
+		* Version 3 is required.
 
 * A: Workspace withOUT DataNucleus sources
 
