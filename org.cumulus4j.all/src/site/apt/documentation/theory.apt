@@ -1,7 +1,60 @@
 	---
 	Theory
 	---
+	Matthias Huber, Matthias Gabel
+	---
+	2011-04-05
 
 Theory
 
-	Bla bla - Here should be explained, how Cumulus4j works. With pictures!
+Cumulus4j uses encryption in order to protect your data.
+
+
+Before data is written to the data store, it gets encrypted by Cumulus4j.
+Cumulus4j also decrypts data before it is used by your application.
+All this happens transparent to your application.
+
+
+* Encryption
+
+We use state of the art probabilistic symmetric encryption schemes (eg. AES with PKCS#5 padding) to protect your data.
+The encryption not only hides the content, it also makes shure that data manipulations will be detected.
+In order to support efficient queries, indices are created or updated during the encryption phase.
+Then, the indices and the data gets stored in the database backend.
+
+
+* Decryption
+
+Cumulus4j transforms issued queries in order to execute them on the encrypted data.
+Selections are executed efficiently with the help of the indices. Projections and aggregations are executed on the selected encrypted data.
+
+
+* Example
+
+In this example, we consider a simple SQL query "SELECT * FROM clients WHERE name * 'Alice' and surname * 'Jones'.
+In the first step, the query is parsed and the type (SELECT) is determined.
+Then the relevant tables are identified (in this case: clients).
+Then the index tables for the table clients are queried to retrieve all row numbers of relevant records in the encrypted table.
+After decrypting those lines, the original query is executed on the relevant data in an additional local database, yielding the correct result.
+
+
+* Security
+
+In the index tables the information that a record 'Alice Jones' exists, is hidden by fragmentation.
+Only the information that at least one record with name 'Alice' and at least one record with surname 'Jones' exist, are visible in the index tables.
+With the key only available on the client's side, all associations are hidden from the cloud provider.
+Data manipulation caused by the provider can be easily detected during decryption.
+Enhancing security is one of the project's goals.
+
+
+* Compatibility
+
+The Cumulus4j-Adapter can be used fully transparent to the client application, that uses it like a regular SQL backend.
+It is integrated into DataNucleus and supports the full range of JDOQL.
+
+
+* Performance
+
+Due to the use of symmetric encryption and indices for fast record lookup, the plugin already provides good performance.
+One goal of this project is speed optimization resulting in only a small overhead for security.
+
