@@ -134,4 +134,20 @@ extends AbstractTransactionalTest
 		q.setFilter("this.levelA.levelB.name != :name");
 		executeQueryAndCheckResult(q, "b 1", 4, true);
 	}
+
+	@Test
+	public void queryNegatedLevelBNameEquals()
+	{
+		Query q = pm.newQuery(Root.class);
+		q.setFilter("!(this.levelA.levelB.name == :name)");
+		executeQueryAndCheckResult(q, "b 1", 4, true);
+	}
+
+	@Test
+	public void queryNegatedLevelBNameNotEquals()
+	{
+		Query q = pm.newQuery(Root.class);
+		q.setFilter("!(this.levelA.levelB.name != :name)");
+		executeQueryAndCheckResult(q, "b 1", 1, false);
+	}
 }

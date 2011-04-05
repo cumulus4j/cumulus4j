@@ -23,6 +23,7 @@ import org.cumulus4j.core.query.eval.AndExpressionEvaluator;
 import org.cumulus4j.core.query.eval.ComparisonExpressionEvaluator;
 import org.cumulus4j.core.query.eval.InvokeExpressionEvaluator;
 import org.cumulus4j.core.query.eval.LiteralEvaluator;
+import org.cumulus4j.core.query.eval.NotExpressionEvaluator;
 import org.cumulus4j.core.query.eval.ParameterExpressionEvaluator;
 import org.cumulus4j.core.query.eval.PrimaryExpressionEvaluator;
 import org.cumulus4j.core.query.eval.ResultDescriptor;
@@ -223,11 +224,8 @@ public abstract class QueryEvaluator
 			Query subquery, QueryCompilation compilation, Object outerCandidate
 	);
 
-	public List<Object> execute()
+	public Set<? extends Class<?>> getCandidateClasses(Class<?> candidateClass, boolean withSubclasses)
 	{
-		Class<?> candidateClass = query.getCandidateClass();
-		boolean withSubclasses = query.isSubclasses();
-
 		Set<? extends Class<?>> candidateClasses;
 		if (withSubclasses) {
 			HashSet<String> classNames = storeManager.getSubClassesForClass(candidateClass.getName(), true, clr);
@@ -242,11 +240,27 @@ public abstract class QueryEvaluator
 		else
 			candidateClasses = Collections.singleton(candidateClass);
 
+		return candidateClasses;
+	}
+
+	public Set<ClassMeta> getCandidateClassMetas(Class<?> candidateClass, boolean withSubclasses)
+	{
+		Set<? extends Class<?>> candidateClasses = getCandidateClasses(candidateClass, withSubclasses);
+
 		Set<ClassMeta> candidateClassMetas = new HashSet<ClassMeta>(candidateClasses.size());
 		for (Class<?> c : candidateClasses) {
 			ClassMeta cm = storeManager.getClassMeta(ec, c);
 			candidateClassMetas.add(cm);
 		}
+
+		return candidateClassMetas;
+	}
+
+	public List<Object> execute()
+	{
+		Class<?> candidateClass = query.getCandidateClass();
+		boolean withSubclasses = query.isSubclasses();
+		Set<ClassMeta> candidateClassMetas = getCandidateClassMetas(candidateClass, withSubclasses);
 
 		// TODO I copied this from the JavaQueryEvaluator, but I'm not sure, whether we need this. Need to talk with Andy. Marco.
 		// ...or analyse it ourselves (step through)...
@@ -334,6 +348,8 @@ public abstract class QueryEvaluator
 				return new ComparisonExpressionEvaluator(this, parent, expression);
 			else if (Expression.OP_AND == expression.getOperator())
 				return new AndExpressionEvaluator(this, parent, expression);
+			else if (Expression.OP_NOT == expression.getOperator())
+				return new NotExpressionEvaluator(this, parent, expression);
 			else
 				throw new UnsupportedOperationException("Unsupported operator for DyadicExpression: " + expr);
 		}
