@@ -136,7 +136,7 @@ extends AbstractTransactionalTest
 	}
 
 	@Test
-	public void queryNegatedLevelBNameEquals()
+	public void queryNotLevelBNameEquals()
 	{
 		Query q = pm.newQuery(Root.class);
 		q.setFilter("!(this.levelA.levelB.name == :name)");
@@ -144,7 +144,7 @@ extends AbstractTransactionalTest
 	}
 
 	@Test
-	public void queryNegatedLevelBNameNotEquals()
+	public void queryNotLevelBNameNotEquals()
 	{
 		Query q = pm.newQuery(Root.class);
 		q.setFilter("!(this.levelA.levelB.name != :name)");

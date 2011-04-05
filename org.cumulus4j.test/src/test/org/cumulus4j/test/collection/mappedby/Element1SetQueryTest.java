@@ -66,9 +66,14 @@ extends AbstractTransactionalTest
 			owner.setName("Owner 4");
 			owner.addElement1(new Element1("Element1 4.3"));
 		}
+
+		{
+			Element1SetOwner owner = pm.makePersistent(new Element1SetOwner());
+			owner.setName("Owner 5");
+		}
 	}
 
-	private void executeQueryAndCheckResult(Query q, Object queryParamO, String queryParamS, boolean indexOf, int expectedResultListSize)
+	private void executeQueryAndCheckResult(Query q, Object queryParamO, String queryParamS, boolean indexOf, int expectedResultListSize, boolean negated)
 	{
 		String testMethodName = new Exception().getStackTrace()[1].getMethodName();
 
@@ -100,17 +105,35 @@ extends AbstractTransactionalTest
 
 				if (queryParamS != null) {
 					if (indexOf) {
-						if (setElement.getName().indexOf(queryParamS) >= 0)
-							resultElementMatches = true;
+						if (negated) {
+							if (setElement.getName().indexOf(queryParamS) < 0)
+								resultElementMatches = true;
+						}
+						else {
+							if (setElement.getName().indexOf(queryParamS) >= 0)
+								resultElementMatches = true;
+						}
 					}
 					else {
-						if (setElement.getName().equals(queryParamS))
-							resultElementMatches = true;
+						if (negated) {
+							if (!setElement.getName().equals(queryParamS))
+								resultElementMatches = true;
+						}
+						else {
+							if (setElement.getName().equals(queryParamS))
+								resultElementMatches = true;
+						}
 					}
 				}
 				else {
-					if (queryParamO.equals(setElement))
-						resultElementMatches = true;
+					if (negated) {
+						if (!queryParamO.equals(setElement))
+							resultElementMatches = true;
+					}
+					else {
+						if (queryParamO.equals(setElement))
+							resultElementMatches = true;
+					}
 				}
 
 				if (sb.length() > 0)
@@ -129,10 +152,14 @@ extends AbstractTransactionalTest
 
 	private Element1 getExampleElement()
 	{
+		return getExampleElement("Element1 3.2");
+	}
+	private Element1 getExampleElement(String name)
+	{
 		Query q = pm.newQuery(Element1.class);
 		q.setFilter("this.name == :name");
 		q.setUnique(true);
-		Element1 element = (Element1) q.execute("Element1 3.2");
+		Element1 element = (Element1) q.execute(name);
 		if (element == null)
 			throw new IllegalStateException("No matching Element1 found!");
 
@@ -145,7 +172,7 @@ extends AbstractTransactionalTest
 		Element1 element = getExampleElement();
 		Query q = pm.newQuery(Element1SetOwner.class);
 		q.setFilter("this.set.contains(:element)");
-		executeQueryAndCheckResult(q, element, null, false, 1);
+		executeQueryAndCheckResult(q, element, null, false, 1, false);
 	}
 
 	@Test
@@ -155,7 +182,7 @@ extends AbstractTransactionalTest
 		q.setFilter("this.set.contains(elementVariable) && elementVariable.name.indexOf(:elementPart) >= 0");
 		// Implicit variables are now properly supported => don't need to declare them anymore.
 //		q.declareVariables(Element1.class.getName() + " elementVariable");
-		executeQueryAndCheckResult(q, null, "4", true, 3);
+		executeQueryAndCheckResult(q, null, "4", true, 3, false);
 	}
 
 	@Test
@@ -166,6 +193,56 @@ extends AbstractTransactionalTest
 		q.setFilter("this.set.contains(elementVariable) && elementVariable == :element");
 		// Implicit variables are now properly supported => don't need to declare them anymore.
 //		q.declareVariables(Element1.class.getName() + " elementVariable");
-		executeQueryAndCheckResult(q, element, null, false, 1);
+		executeQueryAndCheckResult(q, element, null, false, 1, false);
+	}
+
+// TODO implement this
+//	@Test
+//	public void queryNotContainsParameter()
+//	{
+//		Element1 element = getExampleElement();
+//		Query q = pm.newQuery(Element1SetOwner.class);
+//		q.setFilter("!this.set.contains(:element)");
+//		executeQueryAndCheckResult(q, element, null, false, 4, true);
+//	}
+
+	/**
+	 * Should behave exactly like #queryContainsVariableAndNotVariableIndexOf()
+	 */
+	@Test
+	public void queryContainsVariableAndVariableNotIndexOf()
+	{
+		Query q = pm.newQuery(Element1SetOwner.class);
+		q.setFilter("this.set.contains(elementVariable) && elementVariable.name.indexOf(:elementPart) < 0");
+		executeQueryAndCheckResult(q, null, "4", true, 3, true);
+	}
+
+	/**
+	 * Should behave exactly like #queryContainsVariableAndVariableNotIndexOf()
+	 */
+	@Test
+	public void queryContainsVariableAndNotVariableIndexOf()
+	{
+		Query q = pm.newQuery(Element1SetOwner.class);
+		q.setFilter("this.set.contains(elementVariable) && !(elementVariable.name.indexOf(:elementPart) >= 0)");
+		executeQueryAndCheckResult(q, null, "4", true, 3, true);
+	}
+
+	@Test
+	public void queryContainsVariableAndNotVariableEquals1()
+	{
+		Element1 element = getExampleElement();
+		Query q = pm.newQuery(Element1SetOwner.class);
+		q.setFilter("this.set.contains(elementVariable) && !(elementVariable == :element)");
+		executeQueryAndCheckResult(q, element, null, false, 4, true);
+	}
+
+	@Test
+	public void queryContainsVariableAndNotVariableEquals2()
+	{
+		Element1 element = getExampleElement("Element1 4.3");
+		Query q = pm.newQuery(Element1SetOwner.class);
+		q.setFilter("this.set.contains(elementVariable) && !(elementVariable == :element)");
+		executeQueryAndCheckResult(q, element, null, false, 3, true);
 	}
 }

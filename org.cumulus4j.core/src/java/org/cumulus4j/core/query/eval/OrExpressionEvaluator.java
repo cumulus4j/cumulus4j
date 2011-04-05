@@ -7,14 +7,14 @@ import org.cumulus4j.core.query.QueryEvaluator;
 import org.datanucleus.query.expression.DyadicExpression;
 
 /**
- * Evaluator handling the boolean operation &amp;&amp;.
+ * Evaluator handling the boolean operation ||.
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public class AndExpressionEvaluator
+public class OrExpressionEvaluator
 extends AbstractExpressionEvaluator<DyadicExpression>
 {
-	public AndExpressionEvaluator(QueryEvaluator queryEvaluator, AbstractExpressionEvaluator<?> parent, DyadicExpression expression) {
+	public OrExpressionEvaluator(QueryEvaluator queryEvaluator, AbstractExpressionEvaluator<?> parent, DyadicExpression expression) {
 		super(queryEvaluator, parent, expression);
 	}
 
@@ -22,7 +22,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 	protected Set<Long> _queryResultDataEntryIDs(ResultDescriptor resultDescriptor)
 	{
 		if (resultDescriptor.isNegated())
-			return new OrExpressionEvaluator(getQueryEvaluator(), getParent(), getExpression())._queryResultDataEntryIDsIgnoringNegation(resultDescriptor);
+			return new AndExpressionEvaluator(getQueryEvaluator(), getParent(), getExpression())._queryResultDataEntryIDsIgnoringNegation(resultDescriptor);
 		else
 			return _queryResultDataEntryIDsIgnoringNegation(resultDescriptor);
 	}
@@ -39,24 +39,9 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		Set<Long> rightResult = getRight().queryResultDataEntryIDs(resultDescriptor);
 
 		if (leftResult != null && rightResult != null) {
-			Set<Long> dataEntryIDs1;
-			Set<Long> dataEntryIDs2;
-
-			// Swap them, if the first set is bigger than the 2nd (we want to always iterate the smaller set => faster).
-			if (leftResult.size() > rightResult.size()) {
-				dataEntryIDs1 = rightResult;
-				dataEntryIDs2 = leftResult;
-			}
-			else {
-				dataEntryIDs1 = leftResult;
-				dataEntryIDs2 = rightResult;
-			}
-
-			Set<Long> result = new HashSet<Long>(dataEntryIDs1.size());
-			for (Long dataEntryID : dataEntryIDs1) {
-				if (dataEntryIDs2.contains(dataEntryID))
-					result.add(dataEntryID);
-			}
+			Set<Long> result = new HashSet<Long>(leftResult.size() + rightResult.size());
+			result.addAll(leftResult);
+			result.addAll(rightResult);
 			return result;
 		}
 		else if (leftResult != null)

@@ -24,6 +24,7 @@ import org.cumulus4j.core.query.eval.ComparisonExpressionEvaluator;
 import org.cumulus4j.core.query.eval.InvokeExpressionEvaluator;
 import org.cumulus4j.core.query.eval.LiteralEvaluator;
 import org.cumulus4j.core.query.eval.NotExpressionEvaluator;
+import org.cumulus4j.core.query.eval.OrExpressionEvaluator;
 import org.cumulus4j.core.query.eval.ParameterExpressionEvaluator;
 import org.cumulus4j.core.query.eval.PrimaryExpressionEvaluator;
 import org.cumulus4j.core.query.eval.ResultDescriptor;
@@ -348,6 +349,8 @@ public abstract class QueryEvaluator
 				return new ComparisonExpressionEvaluator(this, parent, expression);
 			else if (Expression.OP_AND == expression.getOperator())
 				return new AndExpressionEvaluator(this, parent, expression);
+			else if (Expression.OP_OR == expression.getOperator())
+				return new OrExpressionEvaluator(this, parent, expression);
 			else if (Expression.OP_NOT == expression.getOperator())
 				return new NotExpressionEvaluator(this, parent, expression);
 			else

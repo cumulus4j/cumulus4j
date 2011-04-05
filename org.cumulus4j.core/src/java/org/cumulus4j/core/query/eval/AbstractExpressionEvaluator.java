@@ -38,6 +38,8 @@ import org.datanucleus.query.symbol.Symbol;
  */
 public abstract class AbstractExpressionEvaluator<X extends Expression>
 {
+	private static final boolean CHECK_RESULT_DATA_ENTRY_IDS = true;
+
 	private QueryEvaluator queryEvaluator;
 
 	private AbstractExpressionEvaluator<?> parent;
@@ -214,6 +216,9 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 			if (!resultDescriptor2resultDataEntryIDs.containsKey(resultDescriptor)) {
 				resultDataEntryIDs = _queryResultDataEntryIDs(resultDescriptor);
 
+				if (CHECK_RESULT_DATA_ENTRY_IDS)
+					checkResultDataEntryIDs(resultDataEntryIDs);
+
 				if (resultDataEntryIDs != null)
 					resultDataEntryIDs = Collections.unmodifiableSet(resultDataEntryIDs);
 
@@ -225,6 +230,16 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 			ResultDescriptor popResultDescriptor = getQueryEvaluator().popResultDescriptor();
 			if (resultDescriptor != popResultDescriptor)
 				throw new IllegalStateException("resultDescriptor != popResultDescriptor");
+		}
+	}
+
+	private void checkResultDataEntryIDs(Set<?> dataEntryIDs) {
+		if (dataEntryIDs == null)
+			return;
+
+		for (Object object : dataEntryIDs) {
+			if (!(object instanceof Long))
+				throw new IllegalStateException(this.getClass().getName() + ": dataEntryIDs contains object which is not a Long: " + object);
 		}
 	}
 

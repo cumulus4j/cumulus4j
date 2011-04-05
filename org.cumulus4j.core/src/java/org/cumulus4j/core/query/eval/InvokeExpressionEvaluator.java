@@ -70,12 +70,16 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 						invokeArgument = QueryUtils.getValueForParameterExpression(getQueryEvaluator().getParameterValues(), (ParameterExpression)invokeArgExpr);
 					else if (invokeArgExpr instanceof VariableExpression)
 						return new ContainsVariableResolver(
-								getQueryEvaluator(), primaryExpr, FieldMetaRole.collectionElement, (VariableExpression) invokeArgExpr
+								getQueryEvaluator(), primaryExpr, FieldMetaRole.collectionElement, (VariableExpression) invokeArgExpr,
+								resultDescriptor.isNegated()
 						).query();
 					else
 						throw new UnsupportedOperationException("NYI");
 
-					return new ContainsConstantResolver(getQueryEvaluator(), primaryExpr, FieldMetaRole.collectionElement, invokeArgument).query();
+					return new ContainsConstantResolver(
+							getQueryEvaluator(), primaryExpr, FieldMetaRole.collectionElement, invokeArgument,
+							resultDescriptor.isNegated()
+					).query();
 				}
 				throw new UnsupportedOperationException("The method 'contains' is not supported for the data type " + parameterType.getName() + '!');
 			}
@@ -98,12 +102,16 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 						invokeArgument = QueryUtils.getValueForParameterExpression(getQueryEvaluator().getParameterValues(), (ParameterExpression)invokeArgExpr);
 					else if (invokeArgExpr instanceof VariableExpression)
 						return new ContainsVariableResolver(
-								getQueryEvaluator(), primaryExpr, FieldMetaRole.mapKey, (VariableExpression) invokeArgExpr
+								getQueryEvaluator(), primaryExpr, FieldMetaRole.mapKey, (VariableExpression) invokeArgExpr,
+								resultDescriptor.isNegated()
 						).query();
 					else
 						throw new UnsupportedOperationException("NYI");
 
-					return new ContainsConstantResolver(getQueryEvaluator(), primaryExpr, FieldMetaRole.mapKey, invokeArgument).query();
+					return new ContainsConstantResolver(
+							getQueryEvaluator(), primaryExpr, FieldMetaRole.mapKey, invokeArgument,
+							resultDescriptor.isNegated()
+					).query();
 				}
 				throw new UnsupportedOperationException("The method 'containsKey' is not supported for the data type " + parameterType.getName() + '!');
 			}
@@ -126,12 +134,16 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 						invokeArgument = QueryUtils.getValueForParameterExpression(getQueryEvaluator().getParameterValues(), (ParameterExpression)invokeArgExpr);
 					else if (invokeArgExpr instanceof VariableExpression)
 						return new ContainsVariableResolver(
-								getQueryEvaluator(), primaryExpr, FieldMetaRole.mapValue, (VariableExpression) invokeArgExpr
+								getQueryEvaluator(), primaryExpr, FieldMetaRole.mapValue, (VariableExpression) invokeArgExpr,
+								resultDescriptor.isNegated()
 						).query();
 					else
 						throw new UnsupportedOperationException("NYI");
 
-					return new ContainsConstantResolver(getQueryEvaluator(), primaryExpr, FieldMetaRole.mapValue, invokeArgument).query();
+					return new ContainsConstantResolver(
+							getQueryEvaluator(), primaryExpr, FieldMetaRole.mapValue, invokeArgument,
+							resultDescriptor.isNegated()
+					).query();
 				}
 				throw new UnsupportedOperationException("The method 'containsValue' is not supported for the data type " + parameterType.getName() + '!');
 			}
@@ -148,15 +160,17 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 
 		protected FieldMetaRole role;
 		protected PersistenceManager pm;
+		protected boolean negate;
 
 		public AbstractContainsResolver(
 				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
-				FieldMetaRole role
+				FieldMetaRole role, boolean negate
 		)
 		{
 			super(queryEvaluator, primaryExpression);
 			this.role = role;
 			this.pm = queryEvaluator.getPersistenceManager();
+			this.negate = negate;
 
 			if (role != FieldMetaRole.collectionElement && role != FieldMetaRole.mapKey && role != FieldMetaRole.mapValue)
 				throw new IllegalArgumentException("role == " + role);
@@ -209,10 +223,10 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 
 		public ContainsVariableResolver(
 				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
-				FieldMetaRole role, VariableExpression variableExpr
+				FieldMetaRole role, VariableExpression variableExpr, boolean negate
 		)
 		{
-			super(queryEvaluator, primaryExpression, role);
+			super(queryEvaluator, primaryExpression, role, negate);
 			this.variableExpr = variableExpr;
 
 			if (variableExpr == null)
@@ -281,10 +295,10 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 
 		public ContainsConstantResolver(
 				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
-				FieldMetaRole role, Object constant
+				FieldMetaRole role, Object constant, boolean negate
 		)
 		{
-			super(queryEvaluator, primaryExpression, role);
+			super(queryEvaluator, primaryExpression, role, negate);
 			this.constant = constant;
 		}
 
@@ -295,6 +309,9 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 				boolean argumentIsPersistent, Class<?> argumentType
 		)
 		{
+			if (negate)
+				throw new UnsupportedOperationException("NYI");
+
 			if (argumentIsPersistent) {
 				Long constantDataEntryID = null;
 				if (constant != null) {

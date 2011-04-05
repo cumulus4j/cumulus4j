@@ -78,7 +78,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 					Class<?> parameterType = getFieldType(primaryExpr);
 
 					if (String.class.isAssignableFrom(parameterType))
-						return new StringIndexOfResolver(getQueryEvaluator(), primaryExpr, invokeArgument, compareToArgument).query();
+						return new StringIndexOfResolver(getQueryEvaluator(), primaryExpr, invokeArgument, compareToArgument, resultDescriptor.isNegated()).query();
 
 					throw new UnsupportedOperationException("NYI");
 				}
@@ -99,7 +99,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 					IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
 							executionContext, resultDescriptor.getFieldMeta(), true
 					);
-					return queryStringIndexOf(resultDescriptor.getFieldMeta(), indexEntryFactory, invokeArgument, compareToArgument);
+					return queryStringIndexOf(resultDescriptor.getFieldMeta(), indexEntryFactory, invokeArgument, compareToArgument, resultDescriptor.isNegated());
 				}
 				throw new UnsupportedOperationException("NYI");
 			}
@@ -115,7 +115,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 //			if (Expression.OP_EQ == getExpression().getOperator())
 //				return new EqualsWithConcreteValueResolver(getQueryEvaluator(), ((PrimaryExpressionEvaluator)getLeft()).getExpression(), compareToArgument).query();
 //			else
-				return new CompareWithConcreteValueResolver(getQueryEvaluator(), ((PrimaryExpressionEvaluator)getLeft()).getExpression(), compareToArgument).query();
+				return new CompareWithConcreteValueResolver(getQueryEvaluator(), ((PrimaryExpressionEvaluator)getLeft()).getExpression(), compareToArgument, resultDescriptor.isNegated()).query();
 		}
 
 		if (getRight() instanceof PrimaryExpressionEvaluator) {
@@ -127,7 +127,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 //			if (Expression.OP_EQ == getExpression().getOperator())
 //				return new EqualsWithConcreteValueResolver(getQueryEvaluator(), ((PrimaryExpressionEvaluator)getRight()).getExpression(), compareToArgument).query();
 //			else
-				return new CompareWithConcreteValueResolver(getQueryEvaluator(), ((PrimaryExpressionEvaluator)getRight()).getExpression(), compareToArgument).query();
+				return new CompareWithConcreteValueResolver(getQueryEvaluator(), ((PrimaryExpressionEvaluator)getRight()).getExpression(), compareToArgument, resultDescriptor.isNegated()).query();
 		}
 
 		if (getLeft() instanceof VariableExpressionEvaluator) {
@@ -141,19 +141,12 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 //			if (!varExpr.getSymbol().equals(resultDescriptor.getSymbol())) // searching something else ;-)
 //				return null;
 
-			if (Expression.OP_EQ == getExpression().getOperator()) {
-				if (resultDescriptor.getFieldMeta() != null)
-					return queryCompareConcreteValue(resultDescriptor.getFieldMeta(), getRightCompareToArgument());
-				else {
-					// The variable is an FCO and directly compared (otherwise it would be a PrimaryExpression - see above) or the FieldMeta would be specified.
-					ClassMeta classMeta = getQueryEvaluator().getStoreManager().getClassMeta(executionContext, resultDescriptor.getResultType());
-					return queryEqualsConcreteValue(classMeta, getRightCompareToArgument());
-				}
-			}
+			if (resultDescriptor.getFieldMeta() != null)
+				return queryCompareConcreteValue(resultDescriptor.getFieldMeta(), getRightCompareToArgument(), resultDescriptor.isNegated());
 			else {
-				// We query a simple data type (otherwise it would already have been handled above), hence
-				// we do not need to recursively resolve tuples.
-				return queryCompareConcreteValue(resultDescriptor.getFieldMeta(), getRightCompareToArgument());
+				// The variable is an FCO and directly compared (otherwise it would be a PrimaryExpression - see above) or the FieldMeta would be specified.
+				ClassMeta classMeta = getQueryEvaluator().getStoreManager().getClassMeta(executionContext, resultDescriptor.getResultType());
+				return queryEqualsConcreteValue(classMeta, getRightCompareToArgument(), resultDescriptor.isNegated());
 			}
 		}
 
@@ -186,12 +179,13 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 			FieldMeta fieldMeta,
 			IndexEntryFactory indexEntryFactory,
 			Object invokeArgument, // the xxx in 'indexOf(xxx)'
-			Object compareToArgument // the yyy in 'indexOf(xxx) >= yyy'
+			Object compareToArgument, // the yyy in 'indexOf(xxx) >= yyy'
+			boolean negate
 	) {
 		Query q = getPersistenceManager().newQuery(indexEntryFactory.getIndexEntryClass());
 		q.setFilter(
 				"this.fieldMeta == :fieldMeta && " +
-				"this.indexKey.indexOf(:invokeArgument) " + getOperatorAsJDOQLSymbol() + " :compareToArgument"
+				"this.indexKey.indexOf(:invokeArgument) " + getOperatorAsJDOQLSymbol(negate) + " :compareToArgument"
 		);
 		Map<String, Object> params = new HashMap<String, Object>(3);
 		params.put("fieldMeta", fieldMeta);
@@ -214,16 +208,19 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 	{
 		private Object invokeArgument;
 		private Object compareToArgument;
+		private boolean negate;
 
 		public StringIndexOfResolver(
 				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
 				Object invokeArgument, // the xxx in 'indexOf(xxx)'
-				Object compareToArgument // the yyy in 'indexOf(xxx) >= yyy'
+				Object compareToArgument, // the yyy in 'indexOf(xxx) >= yyy'
+				boolean negate
 		)
 		{
 			super(queryEvaluator, primaryExpression);
 			this.invokeArgument = invokeArgument;
 			this.compareToArgument = compareToArgument;
+			this.negate = negate;
 		}
 
 		@Override
@@ -231,30 +228,32 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
 					executionContext, fieldMeta, true
 			);
-			return queryStringIndexOf(fieldMeta, indexEntryFactory, invokeArgument, compareToArgument);
+			return queryStringIndexOf(fieldMeta, indexEntryFactory, invokeArgument, compareToArgument, negate);
 		}
 	}
 
 	private class CompareWithConcreteValueResolver extends PrimaryExpressionResolver
 	{
 		private Object value;
+		private boolean negate;
 
 		public CompareWithConcreteValueResolver(
 				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
-				Object value
+				Object value, boolean negate
 		)
 		{
 			super(queryEvaluator, primaryExpression);
 			this.value = value;
+			this.negate = negate;
 		}
 
 		@Override
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
-			return queryCompareConcreteValue(fieldMeta, value);
+			return queryCompareConcreteValue(fieldMeta, value, negate);
 		}
 	}
 
-	private Set<Long> queryCompareConcreteValue(FieldMeta fieldMeta, Object value)
+	private Set<Long> queryCompareConcreteValue(FieldMeta fieldMeta, Object value, boolean negate)
 	{
 		PersistenceManager pm = getPersistenceManager();
 		ExecutionContext executionContext = getQueryEvaluator().getExecutionContext();
@@ -275,7 +274,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 			// Only "==" and "!=" are supported for object relations => check.
 			Operator op = getExpression().getOperator();
 			if (Expression.OP_EQ != op && Expression.OP_NOTEQ != op)
-				throw new UnsupportedOperationException("The operation \"" + getOperatorAsJDOQLSymbol() + "\" is not supported for object relations!");
+				throw new UnsupportedOperationException("The operation \"" + getOperatorAsJDOQLSymbol(false) + "\" is not supported for object relations!");
 
 			indexEntryFactory = IndexEntryObjectRelationHelper.getIndexEntryFactory();
 			Long valueDataEntryID = null;
@@ -300,7 +299,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		Query q = pm.newQuery(indexEntryFactory.getIndexEntryClass());
 		q.setFilter(
 				"this.fieldMeta == :fieldMeta && " +
-				"this.indexKey " + getOperatorAsJDOQLSymbol() + " :value"
+				"this.indexKey " + getOperatorAsJDOQLSymbol(negate) + " :value"
 		);
 
 		@SuppressWarnings("unchecked")
@@ -315,90 +314,48 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		return result;
 	}
 
-//	private class EqualsWithConcreteValueResolver extends PrimaryExpressionResolver
-//	{
-//		private Object value;
-//
-//		public EqualsWithConcreteValueResolver(
-//				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
-//				Object value
-//		)
-//		{
-//			super(queryEvaluator, primaryExpression);
-//			this.value = value;
-//		}
-//
-//		@Override
-//		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
-//			return queryEqualsConcreteValue(fieldMeta, value);
-//		}
-//	}
-
-	private Set<Long> queryEqualsConcreteValue(ClassMeta classMeta, Object value)
+	private Set<Long> queryEqualsConcreteValue(ClassMeta classMeta, Object value, boolean negate)
 	{
+		Operator op = getExpression().getOperator();
+		if (Expression.OP_EQ != op && Expression.OP_NOTEQ != op)
+			throw new UnsupportedOperationException("The operation \"" + getOperatorAsJDOQLSymbol(false) + "\" is not supported for object relations!");
+
 		PersistenceManager pm = getPersistenceManager();
 		ExecutionContext executionContext = getQueryEvaluator().getExecutionContext();
 		Object valueID = executionContext.getApiAdapter().getIdForObject(value);
 		if (valueID == null)
 			throw new IllegalStateException("The ApiAdapter returned null as object-ID for: " + value);
-		Long dataEntryID = DataEntry.getDataEntryID(pm, classMeta, valueID.toString());
-		return Collections.singleton(dataEntryID);
+
+		if (Expression.OP_NOTEQ == op || negate) {
+			Query q = pm.newQuery(DataEntry.class);
+			q.setResult("this.dataEntryID");
+			q.setFilter("this.classMeta == :classMeta && this.objectID != :objectID");
+
+			@SuppressWarnings("unchecked")
+			Collection<Long> dataEntryIDs = (Collection<Long>) q.execute(classMeta, valueID.toString());
+			return new HashSet<Long>(dataEntryIDs);
+		}
+		else {
+			Long dataEntryID = DataEntry.getDataEntryID(pm, classMeta, valueID.toString());
+			return Collections.singleton(dataEntryID);
+		}
 	}
 
-//	private Set<Long> queryEqualsConcreteValue(FieldMeta fieldMeta, Object value) {
-//		PersistenceManager pm = getPersistenceManager();
-//		ExecutionContext executionContext = getQueryEvaluator().getExecutionContext();
-//
-//		AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(executionContext);
-//		int relationType = mmd.getRelationType(executionContext.getClassLoaderResolver());
-//
-//		if (Relation.NONE == relationType) {
-//			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
-//					executionContext, fieldMeta, true
-//			);
-//			IndexEntry indexEntry = indexEntryFactory == null ? null : indexEntryFactory.getIndexEntry(pm, fieldMeta, value);
-//			if (indexEntry == null)
-//				return Collections.emptySet();
-//
-//			IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
-//			return indexValue.getDataEntryIDs();
-//		}
-//		else if (Relation.isRelationSingleValued(relationType)) {
-//			Long valueDataEntryID = null;
-//			if (value != null) {
-//				ClassMeta valueClassMeta = getQueryEvaluator().getStoreManager().getClassMeta(executionContext, value.getClass());
-//				Object valueID = executionContext.getApiAdapter().getIdForObject(value);
-//				if (valueID == null)
-//					throw new IllegalStateException("The ApiAdapter returned null as object-ID for: " + value);
-//
-//				valueDataEntryID = DataEntry.getDataEntryID(pm, valueClassMeta, valueID.toString());
-//			}
-//			IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, fieldMeta, valueDataEntryID);
-//			if (indexEntry == null)
-//				return Collections.emptySet();
-//
-//			IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
-//			return indexValue.getDataEntryIDs();
-//		}
-//
-//		throw new UnsupportedOperationException("NYI");
-//	}
-
-	private String getOperatorAsJDOQLSymbol()
+	private String getOperatorAsJDOQLSymbol(boolean negate)
 	{
 		Operator op = getExpression().getOperator();
 		if (Expression.OP_EQ == op)
-			return "==";
+			return negate ? "!=" : "==";
 		if (Expression.OP_NOTEQ == op)
-			return "!=";
+			return negate ? "==" : "!=";
 		if (Expression.OP_LT == op)
-			return "<";
+			return negate ? ">=" : "<";
 		if (Expression.OP_LTEQ == op)
-			return "<=";
+			return negate ? ">"  : "<=";
 		if (Expression.OP_GT == op)
-			return ">";
+			return negate ? "<=" : ">";
 		if (Expression.OP_GTEQ == op)
-			return ">=";
+			return negate ? "<"  : ">=";
 
 		throw new UnsupportedOperationException("NYI");
 	}
