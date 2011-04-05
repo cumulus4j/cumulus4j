@@ -3,11 +3,9 @@
 	---
 	Matthias Huber, Matthias Gabel
 	---
-	2011-04-05
 
-Theory
 
-Cumulus4j uses encryption in order to protect your data.
+	Cumulus4j uses encryption in order to protect your data.
 
 
 Before data is written to the data store, it gets encrypted by Cumulus4j.
