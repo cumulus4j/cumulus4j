@@ -8,9 +8,9 @@
 	Cumulus4j uses encryption in order to protect your data.
 
 
-Before data is written to the data store, it gets encrypted by Cumulus4j.
-Cumulus4j also decrypts data before it is used by your application.
-All this happens transparent to your application.
+	Before data is written to the data store, it gets encrypted by Cumulus4j.
+	Cumulus4j also decrypts data before it is used by your application.
+	All this happens transparent to your application.
 
 
 * Encryption
@@ -29,14 +29,14 @@ All this happens transparent to your application.
 
 * Example
 
-In this example, we consider a simple SQL query
-+---------------------------------------------------------------+
-SELECT * FROM clients WHERE name * 'Alice' and surname * 'Jones'
-+---------------------------------------------------------------+
-In the first step, the query is parsed and the type (SELECT) is determined.
-Then the relevant tables are identified (in this case: clients).
-Then the index tables for the table clients are queried to retrieve all row numbers of relevant records in the encrypted table.
-After decrypting those lines, the original query is executed on the relevant data in an additional local database, yielding the correct result.
+	In this example, we consider a simple SQL query
+
+	SELECT * FROM clients WHERE name * 'Alice' and surname * 'Jones'
+
+	In the first step, the query is parsed and the type (SELECT) is determined.
+	Then the relevant tables are identified (in this case: clients).
+	Then the index tables for the table clients are queried to retrieve all row numbers of relevant records in the encrypted table.
+	After decrypting those lines, the original query is executed on the relevant data in an additional local database, yielding the correct result.
 
 
 * Security
