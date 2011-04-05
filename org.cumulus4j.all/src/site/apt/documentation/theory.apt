@@ -29,7 +29,10 @@ Selections are executed efficiently with the help of the indices. Projections an
 
 * Example
 
-In this example, we consider a simple SQL query "SELECT * FROM clients WHERE name * 'Alice' and surname * 'Jones'.
+In this example, we consider a simple SQL query
++---------------------------------------------------------------+
+SELECT * FROM clients WHERE name * 'Alice' and surname * 'Jones'
++---------------------------------------------------------------+
 In the first step, the query is parsed and the type (SELECT) is determined.
 Then the relevant tables are identified (in this case: clients).
 Then the index tables for the table clients are queried to retrieve all row numbers of relevant records in the encrypted table.
