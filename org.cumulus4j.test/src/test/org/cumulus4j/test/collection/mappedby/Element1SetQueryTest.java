@@ -141,6 +141,8 @@ extends AbstractTransactionalTest
 
 				sb.append(setElement.getName());
 			}
+			if (resultElement.getSet().isEmpty() && negated)
+				resultElementMatches = true;
 
 			logger.info(testMethodName + ":   * " + resultElement.getName() + ": " + sb);
 			Assert.assertTrue(
@@ -196,15 +198,14 @@ extends AbstractTransactionalTest
 		executeQueryAndCheckResult(q, element, null, false, 1, false);
 	}
 
-// TODO implement this
-//	@Test
-//	public void queryNotContainsParameter()
-//	{
-//		Element1 element = getExampleElement();
-//		Query q = pm.newQuery(Element1SetOwner.class);
-//		q.setFilter("!this.set.contains(:element)");
-//		executeQueryAndCheckResult(q, element, null, false, 4, true);
-//	}
+	@Test
+	public void queryNotContainsParameter()
+	{
+		Element1 element = getExampleElement();
+		Query q = pm.newQuery(Element1SetOwner.class);
+		q.setFilter("!this.set.contains(:element)");
+		executeQueryAndCheckResult(q, element, null, false, 4, true);
+	}
 
 	/**
 	 * Should behave exactly like #queryContainsVariableAndNotVariableIndexOf()

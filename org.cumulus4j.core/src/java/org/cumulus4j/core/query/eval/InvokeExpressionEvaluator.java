@@ -243,6 +243,9 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 				boolean argumentIsPersistent, Class<?> argumentType
 		)
 		{
+			if (negate)
+				throw new UnsupportedOperationException("NYI");
+
 			if (argumentIsPersistent || subFieldMeta.getMappedByFieldMeta(executionContext) != null) {
 				AbstractExpressionEvaluator<?> eval = queryEvaluator.getExpressionEvaluator();
 
@@ -285,6 +288,7 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 
 	/**
 	 * Resolve {@link Collection#contains(Object)} with the argument being a concrete value (a 'constant').
+	 * This concrete value is either a query parameter or a literal - i.e. no variable.
 	 *
 	 * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
 	 */

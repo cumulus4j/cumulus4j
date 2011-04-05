@@ -1,5 +1,9 @@
 package org.cumulus4j.core.model;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.jdo.JDOHelper;
 import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
@@ -34,6 +38,10 @@ import javax.jdo.listener.StoreCallback;
 	@Query(
 			name="getDataEntryIDByClassMetaAndObjectID",
 			value="SELECT UNIQUE this.dataEntryID WHERE this.classMeta == :classMeta && this.objectID == :objectID"
+	),
+	@Query(
+			name="getDataEntryIDsByClassMetaAndObjectIDNegated",
+			value="SELECT this.dataEntryID WHERE this.classMeta == :classMeta && this.objectID != :notThisObjectID"
 	)
 })
 public class DataEntry
@@ -54,12 +62,24 @@ implements StoreCallback
 	{
 		javax.jdo.Query q = pm.newNamedQuery(DataEntry.class, "getDataEntryByClassMetaAndObjectID");
 		return (DataEntry) q.execute(classMeta, objectID);
+		// UNIQUE query does not need to be closed, because there is no result list lingering.
 	}
 
 	public static Long getDataEntryID(PersistenceManager pm, ClassMeta classMeta, String objectID)
 	{
 		javax.jdo.Query q = pm.newNamedQuery(DataEntry.class, "getDataEntryIDByClassMetaAndObjectID");
 		return (Long) q.execute(classMeta, objectID);
+		// UNIQUE query does not need to be closed, because there is no result list lingering.
+	}
+
+	public static Set<Long> getDataEntryIDsNegated(PersistenceManager pm, ClassMeta classMeta, String notThisObjectID)
+	{
+		javax.jdo.Query q = pm.newNamedQuery(DataEntry.class, "getDataEntryIDsByClassMetaAndObjectIDNegated");
+		@SuppressWarnings("unchecked")
+		Collection<Long> dataEntryIDsColl = (Collection<Long>) q.execute(classMeta, notThisObjectID);
+		Set<Long> dataEntryIDsSet = new HashSet<Long>(dataEntryIDsColl);
+		q.closeAll();
+		return dataEntryIDsSet;
 	}
 
 	@PrimaryKey

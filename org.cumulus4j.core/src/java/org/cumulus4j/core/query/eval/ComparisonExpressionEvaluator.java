@@ -327,13 +327,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 			throw new IllegalStateException("The ApiAdapter returned null as object-ID for: " + value);
 
 		if (Expression.OP_NOTEQ == op || negate) {
-			Query q = pm.newQuery(DataEntry.class);
-			q.setResult("this.dataEntryID");
-			q.setFilter("this.classMeta == :classMeta && this.objectID != :objectID");
-
-			@SuppressWarnings("unchecked")
-			Collection<Long> dataEntryIDs = (Collection<Long>) q.execute(classMeta, valueID.toString());
-			return new HashSet<Long>(dataEntryIDs);
+			return DataEntry.getDataEntryIDsNegated(pm, classMeta, valueID.toString());
 		}
 		else {
 			Long dataEntryID = DataEntry.getDataEntryID(pm, classMeta, valueID.toString());
