@@ -325,6 +325,7 @@ public abstract class QueryEvaluator
 			DyadicExpression expression = (DyadicExpression) expr;
 			if (
 					Expression.OP_EQ == expression.getOperator() ||
+					Expression.OP_NOTEQ == expression.getOperator() ||
 					Expression.OP_LT == expression.getOperator() ||
 					Expression.OP_LTEQ == expression.getOperator() ||
 					Expression.OP_GT == expression.getOperator() ||

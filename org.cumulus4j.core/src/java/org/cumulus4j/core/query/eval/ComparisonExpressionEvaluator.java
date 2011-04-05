@@ -24,10 +24,10 @@ import org.datanucleus.metadata.Relation;
 import org.datanucleus.query.QueryUtils;
 import org.datanucleus.query.expression.DyadicExpression;
 import org.datanucleus.query.expression.Expression;
+import org.datanucleus.query.expression.Expression.Operator;
 import org.datanucleus.query.expression.Literal;
 import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
-import org.datanucleus.query.expression.Expression.Operator;
 import org.datanucleus.store.ExecutionContext;
 
 /**
@@ -348,6 +348,8 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		Operator op = getExpression().getOperator();
 		if (Expression.OP_EQ == op)
 			return "==";
+		if (Expression.OP_NOTEQ == op)
+			return "!=";
 		if (Expression.OP_LT == op)
 			return "<";
 		if (Expression.OP_LTEQ == op)
