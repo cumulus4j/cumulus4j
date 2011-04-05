@@ -106,18 +106,10 @@ extends AbstractTransactionalTest
 
 		@SuppressWarnings("unchecked")
 		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("New test bla bla bla.");
-		System.out.println();
-		System.out.println();
-		System.out.println();
-		System.out.println();
-		System.out.println("result.size=" + result.size());
+		logger.info("result.size=" + result.size());
 		for (LocalAccountantDelegate localAccountantDelegate : result) {
-			System.out.println("  * " + localAccountantDelegate);
+			logger.info("  * " + localAccountantDelegate);
 		}
-		System.out.println();
-		System.out.println();
-		System.out.println();
-		System.out.println();
 	}
 
 	@Test
@@ -130,18 +122,10 @@ extends AbstractTransactionalTest
 		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute(
 				"New test bla bla bla.", "description"
 		);
-		System.out.println();
-		System.out.println();
-		System.out.println();
-		System.out.println();
-		System.out.println("result.size=" + result.size());
+        logger.info("result.size=" + result.size());
 		for (LocalAccountantDelegate localAccountantDelegate : result) {
-			System.out.println("  * " + localAccountantDelegate);
+			logger.info("  * " + localAccountantDelegate);
 		}
-		System.out.println();
-		System.out.println();
-		System.out.println();
-		System.out.println();
 	}
 
 	@Test
@@ -152,18 +136,10 @@ extends AbstractTransactionalTest
 
 		@SuppressWarnings("unchecked")
 		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("bla");
-		System.out.println();
-		System.out.println();
-		System.out.println();
-		System.out.println();
-		System.out.println("result.size=" + result.size());
+        logger.info("result.size=" + result.size());
 		for (LocalAccountantDelegate localAccountantDelegate : result) {
-			System.out.println("  * " + localAccountantDelegate);
+			logger.info("  * " + localAccountantDelegate);
 		}
-		System.out.println();
-		System.out.println();
-		System.out.println();
-		System.out.println();
 	}
 
 	@After

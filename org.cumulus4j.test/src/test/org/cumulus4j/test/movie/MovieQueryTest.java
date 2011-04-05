@@ -115,8 +115,6 @@ extends AbstractTransactionalTest
 			String sequel = safeTrim(fields.length <= ++fieldNo ? null : fields[fieldNo]);
 			String prequel = safeTrim(fields.length <= ++fieldNo ? null : fields[fieldNo]);
 
-//			System.out.println("movieName = " + movieName);
-
 			Movie movie = (Movie) queryMovieByName.execute(movieName);
 			if (movie == null) {
 				movie = new Movie();
