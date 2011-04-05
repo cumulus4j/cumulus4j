@@ -44,8 +44,20 @@
 		<developer>
 			<name>Marco หงุ่ยตระกูล-Schulze</name>
 			<email>marco[at]nightlabs[dot]de</email>
-			<organization>NightLabs GmbH</organization>
+			<organization>NightLabs</organization>
 			<organizationUrl>http://www.nightlabs.de</organizationUrl>
+		</developer>
+		<developer>
+			<name>Alexander Bieber</name>
+			<email>bieber[at]nightlabs[dot]de</email>
+			<organization>NightLabs</organization>
+			<organizationUrl>http://www.nightlabs.de</organizationUrl>
+		</developer>
+		<developer>
+			<name>Andy Jefferson</name>
+			<email>andy[at]datanucleus[dot]org</email>
+			<organization>DataNucleus</organization>
+			<organizationUrl>http://www.datanucleus.org</organizationUrl>
 		</developer>
 	</developers>
 
