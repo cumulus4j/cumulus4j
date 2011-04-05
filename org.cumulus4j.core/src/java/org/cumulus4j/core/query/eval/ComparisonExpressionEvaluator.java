@@ -29,6 +29,8 @@ import org.datanucleus.query.expression.Literal;
 import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.store.ExecutionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Evaluator handling the comparisons ==, &lt;, &lt;=, &gt;, &gt;=.
@@ -38,6 +40,8 @@ import org.datanucleus.store.ExecutionContext;
 public class ComparisonExpressionEvaluator
 extends AbstractExpressionEvaluator<DyadicExpression>
 {
+	private static final Logger logger = LoggerFactory.getLogger(ComparisonExpressionEvaluator.class);
+
 	public ComparisonExpressionEvaluator(QueryEvaluator queryEvaluator, AbstractExpressionEvaluator<?> parent, DyadicExpression expression) {
 		super(queryEvaluator, parent, expression);
 	}
@@ -108,9 +112,9 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 			Object compareToArgument = getRightCompareToArgument();
 
-			if (Expression.OP_EQ == getExpression().getOperator())
-				return new EqualsWithConcreteValueResolver(getQueryEvaluator(), ((PrimaryExpressionEvaluator)getLeft()).getExpression(), compareToArgument).query();
-			else
+//			if (Expression.OP_EQ == getExpression().getOperator())
+//				return new EqualsWithConcreteValueResolver(getQueryEvaluator(), ((PrimaryExpressionEvaluator)getLeft()).getExpression(), compareToArgument).query();
+//			else
 				return new CompareWithConcreteValueResolver(getQueryEvaluator(), ((PrimaryExpressionEvaluator)getLeft()).getExpression(), compareToArgument).query();
 		}
 
@@ -120,9 +124,9 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 			Object compareToArgument = getLeftCompareToArgument();
 
-			if (Expression.OP_EQ == getExpression().getOperator())
-				return new EqualsWithConcreteValueResolver(getQueryEvaluator(), ((PrimaryExpressionEvaluator)getRight()).getExpression(), compareToArgument).query();
-			else
+//			if (Expression.OP_EQ == getExpression().getOperator())
+//				return new EqualsWithConcreteValueResolver(getQueryEvaluator(), ((PrimaryExpressionEvaluator)getRight()).getExpression(), compareToArgument).query();
+//			else
 				return new CompareWithConcreteValueResolver(getQueryEvaluator(), ((PrimaryExpressionEvaluator)getRight()).getExpression(), compareToArgument).query();
 		}
 
@@ -139,7 +143,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 			if (Expression.OP_EQ == getExpression().getOperator()) {
 				if (resultDescriptor.getFieldMeta() != null)
-					return queryEqualsConcreteValue(resultDescriptor.getFieldMeta(), getRightCompareToArgument());
+					return queryCompareConcreteValue(resultDescriptor.getFieldMeta(), getRightCompareToArgument());
 				else {
 					// The variable is an FCO and directly compared (otherwise it would be a PrimaryExpression - see above) or the FieldMeta would be specified.
 					ClassMeta classMeta = getQueryEvaluator().getStoreManager().getClassMeta(executionContext, resultDescriptor.getResultType());
@@ -252,18 +256,55 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 	private Set<Long> queryCompareConcreteValue(FieldMeta fieldMeta, Object value)
 	{
-		IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
-				getQueryEvaluator().getExecutionContext(), fieldMeta, true
-		);
+		PersistenceManager pm = getPersistenceManager();
+		ExecutionContext executionContext = getQueryEvaluator().getExecutionContext();
+		AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(executionContext);
+		int relationType = mmd.getRelationType(executionContext.getClassLoaderResolver());
 
-		Query q = getPersistenceManager().newQuery(indexEntryFactory.getIndexEntryClass());
+		Object queryParam;
+		IndexEntryFactory indexEntryFactory;
+		if (Relation.NONE == relationType)
+		{
+			indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
+					getQueryEvaluator().getExecutionContext(), fieldMeta, true
+			);
+			queryParam = value;
+		}
+		else if (Relation.isRelationSingleValued(relationType))
+		{
+			// Only "==" and "!=" are supported for object relations => check.
+			Operator op = getExpression().getOperator();
+			if (Expression.OP_EQ != op && Expression.OP_NOTEQ != op)
+				throw new UnsupportedOperationException("The operation \"" + getOperatorAsJDOQLSymbol() + "\" is not supported for object relations!");
+
+			indexEntryFactory = IndexEntryObjectRelationHelper.getIndexEntryFactory();
+			Long valueDataEntryID = null;
+			if (value != null) {
+				ClassMeta valueClassMeta = getQueryEvaluator().getStoreManager().getClassMeta(executionContext, value.getClass());
+				Object valueID = executionContext.getApiAdapter().getIdForObject(value);
+				if (valueID == null)
+					throw new IllegalStateException("The ApiAdapter returned null as object-ID for: " + value);
+
+				valueDataEntryID = DataEntry.getDataEntryID(pm, valueClassMeta, valueID.toString());
+			}
+			queryParam = valueDataEntryID;
+		}
+		else
+			throw new UnsupportedOperationException("NYI");
+
+		if (indexEntryFactory == null) {
+			logger.warn("queryCompareConcreteValue: Returning empty result, because there is no index for this field: " + fieldMeta);
+			return Collections.emptySet();
+		}
+
+		Query q = pm.newQuery(indexEntryFactory.getIndexEntryClass());
 		q.setFilter(
 				"this.fieldMeta == :fieldMeta && " +
 				"this.indexKey " + getOperatorAsJDOQLSymbol() + " :value"
 		);
 
 		@SuppressWarnings("unchecked")
-		Collection<? extends IndexEntry> indexEntries = (Collection<? extends IndexEntry>) q.execute(fieldMeta, value);
+		Collection<? extends IndexEntry> indexEntries = (Collection<? extends IndexEntry>) q.execute(fieldMeta, queryParam);
 
 		Set<Long> result = new HashSet<Long>();
 		for (IndexEntry indexEntry : indexEntries) {
@@ -274,24 +315,24 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		return result;
 	}
 
-	private class EqualsWithConcreteValueResolver extends PrimaryExpressionResolver
-	{
-		private Object value;
-
-		public EqualsWithConcreteValueResolver(
-				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
-				Object value
-		)
-		{
-			super(queryEvaluator, primaryExpression);
-			this.value = value;
-		}
-
-		@Override
-		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
-			return queryEqualsConcreteValue(fieldMeta, value);
-		}
-	}
+//	private class EqualsWithConcreteValueResolver extends PrimaryExpressionResolver
+//	{
+//		private Object value;
+//
+//		public EqualsWithConcreteValueResolver(
+//				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
+//				Object value
+//		)
+//		{
+//			super(queryEvaluator, primaryExpression);
+//			this.value = value;
+//		}
+//
+//		@Override
+//		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
+//			return queryEqualsConcreteValue(fieldMeta, value);
+//		}
+//	}
 
 	private Set<Long> queryEqualsConcreteValue(ClassMeta classMeta, Object value)
 	{
@@ -304,44 +345,44 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		return Collections.singleton(dataEntryID);
 	}
 
-	private Set<Long> queryEqualsConcreteValue(FieldMeta fieldMeta, Object value) {
-		PersistenceManager pm = getPersistenceManager();
-		ExecutionContext executionContext = getQueryEvaluator().getExecutionContext();
-
-		AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(executionContext);
-		int relationType = mmd.getRelationType(executionContext.getClassLoaderResolver());
-
-		if (Relation.NONE == relationType) {
-			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
-					executionContext, fieldMeta, true
-			);
-			IndexEntry indexEntry = indexEntryFactory == null ? null : indexEntryFactory.getIndexEntry(pm, fieldMeta, value);
-			if (indexEntry == null)
-				return Collections.emptySet();
-
-			IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
-			return indexValue.getDataEntryIDs();
-		}
-		else if (Relation.isRelationSingleValued(relationType)) {
-			Long valueDataEntryID = null;
-			if (value != null) {
-				ClassMeta valueClassMeta = getQueryEvaluator().getStoreManager().getClassMeta(executionContext, value.getClass());
-				Object valueID = executionContext.getApiAdapter().getIdForObject(value);
-				if (valueID == null)
-					throw new IllegalStateException("The ApiAdapter returned null as object-ID for: " + value);
-
-				valueDataEntryID = DataEntry.getDataEntryID(pm, valueClassMeta, valueID.toString());
-			}
-			IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, fieldMeta, valueDataEntryID);
-			if (indexEntry == null)
-				return Collections.emptySet();
-
-			IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
-			return indexValue.getDataEntryIDs();
-		}
-
-		throw new UnsupportedOperationException("NYI");
-	}
+//	private Set<Long> queryEqualsConcreteValue(FieldMeta fieldMeta, Object value) {
+//		PersistenceManager pm = getPersistenceManager();
+//		ExecutionContext executionContext = getQueryEvaluator().getExecutionContext();
+//
+//		AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(executionContext);
+//		int relationType = mmd.getRelationType(executionContext.getClassLoaderResolver());
+//
+//		if (Relation.NONE == relationType) {
+//			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
+//					executionContext, fieldMeta, true
+//			);
+//			IndexEntry indexEntry = indexEntryFactory == null ? null : indexEntryFactory.getIndexEntry(pm, fieldMeta, value);
+//			if (indexEntry == null)
+//				return Collections.emptySet();
+//
+//			IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
+//			return indexValue.getDataEntryIDs();
+//		}
+//		else if (Relation.isRelationSingleValued(relationType)) {
+//			Long valueDataEntryID = null;
+//			if (value != null) {
+//				ClassMeta valueClassMeta = getQueryEvaluator().getStoreManager().getClassMeta(executionContext, value.getClass());
+//				Object valueID = executionContext.getApiAdapter().getIdForObject(value);
+//				if (valueID == null)
+//					throw new IllegalStateException("The ApiAdapter returned null as object-ID for: " + value);
+//
+//				valueDataEntryID = DataEntry.getDataEntryID(pm, valueClassMeta, valueID.toString());
+//			}
+//			IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, fieldMeta, valueDataEntryID);
+//			if (indexEntry == null)
+//				return Collections.emptySet();
+//
+//			IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
+//			return indexValue.getDataEntryIDs();
+//		}
+//
+//		throw new UnsupportedOperationException("NYI");
+//	}
 
 	private String getOperatorAsJDOQLSymbol()
 	{

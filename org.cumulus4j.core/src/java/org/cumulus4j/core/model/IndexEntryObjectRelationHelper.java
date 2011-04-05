@@ -14,6 +14,10 @@ public class IndexEntryObjectRelationHelper
 {
 	private static final IndexEntryFactoryLong indexEntryFactoryLong = new IndexEntryFactoryLong();
 
+	public static IndexEntryFactory getIndexEntryFactory() {
+		return indexEntryFactoryLong;
+	}
+
 	/**
 	 * Get an existing {@link IndexEntry} or <code>null</code>, if it does not exist.
 	 * This method looks up an <code>IndexEntry</code> for a relation to the object referenced
