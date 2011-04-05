@@ -8,14 +8,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.log4j.PropertyConfigurator;
 import org.nightlabs.util.IOUtil;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TestUtil
 {
-	private static final Logger logger = LoggerFactory.getLogger(TestUtil.class);
-
 	private static void populateMap(Properties destination, Properties source)
 	{
 		Map<String, String> propertiesMap = new HashMap<String, String>(System.getProperties().size());
@@ -36,7 +34,26 @@ public class TestUtil
 		}
 	}
 
+	/**
+	 * Load a properties file. This is a convenience method delegating to {@link #loadProperties(String, boolean)}
+	 * with <code>logToSystemOut == false</code> (it will thus use SLF4J to log).
+	 * @param fileName the simple name of the properties file (no path!).
+	 * @return the loaded and merged properties.
+	 */
 	public static Properties loadProperties(String fileName)
+	{
+		return loadProperties(fileName, false);
+	}
+
+	/**
+	 * Load a properties file. The file is first loaded as resource and then merged with a file from the user's home directory
+	 * (if it exists). Settings that are declared in the user's specific file override the settings from the non-user-specific
+	 * file in the resources.
+	 * @param fileName the simple name of the properties file (no path!).
+	 * @param logToSystemOut whether to log to system out. This is useful, if the properties file to search is a <code>log4j.properties</code>.
+	 * @return the loaded and merged properties.
+	 */
+	public static Properties loadProperties(String fileName, boolean logToSystemOut)
 	{
 		Properties result = new Properties();
 
@@ -55,12 +72,30 @@ public class TestUtil
 				in.close();
 				populateMap(result, userProps);
 			}
-			else
-				logger.info("loadProperties: File " + userPropsFile.getAbsolutePath() + " does not exist. Thus not overriding any settings with user-specific ones.");
+			else {
+				String msg = "loadProperties: File " + userPropsFile.getAbsolutePath() + " does not exist. Thus not overriding any settings with user-specific ones.";
+				if (logToSystemOut)
+					System.out.println(msg);
+				else
+					LoggerFactory.getLogger(TestUtil.class).info(msg);
+			}
 		} catch (IOException x) {
 			throw new RuntimeException(x);
 		}
 
 		return result;
+	}
+
+	private static boolean loggingConfigured = false;
+
+	public static void configureLoggingOnce()
+	{
+		if (loggingConfigured)
+			return;
+
+		loggingConfigured = true;
+
+		Properties properties = loadProperties("cumulus4j-test-log4j.properties", true);
+		PropertyConfigurator.configure(properties);
 	}
 }

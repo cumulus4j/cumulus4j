@@ -22,6 +22,10 @@ import org.slf4j.LoggerFactory;
 
 public class TransactionalRunner extends BlockJUnit4ClassRunner
 {
+	static {
+		TestUtil.configureLoggingOnce();
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(TransactionalRunner.class);
 
 	private PersistenceManagerFactory pmf;
