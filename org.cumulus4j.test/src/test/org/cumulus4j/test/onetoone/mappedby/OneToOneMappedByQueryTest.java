@@ -96,51 +96,42 @@ extends AbstractTransactionalTest
 		a5.setLevelB(b5);
 	}
 
-	@Test
-	public void queryLevelBNameEquals()
+	private void executeQueryAndCheckResult(Query q, String queryParam, int expectedResultListSize, boolean notEquals)
 	{
-		String testMethodName = new Exception().getStackTrace()[0].getMethodName();
-
-		Query q = pm.newQuery(Root.class);
-		q.setFilter("this.levelA.levelB.name == :name");
-
-		String queryParamName = "b 1";
+		String testMethodName = new Exception().getStackTrace()[1].getMethodName();
 
 		@SuppressWarnings("unchecked")
-		List<Root> resultList = (List<Root>) q.execute(queryParamName);
+		List<Root> resultList = (List<Root>) q.execute(queryParam);
 		Assert.assertNotNull("Query returned null as result when a List was expected!", resultList);
 
 		logger.info(testMethodName + ": found " + resultList.size() + " objects:");
-		Assert.assertEquals("Query returned wrong number of results!", 1, resultList.size());
+		Assert.assertEquals("Query returned wrong number of results!", expectedResultListSize, resultList.size());
 		for (Root root : resultList) {
 			Assert.assertNotNull("Query returned instance of Root with root.levelA being null!", root.getLevelA());
 			Assert.assertNotNull("Query returned instance of Root with root.levelA.levelB being null!", root.getLevelA().getLevelB());
-			Assert.assertEquals(queryParamName, root.getLevelA().getLevelB().getName());
+
+			if (notEquals)
+				Assert.assertFalse("Query returned an object that did not match the criteria: " + root, queryParam.equals(root.getLevelA().getLevelB().getName()));
+			else
+				Assert.assertEquals(queryParam, root.getLevelA().getLevelB().getName());
+
 			logger.info(testMethodName + ":  * " + root.getName() + " (root.levelA.name=\"" + root.getLevelA().getName() + "\" root.levelA.levelB.name=\"" + root.getLevelA().getLevelB().getName() + "\")");
 		}
 	}
 
 	@Test
+	public void queryLevelBNameEquals()
+	{
+		Query q = pm.newQuery(Root.class);
+		q.setFilter("this.levelA.levelB.name == :name");
+		executeQueryAndCheckResult(q, "b 1", 1, false);
+	}
+
+	@Test
 	public void queryLevelBNameNotEquals()
 	{
-		String testMethodName = new Exception().getStackTrace()[0].getMethodName();
-
 		Query q = pm.newQuery(Root.class);
 		q.setFilter("this.levelA.levelB.name != :name");
-
-		String queryParamName = "b 1";
-
-		@SuppressWarnings("unchecked")
-		List<Root> resultList = (List<Root>) q.execute(queryParamName);
-		Assert.assertNotNull("Query returned null as result when a List was expected!", resultList);
-
-		logger.info(testMethodName + ": found " + resultList.size() + " objects:");
-		Assert.assertEquals("Query returned wrong number of results!", 4, resultList.size());
-		for (Root root : resultList) {
-			Assert.assertNotNull("Query returned instance of Root with root.levelA being null!", root.getLevelA());
-			Assert.assertNotNull("Query returned instance of Root with root.levelA.levelB being null!", root.getLevelA().getLevelB());
-			Assert.assertFalse("Query returned an object that did not match the criteria: " + root, queryParamName.equals(root.getLevelA().getLevelB().getName()));
-			logger.info(testMethodName + ":  * " + root.getName() + " (root.levelA.name=\"" + root.getLevelA().getName() + "\" root.levelA.levelB.name=\"" + root.getLevelA().getLevelB().getName() + "\")");
-		}
+		executeQueryAndCheckResult(q, "b 1", 4, true);
 	}
 }
