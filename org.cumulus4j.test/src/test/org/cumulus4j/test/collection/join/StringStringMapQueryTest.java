@@ -65,10 +65,6 @@ extends AbstractTransactionalTest
 		stringStringMapOwner.getMap().put("fourth", "Khaled");
 	}
 
-	private static enum KeyValue {
-		key, value
-	}
-
 	private void executeQueryAndCheckResult(Query q, String queryParam, long ... expectedIDs)
 	{
 		String testMethodName = new Exception().getStackTrace()[1].getMethodName();
