@@ -37,7 +37,7 @@
  * </p>
  * <p>
  * In order to resolve variables, the expression-evaluator-tree is not only able to query one single result (the
- * candidate, i.e. "this"), but the caller can tell it what result it should query. This is done by passing a
+ * main query candidate, i.e. "this"), but the caller can tell it what result it should query. This is done by passing a
  * {@link org.cumulus4j.core.query.eval.ResultDescriptor} to the query methods.
  * </p>
  */
