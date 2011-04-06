@@ -3,6 +3,16 @@ package org.cumulus4j.core.query.eval;
 import org.cumulus4j.core.model.FieldMeta;
 import org.datanucleus.query.symbol.Symbol;
 
+/**
+ * <p>
+ * Descriptor specifying what kind of result is expected when a query is executed.
+ * This contains the information what candidates a query should search
+ * (usually "this" or a variable) as well as modifiers affecting the query
+ * (e.g. {@link #isNegated() negation}).
+ * </p>
+ *
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class ResultDescriptor
 {
 	private Symbol symbol;
@@ -10,6 +20,13 @@ public class ResultDescriptor
 	private FieldMeta fieldMeta;
 	private boolean negated;
 
+	/**
+	 * Create a <code>ResultDescriptor</code>.
+	 * @param symbol the symbol; must not be <code>null</code>.
+	 * @param resultType the type of the searched candidates. This can be <code>null</code>,
+	 * if {@link Symbol#getValueType()} is not <code>null</code>. If {@link Symbol#getValueType()}
+	 * is not <code>null</code>, this argument is ignored.
+	 */
 	public ResultDescriptor(Symbol symbol, Class<?> resultType)
 	{
 		if (symbol == null)
@@ -26,22 +43,40 @@ public class ResultDescriptor
 			throw new IllegalArgumentException("resultType could not be determined!");
 	}
 
+	/**
+	 * Create a <code>ResultDescriptor</code>.
+	 * @param symbol the symbol; must not be <code>null</code>.
+	 * @param resultType the type of the searched candidates. This can be <code>null</code>,
+	 * if {@link Symbol#getValueType()} is not <code>null</code>. If {@link Symbol#getValueType()}
+	 * is not <code>null</code>, this argument is ignored.
+	 * @param fieldMeta the field to be queried, if there is no FCO candidate. Must be
+	 * <code>null</code>, if an FCO is searched.
+	 */
 	public ResultDescriptor(Symbol symbol, Class<?> resultType, FieldMeta fieldMeta)
 	{
 		this(symbol, resultType);
 		this.fieldMeta = fieldMeta;
 	}
 
-	public ResultDescriptor(Symbol symbol, Class<?> resultType, FieldMeta fieldMeta, boolean negated)
+	private ResultDescriptor(Symbol symbol, Class<?> resultType, FieldMeta fieldMeta, boolean negated)
 	{
 		this(symbol, resultType, fieldMeta);
 		this.negated = negated;
 	}
 
+	/**
+	 * Get the symbol specifying what candidates are searched.
+	 *
+	 * @return the symbol; never <code>null</code>.
+	 */
 	public Symbol getSymbol() {
 		return symbol;
 	}
 
+	/**
+	 * Get the type of the searched candidates. Note, that they might be instances of a subclass.
+	 * @return the type; never <code>null</code>.
+	 */
 	public Class<?> getResultType() {
 		return resultType;
 	}
@@ -76,7 +111,7 @@ public class ResultDescriptor
 	}
 
 	/**
-	 * Get a negation of this <code>ResultDescriptor</code>. The result will be a copy of this
+	 * Create a negation of this <code>ResultDescriptor</code>. The result will be a copy of this
 	 * instance with all fields having the same value except for the {@link #isNegated() negated} flag
 	 * which will have the opposite value.
 	 * @return a negation of this <code>ResultDescriptor</code>.

@@ -182,8 +182,9 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 	/**
 	 * <p>
 	 * Get those {@link DataEntry#getDataEntryID() dataEntryID}s that match the query
-	 * criteria for the specified <code>resultSymbol</code> or <code>null</code>, if that
-	 * symbol is not queryable by the evaluator implementation.
+	 * criteria for the specified <code>resultDescriptor</code> or <code>null</code>,
+	 * if the given {@link ResultDescriptor#getSymbol() symbol} is not queryable by the
+	 * evaluator implementation.
 	 * </p>
 	 * <p>
 	 * This method delegates to {@link #_queryResultDataEntryIDs(ResultDescriptor)} and caches the
@@ -197,8 +198,9 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 	 * query functionality is not yet implemented.
 	 * </p>
 	 *
-	 * @param resultDescriptor the symbol for which to perform a query (or lookup a previously queried
-	 * result from the cache).
+	 * @param resultDescriptor the descriptor specifying what candidates (usually "this" or a variable) the
+	 * caller is interested in as well as modifiers (e.g. {@link ResultDescriptor#isNegated() negation})
+	 * affecting the query.
 	 * @return those {@link DataEntry#getDataEntryID() dataEntryID}s that match the query
 	 * criteria for the specified <code>resultSymbol</code> or <code>null</code>, if the symbol is not
 	 * supported (this should be consistent with the implementation of {@link #_getResultSymbols()}).
@@ -244,11 +246,13 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 	}
 
 	/**
-	 * Execute a query for the given <code>resultSymbol</code>. This method should contain
+	 * Execute a query for the given <code>resultDescriptor</code>. This method should contain
 	 * the concrete logic for {@link #queryResultDataEntryIDs(ResultDescriptor)} and must be implemented
 	 * by subclasses.
 	 *
-	 * @param resultDescriptor the symbol for which to perform a query.
+	 * @param resultDescriptor the descriptor specifying what candidates (usually "this" or a variable) the
+	 * caller is interested in as well as modifiers (e.g. {@link ResultDescriptor#isNegated() negation})
+	 * affecting the query.
 	 * @return those {@link DataEntry#getDataEntryID() dataEntryID}s that match the query
 	 * criteria for the specified <code>resultSymbol</code> or <code>null</code>, if the symbol is not
 	 * supported (this should be consistent with the implementation of {@link #_getResultSymbols()}).
@@ -262,8 +266,9 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 
 	/**
 	 * <p>
-	 * Get those objects that match the query criteria for the specified <code>resultSymbol</code>
-	 * or <code>null</code>, if that symbol is not queryable by the evaluator implementation.
+	 * Get those objects that match the query criteria for the specified <code>resultDescriptor</code>
+	 * or <code>null</code>, if the given {@link ResultDescriptor#getSymbol() symbol} is not queryable by the
+	 * evaluator implementation.
 	 * </p>
 	 * <p>
 	 * This method delegates to {@link #_queryResultObjects(ResultDescriptor)} and caches the
@@ -277,8 +282,9 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 	 * query functionality is not yet implemented.
 	 * </p>
 	 *
-	 * @param resultDescriptor the symbol for which to perform a query (or lookup a previously queried
-	 * result from the cache).
+	 * @param resultDescriptor the descriptor specifying what candidates (usually "this" or a variable) the
+	 * caller is interested in as well as modifiers (e.g. {@link ResultDescriptor#isNegated() negation})
+	 * affecting the query.
 	 * @return the objects matching the criteria or <code>null</code>, if the given <code>resultSymbol</code>
 	 * is not supported (this should be consistent with the implementation of {@link #_getResultSymbols()}).
 	 * @throws UnsupportedOperationException if the implementation does not support querying at all
@@ -305,8 +311,9 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 
 	/**
 	 * <p>
-	 * Get those objects that match the query criteria for the specified <code>resultSymbol</code>
-	 * or <code>null</code>, if that symbol is not queryable by the evaluator implementation.
+	 * Get those objects that match the query criteria for the specified <code>resultDescriptor</code>
+	 * or <code>null</code>, if the given {@link ResultDescriptor#getSymbol() symbol} is not queryable by the
+	 * evaluator implementation.
 	 * </p>
 	 * <p>
 	 * The default implementation of this method in {@link AbstractExpressionEvaluator} calls
@@ -314,9 +321,12 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 	 * (including decrypting their data).
 	 * </p>
 	 *
-	 * @param resultDescriptor the symbol for which to perform a query.
-	 * @return the objects matching the criteria or <code>null</code>, if the given <code>resultSymbol</code>
-	 * is not supported (this should be consistent with the implementation of {@link #_getResultSymbols()}).
+	 * @param resultDescriptor the descriptor specifying what candidates (usually "this" or a variable) the
+	 * caller is interested in as well as modifiers (e.g. {@link ResultDescriptor#isNegated() negation})
+	 * affecting the query.
+	 * @return the objects matching the criteria or <code>null</code>, if the given <code>resultDescriptor</code>
+	 * is not supported ({@link ResultDescriptor#getSymbol()} should be consistent with the implementation of
+	 * {@link #_getResultSymbols()}).
 	 * @throws UnsupportedOperationException
 	 * @see {@link #queryResultObjects(ResultDescriptor)}
 	 */
