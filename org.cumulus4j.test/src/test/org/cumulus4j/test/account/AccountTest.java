@@ -10,7 +10,6 @@ import org.cumulus4j.test.account.id.AnchorID;
 import org.cumulus4j.test.account.id.LocalAccountantDelegateID;
 import org.cumulus4j.test.framework.AbstractTransactionalTest;
 import org.cumulus4j.test.framework.CleanupUtil;
-import org.datanucleus.util.NucleusLogger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -40,7 +39,6 @@ extends AbstractTransactionalTest
 	@Before
 	public void createData()
 	{
-	    NucleusLogger.DATASTORE_NATIVE.debug(">> CREATEDATA START");
 		Account account = new Account(ACCOUNT_ID_0);
 		LocalAccountantDelegate localAccountantDelegate = new LocalAccountantDelegate(LOCAL_ACCOUNTANT_DELEGATE_ID_0);
 		localAccountantDelegate.setAccount("EUR", account);
@@ -49,7 +47,6 @@ extends AbstractTransactionalTest
 		localAccountantDelegate.setAccount("CHF", new Account(ACCOUNT_ID_1));
 		localAccountantDelegate.setName("New test bla bla bla.");
 		localAccountantDelegate.setDescription("description");
-        NucleusLogger.DATASTORE_NATIVE.debug(">> CREATEDATA END (description set)");
 	}
 
 	@Test
