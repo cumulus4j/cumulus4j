@@ -1,6 +1,7 @@
 package org.cumulus4j.test.account;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.jdo.Query;
@@ -9,6 +10,7 @@ import org.cumulus4j.test.account.id.AnchorID;
 import org.cumulus4j.test.account.id.LocalAccountantDelegateID;
 import org.cumulus4j.test.framework.AbstractTransactionalTest;
 import org.cumulus4j.test.framework.CleanupUtil;
+import org.datanucleus.util.NucleusLogger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -38,6 +40,7 @@ extends AbstractTransactionalTest
 	@Before
 	public void createData()
 	{
+	    NucleusLogger.DATASTORE_NATIVE.debug(">> CREATEDATA START");
 		Account account = new Account(ACCOUNT_ID_0);
 		LocalAccountantDelegate localAccountantDelegate = new LocalAccountantDelegate(LOCAL_ACCOUNTANT_DELEGATE_ID_0);
 		localAccountantDelegate.setAccount("EUR", account);
@@ -46,6 +49,7 @@ extends AbstractTransactionalTest
 		localAccountantDelegate.setAccount("CHF", new Account(ACCOUNT_ID_1));
 		localAccountantDelegate.setName("New test bla bla bla.");
 		localAccountantDelegate.setDescription("description");
+        NucleusLogger.DATASTORE_NATIVE.debug(">> CREATEDATA END (description set)");
 	}
 
 	@Test
@@ -94,8 +98,12 @@ extends AbstractTransactionalTest
 	@Test
 	public void extentIterator() throws IOException
 	{
-		LocalAccountantDelegate localAccountantDelegate = pm.getExtent(LocalAccountantDelegate.class).iterator().next();
-		localAccountantDelegate.test();
+	    Iterator<LocalAccountantDelegate> delegateIter = pm.getExtent(LocalAccountantDelegate.class).iterator();
+	    Assert.assertTrue(delegateIter.hasNext());
+		LocalAccountantDelegate localAccountantDelegate = delegateIter.next();
+		Assert.assertNotNull(localAccountantDelegate);
+        localAccountantDelegate.test();
+		Assert.assertFalse(delegateIter.hasNext());
 	}
 
 	@Test
@@ -104,12 +112,17 @@ extends AbstractTransactionalTest
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("this.name == :name");
 
-		@SuppressWarnings("unchecked")
+        // Positive test
 		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("New test bla bla bla.");
-		logger.info("result.size=" + result.size());
-		for (LocalAccountantDelegate localAccountantDelegate : result) {
-			logger.info("  * " + localAccountantDelegate);
-		}
+		Assert.assertEquals("Number of results was wrong", 1, result.size());
+		LocalAccountantDelegate delegate = result.iterator().next();
+		Assert.assertNotNull(delegate);
+		Assert.assertEquals("name is wrong", "New test bla bla bla.", delegate.getName());
+		Assert.assertEquals("description is wrong", "description", delegate.getDescription());
+
+		// Negative test
+        result = (List<LocalAccountantDelegate>) q.execute("New test bla bla bla2");
+        Assert.assertEquals("Number of results was wrong", 0, result.size());
 	}
 
 	@Test
@@ -118,14 +131,13 @@ extends AbstractTransactionalTest
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("this.name == :pName && this.description == :pDesc");
 
-		@SuppressWarnings("unchecked")
 		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute(
-				"New test bla bla bla.", "description"
-		);
-        logger.info("result.size=" + result.size());
-		for (LocalAccountantDelegate localAccountantDelegate : result) {
-			logger.info("  * " + localAccountantDelegate);
-		}
+				"New test bla bla bla.", "description");
+        Assert.assertEquals("Number of results was wrong", 1, result.size());
+        LocalAccountantDelegate delegate = result.iterator().next();
+        Assert.assertNotNull(delegate);
+        Assert.assertEquals("name is wrong", "New test bla bla bla.", delegate.getName());
+        Assert.assertEquals("description is wrong", "description", delegate.getDescription());
 	}
 
 	@Test
@@ -134,12 +146,12 @@ extends AbstractTransactionalTest
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("this.name.indexOf(:needle) >= 0");
 
-		@SuppressWarnings("unchecked")
 		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("bla");
-        logger.info("result.size=" + result.size());
-		for (LocalAccountantDelegate localAccountantDelegate : result) {
-			logger.info("  * " + localAccountantDelegate);
-		}
+        Assert.assertEquals("Number of results was wrong", 1, result.size());
+        LocalAccountantDelegate delegate = result.iterator().next();
+        Assert.assertNotNull(delegate);
+        Assert.assertEquals("name is wrong", "New test bla bla bla.", delegate.getName());
+        Assert.assertEquals("description is wrong", "description", delegate.getDescription());
 	}
 
 	@After
