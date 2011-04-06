@@ -22,6 +22,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <p>
+ * Abstract base class for easy resolving of {@link PrimaryExpression}s. This class
+ * takes care of following one-to-one-relationships inside the <code>PrimaryExpression</code>.
+ * </p>
+ * <p>
+ * For example, <code>this.aaa.bbb.ccc.ddd.someSet.contains(:param)</code> requires first to
+ * evaluate <code>DDD.someSet.contains(:param)</code> and then to follow the field chain back from
+ * <code>ddd</code> over <code>ccc</code> over <code>bbb</code> over <code>aaa</code> finally to <code>this</code>.
+ * The subclasses of <code>PrimaryExpressionResolver</code> only need to take care of the implementation
+ * of the last part in the chain (in our example <code>DDD.someSet.contains(:param)</code>) - the rest is done
+ * here.
+ * </p>
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public abstract class PrimaryExpressionResolver
