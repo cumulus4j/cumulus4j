@@ -119,11 +119,27 @@ extends AbstractTransactionalTest
 	}
 
 	@Test
+	public void queryNotContainsKeyParameter()
+	{
+		Query q = pm.newQuery(StringStringMapOwner.class);
+		q.setFilter("!this.map.containsKey(:queryParam)");
+		executeQueryAndCheckResult(q, "second", 4, 5, 6, 7);
+	}
+
+	@Test
 	public void queryContainsValueParameter()
 	{
 		Query q = pm.newQuery(StringStringMapOwner.class);
 		q.setFilter("this.map.containsValue(:queryParam)");
 		executeQueryAndCheckResult(q, "Marc", 3, 4);
+	}
+
+	@Test
+	public void queryNotContainsValueParameter()
+	{
+		Query q = pm.newQuery(StringStringMapOwner.class);
+		q.setFilter("!this.map.containsValue(:queryParam)");
+		executeQueryAndCheckResult(q, "Marc", 1, 2, 5, 6, 7);
 	}
 
 	@Test
@@ -135,11 +151,59 @@ extends AbstractTransactionalTest
 	}
 
 	@Test
+	public void queryNotContainsKeyVariableAndVariableIndexOf()
+	{
+		Query q = pm.newQuery(StringStringMapOwner.class);
+		q.setFilter("!this.map.containsKey(variable) && variable.indexOf(:queryParam) >= 0");
+		executeQueryAndCheckResult(q, "h", 2, 4, 5, 6);
+	}
+
+	@Test
+	public void queryContainsKeyVariableAndVariableNotIndexOf()
+	{
+		Query q = pm.newQuery(StringStringMapOwner.class);
+		q.setFilter("this.map.containsKey(variable) && variable.indexOf(:queryParam) < 0");
+		executeQueryAndCheckResult(q, "h", 1, 2, 3, 4, 5);
+	}
+
+	@Test
+	public void queryContainsKeyVariableAndNotVariableIndexOf()
+	{
+		Query q = pm.newQuery(StringStringMapOwner.class);
+		q.setFilter("this.map.containsKey(variable) && !(variable.indexOf(:queryParam) >= 0)");
+		executeQueryAndCheckResult(q, "h", 1, 2, 3, 4, 5);
+	}
+
+	@Test
 	public void queryContainsValueVariableAndVariableIndexOf()
 	{
 		Query q = pm.newQuery(StringStringMapOwner.class);
 		q.setFilter("this.map.containsValue(variable) && variable.indexOf(:queryParam) >= 0");
 		executeQueryAndCheckResult(q, "Marc", 3, 4, 5);
+	}
+
+	@Test
+	public void queryNotContainsValueVariableAndVariableIndexOf()
+	{
+		Query q = pm.newQuery(StringStringMapOwner.class);
+		q.setFilter("!this.map.containsValue(variable) && variable.indexOf(:queryParam) >= 0");
+		executeQueryAndCheckResult(q, "Marc", 1, 2, 6, 7);
+	}
+
+	@Test
+	public void queryContainsValueVariableAndVariableNotIndexOf()
+	{
+		Query q = pm.newQuery(StringStringMapOwner.class);
+		q.setFilter("this.map.containsValue(variable) && variable.indexOf(:queryParam) < 0");
+		executeQueryAndCheckResult(q, "Marc", 1, 2, 3, 7);
+	}
+
+	@Test
+	public void queryContainsValueVariableAndNotVariableIndexOf()
+	{
+		Query q = pm.newQuery(StringStringMapOwner.class);
+		q.setFilter("this.map.containsValue(variable) && !(variable.indexOf(:queryParam) >= 0)");
+		executeQueryAndCheckResult(q, "Marc", 1, 2, 3, 7);
 	}
 
 	@Test
@@ -151,10 +215,42 @@ extends AbstractTransactionalTest
 	}
 
 	@Test
+	public void queryContainsKeyVariableAndVariableNotEquals()
+	{
+		Query q = pm.newQuery(StringStringMapOwner.class);
+		q.setFilter("this.map.containsKey(variable) && variable != :queryParam");
+		executeQueryAndCheckResult(q, "second", 1, 2, 3, 4, 5, 7);
+	}
+
+	@Test
+	public void queryContainsKeyVariableAndNotVariableEquals()
+	{
+		Query q = pm.newQuery(StringStringMapOwner.class);
+		q.setFilter("this.map.containsKey(variable) && !(variable == :queryParam)");
+		executeQueryAndCheckResult(q, "second", 1, 2, 3, 4, 5, 7);
+	}
+
+	@Test
 	public void queryContainsValueVariableAndVariableEquals()
 	{
 		Query q = pm.newQuery(StringStringMapOwner.class);
 		q.setFilter("this.map.containsValue(variable) && variable == :queryParam");
 		executeQueryAndCheckResult(q, "Marc", 3, 4);
+	}
+
+	@Test
+	public void queryContainsValueVariableAndVariableNotEquals()
+	{
+		Query q = pm.newQuery(StringStringMapOwner.class);
+		q.setFilter("this.map.containsValue(variable) && variable != :queryParam");
+		executeQueryAndCheckResult(q, "Marc", 1, 2, 3, 5, 7);
+	}
+
+	@Test
+	public void queryContainsValueVariableAndNotVariableEquals()
+	{
+		Query q = pm.newQuery(StringStringMapOwner.class);
+		q.setFilter("this.map.containsValue(variable) && !(variable == :queryParam)");
+		executeQueryAndCheckResult(q, "Marc", 1, 2, 3, 5, 7);
 	}
 }
