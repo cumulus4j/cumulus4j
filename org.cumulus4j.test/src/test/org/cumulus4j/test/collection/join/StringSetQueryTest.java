@@ -64,7 +64,7 @@ extends AbstractTransactionalTest
 		stringSetOwner.getSet().add("David");
 	}
 
-	private void executeQueryAndCheckResult(Query q, String queryParam, long ... expectedStringSetOwnerIDs)
+	private void executeQueryAndCheckResult(Query q, String queryParam, long ... expectedIDs)
 	{
 		String testMethodName = new Exception().getStackTrace()[1].getMethodName();
 
@@ -74,10 +74,9 @@ extends AbstractTransactionalTest
 
 		String f = q.toString().replaceFirst("^.* WHERE ", "");
 		logger.info(testMethodName + ": found " + resultList.size() + " StringSetOwners for query-filter \"" + f + "\" and param \"" + queryParam + "\":");
-		Assert.assertEquals("Query returned wrong number of results!", expectedStringSetOwnerIDs.length, resultList.size());
 
-		Set<Long> expectedIDSet = new HashSet<Long>(expectedStringSetOwnerIDs.length);
-		for (long id : expectedStringSetOwnerIDs)
+		Set<Long> expectedIDSet = new HashSet<Long>(expectedIDs.length);
+		for (long id : expectedIDs)
 			expectedIDSet.add(id);
 
 		for (StringSetOwner resultElement : resultList) {
@@ -100,6 +99,9 @@ extends AbstractTransactionalTest
 					expectedElement
 			);
 		}
+
+		if (!expectedIDSet.isEmpty())
+			Assert.fail("Query did not return the following expected result-elements: " + expectedIDSet);
 	}
 
 	@Test

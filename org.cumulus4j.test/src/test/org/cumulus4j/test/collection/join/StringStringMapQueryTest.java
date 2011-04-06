@@ -1,7 +1,9 @@
 package org.cumulus4j.test.collection.join;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.jdo.Query;
 
@@ -67,7 +69,7 @@ extends AbstractTransactionalTest
 		key, value
 	}
 
-	private void executeQueryAndCheckResult(Query q, String queryParam, KeyValue keyValue, boolean indexOf, int expectedResultListSize)
+	private void executeQueryAndCheckResult(Query q, String queryParam, long ... expectedIDs)
 	{
 		String testMethodName = new Exception().getStackTrace()[1].getMethodName();
 
@@ -77,34 +79,19 @@ extends AbstractTransactionalTest
 
 		String f = q.toString().replaceFirst("^.* WHERE ", "");
 		logger.info(testMethodName + ": found " + resultList.size() + " StringStringMapOwners for query-filter \"" + f + "\" and param \"" + queryParam + "\":");
-		Assert.assertEquals("Query returned wrong number of results!", expectedResultListSize, resultList.size());
+
+		Set<Long> expectedIDSet = new HashSet<Long>(expectedIDs.length);
+		for (long id : expectedIDs)
+			expectedIDSet.add(id);
+
 		for (StringStringMapOwner resultElement : resultList) {
 			Assert.assertNotNull("Query returned a StringStringMapOwner with the map property being null!", resultElement.getMap());
+			boolean expectedElement = expectedIDSet.remove(resultElement.getId());
 
-			boolean resultElementMatches = false;
 			StringBuilder sb = new StringBuilder();
 			for (Map.Entry<String, String> mapEntry : resultElement.getMap().entrySet()) {
 				Assert.assertNotNull("Query returned a StringStringMapOwner whose map contains a null key!", mapEntry.getKey());
 				Assert.assertNotNull("Query returned a StringStringMapOwner whose map contains a null value!", mapEntry.getValue());
-
-				String found = null;
-				switch (keyValue) {
-					case key:
-						found = mapEntry.getKey();
-						break;
-					case value:
-						found = mapEntry.getValue();
-						break;
-				}
-				if (indexOf) {
-					if (found.indexOf(queryParam) >= 0)
-						resultElementMatches = true;
-				}
-				else {
-					if (found.equals(queryParam))
-						resultElementMatches = true;
-				}
-
 
 				if (sb.length() > 0)
 					sb.append(", ");
@@ -114,10 +101,13 @@ extends AbstractTransactionalTest
 
 			logger.info(testMethodName + ":   * " + resultElement.getId() + ": " + sb);
 			Assert.assertTrue(
-					"Query returned a StringStringMapOwner with the map property not containing the searched " + keyValue + ": " + resultElement.getId(),
-					resultElementMatches
+					"Query returned an unexpected result-element: " + resultElement.getId(),
+					expectedElement
 			);
 		}
+
+		if (!expectedIDSet.isEmpty())
+			Assert.fail("Query did not return the following expected result-elements: " + expectedIDSet);
 	}
 
 	@Test
@@ -125,7 +115,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringStringMapOwner.class);
 		q.setFilter("this.map.containsKey(:queryParam)");
-		executeQueryAndCheckResult(q, "second", KeyValue.key, false, 3);
+		executeQueryAndCheckResult(q, "second", 1, 2, 3);
 	}
 
 	@Test
@@ -133,7 +123,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringStringMapOwner.class);
 		q.setFilter("this.map.containsValue(:queryParam)");
-		executeQueryAndCheckResult(q, "Marc", KeyValue.value, false, 2);
+		executeQueryAndCheckResult(q, "Marc", 3, 4);
 	}
 
 	@Test
@@ -141,7 +131,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringStringMapOwner.class);
 		q.setFilter("this.map.containsKey(variable) && variable.indexOf(:queryParam) >= 0");
-		executeQueryAndCheckResult(q, "h", KeyValue.key, true, 3);
+		executeQueryAndCheckResult(q, "h", 1, 3, 7);
 	}
 
 	@Test
@@ -149,7 +139,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringStringMapOwner.class);
 		q.setFilter("this.map.containsValue(variable) && variable.indexOf(:queryParam) >= 0");
-		executeQueryAndCheckResult(q, "Marc", KeyValue.value, true, 3);
+		executeQueryAndCheckResult(q, "Marc", 3, 4, 5);
 	}
 
 	@Test
@@ -157,7 +147,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringStringMapOwner.class);
 		q.setFilter("this.map.containsKey(variable) && variable == :queryParam");
-		executeQueryAndCheckResult(q, "second", KeyValue.key, false, 3);
+		executeQueryAndCheckResult(q, "second", 1, 2, 3);
 	}
 
 	@Test
@@ -165,6 +155,6 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringStringMapOwner.class);
 		q.setFilter("this.map.containsValue(variable) && variable == :queryParam");
-		executeQueryAndCheckResult(q, "Marc", KeyValue.value, false, 2);
+		executeQueryAndCheckResult(q, "Marc", 3, 4);
 	}
 }
