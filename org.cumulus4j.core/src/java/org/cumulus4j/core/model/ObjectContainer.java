@@ -17,7 +17,7 @@ import java.util.Map;
  * <p>
  * Note, that references to other objects
  * are either not stored at all (in a "mapped-by"-relationship) or stored via the other object's
- * OID (object-ID); a persistent object is never stored as-is.
+ * {@link DataEntry#getDataEntryID() dataEntryID}; a persistent object is never stored as-is.
  * </p>
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
