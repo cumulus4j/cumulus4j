@@ -91,7 +91,7 @@ extends AbstractTransactionalTest
 		List<Element1SetOwner> resultList = (List<Element1SetOwner>) q.execute(queryParamO);
 		Assert.assertNotNull("Query returned null as result when a List was expected!", resultList);
 
-		String logMsgPart = indexOf ? "containing at least one element which contains the part" : "containing the element";
+		String logMsgPart = indexOf ? "containing at least one element which " + (negated ? "NOT " : "") + "contains the part" : (negated ? "NOT " : "") + "containing the element";
 		logger.info(testMethodName + ": found " + resultList.size() + " Element1SetOwners " + logMsgPart + " \"" + queryParamO + "\":");
 		Assert.assertEquals("Query returned wrong number of results!", expectedResultListSize, resultList.size());
 		for (Element1SetOwner resultElement : resultList) {
@@ -146,7 +146,11 @@ extends AbstractTransactionalTest
 
 			logger.info(testMethodName + ":   * " + resultElement.getName() + ": " + sb);
 			Assert.assertTrue(
-					"Query returned a Element1SetOwner with the set property not containing the searched element: " + resultElement.getName(),
+					(
+							negated ?
+									"Query returned a Element1SetOwner with the set property containing the excluded element: " + resultElement.getName() :
+										"Query returned a Element1SetOwner with the set property not containing the searched element: " + resultElement.getName()
+					),
 					resultElementMatches
 			);
 		}

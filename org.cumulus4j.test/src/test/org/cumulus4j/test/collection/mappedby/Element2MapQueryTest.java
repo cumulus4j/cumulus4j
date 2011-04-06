@@ -67,13 +67,18 @@ extends AbstractTransactionalTest
 			owner.setName("Owner 4");
 			owner.addElement2(new Element2("ccc", "Element2 4.3"));
 		}
+
+		{
+			Element2MapOwner owner = pm.makePersistent(new Element2MapOwner());
+			owner.setName("Owner 5");
+		}
 	}
 
 	private static enum KeyValue {
 		key, value
 	}
 
-	private void executeQueryAndCheckResult(Query q, Object queryParamO, String queryParamS, KeyValue keyValue, boolean indexOf, int expectedResultListSize)
+	private void executeQueryAndCheckResult(Query q, Object queryParamO, String queryParamS, KeyValue keyValue, boolean indexOf, int expectedResultListSize, boolean negated)
 	{
 		String testMethodName = new Exception().getStackTrace()[1].getMethodName();
 
@@ -109,26 +114,45 @@ extends AbstractTransactionalTest
 				if (indexOf) {
 					if (found instanceof Element2) {
 						Element2 e2 = (Element2) found;
-						if (e2.getName().indexOf(queryParamS) >= 0)
-							resultElementMatches = true;
+						if (negated) {
+							if (e2.getName().indexOf(queryParamS) < 0)
+								resultElementMatches = true;
+						}
+						else {
+							if (e2.getName().indexOf(queryParamS) >= 0)
+								resultElementMatches = true;
+						}
 					}
 					else if (found instanceof String) {
 						String s = (String) found;
-						if (s.indexOf(queryParamS) >= 0)
-							resultElementMatches = true;
+						if (negated) {
+							if (s.indexOf(queryParamS) < 0)
+								resultElementMatches = true;
+						}
+						else {
+							if (s.indexOf(queryParamS) >= 0)
+								resultElementMatches = true;
+						}
 					}
 				}
 				else {
-					if (found.equals(queryParamO))
-						resultElementMatches = true;
+					if (negated) {
+						if (!found.equals(queryParamO))
+							resultElementMatches = true;
+					}
+					else {
+						if (found.equals(queryParamO))
+							resultElementMatches = true;
+					}
 				}
-
 
 				if (sb.length() > 0)
 					sb.append(", ");
 
 				sb.append(mapEntry.getKey()).append('=').append(mapEntry.getValue());
 			}
+			if (resultElement.getMap().isEmpty() && negated)
+				resultElementMatches = true;
 
 			logger.info(testMethodName + ":   * " + sb);
 			Assert.assertTrue(
@@ -155,7 +179,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(Element2MapOwner.class);
 		q.setFilter("this.map.containsKey(:queryParam)");
-		executeQueryAndCheckResult(q, null, "ccc", KeyValue.key, false, 2);
+		executeQueryAndCheckResult(q, null, "ccc", KeyValue.key, false, 2, false);
 	}
 
 	@Test
@@ -163,7 +187,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(Element2MapOwner.class);
 		q.setFilter("this.map.containsKey(variable) && variable.indexOf(:queryParam) >= 0");
-		executeQueryAndCheckResult(q, null, "bb", KeyValue.key, true, 2);
+		executeQueryAndCheckResult(q, null, "bb", KeyValue.key, true, 2, false);
 	}
 
 	@Test
@@ -173,7 +197,7 @@ extends AbstractTransactionalTest
 
 		Query q = pm.newQuery(Element2MapOwner.class);
 		q.setFilter("this.map.containsValue(:queryParam)");
-		executeQueryAndCheckResult(q, element2, null, KeyValue.value, false, 1);
+		executeQueryAndCheckResult(q, element2, null, KeyValue.value, false, 1, false);
 	}
 
 	@Test
@@ -181,6 +205,14 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(Element2MapOwner.class);
 		q.setFilter("this.map.containsValue(variable) && variable.name.indexOf(:queryParam) >= 0");
-		executeQueryAndCheckResult(q, null, "4", KeyValue.value, true, 3);
+		executeQueryAndCheckResult(q, null, "4", KeyValue.value, true, 3, false);
+	}
+
+	@Test
+	public void queryNotContainsKeyParameter()
+	{
+		Query q = pm.newQuery(Element2MapOwner.class);
+		q.setFilter("!this.map.containsKey(:queryParam)");
+		executeQueryAndCheckResult(q, null, "ccc", KeyValue.key, false, 3, true);
 	}
 }

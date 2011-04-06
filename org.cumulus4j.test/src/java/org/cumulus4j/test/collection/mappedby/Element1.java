@@ -28,4 +28,9 @@ public class Element1
 	protected void setOwner(Element1SetOwner owner) {
 		this.owner = owner;
 	}
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + "[name=\"" + name + "\"" + ", owner=" + owner + ']';
+	}
 }
