@@ -57,9 +57,12 @@ extends AbstractTransactionalTest
 		stringSetOwner.getSet().add("Marco");
 
 		stringSetOwner = pm.makePersistent(new StringSetOwner());
+
+		stringSetOwner = pm.makePersistent(new StringSetOwner());
+		stringSetOwner.getSet().add("David");
 	}
 
-	private void executeQueryAndCheckResult(Query q, String queryParam, boolean indexOf, int expectedResultListSize)
+	private void executeQueryAndCheckResult(Query q, String queryParam, boolean indexOf, int expectedResultListSize, boolean negated)
 	{
 		String testMethodName = new Exception().getStackTrace()[1].getMethodName();
 
@@ -67,8 +70,8 @@ extends AbstractTransactionalTest
 		List<StringSetOwner> resultList = (List<StringSetOwner>) q.execute(queryParam);
 		Assert.assertNotNull("Query returned null as result when a List was expected!", resultList);
 
-		String logMsgPart = indexOf ? "containing at least one element which contains the part" : "containing the element";
-		logger.info(testMethodName + ": found " + resultList.size() + " StringSetOwners " + logMsgPart + " \"" + queryParam + "\":");
+		String f = q.toString().replaceAll(".* WHERE ", "");
+		logger.info(testMethodName + ": found " + resultList.size() + " StringSetOwners for query-filter \"" + f + "\" and param \"" + queryParam + "\":");
 		Assert.assertEquals("Query returned wrong number of results!", expectedResultListSize, resultList.size());
 		for (StringSetOwner resultElement : resultList) {
 			Assert.assertNotNull("Query returned a StringSetOwner with the set property being null!", resultElement.getSet());
@@ -78,12 +81,24 @@ extends AbstractTransactionalTest
 			for (String setElement : resultElement.getSet()) {
 				Assert.assertNotNull("Query returned a StringSetOwner whose set contains a null entry!", setElement);
 				if (indexOf) {
-					if (setElement.indexOf(queryParam) >= 0)
-						resultElementMatches = true;
+					if (negated) {
+						if (setElement.indexOf(queryParam) < 0)
+							resultElementMatches = true;
+					}
+					else {
+						if (setElement.indexOf(queryParam) >= 0)
+							resultElementMatches = true;
+					}
 				}
 				else {
-					if (setElement.equals(queryParam))
-						resultElementMatches = true;
+					if (negated) {
+						if (!setElement.equals(queryParam))
+							resultElementMatches = true;
+					}
+					else {
+						if (setElement.equals(queryParam))
+							resultElementMatches = true;
+					}
 				}
 
 				if (sb.length() > 0)
@@ -91,6 +106,8 @@ extends AbstractTransactionalTest
 
 				sb.append(setElement);
 			}
+			if (resultElement.getSet().isEmpty() && negated)
+				resultElementMatches = true;
 
 			logger.info(testMethodName + ":   * " + resultElement.getId() + ": " + sb);
 			Assert.assertTrue(
@@ -105,7 +122,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringSetOwner.class);
 		q.setFilter("this.set.contains(:element)");
-		executeQueryAndCheckResult(q, "Marc", false, 2);
+		executeQueryAndCheckResult(q, "Marc", false, 2, false);
 	}
 
 	@Test
@@ -113,7 +130,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringSetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && elementVariable.indexOf(:elementPart) >= 0");
-		executeQueryAndCheckResult(q, "Marc", true, 3);
+		executeQueryAndCheckResult(q, "Marc", true, 3, false);
 	}
 
 	@Test
@@ -121,6 +138,54 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringSetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && elementVariable == :element");
-		executeQueryAndCheckResult(q, "Marc", false, 2);
+		executeQueryAndCheckResult(q, "Marc", false, 2, false);
+	}
+
+	@Test
+	public void queryNotContainsParameter()
+	{
+		Query q = pm.newQuery(StringSetOwner.class);
+		q.setFilter("!this.set.contains(:element)");
+		executeQueryAndCheckResult(q, "Marc", false, 5, true);
+	}
+
+	@Test
+	public void queryContainsVariableAndVariableNotIndexOf()
+	{
+		Query q = pm.newQuery(StringSetOwner.class);
+		q.setFilter("this.set.contains(elementVariable) && elementVariable.indexOf(:elementPart) < 0");
+		executeQueryAndCheckResult(q, "Marc", true, 4, true);
+	}
+
+	@Test
+	public void queryContainsVariableAndNotVariableIndexOf()
+	{
+		Query q = pm.newQuery(StringSetOwner.class);
+		q.setFilter("this.set.contains(elementVariable) && !(elementVariable.indexOf(:elementPart) >= 0)");
+		executeQueryAndCheckResult(q, "Marc", true, 4, true);
+	}
+
+	@Test
+	public void queryContainsVariableAndVariableNotEquals()
+	{
+		Query q = pm.newQuery(StringSetOwner.class);
+		q.setFilter("this.set.contains(elementVariable) && elementVariable != :element");
+		executeQueryAndCheckResult(q, "Marc", false, 5, true);
+	}
+
+	@Test
+	public void queryContainsVariableAndNotVariableEquals()
+	{
+		Query q = pm.newQuery(StringSetOwner.class);
+		q.setFilter("this.set.contains(elementVariable) && !(elementVariable == :element)");
+		executeQueryAndCheckResult(q, "Marc", false, 5, true);
+	}
+
+	@Test
+	public void queryNotContainsVariableAndVariableEquals()
+	{
+		Query q = pm.newQuery(StringSetOwner.class);
+		q.setFilter("!this.set.contains(elementVariable) && elementVariable == :element");
+		executeQueryAndCheckResult(q, "Marc", false, 5, true);
 	}
 }
