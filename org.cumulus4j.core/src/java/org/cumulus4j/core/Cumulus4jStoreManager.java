@@ -138,10 +138,9 @@ extends AbstractStoreManager
 			throw new IllegalArgumentException("The class " + clazz.getName() + " does not have persistence-meta-data! Is it persistence-capable? Is it enhanced?");
 
 		ClassMeta classMeta = ClassMeta.getClassMeta(pm, clazz, false);
+		boolean classExists = (classMeta != null);
 		if (classMeta == null) {
 			classMeta = new ClassMeta(clazz);
-			classMeta = pm.makePersistent(classMeta);
-			pm.flush(); // Get exceptions as soon as possible by forcing a flush already here.
 		}
 
 		Class<?> superclass = clazz.getSuperclass();
@@ -218,7 +217,12 @@ extends AbstractStoreManager
 			classMeta.removeFieldMeta(fieldMeta);
 		}
 
+		if (!classExists) {
+		    // Persist the new class and its fields in one call, minimising updates
+		    pm.makePersistent(classMeta);
+		}
 		pm.flush(); // Get exceptions as soon as possible by forcing a flush already here.
+
 		return classMeta;
 	}
 
