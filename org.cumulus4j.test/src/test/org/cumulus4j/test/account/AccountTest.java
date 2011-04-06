@@ -10,6 +10,8 @@ import org.cumulus4j.test.account.id.AnchorID;
 import org.cumulus4j.test.account.id.LocalAccountantDelegateID;
 import org.cumulus4j.test.framework.AbstractTransactionalTest;
 import org.cumulus4j.test.framework.CleanupUtil;
+import org.datanucleus.NucleusContext;
+import org.datanucleus.api.jdo.JDOPersistenceManagerFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -46,6 +48,7 @@ extends AbstractTransactionalTest
 
 		localAccountantDelegate.setAccount("CHF", new Account(ACCOUNT_ID_1));
 		localAccountantDelegate.setName("New test bla bla bla.");
+		localAccountantDelegate.setName2("2nd name");
 		localAccountantDelegate.setDescription("description");
 	}
 
@@ -123,8 +126,32 @@ extends AbstractTransactionalTest
 	}
 
 	@Test
-	public void queryAndWithTwoStringEquals() throws IOException
+	public void queryAndWithTwoStringEquals_2shortStr() throws IOException
 	{
+		Query q = pm.newQuery(LocalAccountantDelegate.class);
+		q.setFilter("this.name == :pName && this.name2 == :pName2");
+
+		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute(
+				"New test bla bla bla.", "2nd name");
+        Assert.assertEquals("Number of results was wrong", 1, result.size());
+        LocalAccountantDelegate delegate = result.iterator().next();
+        Assert.assertNotNull(delegate);
+        Assert.assertEquals("name is wrong", "New test bla bla bla.", delegate.getName());
+        Assert.assertEquals("name2 is wrong", "2nd name", delegate.getName2());
+        Assert.assertEquals("description is wrong", "description", delegate.getDescription());
+	}
+
+	@Test
+	public void queryAndWithTwoStringEquals_1clob() throws IOException
+	{
+		String propClobIndexingEnabled = "cumulus4j.index.clob.enabled";
+		NucleusContext nucleusContext = ((JDOPersistenceManagerFactory)pm.getPersistenceManagerFactory()).getNucleusContext();
+		Object valClobIndexingEnabled = nucleusContext.getPersistenceConfiguration().getProperty(propClobIndexingEnabled);
+		if (Boolean.FALSE.toString().equals(valClobIndexingEnabled)) {
+			logger.warn("queryAndWithTwoStringEquals_1clob: CLOB indexing is disabled (due to property '" + propClobIndexingEnabled + "') => Skipping this test!");
+			return;
+		}
+
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("this.name == :pName && this.description == :pDesc");
 
@@ -134,6 +161,7 @@ extends AbstractTransactionalTest
         LocalAccountantDelegate delegate = result.iterator().next();
         Assert.assertNotNull(delegate);
         Assert.assertEquals("name is wrong", "New test bla bla bla.", delegate.getName());
+        Assert.assertEquals("name2 is wrong", "2nd name", delegate.getName2());
         Assert.assertEquals("description is wrong", "description", delegate.getDescription());
 	}
 
@@ -148,6 +176,7 @@ extends AbstractTransactionalTest
         LocalAccountantDelegate delegate = result.iterator().next();
         Assert.assertNotNull(delegate);
         Assert.assertEquals("name is wrong", "New test bla bla bla.", delegate.getName());
+        Assert.assertEquals("name2 is wrong", "2nd name", delegate.getName2());
         Assert.assertEquals("description is wrong", "description", delegate.getDescription());
 	}
 
