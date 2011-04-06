@@ -60,6 +60,8 @@ Workspace-Setup Cumulus4j-DataNucleus-Plug-in
 	* <<<mvn clean install>>>
 
 	* <<<mvn clean install -Dmaven.test.skip=true>>>
+	
+	[]
 
 	The 2nd command skips all tests, which is faster.
 
