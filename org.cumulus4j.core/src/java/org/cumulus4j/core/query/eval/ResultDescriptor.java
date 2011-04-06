@@ -32,6 +32,12 @@ public class ResultDescriptor
 		this.fieldMeta = fieldMeta;
 	}
 
+	public ResultDescriptor(Symbol symbol, Class<?> resultType, FieldMeta fieldMeta, boolean negated)
+	{
+		this(symbol, resultType, fieldMeta);
+		this.negated = negated;
+	}
+
 	public Symbol getSymbol() {
 		return symbol;
 	}
@@ -77,9 +83,7 @@ public class ResultDescriptor
 	 */
 	public ResultDescriptor negate()
 	{
-		ResultDescriptor resultDescriptor = new ResultDescriptor(symbol, resultType, fieldMeta);
-		resultDescriptor.negated = !this.negated;
-		return resultDescriptor;
+		return new ResultDescriptor(symbol, resultType, fieldMeta, !negated);
 	}
 
 	@Override

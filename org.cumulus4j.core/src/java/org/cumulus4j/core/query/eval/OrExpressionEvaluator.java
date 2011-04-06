@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.cumulus4j.core.query.QueryEvaluator;
 import org.datanucleus.query.expression.DyadicExpression;
+import org.datanucleus.query.expression.Expression;
 
 /**
  * Evaluator handling the boolean operation ||.
@@ -14,15 +15,39 @@ import org.datanucleus.query.expression.DyadicExpression;
 public class OrExpressionEvaluator
 extends AbstractExpressionEvaluator<DyadicExpression>
 {
+	private AndExpressionEvaluator negatedExpressionEvaluator;
+
 	public OrExpressionEvaluator(QueryEvaluator queryEvaluator, AbstractExpressionEvaluator<?> parent, DyadicExpression expression) {
 		super(queryEvaluator, parent, expression);
+	}
+
+	public OrExpressionEvaluator(AndExpressionEvaluator negatedExpressionEvaluator)
+	{
+		this(negatedExpressionEvaluator.getQueryEvaluator(), negatedExpressionEvaluator.getParent(), negatedExpressionEvaluator.getExpression());
+		this.negatedExpressionEvaluator = negatedExpressionEvaluator;
+	}
+
+	@Override
+	public AbstractExpressionEvaluator<? extends Expression> getLeft() {
+		if (negatedExpressionEvaluator != null)
+			return negatedExpressionEvaluator.getLeft();
+
+		return super.getLeft();
+	}
+
+	@Override
+	public AbstractExpressionEvaluator<? extends Expression> getRight() {
+		if (negatedExpressionEvaluator != null)
+			return negatedExpressionEvaluator.getRight();
+
+		return super.getRight();
 	}
 
 	@Override
 	protected Set<Long> _queryResultDataEntryIDs(ResultDescriptor resultDescriptor)
 	{
 		if (resultDescriptor.isNegated())
-			return new AndExpressionEvaluator(getQueryEvaluator(), getParent(), getExpression())._queryResultDataEntryIDsIgnoringNegation(resultDescriptor);
+			return new AndExpressionEvaluator(this)._queryResultDataEntryIDsIgnoringNegation(resultDescriptor);
 		else
 			return _queryResultDataEntryIDsIgnoringNegation(resultDescriptor);
 	}

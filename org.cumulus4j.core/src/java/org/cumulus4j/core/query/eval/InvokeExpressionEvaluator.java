@@ -162,6 +162,23 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 		protected PersistenceManager pm;
 		protected boolean negate;
 
+		protected Set<Long> negateIfNecessary(FieldMeta fieldMeta, Set<Long> positiveResult)
+		{
+			if (!negate)
+				return positiveResult;
+
+			Class<?> candidateClass = executionContext.getClassLoaderResolver().classForName(fieldMeta.getClassMeta().getClassName());
+			Set<ClassMeta> candidateClassMetas = queryEvaluator.getCandidateClassMetas(candidateClass, true);
+			Set<Long> allDataEntryIDs = queryEvaluator.getAllDataEntryIDsForCandidateClasses(candidateClassMetas);
+
+			Set<Long> negativeResult = new HashSet<Long>(allDataEntryIDs.size() - positiveResult.size());
+			for (Long dataEntryID : allDataEntryIDs) {
+				if (!positiveResult.contains(dataEntryID))
+					negativeResult.add(dataEntryID);
+			}
+			return negativeResult;
+		}
+
 		public AbstractContainsResolver(
 				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
 				FieldMetaRole role, boolean negate
@@ -206,7 +223,6 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 		protected abstract Set<Long> _queryEnd(
 				PersistenceManager pm, FieldMeta fieldMeta, AbstractMemberMetaData mmd, FieldMeta subFieldMeta, boolean argumentIsPersistent, Class<?> argumentType
 		);
-
 	}
 
 
@@ -243,9 +259,6 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 				boolean argumentIsPersistent, Class<?> argumentType
 		)
 		{
-			if (negate)
-				throw new UnsupportedOperationException("NYI");
-
 			if (argumentIsPersistent || subFieldMeta.getMappedByFieldMeta(executionContext) != null) {
 				AbstractExpressionEvaluator<?> eval = queryEvaluator.getExpressionEvaluator();
 
@@ -277,11 +290,12 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 						}
 					}
 				}
-				return result;
+				return negateIfNecessary(fieldMeta, result);
 			}
 			else {
 				AbstractExpressionEvaluator<?> eval = queryEvaluator.getExpressionEvaluator();
-				return eval.queryResultDataEntryIDs(new ResultDescriptor(variableExpr.getSymbol(), argumentType, subFieldMeta));
+				Set<Long> result = eval.queryResultDataEntryIDs(new ResultDescriptor(variableExpr.getSymbol(), argumentType, subFieldMeta));
+				return negateIfNecessary(fieldMeta, result);
 			}
 		}
 	}
@@ -304,23 +318,6 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 		{
 			super(queryEvaluator, primaryExpression, role, negate);
 			this.constant = constant;
-		}
-
-		private Set<Long> negateIfNecessary(FieldMeta fieldMeta, Set<Long> positiveResult)
-		{
-			if (!negate)
-				return positiveResult;
-
-			Class<?> candidateClass = executionContext.getClassLoaderResolver().classForName(fieldMeta.getClassMeta().getClassName());
-			Set<ClassMeta> candidateClassMetas = queryEvaluator.getCandidateClassMetas(candidateClass, true);
-			Set<Long> allDataEntryIDs = queryEvaluator.getAllDataEntryIDsForCandidateClasses(candidateClassMetas);
-
-			Set<Long> negativeResult = new HashSet<Long>(allDataEntryIDs.size() - positiveResult.size());
-			for (Long dataEntryID : allDataEntryIDs) {
-				if (!positiveResult.contains(dataEntryID))
-					negativeResult.add(dataEntryID);
-			}
-			return negativeResult;
 		}
 
 		private static Set<Long> emptyDataEntryIDs = Collections.emptySet();
