@@ -291,7 +291,7 @@ public abstract class QueryEvaluator
 
 		if (compilation.getExprFilter() == null) {
 			// No filter - we want all that match the candidate classes.
-			return getAllForCandidateClasses(candidateClassMetas);
+			return getAllPersistentObjectsForCandidateClasses(candidateClassMetas);
 		}
 		else {
 			expressionEvaluator = createExpressionEvaluatorTree(compilation.getExprFilter());
@@ -386,7 +386,7 @@ public abstract class QueryEvaluator
 		return IdentityUtils.getObjectFromIdString(objectIDString, cmd, ec, true);
 	}
 
-	private List<Object> getAllForCandidateClasses(Set<ClassMeta> candidateClassMetas)
+	private List<Object> getAllPersistentObjectsForCandidateClasses(Set<ClassMeta> candidateClassMetas)
 	{
 		javax.jdo.Query q = pm.newQuery(
 				"SELECT this.classMeta, this.objectID " +
@@ -396,17 +396,36 @@ public abstract class QueryEvaluator
 		);
 		@SuppressWarnings("unchecked")
 		Collection<Object[]> c = (Collection<Object[]>) q.execute(candidateClassMetas);
-		try {
-			List<Object> resultList = new ArrayList<Object>(c.size());
-			for (Object[] oa : c) {
-				ClassMeta classMeta = (ClassMeta) oa[0];
-				String objectIDString = (String) oa[1];
-				Object object = getObjectForClassMetaAndObjectIDString(classMeta, objectIDString);
-				resultList.add(object);
-			}
-			return resultList;
-		} finally {
-			q.closeAll();
+		List<Object> resultList = new ArrayList<Object>(c.size());
+		for (Object[] oa : c) {
+			ClassMeta classMeta = (ClassMeta) oa[0];
+			String objectIDString = (String) oa[1];
+			Object object = getObjectForClassMetaAndObjectIDString(classMeta, objectIDString);
+			resultList.add(object);
 		}
+		q.closeAll();
+		return resultList;
+	}
+
+	public Set<Long> getAllDataEntryIDsForCandidateClasses(Set<ClassMeta> candidateClassMetas)
+	{
+		javax.jdo.Query q = getPersistenceManager().newQuery(DataEntry.class);
+		q.setResult("this.dataEntryID");
+
+		Object queryParam;
+		if (false && candidateClassMetas.size() == 1) {
+			q.setFilter("this.classMeta == :classMeta");
+			queryParam = candidateClassMetas.iterator().next();
+		}
+		else {
+			q.setFilter(":classMetas.contains(this.classMeta)");
+			queryParam = candidateClassMetas;
+		}
+
+		@SuppressWarnings("unchecked")
+		Collection<Long> allDataEntryIDs = (Collection<Long>) q.execute(queryParam);
+		Set<Long> result = new HashSet<Long>(allDataEntryIDs);
+		q.closeAll();
+		return result;
 	}
 }

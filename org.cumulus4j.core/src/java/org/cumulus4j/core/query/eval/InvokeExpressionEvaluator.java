@@ -306,6 +306,25 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 			this.constant = constant;
 		}
 
+		private Set<Long> negateIfNecessary(FieldMeta fieldMeta, Set<Long> positiveResult)
+		{
+			if (!negate)
+				return positiveResult;
+
+			Class<?> candidateClass = executionContext.getClassLoaderResolver().classForName(fieldMeta.getClassMeta().getClassName());
+			Set<ClassMeta> candidateClassMetas = queryEvaluator.getCandidateClassMetas(candidateClass, true);
+			Set<Long> allDataEntryIDs = queryEvaluator.getAllDataEntryIDsForCandidateClasses(candidateClassMetas);
+
+			Set<Long> negativeResult = new HashSet<Long>(allDataEntryIDs.size() - positiveResult.size());
+			for (Long dataEntryID : allDataEntryIDs) {
+				if (!positiveResult.contains(dataEntryID))
+					negativeResult.add(dataEntryID);
+			}
+			return negativeResult;
+		}
+
+		private static Set<Long> emptyDataEntryIDs = Collections.emptySet();
+
 		@Override
 		public Set<Long> _queryEnd(
 				PersistenceManager pm, FieldMeta fieldMeta,
@@ -313,22 +332,19 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 				boolean argumentIsPersistent, Class<?> argumentType
 		)
 		{
-			if (negate)
-				throw new UnsupportedOperationException("NYI");
+			if (constant != null && !argumentType.isInstance(constant)) {
+				logger.debug(
+						"_queryEnd: constant {} is of type {} but field {} is of type {} and thus constant cannot be contained. Returning empty set!",
+						new Object[] {
+								constant, constant.getClass().getName(), fieldMeta, argumentType.getClass().getName()
+						}
+				);
+				return negateIfNecessary(fieldMeta, emptyDataEntryIDs);
+			}
 
 			if (argumentIsPersistent) {
 				Long constantDataEntryID = null;
 				if (constant != null) {
-					if (!argumentType.isInstance(constant)) {
-						logger.debug(
-								"_queryEnd: constant {} is of type {} but field {} is of type {} and thus constant cannot be contained. Returning empty set!",
-								new Object[] {
-										constant, constant.getClass().getName(), fieldMeta, argumentType.getClass().getName()
-								}
-						);
-						return Collections.emptySet();
-					}
-
 					ClassMeta constantClassMeta = queryEvaluator.getStoreManager().getClassMeta(executionContext, constant.getClass());
 					Object constantID = executionContext.getApiAdapter().getIdForObject(constant);
 					if (constantID == null)
@@ -343,26 +359,26 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 
 						Long mappedByDataEntryID = (Long) value;
 						if (mappedByDataEntryID == null)
-							return Collections.emptySet();
+							return negateIfNecessary(fieldMeta, emptyDataEntryIDs);
 						else
-							return Collections.singleton(mappedByDataEntryID);
+							return negateIfNecessary(fieldMeta, Collections.singleton(mappedByDataEntryID));
 					}
 
 					constantDataEntryID = DataEntry.getDataEntryID(pm, constantClassMeta, constantID.toString());
 				}
 				IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, subFieldMeta, constantDataEntryID);
 				if (indexEntry == null)
-					return Collections.emptySet();
+					return negateIfNecessary(fieldMeta, emptyDataEntryIDs);
 
 				IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(indexEntry);
-				return indexValue.getDataEntryIDs();
+				return negateIfNecessary(fieldMeta, indexValue.getDataEntryIDs());
 			}
 			else if (subFieldMeta.getMappedByFieldMeta(executionContext) != null) {
 				FieldMeta oppositeFieldMeta = subFieldMeta.getMappedByFieldMeta(executionContext);
 				IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(executionContext, oppositeFieldMeta, true);
 				IndexEntry indexEntry = indexEntryFactory == null ? null : indexEntryFactory.getIndexEntry(pm, oppositeFieldMeta, constant);
 				if (indexEntry == null)
-					return Collections.emptySet();
+					return negateIfNecessary(fieldMeta, emptyDataEntryIDs);
 
 				IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(indexEntry);
 				Set<Long> result = new HashSet<Long>(indexValue.getDataEntryIDs().size());
@@ -377,16 +393,16 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 					if (mappedByDataEntryID != null)
 						result.add(mappedByDataEntryID);
 				}
-				return result;
+				return negateIfNecessary(fieldMeta, result);
 			}
 			else {
 				IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(executionContext, subFieldMeta, true);
 				IndexEntry indexEntry = indexEntryFactory == null ? null : indexEntryFactory.getIndexEntry(pm, subFieldMeta, constant);
 				if (indexEntry == null)
-					return Collections.emptySet();
+					return negateIfNecessary(fieldMeta, emptyDataEntryIDs);
 
 				IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(indexEntry);
-				return indexValue.getDataEntryIDs();
+				return negateIfNecessary(fieldMeta, indexValue.getDataEntryIDs());
 			}
 		}
 	}

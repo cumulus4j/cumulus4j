@@ -95,7 +95,7 @@ extends AbstractTransactionalTest
 		logger.info(testMethodName + ": found " + resultList.size() + " Element1SetOwners " + logMsgPart + " \"" + queryParamO + "\":");
 		Assert.assertEquals("Query returned wrong number of results!", expectedResultListSize, resultList.size());
 		for (Element1SetOwner resultElement : resultList) {
-			Assert.assertNotNull("Query returned a Element1SetOwner with the set property being null!", resultElement.getSet());
+			Assert.assertNotNull("Query returned a Element1SetOwner with the set property being null: " + resultElement, resultElement.getSet());
 
 			boolean resultElementMatches = false;
 			StringBuilder sb = new StringBuilder();

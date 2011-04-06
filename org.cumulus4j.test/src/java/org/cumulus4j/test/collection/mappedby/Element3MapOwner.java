@@ -24,7 +24,7 @@ public class Element3MapOwner
 		this.name = name;
 	}
 	public Map<Element3, String> getMap() {
-		return Collections.unmodifiableMap(map);
+		return map == null ? null : Collections.unmodifiableMap(map);
 	}
 	public void addElement3(Element3 element3)
 	{

@@ -22,11 +22,15 @@ public class Element1SetOwner
 		this.name = name;
 	}
 	public Set<Element1> getSet() {
-		return Collections.unmodifiableSet(set);
+		return set == null ? null : Collections.unmodifiableSet(set);
 	}
 	public void addElement1(Element1 element1)
 	{
 		element1.setOwner(this);
 		set.add(element1);
+	}
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + "[name=\"" + name + "\"]";
 	}
 }

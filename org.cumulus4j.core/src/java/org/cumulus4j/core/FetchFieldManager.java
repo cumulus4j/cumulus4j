@@ -2,6 +2,7 @@ package org.cumulus4j.core;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -150,13 +151,11 @@ public class FetchFieldManager extends AbstractFieldManager
 		if (mmd.getMappedBy() != null) {
 			IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, fieldMeta.getMappedByFieldMeta(executionContext), getThisDataEntryID());
 			if (indexEntry == null)
-				return null;
-
-			IndexValue indexValue = getEncryptionHandler().decryptIndexEntry(indexEntry);
-			if (indexValue.getDataEntryIDs().isEmpty())
-				return null;
-
-			mappedByDataEntryIDs = indexValue.getDataEntryIDs();
+				mappedByDataEntryIDs = Collections.emptySet();
+			else {
+				IndexValue indexValue = getEncryptionHandler().decryptIndexEntry(indexEntry);
+				mappedByDataEntryIDs = indexValue.getDataEntryIDs();
+			}
 		}
 
 		int relationType = mmd.getRelationType(executionContext.getClassLoaderResolver());
@@ -196,6 +195,9 @@ public class FetchFieldManager extends AbstractFieldManager
 		else if (Relation.isRelationSingleValued(relationType))
 		{
 			if (mmd.getMappedBy() != null) {
+				if (mappedByDataEntryIDs.isEmpty())
+					return null;
+
 				if (mappedByDataEntryIDs.size() != 1)
 					throw new IllegalStateException("There are multiple objects referencing a 1-1-mapped-by-relationship! Expected 0 or 1! fieldMeta=" + fieldMeta + " dataEntryIDsForMappedBy=" + mappedByDataEntryIDs);
 
