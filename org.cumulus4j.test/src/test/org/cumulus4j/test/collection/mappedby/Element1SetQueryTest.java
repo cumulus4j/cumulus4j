@@ -91,9 +91,7 @@ extends AbstractTransactionalTest
 		List<Element1SetOwner> resultList = (List<Element1SetOwner>) q.execute(queryParamO);
 		Assert.assertNotNull("Query returned null as result when a List was expected!", resultList);
 
-//		String logMsgPart = indexOf ? "containing at least one element which " + (negated ? "NOT " : "") + "contains the part" : (negated ? "NOT " : "") + "containing the element";
-//		logger.info(testMethodName + ": found " + resultList.size() + " Element1SetOwners " + logMsgPart + " \"" + queryParamO + "\":");
-		String f = q.toString().replaceAll(".* WHERE ", "");
+		String f = q.toString().replaceFirst("^.* WHERE ", "");
 		logger.info(testMethodName + ": found " + resultList.size() + " Element1SetOwners for query-filter \"" + f + "\" and param \"" + queryParamO + "\":");
 		Assert.assertEquals("Query returned wrong number of results!", expectedResultListSize, resultList.size());
 		for (Element1SetOwner resultElement : resultList) {

@@ -31,6 +31,6 @@ public class Element1
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + "[name=\"" + name + "\"" + ", owner=" + owner + ']';
+		return getClass().getSimpleName() + "[name=\"" + name + "\"]";
 	}
 }

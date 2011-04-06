@@ -75,8 +75,8 @@ extends AbstractTransactionalTest
 		List<StringStringMapOwner> resultList = (List<StringStringMapOwner>) q.execute(queryParam);
 		Assert.assertNotNull("Query returned null as result when a List was expected!", resultList);
 
-		String logMsgPart = indexOf ? "containing at least one " + keyValue + " which contains the part " : "containing the " + keyValue;
-		logger.info(testMethodName + ": found " + resultList.size() + " StringStringMapOwners " + logMsgPart + " \"" + queryParam + "\":");
+		String f = q.toString().replaceFirst("^.* WHERE ", "");
+		logger.info(testMethodName + ": found " + resultList.size() + " StringStringMapOwners for query-filter \"" + f + "\" and param \"" + queryParam + "\":");
 		Assert.assertEquals("Query returned wrong number of results!", expectedResultListSize, resultList.size());
 		for (StringStringMapOwner resultElement : resultList) {
 			Assert.assertNotNull("Query returned a StringStringMapOwner with the map property being null!", resultElement.getMap());

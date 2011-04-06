@@ -84,9 +84,7 @@ extends AbstractTransactionalTest
 		List<Element3MapOwner> resultList = (List<Element3MapOwner>) q.execute(queryParamO);
 		Assert.assertNotNull("Query returned null as result when a List was expected!", resultList);
 
-//		String logMsgPart = indexOf ? "containing at least one " + keyValue + " which contains the part (or whose name property contains) " : "containing the " + keyValue;
-//		logger.info(testMethodName + ": found " + resultList.size() + " Element3MapOwners " + logMsgPart + " \"" + queryParamO + "\":");
-		String f = q.toString().replaceAll(".* WHERE ", "");
+		String f = q.toString().replaceFirst("^.* WHERE ", "");
 		logger.info(testMethodName + ": found " + resultList.size() + " Element3MapOwners for query-filter \"" + f + "\" and param \"" + queryParamO + "\":");
 		Assert.assertEquals("Query returned wrong number of results!", expectedResultListSize, resultList.size());
 		for (Element3MapOwner resultElement : resultList) {
@@ -132,7 +130,7 @@ extends AbstractTransactionalTest
 				sb.append(mapEntry.getKey()).append('=').append(mapEntry.getValue());
 			}
 
-			logger.info(testMethodName + ":   * " + sb);
+			logger.info(testMethodName + ":   * " + resultElement.getName() + ": " + sb);
 			Assert.assertTrue(
 					"Query returned a Element3MapOwner with the map property not containing the searched " + keyValue + ": " + resultElement.getName(),
 					resultElementMatches

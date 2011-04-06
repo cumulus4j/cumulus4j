@@ -1,6 +1,8 @@
 package org.cumulus4j.test.collection.join;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.jdo.Query;
 
@@ -62,7 +64,7 @@ extends AbstractTransactionalTest
 		stringSetOwner.getSet().add("David");
 	}
 
-	private void executeQueryAndCheckResult(Query q, String queryParam, boolean indexOf, int expectedResultListSize, boolean negated)
+	private void executeQueryAndCheckResult(Query q, String queryParam, boolean indexOf, long ... expectedStringSetOwnerIDs)
 	{
 		String testMethodName = new Exception().getStackTrace()[1].getMethodName();
 
@@ -70,49 +72,32 @@ extends AbstractTransactionalTest
 		List<StringSetOwner> resultList = (List<StringSetOwner>) q.execute(queryParam);
 		Assert.assertNotNull("Query returned null as result when a List was expected!", resultList);
 
-		String f = q.toString().replaceAll(".* WHERE ", "");
+		String f = q.toString().replaceFirst("^.* WHERE ", "");
 		logger.info(testMethodName + ": found " + resultList.size() + " StringSetOwners for query-filter \"" + f + "\" and param \"" + queryParam + "\":");
-		Assert.assertEquals("Query returned wrong number of results!", expectedResultListSize, resultList.size());
+		Assert.assertEquals("Query returned wrong number of results!", expectedStringSetOwnerIDs.length, resultList.size());
+
+		Set<Long> expectedIDSet = new HashSet<Long>(expectedStringSetOwnerIDs.length);
+		for (long id : expectedStringSetOwnerIDs)
+			expectedIDSet.add(id);
+
 		for (StringSetOwner resultElement : resultList) {
 			Assert.assertNotNull("Query returned a StringSetOwner with the set property being null!", resultElement.getSet());
+			boolean expectedElement = expectedIDSet.remove(resultElement.getId());
 
-			boolean resultElementMatches = false;
 			StringBuilder sb = new StringBuilder();
 			for (String setElement : resultElement.getSet()) {
 				Assert.assertNotNull("Query returned a StringSetOwner whose set contains a null entry!", setElement);
-				if (indexOf) {
-					if (negated) {
-						if (setElement.indexOf(queryParam) < 0)
-							resultElementMatches = true;
-					}
-					else {
-						if (setElement.indexOf(queryParam) >= 0)
-							resultElementMatches = true;
-					}
-				}
-				else {
-					if (negated) {
-						if (!setElement.equals(queryParam))
-							resultElementMatches = true;
-					}
-					else {
-						if (setElement.equals(queryParam))
-							resultElementMatches = true;
-					}
-				}
 
 				if (sb.length() > 0)
 					sb.append(", ");
 
 				sb.append(setElement);
 			}
-			if (resultElement.getSet().isEmpty() && negated)
-				resultElementMatches = true;
 
 			logger.info(testMethodName + ":   * " + resultElement.getId() + ": " + sb);
 			Assert.assertTrue(
-					"Query returned a StringSetOwner with the set property not containing the searched element: " + resultElement.getId(),
-					resultElementMatches
+					"Query returned an unexpected result-element: " + resultElement.getId(),
+					expectedElement
 			);
 		}
 	}
@@ -122,7 +107,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringSetOwner.class);
 		q.setFilter("this.set.contains(:element)");
-		executeQueryAndCheckResult(q, "Marc", false, 2, false);
+		executeQueryAndCheckResult(q, "Marc", false, 3, 4);
 	}
 
 	@Test
@@ -130,7 +115,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringSetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && elementVariable.indexOf(:elementPart) >= 0");
-		executeQueryAndCheckResult(q, "Marc", true, 3, false);
+		executeQueryAndCheckResult(q, "Marc", true, 3, 4, 5);
 	}
 
 	@Test
@@ -138,7 +123,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringSetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && elementVariable == :element");
-		executeQueryAndCheckResult(q, "Marc", false, 2, false);
+		executeQueryAndCheckResult(q, "Marc", false, 3, 4);
 	}
 
 	@Test
@@ -146,7 +131,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringSetOwner.class);
 		q.setFilter("!this.set.contains(:element)");
-		executeQueryAndCheckResult(q, "Marc", false, 5, true);
+		executeQueryAndCheckResult(q, "Marc", false, 1, 2, 5, 6, 7);
 	}
 
 	@Test
@@ -154,7 +139,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringSetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && elementVariable.indexOf(:elementPart) < 0");
-		executeQueryAndCheckResult(q, "Marc", true, 4, true);
+		executeQueryAndCheckResult(q, "Marc", true, 1, 2, 3, 7);
 	}
 
 	@Test
@@ -162,7 +147,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringSetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && !(elementVariable.indexOf(:elementPart) >= 0)");
-		executeQueryAndCheckResult(q, "Marc", true, 4, true);
+		executeQueryAndCheckResult(q, "Marc", true, 1, 2, 3, 7);
 	}
 
 	@Test
@@ -170,7 +155,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringSetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && elementVariable != :element");
-		executeQueryAndCheckResult(q, "Marc", false, 5, true);
+		executeQueryAndCheckResult(q, "Marc", false, 1, 2, 3, 5, 7);
 	}
 
 	@Test
@@ -178,7 +163,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringSetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && !(elementVariable == :element)");
-		executeQueryAndCheckResult(q, "Marc", false, 5, true);
+		executeQueryAndCheckResult(q, "Marc", false, 1, 2, 3, 5, 7);
 	}
 
 	@Test
@@ -186,6 +171,6 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringSetOwner.class);
 		q.setFilter("!this.set.contains(elementVariable) && elementVariable == :element");
-		executeQueryAndCheckResult(q, "Marc", false, 5, true);
+		executeQueryAndCheckResult(q, "Marc", false, 1, 2, 5, 6, 7);
 	}
 }

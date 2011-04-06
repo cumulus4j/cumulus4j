@@ -38,6 +38,6 @@ public class Element2
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + "[key=\"" + key + "\", name=\"" + name + "\"" + ", owner=" + owner + ']';
+		return getClass().getSimpleName() + "[key=\"" + key + "\", name=\"" + name + "\"]";
 	}
 }
