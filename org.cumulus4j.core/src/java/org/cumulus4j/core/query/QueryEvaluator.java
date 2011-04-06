@@ -388,14 +388,21 @@ public abstract class QueryEvaluator
 
 	private List<Object> getAllPersistentObjectsForCandidateClasses(Set<ClassMeta> candidateClassMetas)
 	{
-		javax.jdo.Query q = pm.newQuery(
-				"SELECT this.classMeta, this.objectID " +
-				"FROM " + DataEntry.class.getName() + ' ' +
-				"WHERE pClassMetas.contains(this.classMeta) " +
-				"PARAMETERS java.util.Set pClassMetas"
-		);
+		javax.jdo.Query q = pm.newQuery(DataEntry.class);
+		q.setResult("this.classMeta, this.objectID");
+
+		Object queryParam;
+		if (candidateClassMetas.size() == 1) {
+			q.setFilter("this.classMeta == :classMeta");
+			queryParam = candidateClassMetas.iterator().next();
+		}
+		else {
+			q.setFilter(":classMetas.contains(this.classMeta)");
+			queryParam = candidateClassMetas;
+		}
+
 		@SuppressWarnings("unchecked")
-		Collection<Object[]> c = (Collection<Object[]>) q.execute(candidateClassMetas);
+		Collection<Object[]> c = (Collection<Object[]>) q.execute(queryParam);
 		List<Object> resultList = new ArrayList<Object>(c.size());
 		for (Object[] oa : c) {
 			ClassMeta classMeta = (ClassMeta) oa[0];
@@ -409,11 +416,11 @@ public abstract class QueryEvaluator
 
 	public Set<Long> getAllDataEntryIDsForCandidateClasses(Set<ClassMeta> candidateClassMetas)
 	{
-		javax.jdo.Query q = getPersistenceManager().newQuery(DataEntry.class);
+		javax.jdo.Query q = pm.newQuery(DataEntry.class);
 		q.setResult("this.dataEntryID");
 
 		Object queryParam;
-		if (false && candidateClassMetas.size() == 1) {
+		if (candidateClassMetas.size() == 1) {
 			q.setFilter("this.classMeta == :classMeta");
 			queryParam = candidateClassMetas.iterator().next();
 		}
