@@ -244,22 +244,35 @@ extends AbstractTransactionalTest
 		executeQueryAndCheckResult(q, null, "bb", KeyValue.key, true, 4, true);
 	}
 
-// TODO add the following two tests in a NEGATED form.
-//	@Test
-//	public void queryContainsValueParameter()
-//	{
-//		Element2 element2 = getExampleElement();
-//
-//		Query q = pm.newQuery(Element2MapOwner.class);
-//		q.setFilter("this.map.containsValue(:queryParam)");
-//		executeQueryAndCheckResult(q, element2, null, KeyValue.value, false, 1, false);
-//	}
-//
-//	@Test
-//	public void queryContainsValueVariableAndIndexOfMatches()
-//	{
-//		Query q = pm.newQuery(Element2MapOwner.class);
-//		q.setFilter("this.map.containsValue(variable) && variable.name.indexOf(:queryParam) >= 0");
-//		executeQueryAndCheckResult(q, null, "4", KeyValue.value, true, 3, false);
-//	}
+	@Test
+	public void queryNotContainsValueParameter()
+	{
+		Element2 element2 = getExampleElement();
+
+		Query q = pm.newQuery(Element2MapOwner.class);
+		q.setFilter("!this.map.containsValue(:queryParam)");
+		executeQueryAndCheckResult(q, element2, null, KeyValue.value, false, 5, true);
+	}
+
+	/**
+	 * Should behave exactly like {@link #queryContainsValueVariableAndIndexOfNotMatches()}
+	 */
+	@Test
+	public void queryContainsValueVariableAndNotIndexOfMatches()
+	{
+		Query q = pm.newQuery(Element2MapOwner.class);
+		q.setFilter("this.map.containsValue(variable) && !(variable.name.indexOf(:queryParam) >= 0)");
+		executeQueryAndCheckResult(q, null, "4", KeyValue.value, true, 4, true);
+	}
+
+	/**
+	 * Should behave exactly like {@link #queryContainsValueVariableAndNotIndexOfMatches()}
+	 */
+	@Test
+	public void queryContainsValueVariableAndIndexOfNotMatches()
+	{
+		Query q = pm.newQuery(Element2MapOwner.class);
+		q.setFilter("this.map.containsValue(variable) && variable.name.indexOf(:queryParam) < 0");
+		executeQueryAndCheckResult(q, null, "4", KeyValue.value, true, 4, true);
+	}
 }
