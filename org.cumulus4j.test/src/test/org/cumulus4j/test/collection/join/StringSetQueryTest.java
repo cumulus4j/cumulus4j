@@ -64,7 +64,7 @@ extends AbstractTransactionalTest
 		stringSetOwner.getSet().add("David");
 	}
 
-	private void executeQueryAndCheckResult(Query q, String queryParam, boolean indexOf, long ... expectedStringSetOwnerIDs)
+	private void executeQueryAndCheckResult(Query q, String queryParam, long ... expectedStringSetOwnerIDs)
 	{
 		String testMethodName = new Exception().getStackTrace()[1].getMethodName();
 
@@ -107,7 +107,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringSetOwner.class);
 		q.setFilter("this.set.contains(:element)");
-		executeQueryAndCheckResult(q, "Marc", false, 3, 4);
+		executeQueryAndCheckResult(q, "Marc", 3, 4);
 	}
 
 	@Test
@@ -115,7 +115,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringSetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && elementVariable.indexOf(:elementPart) >= 0");
-		executeQueryAndCheckResult(q, "Marc", true, 3, 4, 5);
+		executeQueryAndCheckResult(q, "Marc", 3, 4, 5);
 	}
 
 	@Test
@@ -123,7 +123,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringSetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && elementVariable == :element");
-		executeQueryAndCheckResult(q, "Marc", false, 3, 4);
+		executeQueryAndCheckResult(q, "Marc", 3, 4);
 	}
 
 	@Test
@@ -131,7 +131,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringSetOwner.class);
 		q.setFilter("!this.set.contains(:element)");
-		executeQueryAndCheckResult(q, "Marc", false, 1, 2, 5, 6, 7);
+		executeQueryAndCheckResult(q, "Marc", 1, 2, 5, 6, 7);
 	}
 
 	@Test
@@ -139,7 +139,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringSetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && elementVariable.indexOf(:elementPart) < 0");
-		executeQueryAndCheckResult(q, "Marc", true, 1, 2, 3, 7);
+		executeQueryAndCheckResult(q, "Marc", 1, 2, 3, 7);
 	}
 
 	@Test
@@ -147,7 +147,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringSetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && !(elementVariable.indexOf(:elementPart) >= 0)");
-		executeQueryAndCheckResult(q, "Marc", true, 1, 2, 3, 7);
+		executeQueryAndCheckResult(q, "Marc", 1, 2, 3, 7);
 	}
 
 	@Test
@@ -155,7 +155,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringSetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && elementVariable != :element");
-		executeQueryAndCheckResult(q, "Marc", false, 1, 2, 3, 5, 7);
+		executeQueryAndCheckResult(q, "Marc", 1, 2, 3, 5, 7);
 	}
 
 	@Test
@@ -163,7 +163,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringSetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && !(elementVariable == :element)");
-		executeQueryAndCheckResult(q, "Marc", false, 1, 2, 3, 5, 7);
+		executeQueryAndCheckResult(q, "Marc", 1, 2, 3, 5, 7);
 	}
 
 	@Test
@@ -171,6 +171,6 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(StringSetOwner.class);
 		q.setFilter("!this.set.contains(elementVariable) && elementVariable == :element");
-		executeQueryAndCheckResult(q, "Marc", false, 1, 2, 5, 6, 7);
+		executeQueryAndCheckResult(q, "Marc", 1, 2, 5, 6, 7);
 	}
 }

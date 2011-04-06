@@ -1,7 +1,10 @@
 package org.cumulus4j.test.collection.mappedby;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.jdo.Query;
 
@@ -80,92 +83,45 @@ extends AbstractTransactionalTest
 		}
 	}
 
-	private static enum KeyValue {
-		key, value
-	}
-
-	private void executeQueryAndCheckResult(Query q, Object queryParamO, String queryParamS, KeyValue keyValue, boolean indexOf, int expectedResultListSize, boolean negated)
+	private void executeQueryAndCheckResult(Query q, Object queryParam, String ... expectedOwnerNames)
 	{
 		String testMethodName = new Exception().getStackTrace()[1].getMethodName();
 
-		if (queryParamS != null)
-			queryParamO = queryParamS;
-
 		@SuppressWarnings("unchecked")
-		List<Element2MapOwner> resultList = (List<Element2MapOwner>) q.execute(queryParamO);
+		List<Element2MapOwner> resultList = (List<Element2MapOwner>) q.execute(queryParam);
 		Assert.assertNotNull("Query returned null as result when a List was expected!", resultList);
 
 		String f = q.toString().replaceFirst("^.* WHERE ", "");
-		logger.info(testMethodName + ": found " + resultList.size() + " Element2MapOwners for query-filter \"" + f + "\" and param \"" + queryParamO + "\":");
-		Assert.assertEquals("Query returned wrong number of results!", expectedResultListSize, resultList.size());
-		for (Element2MapOwner resultElement : resultList) {
-			Assert.assertNotNull("Query returned a Element2MapOwner with the map property being null!", resultElement.getMap());
+		logger.info(testMethodName + ": found " + resultList.size() + " Element2MapOwners for query-filter \"" + f + "\" and param \"" + queryParam + "\":");
 
-			boolean resultElementMatches = false;
+		Set<String> expectedOwnerNameSet = new HashSet<String>(Arrays.asList(expectedOwnerNames));
+
+		for (Element2MapOwner resultElement : resultList) {
+			Assert.assertNotNull("Query returned a Element2MapOwner with the 'name' property being null: " + resultElement, resultElement.getName());
+			Assert.assertNotNull("Query returned a Element2MapOwner with the 'map' property being null!", resultElement.getMap());
+
+			boolean expectedElement = expectedOwnerNameSet.remove(resultElement.getName());
+
 			StringBuilder sb = new StringBuilder();
 			for (Map.Entry<String, Element2> mapEntry : resultElement.getMap().entrySet()) {
 				Assert.assertNotNull("Query returned a Element2MapOwner whose map contains a null key!", mapEntry.getKey());
 				Assert.assertNotNull("Query returned a Element2MapOwner whose map contains a null value!", mapEntry.getValue());
-
-				Object found = null;
-				switch (keyValue) {
-					case key:
-						found = mapEntry.getKey();
-						break;
-					case value:
-						found = mapEntry.getValue();
-						break;
-				}
-
-				if (indexOf) {
-					if (found instanceof Element2) {
-						Element2 e2 = (Element2) found;
-						if (negated) {
-							if (e2.getName().indexOf(queryParamS) < 0)
-								resultElementMatches = true;
-						}
-						else {
-							if (e2.getName().indexOf(queryParamS) >= 0)
-								resultElementMatches = true;
-						}
-					}
-					else if (found instanceof String) {
-						String s = (String) found;
-						if (negated) {
-							if (s.indexOf(queryParamS) < 0)
-								resultElementMatches = true;
-						}
-						else {
-							if (s.indexOf(queryParamS) >= 0)
-								resultElementMatches = true;
-						}
-					}
-				}
-				else {
-					if (negated) {
-						if (!found.equals(queryParamO))
-							resultElementMatches = true;
-					}
-					else {
-						if (found.equals(queryParamO))
-							resultElementMatches = true;
-					}
-				}
 
 				if (sb.length() > 0)
 					sb.append(", ");
 
 				sb.append(mapEntry.getKey()).append('=').append(mapEntry.getValue());
 			}
-			if (resultElement.getMap().isEmpty() && negated)
-				resultElementMatches = true;
 
 			logger.info(testMethodName + ":   * " + resultElement.getName() + ": " + sb);
 			Assert.assertTrue(
-					"Query returned a Element2MapOwner with the map property not containing the searched " + keyValue + ": " + resultElement.getName(),
-					resultElementMatches
+					"Query returned an unexpected result-element: " + resultElement,
+					expectedElement
 			);
 		}
+
+		if (!expectedOwnerNameSet.isEmpty())
+			Assert.fail("Query did not return the following expected result-elements: " + expectedOwnerNameSet);
 	}
 
 	private Element2 getExampleElement()
@@ -185,7 +141,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(Element2MapOwner.class);
 		q.setFilter("this.map.containsKey(:queryParam)");
-		executeQueryAndCheckResult(q, null, "ccc", KeyValue.key, false, 2, false);
+		executeQueryAndCheckResult(q, "ccc", "Owner 1", "Owner 4");
 	}
 
 	@Test
@@ -193,7 +149,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(Element2MapOwner.class);
 		q.setFilter("this.map.containsKey(variable) && variable.indexOf(:queryParam) >= 0");
-		executeQueryAndCheckResult(q, null, "bb", KeyValue.key, true, 3, false);
+		executeQueryAndCheckResult(q, "bb", "Owner 1", "Owner 2", "Owner 6");
 	}
 
 	@Test
@@ -203,7 +159,7 @@ extends AbstractTransactionalTest
 
 		Query q = pm.newQuery(Element2MapOwner.class);
 		q.setFilter("this.map.containsValue(:queryParam)");
-		executeQueryAndCheckResult(q, element2, null, KeyValue.value, false, 1, false);
+		executeQueryAndCheckResult(q, element2, "Owner 3");
 	}
 
 	@Test
@@ -211,7 +167,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(Element2MapOwner.class);
 		q.setFilter("this.map.containsValue(variable) && variable.name.indexOf(:queryParam) >= 0");
-		executeQueryAndCheckResult(q, null, "4", KeyValue.value, true, 3, false);
+		executeQueryAndCheckResult(q, "4", "Owner 1", "Owner 2", "Owner 4");
 	}
 
 	@Test
@@ -219,7 +175,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(Element2MapOwner.class);
 		q.setFilter("!this.map.containsKey(:queryParam)");
-		executeQueryAndCheckResult(q, null, "ccc", KeyValue.key, false, 4, true);
+		executeQueryAndCheckResult(q, "ccc", "Owner 2", "Owner 3", "Owner 5", "Owner 6");
 	}
 
 	/**
@@ -230,7 +186,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(Element2MapOwner.class);
 		q.setFilter("this.map.containsKey(variable) && variable.indexOf(:queryParam) < 0");
-		executeQueryAndCheckResult(q, null, "bb", KeyValue.key, true, 4, true);
+		executeQueryAndCheckResult(q, "bb", "Owner 1", "Owner 2", "Owner 3", "Owner 4");
 	}
 
 	/**
@@ -241,7 +197,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(Element2MapOwner.class);
 		q.setFilter("this.map.containsKey(variable) && !(variable.indexOf(:queryParam) >= 0)");
-		executeQueryAndCheckResult(q, null, "bb", KeyValue.key, true, 4, true);
+		executeQueryAndCheckResult(q, "bb", "Owner 1", "Owner 2", "Owner 3", "Owner 4");
 	}
 
 	@Test
@@ -251,7 +207,7 @@ extends AbstractTransactionalTest
 
 		Query q = pm.newQuery(Element2MapOwner.class);
 		q.setFilter("!this.map.containsValue(:queryParam)");
-		executeQueryAndCheckResult(q, element2, null, KeyValue.value, false, 5, true);
+		executeQueryAndCheckResult(q, element2, "Owner 1", "Owner 2", "Owner 4", "Owner 5", "Owner 6");
 	}
 
 	/**
@@ -262,7 +218,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(Element2MapOwner.class);
 		q.setFilter("this.map.containsValue(variable) && !(variable.name.indexOf(:queryParam) >= 0)");
-		executeQueryAndCheckResult(q, null, "4", KeyValue.value, true, 4, true);
+		executeQueryAndCheckResult(q, "4", "Owner 1", "Owner 2", "Owner 3", "Owner 6");
 	}
 
 	/**
@@ -273,6 +229,6 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(Element2MapOwner.class);
 		q.setFilter("this.map.containsValue(variable) && variable.name.indexOf(:queryParam) < 0");
-		executeQueryAndCheckResult(q, null, "4", KeyValue.value, true, 4, true);
+		executeQueryAndCheckResult(q, "4", "Owner 1", "Owner 2", "Owner 3", "Owner 6");
 	}
 }

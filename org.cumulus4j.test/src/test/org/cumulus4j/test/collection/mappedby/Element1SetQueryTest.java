@@ -1,6 +1,9 @@
 package org.cumulus4j.test.collection.mappedby;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.jdo.Query;
 
@@ -73,87 +76,45 @@ extends AbstractTransactionalTest
 		}
 	}
 
-	private void executeQueryAndCheckResult(Query q, Object queryParamO, String queryParamS, boolean indexOf, int expectedResultListSize, boolean negated)
+	private void executeQueryAndCheckResult(Query q, Object queryParam, String ... expectedOwnerNames)
 	{
 		String testMethodName = new Exception().getStackTrace()[1].getMethodName();
 
-		if (queryParamS != null)
-			queryParamO = queryParamS;
-		else {
-			if (queryParamO == null)
-				throw new IllegalArgumentException("Only one of queryParamO and queryParamS can be null! But both are null!");
-
-			if (indexOf)
-				throw new IllegalArgumentException("There is no String-queryParam, but indexOf is true! indexOf must be false with object-QueryParam!");
-		}
-
 		@SuppressWarnings("unchecked")
-		List<Element1SetOwner> resultList = (List<Element1SetOwner>) q.execute(queryParamO);
+		List<Element1SetOwner> resultList = (List<Element1SetOwner>) q.execute(queryParam);
 		Assert.assertNotNull("Query returned null as result when a List was expected!", resultList);
 
 		String f = q.toString().replaceFirst("^.* WHERE ", "");
-		logger.info(testMethodName + ": found " + resultList.size() + " Element1SetOwners for query-filter \"" + f + "\" and param \"" + queryParamO + "\":");
-		Assert.assertEquals("Query returned wrong number of results!", expectedResultListSize, resultList.size());
-		for (Element1SetOwner resultElement : resultList) {
-			Assert.assertNotNull("Query returned a Element1SetOwner with the set property being null: " + resultElement, resultElement.getSet());
+		logger.info(testMethodName + ": found " + resultList.size() + " Element1SetOwners for query-filter \"" + f + "\" and param \"" + queryParam + "\":");
 
-			boolean resultElementMatches = false;
+		Set<String> expectedOwnerNameSet = new HashSet<String>(Arrays.asList(expectedOwnerNames));
+
+		for (Element1SetOwner resultElement : resultList) {
+			Assert.assertNotNull("Query returned a Element1SetOwner with the 'name' property being null: " + resultElement, resultElement.getName());
+			Assert.assertNotNull("Query returned a Element1SetOwner with the 'set' property being null: " + resultElement, resultElement.getSet());
+
+			boolean expectedElement = expectedOwnerNameSet.remove(resultElement.getName());
+
 			StringBuilder sb = new StringBuilder();
 			for (Element1 setElement : resultElement.getSet()) {
 				Assert.assertNotNull("Query returned a Element1SetOwner whose set contains a null entry!", setElement);
 				Assert.assertNotNull("Query returned a Element1SetOwner whose set contains an element with a null name!", setElement.getName());
-
-				if (queryParamS != null) {
-					if (indexOf) {
-						if (negated) {
-							if (setElement.getName().indexOf(queryParamS) < 0)
-								resultElementMatches = true;
-						}
-						else {
-							if (setElement.getName().indexOf(queryParamS) >= 0)
-								resultElementMatches = true;
-						}
-					}
-					else {
-						if (negated) {
-							if (!setElement.getName().equals(queryParamS))
-								resultElementMatches = true;
-						}
-						else {
-							if (setElement.getName().equals(queryParamS))
-								resultElementMatches = true;
-						}
-					}
-				}
-				else {
-					if (negated) {
-						if (!queryParamO.equals(setElement))
-							resultElementMatches = true;
-					}
-					else {
-						if (queryParamO.equals(setElement))
-							resultElementMatches = true;
-					}
-				}
 
 				if (sb.length() > 0)
 					sb.append(", ");
 
 				sb.append(setElement.getName());
 			}
-			if (resultElement.getSet().isEmpty() && negated)
-				resultElementMatches = true;
 
 			logger.info(testMethodName + ":   * " + resultElement.getName() + ": " + sb);
 			Assert.assertTrue(
-					(
-							negated ?
-									"Query returned a Element1SetOwner with the set property containing the excluded element: " + resultElement.getName() :
-										"Query returned a Element1SetOwner with the set property not containing the searched element: " + resultElement.getName()
-					),
-					resultElementMatches
+					"Query returned an unexpected result-element: " + resultElement,
+					expectedElement
 			);
 		}
+
+		if (!expectedOwnerNameSet.isEmpty())
+			Assert.fail("Query did not return the following expected result-elements: " + expectedOwnerNameSet);
 	}
 
 	private Element1 getExampleElement()
@@ -178,7 +139,7 @@ extends AbstractTransactionalTest
 		Element1 element = getExampleElement();
 		Query q = pm.newQuery(Element1SetOwner.class);
 		q.setFilter("this.set.contains(:element)");
-		executeQueryAndCheckResult(q, element, null, false, 1, false);
+		executeQueryAndCheckResult(q, element, "Owner 3");
 	}
 
 	@Test
@@ -188,7 +149,7 @@ extends AbstractTransactionalTest
 		q.setFilter("this.set.contains(elementVariable) && elementVariable.name.indexOf(:elementPart) >= 0");
 		// Implicit variables are now properly supported => don't need to declare them anymore.
 //		q.declareVariables(Element1.class.getName() + " elementVariable");
-		executeQueryAndCheckResult(q, null, "4", true, 3, false);
+		executeQueryAndCheckResult(q, "4", "Owner 1", "Owner 2", "Owner 4");
 	}
 
 	@Test
@@ -199,7 +160,7 @@ extends AbstractTransactionalTest
 		q.setFilter("this.set.contains(elementVariable) && elementVariable == :element");
 		// Implicit variables are now properly supported => don't need to declare them anymore.
 //		q.declareVariables(Element1.class.getName() + " elementVariable");
-		executeQueryAndCheckResult(q, element, null, false, 1, false);
+		executeQueryAndCheckResult(q, element, "Owner 3");
 	}
 
 	@Test
@@ -208,7 +169,7 @@ extends AbstractTransactionalTest
 		Element1 element = getExampleElement();
 		Query q = pm.newQuery(Element1SetOwner.class);
 		q.setFilter("!this.set.contains(:element)");
-		executeQueryAndCheckResult(q, element, null, false, 4, true);
+		executeQueryAndCheckResult(q, element, "Owner 1", "Owner 2", "Owner 4", "Owner 5");
 	}
 
 	/**
@@ -219,7 +180,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(Element1SetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && elementVariable.name.indexOf(:elementPart) < 0");
-		executeQueryAndCheckResult(q, null, "4", true, 3, true);
+		executeQueryAndCheckResult(q, "4", "Owner 1", "Owner 2", "Owner 3");
 	}
 
 	/**
@@ -230,7 +191,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(Element1SetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && !(elementVariable.name.indexOf(:elementPart) >= 0)");
-		executeQueryAndCheckResult(q, null, "4", true, 3, true);
+		executeQueryAndCheckResult(q, "4", "Owner 1", "Owner 2", "Owner 3");
 	}
 
 	@Test
@@ -239,7 +200,7 @@ extends AbstractTransactionalTest
 		Element1 element = getExampleElement();
 		Query q = pm.newQuery(Element1SetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && !(elementVariable == :element)");
-		executeQueryAndCheckResult(q, element, null, false, 4, true);
+		executeQueryAndCheckResult(q, element, "Owner 1", "Owner 2", "Owner 3", "Owner 4");
 	}
 
 	@Test
@@ -248,7 +209,7 @@ extends AbstractTransactionalTest
 		Element1 element = getExampleElement("Element1 4.3");
 		Query q = pm.newQuery(Element1SetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && !(elementVariable == :element)");
-		executeQueryAndCheckResult(q, element, null, false, 3, true);
+		executeQueryAndCheckResult(q, element, "Owner 1", "Owner 2", "Owner 3");
 	}
 
 	@Test
@@ -256,6 +217,6 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(Element1SetOwner.class);
 		q.setFilter("!this.set.contains(elementVariable) && elementVariable.name.indexOf(:elementPart) >= 0");
-		executeQueryAndCheckResult(q, null, "4", true, 2, true);
+		executeQueryAndCheckResult(q, "4", "Owner 3", "Owner 5");
 	}
 }
