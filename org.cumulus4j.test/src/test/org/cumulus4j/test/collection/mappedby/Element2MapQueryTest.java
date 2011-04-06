@@ -72,6 +72,12 @@ extends AbstractTransactionalTest
 			Element2MapOwner owner = pm.makePersistent(new Element2MapOwner());
 			owner.setName("Owner 5");
 		}
+
+		{
+			Element2MapOwner owner = pm.makePersistent(new Element2MapOwner());
+			owner.setName("Owner 6");
+			owner.addElement2(new Element2("bb", "Element2 6.2"));
+		}
 	}
 
 	private static enum KeyValue {
@@ -154,7 +160,7 @@ extends AbstractTransactionalTest
 			if (resultElement.getMap().isEmpty() && negated)
 				resultElementMatches = true;
 
-			logger.info(testMethodName + ":   * " + sb);
+			logger.info(testMethodName + ":   * " + resultElement + ": " + sb);
 			Assert.assertTrue(
 					"Query returned a Element2MapOwner with the map property not containing the searched " + keyValue + ": " + resultElement.getName(),
 					resultElementMatches
@@ -187,7 +193,7 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(Element2MapOwner.class);
 		q.setFilter("this.map.containsKey(variable) && variable.indexOf(:queryParam) >= 0");
-		executeQueryAndCheckResult(q, null, "bb", KeyValue.key, true, 2, false);
+		executeQueryAndCheckResult(q, null, "bb", KeyValue.key, true, 3, false);
 	}
 
 	@Test
@@ -213,6 +219,47 @@ extends AbstractTransactionalTest
 	{
 		Query q = pm.newQuery(Element2MapOwner.class);
 		q.setFilter("!this.map.containsKey(:queryParam)");
-		executeQueryAndCheckResult(q, null, "ccc", KeyValue.key, false, 3, true);
+		executeQueryAndCheckResult(q, null, "ccc", KeyValue.key, false, 4, true);
 	}
+
+	/**
+	 * Should behave exactly like {@link #queryContainsKeyVariableAndNotIndexOfMatches()}
+	 */
+	@Test
+	public void queryContainsKeyVariableAndIndexOfNotMatches()
+	{
+		Query q = pm.newQuery(Element2MapOwner.class);
+		q.setFilter("this.map.containsKey(variable) && variable.indexOf(:queryParam) < 0");
+		executeQueryAndCheckResult(q, null, "bb", KeyValue.key, true, 4, true);
+	}
+
+	/**
+	 * Should behave exactly like {@link #queryContainsKeyVariableAndIndexOfNotMatches()}
+	 */
+	@Test
+	public void queryContainsKeyVariableAndNotIndexOfMatches()
+	{
+		Query q = pm.newQuery(Element2MapOwner.class);
+		q.setFilter("this.map.containsKey(variable) && !(variable.indexOf(:queryParam) >= 0)");
+		executeQueryAndCheckResult(q, null, "bb", KeyValue.key, true, 4, true);
+	}
+
+// TODO add the following two tests in a NEGATED form.
+//	@Test
+//	public void queryContainsValueParameter()
+//	{
+//		Element2 element2 = getExampleElement();
+//
+//		Query q = pm.newQuery(Element2MapOwner.class);
+//		q.setFilter("this.map.containsValue(:queryParam)");
+//		executeQueryAndCheckResult(q, element2, null, KeyValue.value, false, 1, false);
+//	}
+//
+//	@Test
+//	public void queryContainsValueVariableAndIndexOfMatches()
+//	{
+//		Query q = pm.newQuery(Element2MapOwner.class);
+//		q.setFilter("this.map.containsValue(variable) && variable.name.indexOf(:queryParam) >= 0");
+//		executeQueryAndCheckResult(q, null, "4", KeyValue.value, true, 3, false);
+//	}
 }

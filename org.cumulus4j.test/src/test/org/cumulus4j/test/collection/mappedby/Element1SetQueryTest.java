@@ -212,7 +212,7 @@ extends AbstractTransactionalTest
 	}
 
 	/**
-	 * Should behave exactly like #queryContainsVariableAndNotVariableIndexOf()
+	 * Should behave exactly like {@link #queryContainsVariableAndNotVariableIndexOf()}
 	 */
 	@Test
 	public void queryContainsVariableAndVariableNotIndexOf()
@@ -223,7 +223,7 @@ extends AbstractTransactionalTest
 	}
 
 	/**
-	 * Should behave exactly like #queryContainsVariableAndVariableNotIndexOf()
+	 * Should behave exactly like {@link #queryContainsVariableAndVariableNotIndexOf()}
 	 */
 	@Test
 	public void queryContainsVariableAndNotVariableIndexOf()
