@@ -27,7 +27,7 @@ import org.datanucleus.query.expression.Expression;
  * <p>
  * If the {@link ResultDescriptor} indicates a {@link ResultDescriptor#isNegated() negation}, this evaluator
  * delegates to the {@link OrExpressionEvaluator}, because a query like
- * "NOT( AND( a > 5, b <= 12 ) )" is internally converted to "OR( a <= 5, b > 12 )" for performance reasons.
+ * "!( a > 5 &amp;&amp; b <= 12 )" is internally converted to "a <= 5 || b > 12" for performance reasons.
  * See {@link NotExpressionEvaluator} for details.
  * </p>
  *
