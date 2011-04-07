@@ -11,6 +11,7 @@ import org.datanucleus.query.symbol.Symbol;
  * Evaluator representing {@link PrimaryExpression}s.
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ * @see PrimaryExpression
  */
 public class PrimaryExpressionEvaluator extends AbstractExpressionEvaluator<PrimaryExpression>
 {

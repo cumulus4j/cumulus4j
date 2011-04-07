@@ -10,6 +10,7 @@ import org.datanucleus.query.expression.ParameterExpression;
  * Evaluator representing query parameters.
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ * @see ParameterExpression
  */
 public class ParameterExpressionEvaluator
 extends AbstractExpressionEvaluator<ParameterExpression>

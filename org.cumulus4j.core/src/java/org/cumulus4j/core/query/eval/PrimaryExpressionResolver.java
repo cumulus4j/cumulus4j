@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 /**
  * <p>
  * Abstract base class for easy resolving of {@link PrimaryExpression}s. This class
- * takes care of following one-to-one-relationships inside the <code>PrimaryExpression</code>.
+ * takes care of following one-to-one-relations inside the <code>PrimaryExpression</code>.
  * </p>
  * <p>
  * For example, <code>this.aaa.bbb.ccc.ddd.someSet.contains(:param)</code> requires first to
