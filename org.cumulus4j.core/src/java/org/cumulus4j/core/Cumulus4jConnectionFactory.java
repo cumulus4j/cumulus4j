@@ -1,7 +1,9 @@
 package org.cumulus4j.core;
 
+import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
+import java.util.jar.Manifest;
 
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
@@ -11,6 +13,7 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
+import org.cumulus4j.api.annotation.Dummy;
 import org.cumulus4j.core.model.ClassMeta;
 import org.cumulus4j.core.model.DataEntry;
 import org.cumulus4j.core.model.FieldMeta;
@@ -20,17 +23,22 @@ import org.cumulus4j.core.model.IndexEntryStringLong;
 import org.cumulus4j.core.model.IndexEntryStringShort;
 import org.cumulus4j.core.model.Sequence;
 import org.cumulus4j.core.resource.ResourceHelper;
+import org.cumulus4j.core.util.ManifestUtil;
 import org.datanucleus.PersistenceConfiguration;
 import org.datanucleus.store.StoreManager;
 import org.datanucleus.store.connection.AbstractConnectionFactory;
 import org.datanucleus.store.connection.AbstractManagedConnection;
 import org.datanucleus.store.connection.ManagedConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 {
+	private static final Logger logger = LoggerFactory.getLogger(Cumulus4jConnectionFactory.class);
+
 	private PersistenceManagerFactory pmf;
 
 	private String[] propertiesToForward = {
@@ -50,8 +58,46 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 		CUMULUS4J_PROPERTY_PREFIX + "javax."
 	};
 
+	private String[] getBundleNameAndVersion(Class<?> clazz)
+	{
+		String[] result = new String[2];
+
+		Manifest manifest;
+		try {
+			manifest = ManifestUtil.readManifest(clazz);
+		} catch (IOException e) {
+			logger.warn("Could not read MANIFEST.MF from JAR containing " + clazz, e);
+			return result;
+		}
+		String bundleName = manifest.getMainAttributes().getValue("Bundle-SymbolicName");
+		if (bundleName != null) {
+			// strip options after actual bundle name
+			int idx = bundleName.indexOf(';');
+			if (idx >= 0)
+				bundleName = bundleName.substring(0, idx);
+		}
+
+		String version = manifest.getMainAttributes().getValue("Bundle-Version");
+
+		result[0] = bundleName;
+		result[1] = version;
+		return result;
+	}
+
 	public Cumulus4jConnectionFactory(StoreManager storeMgr, String resourceType) {
 		super(storeMgr, resourceType);
+
+
+		logger.info("====================== Cumulus4j ======================");
+		{ // org.cumulus4j.core
+			String[] bundleNameAndVersion = getBundleNameAndVersion(Cumulus4jConnectionFactory.class);
+			logger.info("Bundle: " + bundleNameAndVersion[0] + " Version: " + bundleNameAndVersion[1]);
+		}
+		{ // org.cumulus4j.api
+			String[] bundleNameAndVersion = getBundleNameAndVersion(Dummy.class);
+			logger.info("Bundle: " + bundleNameAndVersion[0] + " Version: " + bundleNameAndVersion[1]);
+		}
+		logger.info("=======================================================");
 
 		Map<String, Object> cumulus4jBackendProperties = ResourceHelper.getCumulus4jBackendProperties();
 
