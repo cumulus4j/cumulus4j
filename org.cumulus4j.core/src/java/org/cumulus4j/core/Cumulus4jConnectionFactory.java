@@ -91,11 +91,11 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 		logger.info("====================== Cumulus4j ======================");
 		{ // org.cumulus4j.core
 			String[] bundleNameAndVersion = getBundleNameAndVersion(Cumulus4jConnectionFactory.class);
-			logger.info("Bundle: " + bundleNameAndVersion[0] + " Version: " + bundleNameAndVersion[1]);
+			logger.info("Bundle: " + bundleNameAndVersion[0] + " - Version: " + bundleNameAndVersion[1]);
 		}
 		{ // org.cumulus4j.api
 			String[] bundleNameAndVersion = getBundleNameAndVersion(Dummy.class);
-			logger.info("Bundle: " + bundleNameAndVersion[0] + " Version: " + bundleNameAndVersion[1]);
+			logger.info("Bundle: " + bundleNameAndVersion[0] + " - Version: " + bundleNameAndVersion[1]);
 		}
 		logger.info("=======================================================");
 
