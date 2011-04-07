@@ -18,11 +18,11 @@ import org.datanucleus.query.expression.DyadicExpression;
  * negation-flag into account.
  * </p>
  * <p>
- * Example 1: Instead of querying the expensive expression "NOT( AND( a > 5, b <= 12 ) )", the cheaper
- * equivalent "OR( a <= 5, b > 12 )" is used.
+ * Example 1: Instead of querying the expensive expression "!( a > 5 &amp;&amp; b <= 12 )", the cheaper
+ * equivalent "a <= 5 || b > 12" is used.
  * </p>
  * <p>
- * Example 2: Instead of "NOT( OR( NOT( AND( a > 5, b <= 12 ) ), c > 3) )" the equivalent "AND( OR( a <= 5, b > 12 ), c <= 3 )"
+ * Example 2: Instead of "!( !( a > 5 &amp;&amp; b <= 12 ) || c > 3 )" the equivalent "( a <= 5 || b > 12 ) &amp;&amp; c <= 3"
  * is executed.
  * </p>
  *
