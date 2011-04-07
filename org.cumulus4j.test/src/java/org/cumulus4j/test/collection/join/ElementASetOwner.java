@@ -4,16 +4,16 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.jdo.annotations.Join;
 import javax.jdo.annotations.PersistenceCapable;
-import javax.jdo.annotations.Persistent;
 
 @PersistenceCapable
-public class Element4SetOwner
+public class ElementASetOwner
 {
 	private String name;
 
-	@Persistent(mappedBy="owner")
-	private Set<Element4> set = new HashSet<Element4>();
+	@Join
+	private Set<ElementA> set = new HashSet<ElementA>();
 
 	public String getName() {
 		return name;
@@ -21,12 +21,12 @@ public class Element4SetOwner
 	public void setName(String name) {
 		this.name = name;
 	}
-	public Set<Element4> getSet() {
+	public Set<ElementA> getSet() {
 		return set == null ? null : Collections.unmodifiableSet(set);
 	}
-	public void addElement4(Element4 element4)
+	public void addElementA(ElementA elementA)
 	{
-		set.add(element4);
+		set.add(elementA);
 	}
 	@Override
 	public String toString() {

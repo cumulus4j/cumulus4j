@@ -3,11 +3,11 @@ package org.cumulus4j.test.collection.join;
 import javax.jdo.annotations.PersistenceCapable;
 
 @PersistenceCapable
-public class Element4
+public class ElementA
 {
-	protected Element4() { }
+	protected ElementA() { }
 
-	public Element4(String name) {
+	public ElementA(String name) {
 		setName(name);
 	}
 
