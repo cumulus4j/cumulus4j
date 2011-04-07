@@ -25,6 +25,9 @@ import org.datanucleus.query.expression.DyadicExpression;
  * Example 2: Instead of "!( !( a > 5 &amp;&amp; b <= 12 ) || c > 3 )" the equivalent "( a <= 5 || b > 12 ) &amp;&amp; c <= 3"
  * is executed.
  * </p>
+ * <p>
+ * See <a href="http://en.wikipedia.org/wiki/De_Morgan%27s_laws">De Morgan's laws</a> in wikipedia for details.
+ * </p>
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */

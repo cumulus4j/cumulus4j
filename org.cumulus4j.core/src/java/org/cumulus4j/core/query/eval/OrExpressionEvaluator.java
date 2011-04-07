@@ -19,7 +19,8 @@ import org.datanucleus.query.expression.Expression;
  * If the {@link ResultDescriptor} indicates a {@link ResultDescriptor#isNegated() negation}, this evaluator
  * delegates to the {@link AndExpressionEvaluator}, because a query like
  * "!( a > 5 || b <= 12 )" is internally converted to "a <= 5 &amp;&amp; b > 12" for performance reasons.
- * See {@link NotExpressionEvaluator} for details.
+ * See {@link NotExpressionEvaluator} as well as
+ * <a href="http://en.wikipedia.org/wiki/De_Morgan%27s_laws">De Morgan's laws</a> in wikipedia for details.
  * </p>
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
