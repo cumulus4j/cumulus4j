@@ -4,6 +4,15 @@
 	xsi:schemaLocation="http://maven.apache.org/DECORATION/1.0.0 http://maven.apache.org/xsd/decoration-1.0.1.xsd"
 	name="Cumulus4j - Securing your data in the cloud">
 
+	<poweredBy>
+		<logo name="DataNucleus"
+			img="http://www.datanucleus.com/images/logos/DataNucleus_AccessPlatform_32.jpg"
+			href="http://www.datanucleus.org" target="_blank" />
+
+		<logo name="Maven" href="http://maven.apache.org/"
+			img="http://maven.apache.org/images/logos/maven-feather.png" target="_blank" />
+	</poweredBy>
+
 	<body>
 		<links>
 			<item name="Hauptseite" href="./index.html" />
