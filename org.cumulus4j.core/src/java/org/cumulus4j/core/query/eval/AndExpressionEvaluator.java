@@ -3,12 +3,33 @@ package org.cumulus4j.core.query.eval;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.cumulus4j.core.model.DataEntry;
 import org.cumulus4j.core.query.QueryEvaluator;
 import org.datanucleus.query.expression.DyadicExpression;
 import org.datanucleus.query.expression.Expression;
 
 /**
- * Evaluator handling the boolean operation &amp;&amp;.
+ * <p>
+ * Evaluator handling the boolean operation AND (JDOQL "&amp;&amp;").
+ * </p>
+ * <p>
+ * Cumulus4j encrypts as much as possible and keeps a minimum of plain-text indexes. The plain-text-indexes
+ * index each field separately. This is a compromise between security and searchability. As the index
+ * contains only plain-text field-values without any plain-text context (the context is encrypted),
+ * it provides the advantage of high security, but at the same time it is not possible to query an
+ * AND operation directly in the underlying database.
+ * </p>
+ * <p>
+ * Instead, the AND operation is performed by first querying all {@link DataEntry#getDataEntryID() dataEntryID}s
+ * of the {@link #getLeft() left} and the {@link #getRight() right} side and then intersecting these two
+ * <code>Set&lt;Long&gt;</code> in memory.
+ * </p>
+ * <p>
+ * If the {@link ResultDescriptor} indicates a {@link ResultDescriptor#isNegated() negation}, this evaluator
+ * delegates to the {@link OrExpressionEvaluator}, because a query like
+ * "NOT( AND( a > 5, b <= 12 ) )" is internally converted to "OR( a <= 5, b > 12 )" for performance reasons.
+ * See {@link NotExpressionEvaluator} for details.
+ * </p>
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
