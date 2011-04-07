@@ -8,9 +8,22 @@ import org.datanucleus.query.expression.DyadicExpression;
 import org.datanucleus.query.expression.Expression;
 
 /**
+ * <p>
  * Evaluator handling the boolean operation "||" (OR).
+ * </p>
+ * <p>
+ * This evaluator works just like the {@link AndExpressionEvaluator} with the only difference
+ * that it unites the partial results instead of intersecting them.
+ * </p>
+ * <p>
+ * If the {@link ResultDescriptor} indicates a {@link ResultDescriptor#isNegated() negation}, this evaluator
+ * delegates to the {@link AndExpressionEvaluator}, because a query like
+ * "!( a > 5 || b <= 12 )" is internally converted to "a <= 5 &amp;&amp; b > 12" for performance reasons.
+ * See {@link NotExpressionEvaluator} for details.
+ * </p>
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ * @see AndExpressionEvaluator
  */
 public class OrExpressionEvaluator
 extends AbstractExpressionEvaluator<DyadicExpression>

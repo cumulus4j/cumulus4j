@@ -32,6 +32,7 @@ import org.datanucleus.query.expression.Expression;
  * </p>
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ * @see OrExpressionEvaluator
  */
 public class AndExpressionEvaluator
 extends AbstractExpressionEvaluator<DyadicExpression>
