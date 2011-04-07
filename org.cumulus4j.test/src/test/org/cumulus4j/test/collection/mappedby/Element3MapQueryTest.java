@@ -145,6 +145,14 @@ extends AbstractTransactionalTest
 	}
 
 	@Test
+	public void queryNotContainsValueParameter()
+	{
+		Query q = pm.newQuery(Element3MapOwner.class);
+		q.setFilter("!this.map.containsValue(:queryParam)");
+		executeQueryAndCheckResult(q, "ccc", "Owner 2", "Owner 3", "Owner 5", "Owner 6");
+	}
+
+	@Test
 	public void queryContainsValueVariableAndIndexOfMatches()
 	{
 		Query q = pm.newQuery(Element3MapOwner.class);
@@ -160,6 +168,16 @@ extends AbstractTransactionalTest
 		Query q = pm.newQuery(Element3MapOwner.class);
 		q.setFilter("this.map.containsKey(:queryParam)");
 		executeQueryAndCheckResult(q, element3, "Owner 3");
+	}
+
+	@Test
+	public void queryNotContainsKeyParameter()
+	{
+		Element3 element3 = getExampleElement();
+
+		Query q = pm.newQuery(Element3MapOwner.class);
+		q.setFilter("!this.map.containsKey(:queryParam)");
+		executeQueryAndCheckResult(q, element3, "Owner 1", "Owner 2", "Owner 4", "Owner 5", "Owner 6");
 	}
 
 	@Test
