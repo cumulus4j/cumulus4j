@@ -7,10 +7,10 @@ import org.datanucleus.query.expression.DyadicExpression;
 
 /**
  * <p>
- * Evaluator handling NOT (JDOQL "!").
+ * Evaluator handling "!" (negation).
  * </p>
  * <p>
- * It is quite expensive to evaluate a NOT (JDOQL "!") by first querying the normal (non-negated)
+ * It is quite expensive to evaluate a negation (JDOQL "!") by first querying the normal (non-negated)
  * result and then negating it by querying ALL candidates and finally filtering the normal result
  * out. Therefore, we instead push the negation down the expression-evaluator-tree into the leafs.
  * Thus <code>NotExpressionEvaluator</code> simply calls {@link ResultDescriptor#negate()} and passes the negated

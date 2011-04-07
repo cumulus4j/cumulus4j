@@ -8,7 +8,7 @@ import org.datanucleus.query.expression.DyadicExpression;
 import org.datanucleus.query.expression.Expression;
 
 /**
- * Evaluator handling the boolean operation OR (JDOQL "||").
+ * Evaluator handling the boolean operation "||" (OR).
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */

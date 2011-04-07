@@ -10,7 +10,7 @@ import org.datanucleus.query.expression.Expression;
 
 /**
  * <p>
- * Evaluator handling the boolean operation AND (JDOQL "&amp;&amp;").
+ * Evaluator handling the boolean operation "&amp;&amp;" (AND).
  * </p>
  * <p>
  * Cumulus4j encrypts as much as possible and keeps a minimum of plain-text indexes. The plain-text-indexes
