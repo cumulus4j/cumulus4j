@@ -365,6 +365,10 @@
 
 	<properties>
 		<cumulus4j.version>1.0.0-SNAPSHOT</cumulus4j.version>
+
+		<!-- The last stable version - used in the web site. -->
+		<cumulus4jStableVersion>1.0.0</cumulus4jStableVersion>
+
 		<slf4j.version>1.6.1</slf4j.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

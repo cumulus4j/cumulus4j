@@ -6,29 +6,30 @@
 
 	<body>
 		<links>
-			<item name="Home" href="index.html" />
-			<item name="Documentation" href="documentation/index.html" />
+			<item name="Home" href="./index.html" />
+			<item name="Documentation" href="./documentation/index.html" />
 			<item name="Forum" href="http://forum.cumulus4j.org" target="_blank" />
 			<item name="Tracker" href="http://tracker.cumulus4j.org" target="_blank" />
-			<item name="Download" href="download/index.html" />
+			<item name="Download" href="./download/index.html" />
 		</links>
 
 		<menu name="Documentation">
-			<item name="Theory" href="documentation/theory.html" />
-			<item name="Development" href="documentation/development.html" />
-			<item name="Javadoc" href="apidocs/index.html" target="_blank"/>
+			<item name="Usage" href="./documentation/usage.html" />
+			<item name="Theory" href="./documentation/theory.html" />
+			<item name="Development" href="./documentation/development.html" />
+			<item name="Javadoc" href="./apidocs/index.html" target="_blank"/>
 		</menu>
 
 		<menu name="About">
-			<item name="Contact" href="about/contact.html" />
-			<item name="Imprint" href="about/imprint.html" />
-			<item name="License" href="license.html" />
+			<item name="Contact" href="./about/contact.html" />
+			<item name="Imprint" href="./about/imprint.html" />
+			<item name="License" href="./license.html" />
 		</menu>
 
 		<menu ref="reports" inherit="bottom" collapse="true" />
 
 		<menu name="Babel">
-			<item name="Deutsch" href="de/index.html" img="de.png" />
+			<item name="Deutsch" href="./de/index.html" img="de.png" />
 		</menu>
 	</body>
 

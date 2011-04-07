@@ -1,0 +1,122 @@
+	---
+	Download
+	---
+
+Download
+
+	There are multiple ways to download Cumulus4j:
+
+* Manual
+
+	{{{https://sourceforge.net/projects/cumulus4j/files/}Browse all released files}}.
+
+* Maven
+
+** Repositories
+
+	To integrate Cumulus4j into your {{{http://maven.apache.org}Maven}} build process,
+	you first have to add at least one of the following repositories
+	(depending on the versions you want) to your <<<pom.xml>>>:
+
+*** Release repository
+
+	This repository contains releases (recommended):
+
++------------------------------------------+
+<repositories>
+	...
+	<repository>
+		<id>dev.nightlabs.org</id>
+		<name>dev.nightlabs.org-releases</name>
+		<url>http://dev.nightlabs.org/maven-repository/libs-releases/</url>
+		<snapshots>
+			<enabled>false</enabled>
+		</snapshots>
+		<releases>
+			<enabled>true</enabled>
+		</releases>
+	</repository>
+	...
+</repositories>
++------------------------------------------+
+
+*** Snapshot repository
+
+	For development purposes, you might want to use the snapshot repository. It is, however, recommended
+	to use only the release repository (see above).
+
++------------------------------------------+
+<repositories>
+	...
+	<repository>
+		<id>dev.nightlabs.org</id>
+		<name>dev.nightlabs.org-releases</name>
+		<url>http://dev.nightlabs.org/maven-repository/libs-snapshots/</url>
+		<snapshots>
+			<enabled>true</enabled>
+		</snapshots>
+		<releases>
+			<enabled>false</enabled>
+		</releases>
+	</repository>
+	...
+</repositories>
++------------------------------------------+
+
+** Dependencies
+
+	Cumulus4j consists of several modules.
+
+*** org.cumulus4j.api
+
+	As the name already implies, this is the Cumulus4j API. In order to compile your application, the
+	following dependency needs to be added to your <<<pom.xml>>>:
+
++------------------------------------------+
+<dependencies>
+	...
+	<dependency>
+		<groupId>org.cumulus4j</groupId>
+		<artifactId>org.cumulus4j.api</artifactId>
+		<version>${cumulus4jStableVersion}</version>
+	</dependency>
+	...
+</dependencies>
++------------------------------------------+
+
+	However, if you want to package a runnable application, you additionally need the
+	<<<org.cumulus4j.core>>> module (see below).
+
+*** org.cumulus4j.core
+
+	<<<org.cumulus4j.core>>> contains the implementation of Cumulus4j and is needed to actually use it.
+	Since it is a DataNucleus plug-in and does not contain any API classes, you only need to declare a dependency
+	onto this module, if you package your application.
+	
+	Note, that you'll then need to package all required
+	DataNucleus modules, too. Which ones depends on your environment (e.g. the database backend you want to use,
+	as well as the API [JDO or JPA] against which you wrote your application).
+
+	Add the following dependency to your <<<pom.xml>>> to include <<<org.cumulus4j.core>>> into your build process:
+
++------------------------------------------+
+<dependencies>
+	...
+	<dependency>
+		<groupId>org.cumulus4j</groupId>
+		<artifactId>org.cumulus4j.core</artifactId>
+		<version>${cumulus4jStableVersion}</version>
+	</dependency>
+	...
+</dependencies>
++------------------------------------------+  
+
+	Note, that <<<org.cumulus4j.core>>> has a dependency onto <<<org.cumulus4j.api>>> and thus, you don't need to declare
+	a dependency onto <<<org.cumulus4j.api>>> additionally. However, you should never use classes in your application
+	from the <<<org.cumulus4j.core>>> module!
+
+* Source code
+
+	Consult the {{{../documentation/development.html}Development}} page for information about how to obtain
+	the source code and to set up a development workspace.
+ 
