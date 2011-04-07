@@ -87,7 +87,6 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 	public Cumulus4jConnectionFactory(StoreManager storeMgr, String resourceType) {
 		super(storeMgr, resourceType);
 
-
 		logger.info("====================== Cumulus4j ======================");
 		{ // org.cumulus4j.core
 			String[] bundleNameAndVersion = getBundleNameAndVersion(Cumulus4jConnectionFactory.class);
