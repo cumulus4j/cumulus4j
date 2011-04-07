@@ -98,9 +98,9 @@ public class ResultDescriptor
 	 * <p>
 	 * It is quite expensive to evaluate a NOT (JDOQL "!") by first querying the normal (non-negated)
 	 * result and then negating it by querying ALL candidates and finally filtering the normal result
-	 * out. Therefore, we instead
-	 * push the negation down the expression tree into the leafs. Thus {@link NotExpressionEvaluator}
-	 * simply calls {@link #negate()} and passes the negated <code>ResultDescriptor</code> down the tree.
+	 * out. Therefore, we instead push the negation down the expression-evaluator-tree into the leafs.
+	 * Thus {@link NotExpressionEvaluator} simply calls {@link #negate()} and passes the negated
+	 * <code>ResultDescriptor</code> down the evaluator-tree.
 	 * All nodes in the tree therefore have to take this flag into account.
 	 * </p>
 	 *
