@@ -41,34 +41,34 @@ extends AbstractTransactionalTest
 		{
 			Element3MapOwner owner = new Element3MapOwner();
 			owner.setName("Owner 1");
-			owner.addElement3(new Element3("aaa", "Element3 1.1"));
-			owner.addElement3(new Element3("bbb", "Element3 1.2"));
-			owner.addElement3(new Element3("ccc", "Element3 1.3"));
-			owner.addElement3(new Element3("ddd", "Element3 1.4"));
+			owner.addElement3(new Element3("aaa", "Element 1.1"));
+			owner.addElement3(new Element3("bbb", "Element 1.2"));
+			owner.addElement3(new Element3("ccc", "Element 1.3"));
+			owner.addElement3(new Element3("ddd", "Element 1.4"));
 			pm.makePersistent(owner);
 		}
 
 		{
 			Element3MapOwner owner = pm.makePersistent(new Element3MapOwner());
 			owner.setName("Owner 2");
-			owner.addElement3(new Element3("aa", "Element3 2.1"));
-			owner.addElement3(new Element3("bb", "Element3 2.2"));
-			owner.addElement3(new Element3("cc", "Element3 2.3"));
-			owner.addElement3(new Element3("dd", "Element3 2.4"));
+			owner.addElement3(new Element3("aa", "Element 2.1"));
+			owner.addElement3(new Element3("bb", "Element 2.2"));
+			owner.addElement3(new Element3("cc", "Element 2.3"));
+			owner.addElement3(new Element3("dd", "Element 2.4"));
 		}
 
 		{
 			Element3MapOwner owner = pm.makePersistent(new Element3MapOwner());
 			owner.setName("Owner 3");
-			owner.addElement3(new Element3("a", "Element3 3.1"));
-			owner.addElement3(new Element3("b", "Element3 3.2"));
-			owner.addElement3(new Element3("c", "Element3 3.3"));
+			owner.addElement3(new Element3("a", "Element 3.1"));
+			owner.addElement3(new Element3("b", "Element 3.2"));
+			owner.addElement3(new Element3("c", "Element 3.3"));
 		}
 
 		{
 			Element3MapOwner owner = pm.makePersistent(new Element3MapOwner());
 			owner.setName("Owner 4");
-			owner.addElement3(new Element3("ccc", "Element3 4.3"));
+			owner.addElement3(new Element3("ccc", "Element 4.3"));
 		}
 
 		{
@@ -79,7 +79,7 @@ extends AbstractTransactionalTest
 		{
 			Element3MapOwner owner = pm.makePersistent(new Element3MapOwner());
 			owner.setName("Owner 6");
-			owner.addElement3(new Element3("bb", "Element3 6.2"));
+			owner.addElement3(new Element3("bb", "Element 6.2"));
 		}
 	}
 

@@ -40,34 +40,34 @@ extends AbstractTransactionalTest
 		{
 			Element1SetOwner owner = new Element1SetOwner();
 			owner.setName("Owner 1");
-			owner.addElement1(new Element1("Element1 1.1"));
-			owner.addElement1(new Element1("Element1 1.2"));
-			owner.addElement1(new Element1("Element1 1.3"));
-			owner.addElement1(new Element1("Element1 1.4"));
+			owner.addElement1(new Element1("Element 1.1"));
+			owner.addElement1(new Element1("Element 1.2"));
+			owner.addElement1(new Element1("Element 1.3"));
+			owner.addElement1(new Element1("Element 1.4"));
 			pm.makePersistent(owner);
 		}
 
 		{
 			Element1SetOwner owner = pm.makePersistent(new Element1SetOwner());
 			owner.setName("Owner 2");
-			owner.addElement1(new Element1("Element1 2.1"));
-			owner.addElement1(new Element1("Element1 2.2"));
-			owner.addElement1(new Element1("Element1 2.3"));
-			owner.addElement1(new Element1("Element1 2.4"));
+			owner.addElement1(new Element1("Element 2.1"));
+			owner.addElement1(new Element1("Element 2.2"));
+			owner.addElement1(new Element1("Element 2.3"));
+			owner.addElement1(new Element1("Element 2.4"));
 		}
 
 		{
 			Element1SetOwner owner = pm.makePersistent(new Element1SetOwner());
 			owner.setName("Owner 3");
-			owner.addElement1(new Element1("Element1 3.1"));
-			owner.addElement1(new Element1("Element1 3.2"));
-			owner.addElement1(new Element1("Element1 3.3"));
+			owner.addElement1(new Element1("Element 3.1"));
+			owner.addElement1(new Element1("Element 3.2"));
+			owner.addElement1(new Element1("Element 3.3"));
 		}
 
 		{
 			Element1SetOwner owner = pm.makePersistent(new Element1SetOwner());
 			owner.setName("Owner 4");
-			owner.addElement1(new Element1("Element1 4.3"));
+			owner.addElement1(new Element1("Element 4.3"));
 		}
 
 		{

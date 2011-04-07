@@ -41,34 +41,34 @@ extends AbstractTransactionalTest
 		{
 			Element2MapOwner owner = new Element2MapOwner();
 			owner.setName("Owner 1");
-			owner.addElement2(new Element2("aaa", "Element2 1.1"));
-			owner.addElement2(new Element2("bbb", "Element2 1.2"));
-			owner.addElement2(new Element2("ccc", "Element2 1.3"));
-			owner.addElement2(new Element2("ddd", "Element2 1.4"));
+			owner.addElement2(new Element2("aaa", "Element 1.1"));
+			owner.addElement2(new Element2("bbb", "Element 1.2"));
+			owner.addElement2(new Element2("ccc", "Element 1.3"));
+			owner.addElement2(new Element2("ddd", "Element 1.4"));
 			pm.makePersistent(owner);
 		}
 
 		{
 			Element2MapOwner owner = pm.makePersistent(new Element2MapOwner());
 			owner.setName("Owner 2");
-			owner.addElement2(new Element2("aa", "Element2 2.1"));
-			owner.addElement2(new Element2("bb", "Element2 2.2"));
-			owner.addElement2(new Element2("cc", "Element2 2.3"));
-			owner.addElement2(new Element2("dd", "Element2 2.4"));
+			owner.addElement2(new Element2("aa", "Element 2.1"));
+			owner.addElement2(new Element2("bb", "Element 2.2"));
+			owner.addElement2(new Element2("cc", "Element 2.3"));
+			owner.addElement2(new Element2("dd", "Element 2.4"));
 		}
 
 		{
 			Element2MapOwner owner = pm.makePersistent(new Element2MapOwner());
 			owner.setName("Owner 3");
-			owner.addElement2(new Element2("a", "Element2 3.1"));
-			owner.addElement2(new Element2("b", "Element2 3.2"));
-			owner.addElement2(new Element2("c", "Element2 3.3"));
+			owner.addElement2(new Element2("a", "Element 3.1"));
+			owner.addElement2(new Element2("b", "Element 3.2"));
+			owner.addElement2(new Element2("c", "Element 3.3"));
 		}
 
 		{
 			Element2MapOwner owner = pm.makePersistent(new Element2MapOwner());
 			owner.setName("Owner 4");
-			owner.addElement2(new Element2("ccc", "Element2 4.3"));
+			owner.addElement2(new Element2("ccc", "Element 4.3"));
 		}
 
 		{
@@ -79,7 +79,7 @@ extends AbstractTransactionalTest
 		{
 			Element2MapOwner owner = pm.makePersistent(new Element2MapOwner());
 			owner.setName("Owner 6");
-			owner.addElement2(new Element2("bb", "Element2 6.2"));
+			owner.addElement2(new Element2("bb", "Element 6.2"));
 		}
 	}
 
