@@ -213,6 +213,15 @@ extends AbstractTransactionalTest
 	}
 
 	@Test
+	public void queryNotContainsVariableAndVariableEquals()
+	{
+		Element1 element = getExampleElement();
+		Query q = pm.newQuery(Element1SetOwner.class);
+		q.setFilter("!this.set.contains(elementVariable) && elementVariable == :element");
+		executeQueryAndCheckResult(q, element, "Owner 1", "Owner 2", "Owner 4", "Owner 5");
+	}
+
+	@Test
 	public void queryNotContainsVariableAndVariableIndexOf()
 	{
 		Query q = pm.newQuery(Element1SetOwner.class);

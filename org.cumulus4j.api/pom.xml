@@ -22,7 +22,7 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Bundle-SymbolicName>${pom.artifactId};singleton:=true</Bundle-SymbolicName>
+						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
 						<Export-Package>org.cumulus4j.api,org.cumulus4j.api.*</Export-Package>
 						<Private-Package>org.cumulus4j.api.internal,org.cumulus4j.api.internal.*</Private-Package>
 <!-- We currently don't have an activator.
