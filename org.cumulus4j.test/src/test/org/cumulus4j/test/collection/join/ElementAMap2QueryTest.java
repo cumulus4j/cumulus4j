@@ -43,34 +43,34 @@ extends AbstractTransactionalTest
 		{
 			ElementAMapOwner2 owner = new ElementAMapOwner2();
 			owner.setName("Owner 1");
-			owner.addElementA(elementA_1_1, "aaa");
-			owner.addElementA(new ElementA("Element 1.2"), "bbb");
-			owner.addElementA(new ElementA("Element 1.3"), "ccc");
-			owner.addElementA(new ElementA("Element 1.4"), "ddd");
+			owner.putMapEntry(elementA_1_1, "aaa");
+			owner.putMapEntry(new ElementA("Element 1.2"), "bbb");
+			owner.putMapEntry(new ElementA("Element 1.3"), "ccc");
+			owner.putMapEntry(new ElementA("Element 1.4"), "ddd");
 			pm.makePersistent(owner);
 		}
 
 		{
 			ElementAMapOwner2 owner = pm.makePersistent(new ElementAMapOwner2());
 			owner.setName("Owner 2");
-			owner.addElementA(new ElementA("Element 2.1"), "aa");
-			owner.addElementA(new ElementA("Element 2.2"), "bb");
-			owner.addElementA(new ElementA("Element 2.3"), "cc");
-			owner.addElementA(new ElementA("Element 2.4"), "dd");
+			owner.putMapEntry(new ElementA("Element 2.1"), "aa");
+			owner.putMapEntry(new ElementA("Element 2.2"), "bb");
+			owner.putMapEntry(new ElementA("Element 2.3"), "cc");
+			owner.putMapEntry(new ElementA("Element 2.4"), "dd");
 		}
 
 		{
 			ElementAMapOwner2 owner = pm.makePersistent(new ElementAMapOwner2());
 			owner.setName("Owner 3");
-			owner.addElementA(elementA_1_1, "a");
-			owner.addElementA(new ElementA("Element 3.2"), "b");
-			owner.addElementA(new ElementA("Element 3.3"), "c");
+			owner.putMapEntry(elementA_1_1, "a");
+			owner.putMapEntry(new ElementA("Element 3.2"), "b");
+			owner.putMapEntry(new ElementA("Element 3.3"), "c");
 		}
 
 		{
 			ElementAMapOwner2 owner = pm.makePersistent(new ElementAMapOwner2());
 			owner.setName("Owner 4");
-			owner.addElementA(new ElementA("Element 4.3"), "ccc");
+			owner.putMapEntry(new ElementA("Element 4.3"), "ccc");
 		}
 
 		{
@@ -81,7 +81,7 @@ extends AbstractTransactionalTest
 		{
 			ElementAMapOwner2 owner = pm.makePersistent(new ElementAMapOwner2());
 			owner.setName("Owner 6");
-			owner.addElementA(new ElementA("Element 6.2"), "bb");
+			owner.putMapEntry(new ElementA("Element 6.2"), "bb");
 		}
 	}
 

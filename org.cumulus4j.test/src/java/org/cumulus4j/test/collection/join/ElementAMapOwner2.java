@@ -24,7 +24,7 @@ public class ElementAMapOwner2
 	public Map<ElementA, String> getMap() {
 		return map == null ? null : Collections.unmodifiableMap(map);
 	}
-	public void addElementA(ElementA elementA, String value)
+	public void putMapEntry(ElementA elementA, String value)
 	{
 		map.put(elementA, value);
 	}
