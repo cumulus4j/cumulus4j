@@ -119,7 +119,7 @@ extends AbstractTransactionalTest
 
 	private ElementA getExampleElement()
 	{
-		return getExampleElement("ElementA 3.2");
+		return getExampleElement("Element 3.2");
 	}
 	private ElementA getExampleElement(String name)
 	{
@@ -206,7 +206,7 @@ extends AbstractTransactionalTest
 	@Test
 	public void queryContainsVariableAndNotVariableEquals2()
 	{
-		ElementA element = getExampleElement("ElementA 4.3");
+		ElementA element = getExampleElement("Element 4.3");
 		Query q = pm.newQuery(ElementASetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && !(elementVariable == :element)");
 		executeQueryAndCheckResult(q, element, "Owner 1", "Owner 2", "Owner 3");

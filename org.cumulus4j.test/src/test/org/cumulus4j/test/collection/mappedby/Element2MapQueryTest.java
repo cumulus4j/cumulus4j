@@ -129,9 +129,9 @@ extends AbstractTransactionalTest
 		Query q = pm.newQuery(Element2.class);
 		q.setFilter("this.name == :name");
 		q.setUnique(true);
-		Element2 element = (Element2) q.execute("Element2 3.2");
+		Element2 element = (Element2) q.execute("Element 3.2");
 		if (element == null)
-			throw new IllegalStateException("No matching Element2 found!");
+			throw new IllegalStateException("No matching element found!");
 
 		return element;
 	}

@@ -119,7 +119,7 @@ extends AbstractTransactionalTest
 
 	private Element1 getExampleElement()
 	{
-		return getExampleElement("Element1 3.2");
+		return getExampleElement("Element 3.2");
 	}
 	private Element1 getExampleElement(String name)
 	{
@@ -128,7 +128,7 @@ extends AbstractTransactionalTest
 		q.setUnique(true);
 		Element1 element = (Element1) q.execute(name);
 		if (element == null)
-			throw new IllegalStateException("No matching Element1 found!");
+			throw new IllegalStateException("No matching element found!");
 
 		return element;
 	}
@@ -206,7 +206,7 @@ extends AbstractTransactionalTest
 	@Test
 	public void queryContainsVariableAndNotVariableEquals2()
 	{
-		Element1 element = getExampleElement("Element1 4.3");
+		Element1 element = getExampleElement("Element 4.3");
 		Query q = pm.newQuery(Element1SetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && !(elementVariable == :element)");
 		executeQueryAndCheckResult(q, element, "Owner 1", "Owner 2", "Owner 3");
