@@ -24,7 +24,7 @@ Herunterladen
 
 *** Lager für Veröffentlichungen (Release repository)
 
-	Dieses Lager enthält stabile Veröffentlichungen (empfohlen):
+	Dieses Lager enthält Veröffentlichungen (empfohlen):
 
 +------------------------------------------+
 <repositories>
@@ -48,7 +48,7 @@ Herunterladen
 
 	Für Entwicklungszwecke ist es manchmal erforderlich, aktuelle (noch nicht veröffentlichte) Entwicklungsversionen
 	aus dem Schnappschuß-Lager zu verwenden. Wenn dies aber nicht unbedingt notwendig ist, raten wir dringend dazu,
-	stattdessen das 'Lager für Veröffentlichungen' (siehe oben) zu verwenden. 
+	stattdessen das 'Lager für Veröffentlichungen' (siehe oben) zu verwenden.
 
 +------------------------------------------+
 <repositories>
@@ -67,6 +67,9 @@ Herunterladen
 	...
 </repositories>
 +------------------------------------------+
+
+	Da Schnappschuß-Versionen vollautomatisch (nach Änderungen, bis zu mehrfach täglich) bereitgestellt werden, können sie durchaus
+	grobe Fehler beinhalten. Benutzen Sie sie niemals in Produktivumgebungen!
 
 ** Abhängigkeiten
 

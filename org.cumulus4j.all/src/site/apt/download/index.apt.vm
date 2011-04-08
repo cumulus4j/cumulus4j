@@ -24,7 +24,7 @@ Download
 
 *** Release repository
 
-	This repository contains stable releases (recommended):
+	This repository contains releases (recommended):
 
 +------------------------------------------+
 <repositories>
@@ -66,6 +66,9 @@ Download
 	...
 </repositories>
 +------------------------------------------+
+
+	Because snapshot versions are automatically deployed (after changes occured, maybe even multiple times per day),
+	they might contain ugly bugs. Don't use them in productive environments!
 
 ** Dependencies
 
