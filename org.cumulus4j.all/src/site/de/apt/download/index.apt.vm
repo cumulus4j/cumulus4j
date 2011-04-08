@@ -1,30 +1,30 @@
 	---
-	Download
+	Herunterladen
 	---
 	Marco หงุ่ยตระกูล-Schulze
 	---
-	2011-04-07
+	2011-04-08
 
-Download
+Herunterladen
 
-	There are multiple ways to download Cumulus4j:
+	Es gibt mehrere Möglichkeiten, Cumulus4j herunterzuladen:
 
-* {manual}Manual
+* {manual}Manuell
 
-	{{{https://sourceforge.net/projects/cumulus4j/files/}Browse all released files}}. These contain binary
-	and {{source}} releases.
+	{{{https://sourceforge.net/projects/cumulus4j/files/}Durchsuchen Sie alle veröffentlichten Dateien hier}}.
+	Hier finden Sie sowohl Binär- als auch {{{source}Quelltext}}-Veröffentlichungen.
 
 * Maven
 
-** Repositories
+** Lager (Repositories)
 
-	To integrate Cumulus4j into your {{{http://maven.apache.org}Maven}} build process,
-	you first have to add at least one of the following repositories
-	(depending on the versions you want) to your <<<pom.xml>>>:
+	Um Cumulus4j in Ihren {{{http://maven.apache.org}Maven}}-Build-Prozeß zu integrieren,
+	müssen Sie zunächst mindestens eines der folgenden Lager (abhängig von den gewünschten
+	Versionen) in Ihre <<<pom.xml>>> eintragen:
 
-*** Release repository
+*** Lager für Veröffentlichungen (Release repository)
 
-	This repository contains stable releases (recommended):
+	Dieses Lager enthält stabile Veröffentlichungen (empfohlen):
 
 +------------------------------------------+
 <repositories>
@@ -44,10 +44,11 @@ Download
 </repositories>
 +------------------------------------------+
 
-*** Snapshot repository
+*** Schnappschuß-Lager (Snapshot repository)
 
-	For development purposes, you might want to use the snapshot repository. It is, however, recommended
-	to use only the release repository (see above).
+	Für Entwicklungszwecke ist es manchmal nützlich aktuelle (noch nicht veröffentlichte) Entwicklungsversionen
+	aus dem Schnappschuß-Lager zu verwenden. Wenn dies nicht unbeding notwendig ist, wird jedoch dringend geraten,
+	stattdessen das 'Lager für Veröffentlichungen' (siehe oben) zu verwenden. 
 
 +------------------------------------------+
 <repositories>
@@ -67,14 +68,14 @@ Download
 </repositories>
 +------------------------------------------+
 
-** Dependencies
+** Abhängigkeiten
 
-	Cumulus4j consists of several modules.
+	Cumulus4j besteht aus mehreren Modulen.
 
 *** org.cumulus4j.api
 
-	As the name already implies, this is the Cumulus4j API. In order to compile your application, the
-	following dependency needs to be added to your <<<pom.xml>>>:
+	Wie schon der Name sagt, ist dies die Cumulus4j-API. Um Ihre Applikation zu kompilieren, müssen
+	Sie diese Abhängigkeit in Ihre <<<pom.xml>>> einfügen:
 
 +------------------------------------------+
 <dependencies>
@@ -88,8 +89,8 @@ Download
 </dependencies>
 +------------------------------------------+
 
-	However, if you want to package a runnable application, you additionally need the
-	<<<org.cumulus4j.core>>> module (see below).
+	Um jedoch eine lauffähige Applikation zusammenzustellen, benötigen Sie zusätzlich auch noch
+	das Modul <<<org.cumulus4j.core>>> (siehe unten).
 
 *** org.cumulus4j.core
 
@@ -119,7 +120,7 @@ Download
 	a dependency onto <<<org.cumulus4j.api>>> additionally. However, you should never use classes in your application
 	from the <<<org.cumulus4j.core>>> module!
 
-* {source}Source code
+* {source}Quelltexte
 
 	Consult the {{{../documentation/development.html}Development}} page for information about how to obtain
 	the source code and to set up a development workspace.
