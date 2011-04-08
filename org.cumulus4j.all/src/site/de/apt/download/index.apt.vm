@@ -9,10 +9,10 @@ Herunterladen
 
 	Es gibt mehrere Möglichkeiten, Cumulus4j herunterzuladen:
 
-* {manual}Manuell
+* {Manuell}
 
 	{{{https://sourceforge.net/projects/cumulus4j/files/}Durchsuchen Sie alle veröffentlichten Dateien hier}}.
-	Hier finden Sie sowohl Binär- als auch {{{source}Quelltext}}-Veröffentlichungen.
+	Hier finden Sie sowohl Binär- als auch {{Quelltext}}-Veröffentlichungen.
 
 * Maven
 
@@ -98,11 +98,12 @@ Herunterladen
 	zu benutzen. Da es sich hierbei um ein DataNucleus-Plugin handelt, welches keinerlei API-Klassen enthält,
 	müssen Sie eine Abhängigkeit darauf nur deklarieren, um Ihre Applikation zusammenzustellen.
 
-	Note, that you'll then need to package all required
-	DataNucleus modules, too. Which ones depends on your environment (e.g. the database backend you want to use,
-	as well as the API [JDO or JPA] against which you wrote your application).
+	Bitte beachten Sie, daß Sie dann auch alle notwendigen DataNucleus-Module mit einpacken müssen. Welche genau
+	dies sind, hängt von Ihrer Situation ab (z.B. der gewünschten Datenbank und auch der API [JDO oder JPA] gegen
+	die Sie Ihre Applikation geschrieben haben).
 
-	Add the following dependency to your <<<pom.xml>>> to include <<<org.cumulus4j.core>>> into your build process:
+	Führen Sie Ihrer <<<pom.xml>>> die folgende Abhängigkeit hinzu, um <<<org.cumulus4j.core>>> in Ihren
+	Build-Prozeß einzubinden:
 
 +------------------------------------------+
 <dependencies>
@@ -116,15 +117,14 @@ Herunterladen
 </dependencies>
 +------------------------------------------+  
 
-	Note, that <<<org.cumulus4j.core>>> has a dependency onto <<<org.cumulus4j.api>>> and thus, you don't need to declare
-	a dependency onto <<<org.cumulus4j.api>>> additionally. However, you should never use classes in your application
-	from the <<<org.cumulus4j.core>>> module!
+	Wohlgemerkt ist <<<org.cumulus4j.core>>> abhängig von <<<org.cumulus4j.api>>>, so daß Sie nicht erneut
+	eine Abhängigkeit auf <<<org.cumulus4j.api>>> deklarieren müssen. Allerdings sollten Sie in Ihrer Applikation
+	keinesfalls Klassen aus dem Modul <<<org.cumulus4j.core>>> referenzieren!
 
-* {source}Quelltexte
+* {Quelltext}
 
-	Consult the {{{../documentation/development.html}Development}} page for information about how to obtain
-	the source code and to set up a development workspace.
-	
-	Though you can download the source code JARs from the {{manual}} download location, it is urgently
-	recommended that you follow the instructions of the 'Development' page.
- 
+	Konsultieren Sie die Seite {{{../documentation/development.html}Entwicklung}}, um herauszufinden, wie Sie
+	die Quelltexte herunterladen und eine Entwicklungsumgebung aufsetzen.
+
+	Obwohl Sie die Quelltext-JARs aus dem {{{Manuell}manuellen}} Download-Bereich herunterladen können,
+	empfehlen wir dringend, den Instruktionen der Seite 'Entwicklung' zu folgen.

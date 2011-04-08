@@ -9,10 +9,10 @@ Download
 
 	There are multiple ways to download Cumulus4j:
 
-* {manual}Manual
+* {Manual}
 
 	{{{https://sourceforge.net/projects/cumulus4j/files/}Browse all released files}}. These contain binary
-	and {{source}} releases.
+	and {{{Source}source}} releases.
 
 * Maven
 
@@ -119,11 +119,11 @@ Download
 	a dependency onto <<<org.cumulus4j.api>>> additionally. However, you should never use classes in your application
 	from the <<<org.cumulus4j.core>>> module!
 
-* {source}Source code
+* {Source} code
 
 	Consult the {{{../documentation/development.html}Development}} page for information about how to obtain
 	the source code and to set up a development workspace.
 	
-	Though you can download the source code JARs from the {{manual}} download location, it is urgently
+	Though you can download the source code JARs from the {{{Manual}manual}} download location, it is urgently
 	recommended that you follow the instructions of the 'Development' page.
  
