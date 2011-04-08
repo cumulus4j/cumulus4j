@@ -46,8 +46,8 @@ Herunterladen
 
 *** Schnappschuß-Lager (Snapshot repository)
 
-	Für Entwicklungszwecke ist es manchmal nützlich aktuelle (noch nicht veröffentlichte) Entwicklungsversionen
-	aus dem Schnappschuß-Lager zu verwenden. Wenn dies nicht unbeding notwendig ist, wird jedoch dringend geraten,
+	Für Entwicklungszwecke ist es manchmal erforderlich, aktuelle (noch nicht veröffentlichte) Entwicklungsversionen
+	aus dem Schnappschuß-Lager zu verwenden. Wenn dies aber nicht unbedingt notwendig ist, raten wir dringend dazu,
 	stattdessen das 'Lager für Veröffentlichungen' (siehe oben) zu verwenden. 
 
 +------------------------------------------+
@@ -74,7 +74,7 @@ Herunterladen
 
 *** org.cumulus4j.api
 
-	Wie schon der Name sagt, ist dies die Cumulus4j-API. Um Ihre Applikation zu kompilieren, müssen
+	Wie der Name schon sagt, ist dies die Cumulus4j-API. Um Ihre Applikation zu kompilieren, müssen
 	Sie diese Abhängigkeit in Ihre <<<pom.xml>>> einfügen:
 
 +------------------------------------------+
@@ -94,10 +94,10 @@ Herunterladen
 
 *** org.cumulus4j.core
 
-	<<<org.cumulus4j.core>>> contains the implementation of Cumulus4j and is needed to actually use it.
-	Since it is a DataNucleus plug-in and does not contain any API classes, you only need to declare a dependency
-	onto this module, if you package your application.
-	
+	<<<org.cumulus4j.core>>> enthält die Implementation von Cumulus4j und wird benötigt, um es auch tatsächlich
+	zu benutzen. Da es sich hierbei um ein DataNucleus-Plugin handelt, welches keinerlei API-Klassen enthält,
+	müssen Sie eine Abhängigkeit darauf nur deklarieren, um Ihre Applikation zusammenzustellen.
+
 	Note, that you'll then need to package all required
 	DataNucleus modules, too. Which ones depends on your environment (e.g. the database backend you want to use,
 	as well as the API [JDO or JPA] against which you wrote your application).
