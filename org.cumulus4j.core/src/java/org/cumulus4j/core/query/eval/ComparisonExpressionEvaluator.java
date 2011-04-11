@@ -2,9 +2,7 @@ package org.cumulus4j.core.query.eval;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import javax.jdo.PersistenceManager;
@@ -21,12 +19,9 @@ import org.cumulus4j.core.model.IndexValue;
 import org.cumulus4j.core.query.QueryEvaluator;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.Relation;
-import org.datanucleus.query.QueryUtils;
 import org.datanucleus.query.expression.DyadicExpression;
 import org.datanucleus.query.expression.Expression;
 import org.datanucleus.query.expression.Expression.Operator;
-import org.datanucleus.query.expression.Literal;
-import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.store.ExecutionContext;
 import org.slf4j.Logger;
@@ -55,52 +50,49 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 			if (!getLeft().getResultSymbols().contains(resultDescriptor.getSymbol()))
 				return null;
 
-			InvokeExpressionEvaluator invokeEval = (InvokeExpressionEvaluator) getLeft();
-			if ("indexOf".equals(invokeEval.getExpression().getOperation())) {
-				if (invokeEval.getExpression().getArguments().size() != 1)
-					throw new IllegalStateException("indexOf(...) expects exactly one argument, but there are " + invokeEval.getExpression().getArguments().size());
-
-				// Evaluate the invoke argument
-				Expression invokeArgExpr = invokeEval.getExpression().getArguments().get(0);
-				Object invokeArgument;
-				if (invokeArgExpr instanceof Literal)
-					invokeArgument = ((Literal)invokeArgExpr).getLiteral();
-				else if (invokeArgExpr instanceof ParameterExpression)
-					invokeArgument = QueryUtils.getValueForParameterExpression(getQueryEvaluator().getParameterValues(), (ParameterExpression)invokeArgExpr);
-				else
-					throw new UnsupportedOperationException("NYI");
-
-				Object compareToArgument = getRightCompareToArgument();
-
-				if (invokeEval.getLeft() instanceof PrimaryExpressionEvaluator) {
-					PrimaryExpressionEvaluator primaryEval = (PrimaryExpressionEvaluator) invokeEval.getLeft();
-					PrimaryExpression primaryExpr = primaryEval.getExpression();
-					Class<?> parameterType = getFieldType(primaryExpr);
-
-					if (String.class.isAssignableFrom(parameterType))
-						return new StringIndexOfResolver(getQueryEvaluator(), primaryExpr, invokeArgument, compareToArgument, resultDescriptor.isNegated()).query();
-
-					throw new UnsupportedOperationException("NYI");
-				}
-
-				if (invokeEval.getLeft() instanceof VariableExpressionEvaluator) {
-					if (!invokeEval.getLeft().getResultSymbols().contains(resultDescriptor.getSymbol()))
-						return null;
-//					VariableExpressionEvaluator varExprEval = (VariableExpressionEvaluator) invokeEval.getLeft();
-//					VariableExpression varExpr = varExprEval.getExpression();
-//					if (varExpr.getSymbol() == null)
-//						throw new IllegalStateException("varExpr.getSymbol() == null");
+			return getLeft().queryResultDataEntryIDs(resultDescriptor);
+//			InvokeExpressionEvaluator invokeEval = (InvokeExpressionEvaluator) getLeft();
+//			if ("indexOf".equals(invokeEval.getExpression().getOperation())) {
+//				if (invokeEval.getExpression().getArguments().size() != 1)
+//					throw new IllegalStateException("indexOf(...) expects exactly one argument, but there are " + invokeEval.getExpression().getArguments().size());
 //
-//					if (!varExpr.getSymbol().equals(resultDescriptor.getSymbol())) // searching something else ;-)
+//				Expression invokeArgExpr = invokeEval.getExpression().getArguments().get(0);
+//
+//				Object invokeArgument;
+//				if (invokeArgExpr instanceof Literal)
+//					invokeArgument = ((Literal)invokeArgExpr).getLiteral();
+//				else if (invokeArgExpr instanceof ParameterExpression)
+//					invokeArgument = QueryUtils.getValueForParameterExpression(getQueryEvaluator().getParameterValues(), (ParameterExpression)invokeArgExpr);
+//				else
+//					throw new UnsupportedOperationException("NYI");
+//
+//				Object compareToArgument = getRightCompareToArgument();
+//
+//				if (invokeEval.getLeft() instanceof PrimaryExpressionEvaluator) {
+//					PrimaryExpressionEvaluator primaryEval = (PrimaryExpressionEvaluator) invokeEval.getLeft();
+//					PrimaryExpression primaryExpr = primaryEval.getExpression();
+//					Class<?> parameterType = getFieldType(primaryExpr);
+//
+//					if (String.class.isAssignableFrom(parameterType))
+//						return new StringIndexOfResolver(getQueryEvaluator(), primaryExpr, invokeArgument, compareToArgument, resultDescriptor.isNegated()).query();
+//
+//					throw new UnsupportedOperationException("NYI");
+//				}
+//
+//				if (invokeEval.getLeft() instanceof VariableExpressionEvaluator) {
+//					if (!invokeEval.getLeft().getResultSymbols().contains(resultDescriptor.getSymbol()))
 //						return null;
-
-					// We query a simple data type (otherwise we would be above in the PrimaryExpressionEvaluator block), hence
-					// we do not need to recursively resolve some tuples.
-					return queryStringIndexOf(getQueryEvaluator(), resultDescriptor.getFieldMeta(), invokeArgument, compareToArgument, resultDescriptor.isNegated());
-				}
-				throw new UnsupportedOperationException("NYI");
-			}
-			throw new UnsupportedOperationException("NYI");
+//
+//					// We query a simple data type (otherwise we would be above in the PrimaryExpressionEvaluator block), hence
+//					// we do not need to recursively resolve some tuples.
+//					IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
+//							executionContext, resultDescriptor.getFieldMeta(), true
+//					);
+//					return queryStringIndexOf(resultDescriptor.getFieldMeta(), indexEntryFactory, invokeArgument, compareToArgument, resultDescriptor.isNegated());
+//				}
+//				throw new UnsupportedOperationException("NYI");
+//			}
+//			throw new UnsupportedOperationException("NYI");
 		}
 
 		if (getLeft() instanceof PrimaryExpressionEvaluator) {
@@ -108,11 +100,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 				return null;
 
 			Object compareToArgument = getRightCompareToArgument();
-
-//			if (Expression.OP_EQ == getExpression().getOperator())
-//				return new EqualsWithConcreteValueResolver(getQueryEvaluator(), ((PrimaryExpressionEvaluator)getLeft()).getExpression(), compareToArgument).query();
-//			else
-				return new CompareWithConcreteValueResolver(getQueryEvaluator(), ((PrimaryExpressionEvaluator)getLeft()).getExpression(), compareToArgument, resultDescriptor.isNegated()).query();
+			return new CompareWithConcreteValueResolver(getQueryEvaluator(), ((PrimaryExpressionEvaluator)getLeft()).getExpression(), compareToArgument, resultDescriptor.isNegated()).query();
 		}
 
 		if (getRight() instanceof PrimaryExpressionEvaluator) {
@@ -120,23 +108,12 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 				return null;
 
 			Object compareToArgument = getLeftCompareToArgument();
-
-//			if (Expression.OP_EQ == getExpression().getOperator())
-//				return new EqualsWithConcreteValueResolver(getQueryEvaluator(), ((PrimaryExpressionEvaluator)getRight()).getExpression(), compareToArgument).query();
-//			else
-				return new CompareWithConcreteValueResolver(getQueryEvaluator(), ((PrimaryExpressionEvaluator)getRight()).getExpression(), compareToArgument, resultDescriptor.isNegated()).query();
+			return new CompareWithConcreteValueResolver(getQueryEvaluator(), ((PrimaryExpressionEvaluator)getRight()).getExpression(), compareToArgument, resultDescriptor.isNegated()).query();
 		}
 
 		if (getLeft() instanceof VariableExpressionEvaluator) {
 			if (!getLeft().getResultSymbols().contains(resultDescriptor.getSymbol()))
 				return null;
-//			VariableExpressionEvaluator varExprEval = (VariableExpressionEvaluator) getLeft();
-//			VariableExpression varExpr = varExprEval.getExpression();
-//			if (varExpr.getSymbol() == null)
-//				throw new IllegalStateException("varExpr.getSymbol() == null");
-//
-//			if (!varExpr.getSymbol().equals(resultDescriptor.getSymbol())) // searching something else ;-)
-//				return null;
 
 			if (resultDescriptor.getFieldMeta() != null)
 				return queryCompareConcreteValue(resultDescriptor.getFieldMeta(), getRightCompareToArgument(), resultDescriptor.isNegated());
@@ -150,7 +127,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		throw new UnsupportedOperationException("NYI");
 	}
 
-	private Object getLeftCompareToArgument() {
+	protected Object getLeftCompareToArgument() {
 		Object compareToArgument;
 		if (getLeft() instanceof LiteralEvaluator)
 			compareToArgument = ((LiteralEvaluator)getRight()).getLiteralValue();
@@ -161,7 +138,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		return compareToArgument;
 	}
 
-	private Object getRightCompareToArgument() {
+	protected Object getRightCompareToArgument() {
 		Object compareToArgument;
 		if (getRight() instanceof LiteralEvaluator)
 			compareToArgument = ((LiteralEvaluator)getRight()).getLiteralValue();
@@ -170,64 +147,6 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		else
 			throw new UnsupportedOperationException("NYI");
 		return compareToArgument;
-	}
-
-	private Set<Long> queryStringIndexOf(
-	        QueryEvaluator queryEval,
-			FieldMeta fieldMeta,
-			Object invokeArgument, // the xxx in 'indexOf(xxx)'
-			Object compareToArgument, // the yyy in 'indexOf(xxx) >= yyy'
-			boolean negate
-	) {
-        IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
-            queryEval.getExecutionContext(), fieldMeta, true
-        );
-
-        Query q = queryEval.getPersistenceManager().newQuery(indexEntryFactory.getIndexEntryClass());
-		q.setFilter(
-				"this.fieldMeta == :fieldMeta && " +
-				"this.indexKey.indexOf(:invokeArgument) " + getOperatorAsJDOQLSymbol(negate) + " :compareToArgument"
-		);
-		Map<String, Object> params = new HashMap<String, Object>(3);
-		params.put("fieldMeta", fieldMeta);
-		params.put("invokeArgument", invokeArgument);
-		params.put("compareToArgument", compareToArgument);
-
-		@SuppressWarnings("unchecked")
-		Collection<? extends IndexEntry> indexEntries = (Collection<? extends IndexEntry>) q.executeWithMap(params);
-
-		Set<Long> result = new HashSet<Long>();
-		for (IndexEntry indexEntry : indexEntries) {
-			IndexValue indexValue = queryEval.getEncryptionHandler().decryptIndexEntry(indexEntry);
-			result.addAll(indexValue.getDataEntryIDs());
-		}
-		q.closeAll();
-		return result;
-	}
-
-	private class StringIndexOfResolver extends PrimaryExpressionResolver
-	{
-		private Object invokeArgument;
-		private Object compareToArgument;
-		private boolean negate;
-
-		public StringIndexOfResolver(
-				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
-				Object invokeArgument, // the xxx in 'indexOf(xxx)'
-				Object compareToArgument, // the yyy in 'indexOf(xxx) >= yyy'
-				boolean negate
-		)
-		{
-			super(queryEvaluator, primaryExpression);
-			this.invokeArgument = invokeArgument;
-			this.compareToArgument = compareToArgument;
-			this.negate = negate;
-		}
-
-		@Override
-		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
-			return queryStringIndexOf(getQueryEvaluator(), fieldMeta, invokeArgument, compareToArgument, negate);
-		}
 	}
 
 	private class CompareWithConcreteValueResolver extends PrimaryExpressionResolver
@@ -336,19 +255,6 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 	private String getOperatorAsJDOQLSymbol(boolean negate)
 	{
 		Operator op = getExpression().getOperator();
-		if (Expression.OP_EQ == op)
-			return negate ? "!=" : "==";
-		if (Expression.OP_NOTEQ == op)
-			return negate ? "==" : "!=";
-		if (Expression.OP_LT == op)
-			return negate ? ">=" : "<";
-		if (Expression.OP_LTEQ == op)
-			return negate ? ">"  : "<=";
-		if (Expression.OP_GT == op)
-			return negate ? "<=" : ">";
-		if (Expression.OP_GTEQ == op)
-			return negate ? "<"  : ">=";
-
-		throw new UnsupportedOperationException("NYI");
+		return getOperatorAsJDOQLSymbol(op, negate);
 	}
 }

@@ -2,11 +2,13 @@ package org.cumulus4j.core.query.eval;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import javax.jdo.PersistenceManager;
+import javax.jdo.Query;
 
 import org.cumulus4j.core.model.ClassMeta;
 import org.cumulus4j.core.model.DataEntry;
@@ -27,6 +29,7 @@ import org.datanucleus.query.expression.Literal;
 import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.query.expression.VariableExpression;
+import org.datanucleus.query.symbol.Symbol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,16 +51,39 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 	@Override
 	protected Set<Long> _queryResultDataEntryIDs(ResultDescriptor resultDescriptor)
 	{
+		// The invocationTarget is always the left side. It can be one of the following three:
+		// 1) PrimaryExpression
+		// 2) VariableExpression
+		// 3) ParameterExpression
+		// 4) InvokeExpression
+		// 5) null (for static methods or aggregates)
+
 		if (this.getLeft() instanceof PrimaryExpressionEvaluator) {
 			if (!getLeft().getResultSymbols().contains(resultDescriptor.getSymbol()))
 				return null;
 
 			// Evaluate the left-hand expression on which we perform the method invocation
-            PrimaryExpressionEvaluator primaryEval = (PrimaryExpressionEvaluator) this.getLeft();
-            PrimaryExpression primaryExpr = primaryEval.getExpression();
-            Class<?> parameterType = getFieldType(primaryExpr);
+			PrimaryExpressionEvaluator primaryEval = (PrimaryExpressionEvaluator) this.getLeft();
+			PrimaryExpression primaryExpr = primaryEval.getExpression();
+			Class<?> invocationTargetType = getFieldType(primaryExpr);
 
-			if (Collection.class.isAssignableFrom(parameterType) && 
+			if (String.class.isAssignableFrom(invocationTargetType) && "indexOf".equals(this.getExpression().getOperation())) {
+				if (this.getExpression().getArguments().size() != 1)
+					throw new IllegalStateException("String.indexOf(...) expects exactly one argument, but there are " + this.getExpression().getArguments().size());
+
+				Expression invokeArgExpr = this.getExpression().getArguments().get(0);
+
+				Object invokeArgument;
+				if (invokeArgExpr instanceof Literal)
+					invokeArgument = ((Literal)invokeArgExpr).getLiteral();
+				else if (invokeArgExpr instanceof ParameterExpression)
+					invokeArgument = QueryUtils.getValueForParameterExpression(getQueryEvaluator().getParameterValues(), (ParameterExpression)invokeArgExpr);
+				else
+					throw new UnsupportedOperationException("NYI");
+
+				return new StringIndexOfResolver(getQueryEvaluator(), primaryExpr, invokeArgument, getCompareToArgument(), resultDescriptor.isNegated()).query();
+			}
+			else if (Collection.class.isAssignableFrom(invocationTargetType) &&
 			    "contains".equals(this.getExpression().getOperation())) {
 				if (this.getExpression().getArguments().size() != 1)
 					throw new IllegalStateException("contains(...) expects exactly one argument, but there are " + this.getExpression().getArguments().size());
@@ -82,7 +108,7 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 				    resultDescriptor.isNegated()
 				).query();
 			}
-			else if (Map.class.isAssignableFrom(parameterType) && 
+			else if (Map.class.isAssignableFrom(invocationTargetType) &&
 			    "containsKey".equals(this.getExpression().getOperation())) {
 				if (this.getExpression().getArguments().size() != 1)
 					throw new IllegalStateException("containsKey(...) expects exactly one argument, but there are " + this.getExpression().getArguments().size());
@@ -107,7 +133,7 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 				    resultDescriptor.isNegated()
 				).query();
 			}
-			else if (Map.class.isAssignableFrom(parameterType) && 
+			else if (Map.class.isAssignableFrom(invocationTargetType) &&
 			    "containsValue".equals(this.getExpression().getOperation())) {
 				if (this.getExpression().getArguments().size() != 1)
 					throw new IllegalStateException("containsValue(...) expects exactly one argument, but there are " + this.getExpression().getArguments().size());
@@ -133,11 +159,127 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 				).query();
 			}
 
-			throw new UnsupportedOperationException("Not Yet Implemented : "+this.getExpression().getOperation() + 
-			    " on " + parameterType);
+			throw new UnsupportedOperationException("Not Yet Implemented : "+this.getExpression().getOperation() +
+			    " on " + invocationTargetType + " with this type being a PrimaryExpression.");
+		}
+		else if (this.getLeft() instanceof VariableExpressionEvaluator) {
+			Symbol classSymbol = ((VariableExpressionEvaluator)this.getLeft()).getExpression().getSymbol();
+			if (classSymbol == null)
+				throw new IllegalStateException("((VariableExpressionEvaluator)this.getLeft()).getExpression().getSymbol() returned null!");
+
+			Class<?> invocationTargetType = getQueryEvaluator().getValueType(classSymbol);
+
+			if (String.class.isAssignableFrom(invocationTargetType) && "indexOf".equals(this.getExpression().getOperation())) {
+				if (this.getExpression().getArguments().size() != 1)
+					throw new IllegalStateException("String.indexOf(...) expects exactly one argument, but there are " + this.getExpression().getArguments().size());
+
+				Expression invokeArgExpr = this.getExpression().getArguments().get(0);
+
+				Object invokeArgument;
+				if (invokeArgExpr instanceof Literal)
+					invokeArgument = ((Literal)invokeArgExpr).getLiteral();
+				else if (invokeArgExpr instanceof ParameterExpression)
+					invokeArgument = QueryUtils.getValueForParameterExpression(getQueryEvaluator().getParameterValues(), (ParameterExpression)invokeArgExpr);
+				else
+					throw new UnsupportedOperationException("NYI");
+
+				if (!this.getLeft().getResultSymbols().contains(resultDescriptor.getSymbol()))
+					return null;
+
+				// We query a simple data type (otherwise we would be above in the PrimaryExpressionEvaluator block), hence
+				// we do not need to recursively resolve some tuples.
+				return queryStringIndexOf(resultDescriptor.getFieldMeta(), invokeArgument, getCompareToArgument(), resultDescriptor.isNegated());
+			}
+
+			throw new UnsupportedOperationException("Not Yet Implemented : "+this.getExpression().getOperation() +
+			    " on " + invocationTargetType + " with this type being a VariableExpression.");
+		}
+		else if (this.getLeft() instanceof ParameterExpressionEvaluator) {
+			new UnsupportedOperationException("NYI: this.getLeft() instanceof ParameterExpressionEvaluator");
+		}
+		else if (this.getLeft() instanceof InvokeExpressionEvaluator) {
+			new UnsupportedOperationException("NYI: this.getLeft() instanceof InvokeExpressionEvaluator");
+		}
+		else if (this.getLeft() == null) {
+			new UnsupportedOperationException("NYI: this.getLeft() == null");
 		}
 
 		throw new UnsupportedOperationException("NYI");
+	}
+
+	private Object getCompareToArgument()
+	{
+		if (! (getParent() instanceof ComparisonExpressionEvaluator))
+			throw new UnsupportedOperationException(this.getExpression().toString() + " needs to be compared to something as it does not have a boolean result! this.getParent() is thus expected to be a ComparisonExpressionEvaluator, but is: " + getParent());
+
+		ComparisonExpressionEvaluator comparisonExpressionEvaluator = (ComparisonExpressionEvaluator) getParent();
+
+		Object compareToArgument;
+		if (this == comparisonExpressionEvaluator.getLeft())
+			compareToArgument = comparisonExpressionEvaluator.getRightCompareToArgument();
+		else if (this == comparisonExpressionEvaluator.getRight())
+			compareToArgument = comparisonExpressionEvaluator.getLeftCompareToArgument();
+		else
+			throw new UnsupportedOperationException("this is neither parent.left nor parent.right!");
+
+		return compareToArgument;
+	}
+
+	private Set<Long> queryStringIndexOf(
+			FieldMeta fieldMeta,
+			Object invokeArgument, // the xxx in 'indexOf(xxx)'
+			Object compareToArgument, // the yyy in 'indexOf(xxx) >= yyy'
+			boolean negate
+	) {
+		IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
+				getQueryEvaluator().getExecutionContext(), fieldMeta, true
+		);
+
+		Query q = getPersistenceManager().newQuery(indexEntryFactory.getIndexEntryClass());
+		q.setFilter(
+				"this.fieldMeta == :fieldMeta && " +
+				"this.indexKey.indexOf(:invokeArgument) " + getOperatorAsJDOQLSymbol(getParent().getExpression().getOperator(), negate) + " :compareToArgument"
+		);
+		Map<String, Object> params = new HashMap<String, Object>(3);
+		params.put("fieldMeta", fieldMeta);
+		params.put("invokeArgument", invokeArgument);
+		params.put("compareToArgument", compareToArgument);
+
+		@SuppressWarnings("unchecked")
+		Collection<? extends IndexEntry> indexEntries = (Collection<? extends IndexEntry>) q.executeWithMap(params);
+
+		Set<Long> result = new HashSet<Long>();
+		for (IndexEntry indexEntry : indexEntries) {
+			IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
+			result.addAll(indexValue.getDataEntryIDs());
+		}
+		q.closeAll();
+		return result;
+	}
+
+	private class StringIndexOfResolver extends PrimaryExpressionResolver
+	{
+		private Object invokeArgument;
+		private Object compareToArgument;
+		private boolean negate;
+
+		public StringIndexOfResolver(
+				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
+				Object invokeArgument, // the xxx in 'indexOf(xxx)'
+				Object compareToArgument, // the yyy in 'indexOf(xxx) >= yyy'
+				boolean negate
+		)
+		{
+			super(queryEvaluator, primaryExpression);
+			this.invokeArgument = invokeArgument;
+			this.compareToArgument = compareToArgument;
+			this.negate = negate;
+		}
+
+		@Override
+		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
+			return queryStringIndexOf(fieldMeta, invokeArgument, compareToArgument, negate);
+		}
 	}
 
 	private static abstract class AbstractContainsResolver extends PrimaryExpressionResolver
