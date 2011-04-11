@@ -51,48 +51,6 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 				return null;
 
 			return getLeft().queryResultDataEntryIDs(resultDescriptor);
-//			InvokeExpressionEvaluator invokeEval = (InvokeExpressionEvaluator) getLeft();
-//			if ("indexOf".equals(invokeEval.getExpression().getOperation())) {
-//				if (invokeEval.getExpression().getArguments().size() != 1)
-//					throw new IllegalStateException("indexOf(...) expects exactly one argument, but there are " + invokeEval.getExpression().getArguments().size());
-//
-//				Expression invokeArgExpr = invokeEval.getExpression().getArguments().get(0);
-//
-//				Object invokeArgument;
-//				if (invokeArgExpr instanceof Literal)
-//					invokeArgument = ((Literal)invokeArgExpr).getLiteral();
-//				else if (invokeArgExpr instanceof ParameterExpression)
-//					invokeArgument = QueryUtils.getValueForParameterExpression(getQueryEvaluator().getParameterValues(), (ParameterExpression)invokeArgExpr);
-//				else
-//					throw new UnsupportedOperationException("NYI");
-//
-//				Object compareToArgument = getRightCompareToArgument();
-//
-//				if (invokeEval.getLeft() instanceof PrimaryExpressionEvaluator) {
-//					PrimaryExpressionEvaluator primaryEval = (PrimaryExpressionEvaluator) invokeEval.getLeft();
-//					PrimaryExpression primaryExpr = primaryEval.getExpression();
-//					Class<?> parameterType = getFieldType(primaryExpr);
-//
-//					if (String.class.isAssignableFrom(parameterType))
-//						return new StringIndexOfResolver(getQueryEvaluator(), primaryExpr, invokeArgument, compareToArgument, resultDescriptor.isNegated()).query();
-//
-//					throw new UnsupportedOperationException("NYI");
-//				}
-//
-//				if (invokeEval.getLeft() instanceof VariableExpressionEvaluator) {
-//					if (!invokeEval.getLeft().getResultSymbols().contains(resultDescriptor.getSymbol()))
-//						return null;
-//
-//					// We query a simple data type (otherwise we would be above in the PrimaryExpressionEvaluator block), hence
-//					// we do not need to recursively resolve some tuples.
-//					IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
-//							executionContext, resultDescriptor.getFieldMeta(), true
-//					);
-//					return queryStringIndexOf(resultDescriptor.getFieldMeta(), indexEntryFactory, invokeArgument, compareToArgument, resultDescriptor.isNegated());
-//				}
-//				throw new UnsupportedOperationException("NYI");
-//			}
-//			throw new UnsupportedOperationException("NYI");
 		}
 
 		if (getLeft() instanceof PrimaryExpressionEvaluator) {
@@ -130,9 +88,9 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 	protected Object getLeftCompareToArgument() {
 		Object compareToArgument;
 		if (getLeft() instanceof LiteralEvaluator)
-			compareToArgument = ((LiteralEvaluator)getRight()).getLiteralValue();
+			compareToArgument = ((LiteralEvaluator)getLeft()).getLiteralValue();
 		else if (getLeft() instanceof ParameterExpressionEvaluator)
-			compareToArgument = ((ParameterExpressionEvaluator)getRight()).getParameterValue();
+			compareToArgument = ((ParameterExpressionEvaluator)getLeft()).getParameterValue();
 		else
 			throw new UnsupportedOperationException("NYI");
 		return compareToArgument;
