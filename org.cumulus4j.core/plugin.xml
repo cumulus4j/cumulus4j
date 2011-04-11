@@ -26,4 +26,11 @@
     <valuegenerator name="sequence" class-name="org.cumulus4j.core.Cumulus4jIncrementGenerator"
             datastore="cumulus4j"/>
  </extension>
+ <extension
+       point="org.cumulus4j.api.keyManager">
+    <keyManager
+          class="org.cumulus4j.core.DummyKeyManager"
+          keyManagerID="dummy">
+    </keyManager>
+ </extension>
 </plugin>

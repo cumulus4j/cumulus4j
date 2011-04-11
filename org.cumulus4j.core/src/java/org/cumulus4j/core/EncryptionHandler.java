@@ -13,11 +13,13 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.jdo.PersistenceManagerFactory;
 
+import org.cumulus4j.api.keymanagement.KeyManagerRegistry;
 import org.cumulus4j.core.model.DataEntry;
 import org.cumulus4j.core.model.IndexEntry;
 import org.cumulus4j.core.model.IndexValue;
 import org.cumulus4j.core.model.ObjectContainer;
 import org.datanucleus.ClassLoaderResolver;
+import org.datanucleus.NucleusContext;
 
 /**
  * Singleton (per {@link PersistenceManagerFactory}) handling the encryption and decryption and thus the key management.
@@ -26,6 +28,8 @@ import org.datanucleus.ClassLoaderResolver;
  */
 public class EncryptionHandler
 {
+	private NucleusContext nucleusContext;
+
 	// key length: 128 bits
 	private static final byte[] dummyKey = { 'D', 'e', 'r', ' ', 'F', 'e', 'r', 'd', ' ', 'h', 'a', 't', ' ', 'v', 'i', 'e' };
 	// initialization vector length: 128 bits
@@ -33,6 +37,13 @@ public class EncryptionHandler
 
 	private static final String ALGORITHM = "AES";
 	private static final String ALGORITHM_WITH_PARAMS = ALGORITHM + "/CBC/PKCS5Padding";
+
+	public EncryptionHandler(NucleusContext nucleusContext) {
+		if (nucleusContext == null)
+			throw new IllegalArgumentException("nucleusContext == null");
+
+		this.nucleusContext = nucleusContext;
+	}
 
 	private Cipher encrypter;
 	private Cipher decrypter;
@@ -92,6 +103,8 @@ public class EncryptionHandler
 	public ObjectContainer decryptDataEntry(DataEntry dataEntry, ClassLoaderResolver classLoaderResolver)
 	{
 		byte[] encrypted = dataEntry.getValue();
+
+		KeyManagerRegistry.sharedInstance(nucleusContext).getKeyManager("dummy");
 
 		// TODO *real* decryption here!
 		byte[] plain = dummyDecrypt(encrypted);

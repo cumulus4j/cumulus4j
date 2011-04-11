@@ -29,6 +29,7 @@ public abstract class AbstractTransactionalTest implements TransactionalTest {
 		// TODO BEGIN workaround for the pm being closed :-(
 		pm.close();
 		pm = pmf.getPersistenceManager();
+		TransactionalRunner.setEncryptionCoordinates(pm);
 		// END workaround
 
 		pm.currentTransaction().begin();

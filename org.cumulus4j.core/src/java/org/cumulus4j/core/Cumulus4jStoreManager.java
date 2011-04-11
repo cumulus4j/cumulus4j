@@ -56,7 +56,7 @@ extends AbstractStoreManager
 		super("cumulus4j", clr, nucleusContext, props);
 
 		IndexEntryFactoryRegistry.createSharedInstance(this);
-		encryptionHandler = new EncryptionHandler();
+		encryptionHandler = new EncryptionHandler(nucleusContext);
 		persistenceHandler = new Cumulus4jPersistenceHandler(this);
 	}
 

@@ -4,11 +4,13 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 
+import org.cumulus4j.api.keymanagement.KeyManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.internal.runners.model.MultipleFailureException;
@@ -162,6 +164,12 @@ public class TransactionalRunner extends BlockJUnit4ClassRunner
 		});
 	}
 
+	public static void setEncryptionCoordinates(PersistenceManager pm)
+	{
+		pm.setProperty(KeyManager.PROPERTY_KEY_MANAGER_ID, "dummy");
+		pm.setProperty(KeyManager.PROPERTY_KEY_MANAGER_SESSION_ID, UUID.randomUUID().toString());
+	}
+
 	private void runInTransaction(Object test, Statement statement)
 	throws Throwable
 	{
@@ -176,6 +184,7 @@ public class TransactionalRunner extends BlockJUnit4ClassRunner
 			}
 
 			pm = pmf.getPersistenceManager();
+			setEncryptionCoordinates(pm);
 			transactionalTest.setPersistenceManager(pm);
 			pm.currentTransaction().begin();
 		}
