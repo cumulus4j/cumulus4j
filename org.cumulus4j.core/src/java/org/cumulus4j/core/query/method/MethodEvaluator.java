@@ -25,5 +25,5 @@ import org.cumulus4j.core.query.QueryEvaluator;
  */
 public interface MethodEvaluator
 {
-    Object evaluate(QueryEvaluator queryEval, FieldMeta fieldMeta, Object[] invokeArgs);
+	Object evaluate(QueryEvaluator queryEval, FieldMeta fieldMeta, Object[] invokeArgs);
 }

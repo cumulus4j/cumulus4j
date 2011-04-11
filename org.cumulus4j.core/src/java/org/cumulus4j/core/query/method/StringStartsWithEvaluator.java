@@ -37,31 +37,32 @@ import org.cumulus4j.core.query.QueryEvaluator;
  */
 public class StringStartsWithEvaluator implements MethodEvaluator
 {
-    /* (non-Javadoc)
-     * @see org.cumulus4j.core.query.method.MethodEvaluator#evaluate(org.cumulus4j.core.query.QueryEvaluator, org.cumulus4j.core.model.FieldMeta, java.lang.Object[])
-     */
-    @Override
-    public Object evaluate(QueryEvaluator queryEval, FieldMeta fieldMeta, Object[] invokeArgs)
-    {
-        // TODO Check that only 1 arg supplied and of correct type
+	/* (non-Javadoc)
+	 * @see org.cumulus4j.core.query.method.MethodEvaluator#evaluate(org.cumulus4j.core.query.QueryEvaluator, org.cumulus4j.core.model.FieldMeta, java.lang.Object[])
+	 */
+	@Override
+	public Object evaluate(QueryEvaluator queryEval, FieldMeta fieldMeta, Object[] invokeArgs)
+	{
+		// TODO Check that only 1 arg supplied and of correct type
 
-        IndexEntryFactory idxEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
-            queryEval.getExecutionContext(), fieldMeta, true);
+		IndexEntryFactory idxEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
+				queryEval.getExecutionContext(), fieldMeta, true);
 
-        Query q = queryEval.getPersistenceManager().newQuery(idxEntryFactory.getIndexEntryClass());
-        q.setFilter("this.fieldMeta == :fieldMeta && this.indexKey.startsWith(:startString)");
-        Map<String, Object> params = new HashMap<String, Object>(2);
-        params.put("fieldMeta", fieldMeta);
-        params.put("startString", invokeArgs[0]);
+		Query q = queryEval.getPersistenceManager().newQuery(idxEntryFactory.getIndexEntryClass());
+		q.setFilter("this.fieldMeta == :fieldMeta && this.indexKey.startsWith(:startString)");
+		Map<String, Object> params = new HashMap<String, Object>(2);
+		params.put("fieldMeta", fieldMeta);
+		params.put("startString", invokeArgs[0]);
 
-        Collection<? extends IndexEntry> indexEntries = (Collection<? extends IndexEntry>) q.executeWithMap(params);
+		Collection<? extends IndexEntry> indexEntries = (Collection<? extends IndexEntry>) q.executeWithMap(params);
 
-        Set<Long> result = new HashSet<Long>();
-        for (IndexEntry indexEntry : indexEntries) {
-            IndexValue indexValue = queryEval.getEncryptionHandler().decryptIndexEntry(indexEntry);
-            result.addAll(indexValue.getDataEntryIDs());
-        }
-        q.closeAll();
-        return result;
-    }
+		Set<Long> result = new HashSet<Long>();
+		for (IndexEntry indexEntry : indexEntries)
+		{
+			IndexValue indexValue = queryEval.getEncryptionHandler().decryptIndexEntry(indexEntry);
+			result.addAll(indexValue.getDataEntryIDs());
+		}
+		q.closeAll();
+		return result;
+	}
 }
