@@ -60,8 +60,8 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 				if (invokeEval.getExpression().getArguments().size() != 1)
 					throw new IllegalStateException("indexOf(...) expects exactly one argument, but there are " + invokeEval.getExpression().getArguments().size());
 
+				// Evaluate the invoke argument
 				Expression invokeArgExpr = invokeEval.getExpression().getArguments().get(0);
-
 				Object invokeArgument;
 				if (invokeArgExpr instanceof Literal)
 					invokeArgument = ((Literal)invokeArgExpr).getLiteral();
@@ -96,10 +96,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 					// We query a simple data type (otherwise we would be above in the PrimaryExpressionEvaluator block), hence
 					// we do not need to recursively resolve some tuples.
-					IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
-							executionContext, resultDescriptor.getFieldMeta(), true
-					);
-					return queryStringIndexOf(resultDescriptor.getFieldMeta(), indexEntryFactory, invokeArgument, compareToArgument, resultDescriptor.isNegated());
+					return queryStringIndexOf(getQueryEvaluator(), resultDescriptor.getFieldMeta(), invokeArgument, compareToArgument, resultDescriptor.isNegated());
 				}
 				throw new UnsupportedOperationException("NYI");
 			}
@@ -176,13 +173,17 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 	}
 
 	private Set<Long> queryStringIndexOf(
+	        QueryEvaluator queryEval,
 			FieldMeta fieldMeta,
-			IndexEntryFactory indexEntryFactory,
 			Object invokeArgument, // the xxx in 'indexOf(xxx)'
 			Object compareToArgument, // the yyy in 'indexOf(xxx) >= yyy'
 			boolean negate
 	) {
-		Query q = getPersistenceManager().newQuery(indexEntryFactory.getIndexEntryClass());
+        IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
+            queryEval.getExecutionContext(), fieldMeta, true
+        );
+
+        Query q = queryEval.getPersistenceManager().newQuery(indexEntryFactory.getIndexEntryClass());
 		q.setFilter(
 				"this.fieldMeta == :fieldMeta && " +
 				"this.indexKey.indexOf(:invokeArgument) " + getOperatorAsJDOQLSymbol(negate) + " :compareToArgument"
@@ -197,7 +198,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 		Set<Long> result = new HashSet<Long>();
 		for (IndexEntry indexEntry : indexEntries) {
-			IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
+			IndexValue indexValue = queryEval.getEncryptionHandler().decryptIndexEntry(indexEntry);
 			result.addAll(indexValue.getDataEntryIDs());
 		}
 		q.closeAll();
@@ -225,10 +226,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 		@Override
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
-			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
-					executionContext, fieldMeta, true
-			);
-			return queryStringIndexOf(fieldMeta, indexEntryFactory, invokeArgument, compareToArgument, negate);
+			return queryStringIndexOf(getQueryEvaluator(), fieldMeta, invokeArgument, compareToArgument, negate);
 		}
 	}
 
