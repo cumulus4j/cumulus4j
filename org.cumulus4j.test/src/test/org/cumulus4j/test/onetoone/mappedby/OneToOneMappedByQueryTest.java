@@ -150,4 +150,37 @@ extends AbstractTransactionalTest
 		q.setFilter("!(this.levelA.levelB.name != :name)");
 		executeQueryAndCheckResult(q, "b 1", 1, false);
 	}
+
+	@Test
+	public void rightToLeft_queryLevelBNameEquals()
+	{
+		Query q = pm.newQuery(Root.class);
+		q.setFilter(":name == this.levelA.levelB.name");
+		executeQueryAndCheckResult(q, "b 1", 1, false);
+	}
+
+	@Test
+	public void rightToLeft_queryLevelBNameNotEquals()
+	{
+		Query q = pm.newQuery(Root.class);
+		q.setFilter(":name != this.levelA.levelB.name");
+		executeQueryAndCheckResult(q, "b 1", 4, true);
+	}
+
+	@Test
+	public void rightToLeft_queryNotLevelBNameEquals()
+	{
+		Query q = pm.newQuery(Root.class);
+		q.setFilter("!(:name == this.levelA.levelB.name)");
+		executeQueryAndCheckResult(q, "b 1", 4, true);
+	}
+
+	@Test
+	public void rightToLeft_queryNotLevelBNameNotEquals()
+	{
+		Query q = pm.newQuery(Root.class);
+		q.setFilter("!(:name != this.levelA.levelB.name)");
+		executeQueryAndCheckResult(q, "b 1", 1, false);
+	}
+
 }
