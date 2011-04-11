@@ -195,13 +195,20 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 			    " on " + invocationTargetType + " with this type being a VariableExpression.");
 		}
 		else if (this.getLeft() instanceof ParameterExpressionEvaluator) {
-			new UnsupportedOperationException("NYI: this.getLeft() instanceof ParameterExpressionEvaluator");
+			// TODO support this.getLeft() instanceof ParameterExpressionEvaluator
+			throw new UnsupportedOperationException("NYI: this.getLeft() instanceof ParameterExpressionEvaluator");
 		}
 		else if (this.getLeft() instanceof InvokeExpressionEvaluator) {
-			new UnsupportedOperationException("NYI: this.getLeft() instanceof InvokeExpressionEvaluator");
+			// TODO support this.getLeft() instanceof InvokeExpressionEvaluator
+			throw new UnsupportedOperationException("NYI: this.getLeft() instanceof InvokeExpressionEvaluator");
+		}
+		else if (this.getLeft() instanceof SubqueryExpressionEvaluator) {
+			// TODO support this.getLeft() instanceof SubqueryExpressionEvaluator
+			throw new UnsupportedOperationException("NYI: this.getLeft() instanceof InvokeExpressionEvaluator");
 		}
 		else if (this.getLeft() == null) {
-			new UnsupportedOperationException("NYI: this.getLeft() == null");
+			// TODO support this.getLeft() == null
+			throw new UnsupportedOperationException("NYI: this.getLeft() == null");
 		}
 
 		throw new UnsupportedOperationException("NYI");

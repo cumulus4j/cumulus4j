@@ -28,6 +28,7 @@ import org.cumulus4j.core.query.eval.OrExpressionEvaluator;
 import org.cumulus4j.core.query.eval.ParameterExpressionEvaluator;
 import org.cumulus4j.core.query.eval.PrimaryExpressionEvaluator;
 import org.cumulus4j.core.query.eval.ResultDescriptor;
+import org.cumulus4j.core.query.eval.SubqueryExpressionEvaluator;
 import org.cumulus4j.core.query.eval.VariableExpressionEvaluator;
 import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.identity.IdentityUtils;
@@ -40,6 +41,7 @@ import org.datanucleus.query.expression.InvokeExpression;
 import org.datanucleus.query.expression.Literal;
 import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
+import org.datanucleus.query.expression.SubqueryExpression;
 import org.datanucleus.query.expression.VariableExpression;
 import org.datanucleus.query.symbol.Symbol;
 import org.datanucleus.store.ExecutionContext;
@@ -371,6 +373,9 @@ public abstract class QueryEvaluator
 
 		if (expr instanceof VariableExpression)
 			return new VariableExpressionEvaluator(this, parent, (VariableExpression) expr);
+
+		if (expr instanceof SubqueryExpression)
+			return new SubqueryExpressionEvaluator(this, parent, (SubqueryExpression) expr);
 
 		throw new UnsupportedOperationException("Don't know what to do with this expression: " + expr);
 	}
