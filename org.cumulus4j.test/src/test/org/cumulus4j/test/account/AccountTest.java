@@ -12,6 +12,7 @@ import org.cumulus4j.test.framework.AbstractTransactionalTest;
 import org.cumulus4j.test.framework.CleanupUtil;
 import org.datanucleus.NucleusContext;
 import org.datanucleus.api.jdo.JDOPersistenceManagerFactory;
+import org.datanucleus.util.NucleusLogger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -29,6 +30,8 @@ extends AbstractTransactionalTest
 	private static final LocalAccountantDelegateID LOCAL_ACCOUNTANT_DELEGATE_ID_0 = LocalAccountantDelegateID.create(ORGANISATION_ID, "0");
 	private static final AnchorID ACCOUNT_ID_0 = AnchorID.create(ORGANISATION_ID, Account.ANCHOR_TYPE_ID_ACCOUNT, "voucher.00");
 	private static final AnchorID ACCOUNT_ID_1 = AnchorID.create(ORGANISATION_ID, Account.ANCHOR_TYPE_ID_ACCOUNT, "voucher.01");
+	private static final LocalAccountantDelegateID LOCAL_ACCOUNTANT_DELEGATE_ID_1 = LocalAccountantDelegateID.create(ORGANISATION_ID, "1");
+	private static final AnchorID ACCOUNT_ID_2 = AnchorID.create(ORGANISATION_ID, Account.ANCHOR_TYPE_ID_ACCOUNT, "voucher.02");
 
 	@BeforeClass
 	public static void clearDatabase()
@@ -41,6 +44,7 @@ extends AbstractTransactionalTest
 	@Before
 	public void createData()
 	{
+		NucleusLogger.GENERAL.info(">> AccountTest.createData START");
 		Account account = new Account(ACCOUNT_ID_0);
 		LocalAccountantDelegate localAccountantDelegate = new LocalAccountantDelegate(LOCAL_ACCOUNTANT_DELEGATE_ID_0);
 		localAccountantDelegate.setAccount("EUR", account);
@@ -50,6 +54,16 @@ extends AbstractTransactionalTest
 		localAccountantDelegate.setName("New test bla bla bla.");
 		localAccountantDelegate.setName2("2nd name");
 		localAccountantDelegate.setDescription("description");
+		NucleusLogger.GENERAL.info(">> AccountTest.createData MIDDLE");
+
+		Account account2 = new Account(ACCOUNT_ID_2);
+		LocalAccountantDelegate localAccountantDelegate1 = new LocalAccountantDelegate(LOCAL_ACCOUNTANT_DELEGATE_ID_1);
+		localAccountantDelegate1.setAccount("GBP", account2);
+		pm.makePersistent(localAccountantDelegate1); // this should implicitely persist the account
+		localAccountantDelegate1.setName("Some other test");
+		localAccountantDelegate1.setName2("Second name");
+		localAccountantDelegate1.setDescription("description2");
+		NucleusLogger.GENERAL.info(">> AccountTest.createData END");
 	}
 
 	@Test
@@ -98,12 +112,52 @@ extends AbstractTransactionalTest
 	@Test
 	public void extentIterator() throws IOException
 	{
-	    Iterator<LocalAccountantDelegate> delegateIter = pm.getExtent(LocalAccountantDelegate.class).iterator();
-	    Assert.assertTrue(delegateIter.hasNext());
+		Iterator<LocalAccountantDelegate> delegateIter = pm.getExtent(LocalAccountantDelegate.class).iterator();
+		Assert.assertTrue(delegateIter.hasNext());
 		LocalAccountantDelegate localAccountantDelegate = delegateIter.next();
-		Assert.assertNotNull(localAccountantDelegate);
-        localAccountantDelegate.test();
+		Assert.assertTrue(delegateIter.hasNext());
+		LocalAccountantDelegate localAccountantDelegate1 = delegateIter.next();
 		Assert.assertFalse(delegateIter.hasNext());
+
+		boolean delegate_0_found = false;
+		boolean delegate_1_found = false;
+		if (localAccountantDelegate.getName().equals("New test bla bla bla."))
+		{
+			delegate_0_found = true;
+			assertDelegate0(localAccountantDelegate);
+		}
+		else if (localAccountantDelegate1.getName().equals("New test bla bla bla."))
+		{
+			delegate_0_found = true;
+			assertDelegate0(localAccountantDelegate1);
+		}
+		if (localAccountantDelegate.getName().equals("Some other test"))
+		{
+			delegate_1_found = true;
+			assertDelegate1(localAccountantDelegate);
+		}
+		else if (localAccountantDelegate1.getName().equals("Some other test"))
+		{
+			delegate_1_found = true;
+			assertDelegate1(localAccountantDelegate1);
+		}
+
+		Assert.assertTrue("Delegate 0 was not returned", delegate_0_found);
+		Assert.assertTrue("Delegate 1 was not returned", delegate_1_found);
+	}
+
+	private void assertDelegate0(LocalAccountantDelegate delegate)
+	{
+		Assert.assertNotNull(delegate);
+		Assert.assertEquals("name is wrong", "New test bla bla bla.", delegate.getName());
+		Assert.assertEquals("description is wrong", "description", delegate.getDescription());
+	}
+
+	private void assertDelegate1(LocalAccountantDelegate delegate)
+	{
+		Assert.assertNotNull(delegate);
+		Assert.assertEquals("name is wrong", "Some other test", delegate.getName());
+		Assert.assertEquals("description is wrong", "description2", delegate.getDescription());
 	}
 
 	@Test
@@ -121,8 +175,8 @@ extends AbstractTransactionalTest
 		Assert.assertEquals("description is wrong", "description", delegate.getDescription());
 
 		// Negative test
-        result = (List<LocalAccountantDelegate>) q.execute("New test bla bla bla2");
-        Assert.assertEquals("Number of results was wrong", 0, result.size());
+		result = (List<LocalAccountantDelegate>) q.execute("New test bla bla bla2");
+		Assert.assertEquals("Number of results was wrong", 0, result.size());
 	}
 
 	@Test
@@ -133,12 +187,12 @@ extends AbstractTransactionalTest
 
 		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute(
 				"New test bla bla bla.", "2nd name");
-        Assert.assertEquals("Number of results was wrong", 1, result.size());
-        LocalAccountantDelegate delegate = result.iterator().next();
-        Assert.assertNotNull(delegate);
-        Assert.assertEquals("name is wrong", "New test bla bla bla.", delegate.getName());
-        Assert.assertEquals("name2 is wrong", "2nd name", delegate.getName2());
-        Assert.assertEquals("description is wrong", "description", delegate.getDescription());
+		Assert.assertEquals("Number of results was wrong", 1, result.size());
+		LocalAccountantDelegate delegate = result.iterator().next();
+		Assert.assertNotNull(delegate);
+		Assert.assertEquals("name is wrong", "New test bla bla bla.", delegate.getName());
+		Assert.assertEquals("name2 is wrong", "2nd name", delegate.getName2());
+		Assert.assertEquals("description is wrong", "description", delegate.getDescription());
 	}
 
 	@Test
@@ -157,12 +211,9 @@ extends AbstractTransactionalTest
 
 		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute(
 				"New test bla bla bla.", "description");
-        Assert.assertEquals("Number of results was wrong", 1, result.size());
-        LocalAccountantDelegate delegate = result.iterator().next();
-        Assert.assertNotNull(delegate);
-        Assert.assertEquals("name is wrong", "New test bla bla bla.", delegate.getName());
-        Assert.assertEquals("name2 is wrong", "2nd name", delegate.getName2());
-        Assert.assertEquals("description is wrong", "description", delegate.getDescription());
+		Assert.assertEquals("Number of results was wrong", 1, result.size());
+		LocalAccountantDelegate delegate = result.iterator().next();
+		assertDelegate0(delegate);
 	}
 
 	@Test
@@ -172,41 +223,34 @@ extends AbstractTransactionalTest
 		q.setFilter("this.name.indexOf(:needle) >= 0");
 
 		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("bla");
-        Assert.assertEquals("Number of results was wrong", 1, result.size());
-        LocalAccountantDelegate delegate = result.iterator().next();
-        Assert.assertNotNull(delegate);
-        Assert.assertEquals("name is wrong", "New test bla bla bla.", delegate.getName());
-        Assert.assertEquals("name2 is wrong", "2nd name", delegate.getName2());
-        Assert.assertEquals("description is wrong", "description", delegate.getDescription());
+		Assert.assertEquals("Number of results was wrong", 1, result.size());
+		LocalAccountantDelegate delegate = result.iterator().next();
+		assertDelegate0(delegate);
 	}
 
 	@Test
-    public void queryStringStartsWith() throws IOException
-    {
-        Query q = pm.newQuery(LocalAccountantDelegate.class);
-        q.setFilter("this.name.startsWith(:startStr)");
+	public void queryStringStartsWith() throws IOException
+	{
+		Query q = pm.newQuery(LocalAccountantDelegate.class);
+		q.setFilter("this.name.startsWith(:startStr)");
 
-        List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("New ");
-        Assert.assertEquals("Number of results was wrong", 1, result.size());
-        LocalAccountantDelegate delegate = result.iterator().next();
-        Assert.assertNotNull(delegate);
-        Assert.assertEquals("name is wrong", "New test bla bla bla.", delegate.getName());
-        Assert.assertEquals("description is wrong", "description", delegate.getDescription());
-    }
+		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("New ");
+		Assert.assertEquals("Number of results was wrong", 1, result.size());
+		LocalAccountantDelegate delegate = result.iterator().next();
+		assertDelegate0(delegate);
+	}
 
-    @Test
-    public void queryStringEndsWith() throws IOException
-    {
-        Query q = pm.newQuery(LocalAccountantDelegate.class);
-        q.setFilter("this.name.endsWith(:endStr)");
+	@Test
+	public void queryStringEndsWith() throws IOException
+	{
+		Query q = pm.newQuery(LocalAccountantDelegate.class);
+		q.setFilter("this.name.endsWith(:endStr)");
 
-        List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("bla.");
-        Assert.assertEquals("Number of results was wrong", 1, result.size());
-        LocalAccountantDelegate delegate = result.iterator().next();
-        Assert.assertNotNull(delegate);
-        Assert.assertEquals("name is wrong", "New test bla bla bla.", delegate.getName());
-        Assert.assertEquals("description is wrong", "description", delegate.getDescription());
-    }
+		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("bla.");
+		Assert.assertEquals("Number of results was wrong", 1, result.size());
+		LocalAccountantDelegate delegate = result.iterator().next();
+		assertDelegate0(delegate);
+	}
 
 	@After
 	public void deleteAll() throws IOException
@@ -218,6 +262,12 @@ extends AbstractTransactionalTest
 		pm.deletePersistent(account);
 
 		account = (Account) pm.getObjectById(ACCOUNT_ID_1);
+		pm.deletePersistent(account);
+
+		localAccountantDelegate = (LocalAccountantDelegate) pm.getObjectById(LOCAL_ACCOUNTANT_DELEGATE_ID_1);
+		pm.deletePersistent(localAccountantDelegate);
+
+		account = (Account) pm.getObjectById(ACCOUNT_ID_2);
 		pm.deletePersistent(account);
 	}
 }
