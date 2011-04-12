@@ -20,7 +20,7 @@ import org.cumulus4j.api.crypto.Plaintext;
 public class DummyCryptoManager extends AbstractCryptoManager
 {
 	@Override
-	protected CryptoSession createSession() {
+	protected CryptoSession createCryptoSession() {
 		return new DummySession();
 	}
 

@@ -72,6 +72,9 @@ public interface CryptoManager
 	 * specify which method of key-exchange (or key-management in general) and encryption/decryption is desired.
 	 * This is done by setting the property {@link #PROPERTY_CRYPTO_MANAGER_ID}.
 	 * </p>
+	 * <p>
+	 * This method is thread-safe.
+	 * </p>
 	 *
 	 * @return the <code>cryptoManagerID</code> of this instance.
 	 */
@@ -80,6 +83,9 @@ public interface CryptoManager
 	/**
 	 * <p>
 	 * Get the {@link CryptoSession} identified by the given <code>cryptoSessionID</code>.
+	 * </p>
+	 * <p>
+	 * <b>Important:</b> You must call {@link CryptoSession#release()} in a finally block to ensure a symmetric call to this method!
 	 * </p>
 	 * <p>
 	 * Usually, every client opens one crypto-session. How exactly this happens, is highly dependent
@@ -94,12 +100,31 @@ public interface CryptoManager
 	 * <code>cryptoSessionID</code> returns the same <code>CryptoSession</code> instance.
 	 * </p>
 	 * <p>
-	 * A <code>CryptoSession</code> should only be kept for a limited time. It is recommended to remove it
+	 * A <code>CryptoSession</code> should only be kept in the memory of a <code>CryptoManager</code> for a limited time.
+	 * It is recommended to remove it
 	 * a short configurable time (e.g. 10 minutes) after the {@link CryptoSession#getLastUsageTimestamp() last usage}.
 	 * </p>
+	 * <p>
+	 * This method is thread-safe.
+	 * </p>
 	 *
-	 * @param cryptoSessionID
-	 * @return
+	 *
+	 * @param cryptoSessionID the {@link CryptoSession#getCryptoSessionID() cryptoSessionID} for which to look up or
+	 * create a <code>CryptoSession</code>.
+	 * @return the <code>CryptoSession</code> identified by the given identifier; never <code>null</code>.
 	 */
-	CryptoSession getCryptoSession(String cryptoSessionID);
+	CryptoSession acquireCryptoSession(String cryptoSessionID);
+
+	/**
+	 * <p>
+	 * Notify the {@link CryptoManager} about the fact that a session is currently being closed.
+	 * </p>
+	 * <p>
+	 * <b>Important:</b> This method must never be called directly! It must be called by {@link CryptoSession#close()}.
+	 * </p>
+	 *
+	 * @param cryptoSession the session that is currently closed.
+	 */
+	void onCloseCryptoSession(CryptoSession cryptoSession);
+
 }
