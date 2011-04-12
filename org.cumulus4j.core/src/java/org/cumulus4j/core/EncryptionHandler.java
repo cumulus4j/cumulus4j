@@ -48,52 +48,6 @@ public class EncryptionHandler
 		return cryptoSession;
 	}
 
-//	private byte[] encrypt(ExecutionContext executionContext, long keyID, byte[] plain)
-//	{
-//		if (plain == null)
-//			return null;
-//
-//		CryptoSession cryptoSession = getKeyManagerSession(executionContext);
-//		Cipher encrypter = cryptoSession.getEncrypter(keyID);
-//		if (encrypter == null)
-//			throw new IllegalStateException("keyManagerSession.getEncrypter(keyID) returned null! keyManagerID=" + cryptoSession.getCryptoManager().getCryptoManagerID() + " keyManagerSessionID=" + cryptoSession.getCryptoSessionID() + " keyID=" + keyID);
-//
-//		synchronized (encrypter) {
-//			byte[] result;
-//			try {
-//				result = encrypter.doFinal(plain);
-//			} catch (IllegalBlockSizeException e) {
-//				throw new RuntimeException(e);
-//			} catch (BadPaddingException e) {
-//				throw new RuntimeException(e);
-//			}
-//			return result;
-//		}
-//	}
-//
-//	private byte[] decrypt(ExecutionContext executionContext, long keyID, byte[] encrypted)
-//	{
-//		if (encrypted == null)
-//			return null;
-//
-//		CryptoSession cryptoSession = getKeyManagerSession(executionContext);
-//		Cipher decrypter = cryptoSession.getDecrypter(keyID);
-//		if (decrypter == null)
-//			throw new IllegalStateException("keyManagerSession.getDecrypter(keyID) returned null! keyManagerID=" + cryptoSession.getCryptoManager().getCryptoManagerID() + " keyManagerSessionID=" + cryptoSession.getCryptoSessionID() + " keyID=" + keyID);
-//
-//		synchronized (decrypter) {
-//			byte[] result;
-//			try {
-//				result = decrypter.doFinal(encrypted);
-//			} catch (IllegalBlockSizeException e) {
-//				throw new RuntimeException(e);
-//			} catch (BadPaddingException e) {
-//				throw new RuntimeException(e);
-//			}
-//			return result;
-//		}
-//	}
-
 	/**
 	 * Get a plain (unencrypted) {@link ObjectContainer} from the encrypted byte-array in
 	 * the {@link DataEntry#getValue() DataEntry.value} property.

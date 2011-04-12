@@ -14,6 +14,9 @@ public interface CryptoSession
 
 	Date getCreationTimestamp();
 
+	Date getLastUsageTimestamp();
+	void updateLastUsageTimestamp();
+
 	/**
 	 * Encrypt the given <a href="http://en.wikipedia.org/wiki/Plaintext">plaintext</a>.
 	 * @param plaintext the unencrypted information (aka <a href="http://en.wikipedia.org/wiki/Plaintext">plaintext</a>) to be encrypted.

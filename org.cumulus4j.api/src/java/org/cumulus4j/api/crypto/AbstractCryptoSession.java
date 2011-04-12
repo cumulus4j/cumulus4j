@@ -9,8 +9,9 @@ import java.util.Date;
 public abstract class AbstractCryptoSession implements CryptoSession
 {
 	private Date creationTimestamp = new Date();
+	private Date lastUsageTimestamp = new Date();
 	private CryptoManager cryptoManager;
-	private String keyManagerSessionID;
+	private String cryptoSessionID;
 
 	@Override
 	public CryptoManager getCryptoManager() {
@@ -26,7 +27,7 @@ public abstract class AbstractCryptoSession implements CryptoSession
 			return;
 
 		if (this.cryptoManager != null)
-			throw new IllegalStateException("this.keyManager already assigned! Cannot modify!");
+			throw new IllegalStateException("this.cryptoManager already assigned! Cannot modify!");
 
 		this.cryptoManager = cryptoManager;
 	}
@@ -34,26 +35,37 @@ public abstract class AbstractCryptoSession implements CryptoSession
 	@Override
 	public String getCryptoSessionID()
 	{
-		return keyManagerSessionID;
+		return cryptoSessionID;
 	}
-	@Override
-	public void setCryptoSessionID(String keyManagerSessionID)
-	{
-		if (keyManagerSessionID == null)
-			throw new IllegalArgumentException("keyManagerSessionID == null");
 
-		if (keyManagerSessionID.equals(this.keyManagerSessionID))
+	@Override
+	public void setCryptoSessionID(String cryptoSessionID)
+	{
+		if (cryptoSessionID == null)
+			throw new IllegalArgumentException("cryptoSessionID == null");
+
+		if (cryptoSessionID.equals(this.cryptoSessionID))
 			return;
 
-		if (this.keyManagerSessionID != null)
-			throw new IllegalStateException("this.keyManagerSessionID already assigned! Cannot modify!");
+		if (this.cryptoSessionID != null)
+			throw new IllegalStateException("this.cryptoSessionID already assigned! Cannot modify!");
 
-		this.keyManagerSessionID = keyManagerSessionID;
+		this.cryptoSessionID = cryptoSessionID;
 	}
 
 	@Override
 	public Date getCreationTimestamp()
 	{
 		return creationTimestamp;
+	}
+
+	@Override
+	public Date getLastUsageTimestamp() {
+		return lastUsageTimestamp;
+	}
+
+	@Override
+	public void updateLastUsageTimestamp() {
+		lastUsageTimestamp = new Date();
 	}
 }

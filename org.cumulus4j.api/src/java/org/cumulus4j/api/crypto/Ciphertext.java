@@ -1,5 +1,9 @@
 package org.cumulus4j.api.crypto;
 
+/**
+ *
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class Ciphertext
 {
 	private long keyID = -1;
