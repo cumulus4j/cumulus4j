@@ -115,6 +115,8 @@ public interface CryptoManager
 	 */
 	CryptoSession acquireCryptoSession(String cryptoSessionID);
 
+	void onReleaseCryptoSession(AbstractCryptoSession abstractCryptoSession);
+
 	/**
 	 * <p>
 	 * Notify the {@link CryptoManager} about the fact that a session is currently being closed.

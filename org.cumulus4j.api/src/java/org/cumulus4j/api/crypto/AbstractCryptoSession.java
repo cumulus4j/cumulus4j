@@ -199,6 +199,8 @@ public abstract class AbstractCryptoSession implements CryptoSession
 			lastUsageTimestamp = new Date();
 			sessionsSortedByLastUsage.add(this);
 
+			cryptoManager.onReleaseCryptoSession(this);
+
 			if (logger.isDebugEnabled())
 				logger.debug("release: inUseCounter={}", inUseCounter);
 		}

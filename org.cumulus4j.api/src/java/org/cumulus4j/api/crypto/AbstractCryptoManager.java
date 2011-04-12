@@ -71,6 +71,11 @@ public abstract class AbstractCryptoManager implements CryptoManager
 	}
 
 	@Override
+	public void onReleaseCryptoSession(AbstractCryptoSession abstractCryptoSession) {
+
+	}
+
+	@Override
 	public void onCloseCryptoSession(CryptoSession cryptoSession)
 	{
 		synchronized (id2session) {
