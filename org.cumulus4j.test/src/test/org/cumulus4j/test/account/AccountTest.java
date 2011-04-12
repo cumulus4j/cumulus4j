@@ -180,6 +180,34 @@ extends AbstractTransactionalTest
         Assert.assertEquals("description is wrong", "description", delegate.getDescription());
 	}
 
+	@Test
+    public void queryStringStartsWith() throws IOException
+    {
+        Query q = pm.newQuery(LocalAccountantDelegate.class);
+        q.setFilter("this.name.startsWith(:startStr)");
+
+        List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("New ");
+        Assert.assertEquals("Number of results was wrong", 1, result.size());
+        LocalAccountantDelegate delegate = result.iterator().next();
+        Assert.assertNotNull(delegate);
+        Assert.assertEquals("name is wrong", "New test bla bla bla.", delegate.getName());
+        Assert.assertEquals("description is wrong", "description", delegate.getDescription());
+    }
+
+    @Test
+    public void queryStringEndsWith() throws IOException
+    {
+        Query q = pm.newQuery(LocalAccountantDelegate.class);
+        q.setFilter("this.name.endsWith(:endStr)");
+
+        List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("bla.");
+        Assert.assertEquals("Number of results was wrong", 1, result.size());
+        LocalAccountantDelegate delegate = result.iterator().next();
+        Assert.assertNotNull(delegate);
+        Assert.assertEquals("name is wrong", "New test bla bla bla.", delegate.getName());
+        Assert.assertEquals("description is wrong", "description", delegate.getDescription());
+    }
+
 	@After
 	public void deleteAll() throws IOException
 	{
