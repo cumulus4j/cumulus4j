@@ -38,7 +38,7 @@ abstract class IndexEntryAction
 
 	protected abstract IndexEntry getIndexEntryForObjectRelation(PersistenceManager pm, FieldMeta fieldMeta, Long otherDataEntryID);
 
-	protected abstract void _perform(PersistenceManager pm, IndexEntry indexEntry, long dataEntryID);
+	protected abstract void _perform(ExecutionContext executionContext, PersistenceManager pm, IndexEntry indexEntry, long dataEntryID);
 
 	public void perform(
 			ExecutionContext executionContext, PersistenceManager pm, long dataEntryID,
@@ -63,7 +63,7 @@ abstract class IndexEntryAction
 				for (int idx = 0; idx < Array.getLength(fieldValue); ++idx) {
 					Object element = Array.get(fieldValue, idx);
 					IndexEntry indexEntry = getIndexEntry(indexEntryFactory, pm, subFieldMeta, element);
-					_perform(pm, indexEntry, dataEntryID);
+					_perform(executionContext, pm, indexEntry, dataEntryID);
 				}
 			}
 			else if (dnMemberMetaData.hasMap()) {
@@ -76,23 +76,23 @@ abstract class IndexEntryAction
 
 				for (Map.Entry<?, ?> me : fieldValueMap.entrySet()) {
 					IndexEntry indexEntryKey = getIndexEntry(indexEntryFactoryKey, pm, subFieldMetaKey, me.getKey());
-					_perform(pm, indexEntryKey, dataEntryID);
+					_perform(executionContext, pm, indexEntryKey, dataEntryID);
 
 					IndexEntry indexEntryValue = getIndexEntry(indexEntryFactoryValue, pm, subFieldMetaValue, me.getValue());
-					_perform(pm, indexEntryValue, dataEntryID);
+					_perform(executionContext, pm, indexEntryValue, dataEntryID);
 				}
 			}
 			else {
 				IndexEntryFactory indexEntryFactory = indexEntryFactoryRegistry.getIndexEntryFactory(executionContext, fieldMeta, false);
 				IndexEntry indexEntry = getIndexEntry(indexEntryFactory, pm, fieldMeta, fieldValue);
-				_perform(pm, indexEntry, dataEntryID);
+				_perform(executionContext, pm, indexEntry, dataEntryID);
 			}
 		}
 		else if (Relation.isRelationSingleValued(relationType)) {
 			// 1-1-relationship to another persistence-capable object.
 			Long otherDataEntryID = ObjectContainerHelper.referenceToDataEntryID(executionContext, pm, fieldValue);
 			IndexEntry indexEntry = getIndexEntryForObjectRelation(pm, fieldMeta, otherDataEntryID);
-			_perform(pm, indexEntry, dataEntryID);
+			_perform(executionContext, pm, indexEntry, dataEntryID);
 		}
 		else if (Relation.isRelationMultiValued(relationType)) {
 			// map, collection, array
@@ -111,21 +111,21 @@ abstract class IndexEntryAction
 					if (keyIsPersistent) {
 						Long otherDataEntryID = ObjectContainerHelper.referenceToDataEntryID(executionContext, pm, me.getKey());
 						IndexEntry indexEntry = getIndexEntryForObjectRelation(pm, subFieldMetaKey, otherDataEntryID);
-						_perform(pm, indexEntry, dataEntryID);
+						_perform(executionContext, pm, indexEntry, dataEntryID);
 					}
 					else {
 						IndexEntry indexEntry = getIndexEntry(indexEntryFactoryKey, pm, subFieldMetaKey, me.getKey());
-						_perform(pm, indexEntry, dataEntryID);
+						_perform(executionContext, pm, indexEntry, dataEntryID);
 					}
 
 					if (valueIsPersistent) {
 						Long otherDataEntryID = ObjectContainerHelper.referenceToDataEntryID(executionContext, pm, me.getValue());
 						IndexEntry indexEntry = getIndexEntryForObjectRelation(pm, subFieldMetaValue, otherDataEntryID);
-						_perform(pm, indexEntry, dataEntryID);
+						_perform(executionContext, pm, indexEntry, dataEntryID);
 					}
 					else {
 						IndexEntry indexEntry = getIndexEntry(indexEntryFactoryValue, pm, subFieldMetaValue, me.getValue());
-						_perform(pm, indexEntry, dataEntryID);
+						_perform(executionContext, pm, indexEntry, dataEntryID);
 					}
 				}
 			}
@@ -141,7 +141,7 @@ abstract class IndexEntryAction
 				for (Object element : fieldValueArray) {
 					Long otherDataEntryID = ObjectContainerHelper.referenceToDataEntryID(executionContext, pm, element);
 					IndexEntry indexEntry = getIndexEntryForObjectRelation(pm, subFieldMeta, otherDataEntryID);
-					_perform(pm, indexEntry, dataEntryID);
+					_perform(executionContext, pm, indexEntry, dataEntryID);
 				}
 			}
 		}
@@ -165,14 +165,14 @@ abstract class IndexEntryAction
 		}
 
 		@Override
-		protected void _perform(PersistenceManager pm, IndexEntry indexEntry, long dataEntryID)
+		protected void _perform(ExecutionContext executionContext, PersistenceManager pm, IndexEntry indexEntry, long dataEntryID)
 		{
 			if (indexEntry == null)
 				return;
 
-			IndexValue indexValue = encryptionHandler.decryptIndexEntry(indexEntry);
+			IndexValue indexValue = encryptionHandler.decryptIndexEntry(executionContext, indexEntry);
 			indexValue.addDataEntryID(dataEntryID);
-			encryptionHandler.encryptIndexEntry(indexEntry, indexValue);
+			encryptionHandler.encryptIndexEntry(executionContext, indexEntry, indexValue);
 			pm.makePersistent(indexEntry); // We do not persist directly when creating anymore, thus we must persist here. This is a no-op, if it's already persistent.
 		}
 	}
@@ -195,17 +195,17 @@ abstract class IndexEntryAction
 		}
 
 		@Override
-		protected void _perform(PersistenceManager pm, IndexEntry indexEntry, long dataEntryID)
+		protected void _perform(ExecutionContext executionContext, PersistenceManager pm, IndexEntry indexEntry, long dataEntryID)
 		{
 			if (indexEntry == null)
 				return;
 
-			IndexValue indexValue = encryptionHandler.decryptIndexEntry(indexEntry);
+			IndexValue indexValue = encryptionHandler.decryptIndexEntry(executionContext, indexEntry);
 			indexValue.removeDataEntryID(dataEntryID);
 			if (indexValue.isDataEntryIDsEmpty())
 				pm.deletePersistent(indexEntry);
 			else
-				encryptionHandler.encryptIndexEntry(indexEntry, indexValue);
+				encryptionHandler.encryptIndexEntry(executionContext, indexEntry, indexValue);
 		}
 	}
 

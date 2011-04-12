@@ -6,20 +6,18 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import javax.jdo.PersistenceManagerFactory;
 
-import org.cumulus4j.api.keymanagement.KeyManagerRegistry;
+import org.cumulus4j.api.crypto.Ciphertext;
+import org.cumulus4j.api.crypto.CryptoManager;
+import org.cumulus4j.api.crypto.CryptoManagerRegistry;
+import org.cumulus4j.api.crypto.CryptoSession;
+import org.cumulus4j.api.crypto.Plaintext;
 import org.cumulus4j.core.model.DataEntry;
 import org.cumulus4j.core.model.IndexEntry;
 import org.cumulus4j.core.model.IndexValue;
 import org.cumulus4j.core.model.ObjectContainer;
-import org.datanucleus.ClassLoaderResolver;
-import org.datanucleus.NucleusContext;
+import org.datanucleus.store.ExecutionContext;
 
 /**
  * Singleton (per {@link PersistenceManagerFactory}) handling the encryption and decryption and thus the key management.
@@ -28,91 +26,99 @@ import org.datanucleus.NucleusContext;
  */
 public class EncryptionHandler
 {
-	private NucleusContext nucleusContext;
-
-	// key length: 128 bits
-	private static final byte[] dummyKey = { 'D', 'e', 'r', ' ', 'F', 'e', 'r', 'd', ' ', 'h', 'a', 't', ' ', 'v', 'i', 'e' };
-	// initialization vector length: 128 bits
-	private static final IvParameterSpec iv = new IvParameterSpec(new byte[] {'b', 'l', 'a', 't', 'r', 'u', 'l', 'l', 'a', 'l', 'a', 't', 'r', 'a', 'r', 'a'});
-
-	private static final String ALGORITHM = "AES";
-	private static final String ALGORITHM_WITH_PARAMS = ALGORITHM + "/CBC/PKCS5Padding";
-
-	public EncryptionHandler(NucleusContext nucleusContext) {
-		if (nucleusContext == null)
-			throw new IllegalArgumentException("nucleusContext == null");
-
-		this.nucleusContext = nucleusContext;
-	}
-
-	private Cipher encrypter;
-	private Cipher decrypter;
+	private CryptoSession getCryptoSession(ExecutionContext executionContext)
 	{
-		try {
-			SecretKeySpec key = new SecretKeySpec(dummyKey, ALGORITHM);
-			encrypter = Cipher.getInstance(ALGORITHM_WITH_PARAMS);
-			encrypter.init(Cipher.ENCRYPT_MODE, key, iv);
-			decrypter = Cipher.getInstance(ALGORITHM_WITH_PARAMS);
-			decrypter.init(Cipher.DECRYPT_MODE, key, iv);
-		} catch (Exception ex) {
-			throw new RuntimeException(ex);
-		}
+		Object cryptoManagerID = executionContext.getProperty(CryptoManager.PROPERTY_CRYPTO_MANAGER_ID);
+		if (cryptoManagerID == null)
+			throw new IllegalStateException("Property \"" + CryptoManager.PROPERTY_CRYPTO_MANAGER_ID + "\" is not set!");
+
+		if (!(cryptoManagerID instanceof String))
+			throw new IllegalStateException("Property \"" + CryptoManager.PROPERTY_CRYPTO_MANAGER_ID + "\" is set, but it is an instance of " + cryptoManagerID.getClass().getName() + " instead of java.lang.String!");
+
+		CryptoManager cryptoManager = CryptoManagerRegistry.sharedInstance(executionContext.getNucleusContext()).getCryptoManager((String) cryptoManagerID);
+
+		Object cryptoSessionID = executionContext.getProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID);
+		if (cryptoSessionID == null)
+			throw new IllegalStateException("Property \"" + CryptoSession.PROPERTY_CRYPTO_SESSION_ID + "\" is not set!");
+
+		if (!(cryptoSessionID instanceof String))
+			throw new IllegalStateException("Property \"" + CryptoSession.PROPERTY_CRYPTO_SESSION_ID + "\" is set, but it is an instance of " + cryptoSessionID.getClass().getName() + " instead of java.lang.String!");
+
+		CryptoSession cryptoSession = cryptoManager.getCryptoSession((String) cryptoSessionID);
+		return cryptoSession;
 	}
 
-	// TODO implement real encryption/decryption with proper key management
-	private byte[] dummyEncrypt(byte[] plain)
-	{
-		if (plain == null)
-			return null;
-
-		byte[] result;
-		try {
-			result = encrypter.doFinal(plain);
-		} catch (IllegalBlockSizeException e) {
-			throw new RuntimeException(e);
-		} catch (BadPaddingException e) {
-			throw new RuntimeException(e);
-		}
-		return result;
-	}
-
-	// TODO implement real encryption/decryption with proper key management
-	private byte[] dummyDecrypt(byte[] encrypted)
-	{
-		if (encrypted == null)
-			return null;
-
-		byte[] result;
-		try {
-			result = decrypter.doFinal(encrypted);
-		} catch (IllegalBlockSizeException e) {
-			throw new RuntimeException(e);
-		} catch (BadPaddingException e) {
-			throw new RuntimeException(e);
-		}
-		return result;
-	}
+//	private byte[] encrypt(ExecutionContext executionContext, long keyID, byte[] plain)
+//	{
+//		if (plain == null)
+//			return null;
+//
+//		CryptoSession cryptoSession = getKeyManagerSession(executionContext);
+//		Cipher encrypter = cryptoSession.getEncrypter(keyID);
+//		if (encrypter == null)
+//			throw new IllegalStateException("keyManagerSession.getEncrypter(keyID) returned null! keyManagerID=" + cryptoSession.getCryptoManager().getCryptoManagerID() + " keyManagerSessionID=" + cryptoSession.getCryptoSessionID() + " keyID=" + keyID);
+//
+//		synchronized (encrypter) {
+//			byte[] result;
+//			try {
+//				result = encrypter.doFinal(plain);
+//			} catch (IllegalBlockSizeException e) {
+//				throw new RuntimeException(e);
+//			} catch (BadPaddingException e) {
+//				throw new RuntimeException(e);
+//			}
+//			return result;
+//		}
+//	}
+//
+//	private byte[] decrypt(ExecutionContext executionContext, long keyID, byte[] encrypted)
+//	{
+//		if (encrypted == null)
+//			return null;
+//
+//		CryptoSession cryptoSession = getKeyManagerSession(executionContext);
+//		Cipher decrypter = cryptoSession.getDecrypter(keyID);
+//		if (decrypter == null)
+//			throw new IllegalStateException("keyManagerSession.getDecrypter(keyID) returned null! keyManagerID=" + cryptoSession.getCryptoManager().getCryptoManagerID() + " keyManagerSessionID=" + cryptoSession.getCryptoSessionID() + " keyID=" + keyID);
+//
+//		synchronized (decrypter) {
+//			byte[] result;
+//			try {
+//				result = decrypter.doFinal(encrypted);
+//			} catch (IllegalBlockSizeException e) {
+//				throw new RuntimeException(e);
+//			} catch (BadPaddingException e) {
+//				throw new RuntimeException(e);
+//			}
+//			return result;
+//		}
+//	}
 
 	/**
 	 * Get a plain (unencrypted) {@link ObjectContainer} from the encrypted byte-array in
 	 * the {@link DataEntry#getValue() DataEntry.value} property.
+	 * @param executionContext the context.
 	 * @param dataEntry the {@link DataEntry} holding the encrypted data.
-	 * @param classLoaderResolver the {@link ClassLoaderResolver} to use for deserialising the {@link ObjectContainer}.
 	 * @return the plain {@link ObjectContainer}
 	 */
-	public ObjectContainer decryptDataEntry(DataEntry dataEntry, ClassLoaderResolver classLoaderResolver)
+	public ObjectContainer decryptDataEntry(ExecutionContext executionContext, DataEntry dataEntry)
 	{
-		byte[] encrypted = dataEntry.getValue();
+		Ciphertext ciphertext = new Ciphertext();
+		ciphertext.setKeyID(dataEntry.getKeyID());
+		ciphertext.setData(dataEntry.getValue());
 
-		KeyManagerRegistry.sharedInstance(nucleusContext).getKeyManager("dummy");
+		if (ciphertext.getData() == null)
+			return null; // TODO or return an empty ObjectContainer instead?
 
-		// TODO *real* decryption here!
-		byte[] plain = dummyDecrypt(encrypted);
+		CryptoSession cryptoSession = getCryptoSession(executionContext);
+		Plaintext plaintext = cryptoSession.decrypt(ciphertext);
+		if (plaintext == null)
+			throw new IllegalStateException("cryptoSession.decrypt(ciphertext) returned null! cryptoManagerID=" + cryptoSession.getCryptoManager().getCryptoManagerID() + " cryptoSessionID=" + cryptoSession.getCryptoSessionID());
 
 		ObjectContainer objectContainer;
-		ByteArrayInputStream in = new ByteArrayInputStream(plain);
+		ByteArrayInputStream in = new ByteArrayInputStream(plaintext.getData());
 		try {
-			ObjectInputStream objIn = new DataNucleusObjectInputStream(in, classLoaderResolver);
+			ObjectInputStream objIn = new DataNucleusObjectInputStream(in, executionContext.getClassLoaderResolver());
 			objectContainer = (ObjectContainer) objIn.readObject();
 			objIn.close();
 		} catch (IOException x) {
@@ -123,7 +129,7 @@ public class EncryptionHandler
 		return objectContainer;
 	}
 
-	public void encryptDataEntry(DataEntry dataEntry, ObjectContainer objectContainer)
+	public void encryptDataEntry(ExecutionContext executionContext, DataEntry dataEntry, ObjectContainer objectContainer)
 	{
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try {
@@ -133,32 +139,56 @@ public class EncryptionHandler
 		} catch (IOException x) {
 			throw new RuntimeException(x);
 		}
-		byte[] plain = out.toByteArray(); out = null;
 
-		// TODO *real* encryption here!
-		byte[] encrypted = dummyEncrypt(plain);
+		Plaintext plaintext = new Plaintext();
+		plaintext.setData(out.toByteArray()); out = null;
 
-		dataEntry.setValue(encrypted);
+		CryptoSession cryptoSession = getCryptoSession(executionContext);
+		Ciphertext ciphertext = cryptoSession.encrypt(plaintext);
+
+		if (ciphertext == null)
+			throw new IllegalStateException("cryptoSession.encrypt(plaintext) returned null! cryptoManagerID=" + cryptoSession.getCryptoManager().getCryptoManagerID() + " cryptoSessionID=" + cryptoSession.getCryptoSessionID());
+
+		if (ciphertext.getKeyID() < 0)
+			throw new IllegalStateException("cryptoSession.encrypt(plaintext) returned a ciphertext with keyID < 0! cryptoManagerID=" + cryptoSession.getCryptoManager().getCryptoManagerID() + " cryptoSessionID=" + cryptoSession.getCryptoSessionID());
+
+		dataEntry.setKeyID(ciphertext.getKeyID());
+		dataEntry.setValue(ciphertext.getData());
 	}
 
-	public IndexValue decryptIndexEntry(IndexEntry indexEntry)
+	public IndexValue decryptIndexEntry(ExecutionContext executionContext, IndexEntry indexEntry)
 	{
-		byte[] encrypted = indexEntry.getIndexValue();
+		Ciphertext ciphertext = new Ciphertext();
+		ciphertext.setKeyID(indexEntry.getKeyID());
+		ciphertext.setData(indexEntry.getIndexValue());
 
-		// TODO *real* decryption here!
-		byte[] plain = dummyDecrypt(encrypted);
+		Plaintext plaintext = null;
+		if (ciphertext.getData() != null) {
+			CryptoSession cryptoSession = getCryptoSession(executionContext);
+			plaintext = cryptoSession.decrypt(ciphertext);
+			if (plaintext == null)
+				throw new IllegalStateException("cryptoSession.decrypt(ciphertext) returned null! cryptoManagerID=" + cryptoSession.getCryptoManager().getCryptoManagerID() + " cryptoSessionID=" + cryptoSession.getCryptoSessionID());
+		}
 
-		IndexValue indexValue = new IndexValue(plain);
+		IndexValue indexValue = new IndexValue(plaintext == null ? null : plaintext.getData());
 		return indexValue;
 	}
 
-	public void encryptIndexEntry(IndexEntry indexEntry, IndexValue indexValue)
+	public void encryptIndexEntry(ExecutionContext executionContext, IndexEntry indexEntry, IndexValue indexValue)
 	{
-		byte[] plain = indexValue.toByteArray();
+		Plaintext plaintext = new Plaintext();
+		plaintext.setData(indexValue.toByteArray());
 
-		// TODO *real* encryption here!
-		byte[] encrypted = dummyEncrypt(plain);
+		CryptoSession cryptoSession = getCryptoSession(executionContext);
+		Ciphertext ciphertext = cryptoSession.encrypt(plaintext);
 
-		indexEntry.setIndexValue(encrypted);
+		if (ciphertext == null)
+			throw new IllegalStateException("cryptoSession.encrypt(plaintext) returned null! cryptoManagerID=" + cryptoSession.getCryptoManager().getCryptoManagerID() + " cryptoSessionID=" + cryptoSession.getCryptoSessionID());
+
+		if (ciphertext.getKeyID() < 0)
+			throw new IllegalStateException("cryptoSession.encrypt(plaintext) returned a ciphertext with keyID < 0! cryptoManagerID=" + cryptoSession.getCryptoManager().getCryptoManagerID() + " cryptoSessionID=" + cryptoSession.getCryptoSessionID());
+
+		indexEntry.setKeyID(ciphertext.getKeyID());
+		indexEntry.setIndexValue(ciphertext.getData());
 	}
 }

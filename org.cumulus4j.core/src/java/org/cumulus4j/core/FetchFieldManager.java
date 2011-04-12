@@ -153,7 +153,7 @@ public class FetchFieldManager extends AbstractFieldManager
 			if (indexEntry == null)
 				mappedByDataEntryIDs = Collections.emptySet();
 			else {
-				IndexValue indexValue = getEncryptionHandler().decryptIndexEntry(indexEntry);
+				IndexValue indexValue = getEncryptionHandler().decryptIndexEntry(executionContext, indexEntry);
 				mappedByDataEntryIDs = indexValue.getDataEntryIDs();
 			}
 		}

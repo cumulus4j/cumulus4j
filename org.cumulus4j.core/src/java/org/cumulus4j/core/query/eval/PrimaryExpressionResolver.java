@@ -111,7 +111,7 @@ public abstract class PrimaryExpressionResolver
 							queryEvaluator.getPersistenceManager(), fieldMetaForNextTuple, dataEntryIDForNextTuple
 					);
 					if (indexEntry != null) {
-						IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(indexEntry);
+						IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(executionContext, indexEntry);
 						result.addAll(indexValue.getDataEntryIDs());
 					}
 				}
@@ -122,7 +122,7 @@ public abstract class PrimaryExpressionResolver
 					if (dataEntry == null)
 						logger.warn("queryMiddle: There is no DataEntry with dataEntryID=" + dataEntryIDForNextTuple + "! " + fieldMetaForNextTuple);
 					else {
-						ObjectContainer objectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(dataEntry, executionContext.getClassLoaderResolver());
+						ObjectContainer objectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(executionContext, dataEntry);
 						Object value = objectContainer.getValue(fieldMetaForNextTuple.getMappedByFieldMeta(executionContext).getFieldID());
 						if (value != null)
 							result.add(ObjectContainerHelper.referenceToDataEntryID(executionContext, queryEvaluator.getPersistenceManager(), value));

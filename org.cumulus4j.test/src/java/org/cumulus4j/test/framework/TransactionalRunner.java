@@ -10,7 +10,8 @@ import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 
-import org.cumulus4j.api.keymanagement.KeyManager;
+import org.cumulus4j.api.crypto.CryptoManager;
+import org.cumulus4j.api.crypto.CryptoSession;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.internal.runners.model.MultipleFailureException;
@@ -166,8 +167,8 @@ public class TransactionalRunner extends BlockJUnit4ClassRunner
 
 	public static void setEncryptionCoordinates(PersistenceManager pm)
 	{
-		pm.setProperty(KeyManager.PROPERTY_KEY_MANAGER_ID, "dummy");
-		pm.setProperty(KeyManager.PROPERTY_KEY_MANAGER_SESSION_ID, UUID.randomUUID().toString());
+		pm.setProperty(CryptoManager.PROPERTY_CRYPTO_MANAGER_ID, "dummy");
+		pm.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, UUID.randomUUID().toString());
 	}
 
 	private void runInTransaction(Object test, Statement statement)

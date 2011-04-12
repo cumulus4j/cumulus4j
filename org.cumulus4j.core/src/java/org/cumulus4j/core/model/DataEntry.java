@@ -93,6 +93,8 @@ implements StoreCallback
 	@Column(length=255)
 	private String objectID;
 
+	private long keyID = -1;
+
 	private byte[] value;
 
 	protected DataEntry() { }
@@ -137,6 +139,18 @@ implements StoreCallback
 	 */
 	public String getObjectID() {
 		return objectID;
+	}
+
+	public long getKeyID() {
+		return keyID;
+	}
+
+	public void setKeyID(long keyID)
+	{
+		if (keyID < 0)
+			throw new IllegalArgumentException("keyID < 0");
+
+		this.keyID = keyID;
 	}
 
 	/**

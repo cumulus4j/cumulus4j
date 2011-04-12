@@ -1,4 +1,4 @@
-package org.cumulus4j.api.keymanagement;
+package org.cumulus4j.api.crypto;
 
 import java.util.Date;
 
@@ -6,38 +6,38 @@ import java.util.Date;
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public abstract class AbstractKeyManagerSession implements KeyManagerSession
+public abstract class AbstractCryptoSession implements CryptoSession
 {
 	private Date creationTimestamp = new Date();
-	private KeyManager keyManager;
+	private CryptoManager cryptoManager;
 	private String keyManagerSessionID;
 
 	@Override
-	public KeyManager getKeyManager() {
-		return keyManager;
+	public CryptoManager getCryptoManager() {
+		return cryptoManager;
 	}
 	@Override
-	public void setKeyManager(KeyManager keyManager)
+	public void setCryptoManager(CryptoManager cryptoManager)
 	{
-		if (keyManager == null)
-			throw new IllegalArgumentException("keyManager == null");
+		if (cryptoManager == null)
+			throw new IllegalArgumentException("cryptoManager == null");
 
-		if (this.keyManager == keyManager)
+		if (this.cryptoManager == cryptoManager)
 			return;
 
-		if (this.keyManager != null)
+		if (this.cryptoManager != null)
 			throw new IllegalStateException("this.keyManager already assigned! Cannot modify!");
 
-		this.keyManager = keyManager;
+		this.cryptoManager = cryptoManager;
 	}
 
 	@Override
-	public String getKeyManagerSessionID()
+	public String getCryptoSessionID()
 	{
 		return keyManagerSessionID;
 	}
 	@Override
-	public void setKeyManagerSessionID(String keyManagerSessionID)
+	public void setCryptoSessionID(String keyManagerSessionID)
 	{
 		if (keyManagerSessionID == null)
 			throw new IllegalArgumentException("keyManagerSessionID == null");
@@ -51,6 +51,7 @@ public abstract class AbstractKeyManagerSession implements KeyManagerSession
 		this.keyManagerSessionID = keyManagerSessionID;
 	}
 
+	@Override
 	public Date getCreationTimestamp()
 	{
 		return creationTimestamp;

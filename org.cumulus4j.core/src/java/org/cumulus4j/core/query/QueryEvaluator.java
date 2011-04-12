@@ -46,6 +46,8 @@ import org.datanucleus.query.expression.VariableExpression;
 import org.datanucleus.query.symbol.Symbol;
 import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.query.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * API-agnostic query implementation. An instance of this class performs the actual query.
@@ -55,6 +57,8 @@ import org.datanucleus.store.query.Query;
  */
 public abstract class QueryEvaluator
 {
+	private static final Logger logger = LoggerFactory.getLogger(QueryEvaluator.class);
+
 	/** Name under which any set of results are stored in the state map. Used for aggregation. */
 	public static final String RESULTS_SET = "DATANUCLEUS_RESULTS_SET";
 

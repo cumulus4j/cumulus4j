@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension-point id="keyManager" name="Key Manager" schema="schema/keyManager.exsd"/>
+   <extension-point id="cryptoManager" name="Crypto Manager" schema="schema/cryptoManager.exsd"/>
 
 </plugin>

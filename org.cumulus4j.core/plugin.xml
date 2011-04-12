@@ -27,10 +27,20 @@
             datastore="cumulus4j"/>
  </extension>
  <extension
-       point="org.cumulus4j.api.keyManager">
-    <keyManager
-          class="org.cumulus4j.core.DummyKeyManager"
-          keyManagerID="dummy">
-    </keyManager>
+       point="org.cumulus4j.api.cryptoManager">
+    <cryptoManager
+          class="org.cumulus4j.core.DummyCryptoManager"
+          cryptoManagerID="dummy">
+    </cryptoManager>
+ </extension>
+ <extension point="org.datanucleus.persistence_properties">
+ 	<persistence-property
+        manager-overrideable="true"
+        name="cumulus4j.cryptoManagerID">
+ 	</persistence-property>
+  <persistence-property
+        manager-overrideable="true"
+        name="cumulus4j.cryptoSessionID">
+  </persistence-property>
  </extension>
 </plugin>

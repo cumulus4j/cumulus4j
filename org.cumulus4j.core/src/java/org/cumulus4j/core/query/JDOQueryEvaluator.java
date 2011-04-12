@@ -34,7 +34,7 @@ public class JDOQueryEvaluator extends QueryEvaluator {
 		JDOQueryEvaluator evaluator = new JDOQueryEvaluator(
 				getQuery(), compilation, getParameterValues(), getClassLoaderResolver(), getPersistenceManager()
 		);
-        // TODO Make use of outer candidate - what the hell is the "outer candidate"??? It's never set according to references!
-        return evaluator.execute();
+		// TODO Make use of outer candidate - what the hell is the "outer candidate"??? It's never set according to references!
+		return evaluator.execute();
 	}
 }

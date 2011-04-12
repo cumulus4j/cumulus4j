@@ -48,7 +48,7 @@ public class ExpressionHelper
 			if (argExpr instanceof Literal)
 				invokeArgs[i++] = ((Literal)argExpr).getLiteral();
 			else if (argExpr instanceof ParameterExpression)
-				invokeArgs[i++] = QueryUtils.getValueForParameterExpression(queryEval.getParameterValues(), 
+				invokeArgs[i++] = QueryUtils.getValueForParameterExpression(queryEval.getParameterValues(),
 						(ParameterExpression)argExpr);
 			else
 				throw new UnsupportedOperationException("NYI");
@@ -189,7 +189,7 @@ public class ExpressionHelper
 				if (mmd.getMappedBy() != null) {
 					for (Long valueDataEntryID : valueDataEntryIDs) {
 						DataEntry valueDataEntry = DataEntry.getDataEntry(pm, valueDataEntryID);
-						ObjectContainer constantObjectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(valueDataEntry, executionContext.getClassLoaderResolver());
+						ObjectContainer constantObjectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(executionContext, valueDataEntry);
 						Object value = constantObjectContainer.getValue(
 								fieldMeta.getMappedByFieldMeta(executionContext).getFieldID()
 						);
@@ -202,7 +202,7 @@ public class ExpressionHelper
 					for (Long valueDataEntryID : valueDataEntryIDs) {
 						IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, subFieldMeta, valueDataEntryID);
 						if (indexEntry != null) {
-							IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(indexEntry);
+							IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(executionContext, indexEntry);
 							result.addAll(indexValue.getDataEntryIDs());
 						}
 					}
@@ -266,7 +266,7 @@ public class ExpressionHelper
 
 					if (mmd.getMappedBy() != null) {
 						DataEntry constantDataEntry = DataEntry.getDataEntry(pm, constantClassMeta, constantID.toString());
-						ObjectContainer constantObjectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(constantDataEntry, executionContext.getClassLoaderResolver());
+						ObjectContainer constantObjectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(executionContext, constantDataEntry);
 						Object value = constantObjectContainer.getValue(
 								fieldMeta.getMappedByFieldMeta(executionContext).getFieldID()
 						);
@@ -284,7 +284,7 @@ public class ExpressionHelper
 				if (indexEntry == null)
 					return negateIfNecessary(fieldMeta, emptyDataEntryIDs);
 
-				IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(indexEntry);
+				IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(executionContext, indexEntry);
 				return negateIfNecessary(fieldMeta, indexValue.getDataEntryIDs());
 			}
 			else if (subFieldMeta.getMappedByFieldMeta(executionContext) != null) {
@@ -294,11 +294,11 @@ public class ExpressionHelper
 				if (indexEntry == null)
 					return negateIfNecessary(fieldMeta, emptyDataEntryIDs);
 
-				IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(indexEntry);
+				IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(executionContext, indexEntry);
 				Set<Long> result = new HashSet<Long>(indexValue.getDataEntryIDs().size());
 				for (Long elementDataEntryID : indexValue.getDataEntryIDs()) {
 					DataEntry elementDataEntry = DataEntry.getDataEntry(pm, elementDataEntryID);
-					ObjectContainer elementObjectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(elementDataEntry, executionContext.getClassLoaderResolver());
+					ObjectContainer elementObjectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(executionContext, elementDataEntry);
 					Object value = elementObjectContainer.getValue(
 							fieldMeta.getMappedByFieldMeta(executionContext).getFieldID()
 					);
@@ -315,7 +315,7 @@ public class ExpressionHelper
 				if (indexEntry == null)
 					return negateIfNecessary(fieldMeta, emptyDataEntryIDs);
 
-				IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(indexEntry);
+				IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(executionContext, indexEntry);
 				return negateIfNecessary(fieldMeta, indexValue.getDataEntryIDs());
 			}
 		}

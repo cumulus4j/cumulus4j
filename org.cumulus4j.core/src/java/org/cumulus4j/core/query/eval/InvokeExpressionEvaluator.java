@@ -22,6 +22,7 @@ import org.cumulus4j.core.query.method.StringStartsWithEvaluator;
 import org.datanucleus.query.expression.InvokeExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.query.symbol.Symbol;
+import org.datanucleus.store.ExecutionContext;
 
 /**
  * Evaluator handling method invocations like <code>Collection.contains(...)</code>.
@@ -165,8 +166,9 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 			Object compareToArgument, // the yyy in 'indexOf(xxx) >= yyy'
 			boolean negate
 	) {
+		ExecutionContext executionContext = getQueryEvaluator().getExecutionContext();
 		IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
-				getQueryEvaluator().getExecutionContext(), fieldMeta, true
+				executionContext, fieldMeta, true
 		);
 
 		Query q = getPersistenceManager().newQuery(indexEntryFactory.getIndexEntryClass());
@@ -184,7 +186,7 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 
 		Set<Long> result = new HashSet<Long>();
 		for (IndexEntry indexEntry : indexEntries) {
-			IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
+			IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(executionContext, indexEntry);
 			result.addAll(indexValue.getDataEntryIDs());
 		}
 		q.closeAll();

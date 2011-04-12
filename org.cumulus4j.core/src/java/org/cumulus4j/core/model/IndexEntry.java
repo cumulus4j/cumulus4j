@@ -78,6 +78,8 @@ implements StoreCallback
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	private FieldMeta fieldMeta;
 
+	private long keyID = -1;
+
 	private byte[] indexValue;
 
 	/**
@@ -98,6 +100,18 @@ implements StoreCallback
 			throw new IllegalStateException("The property fieldMeta cannot be modified after being set once!");
 
 		this.fieldMeta = fieldMeta;
+	}
+
+	public long getKeyID() {
+		return keyID;
+	}
+
+	public void setKeyID(long keyID)
+	{
+		if (keyID < 0)
+			throw new IllegalArgumentException("keyID < 0");
+
+		this.keyID = keyID;
 	}
 
 	/**

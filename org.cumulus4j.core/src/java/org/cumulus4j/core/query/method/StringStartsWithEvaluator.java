@@ -19,6 +19,7 @@ import org.cumulus4j.core.query.eval.InvokeExpressionEvaluator;
 import org.cumulus4j.core.query.eval.PrimaryExpressionResolver;
 import org.cumulus4j.core.query.eval.ResultDescriptor;
 import org.datanucleus.query.expression.PrimaryExpression;
+import org.datanucleus.store.ExecutionContext;
 
 /**
  * Evaluator for <pre>{String}.startsWith(arg)</pre>.
@@ -32,7 +33,7 @@ public class StringStartsWithEvaluator implements MethodEvaluator
 	public Set<Long> evaluate(QueryEvaluator queryEval, InvokeExpressionEvaluator invokeExprEval,
 			PrimaryExpression invokedExpr, ResultDescriptor resultDesc) {
 		if (invokeExprEval.getExpression().getArguments().size() != 1)
-			throw new IllegalStateException("startsWith(...) expects exactly one argument, but there are " + 
+			throw new IllegalStateException("startsWith(...) expects exactly one argument, but there are " +
 					invokeExprEval.getExpression().getArguments().size());
 
 		// Evaluate the invoke argument
@@ -47,8 +48,9 @@ public class StringStartsWithEvaluator implements MethodEvaluator
 			Object invokeArgument, // the xxx in 'indexOf(xxx)'
 			boolean negate
 	) {
+		ExecutionContext executionContext = queryEval.getExecutionContext();
 		IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
-				queryEval.getExecutionContext(), fieldMeta, true
+				executionContext, fieldMeta, true
 		);
 
 		Query q = queryEval.getPersistenceManager().newQuery(indexEntryFactory.getIndexEntryClass());
@@ -65,7 +67,7 @@ public class StringStartsWithEvaluator implements MethodEvaluator
 
 		Set<Long> result = new HashSet<Long>();
 		for (IndexEntry indexEntry : indexEntries) {
-			IndexValue indexValue = queryEval.getEncryptionHandler().decryptIndexEntry(indexEntry);
+			IndexValue indexValue = queryEval.getEncryptionHandler().decryptIndexEntry(executionContext, indexEntry);
 			result.addAll(indexValue.getDataEntryIDs());
 		}
 		q.closeAll();

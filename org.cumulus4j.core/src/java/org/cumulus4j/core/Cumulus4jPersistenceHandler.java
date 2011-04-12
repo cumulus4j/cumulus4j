@@ -16,6 +16,8 @@ import org.datanucleus.store.AbstractPersistenceHandler;
 import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.ObjectProvider;
 import org.datanucleus.store.connection.ManagedConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * TODO Support one StoreManager for persistable data and one for indexed data. With this you could
@@ -24,6 +26,8 @@ import org.datanucleus.store.connection.ManagedConnection;
  */
 public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 {
+	private static final Logger logger = LoggerFactory.getLogger(Cumulus4jPersistenceHandler.class);
+
 	private Cumulus4jStoreManager storeManager;
 	private EncryptionHandler encryptionHandler;
 
@@ -69,7 +73,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 
 			if (dataEntry != null) {
 				// decrypt object-container in order to identify index entries for deletion
-				ObjectContainer objectContainer = encryptionHandler.decryptDataEntry(dataEntry, executionContext.getClassLoaderResolver());
+				ObjectContainer objectContainer = encryptionHandler.decryptDataEntry(executionContext, dataEntry);
 				AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), executionContext.getClassLoaderResolver());
 
 				for (Map.Entry<Long, ?> me : objectContainer.getFieldID2value().entrySet()) {
@@ -119,7 +123,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			if (dataEntry == null)
 				throw new NucleusObjectNotFoundException("Object does not exist in datastore: class=" + classMeta.getClassName() + " oid=" + objectIDString);
 
-			ObjectContainer objectContainer = encryptionHandler.decryptDataEntry(dataEntry, executionContext.getClassLoaderResolver());
+			ObjectContainer objectContainer = encryptionHandler.decryptDataEntry(executionContext, dataEntry);
 
 			op.replaceFields(fieldNumbers, new FetchFieldManager(op, pm, classMeta, dnClassMetaData, objectContainer));
 			if (op.getVersion() == null) // null-check prevents overwriting in case this method is called multiple times (for different field-numbers) - TODO necessary?
@@ -176,7 +180,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			objectContainer.setVersion(op.getTransactionalVersion());
 
 			// persist data
-			encryptionHandler.encryptDataEntry(dataEntry, objectContainer);
+			encryptionHandler.encryptDataEntry(executionContext, dataEntry, objectContainer);
 
 			// persist index
 			for (Map.Entry<Long, ?> me : objectContainer.getFieldID2value().entrySet()) {
@@ -240,7 +244,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 
 			long dataEntryID = dataEntry.getDataEntryID();
 
-			ObjectContainer objectContainerOld = encryptionHandler.decryptDataEntry(dataEntry, executionContext.getClassLoaderResolver());
+			ObjectContainer objectContainerOld = encryptionHandler.decryptDataEntry(executionContext, dataEntry);
 			ObjectContainer objectContainerNew = objectContainerOld.clone();
 
 			// This performs reachability on this input object so that all related objects are persisted
@@ -248,7 +252,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			objectContainerNew.setVersion(op.getTransactionalVersion());
 
 			// update persistent data
-			encryptionHandler.encryptDataEntry(dataEntry, objectContainerNew);
+			encryptionHandler.encryptDataEntry(executionContext, dataEntry, objectContainerNew);
 
 			// update persistent index
 			for (int fieldNumber : fieldNumbers) {

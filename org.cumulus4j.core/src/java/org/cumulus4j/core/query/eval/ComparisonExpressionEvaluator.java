@@ -182,7 +182,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 		Set<Long> result = new HashSet<Long>();
 		for (IndexEntry indexEntry : indexEntries) {
-			IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(indexEntry);
+			IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(executionContext, indexEntry);
 			result.addAll(indexValue.getDataEntryIDs());
 		}
 		q.closeAll();
