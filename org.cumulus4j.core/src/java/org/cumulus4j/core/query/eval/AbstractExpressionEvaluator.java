@@ -401,7 +401,7 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 			throw new UnsupportedOperationException("NYI");
 	}
 
-	protected static String getOperatorAsJDOQLSymbol(Operator operator, boolean negate)
+	public static String getOperatorAsJDOQLSymbol(Operator operator, boolean negate)
 	{
 		if (Expression.OP_EQ == operator)
 			return negate ? "!=" : "==";

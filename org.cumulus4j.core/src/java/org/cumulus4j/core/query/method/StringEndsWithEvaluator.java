@@ -21,9 +21,9 @@ import org.cumulus4j.core.query.eval.ResultDescriptor;
 import org.datanucleus.query.expression.PrimaryExpression;
 
 /**
- * Evaluator for <pre>{String}.startsWith(arg)</pre>.
+ * Evaluator for <pre>{String}.endsWith(arg)</pre>.
  */
-public class StringStartsWithEvaluator implements MethodEvaluator
+public class StringEndsWithEvaluator implements MethodEvaluator
 {
 	/* (non-Javadoc)
 	 * @see org.cumulus4j.core.query.method.MethodEvaluator#evaluate(org.cumulus4j.core.query.QueryEvaluator, org.datanucleus.query.expression.InvokeExpression, org.datanucleus.query.expression.PrimaryExpression, org.cumulus4j.core.query.eval.ResultDescriptor)
@@ -32,16 +32,16 @@ public class StringStartsWithEvaluator implements MethodEvaluator
 	public Set<Long> evaluate(QueryEvaluator queryEval, InvokeExpressionEvaluator invokeExprEval,
 			PrimaryExpression invokedExpr, ResultDescriptor resultDesc) {
 		if (invokeExprEval.getExpression().getArguments().size() != 1)
-			throw new IllegalStateException("startsWith(...) expects exactly one argument, but there are " + 
+			throw new IllegalStateException("{String}.endsWith(...) expects exactly one argument, but there are " + 
 					invokeExprEval.getExpression().getArguments().size());
 
 		// Evaluate the invoke argument
 		Object invokeArgument = ExpressionHelper.getEvaluatedInvokeArgument(queryEval, invokeExprEval.getExpression());
 
-		return new StringStartsWithResolver(queryEval, invokedExpr, invokeArgument, resultDesc.isNegated()).query();
+		return new StringEndsWithResolver(queryEval, invokedExpr, invokeArgument, resultDesc.isNegated()).query();
 	}
 
-	private Set<Long> queryStringStartsWith(
+	private Set<Long> queryStringEndsWith(
 			QueryEvaluator queryEval,
 			FieldMeta fieldMeta,
 			Object invokeArgument, // the xxx in 'indexOf(xxx)'
@@ -54,7 +54,7 @@ public class StringStartsWithEvaluator implements MethodEvaluator
 		Query q = queryEval.getPersistenceManager().newQuery(indexEntryFactory.getIndexEntryClass());
 		q.setFilter(
 				"this.fieldMeta == :fieldMeta && " +
-				(negate ? "!this.indexKey.startsWith(:invokeArg)" : "this.indexKey.startsWith(:invokeArg) ")
+				(negate ? "!this.indexKey.endsWith(:invokeArg)" : "this.indexKey.endsWith(:invokeArg) ")
 		);
 		Map<String, Object> params = new HashMap<String, Object>(3);
 		params.put("fieldMeta", fieldMeta);
@@ -72,14 +72,14 @@ public class StringStartsWithEvaluator implements MethodEvaluator
 		return result;
 	}
 
-	private class StringStartsWithResolver extends PrimaryExpressionResolver
+	private class StringEndsWithResolver extends PrimaryExpressionResolver
 	{
 		private Object invokeArgument;
 		private boolean negate;
 
-		public StringStartsWithResolver(
+		public StringEndsWithResolver(
 				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
-				Object invokeArgument, // the xxx in 'startsWith(xxx)'
+				Object invokeArgument, // the xxx in 'endsWith(xxx)'
 				boolean negate
 		)
 		{
@@ -90,7 +90,7 @@ public class StringStartsWithEvaluator implements MethodEvaluator
 
 		@Override
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
-			return queryStringStartsWith(queryEvaluator, fieldMeta, invokeArgument, negate);
+			return queryStringEndsWith(queryEvaluator, fieldMeta, invokeArgument, negate);
 		}
 	}
 }
