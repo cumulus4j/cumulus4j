@@ -28,7 +28,7 @@ import org.datanucleus.NucleusContext;
  * </p>
  * <p>
  * A <code>CryptoSession</code> must not be instantiated directly, but instead obtained via
- * {@link CryptoManager#acquireCryptoSession(String)}. In other words, a new instance of
+ * {@link CryptoManager#getCryptoSession(String)}. In other words, a new instance of
  * <code>CryptoSession</code> must only be created within the {@link CryptoManager}
  * implementation.
  * </p>
@@ -49,7 +49,7 @@ public interface CryptoSession
 	 * </p>
 	 * <p>
 	 * If you subclass {@link AbstractCryptoManager} (instead of directly implementing the {@link CryptoManager} interface)
-	 * you must never call this method. Otherwise, it is expected, that you call this method once in {@link CryptoManager#acquireCryptoSession(String)}
+	 * you must never call this method. Otherwise, it is expected, that you call this method once in {@link CryptoManager#getCryptoSession(String)}
 	 * after creating a new <code>CryptoSession</code>, before returning it.
 	 * </p>
 	 *
@@ -72,7 +72,7 @@ public interface CryptoSession
 	 * </p>
 	 * <p>
 	 * If you subclass {@link AbstractCryptoManager} (instead of directly implementing the {@link CryptoManager} interface)
-	 * you must never call this method. Otherwise, it is expected, that you call this method once in {@link CryptoManager#acquireCryptoSession(String)}
+	 * you must never call this method. Otherwise, it is expected, that you call this method once in {@link CryptoManager#getCryptoSession(String)}
 	 * after creating a new <code>CryptoSession</code>, before returning it.
 	 * </p>
 	 *
@@ -103,17 +103,17 @@ public interface CryptoSession
 	 */
 	Date getLastUsageTimestamp();
 
-//	/**
-//	 * <p>
-//	 * Set the {@link #getLastUsageTimestamp() lastUsageTimestamp} to <i>now</i>, i.e. <code>new Date()</code>.
-//	 * </p>
-//	 * <p>
-//	 * This method should be called by
-//	 * </p>
-//	 *
-//	 * @see #getLastUsageTimestamp()
-//	 */
-//	boolean updateLastUsageTimestamp();
+	/**
+	 * <p>
+	 * Set the {@link #getLastUsageTimestamp() lastUsageTimestamp} to <i>now</i>, i.e. <code>new Date()</code>.
+	 * </p>
+	 * <p>
+	 * This method should be called by {@link CryptoManager#getCryptoSession(String)}.
+	 * </p>
+	 *
+	 * @see #getLastUsageTimestamp()
+	 */
+	void updateLastUsageTimestamp();
 
 	/**
 	 * <p>
@@ -142,19 +142,21 @@ public interface CryptoSession
 	Plaintext decrypt(Ciphertext ciphertext);
 
 	/**
-	 * Close the session. If the session is currently in use, it cannot be closed.
-	 *
-	 * @return <code>true</code> if the session was closed, <code>false</code> otherwise (i.e. it was in use).
+	 * <p>Close the session.</p>
+	 * <p>
+	 * After closing, the <code>CryptoSession</code> cannot be used for encryption/decryption anymore, i.e.
+	 * {@link #encrypt(Plaintext)} and {@link #decrypt(Ciphertext)} very likely throw an exception. The other
+	 * methods might still work.
+	 * </p>
+	 * <p>
+	 * This method can be called multiple times - every following call will be silently ignored.
+	 * </p>
 	 */
-	boolean close();
-
-	boolean isClosed();
+	void close();
 
 	/**
-	 *
-	 * @return <code>true</code> if the session is open and can be used, <code>false</code> if the session has already been closed.
+	 * Indicate, whether the session was already {@link #close() closed}.
+	 * @return <code>true</code>, if {@link #close()} was already called; <code>false</code> otherwise.
 	 */
-	boolean onAcquire();
-
-	void release();
+	boolean isClosed();
 }

@@ -44,7 +44,7 @@ public class EncryptionHandler
 		if (!(cryptoSessionID instanceof String))
 			throw new IllegalStateException("Property \"" + CryptoSession.PROPERTY_CRYPTO_SESSION_ID + "\" is set, but it is an instance of " + cryptoSessionID.getClass().getName() + " instead of java.lang.String!");
 
-		CryptoSession cryptoSession = cryptoManager.acquireCryptoSession((String) cryptoSessionID);
+		CryptoSession cryptoSession = cryptoManager.getCryptoSession((String) cryptoSessionID);
 		return cryptoSession;
 	}
 
@@ -64,13 +64,8 @@ public class EncryptionHandler
 		if (ciphertext.getData() == null)
 			return null; // TODO or return an empty ObjectContainer instead?
 
-		Plaintext plaintext;
 		CryptoSession cryptoSession = acquireCryptoSession(executionContext);
-		try {
-			plaintext = cryptoSession.decrypt(ciphertext);
-		} finally {
-			cryptoSession.release();
-		}
+		Plaintext plaintext = cryptoSession.decrypt(ciphertext);
 		if (plaintext == null)
 			throw new IllegalStateException("cryptoSession.decrypt(ciphertext) returned null! cryptoManagerID=" + cryptoSession.getCryptoManager().getCryptoManagerID() + " cryptoSessionID=" + cryptoSession.getCryptoSessionID());
 
@@ -103,12 +98,7 @@ public class EncryptionHandler
 		plaintext.setData(out.toByteArray()); out = null;
 
 		CryptoSession cryptoSession = acquireCryptoSession(executionContext);
-		Ciphertext ciphertext;
-		try {
-			ciphertext = cryptoSession.encrypt(plaintext);
-		} finally {
-			cryptoSession.release();
-		}
+		Ciphertext ciphertext = cryptoSession.encrypt(plaintext);
 
 		if (ciphertext == null)
 			throw new IllegalStateException("cryptoSession.encrypt(plaintext) returned null! cryptoManagerID=" + cryptoSession.getCryptoManager().getCryptoManagerID() + " cryptoSessionID=" + cryptoSession.getCryptoSessionID());
@@ -129,11 +119,7 @@ public class EncryptionHandler
 		Plaintext plaintext = null;
 		if (ciphertext.getData() != null) {
 			CryptoSession cryptoSession = acquireCryptoSession(executionContext);
-			try {
-				plaintext = cryptoSession.decrypt(ciphertext);
-			} finally {
-				cryptoSession.release();
-			}
+			plaintext = cryptoSession.decrypt(ciphertext);
 			if (plaintext == null)
 				throw new IllegalStateException("cryptoSession.decrypt(ciphertext) returned null! cryptoManagerID=" + cryptoSession.getCryptoManager().getCryptoManagerID() + " cryptoSessionID=" + cryptoSession.getCryptoSessionID());
 		}
@@ -147,13 +133,8 @@ public class EncryptionHandler
 		Plaintext plaintext = new Plaintext();
 		plaintext.setData(indexValue.toByteArray());
 
-		Ciphertext ciphertext;
 		CryptoSession cryptoSession = acquireCryptoSession(executionContext);
-		try {
-			ciphertext = cryptoSession.encrypt(plaintext);
-		} finally {
-			cryptoSession.release();
-		}
+		Ciphertext ciphertext = cryptoSession.encrypt(plaintext);
 
 		if (ciphertext == null)
 			throw new IllegalStateException("cryptoSession.encrypt(plaintext) returned null! cryptoManagerID=" + cryptoSession.getCryptoManager().getCryptoManagerID() + " cryptoSessionID=" + cryptoSession.getCryptoSessionID());

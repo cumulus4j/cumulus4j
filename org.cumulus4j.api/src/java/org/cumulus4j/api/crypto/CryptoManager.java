@@ -85,9 +85,6 @@ public interface CryptoManager
 	 * Get the {@link CryptoSession} identified by the given <code>cryptoSessionID</code>.
 	 * </p>
 	 * <p>
-	 * <b>Important:</b> You must call {@link CryptoSession#release()} in a finally block to ensure a symmetric call to this method!
-	 * </p>
-	 * <p>
 	 * Usually, every client opens one crypto-session. How exactly this happens, is highly dependent
 	 * on the <code>CryptoManager</code> and <code>CryptoSession</code> implementation. The
 	 * {@link CryptoSession#getCryptoSessionID() cryptoSessionID} is then passed from the client to
@@ -105,17 +102,17 @@ public interface CryptoManager
 	 * a short configurable time (e.g. 10 minutes) after the {@link CryptoSession#getLastUsageTimestamp() last usage}.
 	 * </p>
 	 * <p>
+	 * This method must call {@link CryptoSession#updateLastUsageTimestamp()}.
+	 * </p>
+	 * <p>
 	 * This method is thread-safe.
 	 * </p>
-	 *
 	 *
 	 * @param cryptoSessionID the {@link CryptoSession#getCryptoSessionID() cryptoSessionID} for which to look up or
 	 * create a <code>CryptoSession</code>.
 	 * @return the <code>CryptoSession</code> identified by the given identifier; never <code>null</code>.
 	 */
-	CryptoSession acquireCryptoSession(String cryptoSessionID);
-
-	void onReleaseCryptoSession(AbstractCryptoSession abstractCryptoSession);
+	CryptoSession getCryptoSession(String cryptoSessionID);
 
 	/**
 	 * <p>

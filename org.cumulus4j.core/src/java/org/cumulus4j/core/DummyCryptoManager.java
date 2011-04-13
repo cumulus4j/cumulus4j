@@ -52,13 +52,20 @@ public class DummyCryptoManager extends AbstractCryptoManager
 		@Override
 		public Ciphertext encrypt(Plaintext plaintext)
 		{
+			// First get the required resources (that are cleared in close()).
+			Cipher c = encrypter;
+
+			// Then assert that we are not yet closed. This makes sure that we definitely can continue
+			// even if close() is called right now simultaneously.
+			assertNotClosed();
+
 			Ciphertext result = new Ciphertext();
 			result.setKeyID(12345);
 
-			synchronized (encrypter) {
+			synchronized (c) {
 				try {
 					result.setData(
-							encrypter.doFinal(plaintext.getData())
+							c.doFinal(plaintext.getData())
 					);
 				} catch (IllegalBlockSizeException e) {
 					throw new RuntimeException(e);
@@ -76,12 +83,19 @@ public class DummyCryptoManager extends AbstractCryptoManager
 			if (ciphertext.getKeyID() != 12345)
 				throw new IllegalArgumentException("No key with this keyID: " + ciphertext.getKeyID());
 
+			// First get the required resources (that are cleared in close()).
+			Cipher c = decrypter;
+
+			// Then assert that we are not yet closed. This makes sure that we definitely can continue
+			// even if close() is called right now simultaneously.
+			assertNotClosed();
+
 			Plaintext result = new Plaintext();
 
-			synchronized (decrypter) {
+			synchronized (c) {
 				try {
 					result.setData(
-							decrypter.doFinal(ciphertext.getData())
+							c.doFinal(ciphertext.getData())
 					);
 				} catch (IllegalBlockSizeException e) {
 					throw new RuntimeException(e);
@@ -92,5 +106,13 @@ public class DummyCryptoManager extends AbstractCryptoManager
 
 			return result;
 		}
+
+		@Override
+		public void close() {
+			super.close();
+			encrypter = null;
+			decrypter = null;
+		}
 	}
+
 }
