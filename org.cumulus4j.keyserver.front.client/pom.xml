@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<parent>
@@ -8,40 +7,16 @@
 		<relativePath>../org.cumulus4j.parent/pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
+
 	<groupId>org.cumulus4j</groupId>
-	<artifactId>org.cumulus4j.core</artifactId>
+	<artifactId>org.cumulus4j.keyserver.front.client</artifactId>
 	<version>${cumulus4j.version}</version>
-	<name>org.cumulus4j.core</name>
-	<description>Cumulus4j Core</description>
 	<packaging>bundle</packaging>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.cumulus4j</groupId>
-			<artifactId>org.cumulus4j.api</artifactId>
-			<version>${cumulus4j.version}</version>
-		</dependency>
-	</dependencies>
+	<name>org.cumulus4j.keyserver.front.client</name>
 
 	<build>
 		<plugins>
-			<plugin>
-				<artifactId>maven-clean-plugin</artifactId>
-				<configuration>
-					<filesets>
-						<fileset>
-							<directory>${basedir}</directory>
-							<includes>
-								<include>*.log</include>
-							</includes>
-						</fileset>
-					</filesets>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.datanucleus</groupId>
-				<artifactId>maven-datanucleus-plugin</artifactId>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
@@ -49,9 +24,6 @@
 				<configuration>
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
-<!-- We currently don't export anything. The API will probably be separate in the org.cumulus4j.api project. -->
-						<Export-Package>!org.cumulus4j.core</Export-Package>
-						<Private-Package>org.cumulus4j.core.*</Private-Package>
 <!-- We currently don't have an activator.
 						<Bundle-Activator>com.my.company.Activator</Bundle-Activator>
 -->

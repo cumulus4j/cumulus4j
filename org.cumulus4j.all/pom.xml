@@ -45,6 +45,10 @@
 	<modules>
 		<module>../org.cumulus4j.api</module>
 		<module>../org.cumulus4j.core</module>
+		<module>../org.cumulus4j.keyserver.back.plugin</module>
+		<module>../org.cumulus4j.keyserver.back.webapp</module>
+		<module>../org.cumulus4j.keyserver.front.client</module>
+		<module>../org.cumulus4j.keyserver.front.webapp</module>
 		<module>../org.cumulus4j.parent</module>
 		<module>../org.cumulus4j.test</module>
 	</modules>

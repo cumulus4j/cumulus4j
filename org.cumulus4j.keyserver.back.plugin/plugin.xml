@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+ <extension
+       point="org.cumulus4j.api.cryptoManager">
+    <cryptoManager
+          class="org.cumulus4j.keyserver.back.plugin.KeyServerCryptoManager"
+          cryptoManagerID="keyServer">
+    </cryptoManager>
+ </extension>
+</plugin>
