@@ -49,6 +49,7 @@
 		<module>../org.cumulus4j.keyserver.back.webapp</module>
 		<module>../org.cumulus4j.keyserver.front.client</module>
 		<module>../org.cumulus4j.keyserver.front.webapp</module>
+		<module>../org.cumulus4j.keyserver.test</module>
 		<module>../org.cumulus4j.parent</module>
 		<module>../org.cumulus4j.test</module>
 	</modules>

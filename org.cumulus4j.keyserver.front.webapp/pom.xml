@@ -13,4 +13,11 @@
 	<version>${cumulus4j.version}</version>
 	<name>org.cumulus4j.keyserver.front.webapp</name>
 
+	<dependencies>
+		<dependency>
+			<groupId>org.glassfish</groupId>
+			<artifactId>javax.servlet</artifactId>
+		</dependency>
+	</dependencies>
+
 </project>

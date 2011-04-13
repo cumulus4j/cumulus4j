@@ -1,0 +1,27 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<artifactId>org.cumulus4j.parent</artifactId>
+		<groupId>org.cumulus4j</groupId>
+		<version>1.0.0-SNAPSHOT</version>
+		<relativePath>../org.cumulus4j.parent/pom.xml</relativePath>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.cumulus4j</groupId>
+	<artifactId>org.cumulus4j.keyserver.test</artifactId>
+	<version>${cumulus4j.version}</version>
+	<packaging>war</packaging>
+
+	<name>org.cumulus4j.keyserver.test</name>
+	<description>Testing Cumulus4j with real keyserver.</description>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.mortbay.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+</project>
