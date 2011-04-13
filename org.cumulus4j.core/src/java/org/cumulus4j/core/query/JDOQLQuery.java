@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.jdo.PersistenceManager;
 
+import org.cumulus4j.core.Cumulus4jStoreManager;
+import org.cumulus4j.core.model.ClassMeta;
 import org.datanucleus.query.evaluator.JDOQLEvaluator;
 import org.datanucleus.query.evaluator.JavaQueryEvaluator;
 import org.datanucleus.store.ExecutionContext;
@@ -41,9 +44,11 @@ public class JDOQLQuery extends AbstractJDOQLQuery
 		ManagedConnection mconn = ec.getStoreManager().getConnection(ec);
 		try {
 			PersistenceManager pm = (PersistenceManager) mconn.getConnection();
-			boolean inMemory_applyFilter = true;
 
-			List<Object> candidates = null;
+      boolean inMemory = evaluateInMemory();
+
+			boolean inMemory_applyFilter = true;
+      List<Object> candidates = null;
 			if (this.candidateCollection != null) {
 				@SuppressWarnings("unchecked")
 				Collection<? extends Object> c = this.candidateCollection;
@@ -55,15 +60,24 @@ public class JDOQLQuery extends AbstractJDOQLQuery
 					this.setSubclasses(candidateExtent.hasSubclasses());
 				}
 
-				// We filter already in our JDOQueryEvaluator => don't filter again in-memory!
-				inMemory_applyFilter = false;
+				if (inMemory) {
+					// Retrieve all candidates and perform all evaluation in-memory
+					Set<ClassMeta> classMetas = QueryHelper.getCandidateClassMetas((Cumulus4jStoreManager) ec.getStoreManager(), 
+							ec, candidateClass, subclasses);
+					candidates = QueryHelper.getAllPersistentObjectsForCandidateClasses(pm, ec, classMetas);
+				}
+				else {
+					// We filter already in our JDOQueryEvaluator => don't filter again in-memory!
+					inMemory_applyFilter = false;
 
-				@SuppressWarnings("unchecked")
-				Map<String, Object> parameterValues = parameters;
-				JDOQueryEvaluator queryEvaluator = new JDOQueryEvaluator(this, compilation, parameterValues, clr, pm);
-				candidates = queryEvaluator.execute();
+					@SuppressWarnings("unchecked")
+					Map<String, Object> parameterValues = parameters;
+					JDOQueryEvaluator queryEvaluator = new JDOQueryEvaluator(this, compilation, parameterValues, clr, pm);
+					candidates = queryEvaluator.execute();
+				}
 			}
 
+			// Evaluate any remaining query components in-memory
 			JavaQueryEvaluator evaluator = new JDOQLEvaluator(
 					this, candidates, compilation, parameters, ec.getClassLoaderResolver()
 			);
@@ -73,5 +87,4 @@ public class JDOQLQuery extends AbstractJDOQLQuery
 			mconn.release();
 		}
 	}
-
 }

@@ -1,8 +1,6 @@
 package org.cumulus4j.core.query;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -231,43 +229,11 @@ public abstract class QueryEvaluator
 			Query subquery, QueryCompilation compilation, Object outerCandidate
 	);
 
-	public Set<? extends Class<?>> getCandidateClasses(Class<?> candidateClass, boolean withSubclasses)
-	{
-		Set<? extends Class<?>> candidateClasses;
-		if (withSubclasses) {
-			HashSet<String> classNames = storeManager.getSubClassesForClass(candidateClass.getName(), true, clr);
-			Set<Class<?>> classes = new HashSet<Class<?>>(classNames.size() + 1);
-			classes.add(candidateClass);
-			for (String className : classNames) {
-				Class<?> clazz = clr.classForName(className);
-				classes.add(clazz);
-			}
-			candidateClasses = classes;
-		}
-		else
-			candidateClasses = Collections.singleton(candidateClass);
-
-		return candidateClasses;
-	}
-
-	public Set<ClassMeta> getCandidateClassMetas(Class<?> candidateClass, boolean withSubclasses)
-	{
-		Set<? extends Class<?>> candidateClasses = getCandidateClasses(candidateClass, withSubclasses);
-
-		Set<ClassMeta> candidateClassMetas = new HashSet<ClassMeta>(candidateClasses.size());
-		for (Class<?> c : candidateClasses) {
-			ClassMeta cm = storeManager.getClassMeta(ec, c);
-			candidateClassMetas.add(cm);
-		}
-
-		return candidateClassMetas;
-	}
-
 	public List<Object> execute()
 	{
 		Class<?> candidateClass = query.getCandidateClass();
 		boolean withSubclasses = query.isSubclasses();
-		Set<ClassMeta> candidateClassMetas = getCandidateClassMetas(candidateClass, withSubclasses);
+		Set<ClassMeta> candidateClassMetas = QueryHelper.getCandidateClassMetas(storeManager, ec, candidateClass, withSubclasses);
 
 		// TODO I copied this from the JavaQueryEvaluator, but I'm not sure, whether we need this. Need to talk with Andy. Marco.
 		// ...or analyse it ourselves (step through)...
@@ -297,7 +263,7 @@ public abstract class QueryEvaluator
 
 		if (compilation.getExprFilter() == null) {
 			// No filter - we want all that match the candidate classes.
-			return getAllPersistentObjectsForCandidateClasses(candidateClassMetas);
+			return QueryHelper.getAllPersistentObjectsForCandidateClasses(pm, ec, candidateClassMetas);
 		}
 		else {
 			expressionEvaluator = createExpressionEvaluatorTree(compilation.getExprFilter());
@@ -393,34 +359,6 @@ public abstract class QueryEvaluator
 	{
 		AbstractClassMetaData cmd = classMeta.getDataNucleusClassMetaData(ec);
 		return IdentityUtils.getObjectFromIdString(objectIDString, cmd, ec, true);
-	}
-
-	private List<Object> getAllPersistentObjectsForCandidateClasses(Set<ClassMeta> candidateClassMetas)
-	{
-		javax.jdo.Query q = pm.newQuery(DataEntry.class);
-		q.setResult("this.classMeta, this.objectID");
-
-		Object queryParam;
-		if (candidateClassMetas.size() == 1) {
-			q.setFilter("this.classMeta == :classMeta");
-			queryParam = candidateClassMetas.iterator().next();
-		}
-		else {
-			q.setFilter(":classMetas.contains(this.classMeta)");
-			queryParam = candidateClassMetas;
-		}
-
-		@SuppressWarnings("unchecked")
-		Collection<Object[]> c = (Collection<Object[]>) q.execute(queryParam);
-		List<Object> resultList = new ArrayList<Object>(c.size());
-		for (Object[] oa : c) {
-			ClassMeta classMeta = (ClassMeta) oa[0];
-			String objectIDString = (String) oa[1];
-			Object object = getObjectForClassMetaAndObjectIDString(classMeta, objectIDString);
-			resultList.add(object);
-		}
-		q.closeAll();
-		return resultList;
 	}
 
 	public Set<Long> getAllDataEntryIDsForCandidateClasses(Set<ClassMeta> candidateClassMetas)

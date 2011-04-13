@@ -18,6 +18,7 @@ import org.cumulus4j.core.model.IndexEntryObjectRelationHelper;
 import org.cumulus4j.core.model.IndexValue;
 import org.cumulus4j.core.model.ObjectContainer;
 import org.cumulus4j.core.query.QueryEvaluator;
+import org.cumulus4j.core.query.QueryHelper;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.query.QueryUtils;
 import org.datanucleus.query.expression.Expression;
@@ -88,7 +89,8 @@ public class ExpressionHelper
 				return positiveResult;
 
 			Class<?> candidateClass = executionContext.getClassLoaderResolver().classForName(fieldMeta.getClassMeta().getClassName());
-			Set<ClassMeta> candidateClassMetas = queryEvaluator.getCandidateClassMetas(candidateClass, true);
+			Set<ClassMeta> candidateClassMetas = QueryHelper.getCandidateClassMetas(queryEvaluator.getStoreManager(), 
+					executionContext, candidateClass, true);
 			Set<Long> allDataEntryIDs = queryEvaluator.getAllDataEntryIDsForCandidateClasses(candidateClassMetas);
 
 			Set<Long> negativeResult = new HashSet<Long>(allDataEntryIDs.size() - positiveResult.size());
