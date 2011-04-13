@@ -17,6 +17,7 @@ import org.cumulus4j.api.annotation.Dummy;
 import org.cumulus4j.core.model.ClassMeta;
 import org.cumulus4j.core.model.DataEntry;
 import org.cumulus4j.core.model.FieldMeta;
+import org.cumulus4j.core.model.IndexEntryDate;
 import org.cumulus4j.core.model.IndexEntryDouble;
 import org.cumulus4j.core.model.IndexEntryLong;
 import org.cumulus4j.core.model.IndexEntryStringLong;
@@ -139,6 +140,7 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 			pm.getExtent(IndexEntryLong.class);
 			pm.getExtent(IndexEntryStringShort.class);
 			pm.getExtent(IndexEntryStringLong.class);
+			pm.getExtent(IndexEntryDate.class);
 			pm.getExtent(Sequence.class);
 		} finally {
 			pm.close();

@@ -1,5 +1,7 @@
 package org.cumulus4j.core.model;
 
+import java.util.Date;
+
 import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.CollectionMetaData;
@@ -38,6 +40,7 @@ public class IndexEntryFactoryRegistry
 	private IndexEntryFactory indexEntryFactoryLong = new IndexEntryFactoryLong();
 	private IndexEntryFactory indexEntryFactoryStringShort = new IndexEntryFactoryStringShort();
 	private IndexEntryFactory indexEntryFactoryStringLong = new IndexEntryFactoryStringLong();
+	private IndexEntryFactory indexEntryFactoryDate = new IndexEntryFactoryDate();
 
 	/**
 	 * Get the appropriate {@link IndexEntryFactory} subclass instance for the given {@link FieldMeta}.
@@ -124,6 +127,9 @@ public class IndexEntryFactoryRegistry
 
 		if (Double.class.isAssignableFrom(fieldType) || Float.class.isAssignableFrom(fieldType) || double.class == fieldType || float.class == fieldType)
 			return indexEntryFactoryDouble;
+
+		if (Date.class.isAssignableFrom(fieldType))
+			return indexEntryFactoryDate;
 
 		if (throwExceptionIfNotFound)
 			throw new UnsupportedDataTypeException("No IndexEntryFactory registered for this type: " + mmd);
