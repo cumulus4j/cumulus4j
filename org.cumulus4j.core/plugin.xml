@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+	<extension point="org.datanucleus.store_manager">
+        <store-manager class-name="org.cumulus4j.core.Cumulus4jStoreManager" key="cumulus4j" url-key="cumulus4j"/>
+    </extension>
+ <extension
+       point="org.datanucleus.store_connectionfactory">
+    <connectionfactory
+          name="cumulus4j"
+          class-name="org.cumulus4j.core.Cumulus4jConnectionFactory"
+          datastore="cumulus4j"
+          transactional="true">
+    </connectionfactory>
+ </extension>
+ <extension
+       point="org.datanucleus.store_query_query">
+    <query
+          class-name="org.cumulus4j.core.query.JDOQLQuery"
+          datastore="cumulus4j" name="JDOQL">
+    </query>
+ </extension>
+ <extension point="org.datanucleus.store_valuegenerator">
+    <valuegenerator name="increment" class-name="org.cumulus4j.core.Cumulus4jIncrementGenerator"
+            datastore="cumulus4j"/>
+    <valuegenerator name="sequence" class-name="org.cumulus4j.core.Cumulus4jIncrementGenerator"
+            datastore="cumulus4j"/>
+ </extension>
+ <extension
+       point="org.cumulus4j.api.cryptoManager">
+    <cryptoManager
+          class="org.cumulus4j.core.DummyCryptoManager"
+          cryptoManagerID="dummy">
+    </cryptoManager>
+ </extension>
+ <extension point="org.datanucleus.persistence_properties">
+ 	<persistence-property
+        manager-overrideable="true"
+        name="cumulus4j.cryptoManagerID">
+ 	</persistence-property>
+  <persistence-property
+        manager-overrideable="true"
+        name="cumulus4j.cryptoSessionID">
+  </persistence-property>
+ </extension>
+</plugin>
