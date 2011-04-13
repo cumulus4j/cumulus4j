@@ -2,17 +2,13 @@ package org.cumulus4j.api.crypto;
 
 import java.util.Date;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
+ * Abstract base-class for implementing {@link CryptoSession}s.
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public abstract class AbstractCryptoSession implements CryptoSession
 {
-	private static final Logger logger = LoggerFactory.getLogger(AbstractCryptoSession.class);
-
 	private Date creationTimestamp = new Date();
 	private volatile Date lastUsageTimestamp = creationTimestamp;
 	private CryptoManager cryptoManager;
@@ -89,6 +85,9 @@ public abstract class AbstractCryptoSession implements CryptoSession
 		return closed;
 	}
 
+	/**
+	 * Throws an {@link IllegalStateException}, if this session is already closed.
+	 */
 	protected void assertNotClosed()
 	{
 		if (isClosed())

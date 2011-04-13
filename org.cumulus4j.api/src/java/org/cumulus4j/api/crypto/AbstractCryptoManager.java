@@ -10,6 +10,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <p>
+ * Abstract base-class for implementing {@link CryptoManager}s.
+ * </p>
+ * <p>
+ * This class already implements a mechanism to close expired {@link CryptoSession}s
+ * periodically (see {@link #getCryptoSessionExpiryAgeMSec()} and {@link #getCryptoSessionExpiryTimerPeriodMSec()}).
+ * </p>
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
@@ -119,8 +126,24 @@ public abstract class AbstractCryptoManager implements CryptoManager
 		this.cryptoManagerID = cryptoManagerID;
 	}
 
+	/**
+	 * <p>
+	 * Create a new instance of a class implementing {@link CryptoSession}.
+	 * </p>
+	 * <p>
+	 * This method is called by {@link #getCryptoSession(String)}, if it needs a new <code>CryptoSession</code> instance.
+	 * </p>
+	 * <p>
+	 * Implementors should simply instantiate and return their implementation of
+	 * <code>CryptoSession</code>. It is not necessary to call {@link CryptoSession#setCryptoSessionID(String)}
+	 * and the like here - this is automatically done afterwards by {@link #getCryptoSession(String)}.
+	 * </p>
+	 *
+	 * @return the new {@link CryptoSession} instance.
+	 */
 	protected abstract CryptoSession createCryptoSession();
 
+	@Override
 	public CryptoSession getCryptoSession(String cryptoSessionID)
 	{
 		CryptoSession session = null;
