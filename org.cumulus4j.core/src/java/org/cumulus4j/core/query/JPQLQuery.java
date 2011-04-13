@@ -11,52 +11,48 @@ import javax.jdo.PersistenceManager;
 
 import org.cumulus4j.core.Cumulus4jStoreManager;
 import org.cumulus4j.core.model.ClassMeta;
-import org.datanucleus.query.evaluator.JDOQLEvaluator;
+import org.datanucleus.query.evaluator.JPQLEvaluator;
 import org.datanucleus.query.evaluator.JavaQueryEvaluator;
 import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.connection.ManagedConnection;
-import org.datanucleus.store.query.AbstractJDOQLQuery;
+import org.datanucleus.store.query.AbstractJPQLQuery;
 
 /**
- * JDOQL query implementation. Delegates to the query-language-agnostic {@link QueryEvaluator} via
+ * JPQL query implementation. Delegates to the query-language-agnostic {@link QueryEvaluator} via
  * its thin wrapper sub-class {@link JDOQueryEvaluator}.
- *
- * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public class JDOQLQuery extends AbstractJDOQLQuery
-{
-	private static final long serialVersionUID = 1L;
+public class JPQLQuery extends AbstractJPQLQuery {
 
-	public JDOQLQuery(ExecutionContext ec) {
+	public JPQLQuery(ExecutionContext ec) {
 		super(ec);
 	}
 
-	public JDOQLQuery(ExecutionContext ec, AbstractJDOQLQuery q) {
-		super(ec, q);
-	}
-
-	public JDOQLQuery(ExecutionContext ec, String query) {
+	public JPQLQuery(ExecutionContext ec, AbstractJPQLQuery query) {
 		super(ec, query);
 	}
 
+	public JPQLQuery(ExecutionContext ec, String query) {
+		super(ec, query);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.datanucleus.store.query.Query#performExecute(java.util.Map)
+	 */
 	@Override
-	protected Object performExecute(@SuppressWarnings("unchecked")Map parameters)
-	{
+	protected Object performExecute(Map parameters) {
 		ManagedConnection mconn = ec.getStoreManager().getConnection(ec);
 		try {
 			PersistenceManager pm = (PersistenceManager) mconn.getConnection();
-
-      boolean inMemory = evaluateInMemory();
+			boolean inMemory = evaluateInMemory();
 
 			boolean inMemory_applyFilter = true;
       List<Object> candidates = null;
 			if (this.candidateCollection != null) {
-        if (candidateCollection.isEmpty())
-        {
-            return Collections.EMPTY_LIST;
-        }
+				if (candidateCollection.isEmpty()) {
+					return Collections.EMPTY_LIST;
+				}
 
-        @SuppressWarnings("unchecked")
+				@SuppressWarnings("unchecked")
 				Collection<? extends Object> c = this.candidateCollection;
 				candidates = new ArrayList<Object>(c); // TODO is it really necessary to copy? Other query implementations do... Marco.
 			}
@@ -84,7 +80,7 @@ public class JDOQLQuery extends AbstractJDOQLQuery
 			}
 
 			// Evaluate any remaining query components in-memory
-			JavaQueryEvaluator evaluator = new JDOQLEvaluator(
+			JavaQueryEvaluator evaluator = new JPQLEvaluator(
 					this, candidates, compilation, parameters, ec.getClassLoaderResolver()
 			);
 			Collection<?> results = evaluator.execute(inMemory_applyFilter, true, true, true, true);
