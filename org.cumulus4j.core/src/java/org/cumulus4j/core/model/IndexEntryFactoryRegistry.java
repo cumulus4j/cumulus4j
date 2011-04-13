@@ -109,6 +109,7 @@ public class IndexEntryFactoryRegistry
 				if ("CLOB".equalsIgnoreCase(columnMetaData.getJdbcType()))
 					return indexEntryFactoryStringLong;
 
+				// TODO What is a jdbc-type of TEXT ? There is no such thing. see java.sql.Types
 				if ("TEXT".equalsIgnoreCase(columnMetaData.getJdbcType()))
 					return indexEntryFactoryStringLong;
 
