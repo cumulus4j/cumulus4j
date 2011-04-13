@@ -2,6 +2,7 @@ package org.cumulus4j.core.query;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,7 +51,12 @@ public class JDOQLQuery extends AbstractJDOQLQuery
 			boolean inMemory_applyFilter = true;
       List<Object> candidates = null;
 			if (this.candidateCollection != null) {
-				@SuppressWarnings("unchecked")
+        if (candidateCollection.isEmpty())
+        {
+            return Collections.EMPTY_LIST;
+        }
+
+        @SuppressWarnings("unchecked")
 				Collection<? extends Object> c = this.candidateCollection;
 				candidates = new ArrayList<Object>(c); // TODO is it really necessary to copy? Other query implementations do... Marco.
 			}
