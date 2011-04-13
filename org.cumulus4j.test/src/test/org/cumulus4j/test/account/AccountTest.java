@@ -151,12 +151,16 @@ extends AbstractTransactionalTest
 		Assert.assertNotNull(delegate);
 		Assert.assertEquals("name is wrong", "New test bla bla bla.", delegate.getName());
 		Assert.assertEquals("description is wrong", "description", delegate.getDescription());
+		Assert.assertEquals("name2 is wrong", "2nd name", delegate.getName2());
+		Assert.assertEquals("description is wrong", "description", delegate.getDescription());
 	}
 
 	private void assertDelegate1(LocalAccountantDelegate delegate)
 	{
 		Assert.assertNotNull(delegate);
 		Assert.assertEquals("name is wrong", "Some other test", delegate.getName());
+		Assert.assertEquals("description is wrong", "description2", delegate.getDescription());
+		Assert.assertEquals("name2 is wrong", "Second name", delegate.getName2());
 		Assert.assertEquals("description is wrong", "description2", delegate.getDescription());
 	}
 
@@ -170,9 +174,7 @@ extends AbstractTransactionalTest
 		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("New test bla bla bla.");
 		Assert.assertEquals("Number of results was wrong", 1, result.size());
 		LocalAccountantDelegate delegate = result.iterator().next();
-		Assert.assertNotNull(delegate);
-		Assert.assertEquals("name is wrong", "New test bla bla bla.", delegate.getName());
-		Assert.assertEquals("description is wrong", "description", delegate.getDescription());
+		assertDelegate0(delegate);
 
 		// Negative test
 		result = (List<LocalAccountantDelegate>) q.execute("New test bla bla bla2");
@@ -189,10 +191,7 @@ extends AbstractTransactionalTest
 				"New test bla bla bla.", "2nd name");
 		Assert.assertEquals("Number of results was wrong", 1, result.size());
 		LocalAccountantDelegate delegate = result.iterator().next();
-		Assert.assertNotNull(delegate);
-		Assert.assertEquals("name is wrong", "New test bla bla bla.", delegate.getName());
-		Assert.assertEquals("name2 is wrong", "2nd name", delegate.getName2());
-		Assert.assertEquals("description is wrong", "description", delegate.getDescription());
+		assertDelegate0(delegate);
 	}
 
 	@Test
