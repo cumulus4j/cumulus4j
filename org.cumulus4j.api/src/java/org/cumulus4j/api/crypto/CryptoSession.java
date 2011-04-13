@@ -41,6 +41,16 @@ import org.datanucleus.NucleusContext;
  */
 public interface CryptoSession
 {
+	/**
+	 * <p>
+	 * Property-name used to pass the {@link #getCryptoSessionID() cryptoSessionID} to the Cumulus4j-core.
+	 * </p>
+	 * <p>
+	 * The property must be passed to the Cumulus4j-core via
+	 * {@link javax.jdo.PersistenceManager#setProperty(String, Object)} or
+	 * {@link javax.persistence.EntityManager#setProperty(String, Object)}.
+	 * </p>
+	 */
 	static final String PROPERTY_CRYPTO_SESSION_ID = "cumulus4j.cryptoSessionID";
 
 	/**
