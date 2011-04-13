@@ -4,7 +4,7 @@ import javax.jdo.PersistenceManager;
 
 /**
  * Helper to find an {@link IndexEntry} for an object relation (1-1, 1-n or m-n).
- * Even though {@link IndexEntryFactoryLong} and {@link IndexEntryLong} are used for such relations, these
+ * Even though {@link DefaultIndexEntryFactory} and {@link IndexEntryLong} are used for such relations, these
  * classes should <b>not</b> be directly accessed in order to make refactorings easier (if this class is used for all
  * object relations, it is possible to search for references of this class).
  *
@@ -12,7 +12,7 @@ import javax.jdo.PersistenceManager;
  */
 public class IndexEntryObjectRelationHelper
 {
-	private static final IndexEntryFactoryLong indexEntryFactoryLong = new IndexEntryFactoryLong();
+	private static final IndexEntryFactory indexEntryFactoryLong = new DefaultIndexEntryFactory(IndexEntryLong.class);
 
 	public static IndexEntryFactory getIndexEntryFactory() {
 		return indexEntryFactoryLong;

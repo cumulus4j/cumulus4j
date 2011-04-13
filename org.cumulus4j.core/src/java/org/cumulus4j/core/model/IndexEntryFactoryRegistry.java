@@ -36,11 +36,11 @@ public class IndexEntryFactoryRegistry
 		return sharedInstance;
 	}
 
-	private IndexEntryFactory indexEntryFactoryDouble = new IndexEntryFactoryDouble();
-	private IndexEntryFactory indexEntryFactoryLong = new IndexEntryFactoryLong();
-	private IndexEntryFactory indexEntryFactoryStringShort = new IndexEntryFactoryStringShort();
-	private IndexEntryFactory indexEntryFactoryStringLong = new IndexEntryFactoryStringLong();
-	private IndexEntryFactory indexEntryFactoryDate = new IndexEntryFactoryDate();
+	private IndexEntryFactory indexEntryFactoryDouble = new DefaultIndexEntryFactory(IndexEntryDouble.class);
+	private IndexEntryFactory indexEntryFactoryLong = new DefaultIndexEntryFactory(IndexEntryLong.class);
+	private IndexEntryFactory indexEntryFactoryStringShort = new DefaultIndexEntryFactory(IndexEntryStringShort.class);
+	private IndexEntryFactory indexEntryFactoryStringLong = new DefaultIndexEntryFactory(IndexEntryStringLong.class);
+	private IndexEntryFactory indexEntryFactoryDate = new DefaultIndexEntryFactory(IndexEntryDate.class);
 
 	/**
 	 * Get the appropriate {@link IndexEntryFactory} subclass instance for the given {@link FieldMeta}.
@@ -98,6 +98,7 @@ public class IndexEntryFactoryRegistry
 			break;
 		}
 
+		// TODO Introduce plugin point to extend this and maybe move this configuration into the pluggable factory.
 		if (String.class.isAssignableFrom(fieldType)) {
 			// TODO is this the right way to find out whether we need a long CLOB index or a short VARCHAR index?
 			if (mmd.getColumnMetaData() != null && mmd.getColumnMetaData().length > 0) {
