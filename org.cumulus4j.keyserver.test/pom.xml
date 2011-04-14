@@ -10,7 +10,6 @@
 
 	<groupId>org.cumulus4j</groupId>
 	<artifactId>org.cumulus4j.keyserver.test</artifactId>
-	<version>${cumulus4j.version}</version>
 	<packaging>war</packaging>
 
 	<name>org.cumulus4j.keyserver.test</name>

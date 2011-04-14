@@ -10,7 +10,6 @@
 	<groupId>org.cumulus4j</groupId>
 	<artifactId>org.cumulus4j.keyserver.front.webapp</artifactId>
 	<packaging>war</packaging>
-	<version>${cumulus4j.version}</version>
 	<name>org.cumulus4j.keyserver.front.webapp</name>
 
 	<dependencies>

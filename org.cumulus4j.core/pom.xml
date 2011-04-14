@@ -10,7 +10,6 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.cumulus4j</groupId>
 	<artifactId>org.cumulus4j.core</artifactId>
-	<version>${cumulus4j.version}</version>
 	<name>org.cumulus4j.core</name>
 	<description>Cumulus4j Core</description>
 	<packaging>bundle</packaging>

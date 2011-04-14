@@ -10,7 +10,6 @@
 
 	<groupId>org.cumulus4j</groupId>
 	<artifactId>org.cumulus4j.keyserver.front.client</artifactId>
-	<version>${cumulus4j.version}</version>
 	<packaging>bundle</packaging>
 
 	<name>org.cumulus4j.keyserver.front.client</name>

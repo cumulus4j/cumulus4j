@@ -9,7 +9,6 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.cumulus4j</groupId>
 	<artifactId>org.cumulus4j.api</artifactId>
-	<version>${cumulus4j.version}</version>
 	<name>org.cumulus4j.api</name>
 	<description>Cumulus4j API providing annotations, interfaces and key management API classes.</description>
 	<packaging>bundle</packaging>
