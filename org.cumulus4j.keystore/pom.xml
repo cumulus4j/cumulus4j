@@ -13,6 +13,13 @@
 
 	<name>org.cumulus4j.keystore</name>
 	
+	<dependencies>
+		<dependency>
+			<groupId>org.nightlabs</groupId>
+			<artifactId>org.nightlabs.util</artifactId>
+		</dependency>
+	</dependencies>
+
 	<build>
 		<plugins>
 			<plugin>
