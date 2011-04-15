@@ -17,6 +17,7 @@
 		<dependency>
 			<groupId>org.nightlabs</groupId>
 			<artifactId>org.nightlabs.util</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 

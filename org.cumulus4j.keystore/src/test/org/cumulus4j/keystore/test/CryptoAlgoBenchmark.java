@@ -21,8 +21,8 @@ import org.slf4j.LoggerFactory;
 public class CryptoAlgoBenchmark
 {
 //	private static final int ITERATION_COUNT = 1000000;
-	private static final int ITERATION_COUNT = 500000;
-//	private static final int ITERATION_COUNT = 3000;
+//	private static final int ITERATION_COUNT = 500000;
+	private static final int ITERATION_COUNT = 3000;
 
 	private static final Logger logger = LoggerFactory.getLogger(CryptoAlgoBenchmark.class);
 
@@ -32,17 +32,31 @@ public class CryptoAlgoBenchmark
 	private static SecureRandom random = new SecureRandom();
 
 	@Test
-	public void benchmarkAES128_noSalt()
+	public void benchmarkAES128_cbc_noSalt()
 	throws Exception
 	{
 		benchmark("AES", 128, "AES", 128, "AES/CBC/PKCS5Padding", false);
 	}
 
 	@Test
-	public void benchmarkAES128_withSalt()
+	public void benchmarkAES128_cbc_withSalt()
 	throws Exception
 	{
 		benchmark("AES", 128, "AES", 128, "AES/CBC/PKCS5Padding", true);
+	}
+
+	@Test
+	public void benchmarkAES128_cfb_noSalt()
+	throws Exception
+	{
+		benchmark("AES", 128, "AES", 128, "AES/CFB/PKCS5Padding", false);
+	}
+
+	@Test
+	public void benchmarkAES128_cfb_withSalt()
+	throws Exception
+	{
+		benchmark("AES", 128, "AES", 128, "AES/CFB/PKCS5Padding", true);
 	}
 
 	@Test
