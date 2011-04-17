@@ -32,7 +32,7 @@ public class KeyStore
 	private TimerTask expireCacheEntryTimerTask = new TimerTask() {
 		@Override
 		public void run() {
-			// TODO expire cache entries, i.e. call
+			// TODO expire cache entries, i.e. call clearCache(...) for all old, expired entries
 		}
 	};
 
