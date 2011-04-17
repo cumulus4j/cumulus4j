@@ -14,6 +14,8 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.spec.SecretKeySpec;
@@ -24,6 +26,15 @@ import org.slf4j.LoggerFactory;
 public class KeyStore
 {
 	private static final Logger logger = LoggerFactory.getLogger(KeyStore.class);
+
+	private static Timer expireCacheEntryTimer = new Timer();
+
+	private TimerTask expireCacheEntryTimerTask = new TimerTask() {
+		@Override
+		public void run() {
+			// TODO expire cache entries, i.e. call
+		}
+	};
 
 //	private SecureRandom random;
 //
@@ -115,6 +126,8 @@ public class KeyStore
 		}
 		if (in != null)
 			in.close();
+
+		expireCacheEntryTimer.schedule(expireCacheEntryTimerTask, 60000, 60000); // TODO make this configurable
 	}
 
 	protected File getNewKeyStoreFile()
@@ -163,21 +176,23 @@ public class KeyStore
 		}
 	}
 
-	public synchronized MasterKey login(String userName, char[] password)
+	protected synchronized MasterKey getMasterKey(String principalUserName, char[] principalPassword)
 	throws LoginException
 	{
 		MasterKey result = null;
 
-		String userNameAlias = getAliasForUserName(userName);
+		// TODO consult a cache to speed things up!
+
+		String userNameAlias = getAliasForUserName(principalUserName);
 		try {
 			if (!jks.containsAlias(userNameAlias)) {
-				logger.warn("login: Unknown userName: " + userName);
+				logger.warn("login: Unknown userName: " + principalUserName);
 			}
 			else {
 				try {
-					result = new MasterKey(jks.getKey(userNameAlias, password));
+					result = new MasterKey(jks.getKey(userNameAlias, principalPassword));
 				} catch (UnrecoverableKeyException e) {
-					logger.warn("login: Wrong password for userName=\"{}\"!", userName);
+					logger.warn("login: Wrong password for userName=\"{}\"!", principalUserName);
 				} catch (NoSuchAlgorithmException e) {
 					throw new RuntimeException(e); // This keystore should only be managed by us => rethrow as RuntimeException
 				}
@@ -188,7 +203,7 @@ public class KeyStore
 		}
 
 		if (result == null)
-			throw new LoginException("Unknown user \"" + userName + "\" or wrong password!");
+			throw new LoginException("Unknown user \"" + principalUserName + "\" or wrong password!");
 
 		return result;
 	}
@@ -239,7 +254,7 @@ public class KeyStore
 	 * @return a new {@link MasterKey}; never <code>null</code>.
 	 * @throws NotEmptyException if the key store was already initialised.
 	 */
-	public synchronized MasterKey init()
+	protected synchronized MasterKey init()
 	throws NotEmptyException
 	{
 		if (!isEmpty())
@@ -251,15 +266,10 @@ public class KeyStore
 		return result;
 	}
 
-	protected void checkMasterKey(MasterKey masterKey)
+	public synchronized void createUser(String principalUserName, char[] principalPassword, String userName, char[] password)
+	throws LoginException, UserAlreadyExistsException, IOException
 	{
-
-	}
-
-	public synchronized void createUser(String userName, char[] password, MasterKey masterKey)
-	throws UserAlreadyExistsException, IOException
-	{
-		checkMasterKey(masterKey);
+		MasterKey masterKey = getMasterKey(principalUserName, principalPassword);
 
 		String userNameAlias = getAliasForUserName(userName);
 		try {
@@ -307,20 +317,33 @@ public class KeyStore
 		}
 	}
 
-	public synchronized boolean deleteUser(String userName, MasterKey masterKey)
+	/**
+	 * Delete the user specified by <code>userName</code>.
+	 *
+	 * @param principalUserName the name of the principal, i.e. the user authorizing this operation.
+	 * @param principalPassword the password of the principal.
+	 * @param userName the name of the user to be deleted.
+	 */
+	public synchronized void deleteUser(String principalUserName, char[] principalPassword, String userName)
+	throws LoginException, UserDoesNotExistException, IOException
 	{
 		throw new UnsupportedOperationException("NYI");
 	}
 
 	public synchronized void changeMyPassword(String userName, char[] oldPassword, char[] newPassword)
+	throws LoginException, IOException
 	{
-
+		try {
+			changeUserPassword(userName, oldPassword, userName, newPassword);
+		} catch (UserDoesNotExistException e) {
+			throw new RuntimeException("How the hell can this happen? The LoginException should have occured in this case!", e);
+		}
 	}
 
-	public synchronized void changeUserPassword(String userName, char[] newPassword, MasterKey masterKey)
-	throws UserDoesNotExistException, IOException
+	public synchronized void changeUserPassword(String principalUserName, char[] principalPassword, String userName, char[] newPassword)
+	throws LoginException, UserDoesNotExistException, IOException
 	{
-		checkMasterKey(masterKey);
+		MasterKey masterKey = getMasterKey(principalUserName, principalPassword);
 
 		String userNameAlias = getAliasForUserName(userName);
 		try {
@@ -336,12 +359,32 @@ public class KeyStore
 		storeToFile();
 	}
 
-	public synchronized Key getKey(long keyID, MasterKey masterKey)
+	public synchronized Key getKey(String principalUserName, char[] principalPassword, long keyID)
+	throws LoginException
 	{
+		MasterKey masterKey = getMasterKey(principalUserName, principalPassword);
+
 		throw new UnsupportedOperationException("NYI");
 	}
 
-	public synchronized void setKey(long keyID, Key key, MasterKey masterKey)
+	public synchronized void setKey(String principalUserName, char[] principalPassword, long keyID, Key key)
+	throws LoginException, IOException
+	{
+		MasterKey masterKey = getMasterKey(principalUserName, principalPassword);
+
+	}
+
+	/**
+	 * Clear all cached data for the specified user name. Every time, a user
+	 * calls a method requiring <code>principalUserName</code> and <code>principalPassword</code>),
+	 * either a authentication process happens implicitely, or a previously cached authentication
+	 * result is used. In order to speed things up, authentication results are cached for a
+	 * limited time. After this time elapses, the data is cleared by a timer. If a user wants (for security reasons)
+	 * remove the cached data from the memory earlier, he can call this method from the outside.
+	 *
+	 * @param principalUserName the user for which to clear all the cached data.
+	 */
+	public synchronized void clearCache(String principalUserName)
 	{
 
 	}

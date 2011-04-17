@@ -2,7 +2,7 @@ package org.cumulus4j.keystore;
 
 import java.security.Key;
 
-public class MasterKey
+class MasterKey
 {
 	public MasterKey(Key key)
 	{
