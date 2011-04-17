@@ -249,16 +249,14 @@ public class KeyStore
 	/**
 	 * Initialises an empty key store. This generates a new {@link MasterKey} and holds the initialised
 	 * state in memory. It does not yet write anything to the file, because this key store holds no
-	 * user yet and could thus never used again.
+	 * user yet and could thus never be used again.
 	 *
 	 * @return a new {@link MasterKey}; never <code>null</code>.
-	 * @throws NotEmptyException if the key store was already initialised.
 	 */
 	protected synchronized MasterKey init()
-	throws NotEmptyException
 	{
 		if (!isEmpty())
-			throw new NotEmptyException("This KeyStore has already been initialised!");
+			throw new IllegalStateException("This KeyStore has already been initialised!");
 
 		Key key = getKeyGenerator(getKeySize()).generateKey();
 		MasterKey result = new MasterKey(key);
@@ -269,7 +267,12 @@ public class KeyStore
 	public synchronized void createUser(String principalUserName, char[] principalPassword, String userName, char[] password)
 	throws LoginException, UserAlreadyExistsException, IOException
 	{
-		MasterKey masterKey = getMasterKey(principalUserName, principalPassword);
+		MasterKey masterKey;
+
+		if (isEmpty())
+			masterKey = init();
+		else
+			masterKey = getMasterKey(principalUserName, principalPassword);
 
 		String userNameAlias = getAliasForUserName(userName);
 		try {
@@ -327,6 +330,9 @@ public class KeyStore
 	public synchronized void deleteUser(String principalUserName, char[] principalPassword, String userName)
 	throws LoginException, UserDoesNotExistException, IOException
 	{
+		// TODO check, if we're deleting the last user and prevent this!
+		// TODO implement deletion
+
 		throw new UnsupportedOperationException("NYI");
 	}
 
