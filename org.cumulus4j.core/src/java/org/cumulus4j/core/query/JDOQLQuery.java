@@ -16,6 +16,7 @@ import org.datanucleus.query.evaluator.JavaQueryEvaluator;
 import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.connection.ManagedConnection;
 import org.datanucleus.store.query.AbstractJDOQLQuery;
+import org.datanucleus.util.NucleusLogger;
 
 /**
  * JDOQL query implementation. Delegates to the query-language-agnostic {@link QueryEvaluator} via
@@ -73,13 +74,24 @@ public class JDOQLQuery extends AbstractJDOQLQuery
 					candidates = QueryHelper.getAllPersistentObjectsForCandidateClasses(pm, ec, classMetas);
 				}
 				else {
-					// We filter already in our JDOQueryEvaluator => don't filter again in-memory!
-					inMemory_applyFilter = false;
-
-					@SuppressWarnings("unchecked")
-					Map<String, Object> parameterValues = parameters;
-					JDOQueryEvaluator queryEvaluator = new JDOQueryEvaluator(this, compilation, parameterValues, clr, pm);
-					candidates = queryEvaluator.execute();
+					try
+					{
+						// Apply filter in datastore
+						@SuppressWarnings("unchecked")
+						Map<String, Object> parameterValues = parameters;
+						JDOQueryEvaluator queryEvaluator = new JDOQueryEvaluator(this, compilation, parameterValues, clr, pm);
+						candidates = queryEvaluator.execute();
+						inMemory_applyFilter = false;
+					}
+					catch (UnsupportedOperationException uoe)
+					{
+						// Some part of the filter is not yet supported, so fallback to in-memory evaluation
+						// Retrieve all candidates and perform all evaluation in-memory
+						NucleusLogger.QUERY.info("Query filter is not totally evaluatable in-datastore using Cumulus4j currently, so evaluating in-memory : "+uoe.getMessage());
+						Set<ClassMeta> classMetas = QueryHelper.getCandidateClassMetas((Cumulus4jStoreManager) ec.getStoreManager(), 
+								ec, candidateClass, subclasses);
+						candidates = QueryHelper.getAllPersistentObjectsForCandidateClasses(pm, ec, classMetas);
+					}
 				}
 			}
 
@@ -87,8 +99,7 @@ public class JDOQLQuery extends AbstractJDOQLQuery
 			JavaQueryEvaluator evaluator = new JDOQLEvaluator(
 					this, candidates, compilation, parameters, ec.getClassLoaderResolver()
 			);
-			Collection<?> results = evaluator.execute(inMemory_applyFilter, true, true, true, true);
-			return results;
+			return evaluator.execute(inMemory_applyFilter, true, true, true, true);
 		} finally {
 			mconn.release();
 		}
