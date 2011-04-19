@@ -17,7 +17,7 @@ import org.datanucleus.query.expression.VariableExpression;
 /**
  * Evaluator for <pre>Map.containsValue(val)</pre>
  */
-public class MapContainsValueEvaluator implements MethodEvaluator
+public class MapContainsValueEvaluator extends AbstractMethodEvaluator
 {
 	/* (non-Javadoc)
 	 * @see org.cumulus4j.core.query.method.MethodEvaluator#evaluate(org.cumulus4j.core.query.QueryEvaluator, org.datanucleus.query.expression.InvokeExpression, org.datanucleus.query.expression.PrimaryExpression, org.cumulus4j.core.query.eval.ResultDescriptor)
@@ -48,5 +48,15 @@ public class MapContainsValueEvaluator implements MethodEvaluator
 				queryEval, invokedExpr, FieldMetaRole.mapValue, invokeArgument,
 				resultDesc.isNegated()
 		).query();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.cumulus4j.core.query.method.MethodEvaluator#evaluate(org.cumulus4j.core.query.QueryEvaluator, org.cumulus4j.core.query.eval.InvokeExpressionEvaluator, org.datanucleus.query.expression.VariableExpression, org.cumulus4j.core.query.eval.ResultDescriptor)
+	 */
+	@Override
+	public Set<Long> evaluate(QueryEvaluator queryEval,
+			InvokeExpressionEvaluator invokeExprEval, VariableExpression invokedExpr,
+			ResultDescriptor resultDesc) {
+		throw new UnsupportedOperationException("NYI invocation of Map.containsValue on a variable");
 	}
 }

@@ -19,12 +19,13 @@ import org.cumulus4j.core.query.eval.InvokeExpressionEvaluator;
 import org.cumulus4j.core.query.eval.PrimaryExpressionResolver;
 import org.cumulus4j.core.query.eval.ResultDescriptor;
 import org.datanucleus.query.expression.PrimaryExpression;
+import org.datanucleus.query.expression.VariableExpression;
 import org.datanucleus.store.ExecutionContext;
 
 /**
  * Evaluator for <pre>{String}.startsWith(arg)</pre>.
  */
-public class StringStartsWithEvaluator implements MethodEvaluator
+public class StringStartsWithEvaluator extends AbstractMethodEvaluator
 {
 	/* (non-Javadoc)
 	 * @see org.cumulus4j.core.query.method.MethodEvaluator#evaluate(org.cumulus4j.core.query.QueryEvaluator, org.datanucleus.query.expression.InvokeExpression, org.datanucleus.query.expression.PrimaryExpression, org.cumulus4j.core.query.eval.ResultDescriptor)
@@ -94,5 +95,15 @@ public class StringStartsWithEvaluator implements MethodEvaluator
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
 			return queryStringStartsWith(queryEvaluator, fieldMeta, invokeArgument, negate);
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.cumulus4j.core.query.method.MethodEvaluator#evaluate(org.cumulus4j.core.query.QueryEvaluator, org.cumulus4j.core.query.eval.InvokeExpressionEvaluator, org.datanucleus.query.expression.VariableExpression, org.cumulus4j.core.query.eval.ResultDescriptor)
+	 */
+	@Override
+	public Set<Long> evaluate(QueryEvaluator queryEval,
+			InvokeExpressionEvaluator invokeExprEval, VariableExpression invokedExpr,
+			ResultDescriptor resultDesc) {
+		throw new UnsupportedOperationException("NYI invocation of String.startsWith on a variable");
 	}
 }

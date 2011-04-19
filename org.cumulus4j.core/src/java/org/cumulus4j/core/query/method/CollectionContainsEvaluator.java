@@ -17,7 +17,7 @@ import org.datanucleus.query.expression.VariableExpression;
 /**
  * Evaluator for <pre>Collection.contains(element)</pre>
  */
-public class CollectionContainsEvaluator implements MethodEvaluator
+public class CollectionContainsEvaluator extends AbstractMethodEvaluator
 {
 	/* (non-Javadoc)
 	 * @see org.cumulus4j.core.query.method.MethodEvaluator#evaluate(org.cumulus4j.core.query.QueryEvaluator, org.datanucleus.query.expression.InvokeExpression, org.datanucleus.query.expression.PrimaryExpression)
@@ -50,4 +50,13 @@ public class CollectionContainsEvaluator implements MethodEvaluator
 		).query();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.cumulus4j.core.query.method.MethodEvaluator#evaluate(org.cumulus4j.core.query.QueryEvaluator, org.cumulus4j.core.query.eval.InvokeExpressionEvaluator, org.datanucleus.query.expression.VariableExpression, org.cumulus4j.core.query.eval.ResultDescriptor)
+	 */
+	@Override
+	public Set<Long> evaluate(QueryEvaluator queryEval,
+			InvokeExpressionEvaluator invokeExprEval, VariableExpression invokedExpr,
+			ResultDescriptor resultDesc) {
+		throw new UnsupportedOperationException("NYI invocation of Collection.contains on a variable");
+	}
 }

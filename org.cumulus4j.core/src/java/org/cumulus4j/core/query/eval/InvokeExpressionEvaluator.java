@@ -1,28 +1,20 @@
 package org.cumulus4j.core.query.eval;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.jdo.Query;
-
-import org.cumulus4j.core.model.FieldMeta;
-import org.cumulus4j.core.model.IndexEntry;
-import org.cumulus4j.core.model.IndexEntryFactory;
-import org.cumulus4j.core.model.IndexEntryFactoryRegistry;
-import org.cumulus4j.core.model.IndexValue;
 import org.cumulus4j.core.query.QueryEvaluator;
 import org.cumulus4j.core.query.method.CollectionContainsEvaluator;
 import org.cumulus4j.core.query.method.MapContainsKeyEvaluator;
 import org.cumulus4j.core.query.method.MapContainsValueEvaluator;
 import org.cumulus4j.core.query.method.StringEndsWithEvaluator;
+import org.cumulus4j.core.query.method.StringIndexOfEvaluator;
 import org.cumulus4j.core.query.method.StringStartsWithEvaluator;
 import org.datanucleus.query.expression.InvokeExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
+import org.datanucleus.query.expression.VariableExpression;
 import org.datanucleus.query.symbol.Symbol;
-import org.datanucleus.store.ExecutionContext;
 
 /**
  * Evaluator handling method invocations like <code>Collection.contains(...)</code>.
@@ -40,7 +32,7 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 	@Override
 	protected Set<Long> _queryResultDataEntryIDs(ResultDescriptor resultDescriptor)
 	{
-		// The invocationTarget is always the left side. It can be one of the following three:
+		// The invocationTarget is always the left side of the InvokeExpression. It can be one of the following three:
 		// 1) PrimaryExpression
 		// 2) VariableExpression
 		// 3) ParameterExpression
@@ -56,15 +48,11 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 			PrimaryExpression primaryExpr = primaryEval.getExpression();
 			Class<?> invocationTargetType = getFieldType(primaryExpr);
 
-			if (String.class.isAssignableFrom(invocationTargetType) && "indexOf".equals(this.getExpression().getOperation())) {
-				// TODO Migrate this into StringIndexOfEvaluator
-				if (this.getExpression().getArguments().size() != 1)
-					throw new IllegalStateException("String.indexOf(...) expects exactly one argument, but there are " + this.getExpression().getArguments().size());
-
-				// Evaluate the invoke argument
-				Object invokeArgument = ExpressionHelper.getEvaluatedInvokeArgument(getQueryEvaluator(), this.getExpression());
-
-				return new StringIndexOfResolver(getQueryEvaluator(), primaryExpr, invokeArgument, getCompareToArgument(), resultDescriptor.isNegated()).query();
+			if (String.class.isAssignableFrom(invocationTargetType) &&
+			    "indexOf".equals(this.getExpression().getOperation())) {
+				StringIndexOfEvaluator eval = new StringIndexOfEvaluator();
+				eval.setCompareToArgument(getCompareToArgument());
+				return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
 			}
 			else if (String.class.isAssignableFrom(invocationTargetType) &&
 			    "startsWith".equals(this.getExpression().getOperation())) {
@@ -104,19 +92,11 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 			// Evaluate the left-hand expression on which we perform the method invocation
 			Class<?> invocationTargetType = getQueryEvaluator().getValueType(classSymbol);
 
-			if (String.class.isAssignableFrom(invocationTargetType) && "indexOf".equals(this.getExpression().getOperation())) {
-				// TODO Migrate this into StringIndexOfEvaluator
-				if (this.getExpression().getArguments().size() != 1)
-					throw new IllegalStateException("String.indexOf(...) expects exactly one argument, but there are " + this.getExpression().getArguments().size());
-
-				Object invokeArgument = ExpressionHelper.getEvaluatedInvokeArgument(getQueryEvaluator(), this.getExpression());
-
-				if (!this.getLeft().getResultSymbols().contains(resultDescriptor.getSymbol()))
-					return null;
-
-				// We query a simple data type (otherwise we would be above in the PrimaryExpressionEvaluator block), hence
-				// we do not need to recursively resolve some tuples.
-				return queryStringIndexOf(resultDescriptor.getFieldMeta(), invokeArgument, getCompareToArgument(), resultDescriptor.isNegated());
+			if (String.class.isAssignableFrom(invocationTargetType) &&
+			    "indexOf".equals(this.getExpression().getOperation())) {
+				StringIndexOfEvaluator eval = new StringIndexOfEvaluator();
+				eval.setCompareToArgument(getCompareToArgument());
+				return eval.evaluate(getQueryEvaluator(), this, (VariableExpression)this.getLeft().getExpression(), resultDescriptor);
 			}
 
 			throw new UnsupportedOperationException("Not Yet Implemented : "+this.getExpression().getOperation() +
@@ -157,64 +137,5 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 			throw new UnsupportedOperationException("this is neither parent.left nor parent.right!");
 
 		return compareToArgument;
-	}
-
-	// TODO Migrate this into StringIndexOfEvaluator
-	private Set<Long> queryStringIndexOf(
-			FieldMeta fieldMeta,
-			Object invokeArgument, // the xxx in 'indexOf(xxx)'
-			Object compareToArgument, // the yyy in 'indexOf(xxx) >= yyy'
-			boolean negate
-	) {
-		ExecutionContext executionContext = getQueryEvaluator().getExecutionContext();
-		IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
-				executionContext, fieldMeta, true
-		);
-
-		Query q = getPersistenceManager().newQuery(indexEntryFactory.getIndexEntryClass());
-		q.setFilter(
-				"this.fieldMeta == :fieldMeta && " +
-				"this.indexKey.indexOf(:invokeArgument) " + getOperatorAsJDOQLSymbol(getParent().getExpression().getOperator(), negate) + " :compareToArgument"
-		);
-		Map<String, Object> params = new HashMap<String, Object>(3);
-		params.put("fieldMeta", fieldMeta);
-		params.put("invokeArgument", invokeArgument);
-		params.put("compareToArgument", compareToArgument);
-
-		@SuppressWarnings("unchecked")
-		Collection<? extends IndexEntry> indexEntries = (Collection<? extends IndexEntry>) q.executeWithMap(params);
-
-		Set<Long> result = new HashSet<Long>();
-		for (IndexEntry indexEntry : indexEntries) {
-			IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(executionContext, indexEntry);
-			result.addAll(indexValue.getDataEntryIDs());
-		}
-		q.closeAll();
-		return result;
-	}
-
-	private class StringIndexOfResolver extends PrimaryExpressionResolver
-	{
-		private Object invokeArgument;
-		private Object compareToArgument;
-		private boolean negate;
-
-		public StringIndexOfResolver(
-				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
-				Object invokeArgument, // the xxx in 'indexOf(xxx)'
-				Object compareToArgument, // the yyy in 'indexOf(xxx) >= yyy'
-				boolean negate
-		)
-		{
-			super(queryEvaluator, primaryExpression);
-			this.invokeArgument = invokeArgument;
-			this.compareToArgument = compareToArgument;
-			this.negate = negate;
-		}
-
-		@Override
-		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
-			return queryStringIndexOf(fieldMeta, invokeArgument, compareToArgument, negate);
-		}
 	}
 }
