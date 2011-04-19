@@ -50,15 +50,18 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 
 			if (String.class.isAssignableFrom(invocationTargetType)) {
 				if ("indexOf".equals(this.getExpression().getOperation())) {
+					// primExpr.indexOf(str) {operation} {comparisonObj}
 					StringIndexOfEvaluator eval = new StringIndexOfEvaluator();
 					eval.setCompareToArgument(getCompareToArgument());
 					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
 				}
 				else if ("startsWith".equals(this.getExpression().getOperation())) {
+					// primExpr.startsWith(str)
 					StringStartsWithEvaluator eval = new StringStartsWithEvaluator();
 					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
 				}
 				else if ("endsWith".equals(this.getExpression().getOperation())) {
+					// primExpr.endsWith(str)
 					StringEndsWithEvaluator eval = new StringEndsWithEvaluator();
 					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
 				}
@@ -96,17 +99,18 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 
 			if (String.class.isAssignableFrom(invocationTargetType)) {
 				if ("indexOf".equals(this.getExpression().getOperation())) {
+					// varExpr.indexOf(str) {operation} {comparisonObj}
 					StringIndexOfEvaluator eval = new StringIndexOfEvaluator();
 					eval.setCompareToArgument(getCompareToArgument());
 					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
 				}
-				else if (String.class.isAssignableFrom(invocationTargetType) &&
-						"startsWith".equals(this.getExpression().getOperation())) {
+				else if ("startsWith".equals(this.getExpression().getOperation())) {
+					// varExpr.startsWith(str)
 					StringStartsWithEvaluator eval = new StringStartsWithEvaluator();
 					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
 				}
-				else if (String.class.isAssignableFrom(invocationTargetType) &&
-						"endsWith".equals(this.getExpression().getOperation())) {
+				else if ("endsWith".equals(this.getExpression().getOperation())) {
+					// varExpr.endsWith(str)
 					StringEndsWithEvaluator eval = new StringEndsWithEvaluator();
 					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
 				}
