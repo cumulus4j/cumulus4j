@@ -104,6 +104,17 @@ public class StringStartsWithEvaluator extends AbstractMethodEvaluator
 	public Set<Long> evaluate(QueryEvaluator queryEval,
 			InvokeExpressionEvaluator invokeExprEval, VariableExpression invokedExpr,
 			ResultDescriptor resultDesc) {
-		throw new UnsupportedOperationException("NYI invocation of String.startsWith on a variable");
+		if (invokeExprEval.getExpression().getArguments().size() != 1)
+			throw new IllegalStateException("String.startsWith(...) expects exactly one argument, but there are " + 
+					invokeExprEval.getExpression().getArguments().size());
+
+		Object invokeArgument = ExpressionHelper.getEvaluatedInvokeArgument(queryEval, invokeExprEval.getExpression());
+
+		if (!invokeExprEval.getLeft().getResultSymbols().contains(resultDesc.getSymbol()))
+			return null;
+
+		// We query a simple data type (otherwise we would be above in the PrimaryExpressionEvaluator block), hence
+		// we do not need to recursively resolve some tuples.
+		return queryStringStartsWith(queryEval, resultDesc.getFieldMeta(), invokeArgument, resultDesc.isNegated());
 	}
 }

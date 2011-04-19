@@ -48,36 +48,36 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 			PrimaryExpression primaryExpr = primaryEval.getExpression();
 			Class<?> invocationTargetType = getFieldType(primaryExpr);
 
-			if (String.class.isAssignableFrom(invocationTargetType) &&
-			    "indexOf".equals(this.getExpression().getOperation())) {
-				StringIndexOfEvaluator eval = new StringIndexOfEvaluator();
-				eval.setCompareToArgument(getCompareToArgument());
-				return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
+			if (String.class.isAssignableFrom(invocationTargetType)) {
+				if ("indexOf".equals(this.getExpression().getOperation())) {
+					StringIndexOfEvaluator eval = new StringIndexOfEvaluator();
+					eval.setCompareToArgument(getCompareToArgument());
+					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
+				}
+				else if ("startsWith".equals(this.getExpression().getOperation())) {
+					StringStartsWithEvaluator eval = new StringStartsWithEvaluator();
+					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
+				}
+				else if ("endsWith".equals(this.getExpression().getOperation())) {
+					StringEndsWithEvaluator eval = new StringEndsWithEvaluator();
+					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
+				}
 			}
-			else if (String.class.isAssignableFrom(invocationTargetType) &&
-			    "startsWith".equals(this.getExpression().getOperation())) {
-				StringStartsWithEvaluator eval = new StringStartsWithEvaluator();
-				return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
+			else if (Collection.class.isAssignableFrom(invocationTargetType)) {
+				if ("contains".equals(this.getExpression().getOperation())) {
+					CollectionContainsEvaluator eval = new CollectionContainsEvaluator();
+					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
+				}
 			}
-			else if (String.class.isAssignableFrom(invocationTargetType) &&
-			    "endsWith".equals(this.getExpression().getOperation())) {
-				StringEndsWithEvaluator eval = new StringEndsWithEvaluator();
-				return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
-			}
-			else if (Collection.class.isAssignableFrom(invocationTargetType) &&
-			    "contains".equals(this.getExpression().getOperation())) {
-				CollectionContainsEvaluator eval = new CollectionContainsEvaluator();
-				return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
-			}
-			else if (Map.class.isAssignableFrom(invocationTargetType) &&
-			    "containsKey".equals(this.getExpression().getOperation())) {
-				MapContainsKeyEvaluator eval = new MapContainsKeyEvaluator();
-				return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
-			}
-			else if (Map.class.isAssignableFrom(invocationTargetType) &&
-			    "containsValue".equals(this.getExpression().getOperation())) {
-				MapContainsValueEvaluator eval = new MapContainsValueEvaluator();
-				return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
+			else if (Map.class.isAssignableFrom(invocationTargetType)) {
+				if ("containsKey".equals(this.getExpression().getOperation())) {
+					MapContainsKeyEvaluator eval = new MapContainsKeyEvaluator();
+					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
+				}
+				else if ("containsValue".equals(this.getExpression().getOperation())) {
+					MapContainsValueEvaluator eval = new MapContainsValueEvaluator();
+					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
+				}
 			}
 			else {
 				throw new UnsupportedOperationException("Not Yet Implemented : "+this.getExpression().getOperation() +
@@ -85,18 +85,31 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 			}
 		}
 		else if (this.getLeft() instanceof VariableExpressionEvaluator) {
-			Symbol classSymbol = ((VariableExpressionEvaluator)this.getLeft()).getExpression().getSymbol();
+			VariableExpressionEvaluator variableExprEval = (VariableExpressionEvaluator) this.getLeft();
+			VariableExpression variableExpr = variableExprEval.getExpression();
+			Symbol classSymbol = variableExprEval.getExpression().getSymbol();
 			if (classSymbol == null)
 				throw new IllegalStateException("((VariableExpressionEvaluator)this.getLeft()).getExpression().getSymbol() returned null!");
 
 			// Evaluate the left-hand expression on which we perform the method invocation
 			Class<?> invocationTargetType = getQueryEvaluator().getValueType(classSymbol);
 
-			if (String.class.isAssignableFrom(invocationTargetType) &&
-			    "indexOf".equals(this.getExpression().getOperation())) {
-				StringIndexOfEvaluator eval = new StringIndexOfEvaluator();
-				eval.setCompareToArgument(getCompareToArgument());
-				return eval.evaluate(getQueryEvaluator(), this, (VariableExpression)this.getLeft().getExpression(), resultDescriptor);
+			if (String.class.isAssignableFrom(invocationTargetType)) {
+				if ("indexOf".equals(this.getExpression().getOperation())) {
+					StringIndexOfEvaluator eval = new StringIndexOfEvaluator();
+					eval.setCompareToArgument(getCompareToArgument());
+					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
+				}
+				else if (String.class.isAssignableFrom(invocationTargetType) &&
+						"startsWith".equals(this.getExpression().getOperation())) {
+					StringStartsWithEvaluator eval = new StringStartsWithEvaluator();
+					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
+				}
+				else if (String.class.isAssignableFrom(invocationTargetType) &&
+						"endsWith".equals(this.getExpression().getOperation())) {
+					StringEndsWithEvaluator eval = new StringEndsWithEvaluator();
+					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
+				}
 			}
 
 			throw new UnsupportedOperationException("Not Yet Implemented : "+this.getExpression().getOperation() +
