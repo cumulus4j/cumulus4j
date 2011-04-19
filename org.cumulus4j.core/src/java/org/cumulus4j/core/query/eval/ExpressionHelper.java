@@ -27,6 +27,7 @@ import org.datanucleus.query.expression.Literal;
 import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.query.expression.VariableExpression;
+import org.datanucleus.util.NucleusLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,6 +146,32 @@ public class ExpressionHelper
 		protected abstract Set<Long> _queryEnd(
 				PersistenceManager pm, FieldMeta fieldMeta, AbstractMemberMetaData mmd, FieldMeta subFieldMeta, boolean argumentIsPersistent, Class<?> argumentType
 		);
+	}
+
+	public static class ContainerIsEmptyResolver extends AbstractContainsResolver
+	{
+		public ContainerIsEmptyResolver(
+				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
+				FieldMetaRole role, boolean negate
+		)
+		{
+			super(queryEvaluator, primaryExpression, role, negate);
+		}
+
+		/* (non-Javadoc)
+		 * @see org.cumulus4j.core.query.eval.ExpressionHelper.AbstractContainsResolver#_queryEnd(javax.jdo.PersistenceManager, org.cumulus4j.core.model.FieldMeta, org.datanucleus.metadata.AbstractMemberMetaData, org.cumulus4j.core.model.FieldMeta, boolean, java.lang.Class)
+		 */
+		@Override
+		protected Set<Long> _queryEnd(PersistenceManager pm, FieldMeta fieldMeta,
+				AbstractMemberMetaData mmd, FieldMeta subFieldMeta,
+				boolean argumentIsPersistent, Class<?> argumentType) {
+			NucleusLogger.GENERAL.info(">> ContainerIsEmptyResolver._queryEnd fieldMeta="+fieldMeta+
+					" mmd="+mmd.getFullFieldName() + " subfieldMeta="+subFieldMeta + " argIsPersistent="+argumentIsPersistent +
+					" argType="+argumentType);
+
+			// TODO How do we get all DataEntry with no elements in this Collection?
+			throw new UnsupportedOperationException("Not Yet Implemented - Collection.isEmpty");
+		}
 	}
 
 	/**

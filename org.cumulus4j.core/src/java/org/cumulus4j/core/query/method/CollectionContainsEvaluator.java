@@ -57,6 +57,6 @@ public class CollectionContainsEvaluator extends AbstractMethodEvaluator
 	public Set<Long> evaluate(QueryEvaluator queryEval,
 			InvokeExpressionEvaluator invokeExprEval, VariableExpression invokedExpr,
 			ResultDescriptor resultDesc) {
-		throw new UnsupportedOperationException("NYI invocation of Collection.contains on a variable");
+		throw new UnsupportedOperationException("NYI invocation of Collection.contains on a variableExpression");
 	}
 }

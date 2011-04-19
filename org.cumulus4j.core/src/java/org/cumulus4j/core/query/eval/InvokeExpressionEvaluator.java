@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.cumulus4j.core.query.QueryEvaluator;
 import org.cumulus4j.core.query.method.CollectionContainsEvaluator;
+import org.cumulus4j.core.query.method.CollectionIsEmptyEvaluator;
 import org.cumulus4j.core.query.method.MapContainsKeyEvaluator;
 import org.cumulus4j.core.query.method.MapContainsValueEvaluator;
 import org.cumulus4j.core.query.method.StringEndsWithEvaluator;
@@ -71,6 +72,10 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 					CollectionContainsEvaluator eval = new CollectionContainsEvaluator();
 					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
 				}
+				else if ("isEmpty".equals(this.getExpression().getOperation())) {
+					CollectionIsEmptyEvaluator eval = new CollectionIsEmptyEvaluator();
+					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
+				}
 			}
 			else if (Map.class.isAssignableFrom(invocationTargetType)) {
 				if ("containsKey".equals(this.getExpression().getOperation())) {
@@ -112,6 +117,26 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 				else if ("endsWith".equals(this.getExpression().getOperation())) {
 					// varExpr.endsWith(str)
 					StringEndsWithEvaluator eval = new StringEndsWithEvaluator();
+					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
+				}
+			}
+			else if (Collection.class.isAssignableFrom(invocationTargetType)) {
+				if ("contains".equals(this.getExpression().getOperation())) {
+					CollectionContainsEvaluator eval = new CollectionContainsEvaluator();
+					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
+				}
+				else if ("isEmpty".equals(this.getExpression().getOperation())) {
+					CollectionIsEmptyEvaluator eval = new CollectionIsEmptyEvaluator();
+					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
+				}
+			}
+			else if (Map.class.isAssignableFrom(invocationTargetType)) {
+				if ("containsKey".equals(this.getExpression().getOperation())) {
+					MapContainsKeyEvaluator eval = new MapContainsKeyEvaluator();
+					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
+				}
+				else if ("containsValue".equals(this.getExpression().getOperation())) {
+					MapContainsValueEvaluator eval = new MapContainsValueEvaluator();
 					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
 				}
 			}
