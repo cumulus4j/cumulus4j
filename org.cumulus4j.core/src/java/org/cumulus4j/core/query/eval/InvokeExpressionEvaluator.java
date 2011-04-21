@@ -145,6 +145,20 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 			    " on " + invocationTargetType + " with this type being a VariableExpression.");
 		}
 		else if (this.getLeft() instanceof ParameterExpressionEvaluator) {
+			ParameterExpressionEvaluator paramExprEval = (ParameterExpressionEvaluator) this.getLeft();
+			Symbol classSymbol = paramExprEval.getExpression().getSymbol();
+			if (classSymbol == null)
+				throw new IllegalStateException("((ParameterExpressionEvaluator)this.getLeft()).getExpression().getSymbol() returned null!");
+
+			// Evaluate the left-hand expression on which we perform the method invocation
+			Class<?> invocationTargetType = getQueryEvaluator().getValueType(classSymbol);
+
+			if (String.class.isAssignableFrom(invocationTargetType)) {
+				if ("startsWith".equals(this.getExpression().getOperation())) {
+					// paramExpr.startsWith(str)
+					// TODO Support this
+				}
+			}
 			// TODO support this.getLeft() instanceof ParameterExpressionEvaluator
 			throw new UnsupportedOperationException("NYI: this.getLeft() instanceof ParameterExpressionEvaluator");
 		}
@@ -157,15 +171,15 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 			throw new UnsupportedOperationException("NYI: this.getLeft() instanceof SubqueryExpressionEvaluator");
 		}
 		else if (this.getLeft() == null) {
-			// TODO support this.getLeft() == null
+			// TODO support this.getLeft() == null (static method call)
 			throw new UnsupportedOperationException("NYI: this.getLeft() == null");
 		}
 
 		throw new UnsupportedOperationException("NYI");
 	}
 
-	private Object getCompareToArgument(){
-		if (! (getParent() instanceof ComparisonExpressionEvaluator))
+	private Object getCompareToArgument() {
+		if (!(getParent() instanceof ComparisonExpressionEvaluator))
 			throw new UnsupportedOperationException(this.getExpression().toString() + " needs to be compared to something as it does not have a boolean result! this.getParent() is thus expected to be a ComparisonExpressionEvaluator, but is: " + getParent());
 
 		ComparisonExpressionEvaluator comparisonExpressionEvaluator = (ComparisonExpressionEvaluator) getParent();
