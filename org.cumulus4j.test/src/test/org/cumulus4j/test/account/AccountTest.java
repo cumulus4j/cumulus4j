@@ -1,8 +1,10 @@
 package org.cumulus4j.test.account;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.jdo.Query;
 
@@ -12,7 +14,6 @@ import org.cumulus4j.test.framework.AbstractTransactionalTest;
 import org.cumulus4j.test.framework.CleanupUtil;
 import org.datanucleus.NucleusContext;
 import org.datanucleus.api.jdo.JDOPersistenceManagerFactory;
-import org.datanucleus.util.NucleusLogger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -44,7 +45,6 @@ extends AbstractTransactionalTest
 	@Before
 	public void createData()
 	{
-		NucleusLogger.GENERAL.info(">> AccountTest.createData START");
 		Account account = new Account(ACCOUNT_ID_0);
 		LocalAccountantDelegate localAccountantDelegate = new LocalAccountantDelegate(LOCAL_ACCOUNTANT_DELEGATE_ID_0);
 		localAccountantDelegate.setAccount("EUR", account);
@@ -54,7 +54,6 @@ extends AbstractTransactionalTest
 		localAccountantDelegate.setName("New test bla bla bla.");
 		localAccountantDelegate.setName2("2nd name");
 		localAccountantDelegate.setDescription("description");
-		NucleusLogger.GENERAL.info(">> AccountTest.createData MIDDLE");
 
 		Account account2 = new Account(ACCOUNT_ID_2);
 		LocalAccountantDelegate localAccountantDelegate1 = new LocalAccountantDelegate(LOCAL_ACCOUNTANT_DELEGATE_ID_1);
@@ -63,7 +62,6 @@ extends AbstractTransactionalTest
 		localAccountantDelegate1.setName("Some other test");
 		localAccountantDelegate1.setName2("Second name");
 		localAccountantDelegate1.setDescription("description2");
-		NucleusLogger.GENERAL.info(">> AccountTest.createData END");
 	}
 
 	@Test
@@ -230,6 +228,7 @@ extends AbstractTransactionalTest
 	@Test
 	public void queryStringStartsWith() throws IOException
 	{
+		// PrimaryExpression.startsWith(param)
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("this.name.startsWith(:startStr)");
 
@@ -237,6 +236,17 @@ extends AbstractTransactionalTest
 		Assert.assertEquals("Number of results was wrong", 1, result.size());
 		LocalAccountantDelegate delegate = result.iterator().next();
 		assertDelegate0(delegate);
+
+		// ParameterExpression.startsWith(primaryExpression)
+		q = pm.newQuery(LocalAccountantDelegate.class);
+		q.setFilter("param.startsWith(this.name)");
+		q.declareParameters("java.lang.String param");
+		Map params = new HashMap<String, Object>();
+		params.put("param", "Some other test extra characters");
+		result = (List<LocalAccountantDelegate>) q.executeWithMap(params);
+		Assert.assertEquals("Number of results was wrong", 1, result.size());
+		delegate = result.iterator().next();
+		assertDelegate1(delegate);
 	}
 
 	@Test
