@@ -46,9 +46,6 @@ public class StringStartsWithEvaluator extends AbstractMethodEvaluator
 		else {
 			if (!invokeExprEval.getLeft().getResultSymbols().contains(resultDesc.getSymbol()))
 				return null;
-
-			// We query a simple data type (otherwise we would be above in the PrimaryExpressionEvaluator block), hence
-			// we do not need to recursively resolve some tuples.
 			return queryStringStartsWith(queryEval, resultDesc.getFieldMeta(), invokeArgument, resultDesc.isNegated());
 		}
 	}

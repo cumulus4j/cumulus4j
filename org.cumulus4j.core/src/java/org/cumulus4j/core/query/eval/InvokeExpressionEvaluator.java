@@ -152,11 +152,11 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 
 			// Evaluate the left-hand expression on which we perform the method invocation
 			Class<?> invocationTargetType = getQueryEvaluator().getValueType(classSymbol);
-
 			if (String.class.isAssignableFrom(invocationTargetType)) {
 				if ("startsWith".equals(this.getExpression().getOperation())) {
 					// paramExpr.startsWith(str)
-					// TODO Support this
+					StringStartsWithEvaluator eval = new StringStartsWithEvaluator();
+					return eval.evaluate(getQueryEvaluator(), this, paramExprEval.getExpression(), resultDescriptor);
 				}
 			}
 			// TODO support this.getLeft() instanceof ParameterExpressionEvaluator
