@@ -18,8 +18,8 @@ import org.cumulus4j.core.query.eval.ExpressionHelper;
 import org.cumulus4j.core.query.eval.InvokeExpressionEvaluator;
 import org.cumulus4j.core.query.eval.PrimaryExpressionResolver;
 import org.cumulus4j.core.query.eval.ResultDescriptor;
+import org.datanucleus.query.expression.Expression;
 import org.datanucleus.query.expression.PrimaryExpression;
-import org.datanucleus.query.expression.VariableExpression;
 import org.datanucleus.store.ExecutionContext;
 
 /**
@@ -28,11 +28,11 @@ import org.datanucleus.store.ExecutionContext;
 public class StringStartsWithEvaluator extends AbstractMethodEvaluator
 {
 	/* (non-Javadoc)
-	 * @see org.cumulus4j.core.query.method.MethodEvaluator#evaluate(org.cumulus4j.core.query.QueryEvaluator, org.datanucleus.query.expression.InvokeExpression, org.datanucleus.query.expression.PrimaryExpression, org.cumulus4j.core.query.eval.ResultDescriptor)
+	 * @see org.cumulus4j.core.query.method.MethodEvaluator#evaluate(org.cumulus4j.core.query.QueryEvaluator, org.datanucleus.query.expression.InvokeExpression, org.datanucleus.query.expression.Expression, org.cumulus4j.core.query.eval.ResultDescriptor)
 	 */
 	@Override
 	public Set<Long> evaluate(QueryEvaluator queryEval, InvokeExpressionEvaluator invokeExprEval,
-			PrimaryExpression invokedExpr, ResultDescriptor resultDesc) {
+			Expression invokedExpr, ResultDescriptor resultDesc) {
 		if (invokeExprEval.getExpression().getArguments().size() != 1)
 			throw new IllegalStateException("startsWith(...) expects exactly one argument, but there are " +
 					invokeExprEval.getExpression().getArguments().size());
@@ -40,7 +40,17 @@ public class StringStartsWithEvaluator extends AbstractMethodEvaluator
 		// Evaluate the invoke argument
 		Object invokeArgument = ExpressionHelper.getEvaluatedInvokeArgument(queryEval, invokeExprEval.getExpression());
 
-		return new StringStartsWithResolver(queryEval, invokedExpr, invokeArgument, resultDesc.isNegated()).query();
+		if (invokedExpr instanceof PrimaryExpression) {
+			return new StringStartsWithResolver(queryEval, (PrimaryExpression) invokedExpr, invokeArgument, resultDesc.isNegated()).query();
+		}
+		else {
+			if (!invokeExprEval.getLeft().getResultSymbols().contains(resultDesc.getSymbol()))
+				return null;
+
+			// We query a simple data type (otherwise we would be above in the PrimaryExpressionEvaluator block), hence
+			// we do not need to recursively resolve some tuples.
+			return queryStringStartsWith(queryEval, resultDesc.getFieldMeta(), invokeArgument, resultDesc.isNegated());
+		}
 	}
 
 	private Set<Long> queryStringStartsWith(
@@ -95,26 +105,5 @@ public class StringStartsWithEvaluator extends AbstractMethodEvaluator
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
 			return queryStringStartsWith(queryEvaluator, fieldMeta, invokeArgument, negate);
 		}
-	}
-
-	/* (non-Javadoc)
-	 * @see org.cumulus4j.core.query.method.MethodEvaluator#evaluate(org.cumulus4j.core.query.QueryEvaluator, org.cumulus4j.core.query.eval.InvokeExpressionEvaluator, org.datanucleus.query.expression.VariableExpression, org.cumulus4j.core.query.eval.ResultDescriptor)
-	 */
-	@Override
-	public Set<Long> evaluate(QueryEvaluator queryEval,
-			InvokeExpressionEvaluator invokeExprEval, VariableExpression invokedExpr,
-			ResultDescriptor resultDesc) {
-		if (invokeExprEval.getExpression().getArguments().size() != 1)
-			throw new IllegalStateException("String.startsWith(...) expects exactly one argument, but there are " + 
-					invokeExprEval.getExpression().getArguments().size());
-
-		Object invokeArgument = ExpressionHelper.getEvaluatedInvokeArgument(queryEval, invokeExprEval.getExpression());
-
-		if (!invokeExprEval.getLeft().getResultSymbols().contains(resultDesc.getSymbol()))
-			return null;
-
-		// We query a simple data type (otherwise we would be above in the PrimaryExpressionEvaluator block), hence
-		// we do not need to recursively resolve some tuples.
-		return queryStringStartsWith(queryEval, resultDesc.getFieldMeta(), invokeArgument, resultDesc.isNegated());
 	}
 }

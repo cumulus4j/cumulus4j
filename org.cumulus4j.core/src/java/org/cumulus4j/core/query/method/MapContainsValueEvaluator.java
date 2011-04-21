@@ -20,43 +20,38 @@ import org.datanucleus.query.expression.VariableExpression;
 public class MapContainsValueEvaluator extends AbstractMethodEvaluator
 {
 	/* (non-Javadoc)
-	 * @see org.cumulus4j.core.query.method.MethodEvaluator#evaluate(org.cumulus4j.core.query.QueryEvaluator, org.datanucleus.query.expression.InvokeExpression, org.datanucleus.query.expression.PrimaryExpression, org.cumulus4j.core.query.eval.ResultDescriptor)
+	 * @see org.cumulus4j.core.query.method.MethodEvaluator#evaluate(org.cumulus4j.core.query.QueryEvaluator, org.datanucleus.query.expression.InvokeExpression, org.datanucleus.query.expression.Expression, org.cumulus4j.core.query.eval.ResultDescriptor)
 	 */
 	@Override
 	public Set<Long> evaluate(QueryEvaluator queryEval, InvokeExpressionEvaluator invokeExprEval, 
-			PrimaryExpression invokedExpr, ResultDescriptor resultDesc){
+			Expression invokedExpr, ResultDescriptor resultDesc){
 		if (invokeExprEval.getExpression().getArguments().size() != 1)
 			throw new IllegalStateException("containsValue(...) expects exactly one argument, but there are " + 
 					invokeExprEval.getExpression().getArguments().size());
 
-		// Evaluate the invoke argument
-		Expression invokeArgExpr = invokeExprEval.getExpression().getArguments().get(0);
-		Object invokeArgument;
-		if (invokeArgExpr instanceof Literal)
-			invokeArgument = ((Literal)invokeArgExpr).getLiteral();
-		else if (invokeArgExpr instanceof ParameterExpression)
-			invokeArgument = QueryUtils.getValueForParameterExpression(queryEval.getParameterValues(), (ParameterExpression)invokeArgExpr);
-		else if (invokeArgExpr instanceof VariableExpression)
-			return new ExpressionHelper.ContainsVariableResolver(
-					queryEval, invokedExpr, FieldMetaRole.mapValue, (VariableExpression) invokeArgExpr,
+		if (invokedExpr instanceof PrimaryExpression) {
+			// Evaluate the invoke argument
+			Expression invokeArgExpr = invokeExprEval.getExpression().getArguments().get(0);
+			Object invokeArgument;
+			if (invokeArgExpr instanceof Literal)
+				invokeArgument = ((Literal)invokeArgExpr).getLiteral();
+			else if (invokeArgExpr instanceof ParameterExpression)
+				invokeArgument = QueryUtils.getValueForParameterExpression(queryEval.getParameterValues(), (ParameterExpression)invokeArgExpr);
+			else if (invokeArgExpr instanceof VariableExpression)
+				return new ExpressionHelper.ContainsVariableResolver(
+						queryEval, (PrimaryExpression) invokedExpr, FieldMetaRole.mapValue, (VariableExpression) invokeArgExpr,
+						resultDesc.isNegated()
+				).query();
+			else
+				throw new UnsupportedOperationException("NYI");
+
+			return new ExpressionHelper.ContainsConstantResolver(
+					queryEval, (PrimaryExpression) invokedExpr, FieldMetaRole.mapValue, invokeArgument,
 					resultDesc.isNegated()
 			).query();
-		else
-			throw new UnsupportedOperationException("NYI");
-
-		return new ExpressionHelper.ContainsConstantResolver(
-				queryEval, invokedExpr, FieldMetaRole.mapValue, invokeArgument,
-				resultDesc.isNegated()
-		).query();
-	}
-
-	/* (non-Javadoc)
-	 * @see org.cumulus4j.core.query.method.MethodEvaluator#evaluate(org.cumulus4j.core.query.QueryEvaluator, org.cumulus4j.core.query.eval.InvokeExpressionEvaluator, org.datanucleus.query.expression.VariableExpression, org.cumulus4j.core.query.eval.ResultDescriptor)
-	 */
-	@Override
-	public Set<Long> evaluate(QueryEvaluator queryEval,
-			InvokeExpressionEvaluator invokeExprEval, VariableExpression invokedExpr,
-			ResultDescriptor resultDesc) {
-		throw new UnsupportedOperationException("NYI invocation of Map.containsValue on a variable");
+		}
+		else {
+			throw new UnsupportedOperationException("NYI invocation of Map.containsValue on a variable");
+		}
 	}
 }

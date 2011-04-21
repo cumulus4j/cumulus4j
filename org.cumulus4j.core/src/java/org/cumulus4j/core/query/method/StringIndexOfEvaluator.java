@@ -36,8 +36,8 @@ import org.cumulus4j.core.query.eval.ExpressionHelper;
 import org.cumulus4j.core.query.eval.InvokeExpressionEvaluator;
 import org.cumulus4j.core.query.eval.PrimaryExpressionResolver;
 import org.cumulus4j.core.query.eval.ResultDescriptor;
+import org.datanucleus.query.expression.Expression;
 import org.datanucleus.query.expression.PrimaryExpression;
-import org.datanucleus.query.expression.VariableExpression;
 import org.datanucleus.store.ExecutionContext;
 
 /**
@@ -47,11 +47,11 @@ import org.datanucleus.store.ExecutionContext;
 public class StringIndexOfEvaluator extends AbstractMethodEvaluator {
 
 	/* (non-Javadoc)
-	 * @see org.cumulus4j.core.query.method.MethodEvaluator#evaluate(org.cumulus4j.core.query.QueryEvaluator, org.cumulus4j.core.query.eval.InvokeExpressionEvaluator, org.datanucleus.query.expression.PrimaryExpression, org.cumulus4j.core.query.eval.ResultDescriptor)
+	 * @see org.cumulus4j.core.query.method.MethodEvaluator#evaluate(org.cumulus4j.core.query.QueryEvaluator, org.cumulus4j.core.query.eval.InvokeExpressionEvaluator, org.datanucleus.query.expression.Expression, org.cumulus4j.core.query.eval.ResultDescriptor)
 	 */
 	@Override
 	public Set<Long> evaluate(QueryEvaluator queryEval,
-			InvokeExpressionEvaluator invokeExprEval, PrimaryExpression invokedExpr,
+			InvokeExpressionEvaluator invokeExprEval, Expression invokedExpr,
 			ResultDescriptor resultDesc) {
 		if (invokeExprEval.getExpression().getArguments().size() != 1)
 			throw new IllegalStateException("String.indexOf(...) expects exactly one argument, but there are " + 
@@ -60,25 +60,17 @@ public class StringIndexOfEvaluator extends AbstractMethodEvaluator {
 		// Evaluate the invoke argument
 		Object invokeArgument = ExpressionHelper.getEvaluatedInvokeArgument(queryEval, invokeExprEval.getExpression());
 
-		return new StringIndexOfResolver(invokeExprEval, queryEval, invokedExpr, invokeArgument, compareToArgument, 
-				resultDesc.isNegated()).query();
-	}
+		if (invokedExpr instanceof PrimaryExpression) {
+			return new StringIndexOfResolver(invokeExprEval, queryEval, (PrimaryExpression) invokedExpr, invokeArgument, 
+					compareToArgument, resultDesc.isNegated()).query();
+		}
+		else {
+			if (!invokeExprEval.getLeft().getResultSymbols().contains(resultDesc.getSymbol()))
+				return null;
 
-	public Set<Long> evaluate(QueryEvaluator queryEval,
-			InvokeExpressionEvaluator invokeExprEval, VariableExpression varExpr,
-			ResultDescriptor resultDesc) {
-		if (invokeExprEval.getExpression().getArguments().size() != 1)
-			throw new IllegalStateException("String.indexOf(...) expects exactly one argument, but there are " + 
-					invokeExprEval.getExpression().getArguments().size());
-
-		Object invokeArgument = ExpressionHelper.getEvaluatedInvokeArgument(queryEval, invokeExprEval.getExpression());
-
-		if (!invokeExprEval.getLeft().getResultSymbols().contains(resultDesc.getSymbol()))
-			return null;
-
-		// We query a simple data type (otherwise we would be above in the PrimaryExpressionEvaluator block), hence
-		// we do not need to recursively resolve some tuples.
-		return queryStringIndexOf(invokeExprEval, queryEval, resultDesc.getFieldMeta(), invokeArgument, compareToArgument, resultDesc.isNegated());
+			return queryStringIndexOf(invokeExprEval, queryEval, resultDesc.getFieldMeta(), invokeArgument, 
+					compareToArgument, resultDesc.isNegated());
+		}
 	}
 
 	// TODO Migrate this into StringIndexOfEvaluator
