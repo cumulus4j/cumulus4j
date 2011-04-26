@@ -64,7 +64,6 @@ public class KeyStoreUserTest
 	{
 		keyStore.createUser(null, null, "marco", "test12345".toCharArray());
 		keyStore.createUser("marco", "test00000".toCharArray(), "bieber", "test6789".toCharArray());
-//		keyStore.createUser("marco", "test12345".toCharArray(), "bieber", "test6789".toCharArray());
 	}
 
 	@Test

@@ -119,7 +119,10 @@ public class KeyStoreKeyTest
 		long firstKeyID = -1;
 		long lastKeyID = -1;
 		for (int i = 0; i < keyCount; ++i) {
+			stopwatch.start("05.generateOneKey");
 			GeneratedKey generatedKey = keyStore.generateKey(USER, PASSWORD);
+			stopwatch.stop("05.generateOneKey");
+
 			if (firstKeyID < 0)
 				firstKeyID = generatedKey.getKeyID();
 
