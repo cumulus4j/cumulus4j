@@ -77,7 +77,12 @@ public class JPQLQuery extends AbstractJPQLQuery {
 						Map<String, Object> parameterValues = parameters;
 						JDOQueryEvaluator queryEvaluator = new JDOQueryEvaluator(this, compilation, parameterValues, clr, pm);
 						candidates = queryEvaluator.execute();
-						inMemory_applyFilter = false;
+						if (queryEvaluator.isComplete()) {
+							inMemory_applyFilter = false;
+						}
+						else {
+							NucleusLogger.QUERY.debug("Query evaluation of filter in datastore was incomplete so doing further work in-memory");
+						}
 					}
 					catch (UnsupportedOperationException uoe)
 					{

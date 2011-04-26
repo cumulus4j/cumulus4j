@@ -4,8 +4,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.cumulus4j.core.query.QueryEvaluator;
+import org.cumulus4j.core.query.QueryHelper;
 import org.datanucleus.query.expression.DyadicExpression;
 import org.datanucleus.query.expression.Expression;
+import org.datanucleus.util.NucleusLogger;
 
 /**
  * <p>
@@ -74,8 +76,40 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		if (getRight() == null)
 			throw new IllegalStateException("getRight() == null");
 
-		Set<Long> leftResult = getLeft().queryResultDataEntryIDs(resultDescriptor);
-		Set<Long> rightResult = getRight().queryResultDataEntryIDs(resultDescriptor);
+		Set<Long> leftResult = null;
+		boolean leftEvaluated = true;
+		try {
+			leftResult = getLeft().queryResultDataEntryIDs(resultDescriptor);
+		}
+		catch (UnsupportedOperationException uoe) {
+			leftEvaluated = false;
+			getQueryEvaluator().setIncomplete();
+			NucleusLogger.QUERY.debug("Unsupported operation in LEFT : "+getLeft().getExpression() + " so deferring evaluation to in-memory");
+		}
+
+		Set<Long> rightResult = null;
+		boolean rightEvaluated = true;
+		try {
+			rightResult = getRight().queryResultDataEntryIDs(resultDescriptor);
+		}
+		catch (UnsupportedOperationException uoe) {
+			rightEvaluated = false;
+			getQueryEvaluator().setIncomplete();
+			NucleusLogger.QUERY.debug("Unsupported operation in RIGHT : "+getRight().getExpression() + " so deferring evaluation to in-memory");
+		}
+
+		if (leftEvaluated && !rightEvaluated) {
+			rightResult = QueryHelper.getAllDataEntryIdsForCandidate(getPersistenceManager(), getQueryEvaluator().getExecutionContext(),
+					getQueryEvaluator().getQuery().getCandidateClass(), getQueryEvaluator().getQuery().isSubclasses());
+		}
+		else if (!leftEvaluated && rightEvaluated) {
+			leftResult = QueryHelper.getAllDataEntryIdsForCandidate(getPersistenceManager(), getQueryEvaluator().getExecutionContext(),
+					getQueryEvaluator().getQuery().getCandidateClass(), getQueryEvaluator().getQuery().isSubclasses());
+		}
+		else if (!leftEvaluated && !rightEvaluated) {
+			leftResult = QueryHelper.getAllDataEntryIdsForCandidate(getPersistenceManager(), getQueryEvaluator().getExecutionContext(),
+					getQueryEvaluator().getQuery().getCandidateClass(), getQueryEvaluator().getQuery().isSubclasses());
+		}
 
 		if (leftResult != null && rightResult != null) {
 			Set<Long> result = new HashSet<Long>(leftResult.size() + rightResult.size());
