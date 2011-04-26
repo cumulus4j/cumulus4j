@@ -11,6 +11,7 @@ import org.cumulus4j.core.query.method.MapContainsKeyEvaluator;
 import org.cumulus4j.core.query.method.MapContainsValueEvaluator;
 import org.cumulus4j.core.query.method.StringEndsWithEvaluator;
 import org.cumulus4j.core.query.method.StringIndexOfEvaluator;
+import org.cumulus4j.core.query.method.StringMatchesEvaluator;
 import org.cumulus4j.core.query.method.StringStartsWithEvaluator;
 import org.datanucleus.query.expression.InvokeExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
@@ -66,6 +67,11 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 					StringEndsWithEvaluator eval = new StringEndsWithEvaluator();
 					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
 				}
+				else if ("matches".equals(this.getExpression().getOperation())) {
+					// primExpr.matches(str)
+					StringMatchesEvaluator eval = new StringMatchesEvaluator();
+					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
+				}
 			}
 			else if (Collection.class.isAssignableFrom(invocationTargetType)) {
 				if ("contains".equals(this.getExpression().getOperation())) {
@@ -117,6 +123,11 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 				else if ("endsWith".equals(this.getExpression().getOperation())) {
 					// varExpr.endsWith(str)
 					StringEndsWithEvaluator eval = new StringEndsWithEvaluator();
+					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
+				}
+				else if ("matches".equals(this.getExpression().getOperation())) {
+					// primExpr.matches(str)
+					StringMatchesEvaluator eval = new StringMatchesEvaluator();
 					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
 				}
 			}
