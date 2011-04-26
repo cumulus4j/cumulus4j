@@ -21,6 +21,32 @@ import org.datanucleus.store.ExecutionContext;
  */
 public class QueryHelper {
 
+	public static Set<Long> getAllDataEntryIdsForCandidate(PersistenceManager pm, ExecutionContext ec, Class candidateCls, boolean subclasses) {
+		javax.jdo.Query q = pm.newQuery(DataEntry.class);
+		q.setResult("this.dataEntryID");
+
+		Object queryParam;
+		Set<ClassMeta> classMetas = QueryHelper.getCandidateClassMetas((Cumulus4jStoreManager) ec.getStoreManager(), 
+				ec, candidateCls, subclasses);
+		if (classMetas.size() == 1) {
+			q.setFilter("this.classMeta == :classMeta");
+			queryParam = classMetas.iterator().next();
+		}
+		else {
+			q.setFilter(":classMetas.contains(this.classMeta)");
+			queryParam = classMetas;
+		}
+
+		@SuppressWarnings("unchecked")
+		Collection<Object[]> c = (Collection<Object[]>) q.execute(queryParam);
+		Set<Long> resultList = new HashSet<Long>(c.size());
+		for (Object[] oa : c) {
+			resultList.add((Long)oa[0]);
+		}
+		q.closeAll();
+		return resultList;
+	}
+
 	/**
 	 * Convenience method to return the persistent objects for the classes with the provided ClassMetas.
 	 * @param pm PersistenceManager for the underlying StoreManager
