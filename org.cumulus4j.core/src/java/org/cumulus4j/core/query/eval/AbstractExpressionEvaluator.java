@@ -17,7 +17,6 @@ import org.cumulus4j.core.query.QueryEvaluator;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.query.expression.Expression;
-import org.datanucleus.query.expression.Expression.Operator;
 import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.query.expression.VariableExpression;
 import org.datanucleus.query.symbol.Symbol;
@@ -399,23 +398,5 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 		}
 		else
 			throw new UnsupportedOperationException("NYI");
-	}
-
-	public static String getOperatorAsJDOQLSymbol(Operator operator, boolean negate)
-	{
-		if (Expression.OP_EQ == operator)
-			return negate ? "!=" : "==";
-		if (Expression.OP_NOTEQ == operator)
-			return negate ? "==" : "!=";
-		if (Expression.OP_LT == operator)
-			return negate ? ">=" : "<";
-		if (Expression.OP_LTEQ == operator)
-			return negate ? ">"  : "<=";
-		if (Expression.OP_GT == operator)
-			return negate ? "<=" : ">";
-		if (Expression.OP_GTEQ == operator)
-			return negate ? "<"  : ">=";
-
-		throw new UnsupportedOperationException("NYI");
 	}
 }

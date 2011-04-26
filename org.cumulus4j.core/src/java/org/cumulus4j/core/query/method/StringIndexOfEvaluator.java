@@ -31,7 +31,6 @@ import org.cumulus4j.core.model.IndexEntryFactory;
 import org.cumulus4j.core.model.IndexEntryFactoryRegistry;
 import org.cumulus4j.core.model.IndexValue;
 import org.cumulus4j.core.query.QueryEvaluator;
-import org.cumulus4j.core.query.eval.AbstractExpressionEvaluator;
 import org.cumulus4j.core.query.eval.ExpressionHelper;
 import org.cumulus4j.core.query.eval.InvokeExpressionEvaluator;
 import org.cumulus4j.core.query.eval.PrimaryExpressionResolver;
@@ -90,7 +89,9 @@ public class StringIndexOfEvaluator extends AbstractMethodEvaluator {
 		Query q = queryEval.getPersistenceManager().newQuery(indexEntryFactory.getIndexEntryClass());
 		q.setFilter(
 				"this.fieldMeta == :fieldMeta && " +
-				"this.indexKey.indexOf(:invokeArgument) " + AbstractExpressionEvaluator.getOperatorAsJDOQLSymbol(invokeExprEval.getParent().getExpression().getOperator(), negate) + " :compareToArgument"
+				"this.indexKey.indexOf(:invokeArgument) " + 
+				ExpressionHelper.getOperatorAsJDOQLSymbol(invokeExprEval.getParent().getExpression().getOperator(), negate) + 
+				" :compareToArgument"
 		);
 		Map<String, Object> params = new HashMap<String, Object>(3);
 		params.put("fieldMeta", fieldMeta);
@@ -119,7 +120,7 @@ public class StringIndexOfEvaluator extends AbstractMethodEvaluator {
 		public StringIndexOfResolver(
 				InvokeExpressionEvaluator invokeExprEval,
 				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
-				Object invokeArgument, // the xxx in 'indexOf(xxx)'
+				Object invokeArgument, // the xxx in 'indexOf(xxx) >= yyy'
 				Object compareToArgument, // the yyy in 'indexOf(xxx) >= yyy'
 				boolean negate
 		)

@@ -27,6 +27,7 @@ import org.datanucleus.query.expression.Literal;
 import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.query.expression.VariableExpression;
+import org.datanucleus.query.expression.Expression.Operator;
 import org.datanucleus.util.NucleusLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -348,5 +349,23 @@ public class ExpressionHelper
 				return negateIfNecessary(fieldMeta, indexValue.getDataEntryIDs());
 			}
 		}
+	}
+
+	public static String getOperatorAsJDOQLSymbol(Operator operator, boolean negate)
+	{
+		if (Expression.OP_EQ == operator)
+			return negate ? "!=" : "==";
+		if (Expression.OP_NOTEQ == operator)
+			return negate ? "==" : "!=";
+		if (Expression.OP_LT == operator)
+			return negate ? ">=" : "<";
+		if (Expression.OP_LTEQ == operator)
+			return negate ? ">"  : "<=";
+		if (Expression.OP_GT == operator)
+			return negate ? "<=" : ">";
+		if (Expression.OP_GTEQ == operator)
+			return negate ? "<"  : ">=";
+
+		throw new UnsupportedOperationException("NYI");
 	}
 }

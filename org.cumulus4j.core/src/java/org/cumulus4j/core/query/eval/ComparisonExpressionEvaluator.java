@@ -213,6 +213,6 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 	private String getOperatorAsJDOQLSymbol(boolean negate)
 	{
 		Operator op = getExpression().getOperator();
-		return getOperatorAsJDOQLSymbol(op, negate);
+		return ExpressionHelper.getOperatorAsJDOQLSymbol(op, negate);
 	}
 }
