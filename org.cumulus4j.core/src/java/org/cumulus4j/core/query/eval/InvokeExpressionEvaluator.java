@@ -10,6 +10,8 @@ import org.cumulus4j.core.query.method.CollectionIsEmptyEvaluator;
 import org.cumulus4j.core.query.method.MapContainsKeyEvaluator;
 import org.cumulus4j.core.query.method.MapContainsValueEvaluator;
 import org.cumulus4j.core.query.method.StringEndsWithEvaluator;
+import org.cumulus4j.core.query.method.StringEqualsEvaluator;
+import org.cumulus4j.core.query.method.StringEqualsIgnoreCaseEvaluator;
 import org.cumulus4j.core.query.method.StringIndexOfEvaluator;
 import org.cumulus4j.core.query.method.StringMatchesEvaluator;
 import org.cumulus4j.core.query.method.StringStartsWithEvaluator;
@@ -55,6 +57,16 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 					// primExpr.indexOf(str) {operation} {comparisonObj}
 					StringIndexOfEvaluator eval = new StringIndexOfEvaluator();
 					eval.setCompareToArgument(getCompareToArgument());
+					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
+				}
+				else if ("equals".equals(this.getExpression().getOperation())) {
+					// primExpr.equals(str)
+					StringEqualsEvaluator eval = new StringEqualsEvaluator();
+					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
+				}
+				else if ("equalsIgnoreCase".equals(this.getExpression().getOperation())) {
+					// primExpr.equalsIgnoreCase(str)
+					StringEqualsIgnoreCaseEvaluator eval = new StringEqualsIgnoreCaseEvaluator();
 					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
 				}
 				else if ("startsWith".equals(this.getExpression().getOperation())) {
@@ -115,6 +127,16 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 					eval.setCompareToArgument(getCompareToArgument());
 					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
 				}
+				else if ("equals".equals(this.getExpression().getOperation())) {
+					// varExpr.equals(str)
+					StringEqualsEvaluator eval = new StringEqualsEvaluator();
+					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
+				}
+				else if ("equalsIgnoreCase".equals(this.getExpression().getOperation())) {
+					// varExpr.equalsIgnoreCase(str)
+					StringEqualsIgnoreCaseEvaluator eval = new StringEqualsIgnoreCaseEvaluator();
+					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
+				}
 				else if ("startsWith".equals(this.getExpression().getOperation())) {
 					// varExpr.startsWith(str)
 					StringStartsWithEvaluator eval = new StringStartsWithEvaluator();
@@ -126,7 +148,7 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
 				}
 				else if ("matches".equals(this.getExpression().getOperation())) {
-					// primExpr.matches(str)
+					// varExpr.matches(str)
 					StringMatchesEvaluator eval = new StringMatchesEvaluator();
 					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
 				}
