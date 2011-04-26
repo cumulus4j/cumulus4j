@@ -261,6 +261,19 @@ extends AbstractTransactionalTest
 		assertDelegate0(delegate);
 	}
 
+	@Test
+	public void queryStringEndsWith2() throws IOException
+	{
+		// The second part here is not (currently Apr/2011) evaluatable in-datastore so tests partial evaluation
+		Query q = pm.newQuery(LocalAccountantDelegate.class);
+		q.setFilter("this.name.endsWith(:endStr) && this.name.substring(1).endsWith('bla.')");
+
+		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("bla.");
+		Assert.assertEquals("Number of results was wrong", 1, result.size());
+		LocalAccountantDelegate delegate = result.iterator().next();
+		assertDelegate0(delegate);
+	}
+
 	@After
 	public void deleteAll() throws IOException
 	{
