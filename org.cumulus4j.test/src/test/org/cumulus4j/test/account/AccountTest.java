@@ -274,6 +274,23 @@ extends AbstractTransactionalTest
 		assertDelegate0(delegate);
 	}
 
+	@Test
+	public void queryStringMatches() throws IOException
+	{
+		Query q = pm.newQuery(LocalAccountantDelegate.class);
+		q.setFilter("this.name.matches(:endStr)");
+
+		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute(".*bla.*");
+		Assert.assertEquals("Number of results was wrong", 1, result.size());
+		LocalAccountantDelegate delegate = result.iterator().next();
+		assertDelegate0(delegate);
+
+		result = (List<LocalAccountantDelegate>) q.execute("(?i).*BLA.*");
+		Assert.assertEquals("Number of results was wrong", 1, result.size());
+		delegate = result.iterator().next();
+		assertDelegate0(delegate);
+	}
+
 	@After
 	public void deleteAll() throws IOException
 	{
