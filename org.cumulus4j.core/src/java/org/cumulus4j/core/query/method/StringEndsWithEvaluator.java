@@ -53,7 +53,7 @@ public class StringEndsWithEvaluator extends AbstractMethodEvaluator
 	private Set<Long> queryStringEndsWith(
 			QueryEvaluator queryEval,
 			FieldMeta fieldMeta,
-			Object invokeArgument, // the xxx in 'indexOf(xxx)'
+			Object invokeArgument, // the xxx in 'endsWith(xxx)'
 			boolean negate
 	) {
 		ExecutionContext executionContext = queryEval.getExecutionContext();

@@ -53,7 +53,7 @@ public class StringStartsWithEvaluator extends AbstractMethodEvaluator
 	private Set<Long> queryStringStartsWith(
 			QueryEvaluator queryEval,
 			FieldMeta fieldMeta,
-			Object invokeArgument, // the xxx in 'indexOf(xxx)'
+			Object invokeArgument, // the xxx in 'startsWith(xxx)'
 			boolean negate
 	) {
 		ExecutionContext executionContext = queryEval.getExecutionContext();
