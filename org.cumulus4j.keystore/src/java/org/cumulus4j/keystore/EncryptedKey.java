@@ -5,7 +5,7 @@ class EncryptedKey
 	private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
 	public EncryptedKey(
-			byte[] data, byte[] salt, String algorithm, String keyEncryptionAlgorithm, byte[] hash, String hashAlgorithm
+			byte[] data, byte[] salt, String algorithm, byte[] keyEncryptionIV, String keyEncryptionAlgorithm, byte[] hash, String hashAlgorithm
 	)
 	{
 		if (data == null)
@@ -35,6 +35,7 @@ class EncryptedKey
 		this.data = data;
 		this.salt = salt;
 		this.algorithm = algorithm;
+		this.keyEncryptionIV = keyEncryptionIV;
 		this.keyEncryptionAlgorithm = keyEncryptionAlgorithm;
 		this.hash = hash;
 		this.hashAlgorithm = hashAlgorithm;
@@ -56,6 +57,12 @@ class EncryptedKey
 
 	public String getAlgorithm() {
 		return algorithm;
+	}
+
+	byte[] keyEncryptionIV;
+
+	public byte[] getKeyEncryptionIV() {
+		return keyEncryptionIV;
 	}
 
 	private String keyEncryptionAlgorithm;

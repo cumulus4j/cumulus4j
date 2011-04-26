@@ -1,11 +1,14 @@
 package org.cumulus4j.keystore.test;
 
 import java.io.File;
+import java.security.Key;
 
 import org.cumulus4j.keystore.CannotDeleteLastUserException;
+import org.cumulus4j.keystore.GeneratedKey;
 import org.cumulus4j.keystore.KeyStore;
 import org.cumulus4j.keystore.LoginException;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -90,5 +93,68 @@ public class KeyStoreUserTest
 		keyStore.createUser("marco", "test12345".toCharArray(), "bieber", "test6789".toCharArray());
 		keyStore.deleteUser("bieber", "test6789".toCharArray(), "marco");
 		keyStore.deleteUser("bieber", "test6789".toCharArray(), "bieber");
+	}
+
+	@Test
+	public void create2UsersAndChangePasswordOf2nd()
+	throws Exception
+	{
+		String authUserName = "marco";
+		char[] authPassword = "test12345".toCharArray();
+		keyStore.createUser(null, null, authUserName, authPassword);
+
+		char[] oldPwBieber = "test6789".toCharArray();
+		char[] newPwBieber = "xxxNEWxxx".toCharArray();
+
+		keyStore.createUser(authUserName, authPassword, "bieber", oldPwBieber);
+
+		// validate, that the old password can really be used BEFORE changing it.
+		keyStore.generateKey("bieber", oldPwBieber);
+
+		keyStore.changeUserPassword(authUserName, authPassword, "bieber", newPwBieber);
+
+		// validate, that the new password can really be used.
+		keyStore.generateKey("bieber", newPwBieber);
+
+		// validate, that the old password cannot be used anymore
+		boolean loginExceptionThrown = false;
+		try {
+			keyStore.generateKey("bieber", oldPwBieber);
+		} catch (LoginException x) {
+			// great!
+			loginExceptionThrown = true;
+		}
+		Assert.assertTrue("Generating a key with the old password succeeded, but it should have failed!", loginExceptionThrown);
+	}
+
+	@Test
+	public void createUserAndChangeOwnPassword()
+	throws Exception
+	{
+		String authUserName = "marco";
+		char[] oldPassword = "test12345".toCharArray();
+		char[] newPassword = "000111222".toCharArray();
+		keyStore.createUser(null, null, authUserName, oldPassword);
+
+		// validate, that the old password can really be used BEFORE changing it.
+		GeneratedKey generatedKey = keyStore.generateKey(authUserName, oldPassword);
+
+		keyStore.changeMyPassword(authUserName, oldPassword, newPassword);
+
+		// validate, that the new password can really be used.
+		Key key = keyStore.getKey(authUserName, newPassword, generatedKey.getKeyID());
+
+		// check, if it is really the same.
+		Assert.assertArrayEquals(generatedKey.getKey().getEncoded(), key.getEncoded());
+
+		// validate, that the old password cannot be used anymore
+		boolean loginExceptionThrown = false;
+		try {
+			keyStore.getKey(authUserName, oldPassword, generatedKey.getKeyID());
+		} catch (LoginException x) {
+			// great!
+			loginExceptionThrown = true;
+		}
+		Assert.assertTrue("Getting a key with the old password succeeded, but it should have failed!", loginExceptionThrown);
 	}
 }

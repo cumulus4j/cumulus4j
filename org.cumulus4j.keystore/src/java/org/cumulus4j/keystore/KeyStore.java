@@ -287,6 +287,9 @@ public class KeyStore
 
 		dout.writeUTF(key.getAlgorithm());
 
+		dout.writeInt(key.getKeyEncryptionIV().length);
+		dout.write(key.getKeyEncryptionIV());
+
 		dout.writeUTF(key.getKeyEncryptionAlgorithm());
 
 		dout.writeInt(key.getHash().length);
@@ -309,6 +312,11 @@ public class KeyStore
 		String algorithm = din.readUTF();
 		algorithm = stringConstant(algorithm);
 
+		int keyCryptIVSize = din.readInt();
+		byte[] keyCryptIV = keyCryptIVSize == 0 ? null : new byte[keyCryptIVSize];
+		if (keyCryptIV != null)
+			readByteArrayCompletely(din, keyCryptIV);
+
 		String keyCryptAlgo = din.readUTF();
 		keyCryptAlgo = stringConstant(keyCryptAlgo);
 
@@ -320,7 +328,7 @@ public class KeyStore
 		String hashAlgo = din.readUTF();
 		hashAlgo = stringConstant(hashAlgo);
 
-		return new EncryptedKey(key, salt, algorithm, keyCryptAlgo, hash, hashAlgo);
+		return new EncryptedKey(key, salt, algorithm, keyCryptIV, keyCryptAlgo, hash, hashAlgo);
 	}
 
 	protected File getNewKeyStoreFile()
@@ -352,7 +360,9 @@ public class KeyStore
 		else {
 			try {
 				Cipher cipher = getCipherForUserPassword(
-						authPassword, encryptedKey.getSalt(), encryptedKey.getKeyEncryptionAlgorithm(), Cipher.DECRYPT_MODE
+						authPassword, encryptedKey.getSalt(),
+						encryptedKey.getKeyEncryptionIV(), encryptedKey.getKeyEncryptionAlgorithm(),
+						Cipher.DECRYPT_MODE
 				);
 				byte[] decrypted = cipher.doFinal(encryptedKey.getData());
 				result = new MasterKey(new SecretKeySpec(decrypted, encryptedKey.getAlgorithm()));
@@ -378,8 +388,17 @@ public class KeyStore
 		return result;
 	}
 
-	private Cipher getCipherForUserPassword(char[] password, byte[] salt, String algorithm, int opmode) throws GeneralSecurityException
+	private Cipher getCipherForUserPassword(char[] password, byte[] salt, byte[] iv, String algorithm, int opmode) throws GeneralSecurityException
 	{
+		if (iv == null) {
+			if (Cipher.ENCRYPT_MODE != opmode)
+				throw new IllegalArgumentException("iv must not be null when decrypting!");
+		}
+		else {
+			if (Cipher.ENCRYPT_MODE == opmode)
+				throw new IllegalArgumentException("iv must be null when encrypting!");
+		}
+
 		if (algorithm == null) {
 			if (Cipher.ENCRYPT_MODE != opmode)
 				throw new IllegalArgumentException("algorithm must not be null when decrypting!");
@@ -393,9 +412,12 @@ public class KeyStore
 		SecretKey tmp = factory.generateSecret(spec);
 		SecretKey secret = new SecretKeySpec(tmp.getEncoded(), getBaseAlgorithm(algorithm));
 		Cipher cipher = Cipher.getInstance(algorithm);
-		byte[] iv = new byte[cipher.getBlockSize()];
-		Arrays.fill(iv, (byte)0); // No need of an IV, because we use a salt.
-		cipher.init(opmode, secret, new IvParameterSpec(iv));
+
+		if (iv == null)
+			cipher.init(opmode, secret);
+		else
+			cipher.init(opmode, secret, new IvParameterSpec(iv));
+
 		return cipher;
 	}
 
@@ -409,8 +431,17 @@ public class KeyStore
 		return stringConstant(algorithm.substring(0, slashIdx));
 	}
 
-	private Cipher getCipherForMasterKey(MasterKey masterKey, String algorithm, int opmode) throws GeneralSecurityException
+	private Cipher getCipherForMasterKey(MasterKey masterKey, byte[] iv, String algorithm, int opmode) throws GeneralSecurityException
 	{
+		if (iv == null) {
+			if (Cipher.ENCRYPT_MODE != opmode)
+				throw new IllegalArgumentException("iv must not be null when decrypting!");
+		}
+		else {
+			if (Cipher.ENCRYPT_MODE == opmode)
+				throw new IllegalArgumentException("iv must be null when encrypting!");
+		}
+
 		if (algorithm == null) {
 			if (Cipher.ENCRYPT_MODE != opmode)
 				throw new IllegalArgumentException("algorithm must not be null when decrypting!");
@@ -419,7 +450,12 @@ public class KeyStore
 		}
 
 		Cipher cipher = Cipher.getInstance(algorithm);
-		cipher.init(opmode, masterKey.getKey());
+
+		if (iv == null)
+			cipher.init(opmode, masterKey.getKey());
+		else
+			cipher.init(opmode, masterKey.getKey(), new IvParameterSpec(iv));
+
 		return cipher;
 	}
 
@@ -506,17 +542,28 @@ public class KeyStore
 		else
 			masterKey = getMasterKey(authUserName, authPassword);
 
+		if (user2keyMap.containsKey(userName))
+			throw new UserAlreadyExistsException("User '" + userName + "' already exists!");
+
+		setUser(masterKey, userName, password);
+	}
+
+	protected synchronized void setUser(MasterKey masterKey, String userName, char[] password)
+	throws IOException
+	{
 		String hashAlgo = HASH_ALGORITHM_SIMPLE_XOR;
 		byte[] hash = hash(masterKey.getKey().getEncoded(), userName.getBytes(UTF8), hashAlgo);
 
 		byte[] salt = new byte[8]; // TODO make salt-length configurable!
 		secureRandom.nextBytes(salt);
 		try {
-			Cipher cipher = getCipherForUserPassword(password, salt, null, Cipher.ENCRYPT_MODE);
+			Cipher cipher = getCipherForUserPassword(password, salt, null, null, Cipher.ENCRYPT_MODE);
 			byte[] encrypted = cipher.doFinal(masterKey.getKey().getEncoded());
 
 			EncryptedKey encryptedKey = new EncryptedKey(
-					encrypted, salt, masterKey.getKey().getAlgorithm(), cipher.getAlgorithm(), hash, hashAlgo
+					encrypted, salt, masterKey.getKey().getAlgorithm(),
+					cipher.getIV(), cipher.getAlgorithm(),
+					hash, hashAlgo
 			);
 			user2keyMap.put(userName, encryptedKey);
 		} catch (GeneralSecurityException e) {
@@ -631,21 +678,12 @@ public class KeyStore
 	public synchronized void changeUserPassword(String authUserName, char[] authPassword, String userName, char[] newPassword)
 	throws LoginException, UserDoesNotExistException, IOException
 	{
-		throw new UnsupportedOperationException("NYI");
-//		MasterKey masterKey = getMasterKey(authUserName, authPassword);
-//
-//		String userNameAlias = getAliasForUserName(userName);
-//		try {
-//			if (!jks.containsAlias(userNameAlias))
-//				throw new UserDoesNotExistException("The user \"" + userName + "\" does not exist!");
-//
-//			jks.setKeyEntry(userNameAlias, masterKey.getKey(), newPassword, null);
-//		} catch (KeyStoreException e) {
-//			// should only be thrown, if the keyStore is not initialized and this is done in our constructor!
-//			throw new RuntimeException(e);
-//		}
-//
-//		storeToFile();
+		MasterKey masterKey = getMasterKey(authUserName, authPassword);
+
+		if (!user2keyMap.containsKey(userName))
+			throw new UserDoesNotExistException("User '" + userName + "' does not exist!");
+
+		setUser(masterKey, userName, newPassword);
 	}
 
 	public synchronized Key getKey(String authUserName, char[] authPassword, long keyID)
@@ -657,7 +695,12 @@ public class KeyStore
 			return null;
 
 		try {
-			Cipher cipher = getCipherForMasterKey(masterKey, encryptedKey.getAlgorithm(), Cipher.DECRYPT_MODE);
+			Cipher cipher = getCipherForMasterKey(
+					masterKey,
+					encryptedKey.getKeyEncryptionIV(),
+					encryptedKey.getKeyEncryptionAlgorithm(),
+					Cipher.DECRYPT_MODE
+			);
 			byte[] decrypted = cipher.doFinal(encryptedKey.getData());
 
 			if (encryptedKey.getHash().length > 0) {
@@ -681,10 +724,12 @@ public class KeyStore
 		byte[] hash = hash(key.getEncoded(), authUserName.getBytes(UTF8), hashAlgo);
 
 		try {
-			Cipher cipher = getCipherForMasterKey(masterKey, null, Cipher.ENCRYPT_MODE);
+			Cipher cipher = getCipherForMasterKey(masterKey, null, null, Cipher.ENCRYPT_MODE);
 			byte[] encrypted = cipher.doFinal(key.getEncoded());
 			EncryptedKey encryptedKey = new EncryptedKey(
-					encrypted, null, key.getAlgorithm(), cipher.getAlgorithm(), hash, hashAlgo
+					encrypted, null, key.getAlgorithm(),
+					cipher.getIV(), cipher.getAlgorithm(),
+					hash, hashAlgo
 			);
 			keyID2keyMap.put(keyID, encryptedKey);
 		} catch (GeneralSecurityException e) {
