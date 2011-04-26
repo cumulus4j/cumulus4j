@@ -1,5 +1,8 @@
 package org.cumulus4j.keystore;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 class EncryptedKey
 {
 	private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];

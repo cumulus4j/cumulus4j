@@ -2,6 +2,9 @@ package org.cumulus4j.keystore;
 
 import java.security.Key;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class GeneratedKey
 {
 	private long keyID;

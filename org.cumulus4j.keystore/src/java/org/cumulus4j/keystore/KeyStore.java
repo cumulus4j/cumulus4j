@@ -18,9 +18,12 @@ import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
@@ -38,6 +41,9 @@ import javax.crypto.spec.SecretKeySpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class KeyStore
 {
 	private static final Logger logger = LoggerFactory.getLogger(KeyStore.class);
@@ -61,7 +67,8 @@ public class KeyStore
 		}
 
 		@Override
-		public void run() {
+		public void run()
+		{
 			KeyStore keyStore = keyStoreRef.get();
 			if (keyStore == null) {
 				logger.info("run: KeyStore has been garbage-collected. Removing this ExipreCacheEntryTimerTask.");
@@ -69,7 +76,20 @@ public class KeyStore
 				return;
 			}
 
-			// TODO expire cache entries, i.e. call clearCache(...) for all old, expired entries
+			Date removeCachedEntriesOlderThanThisDate = new Date(System.currentTimeMillis() - 1L * 60L * 1000L); // TODO make this configurable!
+
+			LinkedList<String> userNamesToExpire = new LinkedList<String>();
+			synchronized (keyStore) {
+				for (CachedMasterKey cmk : keyStore.cache_userName2cachedMasterKey.values()) {
+					if (cmk.getLastUse().before(removeCachedEntriesOlderThanThisDate))
+						userNamesToExpire.add(cmk.getUserName());
+				}
+			}
+
+			for (String userName : userNamesToExpire) {
+				logger.info("run: Expiring cache for user '{}'.", userName);
+				keyStore.clearCache(userName);
+			}
 		}
 	};
 
@@ -135,7 +155,25 @@ public class KeyStore
 
 
 
-	private Map<String, String> stringConstantMap = new HashMap<String, String>();
+	private Map<String, Integer> stringConstant2idMap = new HashMap<String, Integer>();
+	private ArrayList<String> stringConstantList = new ArrayList<String>();
+
+	private synchronized String stringConstant(String s)
+	{
+		Integer idx = stringConstant2idMap.get(s);
+		if (idx == null) {
+			stringConstant2idMap.put(s, stringConstantList.size());
+			stringConstantList.add(s);
+			return s;
+		}
+		else {
+			String e = stringConstantList.get(idx);
+			if (!s.equals(e))
+				throw new IllegalStateException("Map and list are not matching!");
+
+			return e;
+		}
+	}
 
 	protected synchronized KeyGenerator getKeyGenerator(int keySize)
 	{
@@ -143,7 +181,7 @@ public class KeyStore
 
 		if (keyGenerator == null) {
 			try {
-				keyGenerator = KeyGenerator.getInstance("AES"); // TODO make this configurable
+				keyGenerator = KeyGenerator.getInstance(getBaseAlgorithm(getEncryptionAlgorithm()));
 			} catch (NoSuchAlgorithmException e) {
 				throw new RuntimeException(e);
 			}
@@ -189,8 +227,6 @@ public class KeyStore
 	private void load(InputStream in)
 	throws IOException
 	{
-		stringConstantMap.clear();
-
 		DataInputStream din = new DataInputStream(new BufferedInputStream(in));
 
 		char[] fileHeaderCharArray = FILE_HEADER.toCharArray();
@@ -207,6 +243,14 @@ public class KeyStore
 
 		nextKeyID = din.readLong();
 
+		int stringConstantSize = din.readInt();
+		stringConstant2idMap.clear();
+		stringConstantList.clear();
+		for (int i = 0; i < stringConstantSize; ++i) {
+			String stringConstant = din.readUTF();
+			stringConstant(stringConstant);
+		}
+
 		int user2keyMapSize = din.readInt();
 		user2keyMap.clear();
 		for (int i = 0; i < user2keyMapSize; ++i) {
@@ -222,17 +266,6 @@ public class KeyStore
 			EncryptedKey key = readKey(din);
 			keyID2keyMap.put(keyID, key);
 		}
-	}
-
-	private String stringConstant(String s)
-	{
-		String v = stringConstantMap.get(s);
-		if (v == null)
-			stringConstantMap.put(s, s);
-		else
-			s = v;
-
-		return s;
 	}
 
 	private static void readByteArrayCompletely(InputStream in, byte[] dest)
@@ -263,6 +296,11 @@ public class KeyStore
 		dout.writeInt(FILE_VERSION);
 		dout.writeLong(nextKeyID);
 
+		dout.writeInt(stringConstantList.size());
+		for (String stringConstant : stringConstantList) {
+			dout.writeUTF(stringConstant);
+		}
+
 		dout.writeInt(user2keyMap.size());
 		for (Map.Entry<String, EncryptedKey> me : user2keyMap.entrySet()) {
 			dout.writeUTF(me.getKey());
@@ -285,17 +323,23 @@ public class KeyStore
 		dout.writeInt(key.getSalt().length);
 		dout.write(key.getSalt());
 
-		dout.writeUTF(key.getAlgorithm());
+		Integer idx = stringConstant2idMap.get(key.getAlgorithm());
+		dout.writeInt(idx);
+//		dout.writeUTF(key.getAlgorithm());
 
 		dout.writeInt(key.getKeyEncryptionIV().length);
 		dout.write(key.getKeyEncryptionIV());
 
-		dout.writeUTF(key.getKeyEncryptionAlgorithm());
+		idx = stringConstant2idMap.get(key.getKeyEncryptionAlgorithm());
+		dout.writeInt(idx);
+//		dout.writeUTF(key.getKeyEncryptionAlgorithm());
 
 		dout.writeInt(key.getHash().length);
 		dout.write(key.getHash());
 
-		dout.writeUTF(key.getHashAlgorithm());
+		idx = stringConstant2idMap.get(key.getHashAlgorithm());
+		dout.writeInt(idx);
+//		dout.writeUTF(key.getHashAlgorithm());
 	}
 
 	private EncryptedKey readKey(DataInputStream din) throws IOException
@@ -309,24 +353,30 @@ public class KeyStore
 		if (salt != null)
 			readByteArrayCompletely(din, salt);
 
-		String algorithm = din.readUTF();
-		algorithm = stringConstant(algorithm);
+		int algorithmIdx = din.readInt();
+		String algorithm = stringConstantList.get(algorithmIdx);
+//		String algorithm = din.readUTF();
+//		algorithm = stringConstant(algorithm);
 
 		int keyCryptIVSize = din.readInt();
 		byte[] keyCryptIV = keyCryptIVSize == 0 ? null : new byte[keyCryptIVSize];
 		if (keyCryptIV != null)
 			readByteArrayCompletely(din, keyCryptIV);
 
-		String keyCryptAlgo = din.readUTF();
-		keyCryptAlgo = stringConstant(keyCryptAlgo);
+		int keyCryptAlgoIdx = din.readInt();
+		String keyCryptAlgo = stringConstantList.get(keyCryptAlgoIdx);
+//		String keyCryptAlgo = din.readUTF();
+//		keyCryptAlgo = stringConstant(keyCryptAlgo);
 
 		int hashSize = din.readInt();
 		byte hash[] = hashSize == 0 ? null : new byte[hashSize];
 		if (hash != null)
 			readByteArrayCompletely(din, hash);
 
-		String hashAlgo = din.readUTF();
-		hashAlgo = stringConstant(hashAlgo);
+		int hashAlgoIdx = din.readInt();
+		String hashAlgo = stringConstantList.get(hashAlgoIdx);
+//		String hashAlgo = din.readUTF();
+//		hashAlgo = stringConstant(hashAlgo);
 
 		return new EncryptedKey(key, salt, algorithm, keyCryptIV, keyCryptAlgo, hash, hashAlgo);
 	}
@@ -347,12 +397,17 @@ public class KeyStore
 		return result;
 	}
 
+	private Map<String, CachedMasterKey> cache_userName2cachedMasterKey = new HashMap<String, CachedMasterKey>();
+
 	protected synchronized MasterKey getMasterKey(String authUserName, char[] authPassword)
 	throws LoginException
 	{
-		MasterKey result = null;
-
-		// TODO consult a cache to speed things up!
+		CachedMasterKey cachedMasterKey = cache_userName2cachedMasterKey.get(authUserName);
+		MasterKey result = cachedMasterKey == null ? null : cachedMasterKey.getMasterKey();
+		if (result != null && Arrays.equals(authPassword, cachedMasterKey.getPassword())) {
+			cachedMasterKey.updateLastUse();
+			return result;
+		}
 
 		EncryptedKey encryptedKey = user2keyMap.get(authUserName);
 		if (encryptedKey == null)
@@ -385,6 +440,7 @@ public class KeyStore
 		if (result == null)
 			throw new LoginException("Unknown user \"" + authUserName + "\" or wrong password!");
 
+		cache_userName2cachedMasterKey.put(authUserName, new CachedMasterKey(authUserName, authPassword, result));
 		return result;
 	}
 
@@ -426,9 +482,9 @@ public class KeyStore
 	{
 		int slashIdx = algorithm.indexOf('/');
 		if (slashIdx < 0)
-			return stringConstant(algorithm);
+			return algorithm;
 
-		return stringConstant(algorithm.substring(0, slashIdx));
+		return algorithm.substring(0, slashIdx);
 	}
 
 	private Cipher getCipherForMasterKey(MasterKey masterKey, byte[] iv, String algorithm, int opmode) throws GeneralSecurityException
@@ -459,44 +515,6 @@ public class KeyStore
 		return cipher;
 	}
 
-//	protected static char[] toCharArray(byte[] byteArray)
-//	{
-//		int charArrayLength = byteArray.length / 2;
-//		if ((byteArray.length % 2) != 0)
-//			++charArrayLength;
-//
-//		char[] charArray = new char[charArrayLength];
-//		for (int i = 0; i < charArray.length; i++) {
-//			int first = byteArray[i * 2] & 0xff;
-//			int second = (byteArray.length <= i * 2 + 1 ? 0 : byteArray[i * 2 + 1]) & 0xff;
-//			charArray[i] = (char)((first << 8) + second);
-//		}
-//		return charArray;
-//	}
-//
-//	protected static byte[] toByteArray(char[] charArray)
-//	{
-//		byte[] byteArray = new byte[charArray.length * 2];
-//		for (int i = 0; i < charArray.length; i++) {
-//			int v = charArray[i];
-//			byteArray[i * 2] = (byte) (v >>> 8);
-//			byteArray[i * 2 + 1] = (byte) v;
-//		}
-//		return byteArray;
-//	}
-
-//	public static void main(String[] args) throws Exception
-//	{
-//		KeyStore keyStore = new KeyStore(File.createTempFile("test-", ".keystore"));
-//		for (int i = 0; i < 10; i++) {
-//			SecretKey key = keyStore.getKeyGenerator(keyStore.getKeySize()).generateKey();
-//			char[] charArray = KeyStore.toCharArray(key.getEncoded());
-//			byte[] byteArray = KeyStore.toByteArray(charArray);
-//			if (!Arrays.equals(byteArray, key.getEncoded()))
-//				throw new IllegalStateException("round-trip-converted byte-array is not equal to original!");
-//		}
-//	}
-
 	public synchronized GeneratedKey generateKey(String authUserName, char[] authPassword)
 	throws LoginException, IOException
 	{
@@ -506,24 +524,6 @@ public class KeyStore
 		setKey(authUserName, authPassword, keyID, key);
 //		storeToFile(); // setKey(...) already calls storeToFile(...)
 		return generatedKey;
-	}
-
-	/**
-	 * Initialises an empty key store. This generates a new {@link MasterKey} and holds the initialised
-	 * state in memory. It does not yet write anything to the file, because this key store holds no
-	 * user yet and could thus never be used again.
-	 *
-	 * @return a new {@link MasterKey}; never <code>null</code>.
-	 */
-	protected synchronized MasterKey init()
-	{
-		if (!isEmpty())
-			throw new IllegalStateException("This KeyStore has already been initialised!");
-
-		Key key = getKeyGenerator(getKeySize()).generateKey();
-		MasterKey result = new MasterKey(key);
-//		setVersion();
-		return result;
 	}
 
 	public synchronized void createUser(String authUserName, char[] authPassword, String userName, char[] password)
@@ -537,8 +537,10 @@ public class KeyStore
 
 		MasterKey masterKey;
 
-		if (isEmpty())
-			masterKey = init();
+		if (isEmpty()) {
+			Key key = getKeyGenerator(getKeySize()).generateKey();
+			masterKey = new MasterKey(key);
+		}
 		else
 			masterKey = getMasterKey(authUserName, authPassword);
 
@@ -561,9 +563,10 @@ public class KeyStore
 			byte[] encrypted = cipher.doFinal(masterKey.getKey().getEncoded());
 
 			EncryptedKey encryptedKey = new EncryptedKey(
-					encrypted, salt, masterKey.getKey().getAlgorithm(),
-					cipher.getIV(), cipher.getAlgorithm(),
-					hash, hashAlgo
+					encrypted, salt,
+					stringConstant(masterKey.getKey().getAlgorithm()),
+					cipher.getIV(), stringConstant(cipher.getAlgorithm()),
+					hash, stringConstant(hashAlgo)
 			);
 			user2keyMap.put(userName, encryptedKey);
 		} catch (GeneralSecurityException e) {
@@ -603,7 +606,7 @@ public class KeyStore
 		File newKeyStoreFile = getNewKeyStoreFile();
 		boolean deleteNewKeyStoreFile = true;
 		try {
-			FileOutputStream out = new FileOutputStream(newKeyStoreFile);
+			OutputStream out = new FileOutputStream(newKeyStoreFile);
 			store(out);
 			out.close();
 
@@ -727,9 +730,9 @@ public class KeyStore
 			Cipher cipher = getCipherForMasterKey(masterKey, null, null, Cipher.ENCRYPT_MODE);
 			byte[] encrypted = cipher.doFinal(key.getEncoded());
 			EncryptedKey encryptedKey = new EncryptedKey(
-					encrypted, null, key.getAlgorithm(),
-					cipher.getIV(), cipher.getAlgorithm(),
-					hash, hashAlgo
+					encrypted, null, stringConstant(key.getAlgorithm()),
+					cipher.getIV(), stringConstant(cipher.getAlgorithm()),
+					hash, stringConstant(hashAlgo)
 			);
 			keyID2keyMap.put(keyID, encryptedKey);
 		} catch (GeneralSecurityException e) {
@@ -741,16 +744,31 @@ public class KeyStore
 
 	/**
 	 * Clear all cached data for the specified user name. Every time, a user
-	 * calls a method requiring <code>principalUserName</code> and <code>principalPassword</code>),
-	 * either a authentication process happens implicitely, or a previously cached authentication
+	 * calls a method requiring <code>authUserName</code> and <code>authPassword</code>),
+	 * either an authentication process happens implicitely, or a previously cached authentication
 	 * result is used. In order to speed things up, authentication results are cached for a
 	 * limited time. After this time elapses, the data is cleared by a timer. If a user wants (for security reasons)
 	 * remove the cached data from the memory earlier, he can call this method from the outside.
 	 *
-	 * @param userName the user for which to clear all the cached data.
+	 * @param userName the user for which to clear all the cached data. <code>null</code> to clear the complete cache for all users.
 	 */
 	public synchronized void clearCache(String userName)
 	{
+		if (userName == null) {
+			for(CachedMasterKey cachedMasterKey : cache_userName2cachedMasterKey.values())
+				cachedMasterKey.clear();
 
+			cache_userName2cachedMasterKey.clear();
+		}
+		else {
+			CachedMasterKey cachedMasterKey = cache_userName2cachedMasterKey.remove(userName);
+			cachedMasterKey.clear();
+		}
+	}
+
+	@Override
+	protected void finalize() throws Throwable {
+		clearCache(null);
+		super.finalize();
 	}
 }
