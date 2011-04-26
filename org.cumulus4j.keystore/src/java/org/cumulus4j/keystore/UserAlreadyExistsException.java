@@ -1,24 +1,20 @@
 package org.cumulus4j.keystore;
 
-public class UserAlreadyExistsException extends KeyStoreException {
+public class UserAlreadyExistsException extends KeyStoreException
+{
+	private static final long serialVersionUID = 1L;
 
-	public UserAlreadyExistsException() {
-		// TODO Auto-generated constructor stub
-	}
+	public UserAlreadyExistsException() { }
 
 	public UserAlreadyExistsException(String message) {
 		super(message);
-		// TODO Auto-generated constructor stub
 	}
 
 	public UserAlreadyExistsException(Throwable cause) {
 		super(cause);
-		// TODO Auto-generated constructor stub
 	}
 
 	public UserAlreadyExistsException(String message, Throwable cause) {
 		super(message, cause);
-		// TODO Auto-generated constructor stub
 	}
-
 }
