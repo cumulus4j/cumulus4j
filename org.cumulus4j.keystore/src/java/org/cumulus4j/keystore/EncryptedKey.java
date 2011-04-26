@@ -1,10 +1,12 @@
 package org.cumulus4j.keystore;
 
-public class EncryptedKey
+class EncryptedKey
 {
 	private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
-	public EncryptedKey(byte[] data, byte[] salt, String algorithm)
+	public EncryptedKey(
+			byte[] data, byte[] salt, String algorithm, String keyEncryptionAlgorithm, byte[] hash, String hashAlgorithm
+	)
 	{
 		if (data == null)
 			throw new IllegalArgumentException("data must not be null!");
@@ -15,9 +17,27 @@ public class EncryptedKey
 		if (algorithm == null)
 			throw new IllegalArgumentException("algorithm must not be null!");
 
+		if (keyEncryptionAlgorithm == null)
+			throw new IllegalArgumentException("keyEncryptionAlgorithm must not be null!");
+
+		if (hash == null)
+			hash = EMPTY_BYTE_ARRAY;
+
+		if (hashAlgorithm == null)
+			hashAlgorithm = "";
+
+		if (hashAlgorithm.isEmpty() && hash.length > 0)
+			throw new IllegalArgumentException("hashAlgorithm must not be null and not be empty, if a hash is provided!");
+
+		if (!hashAlgorithm.isEmpty() && hash.length == 0)
+			throw new IllegalArgumentException("hashAlgorithm must be null or empty, if no hash is provided!");
+
 		this.data = data;
 		this.salt = salt;
 		this.algorithm = algorithm;
+		this.keyEncryptionAlgorithm = keyEncryptionAlgorithm;
+		this.hash = hash;
+		this.hashAlgorithm = hashAlgorithm;
 	}
 
 	private byte[] data;
@@ -36,5 +56,23 @@ public class EncryptedKey
 
 	public String getAlgorithm() {
 		return algorithm;
+	}
+
+	private String keyEncryptionAlgorithm;
+
+	public String getKeyEncryptionAlgorithm() {
+		return keyEncryptionAlgorithm;
+	}
+
+	private byte[] hash;
+
+	public byte[] getHash() {
+		return hash;
+	}
+
+	private String hashAlgorithm;
+
+	public String getHashAlgorithm() {
+		return hashAlgorithm;
 	}
 }

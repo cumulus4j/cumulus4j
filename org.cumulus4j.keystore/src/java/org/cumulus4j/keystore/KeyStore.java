@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
+import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
@@ -25,6 +26,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -45,6 +47,8 @@ public class KeyStore
 	private static Timer expireCacheEntryTimer = new Timer();
 
 	private TimerTask expireCacheEntryTimerTask = new ExipreCacheEntryTimerTask(this);
+
+	private static final Charset UTF8 = Charset.forName("UTF-8");
 
 	private static class ExipreCacheEntryTimerTask extends TimerTask
 	{
@@ -69,7 +73,6 @@ public class KeyStore
 		}
 	};
 
-	private int keySize = 0;
 	protected int getKeySize()
 	{
 		int ks = keySize;
@@ -91,20 +94,48 @@ public class KeyStore
 				}
 				if (ks < 1)
 					throw new IllegalStateException("Value of system property '" + keySizePropName + "' is " + keySize + " but must be >= 1!!!");
-			}
 
-			logger.info("getKeySize: System property '{}' is set to {} bit. Using this key size.", keySizePropName, ks);
+				logger.info("getKeySize: System property '{}' is set to {} bit. Using this key size.", keySizePropName, ks);
+			}
 			keySize = ks;
 		}
 
 		return ks;
 	}
+	private int keySize = 0;
+
+	protected String getEncryptionAlgorithm()
+	{
+		String ea = encryptionAlgorithm;
+
+		if (ea == null) {
+			String encryptionAlgorithmPropName = KeyStore.class.getName() + ".encryptionAlgorithm";
+			String encryptionAlgorithmPropValue = System.getProperty(encryptionAlgorithmPropName);
+			if (encryptionAlgorithmPropValue == null || encryptionAlgorithmPropValue.trim().isEmpty()) {
+//				ea = "AES/CBC/PKCS5Padding"; // default value, if the property was not defined.
+				ea = "AES/CFB/NoPadding"; // default value, if the property was not defined.
+				logger.info("getEncryptionAlgorithm: System property '{}' is not set. Using default algorithm '{}'.", encryptionAlgorithmPropName, ea);
+			}
+			else {
+				ea = encryptionAlgorithmPropValue.trim();
+				logger.info("getEncryptionAlgorithm: System property '{}' is set to '{}'. Using this encryption algorithm.", encryptionAlgorithmPropName, ea);
+			}
+			encryptionAlgorithm = ea;
+		}
+
+		return ea;
+	}
+	private String encryptionAlgorithm = null;
 
 	private long nextKeyID = 1;
 	private Map<String, EncryptedKey> user2keyMap = new HashMap<String, EncryptedKey>();
 	private Map<Long, EncryptedKey> keyID2keyMap = new HashMap<Long, EncryptedKey>();
 
 	private Map<Integer, KeyGenerator> keySize2keyGenerator = new HashMap<Integer, KeyGenerator>();
+
+
+
+	private Map<String, String> stringConstantMap = new HashMap<String, String>();
 
 	protected synchronized KeyGenerator getKeyGenerator(int keySize)
 	{
@@ -124,7 +155,6 @@ public class KeyStore
 	}
 
 	private File keyStoreFile;
-//	private java.security.KeyStore jks;
 
 	public KeyStore(File keyStoreFile) throws IOException
 	{
@@ -136,12 +166,6 @@ public class KeyStore
 		if (!keyStoreFile.getParentFile().isDirectory())
 			throw new FileNotFoundException("Path does not exist or is not a directory: " + keyStoreFile.getParentFile().getAbsolutePath());
 
-//		try {
-//			jks = java.security.KeyStore.getInstance("JCEKS"); // http://khylo.blogspot.com/2009/12/keytool-keystore-cannot-store-non.html
-//		} catch (KeyStoreException e) {
-//			throw new RuntimeException("Something is wrong in the JRE: Could not get a java.security.KeyStore instance: " + e, e);
-//		}
-
 		// In case the old file was already deleted, but the new not yet renamed, we check, if a new file
 		// exists and the old file is missing - in this case, we load the new file.
 		File newKeyStoreFile = getNewKeyStoreFile();
@@ -149,11 +173,7 @@ public class KeyStore
 			keyStoreFile = newKeyStoreFile;
 
 		FileInputStream in = keyStoreFile.length() == 0 ? null : new FileInputStream(keyStoreFile);
-//		try {
-//			jks.load(in, KEY_STORE_PASSWORD);
-//		} catch (GeneralSecurityException e) {
-//			throw new IOException("Could not load java.security.KeyStore from \"" + keyStoreFile.getAbsolutePath() + "\": " + e, e);
-//		}
+
 		if (in != null)
 			load(in);
 
@@ -164,23 +184,24 @@ public class KeyStore
 	}
 
 	private static final String FILE_HEADER = "Cumulus4jKeyStore";
-	private static final long FILE_VERSION = 1;
+	private static final int FILE_VERSION = 1;
 
 	private void load(InputStream in)
 	throws IOException
 	{
+		stringConstantMap.clear();
+
 		DataInputStream din = new DataInputStream(new BufferedInputStream(in));
 
 		char[] fileHeaderCharArray = FILE_HEADER.toCharArray();
 		char[] buf = new char[fileHeaderCharArray.length];
-		for (int i = 0; i < buf.length; i++) {
-			buf[i] = din.readChar();
-		}
+		for (int i = 0; i < buf.length; i++)
+			buf[i] = (char) ( din.readByte() & 0xff );
 
 		if (!Arrays.equals(fileHeaderCharArray, buf))
 			throw new IOException("Stream does not start with expected HEADER!");
 
-		long fileVersion = din.readLong();
+		int fileVersion = din.readInt();
 		if (FILE_VERSION != fileVersion)
 			throw new IOException("Version not supported! Stream contains a keystore of version \"" + fileVersion + "\" while version \"" + FILE_VERSION + "\" (or lower) is expected!");
 
@@ -203,6 +224,17 @@ public class KeyStore
 		}
 	}
 
+	private String stringConstant(String s)
+	{
+		String v = stringConstantMap.get(s);
+		if (v == null)
+			stringConstantMap.put(s, s);
+		else
+			s = v;
+
+		return s;
+	}
+
 	private static void readByteArrayCompletely(InputStream in, byte[] dest)
 	throws IOException
 	{
@@ -220,8 +252,15 @@ public class KeyStore
 	throws IOException
 	{
 		DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(out));
-		dout.writeChars(FILE_HEADER);
-		dout.writeLong(FILE_VERSION);
+
+		for (char c : FILE_HEADER.toCharArray()) {
+			if (c > 255)
+				throw new IllegalStateException("No character in FILE_HEADER should be outside the range 0...255!!! c=" + (int)c);
+
+			dout.writeByte(c);
+		}
+
+		dout.writeInt(FILE_VERSION);
 		dout.writeLong(nextKeyID);
 
 		dout.writeInt(user2keyMap.size());
@@ -235,19 +274,25 @@ public class KeyStore
 			dout.writeLong(me.getKey());
 			writeKey(dout, me.getValue());
 		}
+		dout.flush();
 	}
 
 	private void writeKey(DataOutputStream dout, EncryptedKey key) throws IOException
 	{
-		byte[] keyBytes = key.getData();
-		dout.writeInt(keyBytes.length);
-		dout.write(keyBytes);
+		dout.writeInt(key.getData().length);
+		dout.write(key.getData());
 
-		byte[] saltBytes = key.getSalt();
-		dout.writeInt(saltBytes.length);
-		dout.write(saltBytes);
+		dout.writeInt(key.getSalt().length);
+		dout.write(key.getSalt());
 
 		dout.writeUTF(key.getAlgorithm());
+
+		dout.writeUTF(key.getKeyEncryptionAlgorithm());
+
+		dout.writeInt(key.getHash().length);
+		dout.write(key.getHash());
+
+		dout.writeUTF(key.getHashAlgorithm());
 	}
 
 	private EncryptedKey readKey(DataInputStream din) throws IOException
@@ -262,8 +307,20 @@ public class KeyStore
 			readByteArrayCompletely(din, salt);
 
 		String algorithm = din.readUTF();
+		algorithm = stringConstant(algorithm);
 
-		return new EncryptedKey(key, salt, algorithm);
+		String keyCryptAlgo = din.readUTF();
+		keyCryptAlgo = stringConstant(keyCryptAlgo);
+
+		int hashSize = din.readInt();
+		byte hash[] = hashSize == 0 ? null : new byte[hashSize];
+		if (hash != null)
+			readByteArrayCompletely(din, hash);
+
+		String hashAlgo = din.readUTF();
+		hashAlgo = stringConstant(hashAlgo);
+
+		return new EncryptedKey(key, salt, algorithm, keyCryptAlgo, hash, hashAlgo);
 	}
 
 	protected File getNewKeyStoreFile()
@@ -276,56 +333,10 @@ public class KeyStore
 		return user2keyMap.isEmpty();
 	}
 
-//	public synchronized int getVersion()
-//	{
-//		try {
-//			if (!jks.containsAlias(ALIAS_VERSION))
-//				return 0;
-//
-//			Key key = jks.getKey(ALIAS_VERSION, null); // not protected
-//			BigInteger bi = new BigInteger(key.getEncoded());
-//			return bi.intValue();
-//		} catch (GeneralSecurityException e) {
-//			throw new RuntimeException(e);
-//		}
-//	}
-//
-//	protected synchronized void setVersion()
-//	{
-//		try {
-//			Key key = new SecretKeySpec(new byte[] { 1 }, ALIAS_VERSION);
-//			jks.setKeyEntry(ALIAS_VERSION, key, new char[0], null);
-//		} catch (GeneralSecurityException e) {
-//			throw new RuntimeException(e);
-//		}
-//	}
-
-//	private static final BigInteger ONE = new BigInteger(new byte[] { 1 });
-
 	protected synchronized long nextKeyID()
 	{
 		long result = nextKeyID++;
 		return result;
-//		long resultNextKeyID;
-//
-//		try {
-//			BigInteger bi;
-//
-//			if (!jks.containsAlias(ALIAS_NEXT_KEY_ID))
-//				bi = ONE; // First value
-//			else {
-//				Key key = jks.getKey(ALIAS_NEXT_KEY_ID, null); // not protected
-//				bi = new BigInteger(key.getEncoded());
-//			}
-//			resultNextKeyID = bi.longValue();
-//
-//			Key key = new SecretKeySpec(bi.add(ONE).toByteArray(), ALIAS_NEXT_KEY_ID);
-//			jks.setKeyEntry(ALIAS_NEXT_KEY_ID, key, new char[0], null);
-//		} catch (GeneralSecurityException e) {
-//			throw new RuntimeException(e);
-//		}
-//
-//		return resultNextKeyID;
 	}
 
 	protected synchronized MasterKey getMasterKey(String authUserName, char[] authPassword)
@@ -335,34 +346,27 @@ public class KeyStore
 
 		// TODO consult a cache to speed things up!
 
-//		String userNameAlias = getAliasForUserName(authUserName);
-//		try {
-//			if (!jks.containsAlias(userNameAlias)) {
-//				logger.warn("login: Unknown userName: " + authUserName);
-//			}
-//			else {
-//				try {
-//					result = new MasterKey(jks.getKey(userNameAlias, authPassword));
-//				} catch (UnrecoverableKeyException e) {
-//					logger.warn("login: Wrong password for userName=\"{}\"!", authUserName);
-//				} catch (NoSuchAlgorithmException e) {
-//					throw new RuntimeException(e); // This keystore should only be managed by us => rethrow as RuntimeException
-//				}
-//			}
-//		} catch (KeyStoreException e) {
-//			// should only be thrown, if the keyStore is not initialized and this is done in our constructor!
-//			throw new RuntimeException(e);
-//		}
-
-		EncryptedKey key = user2keyMap.get(authUserName);
-		if (key == null)
-			logger.warn("login: Unknown userName: " + authUserName);
+		EncryptedKey encryptedKey = user2keyMap.get(authUserName);
+		if (encryptedKey == null)
+			logger.warn("login: Unknown userName: {}", authUserName);
 		else {
 			try {
-				Cipher cipher = getCipherForUserPassword(authPassword, key.getSalt(), Cipher.DECRYPT_MODE);
-				byte[] decrypted = cipher.doFinal(key.getData());
-				// TODO verify, if the 'decrypted' is really correct! Maybe use a hash?!
-				result = new MasterKey(new SecretKeySpec(decrypted, key.getAlgorithm()));
+				Cipher cipher = getCipherForUserPassword(
+						authPassword, encryptedKey.getSalt(), encryptedKey.getKeyEncryptionAlgorithm(), Cipher.DECRYPT_MODE
+				);
+				byte[] decrypted = cipher.doFinal(encryptedKey.getData());
+				result = new MasterKey(new SecretKeySpec(decrypted, encryptedKey.getAlgorithm()));
+
+				if (encryptedKey.getHash().length > 0) {
+					byte[] hash = hash(decrypted, authUserName.getBytes(UTF8), encryptedKey.getHashAlgorithm());
+					if (!Arrays.equals(encryptedKey.getHash(), hash)) {
+						result = null;
+						logger.warn("login: Wrong password for user \"{}\"!", authUserName);
+					}
+				}
+			} catch (BadPaddingException x) {
+				logger.warn("login: Caught BadPaddingException indicating a wrong password for user \"{}\"!", authUserName);
+				result = null;
 			} catch (GeneralSecurityException x) {
 				throw new RuntimeException(x);
 			}
@@ -374,22 +378,47 @@ public class KeyStore
 		return result;
 	}
 
-	private Cipher getCipherForUserPassword(char[] password, byte[] salt, int opmode) throws GeneralSecurityException
+	private Cipher getCipherForUserPassword(char[] password, byte[] salt, String algorithm, int opmode) throws GeneralSecurityException
 	{
+		if (algorithm == null) {
+			if (Cipher.ENCRYPT_MODE != opmode)
+				throw new IllegalArgumentException("algorithm must not be null when decrypting!");
+
+			algorithm = getEncryptionAlgorithm();
+		}
+
 		SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1"); // TODO make configurable!
-		KeySpec spec = new PBEKeySpec(password, salt, 1024, getKeySize());
+//		SecretKeyFactory factory = SecretKeyFactory.getInstance("PBEWithSHA256And256BitAES-CBC-BC");
+		KeySpec spec = new PBEKeySpec(password, salt, 1024, getKeySize()); // TODO make iteration-count configurable!
 		SecretKey tmp = factory.generateSecret(spec);
-		SecretKey secret = new SecretKeySpec(tmp.getEncoded(), "AES"); // TODO is this correct or should it be "RAW" or sth. else? Maybe make configurable!?
-		Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding"); // TODO make configurable!
-		byte[] iv = new byte[16];
+		SecretKey secret = new SecretKeySpec(tmp.getEncoded(), getBaseAlgorithm(algorithm));
+		Cipher cipher = Cipher.getInstance(algorithm);
+		byte[] iv = new byte[cipher.getBlockSize()];
 		Arrays.fill(iv, (byte)0); // No need of an IV, because we use a salt.
 		cipher.init(opmode, secret, new IvParameterSpec(iv));
 		return cipher;
 	}
 
-	private Cipher getCipherForMasterKey(MasterKey masterKey, int opmode) throws GeneralSecurityException
+
+	private String getBaseAlgorithm(String algorithm)
 	{
-		Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding"); // TODO make configurable!
+		int slashIdx = algorithm.indexOf('/');
+		if (slashIdx < 0)
+			return stringConstant(algorithm);
+
+		return stringConstant(algorithm.substring(0, slashIdx));
+	}
+
+	private Cipher getCipherForMasterKey(MasterKey masterKey, String algorithm, int opmode) throws GeneralSecurityException
+	{
+		if (algorithm == null) {
+			if (Cipher.ENCRYPT_MODE != opmode)
+				throw new IllegalArgumentException("algorithm must not be null when decrypting!");
+
+			algorithm = getEncryptionAlgorithm();
+		}
+
+		Cipher cipher = Cipher.getInstance(algorithm);
 		cipher.init(opmode, masterKey.getKey());
 		return cipher;
 	}
@@ -464,6 +493,12 @@ public class KeyStore
 	public synchronized void createUser(String authUserName, char[] authPassword, String userName, char[] password)
 	throws LoginException, UserAlreadyExistsException, IOException
 	{
+		if (userName == null)
+			throw new IllegalArgumentException("userName must not be null!");
+
+		if (password == null)
+			throw new IllegalArgumentException("password must not be null!");
+
 		MasterKey masterKey;
 
 		if (isEmpty())
@@ -471,33 +506,50 @@ public class KeyStore
 		else
 			masterKey = getMasterKey(authUserName, authPassword);
 
-//		String userNameAlias = getAliasForUserName(userName);
-//		try {
-//			if (jks.containsAlias(userNameAlias))
-//				throw new UserAlreadyExistsException("The user \"" + userName + "\" already exists!");
-//
-//			jks.setKeyEntry(userNameAlias, masterKey.getKey(), password, null);
-//		} catch (KeyStoreException e) {
-//			throw new RuntimeException(e);
-//		}
+		String hashAlgo = HASH_ALGORITHM_SIMPLE_XOR;
+		byte[] hash = hash(masterKey.getKey().getEncoded(), userName.getBytes(UTF8), hashAlgo);
 
 		byte[] salt = new byte[8]; // TODO make salt-length configurable!
 		secureRandom.nextBytes(salt);
-		byte[] encrypted;
 		try {
-			Cipher cipher = getCipherForUserPassword(password, salt, Cipher.ENCRYPT_MODE);
-			encrypted = cipher.doFinal(masterKey.getKey().getEncoded());
+			Cipher cipher = getCipherForUserPassword(password, salt, null, Cipher.ENCRYPT_MODE);
+			byte[] encrypted = cipher.doFinal(masterKey.getKey().getEncoded());
+
+			EncryptedKey encryptedKey = new EncryptedKey(
+					encrypted, salt, masterKey.getKey().getAlgorithm(), cipher.getAlgorithm(), hash, hashAlgo
+			);
+			user2keyMap.put(userName, encryptedKey);
 		} catch (GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}
 
-		EncryptedKey encryptedKey = new EncryptedKey(encrypted, salt, masterKey.getKey().getAlgorithm());
-		user2keyMap.put(userName, encryptedKey);
-
 		storeToFile();
 	}
 
-	private static char[] KEY_STORE_PASSWORD = new char[0];
+	private static final String HASH_ALGORITHM_SIMPLE_XOR = "SXOR";
+
+	private byte[] hash(byte[] data, byte[] salt, String hashAlgorithm)
+	{
+		if (HASH_ALGORITHM_SIMPLE_XOR.equals(hashAlgorithm)) {
+			byte[] hash = new byte[8];
+			int hi = 0;
+			int si = 0;
+			for (int i = 0; i < data.length; ++i) {
+				if (salt != null) {
+					hash[hi] ^= salt[si];
+					if (++si >= salt.length)
+						si = 0;
+				}
+
+				hash[hi] ^= data[i];
+				if (++hi >= hash.length)
+					hi = 0;
+			}
+			return hash;
+		}
+		else
+			throw new UnsupportedOperationException("Unsupported hash algorithm: " + hashAlgorithm);
+	}
 
 	protected synchronized void storeToFile() throws IOException
 	{
@@ -505,15 +557,6 @@ public class KeyStore
 		boolean deleteNewKeyStoreFile = true;
 		try {
 			FileOutputStream out = new FileOutputStream(newKeyStoreFile);
-//			try {
-//				jks.store(out, KEY_STORE_PASSWORD);
-//			} catch (KeyStoreException e) {
-//				throw new IOException("Storing JKS failed!", e);
-//			} catch (NoSuchAlgorithmException e) {
-//				throw new IOException("Storing JKS failed!", e);
-//			} catch (CertificateException e) {
-//				throw new IOException("Storing JKS failed!", e);
-//			}
 			store(out);
 			out.close();
 
@@ -543,20 +586,6 @@ public class KeyStore
 		// Marco :-)
 		getMasterKey(authUserName, authPassword);
 
-//		Set<String> result = new HashSet<String>(); // or better use a TreeSet?
-//
-//		try {
-//			for (Enumeration<String> enumS = jks.aliases(); enumS.hasMoreElements(); ) {
-//				String alias = enumS.nextElement();
-//				if (alias.startsWith(ALIAS_USER_PREFIX)) {
-//					result.add(alias.substring(ALIAS_USER_PREFIX.length()));
-//				}
-//			}
-//		} catch (KeyStoreException e) {
-//			throw new RuntimeException(e);
-//		}
-//
-//		return Collections.unmodifiableSet(result);
 		return Collections.unmodifiableSet(user2keyMap.keySet());
 	}
 
@@ -585,21 +614,6 @@ public class KeyStore
 
 		clearCache(delUserName);
 		user2keyMap.remove(delUserName);
-
-//		Set<String> users = getUsers(authUserName, authPassword);
-//
-//		if (users.size() == 1 && users.contains(delUserName))
-//			throw new CannotDeleteLastUserException("You cannot delete the last user and \"" + delUserName + "\" is the last user!");
-//
-//		String delUserAlias = getAliasForUserName(delUserName);
-//		try {
-//			if (!jks.containsAlias(delUserAlias))
-//				throw new UserDoesNotExistException("The user \"" + delUserName + "\" does not exist!");
-//
-//			jks.deleteEntry(delUserAlias);
-//		} catch (KeyStoreException e) {
-//			throw new RuntimeException(e);
-//		}
 
 		storeToFile();
 	}
@@ -643,27 +657,19 @@ public class KeyStore
 			return null;
 
 		try {
-			Cipher cipher = getCipherForMasterKey(masterKey, Cipher.DECRYPT_MODE);
+			Cipher cipher = getCipherForMasterKey(masterKey, encryptedKey.getAlgorithm(), Cipher.DECRYPT_MODE);
 			byte[] decrypted = cipher.doFinal(encryptedKey.getData());
+
+			if (encryptedKey.getHash().length > 0) {
+				byte[] hash = hash(decrypted, authUserName.getBytes(UTF8), encryptedKey.getHashAlgorithm());
+				if (!Arrays.equals(encryptedKey.getHash(), hash))
+					throw new IllegalStateException("Hash codes do not match!!!");
+			}
+
 			return new SecretKeySpec(decrypted, encryptedKey.getAlgorithm());
 		} catch (GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}
-
-//		String keyAlias = getAliasForKey(keyID);
-//		try {
-//			Key key = jks.getKey(keyAlias, toCharArray(masterKey.getKey().getEncoded()));
-//			return key;
-//		} catch (KeyStoreException e) {
-//			// should only be thrown, if the keyStore is not initialized and this is done in our constructor!
-//			throw new RuntimeException(e);
-//		} catch (UnrecoverableKeyException e) {
-//			// This means our masterKey is wrong - should never happen!
-//			throw new RuntimeException(e);
-//		} catch (NoSuchAlgorithmException e) {
-//			// Means sth. is very weird, too.
-//			throw new RuntimeException(e);
-//		}
 	}
 
 	protected synchronized void setKey(String authUserName, char[] authPassword, long keyID, Key key)
@@ -671,17 +677,15 @@ public class KeyStore
 	{
 		MasterKey masterKey = getMasterKey(authUserName, authPassword);
 
-//		String keyAlias = getAliasForKey(keyID);
-//		try {
-//			jks.setKeyEntry(keyAlias, key, toCharArray(masterKey.getKey().getEncoded()), null);
-//		} catch (KeyStoreException e) {
-//			// should only be thrown, if the keyStore is not initialized and this is done in our constructor!
-//			throw new RuntimeException(e);
-//		}
+		String hashAlgo = HASH_ALGORITHM_SIMPLE_XOR;
+		byte[] hash = hash(key.getEncoded(), authUserName.getBytes(UTF8), hashAlgo);
+
 		try {
-			Cipher cipher = getCipherForMasterKey(masterKey, Cipher.ENCRYPT_MODE);
+			Cipher cipher = getCipherForMasterKey(masterKey, null, Cipher.ENCRYPT_MODE);
 			byte[] encrypted = cipher.doFinal(key.getEncoded());
-			EncryptedKey encryptedKey = new EncryptedKey(encrypted, null, key.getAlgorithm());
+			EncryptedKey encryptedKey = new EncryptedKey(
+					encrypted, null, key.getAlgorithm(), cipher.getAlgorithm(), hash, hashAlgo
+			);
 			keyID2keyMap.put(keyID, encryptedKey);
 		} catch (GeneralSecurityException e) {
 			throw new RuntimeException(e);
