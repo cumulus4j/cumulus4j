@@ -38,7 +38,7 @@ extends Application
 		try {
 			if (singletons == null) {
 				Set<Object> s = new HashSet<Object>();
-				s.add(new SessionSingleton(null)); // TODO make configurable?!
+				s.add(new SessionManager(null)); // TODO make keyStoreFile configurable?!
 				singletons = Collections.unmodifiableSet(s);
 			}
 
