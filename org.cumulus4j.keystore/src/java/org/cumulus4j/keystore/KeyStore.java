@@ -76,7 +76,7 @@ public class KeyStore
 				return;
 			}
 
-			Date removeCachedEntriesOlderThanThisDate = new Date(System.currentTimeMillis() - 1L * 60L * 1000L); // TODO make this configurable!
+			Date removeCachedEntriesOlderThanThisDate = new Date(System.currentTimeMillis() - 3L * 60L * 1000L); // TODO make this configurable!
 
 			LinkedList<String> userNamesToExpire = new LinkedList<String>();
 			synchronized (keyStore) {
@@ -89,6 +89,12 @@ public class KeyStore
 			for (String userName : userNamesToExpire) {
 				logger.info("run: Expiring cache for user '{}'.", userName);
 				keyStore.clearCache(userName);
+			}
+
+			if (logger.isDebugEnabled()) {
+				synchronized (keyStore) {
+					logger.debug("run: {} users left in cache.", keyStore.cache_userName2cachedMasterKey.size());
+				}
 			}
 		}
 	};
@@ -420,7 +426,8 @@ public class KeyStore
 						Cipher.DECRYPT_MODE
 				);
 				byte[] decrypted = cipher.doFinal(encryptedKey.getData());
-				result = new MasterKey(new SecretKeySpec(decrypted, encryptedKey.getAlgorithm()));
+//				result = new MasterKey(new SecretKeySpec(decrypted, encryptedKey.getAlgorithm()));
+				result = new MasterKey(decrypted, encryptedKey.getAlgorithm());
 
 				if (encryptedKey.getHash().length > 0) {
 					byte[] hash = hash(decrypted, authUserName.getBytes(UTF8), encryptedKey.getHashAlgorithm());
@@ -508,9 +515,9 @@ public class KeyStore
 		Cipher cipher = Cipher.getInstance(algorithm);
 
 		if (iv == null)
-			cipher.init(opmode, masterKey.getKey());
+			cipher.init(opmode, masterKey);
 		else
-			cipher.init(opmode, masterKey.getKey(), new IvParameterSpec(iv));
+			cipher.init(opmode, masterKey, new IvParameterSpec(iv));
 
 		return cipher;
 	}
@@ -539,7 +546,12 @@ public class KeyStore
 
 		if (isEmpty()) {
 			Key key = getKeyGenerator(getKeySize()).generateKey();
-			masterKey = new MasterKey(key);
+			masterKey = new MasterKey(key.getEncoded(), key.getAlgorithm());
+			// Unfortunately, we cannot clear the sensitive data from the key instance, because
+			// there is no nice way to do this (we could only do very ugly reflection-based stuff).
+			// But fortunately, this happens only the very first time a new, empty KeyStore is created.
+			// With an existing KeyStore we won't come here and our MasterKey can [and will] be cleared.
+			// Marco :-)
 		}
 		else
 			masterKey = getMasterKey(authUserName, authPassword);
@@ -554,17 +566,17 @@ public class KeyStore
 	throws IOException
 	{
 		String hashAlgo = HASH_ALGORITHM_SIMPLE_XOR;
-		byte[] hash = hash(masterKey.getKey().getEncoded(), userName.getBytes(UTF8), hashAlgo);
+		byte[] hash = hash(masterKey.getEncoded(), userName.getBytes(UTF8), hashAlgo);
 
 		byte[] salt = new byte[8]; // TODO make salt-length configurable!
 		secureRandom.nextBytes(salt);
 		try {
 			Cipher cipher = getCipherForUserPassword(password, salt, null, null, Cipher.ENCRYPT_MODE);
-			byte[] encrypted = cipher.doFinal(masterKey.getKey().getEncoded());
+			byte[] encrypted = cipher.doFinal(masterKey.getEncoded());
 
 			EncryptedKey encryptedKey = new EncryptedKey(
 					encrypted, salt,
-					stringConstant(masterKey.getKey().getAlgorithm()),
+					stringConstant(masterKey.getAlgorithm()),
 					cipher.getIV(), stringConstant(cipher.getAlgorithm()),
 					hash, stringConstant(hashAlgo)
 			);

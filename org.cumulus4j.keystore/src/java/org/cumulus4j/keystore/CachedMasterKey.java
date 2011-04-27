@@ -1,5 +1,6 @@
 package org.cumulus4j.keystore;
 
+import java.util.Arrays;
 import java.util.Date;
 
 import org.slf4j.Logger;
@@ -43,9 +44,7 @@ public class CachedMasterKey
 
 		char[] pw = password;
 		if (pw != null) {
-			for (int i = 0; i < pw.length; i++)
-				pw[i] = 0;
-
+			Arrays.fill(pw, (char)0);
 			password = null;
 		}
 

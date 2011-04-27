@@ -141,4 +141,34 @@ public class KeyStoreKeyTest
 
 		logger.info("generateAndReadManyKeys ({} keys): {}", keyCount, stopwatch.createHumanReport(true));
 	}
+
+	@Test
+	public void longRunningExpireCacheTest()
+	throws Exception
+	{
+		keyStore.createUser(null, null, USER, PASSWORD);
+		keyStore.createUser(USER, PASSWORD, "user1", "pw1".toCharArray());
+		keyStore.createUser(USER, PASSWORD, "user2", "pw2".toCharArray());
+		keyStore.createUser(USER, PASSWORD, "user3", "pw3".toCharArray());
+		keyStore.createUser(USER, PASSWORD, "user4", "pw4".toCharArray());
+
+		keyStore.generateKey("user1", "pw1".toCharArray());
+		keyStore.generateKey("user2", "pw2".toCharArray());
+		keyStore.generateKey("user3", "pw3".toCharArray());
+		keyStore.generateKey("user4", "pw4".toCharArray());
+
+
+		keyStore.generateKey("user1", "pw1".toCharArray());
+		keyStore.generateKey("user2", "pw2".toCharArray());
+
+		Thread.sleep(70000);
+
+		keyStore.generateKey("user3", "pw3".toCharArray());
+
+		Thread.sleep(90000);
+
+		keyStore.generateKey("user4", "pw4".toCharArray());
+
+		Thread.sleep(200000);
+	}
 }
