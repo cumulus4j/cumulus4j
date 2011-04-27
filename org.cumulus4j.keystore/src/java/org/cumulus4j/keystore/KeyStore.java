@@ -842,7 +842,8 @@ public class KeyStore
 		}
 		else {
 			CachedMasterKey cachedMasterKey = cache_userName2cachedMasterKey.remove(userName);
-			cachedMasterKey.clear();
+			if (cachedMasterKey != null)
+				cachedMasterKey.clear();
 		}
 	}
 

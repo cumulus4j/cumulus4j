@@ -1,72 +1,71 @@
 package org.cumulus4j.keyserver.front.webapp;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Type;
-
-import javax.ws.rs.core.Context;
-import javax.ws.rs.ext.Provider;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.cumulus4j.keystore.KeyStore;
+import org.cumulus4j.keystore.LoginException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jersey.core.spi.component.ComponentContext;
-import com.sun.jersey.core.spi.component.ComponentScope;
-import com.sun.jersey.spi.inject.Injectable;
-import com.sun.jersey.spi.inject.InjectableProvider;
-
-@Provider
 public class SessionManager
-implements InjectableProvider<Context, Type>, Injectable<SessionManager>
 {
 	private static final Logger logger = LoggerFactory.getLogger(SessionManager.class);
 
 	private KeyStore keyStore;
 
-	private static File getUserHome()
-	{
-		String userHome = System.getProperty("user.home"); //$NON-NLS-1$
-		if (userHome == null)
-			throw new IllegalStateException("System property user.home is not set! This should never happen!"); //$NON-NLS-1$
+	private Map<String, Session> userName2Session = new HashMap<String, Session>();
+	private Map<String, Session> cryptoSessionID2Session = new HashMap<String, Session>();
 
-		return new File(userHome);
-	}
-
-	public SessionManager(File keyStoreFile) throws IOException
+	public SessionManager(KeyStore keyStore)
 	{
 		logger.info("Creating instance of SessionManager.");
+		this.keyStore = keyStore;
+	}
 
-		if (keyStoreFile == null)
-			keyStoreFile = new File(new File(getUserHome(), ".cumulus4j"), "cumulus4j.keystore");
+	/**
+	 * Open a new or refresh an existing session.
+	 *
+	 * @return the {@link Session}.
+	 * @throws LoginException if the login fails
+	 */
+	public synchronized Session openSession(String userName, char[] password) throws LoginException
+	{
+		keyStore.getKey(userName, password, Long.MAX_VALUE); // this method will always return null, if the key does not exist - but it will throw a LoginException, if the credentials are invalid.
 
-		if (!keyStoreFile.getParentFile().isDirectory()) {
-			keyStoreFile.getParentFile().mkdirs();
-			if (!keyStoreFile.getParentFile().isDirectory())
-				throw new IOException("Directory does not exist and could not be created: " + keyStoreFile.getParentFile().getAbsolutePath());
+		Session session = userName2Session.get(userName);
+
+		if (session == null) {
+			session = new Session(this, userName, password);
+			userName2Session.put(userName, session);
+			cryptoSessionID2Session.put(session.getCryptoSessionID(), session);
+
+			// TODO notify listeners
 		}
-
-		logger.info("Opening keyStoreFile: {}", keyStoreFile.getAbsolutePath());
-		keyStore = new KeyStore(keyStoreFile);
-	}
-
-	@Override
-	public SessionManager getValue() {
-		return this;
-	}
-
-	@Override
-	public ComponentScope getScope() {
-		return ComponentScope.Singleton;
-	}
-
-	@SuppressWarnings("rawtypes")
-	@Override
-	public Injectable getInjectable(ComponentContext ic, Context a, Type c) {
-		if (SessionManager.class.equals(c))
-			return this;
 		else
-			return null;
+			session.updateLastUse();
+
+		return session;
 	}
 
+	protected synchronized void onCloseSession(Session session)
+	{
+		// TODO notify listeners
+
+		userName2Session.remove(session.getUserName());
+		cryptoSessionID2Session.remove(session.getCryptoSessionID());
+		keyStore.clearCache(session.getUserName());
+	}
+
+	public synchronized Session getSessionForUserName(String userName)
+	{
+		Session session = userName2Session.get(userName);
+		return session;
+	}
+
+	public synchronized Session getSessionForCryptoSessionID(String cryptoSessionID)
+	{
+		Session session = cryptoSessionID2Session.get(cryptoSessionID);
+		return session;
+	}
 }
