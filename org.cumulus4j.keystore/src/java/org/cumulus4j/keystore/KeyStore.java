@@ -15,6 +15,7 @@ import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.security.Key;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
@@ -28,6 +29,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.zip.CheckedInputStream;
+import java.util.zip.CheckedOutputStream;
+import java.util.zip.Checksum;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -224,6 +228,9 @@ public class KeyStore
 		if (in != null)
 			in.close();
 
+		if (in == null)
+			storeToFile();
+
 		expireCacheEntryTimer.schedule(expireCacheEntryTimerTask, 60000, 60000); // TODO make this configurable
 	}
 
@@ -233,7 +240,12 @@ public class KeyStore
 	private void load(InputStream in)
 	throws IOException
 	{
-		DataInputStream din = new DataInputStream(new BufferedInputStream(in));
+		int headerSizeIncludingVersion = FILE_HEADER.length() + 4; // in bytes
+
+		in = new BufferedInputStream(in);
+		in.mark(headerSizeIncludingVersion);
+
+		DataInputStream din = new DataInputStream(in);
 
 		char[] fileHeaderCharArray = FILE_HEADER.toCharArray();
 		char[] buf = new char[fileHeaderCharArray.length];
@@ -246,6 +258,16 @@ public class KeyStore
 		int fileVersion = din.readInt();
 		if (FILE_VERSION != fileVersion)
 			throw new IOException("Version not supported! Stream contains a keystore of version \"" + fileVersion + "\" while version \"" + FILE_VERSION + "\" (or lower) is expected!");
+
+		// The checksum is calculated over the complete file, but in order to know which algorithm
+		// to use, we first have to read the beginning of the file until including the version.
+		// We thus use mark(...) and reset().
+		in.reset();
+
+		Checksum checksum = new MessageDigestChecksum.SHA1();
+		CheckedInputStream cin = new CheckedInputStream(in, checksum);
+		din = new DataInputStream(cin);
+		readByteArrayCompletely(din, new byte[headerSizeIncludingVersion]); // We cannot use skip(...), because that would not update our checksum.
 
 		nextKeyID = din.readLong();
 
@@ -272,6 +294,11 @@ public class KeyStore
 			EncryptedKey key = readKey(din);
 			keyID2keyMap.put(keyID, key);
 		}
+
+		long checksumValueCalculated = checksum.getValue();
+		long checksumValueExpected = din.readLong();
+		if (checksumValueCalculated != checksumValueExpected)
+			throw new IOException("Checksum error! Expected=" + checksumValueExpected + " Found=" + checksumValueCalculated);
 	}
 
 	private static void readByteArrayCompletely(InputStream in, byte[] dest)
@@ -290,7 +317,13 @@ public class KeyStore
 	private void store(OutputStream out)
 	throws IOException
 	{
-		DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(out));
+		out = new BufferedOutputStream(out);
+
+		// We calculate the checksum over the complete file.
+		Checksum checksum = new MessageDigestChecksum.SHA1();
+		CheckedOutputStream cout = new CheckedOutputStream(out, checksum);
+
+		DataOutputStream dout = new DataOutputStream(cout);
 
 		for (char c : FILE_HEADER.toCharArray()) {
 			if (c > 255)
@@ -318,6 +351,11 @@ public class KeyStore
 			dout.writeLong(me.getKey());
 			writeKey(dout, me.getValue());
 		}
+		dout.flush();
+
+		long checksumValue = checksum.getValue();
+//		logger.debug("store: checksum={}", checksumValue);
+		dout.writeLong(checksumValue);
 		dout.flush();
 	}
 
@@ -565,7 +603,7 @@ public class KeyStore
 	protected synchronized void setUser(MasterKey masterKey, String userName, char[] password)
 	throws IOException
 	{
-		String hashAlgo = HASH_ALGORITHM_SIMPLE_XOR;
+		String hashAlgo = HASH_ALGORITHM_SHA1;
 		byte[] hash = hash(masterKey.getEncoded(), userName.getBytes(UTF8), hashAlgo);
 
 		byte[] salt = new byte[8]; // TODO make salt-length configurable!
@@ -588,11 +626,16 @@ public class KeyStore
 		storeToFile();
 	}
 
-	private static final String HASH_ALGORITHM_SIMPLE_XOR = "SXOR";
+	private static final String HASH_ALGORITHM_XOR8 = "XOR8";
+	private static final String HASH_ALGORITHM_SHA1 = "SHA1";
+	private static final String HASH_ALGORITHM_MD5 = "MD5";
+
+	private MessageDigest messageDigest_sha1; // the hash(...) method is called only within synchronized blocks - we can thus reuse the MessageDigest.
+	private MessageDigest messageDigest_md5;
 
 	private byte[] hash(byte[] data, byte[] salt, String hashAlgorithm)
 	{
-		if (HASH_ALGORITHM_SIMPLE_XOR.equals(hashAlgorithm)) {
+		if (HASH_ALGORITHM_XOR8.equals(hashAlgorithm)) {
 			byte[] hash = new byte[8];
 			int hi = 0;
 			int si = 0;
@@ -608,6 +651,30 @@ public class KeyStore
 					hi = 0;
 			}
 			return hash;
+		}
+		else if (HASH_ALGORITHM_SHA1.equals(hashAlgorithm)) {
+			if (messageDigest_sha1 == null) {
+				try {
+					messageDigest_sha1 = MessageDigest.getInstance("SHA1");
+				} catch (NoSuchAlgorithmException e) {
+					throw new RuntimeException(e);
+				}
+			}
+			messageDigest_sha1.update(salt);
+			messageDigest_sha1.update(data);
+			return messageDigest_sha1.digest();
+		}
+		else if (HASH_ALGORITHM_MD5.equals(hashAlgorithm)) {
+			if (messageDigest_md5 == null) {
+				try {
+					messageDigest_md5 = MessageDigest.getInstance("MD5");
+				} catch (NoSuchAlgorithmException e) {
+					throw new RuntimeException(e);
+				}
+			}
+			messageDigest_md5.update(salt);
+			messageDigest_md5.update(data);
+			return messageDigest_md5.digest();
 		}
 		else
 			throw new UnsupportedOperationException("Unsupported hash algorithm: " + hashAlgorithm);
@@ -735,7 +802,7 @@ public class KeyStore
 	{
 		MasterKey masterKey = getMasterKey(authUserName, authPassword);
 
-		String hashAlgo = HASH_ALGORITHM_SIMPLE_XOR;
+		String hashAlgo = HASH_ALGORITHM_SHA1;
 		byte[] hash = hash(key.getEncoded(), authUserName.getBytes(UTF8), hashAlgo);
 
 		try {
