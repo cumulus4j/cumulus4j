@@ -242,6 +242,7 @@ public class KeyStore
 	{
 		int headerSizeIncludingVersion = FILE_HEADER.length() + 4; // in bytes
 
+		// We must put the BufferedInputStream here, because we must mark() and reset() - see below. Marco :-)
 		in = new BufferedInputStream(in);
 		in.mark(headerSizeIncludingVersion);
 
@@ -317,13 +318,13 @@ public class KeyStore
 	private void store(OutputStream out)
 	throws IOException
 	{
-		out = new BufferedOutputStream(out);
-
 		// We calculate the checksum over the complete file.
 		Checksum checksum = new MessageDigestChecksum.SHA1();
 		CheckedOutputStream cout = new CheckedOutputStream(out, checksum);
 
-		DataOutputStream dout = new DataOutputStream(cout);
+		// We put the BufferedOutputStream around the CheckedOutputStream, because this is significantly faster
+		// (nearly factor 2; 86 vs 46 sec) and has no disadvantages. Marco.
+		DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(cout));
 
 		for (char c : FILE_HEADER.toCharArray()) {
 			if (c > 255)

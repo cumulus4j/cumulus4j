@@ -4,6 +4,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.zip.Checksum;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 class MessageDigestChecksum implements Checksum
 {
 	public static class SHA1 extends MessageDigestChecksum
@@ -44,12 +47,16 @@ class MessageDigestChecksum implements Checksum
 	public long getValue() {
 		byte[] value = messageDigest.digest();
 		long result = 0;
-		int bitshift = 0;
-		for (int i = 0; i < value.length; ++i) {
-			result ^= ((long)(value[i]) << (bitshift * 8));
+		int shift = 0;
+		// We don't need to overlap the first and the last bytes, because
+		// the hashes distribute pretty well - thus we can simply & safely
+		// ignore the rest. Marco.
+//		for (int i = 0; i < value.length; ++i) {
+		for (int i = 0; i < 8; ++i) {
+			result ^= ((long)(value[i]) << (shift * 8));
 
-			if (++bitshift > 8)
-				bitshift = 0;
+			if (++shift > 8)
+				shift = 0;
 		}
 		return result;
 	}
