@@ -16,6 +16,7 @@ import org.cumulus4j.core.query.method.StringIndexOfEvaluator;
 import org.cumulus4j.core.query.method.StringLengthEvaluator;
 import org.cumulus4j.core.query.method.StringMatchesEvaluator;
 import org.cumulus4j.core.query.method.StringStartsWithEvaluator;
+import org.cumulus4j.core.query.method.StringSubstringEvaluator;
 import org.datanucleus.query.expression.InvokeExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.query.expression.VariableExpression;
@@ -63,6 +64,12 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 				else if ("length".equals(this.getExpression().getOperation())) {
 					// primExpr.length() {operation} {comparisonObj}
 					StringLengthEvaluator eval = new StringLengthEvaluator();
+					eval.setCompareToArgument(getCompareToArgument());
+					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
+				}
+				else if ("substring".equals(this.getExpression().getOperation())) {
+					// primExpr.substring(...) {operation} {comparisonObj}
+					StringSubstringEvaluator eval = new StringSubstringEvaluator();
 					eval.setCompareToArgument(getCompareToArgument());
 					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
 				}
@@ -137,6 +144,12 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 				else if ("length".equals(this.getExpression().getOperation())) {
 					// carExpr.length() {operation} {comparisonObj}
 					StringLengthEvaluator eval = new StringLengthEvaluator();
+					eval.setCompareToArgument(getCompareToArgument());
+					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
+				}
+				else if ("substring".equals(this.getExpression().getOperation())) {
+					// varExpr.substring(...) {operation} {comparisonObj}
+					StringSubstringEvaluator eval = new StringSubstringEvaluator();
 					eval.setCompareToArgument(getCompareToArgument());
 					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
 				}

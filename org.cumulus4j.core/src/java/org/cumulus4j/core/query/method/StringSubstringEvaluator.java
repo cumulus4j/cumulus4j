@@ -40,9 +40,9 @@ import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.store.ExecutionContext;
 
 /**
- * Evaluator for <pre>String.indexOf(str [,from]) {oper} {compareTo}</pre>
+ * Evaluator for <pre>String.substring(pos1 [, pos2]) {oper} {compareTo}</pre>
  */
-public class StringIndexOfEvaluator extends AbstractMethodEvaluator {
+public class StringSubstringEvaluator extends AbstractMethodEvaluator {
 
 	/* (non-Javadoc)
 	 * @see org.cumulus4j.core.query.method.MethodEvaluator#evaluate(org.cumulus4j.core.query.QueryEvaluator, org.cumulus4j.core.query.eval.InvokeExpressionEvaluator, org.datanucleus.query.expression.Expression, org.cumulus4j.core.query.eval.ResultDescriptor)
@@ -52,32 +52,33 @@ public class StringIndexOfEvaluator extends AbstractMethodEvaluator {
 			InvokeExpressionEvaluator invokeExprEval, Expression invokedExpr,
 			ResultDescriptor resultDesc) {
 		if (invokeExprEval.getExpression().getArguments().size() < 1 || invokeExprEval.getExpression().getArguments().size() > 2)
-			throw new IllegalStateException("String.indexOf(...) expects 1 or 2 arguments, but there are " + 
+			throw new IllegalStateException("String.substring(...) expects 1 or 2 arguments, but there are " + 
 					invokeExprEval.getExpression().getArguments().size());
 
 		// Evaluate the invoke argument
 		Object[] invokeArgs = ExpressionHelper.getEvaluatedInvokeArguments(queryEval, invokeExprEval.getExpression());
 
 		if (invokedExpr instanceof PrimaryExpression) {
-			return new StringIndexOfResolver(invokeExprEval, queryEval, (PrimaryExpression) invokedExpr, invokeArgs[0],
-					(invokeArgs.length > 1 ? invokeArgs[1] : null), compareToArgument, resultDesc.isNegated()).query();
+			return new StringSubstringResolver(invokeExprEval, queryEval, (PrimaryExpression) invokedExpr, invokeArgs[0],
+					(invokeArgs.length > 1 ? invokeArgs[1] : null),
+					compareToArgument, resultDesc.isNegated()).query();
 		}
 		else {
 			if (!invokeExprEval.getLeft().getResultSymbols().contains(resultDesc.getSymbol()))
 				return null;
 
-			return queryStringIndexOf(invokeExprEval, queryEval, resultDesc.getFieldMeta(), invokeArgs[0], 
+			return queryStringSubstring(invokeExprEval, queryEval, resultDesc.getFieldMeta(), invokeArgs[0],
 					(invokeArgs.length > 1 ? invokeArgs[1] : null), compareToArgument, resultDesc.isNegated());
 		}
 	}
 
-	private Set<Long> queryStringIndexOf(
+	private Set<Long> queryStringSubstring(
 			InvokeExpressionEvaluator invokeExprEval,
 			QueryEvaluator queryEval,
 			FieldMeta fieldMeta,
-			Object invokeArg1, // the xxx in 'indexOf(xxx)'
-			Object invokeArg2, // the xxx2 in 'indexOf(xxx1, xxx2)'
-			Object compareToArgument, // the yyy in 'indexOf(xxx) >= yyy'
+			Object invokeArg1, // the xxx1 in 'substring(xxx1)'
+			Object invokeArg2, // the xxx2 in 'substring(xxx1, xxx2)'
+			Object compareToArgument, // the yyy in 'substring(...) >= yyy'
 			boolean negate
 	) {
 		ExecutionContext executionContext = queryEval.getExecutionContext();
@@ -89,16 +90,16 @@ public class StringIndexOfEvaluator extends AbstractMethodEvaluator {
 		q.setFilter(
 				"this.fieldMeta == :fieldMeta && " +
 				(invokeArg2 != null ?
-						"this.indexKey.indexOf(:invokeArg,:invokeFrom) " : "this.indexKey.indexOf(:invokeArg) ") +
+						"this.indexKey.substring(:pos1,:pos2) " : "this.indexKey.substring(:pos1) ") + 
 				ExpressionHelper.getOperatorAsJDOQLSymbol(invokeExprEval.getParent().getExpression().getOperator(), negate) + 
 				" :compareToArgument"
 		);
-		Map<String, Object> params = new HashMap<String, Object>(3);
+		Map<String, Object> params = new HashMap<String, Object>(invokeArg2 != null ? 4 : 3);
 		params.put("fieldMeta", fieldMeta);
-		params.put("invokeArg", invokeArg1);
+		params.put("pos1", invokeArg1);
 		if (invokeArg2 != null)
 		{
-			params.put("invokeFrom", invokeArg2);
+			params.put("pos2", invokeArg2);
 		}
 		params.put("compareToArgument", compareToArgument);
 
@@ -114,34 +115,34 @@ public class StringIndexOfEvaluator extends AbstractMethodEvaluator {
 		return result;
 	}
 
-	private class StringIndexOfResolver extends PrimaryExpressionResolver
+	private class StringSubstringResolver extends PrimaryExpressionResolver
 	{
 		private InvokeExpressionEvaluator invokeExprEval;
-		private Object invokeArg;
-		private Object invokeFrom;
+		private Object invokePos1;
+		private Object invokePos2;
 		private Object compareToArgument;
 		private boolean negate;
 
-		public StringIndexOfResolver(
+		public StringSubstringResolver(
 				InvokeExpressionEvaluator invokeExprEval,
 				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
-				Object invokeArg1, // the xxx1 in 'indexOf(xxx1) >= yyy'
-				Object invokeArg2, // the xxx2 in 'indexOf(xxx1, xxx2) >= yyy'
-				Object compareToArgument, // the yyy in 'indexOf(xxx) >= yyy'
+				Object invokeArg1, // the xxx in 'substring(xxx) >= yyy'
+				Object invokeArg2, // the xxx in 'substring(xxx1, xxx2) >= yyy'
+				Object compareToArgument, // the yyy in 'substring(xxx) >= yyy'
 				boolean negate
 		)
 		{
 			super(queryEvaluator, primaryExpression);
 			this.invokeExprEval = invokeExprEval;
-			this.invokeArg = invokeArg1;
-			this.invokeFrom = invokeArg2;
+			this.invokePos1 = invokeArg1;
+			this.invokePos2 = invokeArg2;
 			this.compareToArgument = compareToArgument;
 			this.negate = negate;
 		}
 
 		@Override
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
-			return queryStringIndexOf(invokeExprEval, queryEvaluator, fieldMeta, invokeArg, invokeFrom, compareToArgument, negate);
+			return queryStringSubstring(invokeExprEval, queryEvaluator, fieldMeta, invokePos1, invokePos2, compareToArgument, negate);
 		}
 	}
 }

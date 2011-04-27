@@ -40,9 +40,9 @@ import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.store.ExecutionContext;
 
 /**
- * Evaluator for <pre>String.indexOf(str [,from]) {oper} {compareTo}</pre>
+ * Evaluator for <pre>String.toLowerCase() {oper} {compareTo}</pre>
  */
-public class StringIndexOfEvaluator extends AbstractMethodEvaluator {
+public class StringToLowerCaseEvaluator extends AbstractMethodEvaluator {
 
 	/* (non-Javadoc)
 	 * @see org.cumulus4j.core.query.method.MethodEvaluator#evaluate(org.cumulus4j.core.query.QueryEvaluator, org.cumulus4j.core.query.eval.InvokeExpressionEvaluator, org.datanucleus.query.expression.Expression, org.cumulus4j.core.query.eval.ResultDescriptor)
@@ -51,33 +51,28 @@ public class StringIndexOfEvaluator extends AbstractMethodEvaluator {
 	public Set<Long> evaluate(QueryEvaluator queryEval,
 			InvokeExpressionEvaluator invokeExprEval, Expression invokedExpr,
 			ResultDescriptor resultDesc) {
-		if (invokeExprEval.getExpression().getArguments().size() < 1 || invokeExprEval.getExpression().getArguments().size() > 2)
-			throw new IllegalStateException("String.indexOf(...) expects 1 or 2 arguments, but there are " + 
+		if (invokeExprEval.getExpression().getArguments().size() != 0)
+			throw new IllegalStateException("String.toLowerCase(...) expects exactly no arguments, but there are " + 
 					invokeExprEval.getExpression().getArguments().size());
 
-		// Evaluate the invoke argument
-		Object[] invokeArgs = ExpressionHelper.getEvaluatedInvokeArguments(queryEval, invokeExprEval.getExpression());
-
 		if (invokedExpr instanceof PrimaryExpression) {
-			return new StringIndexOfResolver(invokeExprEval, queryEval, (PrimaryExpression) invokedExpr, invokeArgs[0],
-					(invokeArgs.length > 1 ? invokeArgs[1] : null), compareToArgument, resultDesc.isNegated()).query();
+			return new StringToLowerCaseResolver(invokeExprEval, queryEval, (PrimaryExpression) invokedExpr,
+					compareToArgument, resultDesc.isNegated()).query();
 		}
 		else {
 			if (!invokeExprEval.getLeft().getResultSymbols().contains(resultDesc.getSymbol()))
 				return null;
 
-			return queryStringIndexOf(invokeExprEval, queryEval, resultDesc.getFieldMeta(), invokeArgs[0], 
-					(invokeArgs.length > 1 ? invokeArgs[1] : null), compareToArgument, resultDesc.isNegated());
+			return queryStringToLowerCase(invokeExprEval, queryEval, resultDesc.getFieldMeta(),
+					compareToArgument, resultDesc.isNegated());
 		}
 	}
 
-	private Set<Long> queryStringIndexOf(
+	private Set<Long> queryStringToLowerCase(
 			InvokeExpressionEvaluator invokeExprEval,
 			QueryEvaluator queryEval,
 			FieldMeta fieldMeta,
-			Object invokeArg1, // the xxx in 'indexOf(xxx)'
-			Object invokeArg2, // the xxx2 in 'indexOf(xxx1, xxx2)'
-			Object compareToArgument, // the yyy in 'indexOf(xxx) >= yyy'
+			Object compareToArgument, // the yyy in 'toLowerCase() >= yyy'
 			boolean negate
 	) {
 		ExecutionContext executionContext = queryEval.getExecutionContext();
@@ -88,18 +83,12 @@ public class StringIndexOfEvaluator extends AbstractMethodEvaluator {
 		Query q = queryEval.getPersistenceManager().newQuery(indexEntryFactory.getIndexEntryClass());
 		q.setFilter(
 				"this.fieldMeta == :fieldMeta && " +
-				(invokeArg2 != null ?
-						"this.indexKey.indexOf(:invokeArg,:invokeFrom) " : "this.indexKey.indexOf(:invokeArg) ") +
+				"this.indexKey.toLowerCase() " + 
 				ExpressionHelper.getOperatorAsJDOQLSymbol(invokeExprEval.getParent().getExpression().getOperator(), negate) + 
 				" :compareToArgument"
 		);
-		Map<String, Object> params = new HashMap<String, Object>(3);
+		Map<String, Object> params = new HashMap<String, Object>(2);
 		params.put("fieldMeta", fieldMeta);
-		params.put("invokeArg", invokeArg1);
-		if (invokeArg2 != null)
-		{
-			params.put("invokeFrom", invokeArg2);
-		}
 		params.put("compareToArgument", compareToArgument);
 
 		@SuppressWarnings("unchecked")
@@ -114,34 +103,28 @@ public class StringIndexOfEvaluator extends AbstractMethodEvaluator {
 		return result;
 	}
 
-	private class StringIndexOfResolver extends PrimaryExpressionResolver
+	private class StringToLowerCaseResolver extends PrimaryExpressionResolver
 	{
 		private InvokeExpressionEvaluator invokeExprEval;
-		private Object invokeArg;
-		private Object invokeFrom;
 		private Object compareToArgument;
 		private boolean negate;
 
-		public StringIndexOfResolver(
+		public StringToLowerCaseResolver(
 				InvokeExpressionEvaluator invokeExprEval,
 				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
-				Object invokeArg1, // the xxx1 in 'indexOf(xxx1) >= yyy'
-				Object invokeArg2, // the xxx2 in 'indexOf(xxx1, xxx2) >= yyy'
-				Object compareToArgument, // the yyy in 'indexOf(xxx) >= yyy'
+				Object compareToArgument, // the yyy in 'toLowerCase() == yyy'
 				boolean negate
 		)
 		{
 			super(queryEvaluator, primaryExpression);
 			this.invokeExprEval = invokeExprEval;
-			this.invokeArg = invokeArg1;
-			this.invokeFrom = invokeArg2;
 			this.compareToArgument = compareToArgument;
 			this.negate = negate;
 		}
 
 		@Override
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
-			return queryStringIndexOf(invokeExprEval, queryEvaluator, fieldMeta, invokeArg, invokeFrom, compareToArgument, negate);
+			return queryStringToLowerCase(invokeExprEval, queryEvaluator, fieldMeta, compareToArgument, negate);
 		}
 	}
 }
