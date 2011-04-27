@@ -291,6 +291,51 @@ extends AbstractTransactionalTest
 		assertDelegate0(delegate);
 	}
 
+	@Test
+	public void queryStringToUpperCase() throws IOException
+	{
+		Query q = pm.newQuery(LocalAccountantDelegate.class);
+		q.setFilter("this.name.toUpperCase() == :str");
+
+		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("SOME OTHER TEST");
+		Assert.assertEquals("Number of results was wrong", 1, result.size());
+		LocalAccountantDelegate delegate = result.iterator().next();
+		assertDelegate1(delegate);
+	}
+
+	@Test
+	public void queryStringToLowerCase() throws IOException
+	{
+		Query q = pm.newQuery(LocalAccountantDelegate.class);
+		q.setFilter("this.name.toLowerCase() == :str");
+
+		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("some other test");
+		Assert.assertEquals("Number of results was wrong", 1, result.size());
+		LocalAccountantDelegate delegate = result.iterator().next();
+		assertDelegate1(delegate);
+	}
+
+	@Test
+	public void queryStringSubstring() throws IOException
+	{
+		Query q = pm.newQuery(LocalAccountantDelegate.class);
+		q.setFilter("this.name.substring(5) == :str");
+
+		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("other test");
+		Assert.assertEquals("Number of results was wrong", 1, result.size());
+		LocalAccountantDelegate delegate = result.iterator().next();
+		assertDelegate1(delegate);
+		q.closeAll();
+
+		q = pm.newQuery(LocalAccountantDelegate.class);
+		q.setFilter("this.name.substring(5,10) == :str");
+
+		result = (List<LocalAccountantDelegate>) q.execute("other");
+		Assert.assertEquals("Number of results was wrong", 1, result.size());
+		delegate = result.iterator().next();
+		assertDelegate1(delegate);
+	}
+
 	@After
 	public void deleteAll() throws IOException
 	{
