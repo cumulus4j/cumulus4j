@@ -10,7 +10,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Util class to clean up the database. Its (currently) only method is {@link #dropAllTables()} which
@@ -21,7 +22,7 @@ import org.apache.log4j.Logger;
  */
 public class CleanupUtil
 {
-	private static final Logger logger = Logger.getLogger(CleanupUtil.class);
+	private static final Logger logger = LoggerFactory.getLogger(CleanupUtil.class);
 
 	public static void dropAllTables() throws Exception {
 		Properties properties = TestUtil.loadProperties("cumulus4j-test-datanucleus.properties");

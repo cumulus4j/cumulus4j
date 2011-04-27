@@ -13,6 +13,10 @@
 	<description>Various example data models for tests and jUnit test classes</description>
 	<dependencies>
 		<dependency>
+			<groupId>javax.jdo</groupId>
+			<artifactId>jdo-api</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.cumulus4j</groupId>
 			<artifactId>org.cumulus4j.api</artifactId>
 			<version>${cumulus4j.version}</version>
@@ -31,6 +35,11 @@
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
+			<scope>compile</scope>
+			<!--
+				scope=compile, because we have the test framework in the main
+				sources - not the test sources - and this framework configures log4j.
+			-->
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>

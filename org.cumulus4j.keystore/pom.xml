@@ -12,7 +12,7 @@
 	<packaging>bundle</packaging>
 
 	<name>org.cumulus4j.keystore</name>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>org.nightlabs</groupId>
