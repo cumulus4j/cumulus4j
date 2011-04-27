@@ -142,33 +142,35 @@ public class KeyStoreKeyTest
 		logger.info("generateAndReadManyKeys ({} keys): {}", keyCount, stopwatch.createHumanReport(true));
 	}
 
-	@Test
-	public void longRunningExpireCacheTest()
-	throws Exception
-	{
-		keyStore.createUser(null, null, USER, PASSWORD);
-		keyStore.createUser(USER, PASSWORD, "user1", "pw1".toCharArray());
-		keyStore.createUser(USER, PASSWORD, "user2", "pw2".toCharArray());
-		keyStore.createUser(USER, PASSWORD, "user3", "pw3".toCharArray());
-		keyStore.createUser(USER, PASSWORD, "user4", "pw4".toCharArray());
-
-		keyStore.generateKey("user1", "pw1".toCharArray());
-		keyStore.generateKey("user2", "pw2".toCharArray());
-		keyStore.generateKey("user3", "pw3".toCharArray());
-		keyStore.generateKey("user4", "pw4".toCharArray());
-
-
-		keyStore.generateKey("user1", "pw1".toCharArray());
-		keyStore.generateKey("user2", "pw2".toCharArray());
-
-		Thread.sleep(70000);
-
-		keyStore.generateKey("user3", "pw3".toCharArray());
-
-		Thread.sleep(90000);
-
-		keyStore.generateKey("user4", "pw4".toCharArray());
-
-		Thread.sleep(200000);
-	}
+//  The following method is not a real jUnit-test, but requires a developer to watch the DEBUG output.
+//  There is not enough API available to make this a real jUnit-test. Shall we add this API? For now, I don't. Marco.
+//	@Test
+//	public void longRunningExpireCacheTest()
+//	throws Exception
+//	{
+//		keyStore.createUser(null, null, USER, PASSWORD);
+//		keyStore.createUser(USER, PASSWORD, "user1", "pw1".toCharArray());
+//		keyStore.createUser(USER, PASSWORD, "user2", "pw2".toCharArray());
+//		keyStore.createUser(USER, PASSWORD, "user3", "pw3".toCharArray());
+//		keyStore.createUser(USER, PASSWORD, "user4", "pw4".toCharArray());
+//
+//		keyStore.generateKey("user1", "pw1".toCharArray());
+//		keyStore.generateKey("user2", "pw2".toCharArray());
+//		keyStore.generateKey("user3", "pw3".toCharArray());
+//		keyStore.generateKey("user4", "pw4".toCharArray());
+//
+//
+//		keyStore.generateKey("user1", "pw1".toCharArray());
+//		keyStore.generateKey("user2", "pw2".toCharArray());
+//
+//		Thread.sleep(70000);
+//
+//		keyStore.generateKey("user3", "pw3".toCharArray());
+//
+//		Thread.sleep(90000);
+//
+//		keyStore.generateKey("user4", "pw4".toCharArray());
+//
+//		Thread.sleep(200000);
+//	}
 }
