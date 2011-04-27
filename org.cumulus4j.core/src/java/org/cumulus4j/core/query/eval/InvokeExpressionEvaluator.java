@@ -13,6 +13,7 @@ import org.cumulus4j.core.query.method.StringEndsWithEvaluator;
 import org.cumulus4j.core.query.method.StringEqualsEvaluator;
 import org.cumulus4j.core.query.method.StringEqualsIgnoreCaseEvaluator;
 import org.cumulus4j.core.query.method.StringIndexOfEvaluator;
+import org.cumulus4j.core.query.method.StringLengthEvaluator;
 import org.cumulus4j.core.query.method.StringMatchesEvaluator;
 import org.cumulus4j.core.query.method.StringStartsWithEvaluator;
 import org.datanucleus.query.expression.InvokeExpression;
@@ -56,6 +57,12 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 				if ("indexOf".equals(this.getExpression().getOperation())) {
 					// primExpr.indexOf(str) {operation} {comparisonObj}
 					StringIndexOfEvaluator eval = new StringIndexOfEvaluator();
+					eval.setCompareToArgument(getCompareToArgument());
+					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
+				}
+				else if ("length".equals(this.getExpression().getOperation())) {
+					// primExpr.length() {operation} {comparisonObj}
+					StringLengthEvaluator eval = new StringLengthEvaluator();
 					eval.setCompareToArgument(getCompareToArgument());
 					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
 				}
@@ -124,6 +131,12 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 				if ("indexOf".equals(this.getExpression().getOperation())) {
 					// varExpr.indexOf(str) {operation} {comparisonObj}
 					StringIndexOfEvaluator eval = new StringIndexOfEvaluator();
+					eval.setCompareToArgument(getCompareToArgument());
+					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
+				}
+				else if ("length".equals(this.getExpression().getOperation())) {
+					// carExpr.length() {operation} {comparisonObj}
+					StringLengthEvaluator eval = new StringLengthEvaluator();
 					eval.setCompareToArgument(getCompareToArgument());
 					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
 				}
