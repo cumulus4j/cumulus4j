@@ -25,7 +25,6 @@
 		<connection>scm:svn:https://dev.nightlabs.org/svn/private/fzi/src/trunk/</connection>
 	</scm>
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.cumulus4j</groupId>
 	<artifactId>org.cumulus4j.all</artifactId>
 	<packaging>pom</packaging>
 	<!--

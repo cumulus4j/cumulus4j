@@ -7,7 +7,6 @@
 		<relativePath>../org.cumulus4j.parent/pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.cumulus4j</groupId>
 	<artifactId>org.cumulus4j.keyserver.back.plugin</artifactId>
 	<name>org.cumulus4j.keyserver.back.plugin</name>
 	<packaging>bundle</packaging>

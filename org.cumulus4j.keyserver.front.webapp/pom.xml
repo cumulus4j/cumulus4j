@@ -7,20 +7,23 @@
 		<relativePath>../org.cumulus4j.parent/pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.cumulus4j</groupId>
 	<artifactId>org.cumulus4j.keyserver.front.webapp</artifactId>
 	<packaging>war</packaging>
 	<name>org.cumulus4j.keyserver.front.webapp</name>
 
 	<dependencies>
 		<dependency>
-			<groupId>org.glassfish</groupId>
-			<artifactId>javax.servlet</artifactId>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.cumulus4j</groupId>
 			<artifactId>org.cumulus4j.keystore</artifactId>
 			<version>${cumulus4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish</groupId>
+			<artifactId>javax.servlet</artifactId>
 		</dependency>
 	</dependencies>
 
