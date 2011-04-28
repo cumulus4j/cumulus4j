@@ -114,7 +114,7 @@ public class KeyStoreKeyTest
 
 		stopwatch.start("00.generateManyKeys");
 
-		int keyCount = 5000;
+		int keyCount = 10000;
 
 		long firstKeyID = -1;
 		long lastKeyID = -1;

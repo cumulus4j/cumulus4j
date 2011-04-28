@@ -8,7 +8,7 @@ class EncryptedKey
 	private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
 	public EncryptedKey(
-			byte[] data, byte[] salt, String algorithm, byte[] keyEncryptionIV, String keyEncryptionAlgorithm, short hashSize, String hashAlgorithm
+			byte[] data, byte[] salt, String algorithm, byte[] keyEncryptionIV, String keyEncryptionAlgorithm, short checksumSize, String checksumAlgorithm
 	)
 	{
 		if (data == null)
@@ -23,25 +23,19 @@ class EncryptedKey
 		if (keyEncryptionAlgorithm == null)
 			throw new IllegalArgumentException("keyEncryptionAlgorithm must not be null!");
 
-		if (hashSize < 0)
-			throw new IllegalArgumentException("hashSize < 0");
+		if (checksumSize <= 0)
+			throw new IllegalArgumentException("checksumSize <= 0");
 
-		if (hashAlgorithm == null)
-			hashAlgorithm = "";
-
-		if (hashAlgorithm.isEmpty() && hashSize > 0)
-			throw new IllegalArgumentException("hashAlgorithm must not be null and not be empty, if hashSize > 0!");
-
-		if (!hashAlgorithm.isEmpty() && hashSize == 0)
-			throw new IllegalArgumentException("hashAlgorithm must be null or empty, if hashSize == 0!");
+		if (checksumAlgorithm == null || checksumAlgorithm.isEmpty())
+			throw new IllegalArgumentException("checksumAlgorithm must not be null and not be empty!");
 
 		this.data = data;
 		this.salt = salt;
 		this.algorithm = algorithm;
 		this.keyEncryptionIV = keyEncryptionIV;
 		this.keyEncryptionAlgorithm = keyEncryptionAlgorithm;
-		this.hashSize = hashSize;
-		this.hashAlgorithm = hashAlgorithm;
+		this.checksumSize = checksumSize;
+		this.checksumAlgorithm = checksumAlgorithm;
 	}
 
 	private byte[] data;
@@ -74,15 +68,15 @@ class EncryptedKey
 		return keyEncryptionAlgorithm;
 	}
 
-	private short hashSize;
+	private short checksumSize;
 
-	public short getHashSize() {
-		return hashSize;
+	public short getChecksumSize() {
+		return checksumSize;
 	}
 
-	private String hashAlgorithm;
+	private String checksumAlgorithm;
 
-	public String getHashAlgorithm() {
-		return hashAlgorithm;
+	public String getChecksumAlgorithm() {
+		return checksumAlgorithm;
 	}
 }
