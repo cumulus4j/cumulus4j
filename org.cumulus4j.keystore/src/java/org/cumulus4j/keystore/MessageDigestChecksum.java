@@ -35,17 +35,30 @@ class MessageDigestChecksum implements Checksum
 
 	@Override
 	public void update(int b) {
+		checksum = null;
 		messageDigest.update((byte)b);
 	}
 
 	@Override
 	public void update(byte[] b, int off, int len) {
+		checksum = null;
 		messageDigest.update(b, off, len);
 	}
 
+	private byte[] checksum = null;
+
+	public byte[] getChecksum()
+	{
+		if (checksum == null)
+			checksum = messageDigest.digest();
+
+		return checksum;
+	}
+
 	@Override
-	public long getValue() {
-		byte[] value = messageDigest.digest();
+	public long getValue()
+	{
+		byte[] value = getChecksum();
 		long result = 0;
 		int shift = 0;
 		// We don't need to overlap the first and the last bytes, because
@@ -62,7 +75,9 @@ class MessageDigestChecksum implements Checksum
 	}
 
 	@Override
-	public void reset() {
+	public void reset()
+	{
+		checksum = null;
 		messageDigest.reset();
 	}
 

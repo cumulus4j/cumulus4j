@@ -31,7 +31,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.zip.CheckedInputStream;
 import java.util.zip.CheckedOutputStream;
-import java.util.zip.Checksum;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -265,7 +264,7 @@ public class KeyStore
 		// We thus use mark(...) and reset().
 		in.reset();
 
-		Checksum checksum = new MessageDigestChecksum.SHA1();
+		MessageDigestChecksum checksum = new MessageDigestChecksum.SHA1();
 		CheckedInputStream cin = new CheckedInputStream(in, checksum);
 		din = new DataInputStream(cin);
 		readByteArrayCompletely(din, new byte[headerSizeIncludingVersion]); // We cannot use skip(...), because that would not update our checksum.
@@ -296,10 +295,11 @@ public class KeyStore
 			keyID2keyMap.put(keyID, key);
 		}
 
-		long checksumValueCalculated = checksum.getValue();
-		long checksumValueExpected = din.readLong();
-		if (checksumValueCalculated != checksumValueExpected)
-			throw new IOException("Checksum error! Expected=" + checksumValueExpected + " Found=" + checksumValueCalculated);
+		byte[] checksumValueCalculated = checksum.getChecksum();
+		byte[] checksumValueExpected = new byte[checksumValueCalculated.length];
+		readByteArrayCompletely(din, checksumValueExpected);
+		if (!Arrays.equals(checksumValueCalculated, checksumValueExpected))
+			throw new IOException("Checksum error! Expected=" + encodeHexStr(checksumValueExpected) + " Found=" + encodeHexStr(checksumValueCalculated));
 	}
 
 	private static void readByteArrayCompletely(InputStream in, byte[] dest)
@@ -319,7 +319,7 @@ public class KeyStore
 	throws IOException
 	{
 		// We calculate the checksum over the complete file.
-		Checksum checksum = new MessageDigestChecksum.SHA1();
+		MessageDigestChecksum checksum = new MessageDigestChecksum.SHA1();
 		CheckedOutputStream cout = new CheckedOutputStream(out, checksum);
 
 		// We put the BufferedOutputStream around the CheckedOutputStream, because this is significantly faster
@@ -354,9 +354,9 @@ public class KeyStore
 		}
 		dout.flush();
 
-		long checksumValue = checksum.getValue();
+		byte[] checksumValue = checksum.getChecksum();
 //		logger.debug("store: checksum={}", checksumValue);
-		dout.writeLong(checksumValue);
+		dout.write(checksumValue);
 		dout.flush();
 	}
 
@@ -379,8 +379,7 @@ public class KeyStore
 		dout.writeInt(idx);
 //		dout.writeUTF(key.getKeyEncryptionAlgorithm());
 
-		dout.writeInt(key.getHash().length);
-		dout.write(key.getHash());
+		dout.writeShort(key.getHashSize());
 
 		idx = stringConstant2idMap.get(key.getHashAlgorithm());
 		dout.writeInt(idx);
@@ -413,17 +412,14 @@ public class KeyStore
 //		String keyCryptAlgo = din.readUTF();
 //		keyCryptAlgo = stringConstant(keyCryptAlgo);
 
-		int hashSize = din.readInt();
-		byte hash[] = hashSize == 0 ? null : new byte[hashSize];
-		if (hash != null)
-			readByteArrayCompletely(din, hash);
+		short hashSize = din.readShort();
 
 		int hashAlgoIdx = din.readInt();
 		String hashAlgo = stringConstantList.get(hashAlgoIdx);
 //		String hashAlgo = din.readUTF();
 //		hashAlgo = stringConstant(hashAlgo);
 
-		return new EncryptedKey(key, salt, algorithm, keyCryptIV, keyCryptAlgo, hash, hashAlgo);
+		return new EncryptedKey(key, salt, algorithm, keyCryptIV, keyCryptAlgo, hashSize, hashAlgo);
 	}
 
 	protected File getNewKeyStoreFile()
@@ -466,14 +462,13 @@ public class KeyStore
 				);
 				byte[] decrypted = cipher.doFinal(encryptedKey.getData());
 //				result = new MasterKey(new SecretKeySpec(decrypted, encryptedKey.getAlgorithm()));
-				result = new MasterKey(decrypted, encryptedKey.getAlgorithm());
 
-				if (encryptedKey.getHash().length > 0) {
-					byte[] hash = hash(decrypted, authUserName.getBytes(UTF8), encryptedKey.getHashAlgorithm());
-					if (!Arrays.equals(encryptedKey.getHash(), hash)) {
-						result = null;
-						logger.warn("login: Wrong password for user \"{}\"!", authUserName);
-					}
+				byte[][] hashAndData = splitHashAndData(decrypted, encryptedKey.getHashSize());
+				result = new MasterKey(hashAndData[1], encryptedKey.getAlgorithm());
+				byte[] hash = hash(hashAndData[1], authUserName.getBytes(UTF8), encryptedKey.getHashAlgorithm());
+				if (!Arrays.equals(hashAndData[0], hash)) {
+					result = null;
+					logger.warn("login: Wrong password for user \"{}\"!", authUserName);
 				}
 			} catch (BadPaddingException x) {
 				logger.warn("login: Caught BadPaddingException indicating a wrong password for user \"{}\"!", authUserName);
@@ -487,6 +482,48 @@ public class KeyStore
 			throw new LoginException("Unknown user \"" + authUserName + "\" or wrong password!");
 
 		cache_userName2cachedMasterKey.put(authUserName, new CachedMasterKey(authUserName, authPassword, result));
+		return result;
+	}
+
+	/**
+	 * <p>
+	 * Split the given <code>data</code> byte array into two parts - the first part is the hash and the second part the actual
+	 * decrypted data.
+	 * </p>
+	 * <p>
+	 * The opposite of this method is {@link #catHashAndData(byte[], byte[])} which concats the two parts into one.
+	 * </p>
+	 *
+	 * @param hashAndData the plain data prepended with the hash. The hash thus always comes before the actual data.
+	 * @param hashSize the number of bytes that are the actual hash.
+	 * @return a byte-array-array with two elements. The 1st element is the byte-array containing the hash, the 2nd element
+	 * is the byte-array containing the actual data.
+	 * @see #catHashAndData(byte[], byte[])
+	 */
+	private static byte[][] splitHashAndData(byte[] hashAndData, short hashSize)
+	{
+		byte[][] result = new byte[2][];
+		result[0] = new byte[hashSize];
+		result[1] = new byte[hashAndData.length - hashSize];
+		System.arraycopy(hashAndData, 0, result[0], 0, result[0].length);
+		System.arraycopy(hashAndData, result[0].length, result[1], 0, result[1].length);
+		return result;
+	}
+
+	/**
+	 * Concat the two byte-arrays <code>hash</code> and <code>data</code> into one combined byte-array
+	 * which contains then first the hash and directly following the data.
+	 *
+	 * @param hash the hash.
+	 * @param data the actual data.
+	 * @return the combined hash and data.
+	 * @see #splitHashAndData(byte[], short)
+	 */
+	private static byte[] catHashAndData(byte[] hash, byte[] data)
+	{
+		byte[] result = new byte[hash.length + data.length];
+		System.arraycopy(hash, 0, result, 0, hash.length);
+		System.arraycopy(data, 0, result, hash.length, data.length);
 		return result;
 	}
 
@@ -605,19 +642,21 @@ public class KeyStore
 	throws IOException
 	{
 		String hashAlgo = HASH_ALGORITHM_SHA1;
-		byte[] hash = hash(masterKey.getEncoded(), userName.getBytes(UTF8), hashAlgo);
+		byte[] plainMasterKeyData = masterKey.getEncoded();
+		byte[] hash = hash(plainMasterKeyData, userName.getBytes(UTF8), hashAlgo);
+		byte[] hashAndData = catHashAndData(hash, plainMasterKeyData);
 
 		byte[] salt = new byte[8]; // TODO make salt-length configurable!
 		secureRandom.nextBytes(salt);
 		try {
 			Cipher cipher = getCipherForUserPassword(password, salt, null, null, Cipher.ENCRYPT_MODE);
-			byte[] encrypted = cipher.doFinal(masterKey.getEncoded());
+			byte[] encrypted = cipher.doFinal(hashAndData);
 
 			EncryptedKey encryptedKey = new EncryptedKey(
 					encrypted, salt,
 					stringConstant(masterKey.getAlgorithm()),
 					cipher.getIV(), stringConstant(cipher.getAlgorithm()),
-					hash, stringConstant(hashAlgo)
+					(short)hash.length, stringConstant(hashAlgo)
 			);
 			user2keyMap.put(userName, encryptedKey);
 		} catch (GeneralSecurityException e) {
@@ -785,14 +824,13 @@ public class KeyStore
 					Cipher.DECRYPT_MODE
 			);
 			byte[] decrypted = cipher.doFinal(encryptedKey.getData());
+			byte[][] hashAndData = splitHashAndData(decrypted, encryptedKey.getHashSize());
 
-			if (encryptedKey.getHash().length > 0) {
-				byte[] hash = hash(decrypted, authUserName.getBytes(UTF8), encryptedKey.getHashAlgorithm());
-				if (!Arrays.equals(encryptedKey.getHash(), hash))
-					throw new IllegalStateException("Hash codes do not match!!!");
-			}
+			byte[] hash = hash(hashAndData[1], authUserName.getBytes(UTF8), encryptedKey.getHashAlgorithm());
+			if (!Arrays.equals(hashAndData[0], hash))
+				throw new IllegalStateException("Hash codes do not match!!! This means, the decryption key was wrong!");
 
-			return new SecretKeySpec(decrypted, encryptedKey.getAlgorithm());
+			return new SecretKeySpec(hashAndData[1], encryptedKey.getAlgorithm());
 		} catch (GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}
@@ -804,15 +842,17 @@ public class KeyStore
 		MasterKey masterKey = getMasterKey(authUserName, authPassword);
 
 		String hashAlgo = HASH_ALGORITHM_SHA1;
-		byte[] hash = hash(key.getEncoded(), authUserName.getBytes(UTF8), hashAlgo);
+		byte[] plainKeyData = key.getEncoded();
+		byte[] hash = hash(plainKeyData, authUserName.getBytes(UTF8), hashAlgo);
+		byte[] hashAndData = catHashAndData(hash, plainKeyData);
 
 		try {
 			Cipher cipher = getCipherForMasterKey(masterKey, null, null, Cipher.ENCRYPT_MODE);
-			byte[] encrypted = cipher.doFinal(key.getEncoded());
+			byte[] encrypted = cipher.doFinal(hashAndData);
 			EncryptedKey encryptedKey = new EncryptedKey(
 					encrypted, null, stringConstant(key.getAlgorithm()),
 					cipher.getIV(), stringConstant(cipher.getAlgorithm()),
-					hash, stringConstant(hashAlgo)
+					(short)hash.length, stringConstant(hashAlgo)
 			);
 			keyID2keyMap.put(keyID, encryptedKey);
 		} catch (GeneralSecurityException e) {
@@ -851,5 +891,51 @@ public class KeyStore
 	protected void finalize() throws Throwable {
 		clearCache(null);
 		super.finalize();
+	}
+
+	/**
+	 * This method encodes a byte array into a human readable hex string. For each byte,
+	 * two hex digits are produced. They are concatted without any separators.
+	 * <p>
+	 * This is a convenience method for <code>encodeHexStr(buf, 0, buf.length)</code>
+	 * <p>
+	 * This is copied from project <code>org.nightlabs.util</code>. If we need  more from this
+	 * lib, we should add a dependency onto it.
+	 *
+	 * @param buf The byte array to translate into human readable text.
+	 * @return a human readable string like "fa3d70" for a byte array with 3 bytes and these values.
+	 * @see #encodeHexStr(byte[], int, int)
+	 * @see #decodeHexStr(String)
+	 */
+	private static String encodeHexStr(byte[] buf)
+	{
+		return encodeHexStr(buf, 0, buf.length);
+	}
+
+	/**
+	 * Encode a byte array into a human readable hex string. For each byte,
+	 * two hex digits are produced. They are concatted without any separators.
+	 * <p>
+	 * This is copied from project <code>org.nightlabs.util</code>. If we need  more from this
+	 * lib, we should add a dependency onto it.
+	 *
+	 * @param buf The byte array to translate into human readable text.
+	 * @param pos The start position (0-based).
+	 * @param len The number of bytes that shall be processed beginning at the position specified by <code>pos</code>.
+	 * @return a human readable string like "fa3d70" for a byte array with 3 bytes and these values.
+	 * @see #encodeHexStr(byte[])
+	 * @see #decodeHexStr(String)
+	 */
+	private static String encodeHexStr(byte[] buf, int pos, int len)
+	{
+		 StringBuffer hex = new StringBuffer();
+		 while (len-- > 0) {
+				byte ch = buf[pos++];
+				int d = (ch >> 4) & 0xf;
+				hex.append((char)(d >= 10 ? 'a' - 10 + d : '0' + d));
+				d = ch & 0xf;
+				hex.append((char)(d >= 10 ? 'a' - 10 + d : '0' + d));
+		 }
+		 return hex.toString();
 	}
 }

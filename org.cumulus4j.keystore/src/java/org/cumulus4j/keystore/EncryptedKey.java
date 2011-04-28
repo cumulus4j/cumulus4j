@@ -8,7 +8,7 @@ class EncryptedKey
 	private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
 	public EncryptedKey(
-			byte[] data, byte[] salt, String algorithm, byte[] keyEncryptionIV, String keyEncryptionAlgorithm, byte[] hash, String hashAlgorithm
+			byte[] data, byte[] salt, String algorithm, byte[] keyEncryptionIV, String keyEncryptionAlgorithm, short hashSize, String hashAlgorithm
 	)
 	{
 		if (data == null)
@@ -23,24 +23,24 @@ class EncryptedKey
 		if (keyEncryptionAlgorithm == null)
 			throw new IllegalArgumentException("keyEncryptionAlgorithm must not be null!");
 
-		if (hash == null)
-			hash = EMPTY_BYTE_ARRAY;
+		if (hashSize < 0)
+			throw new IllegalArgumentException("hashSize < 0");
 
 		if (hashAlgorithm == null)
 			hashAlgorithm = "";
 
-		if (hashAlgorithm.isEmpty() && hash.length > 0)
-			throw new IllegalArgumentException("hashAlgorithm must not be null and not be empty, if a hash is provided!");
+		if (hashAlgorithm.isEmpty() && hashSize > 0)
+			throw new IllegalArgumentException("hashAlgorithm must not be null and not be empty, if hashSize > 0!");
 
-		if (!hashAlgorithm.isEmpty() && hash.length == 0)
-			throw new IllegalArgumentException("hashAlgorithm must be null or empty, if no hash is provided!");
+		if (!hashAlgorithm.isEmpty() && hashSize == 0)
+			throw new IllegalArgumentException("hashAlgorithm must be null or empty, if hashSize == 0!");
 
 		this.data = data;
 		this.salt = salt;
 		this.algorithm = algorithm;
 		this.keyEncryptionIV = keyEncryptionIV;
 		this.keyEncryptionAlgorithm = keyEncryptionAlgorithm;
-		this.hash = hash;
+		this.hashSize = hashSize;
 		this.hashAlgorithm = hashAlgorithm;
 	}
 
@@ -74,10 +74,10 @@ class EncryptedKey
 		return keyEncryptionAlgorithm;
 	}
 
-	private byte[] hash;
+	private short hashSize;
 
-	public byte[] getHash() {
-		return hash;
+	public short getHashSize() {
+		return hashSize;
 	}
 
 	private String hashAlgorithm;
