@@ -21,7 +21,7 @@
 		<dependency>
 			<groupId>org.cumulus4j</groupId>
 			<artifactId>org.cumulus4j.api</artifactId>
-			<version>${cumulus4j.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 

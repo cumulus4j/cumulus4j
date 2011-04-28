@@ -16,6 +16,11 @@
 			<groupId>org.glassfish</groupId>
 			<artifactId>javax.servlet</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.keyserver.back.shared</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 
 </project>

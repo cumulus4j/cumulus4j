@@ -7,18 +7,9 @@
 		<relativePath>../org.cumulus4j.parent/pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>org.cumulus4j.keyserver.front.client</artifactId>
+	<artifactId>org.cumulus4j.keyserver.front.shared</artifactId>
 	<packaging>bundle</packaging>
-
-	<name>org.cumulus4j.keyserver.front.client</name>
-	
-	<dependencies>
-		<dependency>
-			<groupId>org.cumulus4j</groupId>
-			<artifactId>org.cumulus4j.keyserver.front.shared</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-	</dependencies>
+	<name>org.cumulus4j.keyserver.front.shared</name>
 
 	<build>
 		<plugins>
@@ -29,6 +20,9 @@
 				<configuration>
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
+<!-- We currently don't export anything. This is not an API project. -->
+						<Export-Package>${project.artifactId};${project.artifactId}.*</Export-Package>
+<!--						<Private-Package>${project.artifactId}.internal.*</Private-Package> -->
 <!-- We currently don't have an activator.
 						<Bundle-Activator>com.my.company.Activator</Bundle-Activator>
 -->
