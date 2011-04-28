@@ -11,8 +11,12 @@
 	<packaging>bundle</packaging>
 
 	<name>org.cumulus4j.keyserver.front.client</name>
-	
+
 	<dependencies>
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-client</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.cumulus4j</groupId>
 			<artifactId>org.cumulus4j.keyserver.front.shared</artifactId>
