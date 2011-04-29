@@ -47,11 +47,47 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <p>
+ * <code>KeyStore</code> is a storage facility for cryptographic keys.
+ * </p>
+ * <p>
+ * An instance of <code>KeyStore</code> manages a file in the local file system, in which it stores
+ * the keys used by the Cumulus4j-DataNucleus-plug-in in an encrypted form. All data written to the
+ * file is encrypted, hence plain data never touches the local file system (except for
+ * <a href="http://en.wikipedia.org/wiki/Swap_space">swapping</a>!).
+ * </p>
+ * <p>
+ * For every read/write operation, the <code>KeyStore</code> requires a user to authenticate via a
+ * user-name and a password. The password is used to encrypt/decrypt an internally used master-key
+ * which is then used to encrypt/decrypt the actual keys used by the Cumulus4j-DataNucleus-plug-in.
+ * Due to this internal master key, a user can be added or deleted and a user's password can be
+ * changed without the need of decrypting and encrypting all the contents of the KeyStore.
+ * </p>
+ * <p>
+ * By default, a <code>KeyStore</code> {@link #generateKey(String, char[]) generates keys} with a size
+ * of 128 bit. This can be controlled, however, by specifying the system property
+ * {@value #PROPERTY_KEY_SIZE} (e.g. passing the argument "-Dorg.cumulus4j.keystore.KeyStore.keySize=256"
+ * to the <code>java</code> command line will switch to 256-bit-keys).
+ * </p>
+ * <p>
+ * <b>Important:</b> As the master key is generated when the first
+ * {@link #createUser(String, char[], String, char[]) user is created} and is then not changed anymore, you must therefore
+ * specify the desired key-size already at the moment when you initialise the key store (i.e. create the first user). If
+ * you change the key-size later, it will affect only those keys that are created later.
+ * </p>
+ * <p>
+ * Note, that key sizes longer than 128
+ * bit require the "Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files" to be installed!
+ * </p>
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class KeyStore
 {
 	private static final Logger logger = LoggerFactory.getLogger(KeyStore.class);
+
+	public static final String PROPERTY_KEY_SIZE = KeyStore.class.getName() + ".keySize";
+	public static final String PROPERTY_ENCRYPTION_ALGORITHM = KeyStore.class.getName() + ".encryptionAlgorithm";
 
 	private SecureRandom secureRandom = new SecureRandom();
 
@@ -109,7 +145,7 @@ public class KeyStore
 		int ks = keySize;
 
 		if (ks == 0) {
-			String keySizePropName = KeyStore.class.getName() + ".keySize";
+			String keySizePropName = PROPERTY_KEY_SIZE;
 			String keySizePropValue = System.getProperty(keySizePropName);
 			if (keySizePropValue == null || keySizePropValue.trim().isEmpty()) {
 				ks = 128; // default value, if the property was not defined.
@@ -135,12 +171,13 @@ public class KeyStore
 	}
 	private int keySize = 0;
 
+
 	protected String getEncryptionAlgorithm()
 	{
 		String ea = encryptionAlgorithm;
 
 		if (ea == null) {
-			String encryptionAlgorithmPropName = KeyStore.class.getName() + ".encryptionAlgorithm";
+			String encryptionAlgorithmPropName = PROPERTY_ENCRYPTION_ALGORITHM;
 			String encryptionAlgorithmPropValue = System.getProperty(encryptionAlgorithmPropName);
 			if (encryptionAlgorithmPropValue == null || encryptionAlgorithmPropValue.trim().isEmpty()) {
 //				ea = "AES/CBC/PKCS5Padding"; // default value, if the property was not defined.
