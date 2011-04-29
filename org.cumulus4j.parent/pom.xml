@@ -410,13 +410,13 @@
 		<!--
 		The property "distributionManagement.site.prefix" must be declared in the settings.xml
 		like this:
-			
-		<activeProfiles>
-			<activeProfile>default</activeProfile>
-		</activeProfiles>
+
 		<profiles>
 			<profile>
 				<id>default</id>
+				<activation>
+					<activeByDefault>true</activeByDefault>
+				</activation>
 				<properties>
 					<distributionManagement.site.prefix>scp://webserver.domain.tld/srv/www</distributionManagement.site.prefix>
 				</properties>

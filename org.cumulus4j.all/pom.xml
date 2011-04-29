@@ -60,6 +60,21 @@
 		We configure the site only here (and not in the parent), because it otherwise uploads all
 		modules individually, which we don't want. We want it to upload only the one from
 		org.cumulus4j.all.
+
+		The property "distributionManagement.site.prefix" must be declared in the settings.xml
+		like this:
+
+		<profiles>
+			<profile>
+				<id>default</id>
+				<activation>
+					<activeByDefault>true</activeByDefault>
+				</activation>
+				<properties>
+					<distributionManagement.site.prefix>scp://webserver.domain.tld/srv/www</distributionManagement.site.prefix>
+				</properties>
+			</profile>
+        </profiles>
 		-->
 		<site>
 			<id>www.cumulus4j.org</id>
