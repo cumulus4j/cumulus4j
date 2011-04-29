@@ -63,7 +63,7 @@
 		-->
 		<site>
 			<id>www.cumulus4j.org</id>
-			<url>scp://www.cumulus4j.org/srv/www/nightly/www.cumulus4j.org/htdocs/</url>
+			<url>${distributionManagement.site.prefix}/www.cumulus4j.org/htdocs/</url>
 		</site>
 	</distributionManagement>
 
