@@ -86,8 +86,41 @@ public class KeyStore
 {
 	private static final Logger logger = LoggerFactory.getLogger(KeyStore.class);
 
-	public static final String PROPERTY_KEY_SIZE = KeyStore.class.getName() + ".keySize";
-	public static final String PROPERTY_ENCRYPTION_ALGORITHM = KeyStore.class.getName() + ".encryptionAlgorithm";
+	/**
+	 * <p>
+	 * System property to control the size of the keys {@link #generateKey(String, char[]) generated}. This
+	 * includes not only the actual keys for the main encryption/decryption (in the database), but also the
+	 * master key used to protect the file managed by the <code>KeyStore</code>.
+	 * </p>
+	 * <p>
+	 * By default (if the system property {@value #PROPERTY_KEY_SIZE} is not specified), keys will have a size of 128 bit.
+	 * </p>
+	 * <p>
+	 * Note, that specifying the system property does currently not change any old keys - only new keys are generated
+	 * with the currently active key size. Therefore, if you want to ensure that the internal master key is 256 bit long,
+	 * you have to make sure that the proper key size is specified when the first
+	 * {@link #createUser(String, char[], String, char[]) user is created}!
+	 * </p>
+	 */
+	public static final String PROPERTY_KEY_SIZE = "org.cumulus4j.keystore.KeyStore" + ".keySize";
+
+	/**
+	 * <p>
+	 * System property to control the encryption algorithm that is used to encrypt data. Whenever a new user is
+	 * created or a new key is generated, data has to be encrypted (note that the encryption does not happen directly
+	 * before data is written to the file, but already most data in memory is encrypted!).
+	 * </p>
+	 * <p>
+	 * By default (if the system property {@value #PROPERTY_ENCRYPTION_ALGORITHM} is not specified),
+	 * "AES/CFB/NoPadding" is used. For example, to switch to "AES/CBC/PKCS5Padding", you'd have
+	 * to specify the command line argument "-Dorg.cumulus4j.keystore.KeyStore.encryptionAlgorithm=AES/CBC/PKCS5Padding".
+	 * </p>
+	 * <p>
+	 * See <a href="http://download.java.net/jdk7/docs/technotes/guides/security/SunProviders.html#SunJCEProvider">this document</a>
+	 * for further information about what values are supported.
+	 * </p>
+	 */
+	public static final String PROPERTY_ENCRYPTION_ALGORITHM = "org.cumulus4j.keystore.KeyStore" + ".encryptionAlgorithm";
 
 	private SecureRandom secureRandom = new SecureRandom();
 
@@ -140,6 +173,13 @@ public class KeyStore
 		}
 	}
 
+	/**
+	 * Gets the key-size that is currently configured. Therefore, this method checks, if the
+	 * system property {@value #PROPERTY_KEY_SIZE} has been specified, and if so returns its value.
+	 * If not, it falls back to 128.
+	 *
+	 * @return the current key-size.
+	 */
 	protected int getKeySize()
 	{
 		int ks = keySize;
@@ -482,7 +522,7 @@ public class KeyStore
 
 		EncryptedKey encryptedKey = user2keyMap.get(authUserName);
 		if (encryptedKey == null)
-			logger.warn("login: Unknown userName: {}", authUserName);
+			logger.warn("login: Unknown userName: {}", authUserName); // NOT throw exception here to not disclose the true reason of the LoginException - see below
 		else {
 			try {
 				Cipher cipher = getCipherForUserPassword(
@@ -508,6 +548,11 @@ public class KeyStore
 			}
 		}
 
+		// We check only once at the end of this method if we could successfully authenticate and otherwise
+		// throw a LoginException. If we threw the LoginException at different locations (even with the same
+		// message), and attacker might know from the stack trace (=> line number) whether the user-name
+		// or the password was wrong. This information will be logged, but not disclosed in the exception.
+		// Marco :-)
 		if (result == null)
 			throw new LoginException("Unknown user \"" + authUserName + "\" or wrong password!");
 
@@ -639,6 +684,28 @@ public class KeyStore
 		return generatedKey;
 	}
 
+	/**
+	 * <p>
+	 * Create a new user.
+	 * </p>
+	 * <p>
+	 * Before the <code>KeyStore</code> can be used (i.e. before most methods work), this method has to be called
+	 * to create the first user. When the first user is created, the internal master-key is generated, which will
+	 * then not be changed anymore (double-check that the {@link #PROPERTY_KEY_SIZE key-size} is set correctly at
+	 * this time).
+	 * </p>
+	 *
+	 * @param authUserName the authenticated user authorizing this action. If the very first user is created, this value
+	 * is ignored and can be <code>null</code>.
+	 * @param authPassword the password for authenticating the user specified by <code>authUserName</code>. If the very first user is created, this value
+	 * is ignored and can be <code>null</code>.
+	 * @param userName the name of the user to be created.
+	 * @param password the password of the new user.
+	 * @throws LoginException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
+	 * is not correct for the given <code>authUserName</code>.
+	 * @throws UserAlreadyExistsException if a user with the name specified by <code>userName</code> already exists.
+	 * @throws IOException if writing to the local file-system failed.
+	 */
 	public synchronized void createUser(String authUserName, char[] authPassword, String userName, char[] password)
 	throws LoginException, UserAlreadyExistsException, IOException
 	{
@@ -652,12 +719,14 @@ public class KeyStore
 
 		if (isEmpty()) {
 			Key key = getKeyGenerator(getKeySize()).generateKey();
-			masterKey = new MasterKey(key.getEncoded(), key.getAlgorithm());
+			byte[] keyBytes = key.getEncoded();
+			masterKey = new MasterKey(keyBytes, key.getAlgorithm());
 			// Unfortunately, we cannot clear the sensitive data from the key instance, because
 			// there is no nice way to do this (we could only do very ugly reflection-based stuff).
 			// But fortunately, this happens only the very first time a new, empty KeyStore is created.
 			// With an existing KeyStore we won't come here and our MasterKey can [and will] be cleared.
 			// Marco :-)
+			logger.info("createUser: Created master-key with a size of {} bits. This key will not be modified for this key-store anymore.", keyBytes.length * 8);
 		}
 		else
 			masterKey = getMasterKey(authUserName, authPassword);
@@ -835,9 +904,15 @@ public class KeyStore
 	 *
 	 * @param authUserName the name of the principal, i.e. the user authorizing this operation.
 	 * @param authPassword the password of the principal.
-	 * @param delUserName the name of the user to be deleted.
+	 * @param userName the name of the user to be deleted.
+	 * @throws LoginException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
+	 * is not correct for the given <code>authUserName</code>.
+	 * @throws UserDoesNotExistException if there is no user with the name specified by <code>userName</code>.
+	 * @throws CannotDeleteLastUserException if the last user would be deleted by this method invocation (thus rendering
+	 * the <code>KeyStore</code> unusable and unrecoverable - i.e. totally lost).
+	 * @throws IOException if writing to the local file-system failed.
 	 */
-	public synchronized void deleteUser(String authUserName, char[] authPassword, String delUserName)
+	public synchronized void deleteUser(String authUserName, char[] authPassword, String userName)
 	throws LoginException, UserDoesNotExistException, CannotDeleteLastUserException, IOException
 	{
 		// The following getMasterKey(...) is no real protection, because a user can be deleted without
@@ -846,15 +921,15 @@ public class KeyStore
 		// Marco :-)
 		getMasterKey(authUserName, authPassword);
 
-		EncryptedKey encryptedKey = user2keyMap.get(delUserName);
+		EncryptedKey encryptedKey = user2keyMap.get(userName);
 		if (encryptedKey == null)
-			throw new UserDoesNotExistException("The user \"" + delUserName + "\" does not exist!");
+			throw new UserDoesNotExistException("The user \"" + userName + "\" does not exist!");
 
 		if (user2keyMap.size() == 1)
-			throw new CannotDeleteLastUserException("You cannot delete the last user and \"" + delUserName + "\" is the last user!");
+			throw new CannotDeleteLastUserException("You cannot delete the last user and \"" + userName + "\" is the last user!");
 
-		clearCache(delUserName);
-		user2keyMap.remove(delUserName);
+		clearCache(userName);
+		user2keyMap.remove(userName);
 		usersCache = null;
 
 		storeToFile();
