@@ -5,6 +5,9 @@ import javax.ws.rs.ext.Provider;
 
 import com.sun.jersey.spi.inject.SingletonTypeInjectableProvider;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 @Provider
 public class SessionManagerProvider
 extends SingletonTypeInjectableProvider<Context, SessionManager>

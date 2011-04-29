@@ -5,6 +5,9 @@ import java.util.Arrays;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 @XmlRootElement
 public class Auth
 implements Serializable
@@ -45,5 +48,10 @@ implements Serializable
 			Arrays.fill(password, (char)0);
 
 		password = null;
+	}
+
+	@Override
+	protected void finalize() throws Throwable {
+		clear();
 	}
 }

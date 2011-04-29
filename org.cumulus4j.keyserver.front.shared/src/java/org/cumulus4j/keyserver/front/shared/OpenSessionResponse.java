@@ -1,9 +1,13 @@
 package org.cumulus4j.keyserver.front.shared;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 @XmlRootElement
 public class OpenSessionResponse implements Serializable
 {
@@ -11,11 +15,20 @@ public class OpenSessionResponse implements Serializable
 
 	private String cryptoSessionID;
 
+	private Date expiry;
+
 	public String getCryptoSessionID() {
 		return cryptoSessionID;
 	}
 	public void setCryptoSessionID(String cryptoSessionID) {
 		this.cryptoSessionID = cryptoSessionID;
+	}
+
+	public Date getExpiry() {
+		return expiry;
+	}
+	public void setExpiry(Date expiry) {
+		this.expiry = expiry;
 	}
 
 }

@@ -3,7 +3,6 @@ package org.cumulus4j.keyserver.back.webapp;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
  * by blocking the client's request until either a timeout occurs (we don't block the
  * client's request forever) or a key is needed.
  */
-@WebServlet("/cumulus4j/KeyRequest")
+//@WebServlet("/cumulus4j/KeyRequest")
 public class KeyRequest extends HttpServlet
 {
 	private static final long serialVersionUID = 1L;

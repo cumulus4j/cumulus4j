@@ -62,7 +62,9 @@ public class Session
 	private String cryptoSessionID;
 	private String userName;
 	private char[] password;
-	private Date lastUse = new Date();
+	private Date lastUse;
+	private Date expiry;
+	private boolean locked = true;
 
 	public String getCryptoSessionID() {
 		return cryptoSessionID;
@@ -78,8 +80,14 @@ public class Session
 	public Date getLastUse() {
 		return lastUse;
 	}
-	public void updateLastUse() {
+
+	public void updateLastUse(long expiryAgeMSec) {
 		lastUse = new Date();
+		expiry = new Date(lastUse.getTime() + expiryAgeMSec);
+	}
+
+	public Date getExpiry() {
+		return expiry;
 	}
 
 	public void close()
@@ -102,5 +110,13 @@ public class Session
 
 		cryptoSessionID = null;
 		userName = null;
+	}
+
+	public void setLocked(boolean locked) {
+		this.locked = locked;
+	}
+
+	public boolean isLocked() {
+		return locked;
 	}
 }

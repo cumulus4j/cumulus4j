@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
@@ -101,7 +102,7 @@ public class KeyStore
 				}
 			}
 		}
-	};
+	}
 
 	protected int getKeySize()
 	{
@@ -650,6 +651,7 @@ public class KeyStore
 					(short)hash.length, stringConstant(CHECKSUM_ALGORITHM_ACTIVE)
 			);
 			user2keyMap.put(userName, encryptedKey);
+			usersCache = null;
 		} catch (GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}
@@ -756,11 +758,23 @@ public class KeyStore
 		}
 	}
 
+//	public synchronized boolean containsUser(String authUserName, char[] authPassword, String userName)
+//	throws LoginException
+//	{
+//		// The following getMasterKey(...) is no real protection, because the information returned by this method
+//		// is currently not protected, but this way, we already have the right arguments to later encrypt this
+//		// information, too - if we ever want to.
+//		// Marco :-)
+//		getMasterKey(authUserName, authPassword);
+//
+//		return user2keyMap.containsKey(userName);
+//	}
+
 	public synchronized Set<String> getUsers(String authUserName, char[] authPassword)
 	throws LoginException
 	{
-		if (isEmpty())
-			return Collections.emptySet();
+//		if (isEmpty())
+//			return Collections.emptySet();
 
 		// The following getMasterKey(...) is no real protection, because the information returned by this method
 		// is currently not protected, but this way, we already have the right arguments to later encrypt this
@@ -768,8 +782,16 @@ public class KeyStore
 		// Marco :-)
 		getMasterKey(authUserName, authPassword);
 
-		return Collections.unmodifiableSet(user2keyMap.keySet());
+		Set<String> users = usersCache;
+		if (users == null) {
+			users = Collections.unmodifiableSet(new HashSet<String>(user2keyMap.keySet()));
+			usersCache = users;
+		}
+
+		return users;
 	}
+
+	private Set<String> usersCache = null;
 
 	/**
 	 * Delete the user specified by <code>userName</code>.
@@ -796,6 +818,7 @@ public class KeyStore
 
 		clearCache(delUserName);
 		user2keyMap.remove(delUserName);
+		usersCache = null;
 
 		storeToFile();
 	}

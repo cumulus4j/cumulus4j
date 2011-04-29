@@ -1,16 +1,73 @@
 package org.cumulus4j.keyserver.front.webapp;
 
+import java.lang.ref.WeakReference;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.cumulus4j.keystore.KeyStore;
 import org.cumulus4j.keystore.LoginException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class SessionManager
 {
 	private static final Logger logger = LoggerFactory.getLogger(SessionManager.class);
+
+	private static final long EXPIRY_AGE_MSEC = 3L * 60L * 1000L; // TODO make configurable
+
+	private static Timer expireSessionTimer = new Timer();
+
+	private TimerTask expireSessionTimerTask = new ExpireSessionTimerTask(this);
+
+	private static class ExpireSessionTimerTask extends TimerTask
+	{
+		private static final Logger logger = LoggerFactory.getLogger(ExpireSessionTimerTask.class);
+
+		private WeakReference<SessionManager> sessionManagerRef;
+
+		public ExpireSessionTimerTask(SessionManager sessionManager) {
+			this.sessionManagerRef = new WeakReference<SessionManager>(sessionManager);
+		}
+
+		@Override
+		public void run()
+		{
+			SessionManager sessionManager = sessionManagerRef.get();
+			if (sessionManager == null) {
+				logger.info("run: SessionManager has been garbage-collected. Removing this ExpireSessionTimerTask.");
+				this.cancel();
+				return;
+			}
+
+			Date now = new Date();
+
+			LinkedList<Session> sessionsToExpire = new LinkedList<Session>();
+			synchronized (sessionManager) {
+				for (Session session : sessionManager.cryptoSessionID2Session.values()) {
+					if (session.getExpiry().before(now))
+						sessionsToExpire.add(session);
+				}
+			}
+
+			for (Session session : sessionsToExpire) {
+				logger.info("run: Expiring session: userName='{}' cryptoSessionID='{}'.", session.getUserName(), session.getCryptoSessionID());
+				session.close();
+			}
+
+			if (logger.isDebugEnabled()) {
+				synchronized (sessionManager) {
+					logger.debug("run: {} sessions left.", sessionManager.cryptoSessionID2Session.size());
+				}
+			}
+		}
+	}
 
 	private KeyStore keyStore;
 
@@ -21,6 +78,7 @@ public class SessionManager
 	{
 		logger.info("Creating instance of SessionManager.");
 		this.keyStore = keyStore;
+		expireSessionTimer.schedule(expireSessionTimerTask, 60000, 60000); // TODO make this configurable
 	}
 
 	/**
@@ -35,15 +93,21 @@ public class SessionManager
 
 		Session session = userName2Session.get(userName);
 
+		// We make sure we never re-use an expired session, even if it hasn't been closed by the timer yet.
+		if (session != null && session.getExpiry().before(new Date())) {
+			session.close();
+			session = null;
+		}
+
 		if (session == null) {
 			session = new Session(this, userName, password);
 			userName2Session.put(userName, session);
 			cryptoSessionID2Session.put(session.getCryptoSessionID(), session);
 
-			// TODO notify listeners
+			// TODO notify listeners - maybe always notify listeners (i.e. when an existing session is refreshed, too)?!
 		}
-		else
-			session.updateLastUse();
+
+		session.updateLastUse(EXPIRY_AGE_MSEC);
 
 		return session;
 	}

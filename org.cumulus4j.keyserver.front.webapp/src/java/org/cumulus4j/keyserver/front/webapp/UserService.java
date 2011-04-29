@@ -2,27 +2,26 @@ package org.cumulus4j.keyserver.front.webapp;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Set;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.SecurityContext;
 
 import org.cumulus4j.keyserver.front.shared.Auth;
-import org.cumulus4j.keyserver.front.shared.DeleteUserRequest;
 import org.cumulus4j.keyserver.front.shared.Error;
-import org.cumulus4j.keyserver.front.shared.PutUserRequest;
 import org.cumulus4j.keyserver.front.shared.User;
+import org.cumulus4j.keyserver.front.shared.UserList;
+import org.cumulus4j.keyserver.front.shared.UserWithPassword;
 import org.cumulus4j.keystore.CannotDeleteLastUserException;
 import org.cumulus4j.keystore.KeyStore;
 import org.cumulus4j.keystore.LoginException;
@@ -31,6 +30,9 @@ import org.cumulus4j.keystore.UserDoesNotExistException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 @Path("user")
 @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -38,34 +40,89 @@ public class UserService extends AbstractService
 {
 	private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
+	public UserService() {
+		logger.info("logger: instantiated UserService");
+	}
+
 	@Context
 	private KeyStore keyStore;
 
 	@GET
-	public User getUser(@Context ServletContext servletContext, @Context HttpServletRequest request, @Context SecurityContext sc)
+	@Path("{userName}")
+	public User getUser(@PathParam("userName") String userName)
 	{
-		// TODO how to implement this? Use sub-path? We cannot pass an entity in a GET request, AFAIK => use POST + sub-path? pass authUserName and authPassword via query arguments?
-		// Search for a nice general solution and keep the whole API consistent.
-		return null;
+		logger.debug("getUser: entered");
+		Auth auth = getAuth();
+		try {
+			if (keyStore.getUsers(auth.getUserName(), auth.getPassword()).contains(userName))
+				return new User(userName);
+			else
+				return null;
+		} catch (LoginException e) {
+			throw new WebApplicationException(Response.status(Status.FORBIDDEN).entity(new Error(e)).build());
+		} finally {
+			auth.clear();
+		}
+	}
+
+	@GET
+	public UserList getUsers()
+	{
+		logger.debug("getUsers: entered");
+		UserList userList = new UserList();
+		Auth auth = getAuth();
+		try {
+			Set<String> userNames = keyStore.getUsers(auth.getUserName(), auth.getPassword());
+			for (String userName : userNames) {
+				userList.getUsers().add(new User(userName));
+			}
+		} catch (LoginException e) {
+			throw new WebApplicationException(Response.status(Status.FORBIDDEN).entity(new Error(e)).build());
+		} finally {
+			auth.clear();
+		}
+		return userList;
 	}
 
 	@PUT
-	public void putUser(PutUserRequest putUserRequest)
+	@Path("{userName}")
+	public void putUserWithUserNamePath(@PathParam("userName") String userName, UserWithPassword userWithPassword)
 	{
-		Auth auth = putUserRequest.getAuth();
-		validateAuth(auth);
+		logger.debug("putUserWithUserNamePath: entered");
+
+		if (userName == null)
+			throw new IllegalArgumentException("How the hell can userName be null?!");
+
+		if (userWithPassword == null)
+			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(new Error("Missing request-entity!")).build());
+
+		if (!userName.equals(userWithPassword.getUserName()))
+			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(new Error("Path's userName='" + userName + "' does not match entity's userName='" + userWithPassword.getUserName() + "'!")).build());
+
+		putUser(userWithPassword);
+	}
+
+	@PUT
+	public void putUser(UserWithPassword userWithPassword)
+	{
+		logger.debug("putUser: entered");
+
+		if (userWithPassword == null)
+			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(new Error("Missing request-entity!")).build());
+
+		Auth auth = getAuth();
 
 		try {
 			try {
 				keyStore.createUser(
 						auth.getUserName(), auth.getPassword(),
-						putUserRequest.getUserName(), putUserRequest.getPassword()
+						userWithPassword.getUserName(), userWithPassword.getPassword()
 				);
 			} catch (UserAlreadyExistsException e) {
 				try {
 					keyStore.changeUserPassword(
 							auth.getUserName(), auth.getPassword(),
-							putUserRequest.getUserName(), putUserRequest.getPassword()
+							userWithPassword.getUserName(), userWithPassword.getPassword()
 					);
 				} catch (UserDoesNotExistException e1) {
 					logger.error("Why does it not exist? Has the user just been deleted?!", e1);
@@ -80,19 +137,21 @@ public class UserService extends AbstractService
 			// extra safety => overwrite passwords
 			auth.clear();
 
-			if (putUserRequest.getPassword() != null)
-				Arrays.fill(putUserRequest.getPassword(), (char)0);
+			if (userWithPassword.getPassword() != null)
+				Arrays.fill(userWithPassword.getPassword(), (char)0);
 		}
 	}
 
 	@DELETE
-	public void deleteUser(DeleteUserRequest deleteUserRequest)
+	@Path("{userName}")
+	public void deleteUser(@PathParam("userName") String userName)
 	{
-		Auth auth = deleteUserRequest.getAuth();
-		validateAuth(auth);
+		logger.debug("deleteUser: entered");
+
+		Auth auth = getAuth();
 
 		try {
-			keyStore.deleteUser(auth.getUserName(), auth.getPassword(), deleteUserRequest.getUserName());
+			keyStore.deleteUser(auth.getUserName(), auth.getPassword(), userName);
 		} catch (LoginException e) {
 			throw new WebApplicationException(Response.status(Status.FORBIDDEN).entity(new Error(e)).build());
 		} catch (UserDoesNotExistException e) {
