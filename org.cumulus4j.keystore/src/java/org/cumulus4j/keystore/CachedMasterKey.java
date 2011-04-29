@@ -6,7 +6,10 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CachedMasterKey
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
+class CachedMasterKey
 {
 	private static final Logger logger = LoggerFactory.getLogger(CachedMasterKey.class);
 
