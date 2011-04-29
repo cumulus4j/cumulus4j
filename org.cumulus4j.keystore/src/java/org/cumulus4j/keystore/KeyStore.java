@@ -1034,12 +1034,17 @@ public class KeyStore
 	}
 
 	/**
-	 * Clear all cached data for the specified user name. Every time, a user
-	 * calls a method requiring <code>authUserName</code> and <code>authPassword</code>),
-	 * either an authentication process happens implicitely, or a previously cached authentication
-	 * result is used. In order to speed things up, authentication results are cached for a
+	 * <p>
+	 * Clear all cached data for the specified user name.
+	 * </p>
+	 * <p>
+	 * Every time, a user
+	 * calls a method requiring <code>authUserName</code> and <code>authPassword</code>,
+	 * either an authentication process happens, or a previously cached authentication
+	 * result (i.e. a decrypted master-key) is used. In order to speed things up, authentication results are cached for a
 	 * limited time. After this time elapses, the data is cleared by a timer. If a user wants (for security reasons)
-	 * remove the cached data from the memory earlier, he can call this method from the outside.
+	 * remove the cached data from the memory earlier, he can call this method.
+	 * </p>
 	 *
 	 * @param userName the user for which to clear all the cached data. <code>null</code> to clear the complete cache for all users.
 	 */
