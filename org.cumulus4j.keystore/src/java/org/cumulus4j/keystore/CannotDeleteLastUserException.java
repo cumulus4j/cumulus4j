@@ -1,6 +1,11 @@
 package org.cumulus4j.keystore;
 
 /**
+ * Thrown by {@link KeyStore#deleteUser(String, char[], String)}, if
+ * an attempt is made to delete the last user. Deleting the last user
+ * would cause all data in the <code>KeyStore</code> to be lost,
+ * hence this operation is not permitted.
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class CannotDeleteLastUserException extends KeyStoreException

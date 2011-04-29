@@ -1,6 +1,9 @@
 package org.cumulus4j.keystore;
 
 /**
+ * Thrown by {@link KeyStore#getKey(String, char[], long)}, if a non-existent
+ * key is requested.
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class KeyNotFoundException extends KeyStoreException

@@ -3,9 +3,11 @@ package org.cumulus4j.keystore;
 import java.security.GeneralSecurityException;
 
 /**
+ * Base class for all exceptions thrown by {@link KeyStore}.
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public class KeyStoreException extends GeneralSecurityException
+public abstract class KeyStoreException extends GeneralSecurityException
 {
 	private static final long serialVersionUID = 1L;
 
