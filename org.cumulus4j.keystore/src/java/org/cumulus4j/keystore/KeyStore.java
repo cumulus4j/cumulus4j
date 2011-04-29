@@ -497,6 +497,13 @@ public class KeyStore
 		return new File(keyStoreFile.getParentFile(), keyStoreFile.getName() + ".new");
 	}
 
+	/**
+	 * Determine if this <code>KeyStore</code> is completely empty. As soon as the first user has been
+	 * created, this method will return <code>false</code>.
+	 *
+	 * @return <code>true</code> if this <code>KeyStore</code> contains neither any user nor any key, i.e. is totally empty;
+	 * <code>false</code> otherwise.
+	 */
 	public synchronized boolean isEmpty()
 	{
 		return user2keyMap.isEmpty();
@@ -673,6 +680,24 @@ public class KeyStore
 		return cipher;
 	}
 
+	/**
+	 * <p>
+	 * Generate a new key and store it to the file.
+	 * </p>
+	 * <p>
+	 * The new key will be generated with the size specified by the
+	 * system property {@value #PROPERTY_KEY_SIZE} and encrypted with the
+	 * master-key and the encryption-algorithm specified by the
+	 * system property {@value #PROPERTY_ENCRYPTION_ALGORITHM}.
+	 * </p>
+	 *
+	 * @param authUserName the authenticated user authorizing this action.
+	 * @param authPassword the password for authenticating the user specified by <code>authUserName</code>.
+	 * @return the newly created key.
+	 * @throws LoginException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
+	 * is not correct for the given <code>authUserName</code>.
+	 * @throws IOException if writing to the local file-system failed.
+	 */
 	public synchronized GeneratedKey generateKey(String authUserName, char[] authPassword)
 	throws LoginException, IOException
 	{
@@ -769,6 +794,7 @@ public class KeyStore
 	private static final String CHECKSUM_ALGORITHM_SHA1 = "SHA1";
 	private static final String CHECKSUM_ALGORITHM_MD5 = "MD5";
 	private static final String CHECKSUM_ALGORITHM_CRC32 = "CRC32";
+
 	/**
 	 * The one that is used for new entries.
 	 */
@@ -864,24 +890,22 @@ public class KeyStore
 		}
 	}
 
-//	public synchronized boolean containsUser(String authUserName, char[] authPassword, String userName)
-//	throws LoginException
-//	{
-//		// The following getMasterKey(...) is no real protection, because the information returned by this method
-//		// is currently not protected, but this way, we already have the right arguments to later encrypt this
-//		// information, too - if we ever want to.
-//		// Marco :-)
-//		getMasterKey(authUserName, authPassword);
-//
-//		return user2keyMap.containsKey(userName);
-//	}
-
+	/**
+	 * <p>
+	 * Get all users who can authenticate at this <code>KeyStore</code>.
+	 * </p>
+	 *
+	 * @param authUserName the authenticated user authorizing this action.
+	 * @param authPassword the password for authenticating the user specified by <code>authUserName</code>.
+	 * @return a read-only {@link Set} of all user-names known to this <code>KeyStore</code>. This
+	 * <code>Set</code> is an unmodifiable copy of the internally used data and therefore is both thread-safe
+	 * and iteration-safe (i.e. it can be iterated while simultaneously users are {@link #deleteUser(String, char[], String) deleted}).
+	 * @throws LoginException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
+	 * is not correct for the given <code>authUserName</code>.
+	 */
 	public synchronized Set<String> getUsers(String authUserName, char[] authPassword)
 	throws LoginException
 	{
-//		if (isEmpty())
-//			return Collections.emptySet();
-
 		// The following getMasterKey(...) is no real protection, because the information returned by this method
 		// is currently not protected, but this way, we already have the right arguments to later encrypt this
 		// information, too - if we ever want to.
