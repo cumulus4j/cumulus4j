@@ -537,11 +537,11 @@ public class KeyStore
 	 * @param authUserName the user from whose slot to take and decrypt the master-key.
 	 * @param authPassword the password with which to try to decrypt the master-key.
 	 * @return the decrypted, plain master-key.
-	 * @throws LoginException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
+	 * @throws AuthenticationException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
 	 * is not correct for the given <code>authUserName</code>.
 	 */
 	synchronized MasterKey getMasterKey(String authUserName, char[] authPassword)
-	throws LoginException
+	throws AuthenticationException
 	{
 		CachedMasterKey cachedMasterKey = cache_userName2cachedMasterKey.get(authUserName);
 		MasterKey result = cachedMasterKey == null ? null : cachedMasterKey.getMasterKey();
@@ -552,7 +552,7 @@ public class KeyStore
 
 		EncryptedKey encryptedKey = user2keyMap.get(authUserName);
 		if (encryptedKey == null)
-			logger.warn("login: Unknown userName: {}", authUserName); // NOT throw exception here to not disclose the true reason of the LoginException - see below
+			logger.warn("login: Unknown userName: {}", authUserName); // NOT throw exception here to not disclose the true reason of the AuthenticationException - see below
 		else {
 			try {
 				Cipher cipher = getCipherForUserPassword(
@@ -579,12 +579,12 @@ public class KeyStore
 		}
 
 		// We check only once at the end of this method if we could successfully authenticate and otherwise
-		// throw a LoginException. If we threw the LoginException at different locations (even with the same
+		// throw a AuthenticationException. If we threw the AuthenticationException at different locations (even with the same
 		// message), and attacker might know from the stack trace (=> line number) whether the user-name
 		// or the password was wrong. This information will be logged, but not disclosed in the exception.
 		// Marco :-)
 		if (result == null)
-			throw new LoginException("Unknown user \"" + authUserName + "\" or wrong password!");
+			throw new AuthenticationException("Unknown user \"" + authUserName + "\" or wrong password!");
 
 		cache_userName2cachedMasterKey.put(authUserName, new CachedMasterKey(authUserName, authPassword, result));
 		return result;
@@ -717,12 +717,12 @@ public class KeyStore
 	 * @param authUserName the authenticated user authorizing this action.
 	 * @param authPassword the password for authenticating the user specified by <code>authUserName</code>.
 	 * @return the newly created key.
-	 * @throws LoginException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
+	 * @throws AuthenticationException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
 	 * is not correct for the given <code>authUserName</code>.
 	 * @throws IOException if writing to the local file-system failed.
 	 */
 	public synchronized GeneratedKey generateKey(String authUserName, char[] authPassword)
-	throws LoginException, IOException
+	throws AuthenticationException, IOException
 	{
 		long keyID = nextKeyID();
 		SecretKey key = getKeyGenerator(getKeySize()).generateKey();
@@ -749,13 +749,13 @@ public class KeyStore
 	 * is ignored and can be <code>null</code>.
 	 * @param userName the name of the user to be created.
 	 * @param password the password of the new user.
-	 * @throws LoginException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
+	 * @throws AuthenticationException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
 	 * is not correct for the given <code>authUserName</code>.
 	 * @throws UserAlreadyExistsException if a user with the name specified by <code>userName</code> already exists.
 	 * @throws IOException if writing to the local file-system failed.
 	 */
 	public synchronized void createUser(String authUserName, char[] authPassword, String userName, char[] password)
-	throws LoginException, UserAlreadyExistsException, IOException
+	throws AuthenticationException, UserAlreadyExistsException, IOException
 	{
 		if (userName == null)
 			throw new IllegalArgumentException("userName must not be null!");
@@ -923,11 +923,11 @@ public class KeyStore
 	 * @return a read-only {@link Set} of all user-names known to this <code>KeyStore</code>. This
 	 * <code>Set</code> is an unmodifiable copy of the internally used data and therefore is both thread-safe
 	 * and iteration-safe (i.e. it can be iterated while simultaneously users are {@link #deleteUser(String, char[], String) deleted}).
-	 * @throws LoginException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
+	 * @throws AuthenticationException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
 	 * is not correct for the given <code>authUserName</code>.
 	 */
 	public synchronized Set<String> getUsers(String authUserName, char[] authPassword)
-	throws LoginException
+	throws AuthenticationException
 	{
 		// The following getMasterKey(...) is no real protection, because the information returned by this method
 		// is currently not protected, but this way, we already have the right arguments to later encrypt this
@@ -947,20 +947,26 @@ public class KeyStore
 	private Set<String> usersCache = null;
 
 	/**
+	 * <p>
 	 * Delete the user specified by <code>userName</code>.
+	 * </p>
+	 * <p>
+	 * Deleting the authenticated user himself (i.e. <code>authUserName == userName</code>) is possible,
+	 * as long as it is not the last user.
+	 * </p>
 	 *
 	 * @param authUserName the name of the principal, i.e. the user authorizing this operation.
 	 * @param authPassword the password of the principal.
 	 * @param userName the name of the user to be deleted.
-	 * @throws LoginException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
+	 * @throws AuthenticationException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
 	 * is not correct for the given <code>authUserName</code>.
-	 * @throws UserDoesNotExistException if there is no user with the name specified by <code>userName</code>.
+	 * @throws UserNotFoundException if there is no user with the name specified by <code>userName</code>.
 	 * @throws CannotDeleteLastUserException if the last user would be deleted by this method invocation (thus rendering
 	 * the <code>KeyStore</code> unusable and unrecoverable - i.e. totally lost).
 	 * @throws IOException if writing to the local file-system failed.
 	 */
 	public synchronized void deleteUser(String authUserName, char[] authPassword, String userName)
-	throws LoginException, UserDoesNotExistException, CannotDeleteLastUserException, IOException
+	throws AuthenticationException, UserNotFoundException, CannotDeleteLastUserException, IOException
 	{
 		// The following getMasterKey(...) is no real protection, because a user can be deleted without
 		// authenticating on the file-base (as this doesn't require to decrypt data, currently), but
@@ -970,7 +976,7 @@ public class KeyStore
 
 		EncryptedKey encryptedKey = user2keyMap.get(userName);
 		if (encryptedKey == null)
-			throw new UserDoesNotExistException("The user \"" + userName + "\" does not exist!");
+			throw new UserNotFoundException("The user \"" + userName + "\" does not exist!");
 
 		if (user2keyMap.size() == 1)
 			throw new CannotDeleteLastUserException("You cannot delete the last user and \"" + userName + "\" is the last user!");
@@ -982,34 +988,67 @@ public class KeyStore
 		storeToFile();
 	}
 
-	public synchronized void changeMyPassword(String userName, char[] oldPassword, char[] newPassword)
-	throws LoginException, IOException
-	{
-		try {
-			changeUserPassword(userName, oldPassword, userName, newPassword);
-		} catch (UserDoesNotExistException e) {
-			throw new RuntimeException("How the hell can this happen? The LoginException should have occured in this case!", e);
-		}
-	}
+//	public synchronized void changeMyPassword(String userName, char[] oldPassword, char[] newPassword)
+//	throws AuthenticationException, IOException
+//	{
+//		try {
+//			changeUserPassword(userName, oldPassword, userName, newPassword);
+//		} catch (UserNotFoundException e) {
+//			throw new RuntimeException("How the hell can this happen? The AuthenticationException should have occured in this case!", e);
+//		}
+//	}
 
+	/**
+	 * <p>
+	 * Change a user's password.
+	 * </p>
+	 * <p>
+	 * The user identified by <code>userName</code> will have the new password specified by
+	 * <code>newPassword</code> immediately after this method. Authenticating this user with
+	 * his old password will fail afterwards.
+	 * </p>
+	 *
+	 * @param authUserName the authenticated user authorizing this action.
+	 * @param authPassword the password for authenticating the user specified by <code>authUserName</code>.
+	 * @param userName the user whose password is to be changed. This can be the same as <code>authUserName</code>.
+	 * @param newPassword the new password.
+	 * @throws AuthenticationException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
+	 * is not correct for the given <code>authUserName</code>.
+	 * @throws UserNotFoundException if there is no user with the name specified by <code>userName</code>.
+	 * @throws IOException if writing to the local file-system failed.
+	 */
 	public synchronized void changeUserPassword(String authUserName, char[] authPassword, String userName, char[] newPassword)
-	throws LoginException, UserDoesNotExistException, IOException
+	throws AuthenticationException, UserNotFoundException, IOException
 	{
 		MasterKey masterKey = getMasterKey(authUserName, authPassword);
 
 		if (!user2keyMap.containsKey(userName))
-			throw new UserDoesNotExistException("User '" + userName + "' does not exist!");
+			throw new UserNotFoundException("User '" + userName + "' does not exist!");
 
 		setUser(masterKey, userName, newPassword);
 	}
 
+	/**
+	 * Get the key identified by the given <code>keyID</code>.
+	 *
+	 * @param authUserName the authenticated user authorizing this action.
+	 * @param authPassword the password for authenticating the user specified by <code>authUserName</code>.
+	 * @param keyID the identifier of the key to get.
+	 * @return the key associated with the given identifier; never <code>null</code> (if there is no key for the given <code>keyID</code>,
+	 * a {@link KeyNotFoundException} is thrown).
+	 * @throws AuthenticationException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
+	 * is not correct for the given <code>authUserName</code>.
+	 * @throws KeyNotFoundException if the specified <code>keyID</code> does not reference any existing key. Note, that the
+	 * authentication process occurs before any lookup and therefore a {@link KeyNotFoundException} indicates a correct authentication
+	 * (otherwise the {@link AuthenticationException} would have been thrown before).
+	 */
 	public synchronized Key getKey(String authUserName, char[] authPassword, long keyID)
-	throws LoginException
+	throws AuthenticationException, KeyNotFoundException
 	{
 		MasterKey masterKey = getMasterKey(authUserName, authPassword);
 		EncryptedKey encryptedKey = keyID2keyMap.get(keyID);
 		if (encryptedKey == null)
-			return null;
+			throw new KeyNotFoundException("There is no key with keyID=" + keyID + "!");
 
 		try {
 			Cipher cipher = getCipherForMasterKey(
@@ -1032,7 +1071,7 @@ public class KeyStore
 	}
 
 	synchronized void setKey(String authUserName, char[] authPassword, long keyID, Key key)
-	throws LoginException, IOException
+	throws AuthenticationException, IOException
 	{
 		MasterKey masterKey = getMasterKey(authUserName, authPassword);
 

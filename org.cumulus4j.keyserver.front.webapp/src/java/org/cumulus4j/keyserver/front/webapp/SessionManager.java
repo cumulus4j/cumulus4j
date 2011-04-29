@@ -8,8 +8,9 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.cumulus4j.keystore.AuthenticationException;
+import org.cumulus4j.keystore.KeyNotFoundException;
 import org.cumulus4j.keystore.KeyStore;
-import org.cumulus4j.keystore.LoginException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,11 +86,15 @@ public class SessionManager
 	 * Open a new or refresh an existing session.
 	 *
 	 * @return the {@link Session}.
-	 * @throws LoginException if the login fails
+	 * @throws AuthenticationException if the login fails
 	 */
-	public synchronized Session openSession(String userName, char[] password) throws LoginException
+	public synchronized Session openSession(String userName, char[] password) throws AuthenticationException
 	{
-		keyStore.getKey(userName, password, Long.MAX_VALUE); // this method will always return null, if the key does not exist - but it will throw a LoginException, if the credentials are invalid.
+		try {
+			keyStore.getKey(userName, password, Long.MAX_VALUE);
+		} catch (KeyNotFoundException e) {
+			// very likely, the key does not exist - this is expected and OK!
+		}
 
 		Session session = userName2Session.get(userName);
 

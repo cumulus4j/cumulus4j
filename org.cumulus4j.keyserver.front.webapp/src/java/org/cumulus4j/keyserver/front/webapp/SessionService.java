@@ -16,7 +16,7 @@ import javax.ws.rs.core.Response.Status;
 import org.cumulus4j.keyserver.front.shared.Auth;
 import org.cumulus4j.keyserver.front.shared.Error;
 import org.cumulus4j.keyserver.front.shared.OpenSessionResponse;
-import org.cumulus4j.keystore.LoginException;
+import org.cumulus4j.keystore.AuthenticationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +49,7 @@ public class SessionService extends AbstractService
 			Session session;
 			try {
 				session = sessionManager.openSession(auth.getUserName(), auth.getPassword());
-			} catch (LoginException e) {
+			} catch (AuthenticationException e) {
 				throw new WebApplicationException(Response.status(Status.FORBIDDEN).entity(new Error(e)).build());
 			}
 

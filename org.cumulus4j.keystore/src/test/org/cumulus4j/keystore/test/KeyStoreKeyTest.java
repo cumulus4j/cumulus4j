@@ -5,7 +5,7 @@ import java.security.Key;
 
 import org.cumulus4j.keystore.GeneratedKey;
 import org.cumulus4j.keystore.KeyStore;
-import org.cumulus4j.keystore.LoginException;
+import org.cumulus4j.keystore.AuthenticationException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -39,14 +39,14 @@ public class KeyStoreKeyTest
 			f.delete();
 	}
 
-	@Test(expected=LoginException.class)
+	@Test(expected=AuthenticationException.class)
 	public void generateKeyWithoutAnyExistingUser()
 	throws Exception
 	{
 		keyStore.generateKey(USER, PASSWORD);
 	}
 
-	@Test(expected=LoginException.class)
+	@Test(expected=AuthenticationException.class)
 	public void generateKeyWithWrongPassword()
 	throws Exception
 	{

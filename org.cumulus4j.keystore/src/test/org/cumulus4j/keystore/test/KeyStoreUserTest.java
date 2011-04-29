@@ -3,10 +3,10 @@ package org.cumulus4j.keystore.test;
 import java.io.File;
 import java.security.Key;
 
+import org.cumulus4j.keystore.AuthenticationException;
 import org.cumulus4j.keystore.CannotDeleteLastUserException;
 import org.cumulus4j.keystore.GeneratedKey;
 import org.cumulus4j.keystore.KeyStore;
-import org.cumulus4j.keystore.LoginException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -50,7 +50,7 @@ public class KeyStoreUserTest
 		keyStore.createUser("marco", "test12345".toCharArray(), "bieber", "test6789".toCharArray());
 	}
 
-	@Test(expected=LoginException.class)
+	@Test(expected=AuthenticationException.class)
 	public void create2ndUserWithoutAuthentication()
 	throws Exception
 	{
@@ -58,7 +58,7 @@ public class KeyStoreUserTest
 		keyStore.createUser(null, null, "bieber", "test6789".toCharArray());
 	}
 
-	@Test(expected=LoginException.class)
+	@Test(expected=AuthenticationException.class)
 	public void create2ndUserWithWrongAuthentication()
 	throws Exception
 	{
@@ -119,7 +119,7 @@ public class KeyStoreUserTest
 		boolean loginExceptionThrown = false;
 		try {
 			keyStore.generateKey("bieber", oldPwBieber);
-		} catch (LoginException x) {
+		} catch (AuthenticationException x) {
 			// great!
 			loginExceptionThrown = true;
 		}
@@ -138,7 +138,7 @@ public class KeyStoreUserTest
 		// validate, that the old password can really be used BEFORE changing it.
 		GeneratedKey generatedKey = keyStore.generateKey(authUserName, oldPassword);
 
-		keyStore.changeMyPassword(authUserName, oldPassword, newPassword);
+		keyStore.changeUserPassword(authUserName, oldPassword, authUserName, newPassword);
 
 		// validate, that the new password can really be used.
 		Key key = keyStore.getKey(authUserName, newPassword, generatedKey.getKeyID());
@@ -150,7 +150,7 @@ public class KeyStoreUserTest
 		boolean loginExceptionThrown = false;
 		try {
 			keyStore.getKey(authUserName, oldPassword, generatedKey.getKeyID());
-		} catch (LoginException x) {
+		} catch (AuthenticationException x) {
 			// great!
 			loginExceptionThrown = true;
 		}

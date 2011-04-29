@@ -24,9 +24,9 @@ import org.cumulus4j.keyserver.front.shared.UserList;
 import org.cumulus4j.keyserver.front.shared.UserWithPassword;
 import org.cumulus4j.keystore.CannotDeleteLastUserException;
 import org.cumulus4j.keystore.KeyStore;
-import org.cumulus4j.keystore.LoginException;
+import org.cumulus4j.keystore.AuthenticationException;
 import org.cumulus4j.keystore.UserAlreadyExistsException;
-import org.cumulus4j.keystore.UserDoesNotExistException;
+import org.cumulus4j.keystore.UserNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +58,7 @@ public class UserService extends AbstractService
 				return new User(userName);
 			else
 				return null;
-		} catch (LoginException e) {
+		} catch (AuthenticationException e) {
 			throw new WebApplicationException(Response.status(Status.FORBIDDEN).entity(new Error(e)).build());
 		} finally {
 			auth.clear();
@@ -76,7 +76,7 @@ public class UserService extends AbstractService
 			for (String userName : userNames) {
 				userList.getUsers().add(new User(userName));
 			}
-		} catch (LoginException e) {
+		} catch (AuthenticationException e) {
 			throw new WebApplicationException(Response.status(Status.FORBIDDEN).entity(new Error(e)).build());
 		} finally {
 			auth.clear();
@@ -124,12 +124,12 @@ public class UserService extends AbstractService
 							auth.getUserName(), auth.getPassword(),
 							userWithPassword.getUserName(), userWithPassword.getPassword()
 					);
-				} catch (UserDoesNotExistException e1) {
+				} catch (UserNotFoundException e1) {
 					logger.error("Why does it not exist? Has the user just been deleted?!", e1);
 					throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).build());
 				}
 			}
-		} catch (LoginException e) {
+		} catch (AuthenticationException e) {
 			throw new WebApplicationException(Response.status(Status.FORBIDDEN).entity(new Error(e)).build());
 		} catch (IOException e) {
 			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(e)).build());
@@ -152,9 +152,9 @@ public class UserService extends AbstractService
 
 		try {
 			keyStore.deleteUser(auth.getUserName(), auth.getPassword(), userName);
-		} catch (LoginException e) {
+		} catch (AuthenticationException e) {
 			throw new WebApplicationException(Response.status(Status.FORBIDDEN).entity(new Error(e)).build());
-		} catch (UserDoesNotExistException e) {
+		} catch (UserNotFoundException e) {
 			// ignore in order to be idempotent - only warn
 			logger.warn("deleteUser: " + e);
 		} catch (CannotDeleteLastUserException e) {
