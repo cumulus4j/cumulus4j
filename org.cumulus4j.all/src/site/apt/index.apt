@@ -4,7 +4,7 @@
 
 Welcome to Cumulus4j!
 
-	Cumulus4j is an encryption layer protecting your data from the hosting company.
+	Cumulus4j protects your data by encrypting it. With Cumulus4j, your data is safe in the cloud.
 
 	Cumulus4j will be free software published under the terms {{{/license.html}AGPL}} in
 	January 2012 (TODO - update this before release!).
