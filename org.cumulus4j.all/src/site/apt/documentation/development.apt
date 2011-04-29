@@ -26,7 +26,9 @@ Workspace-Setup Cumulus4j-DataNucleus-Plug-in
 	
 	* {{{http://m2eclipse.sonatype.org/}m2eclipse}}
 
-		* Update site: {{http://m2eclipse.sonatype.org/sites/m2e}}
+		* Update site for core: {{http://m2eclipse.sonatype.org/sites/m2e}}
+
+		* Update site for extras: {{http://m2eclipse.sonatype.org/sites/m2e-extras}} (Install 1 feature: "Maven Integration for <<WTP>>")
 
 		* {{{http://m2eclipse.sonatype.org/installing-m2eclipse.html}Installation howto}}
 	
