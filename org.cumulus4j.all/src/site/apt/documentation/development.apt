@@ -28,13 +28,25 @@ Workspace-Setup Cumulus4j-DataNucleus-Plug-in
 
 		* Update site for core: {{http://m2eclipse.sonatype.org/sites/m2e}}
 
-		* Update site for extras: {{http://m2eclipse.sonatype.org/sites/m2e-extras}} (Install 1 feature: "Maven Integration for <<WTP>>")
+		* Update site for extras: {{http://m2eclipse.sonatype.org/sites/m2e-extras}}
+
+			* Install 1 feature: Maven Integration for <<WTP>>
 
 		* {{{http://m2eclipse.sonatype.org/installing-m2eclipse.html}Installation howto}}
 	
 	* Subclipse
 
 		* Update site: {{http://subclipse.tigris.org/update_1.6.x}}
+
+			* Install 4 features:
+
+				* Core SVNKit Library / SVNKit Library
+
+				* Subclipse / Subclipse
+
+				* Subclipse / Subversion Client Adapter
+
+				* Subclipse / SVNKit Client Adapter
 
 		* {{{http://subclipse.tigris.org/servlets/ProjectProcess?pageID=p4wYuA}Installation howto}}
     
