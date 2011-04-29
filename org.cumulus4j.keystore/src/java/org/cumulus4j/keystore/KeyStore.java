@@ -180,7 +180,7 @@ public class KeyStore
 	 *
 	 * @return the current key-size.
 	 */
-	protected int getKeySize()
+	int getKeySize()
 	{
 		int ks = keySize;
 
@@ -212,7 +212,7 @@ public class KeyStore
 	private int keySize = 0;
 
 
-	protected String getEncryptionAlgorithm()
+	String getEncryptionAlgorithm()
 	{
 		String ea = encryptionAlgorithm;
 
@@ -263,7 +263,7 @@ public class KeyStore
 		}
 	}
 
-	protected synchronized KeyGenerator getKeyGenerator(int keySize)
+	synchronized KeyGenerator getKeyGenerator(int keySize)
 	{
 		KeyGenerator keyGenerator = keySize2keyGenerator.get(keySize);
 
@@ -282,6 +282,19 @@ public class KeyStore
 
 	private File keyStoreFile;
 
+	/**
+	 * <p>
+	 * Create a new instance of <code>KeyStore</code>.
+	 * </p>
+	 * <p>
+	 * If the file specified by <code>keyStoreFile</code> exists, it is read into memory. If it does not exist,
+	 * an empty <code>KeyStore</code> is created and written to this file.
+	 * </p>
+	 *
+	 * @param keyStoreFile the file to be read (if existing) or created. Note that temporary files (and later maybe backup files, too)
+	 * are created in the same directory (i.e. in {@link File#getParentFile() keyStoreFile.getParentFile()}).
+	 * @throws IOException if reading from or writing to the local file-system failed.
+	 */
 	public KeyStore(File keyStoreFile) throws IOException
 	{
 		if (keyStoreFile == null)
@@ -492,7 +505,7 @@ public class KeyStore
 		return new EncryptedKey(key, salt, algorithm, keyCryptIV, keyCryptAlgo, checksumSize, checksumAlgo);
 	}
 
-	protected File getNewKeyStoreFile()
+	File getNewKeyStoreFile()
 	{
 		return new File(keyStoreFile.getParentFile(), keyStoreFile.getName() + ".new");
 	}
@@ -509,7 +522,7 @@ public class KeyStore
 		return user2keyMap.isEmpty();
 	}
 
-	protected synchronized long nextKeyID()
+	synchronized long nextKeyID()
 	{
 		long result = nextKeyID++;
 		return result;
@@ -517,7 +530,17 @@ public class KeyStore
 
 	private Map<String, CachedMasterKey> cache_userName2cachedMasterKey = new HashMap<String, CachedMasterKey>();
 
-	protected synchronized MasterKey getMasterKey(String authUserName, char[] authPassword)
+	/**
+	 * Authenticate and get the master-key. If there is a cache-entry existing, directly return this
+	 * (after comparing the password); otherwise decrypt the master-key using the given password.
+	 *
+	 * @param authUserName the user from whose slot to take and decrypt the master-key.
+	 * @param authPassword the password with which to try to decrypt the master-key.
+	 * @return the decrypted, plain master-key.
+	 * @throws LoginException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
+	 * is not correct for the given <code>authUserName</code>.
+	 */
+	synchronized MasterKey getMasterKey(String authUserName, char[] authPassword)
 	throws LoginException
 	{
 		CachedMasterKey cachedMasterKey = cache_userName2cachedMasterKey.get(authUserName);
@@ -762,7 +785,7 @@ public class KeyStore
 		setUser(masterKey, userName, password);
 	}
 
-	protected synchronized void setUser(MasterKey masterKey, String userName, char[] password)
+	synchronized void setUser(MasterKey masterKey, String userName, char[] password)
 	throws IOException
 	{
 		byte[] plainMasterKeyData = masterKey.getEncoded();
@@ -867,7 +890,7 @@ public class KeyStore
 			throw new UnsupportedOperationException("Unsupported hash algorithm: " + hashAlgorithm);
 	}
 
-	protected synchronized void storeToFile() throws IOException
+	synchronized void storeToFile() throws IOException
 	{
 		File newKeyStoreFile = getNewKeyStoreFile();
 		boolean deleteNewKeyStoreFile = true;
@@ -1008,7 +1031,7 @@ public class KeyStore
 		}
 	}
 
-	protected synchronized void setKey(String authUserName, char[] authPassword, long keyID, Key key)
+	synchronized void setKey(String authUserName, char[] authPassword, long keyID, Key key)
 	throws LoginException, IOException
 	{
 		MasterKey masterKey = getMasterKey(authUserName, authPassword);
