@@ -85,7 +85,7 @@ import org.slf4j.LoggerFactory;
  * <table border="1" width="100%">
  * 	<tbody>
  * 	<tr>
- * 		<td align="right" valign="top">Bytes</td><td valign="top">Descrition</td>
+ * 		<td align="right" valign="top"><b>Bytes</b></td><td valign="top"><b>Descrition</b></td>
  * 	</tr>
  * 	<tr>
  * 		<td align="right" valign="top">17</td><td valign="top">Header "Cumulus4jKeyStore" (ASCII encoded)</td>
@@ -100,19 +100,19 @@ import org.slf4j.LoggerFactory;
  * 		<td align="right" valign="top">4</td><td valign="top">int: Number of entries in 'Block A' to follow.</td>
  * 	</tr>
  * 	<tr>
- * 		<td align="right" valign="top">&nbsp;</td><td valign="top">Block A: String constants</td>
+ * 		<td align="right" valign="top">var</td><td valign="top">Block A: String constants</td>
  * 	</tr>
  * 	<tr>
  * 		<td align="right" valign="top">4</td><td valign="top">int: Number of entries in 'Block B' to follow.</td>
  * 	</tr>
  * 	<tr>
- * 		<td align="right" valign="top">&nbsp;</td><td valign="top">Block B: User-key-map</td>
+ * 		<td align="right" valign="top">var</td><td valign="top">Block B: User-key-map</td>
  * 	</tr>
  * 	<tr>
  * 		<td align="right" valign="top">4</td><td valign="top">int: Number of entries in 'Block C' to follow.</td>
  * 	</tr>
  * 	<tr>
- * 		<td align="right" valign="top">&nbsp;</td><td valign="top">Block C: Key-ID-key-map</td>
+ * 		<td align="right" valign="top">var</td><td valign="top">Block C: Key-ID-key-map</td>
  * 	</tr>
  * 	</tbody>
  * </table>
@@ -132,7 +132,7 @@ import org.slf4j.LoggerFactory;
  * <table border="1" width="100%">
  * 	<tbody>
  * 	<tr>
- * 		<td align="right" valign="top">Bytes</td><td valign="top">Descrition</td>
+ * 		<td align="right" valign="top"><b>Bytes</b></td><td valign="top"><b>Descrition</b></td>
  * 	</tr>
  * 	<tr>
  * 		<td align="right" valign="top">2</td><td valign="top">short: Number of bytes (X) to follow (written by {@link DataOutputStream#writeUTF(String)}.</td>
