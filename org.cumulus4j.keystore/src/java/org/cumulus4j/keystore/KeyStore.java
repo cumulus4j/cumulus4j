@@ -135,10 +135,10 @@ import org.slf4j.LoggerFactory;
  * 		<td align="right" valign="top"><b>Bytes</b></td><td valign="top"><b>Descrition</b></td>
  * 	</tr>
  * 	<tr>
- * 		<td align="right" valign="top">2</td><td valign="top">short: Number of bytes (X) to follow (written by {@link DataOutputStream#writeUTF(String)}.</td>
+ * 		<td align="right" valign="top">2</td><td valign="top">short: Number of bytes (X) to follow (written by {@link DataOutputStream#writeUTF(String)}).</td>
  * 	</tr>
  * 	<tr>
- * 		<td align="right" valign="top">X</td><td valign="top">The actual String constant (written by {@link DataOutputStream#writeUTF(String)}.</td>
+ * 		<td align="right" valign="top">X</td><td valign="top">The actual String constant (written by {@link DataOutputStream#writeUTF(String)}).</td>
  * 	</tr>
  * 	</tbody>
  * </table>
