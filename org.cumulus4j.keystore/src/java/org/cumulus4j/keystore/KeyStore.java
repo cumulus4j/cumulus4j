@@ -82,7 +82,8 @@ import org.slf4j.LoggerFactory;
  * <h3>File format of the key store file (version 1)</h3>
  * <h4>Main</h4>
  * <p>
- * <table>
+ * <table border="1" width="100%">
+ * 	<tbody>
  * 	<tr>
  * 		<td align="right" valign="top">Bytes</td><td valign="top">Descrition</td>
  * 	</tr>
@@ -113,6 +114,7 @@ import org.slf4j.LoggerFactory;
  * 	<tr>
  * 		<td align="right" valign="top">&nbsp;</td><td valign="top">Block C: Key-ID-key-map</td>
  * 	</tr>
+ * 	</tbody>
  * </table>
  * </p>
  *
@@ -127,7 +129,8 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Every record in this block has the following structure:
  * </p>
- * <table>
+ * <table border="1" width="100%">
+ * 	<tbody>
  * 	<tr>
  * 		<td align="right" valign="top">Bytes</td><td valign="top">Descrition</td>
  * 	</tr>
@@ -137,6 +140,7 @@ import org.slf4j.LoggerFactory;
  * 	<tr>
  * 		<td align="right" valign="top">X</td><td valign="top">The actual String constant (written by {@link DataOutputStream#writeUTF(String)}.</td>
  * 	</tr>
+ * 	</tbody>
  * </table>
  * </p>
  *
