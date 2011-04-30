@@ -94,7 +94,7 @@ import org.slf4j.LoggerFactory;
  * 		<td align="right" valign="top">4</td><td valign="top">int: File version</td>
  * 	</tr>
  * 	<tr>
- * 		<td align="right" valign="top">8</td><td valign="top">long: Next key ID, i.e. the first not-yet-used ID which will be assigned for the next key that is generated.</td>
+ * 		<td align="right" valign="top">8</td><td valign="top">long: Next key ID, i.e. the first not-yet-used ID which will be assigned to the next key that will be generated.</td>
  * 	</tr>
  *	<tr>
  * 		<td align="right" valign="top">4</td><td valign="top">int: Number of entries in 'Block A' to follow.</td>
