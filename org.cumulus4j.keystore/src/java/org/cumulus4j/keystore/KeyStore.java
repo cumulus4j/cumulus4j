@@ -84,7 +84,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * <table>
  * 	<tr>
- * 		<td align="right" valign="top"># Bytes</td><td valign="top">Descrition</td>
+ * 		<td align="right" valign="top">Bytes</td><td valign="top">Descrition</td>
  * 	</tr>
  * 	<tr>
  * 		<td align="right" valign="top">17</td><td valign="top">Header "Cumulus4jKeyStore" (ASCII encoded)</td>
@@ -129,7 +129,7 @@ import org.slf4j.LoggerFactory;
  * </p>
  * <table>
  * 	<tr>
- * 		<td align="right" valign="top"># Bytes</td><td valign="top">Descrition</td>
+ * 		<td align="right" valign="top">Bytes</td><td valign="top">Descrition</td>
  * 	</tr>
  * 	<tr>
  * 		<td align="right" valign="top">2</td><td valign="top">short: Number of bytes (X) to follow (written by {@link DataOutputStream#writeUTF(String)}.</td>
