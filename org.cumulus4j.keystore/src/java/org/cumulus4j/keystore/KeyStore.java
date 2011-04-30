@@ -79,10 +79,8 @@ import org.slf4j.LoggerFactory;
  * Note, that key sizes longer than 128
  * bit require the "Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files" to be installed!
  * </p>
- * <p>
- * File format of the key store file (version 1):
- * </p>
- * <h3>Main</h3>
+ * <h3>File format of the key store file (version 1)</h3>
+ * <h4>Main</h4>
  * <p>
  * <table>
  * 	<tr>
@@ -118,7 +116,7 @@ import org.slf4j.LoggerFactory;
  * </table>
  * </p>
  *
- * <h3>Block A: String constants</h3>
+ * <h4>Block A: String constants</h4>
  * <p>
  * </p>
  * In order to reduce the file size (and thus increase the write speed), various
@@ -142,12 +140,14 @@ import org.slf4j.LoggerFactory;
  * </table>
  * </p>
  *
- * <h3>Block B: User-key-map</h3>
+ * <h4>Block B: User-key-map</h4>
  * <p>
+ * TODO document this!
  * </p>
  *
- * <h3>Block C: Key-ID-key-map</h3>
+ * <h4>Block C: Key-ID-key-map</h4>
  * <p>
+ * TODO document this!
  * </p>
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
