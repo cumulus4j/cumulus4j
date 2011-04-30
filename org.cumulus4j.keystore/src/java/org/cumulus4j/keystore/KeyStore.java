@@ -84,34 +84,34 @@ import org.slf4j.LoggerFactory;
  * <p>
  * <table>
  * 	<tr>
- * 		<td># Bytes</td><td>Descrition</td>
+ * 		<td align="right" valign="top"># Bytes</td><td valign="top">Descrition</td>
  * 	</tr>
  * 	<tr>
- * 		<td>17</td><td>Header "Cumulus4jKeyStore" (ASCII encoded)</td>
+ * 		<td align="right" valign="top">17</td><td valign="top">Header "Cumulus4jKeyStore" (ASCII encoded)</td>
  * 	</tr>
  * 	<tr>
- * 		<td>4</td><td>int: File version</td>
+ * 		<td align="right" valign="top">4</td><td valign="top">int: File version</td>
  * 	</tr>
  * 	<tr>
- * 		<td>8</td><td>long: Next key ID, i.e. the first not-yet-used ID which will be assigned for the next key that is generated.</td>
+ * 		<td align="right" valign="top">8</td><td valign="top">long: Next key ID, i.e. the first not-yet-used ID which will be assigned for the next key that is generated.</td>
  * 	</tr>
  *	<tr>
- * 		<td>4</td><td>int: Number of entries in 'Block A' to follow.</td>
+ * 		<td align="right" valign="top">4</td><td valign="top">int: Number of entries in 'Block A' to follow.</td>
  * 	</tr>
  * 	<tr>
- * 		<td>&nbsp;</td><td>Block A: String constants</td>
+ * 		<td align="right" valign="top">&nbsp;</td><td valign="top">Block A: String constants</td>
  * 	</tr>
  * 	<tr>
- * 		<td>4</td><td>int: Number of entries in 'Block B' to follow.</td>
+ * 		<td align="right" valign="top">4</td><td valign="top">int: Number of entries in 'Block B' to follow.</td>
  * 	</tr>
  * 	<tr>
- * 		<td>&nbsp;</td><td>Block B: User-key-map</td>
+ * 		<td align="right" valign="top">&nbsp;</td><td valign="top">Block B: User-key-map</td>
  * 	</tr>
  * 	<tr>
- * 		<td>4</td><td>int: Number of entries in 'Block C' to follow.</td>
+ * 		<td align="right" valign="top">4</td><td valign="top">int: Number of entries in 'Block C' to follow.</td>
  * 	</tr>
  * 	<tr>
- * 		<td>&nbsp;</td><td>Block C: Key-ID-key-map</td>
+ * 		<td align="right" valign="top">&nbsp;</td><td valign="top">Block C: Key-ID-key-map</td>
  * 	</tr>
  * </table>
  * </p>
@@ -129,13 +129,13 @@ import org.slf4j.LoggerFactory;
  * </p>
  * <table>
  * 	<tr>
- * 		<td># Bytes</td><td>Descrition</td>
+ * 		<td align="right" valign="top"># Bytes</td><td valign="top">Descrition</td>
  * 	</tr>
  * 	<tr>
- * 		<td>2</td><td>short: Number of bytes (X) to follow (written by {@link DataOutputStream#writeUTF(String)}.</td>
+ * 		<td align="right" valign="top">2</td><td valign="top">short: Number of bytes (X) to follow (written by {@link DataOutputStream#writeUTF(String)}.</td>
  * 	</tr>
  * 	<tr>
- * 		<td>X</td><td>The actual String constant (written by {@link DataOutputStream#writeUTF(String)}.</td>
+ * 		<td align="right" valign="top">X</td><td valign="top">The actual String constant (written by {@link DataOutputStream#writeUTF(String)}.</td>
  * 	</tr>
  * </table>
  * </p>
