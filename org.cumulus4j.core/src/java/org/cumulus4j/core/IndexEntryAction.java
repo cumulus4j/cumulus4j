@@ -15,7 +15,6 @@ import org.cumulus4j.core.model.IndexValue;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.Relation;
 import org.datanucleus.store.ExecutionContext;
-import org.datanucleus.util.NucleusLogger;
 
 abstract class IndexEntryAction
 {
@@ -57,9 +56,6 @@ abstract class IndexEntryAction
 		}
 
 		int relationType = dnMemberMetaData.getRelationType(executionContext.getClassLoaderResolver());
-		NucleusLogger.GENERAL.info(">> IndexEntryAction.perform on field="+dnMemberMetaData.getFullFieldName()+
-				" for id="+dataEntryID);
-
 		if (Relation.NONE == relationType) {
 			// The field contains no other persistent entity. It might contain a collection/array/map, though.
 
@@ -152,6 +148,8 @@ abstract class IndexEntryAction
 
 				FieldMeta subFieldMeta = fieldMeta.getSubFieldMeta(role);
 				Object[] fieldValueArray = (Object[]) fieldValue;
+/*				NucleusLogger.QUERY.info(">> IndexEntryAction field="+dnMemberMetaData.getFullFieldName() + 
+						" COLLECTION size="+(fieldValueArray != null ? fieldValueArray.length : -1));*/
 				for (Object element : fieldValueArray) {
 					Long otherDataEntryID = ObjectContainerHelper.referenceToDataEntryID(executionContext, pm, element);
 					IndexEntry indexEntry = getIndexEntryForObjectRelation(pm, subFieldMeta, otherDataEntryID);
