@@ -80,6 +80,7 @@ implements StoreCallback
 
 	private long keyID = -1;
 
+	/** DataEntryIDs for this indexed key. */
 	private byte[] indexValue;
 
 	/**
