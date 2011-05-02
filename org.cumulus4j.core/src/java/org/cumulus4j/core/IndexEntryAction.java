@@ -15,6 +15,7 @@ import org.cumulus4j.core.model.IndexValue;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.Relation;
 import org.datanucleus.store.ExecutionContext;
+import org.datanucleus.util.NucleusLogger;
 
 abstract class IndexEntryAction
 {
@@ -46,7 +47,18 @@ abstract class IndexEntryAction
 			Object fieldValue
 	)
 	{
+		boolean hasQueryable = dnMemberMetaData.hasExtension("queryable");
+		if (hasQueryable) {
+			String val = dnMemberMetaData.getValueForExtension("queryable");
+			if (val.equalsIgnoreCase("false")) {
+				// Field marked as not queryable, so don't index it
+				return;
+			}
+		}
+
 		int relationType = dnMemberMetaData.getRelationType(executionContext.getClassLoaderResolver());
+		NucleusLogger.GENERAL.info(">> IndexEntryAction.perform on field="+dnMemberMetaData.getFullFieldName()+
+				" for id="+dataEntryID);
 
 		if (Relation.NONE == relationType) {
 			// The field contains no other persistent entity. It might contain a collection/array/map, though.
@@ -96,6 +108,8 @@ abstract class IndexEntryAction
 		}
 		else if (Relation.isRelationMultiValued(relationType)) {
 			// map, collection, array
+			// TODO Support indexing of collection/map size
+
 			if (dnMemberMetaData.hasMap()) { // Map.class.isAssignableFrom(dnMemberMetaData.getType())) {
 				Map<?,?> fieldValueMap = (Map<?,?>) fieldValue;
 

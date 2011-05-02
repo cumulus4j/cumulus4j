@@ -13,7 +13,9 @@ import org.cumulus4j.core.model.IndexEntry;
 import org.cumulus4j.core.model.IndexEntryObjectRelationHelper;
 import org.cumulus4j.core.model.IndexValue;
 import org.cumulus4j.core.model.ObjectContainer;
+import org.cumulus4j.core.query.MemberNotQueryableException;
 import org.cumulus4j.core.query.QueryEvaluator;
+import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.query.expression.VariableExpression;
 import org.datanucleus.query.symbol.Symbol;
@@ -96,12 +98,17 @@ public abstract class PrimaryExpressionResolver
 		if (fieldMetaForNextTuple == null)
 			throw new IllegalStateException("Neither the class " + classMeta.getClassName() + " nor one of its superclasses contain a field named \"" + nextTuple + "\"!");
 
+		AbstractMemberMetaData mmd = fieldMetaForNextTuple.getDataNucleusMemberMetaData(executionContext);
+		if (mmd.hasExtension("queryable") && mmd.getValueForExtension("queryable").equalsIgnoreCase("false")) {
+			throw new MemberNotQueryableException("Field/property " + mmd.getFullFieldName() + " is not queryable!");
+		}
+
 		if (tuples.isEmpty()) {
 			return queryEnd(fieldMetaForNextTuple);
 		}
 		else {
 			// join
-			Class<?> nextTupleType = fieldMetaForNextTuple.getDataNucleusMemberMetaData(executionContext).getType();
+			Class<?> nextTupleType = mmd.getType();
 			ClassMeta classMetaForNextTupleType = queryEvaluator.getStoreManager().getClassMeta(executionContext, nextTupleType);
 			Set<Long> dataEntryIDsForNextTuple = queryMiddle(classMetaForNextTupleType, tuples);
 			Set<Long> result = new HashSet<Long>();
