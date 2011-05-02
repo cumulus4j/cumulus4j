@@ -11,6 +11,10 @@
 
 		<logo name="Maven" href="http://maven.apache.org/"
 			img="http://maven.apache.org/images/logos/maven-feather.png" target="_blank" />
+			
+		<logo name="SourceForge" href="http://sourceforge.net/projects/cumulus4j"
+			img="http://sflogo.sourceforge.net/sflogo.php?group_id=517465&amp;type=12"
+			width="120" height="30" alt="Get cumulus4j at SourceForge.net. Fast, secure and Free Open Source software downloads" />
 	</poweredBy>
 
 	<body>
