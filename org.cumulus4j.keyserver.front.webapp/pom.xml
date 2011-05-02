@@ -63,7 +63,7 @@
 						<extraClasspath>${basedir}/src/test;${settings.localRepository}/org/slf4j/slf4j-log4j12/${slf4j.version}/slf4j-log4j12-${slf4j.version}.jar;${settings.localRepository}/log4j/log4j/${log4j.version}/log4j-${log4j.version}.jar</extraClasspath>
 					</webAppConfig>
 					<connectors>
-						<connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
+						<connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
 							<port>8181</port>
 							<maxIdleTime>60000</maxIdleTime>
 						</connector>
