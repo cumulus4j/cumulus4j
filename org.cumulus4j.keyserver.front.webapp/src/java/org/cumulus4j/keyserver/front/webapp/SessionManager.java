@@ -70,6 +70,7 @@ public class SessionManager
 		}
 	}
 
+	private String keyServerID;
 	private KeyStore keyStore;
 
 	private Map<String, Session> userName2Session = new HashMap<String, Session>();
@@ -79,7 +80,16 @@ public class SessionManager
 	{
 		logger.info("Creating instance of SessionManager.");
 		this.keyStore = keyStore;
+		this.keyServerID = IdentifierUtil.createRandomID();
 		expireSessionTimer.schedule(expireSessionTimerTask, 60000, 60000); // TODO make this configurable
+	}
+
+	public String getKeyServerID() {
+		return keyServerID;
+	}
+
+	public KeyStore getKeyStore() {
+		return keyStore;
 	}
 
 	/**

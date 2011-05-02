@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-@Path("session")
+@Path("Session")
 @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public class SessionService extends AbstractService
@@ -56,6 +56,7 @@ public class SessionService extends AbstractService
 			logger.debug("open: authUserName='{}' cryptoSessionID='{}'", auth.getUserName(), session.getCryptoSessionID());
 
 			OpenSessionResponse result = new OpenSessionResponse();
+			result.setKeyServerID(sessionManager.getKeyServerID());
 			result.setCryptoSessionID(session.getCryptoSessionID());
 			result.setExpiry(session.getExpiry());
 			return result;

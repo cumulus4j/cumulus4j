@@ -3,6 +3,12 @@
     <wb-module deploy-name="org.cumulus4j.keyserver.back.webapp">
         <wb-resource deploy-path="/" source-path="/src/webapp"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/java"/>
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keyserver.back.plugin/org.cumulus4j.keyserver.back.plugin">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.api/org.cumulus4j.api">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
         <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keyserver.back.shared/org.cumulus4j.keyserver.back.shared">
             <dependency-type>uses</dependency-type>
         </dependent-module>

@@ -22,9 +22,9 @@ import org.cumulus4j.keyserver.front.shared.Error;
 import org.cumulus4j.keyserver.front.shared.User;
 import org.cumulus4j.keyserver.front.shared.UserList;
 import org.cumulus4j.keyserver.front.shared.UserWithPassword;
+import org.cumulus4j.keystore.AuthenticationException;
 import org.cumulus4j.keystore.CannotDeleteLastUserException;
 import org.cumulus4j.keystore.KeyStore;
-import org.cumulus4j.keystore.AuthenticationException;
 import org.cumulus4j.keystore.UserAlreadyExistsException;
 import org.cumulus4j.keystore.UserNotFoundException;
 import org.slf4j.Logger;
@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-@Path("user")
+@Path("User")
 @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public class UserService extends AbstractService

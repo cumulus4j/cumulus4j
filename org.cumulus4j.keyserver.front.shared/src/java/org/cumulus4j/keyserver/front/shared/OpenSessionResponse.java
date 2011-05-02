@@ -13,9 +13,18 @@ public class OpenSessionResponse implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 
+	private String keyServerID;
+
 	private String cryptoSessionID;
 
 	private Date expiry;
+
+	public String getKeyServerID() {
+		return keyServerID;
+	}
+	public void setKeyServerID(String keyServerID) {
+		this.keyServerID = keyServerID;
+	}
 
 	public String getCryptoSessionID() {
 		return cryptoSessionID;
