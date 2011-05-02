@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.jdo.JDOUserException;
 import javax.jdo.Query;
 
 import org.cumulus4j.test.account.id.AnchorID;
@@ -53,6 +54,7 @@ extends AbstractTransactionalTest
 		localAccountantDelegate.setAccount("CHF", new Account(ACCOUNT_ID_1));
 		localAccountantDelegate.setName("New test bla bla bla.");
 		localAccountantDelegate.setName2("2nd name");
+		localAccountantDelegate.setName3("3rd name");
 		localAccountantDelegate.setDescription("description");
 
 		Account account2 = new Account(ACCOUNT_ID_2);
@@ -61,6 +63,7 @@ extends AbstractTransactionalTest
 		pm.makePersistent(localAccountantDelegate1); // this should implicitely persist the account
 		localAccountantDelegate1.setName("Some other test");
 		localAccountantDelegate1.setName2("Second name");
+		localAccountantDelegate1.setName3("Third name");
 		localAccountantDelegate1.setDescription("description2");
 	}
 
@@ -334,6 +337,31 @@ extends AbstractTransactionalTest
 		Assert.assertEquals("Number of results was wrong", 1, result.size());
 		delegate = result.iterator().next();
 		assertDelegate1(delegate);
+	}
+
+	@Test
+	public void queryNonQueryable() throws IOException
+	{
+		// Check basic retrieval of non-queryable field
+		Query q = pm.newQuery(LocalAccountantDelegate.class);
+		q.setFilter("this.name.startsWith(:startStr)");
+
+		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("New ");
+		Assert.assertEquals("Number of results was wrong", 1, result.size());
+		LocalAccountantDelegate delegate = result.iterator().next();
+		assertDelegate0(delegate);
+		Assert.assertEquals("Non-queryable field not retrieved", "3rd name", delegate.getName3());
+		q.closeAll();
+
+		try {
+			Query q2 = pm.newQuery(LocalAccountantDelegate.class);
+			q2.setFilter("this.name3.equals(\"3rd name\")");
+			q2.execute();
+			Assert.fail("Should have thrown exception on query of non-queryable field, but didn't");
+		}
+		catch (JDOUserException e) {
+			// Expected exception when querying un-indexed field
+		}
 	}
 
 	@After
