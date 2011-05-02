@@ -14,6 +14,7 @@ import org.cumulus4j.core.model.IndexEntryFactory;
 import org.cumulus4j.core.model.IndexEntryFactoryRegistry;
 import org.cumulus4j.core.model.IndexValue;
 import org.cumulus4j.core.query.QueryEvaluator;
+import org.cumulus4j.core.query.eval.ExpressionHelper;
 import org.cumulus4j.core.query.eval.InvokeExpressionEvaluator;
 import org.cumulus4j.core.query.eval.PrimaryExpressionResolver;
 import org.cumulus4j.core.query.eval.ResultDescriptor;
@@ -22,9 +23,9 @@ import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.store.ExecutionContext;
 
 /**
- * Evaluator for <pre>Collection.isEmpty()</pre>
+ * Evaluator for <pre>Map.size() {oper} {comparisonArg}</pre>
  */
-public class CollectionIsEmptyEvaluator extends AbstractMethodEvaluator {
+public class MapSizeEvaluator extends AbstractMethodEvaluator {
 
 	/* (non-Javadoc)
 	 * @see org.cumulus4j.core.query.method.MethodEvaluator#evaluate(org.cumulus4j.core.query.QueryEvaluator, org.cumulus4j.core.query.eval.InvokeExpressionEvaluator, org.datanucleus.query.expression.Expression, org.cumulus4j.core.query.eval.ResultDescriptor)
@@ -34,22 +35,24 @@ public class CollectionIsEmptyEvaluator extends AbstractMethodEvaluator {
 			InvokeExpressionEvaluator invokeExprEval, Expression invokedExpr,
 			ResultDescriptor resultDesc) {
 		if (invokeExprEval.getExpression().getArguments().size() != 0)
-			throw new IllegalStateException("isEmpty(...) expects no argument, but there are " + 
+			throw new IllegalStateException("size(...) expects no argument, but there are " + 
 					invokeExprEval.getExpression().getArguments().size());
 
 		if (invokedExpr instanceof PrimaryExpression) {
-			return new CollectionIsEmptyResolver(queryEval, (PrimaryExpression) invokedExpr, resultDesc.isNegated()).query();
+			return new MapSizeResolver(invokeExprEval, queryEval, (PrimaryExpression) invokedExpr, compareToArgument, resultDesc.isNegated()).query();
 		}
 		else {
 			if (!invokeExprEval.getLeft().getResultSymbols().contains(resultDesc.getSymbol()))
 				return null;
-			return queryCollectionIsEmpty(queryEval, resultDesc.getFieldMeta(), resultDesc.isNegated());
+			return queryMapSize(invokeExprEval, queryEval, resultDesc.getFieldMeta(), compareToArgument, resultDesc.isNegated());
 		}
 	}
 
-	private Set<Long> queryCollectionIsEmpty(
+	private Set<Long> queryMapSize(
+			InvokeExpressionEvaluator invokeExprEval,
 			QueryEvaluator queryEval,
 			FieldMeta fieldMeta,
+			Object compareToArgument, // the yyy in 'indexOf(xxx) >= yyy'
 			boolean negate
 	) {
 		ExecutionContext executionContext = queryEval.getExecutionContext();
@@ -57,11 +60,13 @@ public class CollectionIsEmptyEvaluator extends AbstractMethodEvaluator {
 
 		Query q = queryEval.getPersistenceManager().newQuery(indexEntryFactory.getIndexEntryClass());
 		q.setFilter(
-				"this.fieldMeta == :fieldMeta && " +
-				(negate ? "this.indexKey != 0" : "this.indexKey == 0")
+				"this.fieldMeta == :fieldMeta && this.indexKey " +
+				ExpressionHelper.getOperatorAsJDOQLSymbol(invokeExprEval.getParent().getExpression().getOperator(), negate) + 
+				" :compareToArgument"
 		);
 		Map<String, Object> params = new HashMap<String, Object>(3);
 		params.put("fieldMeta", fieldMeta);
+		params.put("compareToArgument", compareToArgument);
 
 		@SuppressWarnings("unchecked")
 		Collection<? extends IndexEntry> indexEntries = (Collection<? extends IndexEntry>) q.executeWithMap(params);
@@ -75,22 +80,28 @@ public class CollectionIsEmptyEvaluator extends AbstractMethodEvaluator {
 		return result;
 	}
 
-	private class CollectionIsEmptyResolver extends PrimaryExpressionResolver
+	private class MapSizeResolver extends PrimaryExpressionResolver
 	{
+		private InvokeExpressionEvaluator invokeExprEval;
+		private Object compareToArgument;
 		private boolean negate;
 
-		public CollectionIsEmptyResolver(
+		public MapSizeResolver(
+				InvokeExpressionEvaluator invokeExprEval,
 				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
+				Object compareToArgument, // the yyy in 'size() >= yyy'
 				boolean negate
 		)
 		{
 			super(queryEvaluator, primaryExpression);
+			this.invokeExprEval = invokeExprEval;
+			this.compareToArgument = compareToArgument;
 			this.negate = negate;
 		}
 
 		@Override
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
-			return queryCollectionIsEmpty(queryEvaluator, fieldMeta, negate);
+			return queryMapSize(invokeExprEval, queryEvaluator, fieldMeta, compareToArgument, negate);
 		}
 	}
 }

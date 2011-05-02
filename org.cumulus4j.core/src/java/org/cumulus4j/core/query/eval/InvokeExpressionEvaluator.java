@@ -7,8 +7,11 @@ import java.util.Set;
 import org.cumulus4j.core.query.QueryEvaluator;
 import org.cumulus4j.core.query.method.CollectionContainsEvaluator;
 import org.cumulus4j.core.query.method.CollectionIsEmptyEvaluator;
+import org.cumulus4j.core.query.method.CollectionSizeEvaluator;
 import org.cumulus4j.core.query.method.MapContainsKeyEvaluator;
 import org.cumulus4j.core.query.method.MapContainsValueEvaluator;
+import org.cumulus4j.core.query.method.MapIsEmptyEvaluator;
+import org.cumulus4j.core.query.method.MapSizeEvaluator;
 import org.cumulus4j.core.query.method.StringEndsWithEvaluator;
 import org.cumulus4j.core.query.method.StringEqualsEvaluator;
 import org.cumulus4j.core.query.method.StringEqualsIgnoreCaseEvaluator;
@@ -108,6 +111,11 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 					CollectionIsEmptyEvaluator eval = new CollectionIsEmptyEvaluator();
 					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
 				}
+				else if ("size".equals(this.getExpression().getOperation())) {
+					CollectionSizeEvaluator eval = new CollectionSizeEvaluator();
+					eval.setCompareToArgument(getCompareToArgument());
+					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
+				}
 			}
 			else if (Map.class.isAssignableFrom(invocationTargetType)) {
 				if ("containsKey".equals(this.getExpression().getOperation())) {
@@ -116,6 +124,15 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 				}
 				else if ("containsValue".equals(this.getExpression().getOperation())) {
 					MapContainsValueEvaluator eval = new MapContainsValueEvaluator();
+					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
+				}
+				else if ("isEmpty".equals(this.getExpression().getOperation())) {
+					MapIsEmptyEvaluator eval = new MapIsEmptyEvaluator();
+					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
+				}
+				else if ("size".equals(this.getExpression().getOperation())) {
+					MapSizeEvaluator eval = new MapSizeEvaluator();
+					eval.setCompareToArgument(getCompareToArgument());
 					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
 				}
 			}
@@ -188,6 +205,11 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 					CollectionIsEmptyEvaluator eval = new CollectionIsEmptyEvaluator();
 					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
 				}
+				else if ("size".equals(this.getExpression().getOperation())) {
+					CollectionSizeEvaluator eval = new CollectionSizeEvaluator();
+					eval.setCompareToArgument(getCompareToArgument());
+					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
+				}
 			}
 			else if (Map.class.isAssignableFrom(invocationTargetType)) {
 				if ("containsKey".equals(this.getExpression().getOperation())) {
@@ -196,6 +218,15 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 				}
 				else if ("containsValue".equals(this.getExpression().getOperation())) {
 					MapContainsValueEvaluator eval = new MapContainsValueEvaluator();
+					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
+				}
+				else if ("isEmpty".equals(this.getExpression().getOperation())) {
+					MapIsEmptyEvaluator eval = new MapIsEmptyEvaluator();
+					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
+				}
+				else if ("size".equals(this.getExpression().getOperation())) {
+					MapSizeEvaluator eval = new MapSizeEvaluator();
+					eval.setCompareToArgument(getCompareToArgument());
 					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
 				}
 			}

@@ -9,6 +9,7 @@ import javax.jdo.Query;
 
 import org.cumulus4j.test.framework.AbstractTransactionalTest;
 import org.cumulus4j.test.framework.CleanupUtil;
+import org.datanucleus.util.NucleusLogger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -92,7 +93,7 @@ extends AbstractTransactionalTest
 		for (ElementASetOwner resultElement : resultList) {
 			Assert.assertNotNull("Query returned a ElementASetOwner with the 'name' property being null: " + resultElement, resultElement.getName());
 			Assert.assertNotNull("Query returned a ElementASetOwner with the 'set' property being null: " + resultElement, resultElement.getSet());
-
+NucleusLogger.GENERAL.info(">> result="+ resultElement.getName());
 			boolean expectedElement = expectedOwnerNameSet.remove(resultElement.getName());
 
 			StringBuilder sb = new StringBuilder();
@@ -131,6 +132,24 @@ extends AbstractTransactionalTest
 			throw new IllegalStateException("No matching ElementA found!");
 
 		return element;
+	}
+
+	@Test
+	public void queryIsEmpty()
+	{
+		ElementA element = getExampleElement();
+		Query q = pm.newQuery(ElementASetOwner.class);
+		q.setFilter("this.set.isEmpty()");
+		executeQueryAndCheckResult(q, element, "Owner 5");
+	}
+
+	@Test
+	public void querySize()
+	{
+		ElementA element = getExampleElement();
+		Query q = pm.newQuery(ElementASetOwner.class);
+		q.setFilter("this.set.size() == 3");
+		executeQueryAndCheckResult(q, element, "Owner 3");
 	}
 
 	@Test

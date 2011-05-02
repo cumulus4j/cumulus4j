@@ -73,6 +73,12 @@ abstract class IndexEntryAction
 					IndexEntry indexEntry = getIndexEntry(indexEntryFactory, pm, subFieldMeta, element);
 					_perform(executionContext, pm, indexEntry, dataEntryID);
 				}
+
+				// Add entry for the collection/array size
+				int containerSize = Array.getLength(fieldValue);
+				IndexEntry sizeIdxEntry = 
+					indexEntryFactoryRegistry.getIndexEntryFactoryForContainerSize().createIndexEntry(pm, fieldMeta, new Long(containerSize));
+				_perform(executionContext, pm, sizeIdxEntry, dataEntryID);
 			}
 			else if (dnMemberMetaData.hasMap()) {
 				Map<?,?> fieldValueMap = (Map<?,?>) fieldValue;
@@ -89,6 +95,12 @@ abstract class IndexEntryAction
 					IndexEntry indexEntryValue = getIndexEntry(indexEntryFactoryValue, pm, subFieldMetaValue, me.getValue());
 					_perform(executionContext, pm, indexEntryValue, dataEntryID);
 				}
+
+				// Add entry for the map size
+				int containerSize = (fieldValueMap != null ? fieldValueMap.size() : 0);
+				IndexEntry sizeIdxEntry = 
+					indexEntryFactoryRegistry.getIndexEntryFactoryForContainerSize().createIndexEntry(pm, fieldMeta, new Long(containerSize));
+				_perform(executionContext, pm, sizeIdxEntry, dataEntryID);
 			}
 			else {
 				IndexEntryFactory indexEntryFactory = indexEntryFactoryRegistry.getIndexEntryFactory(executionContext, fieldMeta, false);
@@ -104,7 +116,6 @@ abstract class IndexEntryAction
 		}
 		else if (Relation.isRelationMultiValued(relationType)) {
 			// map, collection, array
-			// TODO Support indexing of collection/map size
 
 			if (dnMemberMetaData.hasMap()) { // Map.class.isAssignableFrom(dnMemberMetaData.getType())) {
 				Map<?,?> fieldValueMap = (Map<?,?>) fieldValue;
@@ -138,6 +149,12 @@ abstract class IndexEntryAction
 						_perform(executionContext, pm, indexEntry, dataEntryID);
 					}
 				}
+
+				// Add entry for the map size
+				int containerSize = (fieldValueMap != null ? fieldValueMap.size() : 0);
+				IndexEntry sizeIdxEntry = 
+					indexEntryFactoryRegistry.getIndexEntryFactoryForContainerSize().createIndexEntry(pm, fieldMeta, new Long(containerSize));
+				_perform(executionContext, pm, sizeIdxEntry, dataEntryID);
 			}
 			else if (dnMemberMetaData.hasCollection() || dnMemberMetaData.hasArray()) {
 				FieldMetaRole role;
@@ -148,13 +165,17 @@ abstract class IndexEntryAction
 
 				FieldMeta subFieldMeta = fieldMeta.getSubFieldMeta(role);
 				Object[] fieldValueArray = (Object[]) fieldValue;
-/*				NucleusLogger.QUERY.info(">> IndexEntryAction field="+dnMemberMetaData.getFullFieldName() + 
-						" COLLECTION size="+(fieldValueArray != null ? fieldValueArray.length : -1));*/
 				for (Object element : fieldValueArray) {
 					Long otherDataEntryID = ObjectContainerHelper.referenceToDataEntryID(executionContext, pm, element);
 					IndexEntry indexEntry = getIndexEntryForObjectRelation(pm, subFieldMeta, otherDataEntryID);
 					_perform(executionContext, pm, indexEntry, dataEntryID);
 				}
+
+				// Add entry for the collection/array size
+				int containerSize = (fieldValueArray != null ? fieldValueArray.length : 0);
+				IndexEntry sizeIdxEntry = 
+					indexEntryFactoryRegistry.getIndexEntryFactoryForContainerSize().createIndexEntry(pm, fieldMeta, new Long(containerSize));
+				_perform(executionContext, pm, sizeIdxEntry, dataEntryID);
 			}
 		}
 	}

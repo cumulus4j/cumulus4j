@@ -8,7 +8,6 @@ import javax.jdo.Query;
 
 import org.cumulus4j.test.framework.AbstractTransactionalTest;
 import org.cumulus4j.test.framework.CleanupUtil;
-import org.datanucleus.util.NucleusLogger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -180,7 +179,6 @@ extends AbstractTransactionalTest
 	@Test
 	public void queryIsEmpty()
 	{
-		NucleusLogger.GENERAL.info(">> queryIsEmpty");
 		Query q = pm.newQuery(StringSetOwner.class);
 		q.setFilter("this.set.isEmpty()");
 

@@ -41,6 +41,7 @@ public class IndexEntryFactoryRegistry
 	private IndexEntryFactory indexEntryFactoryStringShort = new DefaultIndexEntryFactory(IndexEntryStringShort.class);
 	private IndexEntryFactory indexEntryFactoryStringLong = new DefaultIndexEntryFactory(IndexEntryStringLong.class);
 	private IndexEntryFactory indexEntryFactoryDate = new DefaultIndexEntryFactory(IndexEntryDate.class);
+	private IndexEntryFactory indexEntryFactoryContainerSize = new DefaultIndexEntryFactory(IndexEntryContainerSize.class);
 
 	/**
 	 * Get the appropriate {@link IndexEntryFactory} subclass instance for the given {@link FieldMeta}.
@@ -137,5 +138,9 @@ public class IndexEntryFactoryRegistry
 			throw new UnsupportedDataTypeException("No IndexEntryFactory registered for this type: " + mmd);
 
 		return null;
+	}
+
+	public IndexEntryFactory getIndexEntryFactoryForContainerSize() {
+		return indexEntryFactoryContainerSize;
 	}
 }

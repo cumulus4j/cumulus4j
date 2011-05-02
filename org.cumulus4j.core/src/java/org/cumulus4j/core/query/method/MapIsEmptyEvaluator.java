@@ -22,9 +22,9 @@ import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.store.ExecutionContext;
 
 /**
- * Evaluator for <pre>Collection.isEmpty()</pre>
+ * Evaluator for <pre>Map.isEmpty()</pre>
  */
-public class CollectionIsEmptyEvaluator extends AbstractMethodEvaluator {
+public class MapIsEmptyEvaluator extends AbstractMethodEvaluator {
 
 	/* (non-Javadoc)
 	 * @see org.cumulus4j.core.query.method.MethodEvaluator#evaluate(org.cumulus4j.core.query.QueryEvaluator, org.cumulus4j.core.query.eval.InvokeExpressionEvaluator, org.datanucleus.query.expression.Expression, org.cumulus4j.core.query.eval.ResultDescriptor)
@@ -38,16 +38,16 @@ public class CollectionIsEmptyEvaluator extends AbstractMethodEvaluator {
 					invokeExprEval.getExpression().getArguments().size());
 
 		if (invokedExpr instanceof PrimaryExpression) {
-			return new CollectionIsEmptyResolver(queryEval, (PrimaryExpression) invokedExpr, resultDesc.isNegated()).query();
+			return new MapIsEmptyResolver(queryEval, (PrimaryExpression) invokedExpr, resultDesc.isNegated()).query();
 		}
 		else {
 			if (!invokeExprEval.getLeft().getResultSymbols().contains(resultDesc.getSymbol()))
 				return null;
-			return queryCollectionIsEmpty(queryEval, resultDesc.getFieldMeta(), resultDesc.isNegated());
+			return queryMapIsEmpty(queryEval, resultDesc.getFieldMeta(), resultDesc.isNegated());
 		}
 	}
 
-	private Set<Long> queryCollectionIsEmpty(
+	private Set<Long> queryMapIsEmpty(
 			QueryEvaluator queryEval,
 			FieldMeta fieldMeta,
 			boolean negate
@@ -75,11 +75,11 @@ public class CollectionIsEmptyEvaluator extends AbstractMethodEvaluator {
 		return result;
 	}
 
-	private class CollectionIsEmptyResolver extends PrimaryExpressionResolver
+	private class MapIsEmptyResolver extends PrimaryExpressionResolver
 	{
 		private boolean negate;
 
-		public CollectionIsEmptyResolver(
+		public MapIsEmptyResolver(
 				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
 				boolean negate
 		)
@@ -90,7 +90,7 @@ public class CollectionIsEmptyEvaluator extends AbstractMethodEvaluator {
 
 		@Override
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
-			return queryCollectionIsEmpty(queryEvaluator, fieldMeta, negate);
+			return queryMapIsEmpty(queryEvaluator, fieldMeta, negate);
 		}
 	}
 }
