@@ -141,7 +141,13 @@
 				<groupId>log4j</groupId>
 				<artifactId>log4j</artifactId>
 				<version>${log4j.version}</version>
-				<scope>test</scope>
+				<scope>compile</scope>
+				<!--
+				Instead of "compile", this should be:
+				<scope>provided</scope>
+				But we can only switch to "provided", when the change in the DN-enhancer-plugin has been
+				published as SNAPSHOT (version 3.0.0-m2-SNAPSHOT from tomorrow, i.e. 2011-05-03 on). Marco :-)
+				-->
 			</dependency>
 
 			<dependency>
@@ -194,7 +200,7 @@
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-log4j12</artifactId>
 				<version>${slf4j.version}</version>
-				<scope>test</scope>
+				<scope>provided</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -268,7 +274,7 @@
 				<plugin>
 					<groupId>org.datanucleus</groupId>
 					<artifactId>maven-datanucleus-plugin</artifactId>
-					<version>3.0.0-m1</version>
+					<version>3.0.0-m2-SNAPSHOT</version>
 					<configuration>
 						<log4jConfiguration>${basedir}/enhancer-log4j.properties</log4jConfiguration>
 						<verbose>false</verbose>
