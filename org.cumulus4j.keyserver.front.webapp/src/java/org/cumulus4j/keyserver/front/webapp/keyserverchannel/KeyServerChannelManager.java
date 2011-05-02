@@ -15,47 +15,44 @@ import org.cumulus4j.keyserver.front.webapp.SessionManager;
 public class KeyServerChannelManager
 {
 	private SessionManager sessionManager;
-	private URL serverBaseURL;
+	private URL appServerBaseURL;
 	private URL keyServerChannelURL;
 	private int desiredThreadCount;
 	private String keyServerID;
 
 	private Set<KeyServerChannelListenerThread> listenerThreads = Collections.synchronizedSet(new HashSet<KeyServerChannelListenerThread>());
 
-	private static final Map<Class<? extends Request>, Class<? extends RequestHandler>> requestClass2handlerClass;
+	private static final Map<Class<? extends Request>, Class<? extends RequestHandler<?>>> requestClass2handlerClass;
 	static {
-		Map<Class<? extends Request>, Class<? extends RequestHandler>> m = new HashMap<Class<? extends Request>, Class<? extends RequestHandler>>();
+		Map<Class<? extends Request>, Class<? extends RequestHandler<?>>> m = new HashMap<Class<? extends Request>, Class<? extends RequestHandler<?>>>();
 		m.put(GetKeyRequest.class, GetKeyRequestHandler.class);
 		requestClass2handlerClass = Collections.unmodifiableMap(m);
 	}
 
 	/**
 	 *
-	 * @param serverBaseURL the base-URL before the "/KeyServerChannel" - e.g. if the REST URL of the KeyServerChannel-service is
+	 * @param appServerBaseURL the base-URL before the "/KeyServerChannel" - e.g. if the REST URL of the KeyServerChannel-service is
 	 * "https://serverUsingCumulus4j.mydomain.org/something/KeyServerChannel", then this must be
 	 * "https://serverUsingCumulus4j.mydomain.org/something".
 	 */
-	public KeyServerChannelManager(SessionManager sessionManager, URL serverBaseURL, String keyServerID)
+	public KeyServerChannelManager(SessionManager sessionManager, URL appServerBaseURL)
 	{
 		if (sessionManager == null)
 			throw new IllegalArgumentException("sessionManager == null");
 
-		if (serverBaseURL == null)
-			throw new IllegalArgumentException("serverBaseURL == null");
-
-		if (keyServerID == null)
-			throw new IllegalArgumentException("keyServerID == null");
+		if (appServerBaseURL == null)
+			throw new IllegalArgumentException("appServerBaseURL == null");
 
 		this.sessionManager = sessionManager;
 
-		this.serverBaseURL = serverBaseURL;
+		this.appServerBaseURL = appServerBaseURL;
 		try {
-			this.keyServerChannelURL = new URL(serverBaseURL, "KeyServerChannel");
+			this.keyServerChannelURL = new URL(appServerBaseURL, "KeyServerChannel");
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}
 
-		this.keyServerID = keyServerID;
+		this.keyServerID = sessionManager.getKeyServerID();
 
 		setDesiredThreadCount(10); // TODO make this manage itself automatically according to load statistics
 	}
@@ -64,8 +61,8 @@ public class KeyServerChannelManager
 		return sessionManager;
 	}
 
-	public URL getServerBaseURL() {
-		return serverBaseURL;
+	public URL getAppServerBaseURL() {
+		return appServerBaseURL;
 	}
 
 	public URL getKeyServerChannelURL() {
@@ -101,18 +98,19 @@ public class KeyServerChannelManager
 		}
 	}
 
-	protected RequestHandler getRequestHandler(Request request)
+	protected <R extends Request> RequestHandler<R> getRequestHandler(R request)
 	throws InstantiationException, IllegalAccessException
 	{
 		if (request == null)
 			throw new IllegalArgumentException("request == null");
 
 		Class<? extends Request> requestClass = request.getClass();
-		Class<? extends RequestHandler> handlerClass = requestClass2handlerClass.get(requestClass);
+		Class<? extends RequestHandler<?>> handlerClass = requestClass2handlerClass.get(requestClass);
 		if (handlerClass == null)
 			throw new IllegalStateException("There is no RequestHandler class registered for this requestClass: " + requestClass);
 
-		RequestHandler requestHandler = handlerClass.newInstance();
+		@SuppressWarnings("unchecked")
+		RequestHandler<R> requestHandler = (RequestHandler<R>) handlerClass.newInstance();
 		requestHandler.setKeyServerChannelManager(this);
 		return requestHandler;
 	}

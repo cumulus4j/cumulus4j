@@ -32,6 +32,7 @@ extends Application
 	}
 
 	private static final Class<?>[] serviceClassesArray = {
+		AppServerService.class,
 		SessionService.class,
 		UserService.class
 	};
@@ -76,7 +77,7 @@ extends Application
 
 			Set<Object> s = new HashSet<Object>();
 			s.add(new KeyStoreProvider(keyStore));
-			s.add(new SessionManagerProvider(new SessionManager(keyStore)));
+			s.add(new AppServerManagerProvider(new AppServerManager(keyStore)));
 			singletons = Collections.unmodifiableSet(s);
 		}
 

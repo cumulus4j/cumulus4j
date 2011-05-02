@@ -9,10 +9,10 @@ import com.sun.jersey.spi.inject.SingletonTypeInjectableProvider;
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @Provider
-public class SessionManagerProvider
-extends SingletonTypeInjectableProvider<Context, SessionManager>
+public class AppServerManagerProvider
+extends SingletonTypeInjectableProvider<Context, AppServerManager>
 {
-	public SessionManagerProvider(SessionManager sessionManager) {
-		super(SessionManager.class, sessionManager);
+	public AppServerManagerProvider(AppServerManager appServerManager) {
+		super(AppServerManager.class, appServerManager);
 	}
 }

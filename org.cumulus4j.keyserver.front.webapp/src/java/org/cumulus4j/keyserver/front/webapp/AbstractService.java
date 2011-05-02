@@ -14,6 +14,9 @@ import javax.ws.rs.core.Response.Status;
 
 import org.cumulus4j.keyserver.front.shared.Auth;
 import org.cumulus4j.keyserver.front.shared.Error;
+import org.cumulus4j.keystore.AuthenticationException;
+import org.cumulus4j.keystore.KeyNotFoundException;
+import org.cumulus4j.keystore.KeyStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +30,8 @@ public abstract class AbstractService
 	private static final Logger logger = LoggerFactory.getLogger(AbstractService.class);
 
 	protected @Context HttpServletRequest request;
+
+	protected @Context KeyStore keyStore;
 
 	/**
 	 * Get the authentication information. This method does <b>not</b> verify, if the given authentication information
@@ -96,6 +101,19 @@ public abstract class AbstractService
 		Auth auth = new Auth();
 		auth.setUserName(userNameSB.toString());
 		auth.setPassword(password);
+		return auth;
+	}
+
+	protected Auth authenticate()
+	{
+		Auth auth = getAuth();
+		try {
+			keyStore.getKey(auth.getUserName(), auth.getPassword(), Long.MAX_VALUE);
+		} catch (AuthenticationException e) {
+			throw new WebApplicationException(Response.status(Status.FORBIDDEN).entity(new Error(e)).build());
+		} catch (KeyNotFoundException e) {
+			// ignore this - it's expected
+		};
 		return auth;
 	}
 }

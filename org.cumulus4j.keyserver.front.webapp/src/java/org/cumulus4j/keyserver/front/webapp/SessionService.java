@@ -31,21 +31,23 @@ public class SessionService extends AbstractService
 	private static final Logger logger = LoggerFactory.getLogger(SessionService.class);
 
 	@Context
-	private SessionManager sessionManager;
+	private AppServerManager appServerManager;
 
-	@Path("open")
+	@Path("{appServerID}/open")
 	@GET
-	public OpenSessionResponse open_GET()
+	public OpenSessionResponse open_GET(@PathParam("appServerID") String appServerID)
 	{
-		return open();
+		return open(appServerID);
 	}
 
-	@Path("open")
+	@Path("{appServerID}/open")
 	@POST
-	public OpenSessionResponse open()
+	public OpenSessionResponse open(@PathParam("appServerID") String appServerID)
 	{
 		Auth auth = getAuth();
 		try {
+			SessionManager sessionManager = getSessionManager(appServerID);
+
 			Session session;
 			try {
 				session = sessionManager.openSession(auth.getUserName(), auth.getPassword());
@@ -66,18 +68,26 @@ public class SessionService extends AbstractService
 		}
 	}
 
+	private SessionManager getSessionManager(String appServerID) {
+		AppServer appServer = appServerManager.getAppServerForAppServerID(appServerID);
+		if (appServer == null)
+			throw new WebApplicationException(Response.status(Status.NOT_FOUND).entity(new Error("There is no AppServer with appServerID=\"" + appServerID + "\"!")).build());
 
-	@Path("unlock/{cryptoSessionID}")
-	@GET
-	public void unlock_GET(@PathParam("cryptoSessionID") String cryptoSessionID)
-	{
-		unlock(cryptoSessionID);
+		return appServer.getSessionManager();
 	}
 
-	@Path("unlock/{cryptoSessionID}")
-	@POST
-	public void unlock(@PathParam("cryptoSessionID") String cryptoSessionID)
+	@Path("{appServerID}/unlock/{cryptoSessionID}")
+	@GET
+	public void unlock_GET(@PathParam("appServerID") String appServerID, @PathParam("cryptoSessionID") String cryptoSessionID)
 	{
+		unlock(appServerID, cryptoSessionID);
+	}
+
+	@Path("{appServerID}/unlock/{cryptoSessionID}")
+	@POST
+	public void unlock(@PathParam("appServerID") String appServerID, @PathParam("cryptoSessionID") String cryptoSessionID)
+	{
+		SessionManager sessionManager = getSessionManager(appServerID);
 		Session session = sessionManager.getSessionForCryptoSessionID(cryptoSessionID);
 		if (session == null)
 			throw new WebApplicationException(Response.status(Status.NOT_FOUND).entity(new Error("There is no session with cryptoSessionID='" + cryptoSessionID + "'!")).build());
@@ -85,18 +95,18 @@ public class SessionService extends AbstractService
 		session.setLocked(false);
 	}
 
-
-	@Path("lock/{cryptoSessionID}")
+	@Path("{appServerID}/lock/{cryptoSessionID}")
 	@GET
-	public void lock_GET(@PathParam("cryptoSessionID") String cryptoSessionID)
+	public void lock_GET(@PathParam("appServerID") String appServerID, @PathParam("cryptoSessionID") String cryptoSessionID)
 	{
-		lock(cryptoSessionID);
+		lock(appServerID, cryptoSessionID);
 	}
 
-	@Path("lock/{cryptoSessionID}")
+	@Path("{appServerID}/lock/{cryptoSessionID}")
 	@POST
-	public void lock(@PathParam("cryptoSessionID") String cryptoSessionID)
+	public void lock(@PathParam("appServerID") String appServerID, @PathParam("cryptoSessionID") String cryptoSessionID)
 	{
+		SessionManager sessionManager = getSessionManager(appServerID);
 		Session session = sessionManager.getSessionForCryptoSessionID(cryptoSessionID);
 		if (session == null)
 			throw new WebApplicationException(Response.status(Status.NOT_FOUND).entity(new Error("There is no session with cryptoSessionID='" + cryptoSessionID + "'!")).build());
@@ -104,13 +114,13 @@ public class SessionService extends AbstractService
 		session.setLocked(true);
 	}
 
-
-	@Path("{cryptoSessionID}")
+	@Path("{appServerID}/{cryptoSessionID}")
 	@DELETE
-	public void close(@PathParam("cryptoSessionID") String cryptoSessionID)
+	public void close(@PathParam("appServerID") String appServerID, @PathParam("cryptoSessionID") String cryptoSessionID)
 	{
-		logger.debug("close: cryptoSessionID='{}'", cryptoSessionID);
+		logger.debug("close: appServerID='{}' cryptoSessionID='{}'", appServerID, cryptoSessionID);
 
+		SessionManager sessionManager = getSessionManager(appServerID);
 		Session session = sessionManager.getSessionForCryptoSessionID(cryptoSessionID);
 		if (session != null)
 			session.close();

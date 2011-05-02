@@ -12,7 +12,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -24,7 +23,6 @@ import org.cumulus4j.keyserver.front.shared.UserList;
 import org.cumulus4j.keyserver.front.shared.UserWithPassword;
 import org.cumulus4j.keystore.AuthenticationException;
 import org.cumulus4j.keystore.CannotDeleteLastUserException;
-import org.cumulus4j.keystore.KeyStore;
 import org.cumulus4j.keystore.UserAlreadyExistsException;
 import org.cumulus4j.keystore.UserNotFoundException;
 import org.slf4j.Logger;
@@ -43,9 +41,6 @@ public class UserService extends AbstractService
 	public UserService() {
 		logger.info("logger: instantiated UserService");
 	}
-
-	@Context
-	private KeyStore keyStore;
 
 	@GET
 	@Path("{userName}")
@@ -96,7 +91,9 @@ public class UserService extends AbstractService
 		if (userWithPassword == null)
 			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(new Error("Missing request-entity!")).build());
 
-		if (!userName.equals(userWithPassword.getUserName()))
+		if (userWithPassword.getUserName() == null)
+			userWithPassword.setUserName(userName);
+		else if (!userName.equals(userWithPassword.getUserName()))
 			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(new Error("Path's userName='" + userName + "' does not match entity's userName='" + userWithPassword.getUserName() + "'!")).build());
 
 		putUser(userWithPassword);
