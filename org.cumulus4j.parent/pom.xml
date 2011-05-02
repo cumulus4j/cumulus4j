@@ -136,18 +136,12 @@
 				<version>4.8.1</version>
 				<scope>test</scope>
 			</dependency>
-			
+
 			<dependency>
 				<groupId>log4j</groupId>
 				<artifactId>log4j</artifactId>
 				<version>${log4j.version}</version>
-				<scope>compile</scope>
-				<!--
-				Instead of "compile", this should be:
 				<scope>provided</scope>
-				But we can only switch to "provided", when the change in the DN-enhancer-plugin has been
-				published as SNAPSHOT (version 3.0.0-m2-SNAPSHOT from tomorrow, i.e. 2011-05-03 on). Marco :-)
-				-->
 			</dependency>
 
 			<dependency>
