@@ -48,7 +48,7 @@
 				<artifactId>jetty-maven-plugin</artifactId>
 				<configuration>
 <!--					<scanIntervalSeconds>10</scanIntervalSeconds> -->
-					<stopKey>stopKeyServerFrontWebApp</stopKey>
+					<stopKey>stop.${project.artifactId}</stopKey>
 					<stopPort>9991</stopPort>
 					<webAppConfig>
 						<contextPath>/${project.artifactId}</contextPath>

@@ -1,4 +1,4 @@
-package org.cumulus4j.keyserver.back.webapp;
+package org.cumulus4j.integrationtest.webapp;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -13,14 +13,14 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-@ApplicationPath("/org.cumulus4j.keyserver.back.webapp")
+@ApplicationPath("/org.cumulus4j.integrationtest.webapp")
 public class App
 extends Application
 {
 	private static final Logger logger = LoggerFactory.getLogger(App.class);
 
 	private static final Class<?>[] serviceClassesArray = {
-		KeyServerChannelService.class
+		DummyService.class
 	};
 
 	private static final Set<Class<?>> serviceClassesSet;

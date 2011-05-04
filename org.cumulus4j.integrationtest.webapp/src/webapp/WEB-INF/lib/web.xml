@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	version="2.5">
+	<display-name>org.cumulus4j.integrationtest.webapp</display-name>
+
+	<!-- This web.xml merges the contents from the web.xml of org.cumulus4j.keyserver.back.webapp and of this project (org.cumulus4j.integrationtest.webapp). -->
+
+	<servlet>
+		<servlet-name>org.cumulus4j.integrationtest.webapp.App</servlet-name>
+		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+		<init-param>
+			<param-name>javax.ws.rs.Application</param-name>
+			<param-value>org.cumulus4j.integrationtest.webapp.App</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>org.cumulus4j.integrationtest.webapp.App</servlet-name>
+		<url-pattern>/org.cumulus4j.integrationtest.webapp/*</url-pattern>
+	</servlet-mapping>
+
+	<!-- BEGIN from org.cumulus4j.keyserver.back.webapp -->
+	<servlet>
+		<servlet-name>org.cumulus4j.keyserver.back.webapp.App</servlet-name>
+		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+		<init-param>
+			<param-name>javax.ws.rs.Application</param-name>
+			<param-value>org.cumulus4j.keyserver.back.webapp.App</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>org.cumulus4j.keyserver.back.webapp.App</servlet-name>
+		<url-pattern>/org.cumulus4j.keyserver.back.webapp/*</url-pattern>
+	</servlet-mapping>
+	<!-- END from org.cumulus4j.keyserver.back.webapp -->
+
+</web-app>

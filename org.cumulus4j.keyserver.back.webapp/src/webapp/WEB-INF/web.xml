@@ -5,7 +5,7 @@
 	<display-name>org.cumulus4j.keyserver.back.webapp</display-name>
 
 	<servlet>
-		<servlet-name>Jersey Web Application</servlet-name>
+		<servlet-name>org.cumulus4j.keyserver.back.webapp.App</servlet-name>
 		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
 		<init-param>
 			<param-name>javax.ws.rs.Application</param-name>
@@ -13,8 +13,8 @@
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>Jersey Web Application</servlet-name>
-		<url-pattern>/*</url-pattern>
+		<servlet-name>org.cumulus4j.keyserver.back.webapp.App</servlet-name>
+		<url-pattern>/org.cumulus4j.keyserver.back.webapp/*</url-pattern>
 	</servlet-mapping>
 
 </web-app>
