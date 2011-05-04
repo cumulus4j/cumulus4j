@@ -56,19 +56,19 @@ public class StringLengthEvaluator extends AbstractMethodEvaluator {
 					invokeExprEval.getExpression().getArguments().size());
 
 		if (invokedExpr instanceof PrimaryExpression) {
-			return new StringLengthResolver(invokeExprEval, queryEval, (PrimaryExpression) invokedExpr,
+			return new MethodResolver(invokeExprEval, queryEval, (PrimaryExpression) invokedExpr,
 					compareToArgument, resultDesc.isNegated()).query();
 		}
 		else {
 			if (!invokeExprEval.getLeft().getResultSymbols().contains(resultDesc.getSymbol()))
 				return null;
 
-			return queryStringLength(invokeExprEval, queryEval, resultDesc.getFieldMeta(),
+			return queryEvaluate(invokeExprEval, queryEval, resultDesc.getFieldMeta(),
 					compareToArgument, resultDesc.isNegated());
 		}
 	}
 
-	private Set<Long> queryStringLength(
+	private Set<Long> queryEvaluate(
 			InvokeExpressionEvaluator invokeExprEval,
 			QueryEvaluator queryEval,
 			FieldMeta fieldMeta,
@@ -103,13 +103,13 @@ public class StringLengthEvaluator extends AbstractMethodEvaluator {
 		return result;
 	}
 
-	private class StringLengthResolver extends PrimaryExpressionResolver
+	private class MethodResolver extends PrimaryExpressionResolver
 	{
 		private InvokeExpressionEvaluator invokeExprEval;
 		private Object compareToArgument;
 		private boolean negate;
 
-		public StringLengthResolver(
+		public MethodResolver(
 				InvokeExpressionEvaluator invokeExprEval,
 				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
 				Object compareToArgument, // the yyy in 'length() >= yyy'
@@ -124,7 +124,7 @@ public class StringLengthEvaluator extends AbstractMethodEvaluator {
 
 		@Override
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
-			return queryStringLength(invokeExprEval, queryEvaluator, fieldMeta, compareToArgument, negate);
+			return queryEvaluate(invokeExprEval, queryEvaluator, fieldMeta, compareToArgument, negate);
 		}
 	}
 }

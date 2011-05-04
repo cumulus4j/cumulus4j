@@ -41,16 +41,16 @@ public class StringEqualsIgnoreCaseEvaluator extends AbstractMethodEvaluator
 		Object invokeArgument = ExpressionHelper.getEvaluatedInvokeArgument(queryEval, invokeExprEval.getExpression());
 
 		if (invokedExpr instanceof PrimaryExpression) {
-			return new StringEqualsIgnoreCaseResolver(queryEval, (PrimaryExpression) invokedExpr, invokeArgument, resultDesc.isNegated()).query();
+			return new MethodResolver(queryEval, (PrimaryExpression) invokedExpr, invokeArgument, resultDesc.isNegated()).query();
 		}
 		else {
 			if (!invokeExprEval.getLeft().getResultSymbols().contains(resultDesc.getSymbol()))
 				return null;
-			return queryStringEqualsIgnoreCase(queryEval, resultDesc.getFieldMeta(), invokeArgument, resultDesc.isNegated());
+			return queryEvaluate(queryEval, resultDesc.getFieldMeta(), invokeArgument, resultDesc.isNegated());
 		}
 	}
 
-	private Set<Long> queryStringEqualsIgnoreCase(
+	private Set<Long> queryEvaluate(
 			QueryEvaluator queryEval,
 			FieldMeta fieldMeta,
 			Object invokeArgument, // the xxx in 'equalsIgnoreCase(xxx)'
@@ -82,12 +82,12 @@ public class StringEqualsIgnoreCaseEvaluator extends AbstractMethodEvaluator
 		return result;
 	}
 
-	private class StringEqualsIgnoreCaseResolver extends PrimaryExpressionResolver
+	private class MethodResolver extends PrimaryExpressionResolver
 	{
 		private Object invokeArgument;
 		private boolean negate;
 
-		public StringEqualsIgnoreCaseResolver(
+		public MethodResolver(
 				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
 				Object invokeArgument, // the xxx in 'equalsIgnorecase(xxx)'
 				boolean negate
@@ -100,7 +100,7 @@ public class StringEqualsIgnoreCaseEvaluator extends AbstractMethodEvaluator
 
 		@Override
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
-			return queryStringEqualsIgnoreCase(queryEvaluator, fieldMeta, invokeArgument, negate);
+			return queryEvaluate(queryEvaluator, fieldMeta, invokeArgument, negate);
 		}
 	}
 }

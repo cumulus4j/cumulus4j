@@ -41,16 +41,16 @@ public class StringEndsWithEvaluator extends AbstractMethodEvaluator
 		Object invokeArgument = ExpressionHelper.getEvaluatedInvokeArgument(queryEval, invokeExprEval.getExpression());
 
 		if (invokedExpr instanceof PrimaryExpression) {
-			return new StringEndsWithResolver(queryEval, (PrimaryExpression) invokedExpr, invokeArgument, resultDesc.isNegated()).query();
+			return new MethodResolver(queryEval, (PrimaryExpression) invokedExpr, invokeArgument, resultDesc.isNegated()).query();
 		}
 		else {
 			if (!invokeExprEval.getLeft().getResultSymbols().contains(resultDesc.getSymbol()))
 				return null;
-			return queryStringEndsWith(queryEval, resultDesc.getFieldMeta(), invokeArgument, resultDesc.isNegated());
+			return queryEvaluator(queryEval, resultDesc.getFieldMeta(), invokeArgument, resultDesc.isNegated());
 		}
 	}
 
-	private Set<Long> queryStringEndsWith(
+	private Set<Long> queryEvaluator(
 			QueryEvaluator queryEval,
 			FieldMeta fieldMeta,
 			Object invokeArgument, // the xxx in 'endsWith(xxx)'
@@ -82,12 +82,12 @@ public class StringEndsWithEvaluator extends AbstractMethodEvaluator
 		return result;
 	}
 
-	private class StringEndsWithResolver extends PrimaryExpressionResolver
+	private class MethodResolver extends PrimaryExpressionResolver
 	{
 		private Object invokeArgument;
 		private boolean negate;
 
-		public StringEndsWithResolver(
+		public MethodResolver(
 				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
 				Object invokeArgument, // the xxx in 'endsWith(xxx)'
 				boolean negate
@@ -100,7 +100,7 @@ public class StringEndsWithEvaluator extends AbstractMethodEvaluator
 
 		@Override
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
-			return queryStringEndsWith(queryEvaluator, fieldMeta, invokeArgument, negate);
+			return queryEvaluator(queryEvaluator, fieldMeta, invokeArgument, negate);
 		}
 	}
 }

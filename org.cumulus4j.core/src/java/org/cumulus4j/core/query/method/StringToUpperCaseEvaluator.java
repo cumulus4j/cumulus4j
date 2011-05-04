@@ -56,19 +56,19 @@ public class StringToUpperCaseEvaluator extends AbstractMethodEvaluator {
 					invokeExprEval.getExpression().getArguments().size());
 
 		if (invokedExpr instanceof PrimaryExpression) {
-			return new StringToUpperCaseResolver(invokeExprEval, queryEval, (PrimaryExpression) invokedExpr,
+			return new MethodResolver(invokeExprEval, queryEval, (PrimaryExpression) invokedExpr,
 					compareToArgument, resultDesc.isNegated()).query();
 		}
 		else {
 			if (!invokeExprEval.getLeft().getResultSymbols().contains(resultDesc.getSymbol()))
 				return null;
 
-			return queryStringToUpperCase(invokeExprEval, queryEval, resultDesc.getFieldMeta(),
+			return queryEvaluate(invokeExprEval, queryEval, resultDesc.getFieldMeta(),
 					compareToArgument, resultDesc.isNegated());
 		}
 	}
 
-	private Set<Long> queryStringToUpperCase(
+	private Set<Long> queryEvaluate(
 			InvokeExpressionEvaluator invokeExprEval,
 			QueryEvaluator queryEval,
 			FieldMeta fieldMeta,
@@ -103,13 +103,13 @@ public class StringToUpperCaseEvaluator extends AbstractMethodEvaluator {
 		return result;
 	}
 
-	private class StringToUpperCaseResolver extends PrimaryExpressionResolver
+	private class MethodResolver extends PrimaryExpressionResolver
 	{
 		private InvokeExpressionEvaluator invokeExprEval;
 		private Object compareToArgument;
 		private boolean negate;
 
-		public StringToUpperCaseResolver(
+		public MethodResolver(
 				InvokeExpressionEvaluator invokeExprEval,
 				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
 				Object compareToArgument, // the yyy in 'toUpperCase() == yyy'
@@ -124,7 +124,7 @@ public class StringToUpperCaseEvaluator extends AbstractMethodEvaluator {
 
 		@Override
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
-			return queryStringToUpperCase(invokeExprEval, queryEvaluator, fieldMeta, compareToArgument, negate);
+			return queryEvaluate(invokeExprEval, queryEvaluator, fieldMeta, compareToArgument, negate);
 		}
 	}
 }

@@ -42,16 +42,16 @@ public class StringMatchesEvaluator extends AbstractMethodEvaluator
 		Object invokeArgument = ExpressionHelper.getEvaluatedInvokeArgument(queryEval, invokeExprEval.getExpression());
 
 		if (invokedExpr instanceof PrimaryExpression) {
-			return new StringMatchesResolver(queryEval, (PrimaryExpression) invokedExpr, invokeArgument, resultDesc.isNegated()).query();
+			return new MethodResolver(queryEval, (PrimaryExpression) invokedExpr, invokeArgument, resultDesc.isNegated()).query();
 		}
 		else {
 			if (!invokeExprEval.getLeft().getResultSymbols().contains(resultDesc.getSymbol()))
 				return null;
-			return queryMatchesWith(queryEval, resultDesc.getFieldMeta(), invokeArgument, resultDesc.isNegated());
+			return queryEvaluate(queryEval, resultDesc.getFieldMeta(), invokeArgument, resultDesc.isNegated());
 		}
 	}
 
-	private Set<Long> queryMatchesWith(
+	private Set<Long> queryEvaluate(
 			QueryEvaluator queryEval,
 			FieldMeta fieldMeta,
 			Object invokeArgument, // the xxx in 'matches(xxx)'
@@ -83,12 +83,12 @@ public class StringMatchesEvaluator extends AbstractMethodEvaluator
 		return result;
 	}
 
-	private class StringMatchesResolver extends PrimaryExpressionResolver
+	private class MethodResolver extends PrimaryExpressionResolver
 	{
 		private Object invokeArgument;
 		private boolean negate;
 
-		public StringMatchesResolver(
+		public MethodResolver(
 				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
 				Object invokeArgument, // the xxx in 'matches(xxx)'
 				boolean negate
@@ -101,7 +101,7 @@ public class StringMatchesEvaluator extends AbstractMethodEvaluator
 
 		@Override
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
-			return queryMatchesWith(queryEvaluator, fieldMeta, invokeArgument, negate);
+			return queryEvaluate(queryEvaluator, fieldMeta, invokeArgument, negate);
 		}
 	}
 }

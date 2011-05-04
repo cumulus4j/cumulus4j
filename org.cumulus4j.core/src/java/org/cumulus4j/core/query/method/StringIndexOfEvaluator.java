@@ -59,19 +59,19 @@ public class StringIndexOfEvaluator extends AbstractMethodEvaluator {
 		Object[] invokeArgs = ExpressionHelper.getEvaluatedInvokeArguments(queryEval, invokeExprEval.getExpression());
 
 		if (invokedExpr instanceof PrimaryExpression) {
-			return new StringIndexOfResolver(invokeExprEval, queryEval, (PrimaryExpression) invokedExpr, invokeArgs[0],
+			return new MethodResolver(invokeExprEval, queryEval, (PrimaryExpression) invokedExpr, invokeArgs[0],
 					(invokeArgs.length > 1 ? invokeArgs[1] : null), compareToArgument, resultDesc.isNegated()).query();
 		}
 		else {
 			if (!invokeExprEval.getLeft().getResultSymbols().contains(resultDesc.getSymbol()))
 				return null;
 
-			return queryStringIndexOf(invokeExprEval, queryEval, resultDesc.getFieldMeta(), invokeArgs[0], 
+			return queryEvaluate(invokeExprEval, queryEval, resultDesc.getFieldMeta(), invokeArgs[0], 
 					(invokeArgs.length > 1 ? invokeArgs[1] : null), compareToArgument, resultDesc.isNegated());
 		}
 	}
 
-	private Set<Long> queryStringIndexOf(
+	private Set<Long> queryEvaluate(
 			InvokeExpressionEvaluator invokeExprEval,
 			QueryEvaluator queryEval,
 			FieldMeta fieldMeta,
@@ -114,7 +114,7 @@ public class StringIndexOfEvaluator extends AbstractMethodEvaluator {
 		return result;
 	}
 
-	private class StringIndexOfResolver extends PrimaryExpressionResolver
+	private class MethodResolver extends PrimaryExpressionResolver
 	{
 		private InvokeExpressionEvaluator invokeExprEval;
 		private Object invokeArg;
@@ -122,7 +122,7 @@ public class StringIndexOfEvaluator extends AbstractMethodEvaluator {
 		private Object compareToArgument;
 		private boolean negate;
 
-		public StringIndexOfResolver(
+		public MethodResolver(
 				InvokeExpressionEvaluator invokeExprEval,
 				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
 				Object invokeArg1, // the xxx1 in 'indexOf(xxx1) >= yyy'
@@ -141,7 +141,7 @@ public class StringIndexOfEvaluator extends AbstractMethodEvaluator {
 
 		@Override
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
-			return queryStringIndexOf(invokeExprEval, queryEvaluator, fieldMeta, invokeArg, invokeFrom, compareToArgument, negate);
+			return queryEvaluate(invokeExprEval, queryEvaluator, fieldMeta, invokeArg, invokeFrom, compareToArgument, negate);
 		}
 	}
 }

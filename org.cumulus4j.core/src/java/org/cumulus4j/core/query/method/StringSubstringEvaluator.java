@@ -59,7 +59,7 @@ public class StringSubstringEvaluator extends AbstractMethodEvaluator {
 		Object[] invokeArgs = ExpressionHelper.getEvaluatedInvokeArguments(queryEval, invokeExprEval.getExpression());
 
 		if (invokedExpr instanceof PrimaryExpression) {
-			return new StringSubstringResolver(invokeExprEval, queryEval, (PrimaryExpression) invokedExpr, invokeArgs[0],
+			return new MethodResolver(invokeExprEval, queryEval, (PrimaryExpression) invokedExpr, invokeArgs[0],
 					(invokeArgs.length > 1 ? invokeArgs[1] : null),
 					compareToArgument, resultDesc.isNegated()).query();
 		}
@@ -67,12 +67,12 @@ public class StringSubstringEvaluator extends AbstractMethodEvaluator {
 			if (!invokeExprEval.getLeft().getResultSymbols().contains(resultDesc.getSymbol()))
 				return null;
 
-			return queryStringSubstring(invokeExprEval, queryEval, resultDesc.getFieldMeta(), invokeArgs[0],
+			return queryEvaluate(invokeExprEval, queryEval, resultDesc.getFieldMeta(), invokeArgs[0],
 					(invokeArgs.length > 1 ? invokeArgs[1] : null), compareToArgument, resultDesc.isNegated());
 		}
 	}
 
-	private Set<Long> queryStringSubstring(
+	private Set<Long> queryEvaluate(
 			InvokeExpressionEvaluator invokeExprEval,
 			QueryEvaluator queryEval,
 			FieldMeta fieldMeta,
@@ -115,7 +115,7 @@ public class StringSubstringEvaluator extends AbstractMethodEvaluator {
 		return result;
 	}
 
-	private class StringSubstringResolver extends PrimaryExpressionResolver
+	private class MethodResolver extends PrimaryExpressionResolver
 	{
 		private InvokeExpressionEvaluator invokeExprEval;
 		private Object invokePos1;
@@ -123,7 +123,7 @@ public class StringSubstringEvaluator extends AbstractMethodEvaluator {
 		private Object compareToArgument;
 		private boolean negate;
 
-		public StringSubstringResolver(
+		public MethodResolver(
 				InvokeExpressionEvaluator invokeExprEval,
 				QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression,
 				Object invokeArg1, // the xxx in 'substring(xxx) >= yyy'
@@ -142,7 +142,7 @@ public class StringSubstringEvaluator extends AbstractMethodEvaluator {
 
 		@Override
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
-			return queryStringSubstring(invokeExprEval, queryEvaluator, fieldMeta, invokePos1, invokePos2, compareToArgument, negate);
+			return queryEvaluate(invokeExprEval, queryEvaluator, fieldMeta, invokePos1, invokePos2, compareToArgument, negate);
 		}
 	}
 }
