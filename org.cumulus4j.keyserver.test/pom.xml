@@ -7,11 +7,11 @@
 		<relativePath>../org.cumulus4j.parent/pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>org.cumulus4j.keyserver.test</artifactId>
+	<artifactId>org.cumulus4j.integrationtest.webapp</artifactId>
 	<packaging>war</packaging>
 
-	<name>org.cumulus4j.keyserver.test</name>
-	<description>Testing Cumulus4j with real keyserver.</description>
+	<name>org.cumulus4j.integrationtest.webapp</name>
+	<description>Web-app providing a dummy-service that uses DataNucleus+Cumulus4j for persisting dummy-data. It integrates the keyserver-backend in order to test the whole system.</description>
 
 	<build>
 		<plugins>
