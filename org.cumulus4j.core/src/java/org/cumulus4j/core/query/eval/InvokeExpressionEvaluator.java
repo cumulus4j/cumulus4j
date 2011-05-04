@@ -1,25 +1,12 @@
 package org.cumulus4j.core.query.eval;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
 import org.cumulus4j.core.query.QueryEvaluator;
-import org.cumulus4j.core.query.method.CollectionContainsEvaluator;
-import org.cumulus4j.core.query.method.CollectionIsEmptyEvaluator;
-import org.cumulus4j.core.query.method.CollectionSizeEvaluator;
-import org.cumulus4j.core.query.method.MapContainsKeyEvaluator;
-import org.cumulus4j.core.query.method.MapContainsValueEvaluator;
-import org.cumulus4j.core.query.method.MapIsEmptyEvaluator;
-import org.cumulus4j.core.query.method.MapSizeEvaluator;
-import org.cumulus4j.core.query.method.StringEndsWithEvaluator;
-import org.cumulus4j.core.query.method.StringEqualsEvaluator;
-import org.cumulus4j.core.query.method.StringEqualsIgnoreCaseEvaluator;
-import org.cumulus4j.core.query.method.StringIndexOfEvaluator;
-import org.cumulus4j.core.query.method.StringLengthEvaluator;
-import org.cumulus4j.core.query.method.StringMatchesEvaluator;
-import org.cumulus4j.core.query.method.StringStartsWithEvaluator;
-import org.cumulus4j.core.query.method.StringSubstringEvaluator;
+import org.cumulus4j.core.query.method.MethodEvaluator;
 import org.datanucleus.query.expression.InvokeExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.query.expression.VariableExpression;
@@ -57,88 +44,13 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 			PrimaryExpression primaryExpr = primaryEval.getExpression();
 			Class<?> invocationTargetType = getFieldType(primaryExpr);
 
-			if (String.class.isAssignableFrom(invocationTargetType)) {
-				if ("indexOf".equals(this.getExpression().getOperation())) {
-					// primExpr.indexOf(str) {operation} {comparisonObj}
-					StringIndexOfEvaluator eval = new StringIndexOfEvaluator();
+			// Find the evaluator to use and invoke it
+			MethodEvaluator eval = getMethodEvaluatorForMethodOfClass(invocationTargetType, getExpression().getOperation());
+			synchronized (eval) {
+				if (eval.requiresComparisonArgument()) {
 					eval.setCompareToArgument(getCompareToArgument());
-					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
 				}
-				else if ("length".equals(this.getExpression().getOperation())) {
-					// primExpr.length() {operation} {comparisonObj}
-					StringLengthEvaluator eval = new StringLengthEvaluator();
-					eval.setCompareToArgument(getCompareToArgument());
-					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
-				}
-				else if ("substring".equals(this.getExpression().getOperation())) {
-					// primExpr.substring(...) {operation} {comparisonObj}
-					StringSubstringEvaluator eval = new StringSubstringEvaluator();
-					eval.setCompareToArgument(getCompareToArgument());
-					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
-				}
-				else if ("equals".equals(this.getExpression().getOperation())) {
-					// primExpr.equals(str)
-					StringEqualsEvaluator eval = new StringEqualsEvaluator();
-					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
-				}
-				else if ("equalsIgnoreCase".equals(this.getExpression().getOperation())) {
-					// primExpr.equalsIgnoreCase(str)
-					StringEqualsIgnoreCaseEvaluator eval = new StringEqualsIgnoreCaseEvaluator();
-					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
-				}
-				else if ("startsWith".equals(this.getExpression().getOperation())) {
-					// primExpr.startsWith(str)
-					StringStartsWithEvaluator eval = new StringStartsWithEvaluator();
-					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
-				}
-				else if ("endsWith".equals(this.getExpression().getOperation())) {
-					// primExpr.endsWith(str)
-					StringEndsWithEvaluator eval = new StringEndsWithEvaluator();
-					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
-				}
-				else if ("matches".equals(this.getExpression().getOperation())) {
-					// primExpr.matches(str)
-					StringMatchesEvaluator eval = new StringMatchesEvaluator();
-					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
-				}
-			}
-			else if (Collection.class.isAssignableFrom(invocationTargetType)) {
-				if ("contains".equals(this.getExpression().getOperation())) {
-					CollectionContainsEvaluator eval = new CollectionContainsEvaluator();
-					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
-				}
-				else if ("isEmpty".equals(this.getExpression().getOperation())) {
-					CollectionIsEmptyEvaluator eval = new CollectionIsEmptyEvaluator();
-					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
-				}
-				else if ("size".equals(this.getExpression().getOperation())) {
-					CollectionSizeEvaluator eval = new CollectionSizeEvaluator();
-					eval.setCompareToArgument(getCompareToArgument());
-					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
-				}
-			}
-			else if (Map.class.isAssignableFrom(invocationTargetType)) {
-				if ("containsKey".equals(this.getExpression().getOperation())) {
-					MapContainsKeyEvaluator eval = new MapContainsKeyEvaluator();
-					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
-				}
-				else if ("containsValue".equals(this.getExpression().getOperation())) {
-					MapContainsValueEvaluator eval = new MapContainsValueEvaluator();
-					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
-				}
-				else if ("isEmpty".equals(this.getExpression().getOperation())) {
-					MapIsEmptyEvaluator eval = new MapIsEmptyEvaluator();
-					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
-				}
-				else if ("size".equals(this.getExpression().getOperation())) {
-					MapSizeEvaluator eval = new MapSizeEvaluator();
-					eval.setCompareToArgument(getCompareToArgument());
-					return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
-				}
-			}
-			else {
-				throw new UnsupportedOperationException("Not Yet Implemented : "+this.getExpression().getOperation() +
-						" on " + invocationTargetType + " with this type being a PrimaryExpression.");
+				return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
 			}
 		}
 		else if (this.getLeft() instanceof VariableExpressionEvaluator) {
@@ -151,88 +63,14 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 			// Evaluate the left-hand expression on which we perform the method invocation
 			Class<?> invocationTargetType = getQueryEvaluator().getValueType(classSymbol);
 
-			if (String.class.isAssignableFrom(invocationTargetType)) {
-				if ("indexOf".equals(this.getExpression().getOperation())) {
-					// varExpr.indexOf(str) {operation} {comparisonObj}
-					StringIndexOfEvaluator eval = new StringIndexOfEvaluator();
+			// Find the evaluator to use and invoke it
+			MethodEvaluator eval = getMethodEvaluatorForMethodOfClass(invocationTargetType, getExpression().getOperation());
+			synchronized (eval) {
+				if (eval.requiresComparisonArgument()) {
 					eval.setCompareToArgument(getCompareToArgument());
-					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
 				}
-				else if ("length".equals(this.getExpression().getOperation())) {
-					// carExpr.length() {operation} {comparisonObj}
-					StringLengthEvaluator eval = new StringLengthEvaluator();
-					eval.setCompareToArgument(getCompareToArgument());
-					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
-				}
-				else if ("substring".equals(this.getExpression().getOperation())) {
-					// varExpr.substring(...) {operation} {comparisonObj}
-					StringSubstringEvaluator eval = new StringSubstringEvaluator();
-					eval.setCompareToArgument(getCompareToArgument());
-					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
-				}
-				else if ("equals".equals(this.getExpression().getOperation())) {
-					// varExpr.equals(str)
-					StringEqualsEvaluator eval = new StringEqualsEvaluator();
-					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
-				}
-				else if ("equalsIgnoreCase".equals(this.getExpression().getOperation())) {
-					// varExpr.equalsIgnoreCase(str)
-					StringEqualsIgnoreCaseEvaluator eval = new StringEqualsIgnoreCaseEvaluator();
-					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
-				}
-				else if ("startsWith".equals(this.getExpression().getOperation())) {
-					// varExpr.startsWith(str)
-					StringStartsWithEvaluator eval = new StringStartsWithEvaluator();
-					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
-				}
-				else if ("endsWith".equals(this.getExpression().getOperation())) {
-					// varExpr.endsWith(str)
-					StringEndsWithEvaluator eval = new StringEndsWithEvaluator();
-					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
-				}
-				else if ("matches".equals(this.getExpression().getOperation())) {
-					// varExpr.matches(str)
-					StringMatchesEvaluator eval = new StringMatchesEvaluator();
-					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
-				}
+				return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
 			}
-			else if (Collection.class.isAssignableFrom(invocationTargetType)) {
-				if ("contains".equals(this.getExpression().getOperation())) {
-					CollectionContainsEvaluator eval = new CollectionContainsEvaluator();
-					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
-				}
-				else if ("isEmpty".equals(this.getExpression().getOperation())) {
-					CollectionIsEmptyEvaluator eval = new CollectionIsEmptyEvaluator();
-					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
-				}
-				else if ("size".equals(this.getExpression().getOperation())) {
-					CollectionSizeEvaluator eval = new CollectionSizeEvaluator();
-					eval.setCompareToArgument(getCompareToArgument());
-					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
-				}
-			}
-			else if (Map.class.isAssignableFrom(invocationTargetType)) {
-				if ("containsKey".equals(this.getExpression().getOperation())) {
-					MapContainsKeyEvaluator eval = new MapContainsKeyEvaluator();
-					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
-				}
-				else if ("containsValue".equals(this.getExpression().getOperation())) {
-					MapContainsValueEvaluator eval = new MapContainsValueEvaluator();
-					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
-				}
-				else if ("isEmpty".equals(this.getExpression().getOperation())) {
-					MapIsEmptyEvaluator eval = new MapIsEmptyEvaluator();
-					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
-				}
-				else if ("size".equals(this.getExpression().getOperation())) {
-					MapSizeEvaluator eval = new MapSizeEvaluator();
-					eval.setCompareToArgument(getCompareToArgument());
-					return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
-				}
-			}
-
-			throw new UnsupportedOperationException("Not Yet Implemented : "+this.getExpression().getOperation() +
-			    " on " + invocationTargetType + " with this type being a VariableExpression.");
 		}
 		else if (this.getLeft() instanceof ParameterExpressionEvaluator) {
 			ParameterExpressionEvaluator paramExprEval = (ParameterExpressionEvaluator) this.getLeft();
@@ -242,15 +80,15 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 
 			// Evaluate the left-hand expression on which we perform the method invocation
 			Class<?> invocationTargetType = getQueryEvaluator().getValueType(classSymbol);
-			if (String.class.isAssignableFrom(invocationTargetType)) {
-				if ("startsWith".equals(this.getExpression().getOperation())) {
-					// paramExpr.startsWith(str)
-					StringStartsWithEvaluator eval = new StringStartsWithEvaluator();
-					return eval.evaluate(getQueryEvaluator(), this, paramExprEval.getExpression(), resultDescriptor);
+
+			// Find the evaluator to use and invoke it
+			MethodEvaluator eval = getMethodEvaluatorForMethodOfClass(invocationTargetType, getExpression().getOperation());
+			synchronized (eval) {
+				if (eval.requiresComparisonArgument()) {
+					eval.setCompareToArgument(getCompareToArgument());
 				}
+				return eval.evaluate(getQueryEvaluator(), this, paramExprEval.getExpression(), resultDescriptor);
 			}
-			// TODO support this.getLeft() instanceof ParameterExpressionEvaluator
-			throw new UnsupportedOperationException("NYI: this.getLeft() instanceof ParameterExpressionEvaluator");
 		}
 		else if (this.getLeft() instanceof InvokeExpressionEvaluator) {
 			// TODO support this.getLeft() instanceof InvokeExpressionEvaluator
@@ -266,6 +104,21 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 		}
 
 		throw new UnsupportedOperationException("NYI");
+	}
+
+	private MethodEvaluator getMethodEvaluatorForMethodOfClass(Class cls, String method) {
+		String className = cls.getName();
+		if (Collection.class.isAssignableFrom(cls)) {
+			className = Collection.class.getName(); // Sub-types go through Collection
+		}
+		else if (Map.class.isAssignableFrom(cls)) {
+			className = Map.class.getName(); // Sub-types go through Map
+		}
+		else if (Date.class.isAssignableFrom(cls)) {
+			className = Date.class.getName(); // Sub-types go through Date
+		}
+		return ExpressionHelper.getMethodEvaluatorForMethodOfClass(getQueryEvaluator().getStoreManager(),
+				getQueryEvaluator().getClassLoaderResolver(), className, method);
 	}
 
 	private Object getCompareToArgument() {

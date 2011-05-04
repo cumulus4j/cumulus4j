@@ -63,13 +63,6 @@
                </documentation>
             </annotation>
          </attribute>
-         <attribute name="comparison" type="boolean">
-            <annotation>
-               <documentation>
-                  
-               </documentation>
-            </annotation>
-         </attribute>
          <attribute name="evaluator" type="string" use="required">
             <annotation>
                <documentation>

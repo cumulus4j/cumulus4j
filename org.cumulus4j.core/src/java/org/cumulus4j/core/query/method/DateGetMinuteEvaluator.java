@@ -45,6 +45,14 @@ import org.datanucleus.store.ExecutionContext;
 public class DateGetMinuteEvaluator extends AbstractMethodEvaluator {
 
 	/* (non-Javadoc)
+	 * @see org.cumulus4j.core.query.method.AbstractMethodEvaluator#requiresComparisonArgument()
+	 */
+	@Override
+	public boolean requiresComparisonArgument() {
+		return true;
+	}
+
+	/* (non-Javadoc)
 	 * @see org.cumulus4j.core.query.method.MethodEvaluator#evaluate(org.cumulus4j.core.query.QueryEvaluator, org.cumulus4j.core.query.eval.InvokeExpressionEvaluator, org.datanucleus.query.expression.Expression, org.cumulus4j.core.query.eval.ResultDescriptor)
 	 */
 	@Override

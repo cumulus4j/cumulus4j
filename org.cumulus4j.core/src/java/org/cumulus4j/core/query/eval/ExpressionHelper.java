@@ -2,7 +2,9 @@ package org.cumulus4j.core.query.eval;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.jdo.PersistenceManager;
@@ -19,7 +21,10 @@ import org.cumulus4j.core.model.IndexValue;
 import org.cumulus4j.core.model.ObjectContainer;
 import org.cumulus4j.core.query.QueryEvaluator;
 import org.cumulus4j.core.query.QueryHelper;
+import org.cumulus4j.core.query.method.MethodEvaluator;
+import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.metadata.AbstractMemberMetaData;
+import org.datanucleus.plugin.ConfigurationElement;
 import org.datanucleus.query.QueryUtils;
 import org.datanucleus.query.expression.Expression;
 import org.datanucleus.query.expression.InvokeExpression;
@@ -28,6 +33,7 @@ import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.query.expression.VariableExpression;
 import org.datanucleus.query.expression.Expression.Operator;
+import org.datanucleus.store.StoreManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +42,48 @@ import org.slf4j.LoggerFactory;
  */
 public class ExpressionHelper
 {
+	static Map<String, MethodEvaluator> evaluatorByMethod = new HashMap<String, MethodEvaluator>();
+
+	/**
+	 * Accessor for the evaluator object for use of method XXX of class YYY in queries.
+	 * @param storeMgr Store Manager
+	 * @param clr ClassLoader resolver
+	 * @param clsName The class on which to invoke the method
+	 * @param method The method to call on the class
+	 * @return The MethodEvaluator
+	 */
+	public static MethodEvaluator getMethodEvaluatorForMethodOfClass(StoreManager storeMgr, ClassLoaderResolver clr,
+			String clsName, String method) {
+
+		String key = clsName + "." + method;
+
+		// Check if it is cached
+		if (evaluatorByMethod.containsKey(key)) {
+			return evaluatorByMethod.get(key);
+		}
+
+		ConfigurationElement elem = 
+			storeMgr.getNucleusContext().getPluginManager().getConfigurationElementForExtension(
+					"org.cumulus4j.core.query_method", new String[]{"class", "method"}, new String[]{clsName, method});
+		if (elem == null) {
+			throw new UnsupportedOperationException("Invocation of method \""+method+"\" on object of type \""+clsName+"\" is not supported");
+		}
+
+		String evaluatorClassName = elem.getAttribute("evaluator");
+		Class evaluatorCls = clr.classForName(evaluatorClassName);
+		MethodEvaluator eval = null;
+		try {
+			eval = (MethodEvaluator) evaluatorCls.newInstance();
+		} catch (Exception e) {
+			throw new UnsupportedOperationException("Attempt to instantiate an evaluator for "+key + " threw an exception", e);
+		}
+
+		// Cache  the method for later use
+		evaluatorByMethod.put(key, eval);
+
+		return eval;
+	}
+
 	/**
 	 * Method to evaluate the arguments for passing in to a method invocation.
 	 * @param queryEval The QueryEvaluator
