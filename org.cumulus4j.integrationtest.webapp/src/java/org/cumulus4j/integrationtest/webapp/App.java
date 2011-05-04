@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-@ApplicationPath("/org.cumulus4j.integrationtest.webapp")
+@ApplicationPath("/")
 public class App
 extends Application
 {

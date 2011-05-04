@@ -1,6 +1,7 @@
 package org.cumulus4j.keyserver.back.webapp;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -20,6 +21,14 @@ import org.cumulus4j.keyserver.back.shared.Response;
 public class KeyServerChannelService
 {
 	private RequestResponseBroker requestResponseBroker = RequestResponseBroker.sharedInstance();
+
+	@Path("test")
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	public String testGet()
+	{
+		return "OK: " + this.getClass().getName();
+	}
 
 	@Path("pushResponse")
 	@POST

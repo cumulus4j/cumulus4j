@@ -16,7 +16,7 @@
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>org.cumulus4j.integrationtest.webapp.App</servlet-name>
-		<url-pattern>/org.cumulus4j.integrationtest.webapp/*</url-pattern>
+		<url-pattern>/*</url-pattern>
 	</servlet-mapping>
 
 	<!-- BEGIN from org.cumulus4j.keyserver.back.webapp -->
