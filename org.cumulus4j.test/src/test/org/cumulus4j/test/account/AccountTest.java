@@ -1,6 +1,7 @@
 package org.cumulus4j.test.account;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -56,6 +57,11 @@ extends AbstractTransactionalTest
 		localAccountantDelegate.setName2("2nd name");
 		localAccountantDelegate.setName3("3rd name");
 		localAccountantDelegate.setDescription("description");
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.YEAR, 2011);
+		cal.set(Calendar.DAY_OF_MONTH, 25);
+		cal.set(Calendar.MONTH, 5);
+		localAccountantDelegate.setCreationDate(cal.getTime());
 
 		Account account2 = new Account(ACCOUNT_ID_2);
 		LocalAccountantDelegate localAccountantDelegate1 = new LocalAccountantDelegate(LOCAL_ACCOUNTANT_DELEGATE_ID_1);
@@ -65,6 +71,11 @@ extends AbstractTransactionalTest
 		localAccountantDelegate1.setName2("Second name");
 		localAccountantDelegate1.setName3("Third name");
 		localAccountantDelegate1.setDescription("description2");
+		Calendar cal2 = Calendar.getInstance();
+		cal2.set(Calendar.YEAR, 2010);
+		cal2.set(Calendar.DAY_OF_MONTH, 5);
+		cal2.set(Calendar.MONTH, 3);
+		localAccountantDelegate1.setCreationDate(cal2.getTime());
 	}
 
 	@Test
@@ -337,6 +348,19 @@ extends AbstractTransactionalTest
 		Assert.assertEquals("Number of results was wrong", 1, result.size());
 		delegate = result.iterator().next();
 		assertDelegate1(delegate);
+	}
+
+	@Test
+	public void queryDateYear() throws IOException
+	{
+		Query q = pm.newQuery(LocalAccountantDelegate.class);
+		q.setFilter("this.creationDate.getYear() == :yr");
+
+		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute(2011);
+		Assert.assertEquals("Number of results was wrong", 1, result.size());
+		LocalAccountantDelegate delegate = result.iterator().next();
+		assertDelegate0(delegate);
+		q.closeAll();
 	}
 
 	@Test

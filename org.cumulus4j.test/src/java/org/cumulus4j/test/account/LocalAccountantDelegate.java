@@ -1,6 +1,7 @@
 package org.cumulus4j.test.account;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,6 +53,8 @@ public class LocalAccountantDelegate implements Serializable {
 
 	@Extension(vendorName="datanucleus", key="queryable", value="false")
 	private String name3;
+
+	private Date creationDate;
 
 	@Column(jdbcType="CLOB")
 	private String description;
@@ -110,6 +113,14 @@ public class LocalAccountantDelegate implements Serializable {
 
 	public void setName3(String name3) {
 		this.name3 = name3;
+	}
+
+	public Date getCreationDate() {
+		return creationDate;
+	}
+
+	public void setCreationDate(Date date) {
+		this.creationDate = date;
 	}
 
 	public String getDescription() {
