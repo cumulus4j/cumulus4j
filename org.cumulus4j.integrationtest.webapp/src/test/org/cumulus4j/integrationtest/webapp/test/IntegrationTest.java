@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.UniformInterfaceException;
 
 public class IntegrationTest
 {
@@ -17,7 +18,15 @@ public class IntegrationTest
 	{
 		Client client = new Client();
 		String url = URL_DUMMY + "/test";
-		String result = client.resource(url).accept(MediaType.TEXT_PLAIN).post(String.class);
+		String result;
+		try {
+			result = client.resource(url).accept(MediaType.TEXT_PLAIN).post(String.class);
+		} catch (UniformInterfaceException x) {
+//			InputStream in = x.getResponse().getEntityInputStream();
+//			TODO read in and produce a helpful error that is easily readable in jenkins.
+			throw x;
+		}
+
 		if (result == null)
 			Assert.fail("The POST request on URL " + url + " did not return any result!");
 

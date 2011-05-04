@@ -15,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.cumulus4j.api.crypto.CryptoManager;
 import org.cumulus4j.api.crypto.CryptoSession;
+import org.cumulus4j.test.framework.CleanupUtil;
 import org.cumulus4j.test.framework.TestUtil;
 import org.cumulus4j.test.movie.Movie;
 import org.cumulus4j.test.movie.Person;
@@ -29,8 +30,14 @@ public class DummyService
 
 	protected static synchronized PersistenceManagerFactory getPersistenceManagerFactory()
 	{
-		if (pmf == null)
+		if (pmf == null) {
+			try {
+				CleanupUtil.dropAllTables();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
 			pmf = JDOHelper.getPersistenceManagerFactory(TestUtil.loadProperties("cumulus4j-test-datanucleus.properties"));
+		}
 
 		return pmf;
 	}
