@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.cumulus4j.keyserver.back.plugin</name>
+	<name>org.cumulus4j.keyserver.back.core</name>
 	<comment></comment>
 	<projects>
 	</projects>

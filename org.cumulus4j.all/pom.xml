@@ -44,7 +44,7 @@
 		<module>../org.cumulus4j.api</module>
 		<module>../org.cumulus4j.core</module>
 		<module>../org.cumulus4j.integrationtest.webapp</module>
-		<module>../org.cumulus4j.keyserver.back.plugin</module>
+		<module>../org.cumulus4j.keyserver.back.core</module>
 		<module>../org.cumulus4j.keyserver.back.shared</module>
 		<module>../org.cumulus4j.keyserver.back.webapp</module>
 		<module>../org.cumulus4j.keyserver.front.client</module>

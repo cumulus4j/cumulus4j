@@ -1,8 +1,11 @@
-package org.cumulus4j.keyserver.back.plugin;
+package org.cumulus4j.keyserver.back.core;
 
 import org.cumulus4j.api.crypto.AbstractCryptoManager;
 import org.cumulus4j.api.crypto.CryptoSession;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class KeyServerCryptoManager extends AbstractCryptoManager {
 
 	@Override

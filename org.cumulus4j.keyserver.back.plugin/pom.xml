@@ -7,11 +7,19 @@
 		<relativePath>../org.cumulus4j.parent/pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>org.cumulus4j.keyserver.back.plugin</artifactId>
-	<name>org.cumulus4j.keyserver.back.plugin</name>
+	<artifactId>org.cumulus4j.keyserver.back.core</artifactId>
+	<name>org.cumulus4j.keyserver.back.core</name>
 	<packaging>bundle</packaging>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-server</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.cumulus4j</groupId>
 			<artifactId>org.cumulus4j.api</artifactId>
@@ -34,8 +42,8 @@
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
 <!-- We currently don't export anything. This is not an API project. -->
-						<Export-Package>!org.cumulus4j.keyserver.back.plugin</Export-Package>
-						<Private-Package>org.cumulus4j.keyserver.back.plugin.*</Private-Package>
+						<Export-Package>!org.cumulus4j.keyserver.back.core</Export-Package>
+						<Private-Package>org.cumulus4j.keyserver.back.core.*</Private-Package>
 <!-- We currently don't have an activator.
 						<Bundle-Activator>com.my.company.Activator</Bundle-Activator>
 -->

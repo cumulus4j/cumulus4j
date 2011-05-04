@@ -1,4 +1,4 @@
-package org.cumulus4j.keyserver.back.plugin;
+package org.cumulus4j.keyserver.back.core.rest;
 
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -104,7 +104,7 @@ public class RequestResponseBroker
 		return response;
 	}
 
-	public Request pollRequestForProcessing(String keyServerID)
+	Request pollRequestForProcessing(String keyServerID)
 	{
 		ConcurrentLinkedQueue<Request> requestsWaitingForProcessing = getRequestsWaitingForProcessing(keyServerID);
 
@@ -135,7 +135,7 @@ public class RequestResponseBroker
 		return request;
 	}
 
-	public void pushResponse(Response response)
+	void pushResponse(Response response)
 	{
 		if (response == null)
 			throw new IllegalArgumentException("response == null");

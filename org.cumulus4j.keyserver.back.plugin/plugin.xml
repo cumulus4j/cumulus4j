@@ -4,7 +4,7 @@
  <extension
        point="org.cumulus4j.api.cryptoManager">
     <cryptoManager
-          class="org.cumulus4j.keyserver.back.plugin.KeyServerCryptoManager"
+          class="org.cumulus4j.keyserver.back.core.KeyServerCryptoManager"
           cryptoManagerID="keyServer">
     </cryptoManager>
  </extension>
