@@ -3,9 +3,11 @@ package org.cumulus4j.test.account;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.jdo.JDOUserException;
 import javax.jdo.Query;
@@ -386,6 +388,22 @@ extends AbstractTransactionalTest
 		catch (JDOUserException e) {
 			// Expected exception when querying un-indexed field
 		}
+	}
+
+	@Test
+	public void queryCollectionParameterContains() throws IOException
+	{
+		Query q = pm.newQuery(LocalAccountantDelegate.class);
+		q.setFilter("param.contains(this.name)");
+		q.declareParameters("java.util.Collection param");
+
+		Set<String> inputStrings = new HashSet<String>();
+		inputStrings.add("Some other test");
+
+		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute(inputStrings);
+		Assert.assertEquals("Number of results was wrong", 1, result.size());
+		LocalAccountantDelegate delegate = result.iterator().next();
+		assertDelegate1(delegate);
 	}
 
 	@After
