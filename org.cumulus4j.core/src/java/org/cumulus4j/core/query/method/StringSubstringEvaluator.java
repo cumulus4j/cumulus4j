@@ -98,7 +98,8 @@ public class StringSubstringEvaluator extends AbstractMethodEvaluator {
 		q.setFilter(
 				"this.fieldMeta == :fieldMeta && " +
 				(invokeArg2 != null ?
-						"this.indexKey.substring(:pos1,:pos2) " : "this.indexKey.substring(:pos1) ") + 
+						"this.indexKey.substring(" + invokeArg1 + "," + invokeArg2 +") " : 
+						"this.indexKey.substring(" + invokeArg1 + ") ") + 
 				ExpressionHelper.getOperatorAsJDOQLSymbol(invokeExprEval.getParent().getExpression().getOperator(), negate) + 
 				" :compareToArgument"
 		);
