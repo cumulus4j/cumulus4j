@@ -2,10 +2,11 @@ package org.cumulus4j.keystore.test;
 
 import java.io.File;
 import java.security.Key;
+import java.util.List;
 
+import org.cumulus4j.keystore.AuthenticationException;
 import org.cumulus4j.keystore.GeneratedKey;
 import org.cumulus4j.keystore.KeyStore;
-import org.cumulus4j.keystore.AuthenticationException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -59,7 +60,18 @@ public class KeyStoreKeyTest
 	throws Exception
 	{
 		keyStore.createUser(null, null, USER, PASSWORD);
+		keyStore.clearCache(null);
+		keyStore.getUsers(USER, PASSWORD);
+		keyStore.clearCache(null);
+		keyStore.getUsers(USER, PASSWORD);
+		keyStore.clearCache(null);
+		GeneratedKey firstGeneratedKey = keyStore.generateKey(USER, PASSWORD);
+		keyStore.clearCache(null);
+		keyStore.getUsers(USER, PASSWORD);
+		keyStore.clearCache(null);
 		keyStore.generateKey(USER, PASSWORD);
+		keyStore.clearCache(null);
+		keyStore.getKey(USER, PASSWORD, firstGeneratedKey.getKeyID());
 	}
 
 	private static final String USER = "marco";
@@ -86,33 +98,17 @@ public class KeyStoreKeyTest
 		Assert.assertEquals("key.format not equal", generatedKey.getKey().getFormat(), key.getFormat());
 	}
 
-//	@Test
-//	public void generateManyKeys()
-//	throws Exception
-//	{
-//		Stopwatch stopwatch = new Stopwatch();
-//
-//		keyStore.createUser(null, null, USER, PASSWORD);
-//
-//		stopwatch.start("00.generateManyKeys");
-//
-//		for (int i = 0; i < 100000; ++i)
-//			keyStore.generateKey(USER, PASSWORD);
-//
-//		stopwatch.stop("00.generateManyKeys");
-//
-//		logger.info("generateManyKeys: " + stopwatch.createHumanReport(true));
-//	}
-
 	@Test
-	public void generateAndReadManyKeys()
+	public void generateAndReadManyKeysIndividually()
 	throws Exception
 	{
 		Stopwatch stopwatch = new Stopwatch();
 
 		keyStore.createUser(null, null, USER, PASSWORD);
 
-		stopwatch.start("00.generateManyKeys");
+		keyStore.clearCache(null);
+
+		stopwatch.start("00.generateManyKeysIndividually");
 
 		int keyCount = 5000;
 
@@ -128,8 +124,55 @@ public class KeyStoreKeyTest
 
 			lastKeyID = generatedKey.getKeyID();
 		}
+		logger.info("generateAndReadManyKeysIndividually: firstKeyID={} lastKeyID={}", firstKeyID, lastKeyID);
 
-		stopwatch.stop("00.generateManyKeys");
+		stopwatch.stop("00.generateManyKeysIndividually");
+
+		stopwatch.start("07.readKeyStore");
+		keyStore = new KeyStore(keyStoreFile);
+		stopwatch.stop("07.readKeyStore");
+
+		stopwatch.start("10.readManyKeys");
+
+		for (long keyID = firstKeyID; keyID <= lastKeyID; ++keyID) {
+			try {
+				keyStore.getKey(USER, PASSWORD, keyID);
+			} catch (Exception x) {
+				logger.error("generateAndReadManyKeysIndividually: Getting key " + keyID + " failed: " + x, x);
+				throw x;
+			}
+		}
+
+		stopwatch.stop("10.readManyKeys");
+
+		logger.info("generateAndReadManyKeysIndividually ({} keys): {}", keyCount, stopwatch.createHumanReport(true));
+	}
+
+	@Test
+	public void generateAndReadManyKeysBulk()
+	throws Exception
+	{
+		Stopwatch stopwatch = new Stopwatch();
+
+		keyStore.createUser(null, null, USER, PASSWORD);
+
+		stopwatch.start("00.generateManyKeysBulk");
+
+		int keyCount = 35000;
+
+		long firstKeyID = -1;
+		long lastKeyID = -1;
+		List<GeneratedKey> generatedKeys = keyStore.generateKeys(USER, PASSWORD, keyCount);
+		firstKeyID = generatedKeys.get(0).getKeyID();
+		lastKeyID = generatedKeys.get(generatedKeys.size() - 1).getKeyID();
+
+		stopwatch.stop("00.generateManyKeysBulk");
+
+
+		stopwatch.start("07.readKeyStore");
+		keyStore = new KeyStore(keyStoreFile);
+		stopwatch.stop("07.readKeyStore");
+
 
 		stopwatch.start("10.readManyKeys");
 
@@ -139,7 +182,7 @@ public class KeyStoreKeyTest
 
 		stopwatch.stop("10.readManyKeys");
 
-		logger.info("generateAndReadManyKeys ({} keys): {}", keyCount, stopwatch.createHumanReport(true));
+		logger.info("generateAndReadManyKeysBulk ({} keys): {}", keyCount, stopwatch.createHumanReport(true));
 	}
 
 //  The following method is not a real jUnit-test, but requires a developer to watch the DEBUG output.

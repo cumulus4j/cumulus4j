@@ -250,8 +250,8 @@ public class CryptoAlgoBenchmark
 
 		if (salty) {
 			byte[] salt = new byte[saltLength];
-			if (salt.length > 256)
-				throw new IllegalStateException("salt is too long!!!");
+//			if (salt.length > 256)
+//				throw new IllegalStateException("salt is too long!!!");
 
 			random.nextBytes(salt);
 

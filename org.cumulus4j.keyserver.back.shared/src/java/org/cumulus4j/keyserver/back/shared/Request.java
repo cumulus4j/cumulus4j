@@ -12,16 +12,17 @@ public abstract class Request implements Serializable
 
 	private UUID requestID;
 
-	private String keyServerID;
+	private String cryptoSessionID;
 
 	public Request() { }
 
-	public Request(String keyServerID)
+	public Request(String cryptoSessionID)
 	{
-		if (keyServerID == null)
-			throw new IllegalArgumentException("keyServerID == null");
+		if (cryptoSessionID == null)
+			throw new IllegalArgumentException("cryptoSessionID == null");
 
 		this.requestID = UUID.randomUUID();
+		this.cryptoSessionID = cryptoSessionID;
 	}
 
 	public UUID getRequestID() {
@@ -32,16 +33,28 @@ public abstract class Request implements Serializable
 		this.requestID = requestID;
 	}
 
-	public String getKeyServerID() {
-		return keyServerID;
+	public String getCryptoSessionID() {
+		return cryptoSessionID;
 	}
-	public void setKeyServerID(String keyServerID) {
-		this.keyServerID = keyServerID;
+	public void setCryptoSessionID(String cryptoSessionID) {
+		this.cryptoSessionID = cryptoSessionID;
 	}
 
+	public String getCryptoSessionIDPrefix()
+	{
+		String id = cryptoSessionID;
+		if (id == null)
+			return null;
+
+		int dotIdx = id.indexOf('.');
+		if (dotIdx < 0)
+			throw new IllegalStateException("cryptoSessionID does not contain a dot ('.')!!!");
+
+		return id.substring(0, dotIdx);
+	}
 
 	@Override
 	public String toString() {
-		return super.toString() + '[' + requestID + ',' + keyServerID + ']';
+		return super.toString() + '[' + requestID + ',' + cryptoSessionID + ']';
 	}
 }

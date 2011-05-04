@@ -150,6 +150,13 @@
 				<version>5.1.6</version>
 				<scope>provided</scope>
 			</dependency>
+			
+			<dependency>
+				<groupId>org.apache.derby</groupId>
+				<artifactId>derby</artifactId>
+				<version>10.7.1.1</version>
+				<scope>provided</scope>
+			</dependency>
 
 			<dependency>
 				<groupId>org.datanucleus</groupId>

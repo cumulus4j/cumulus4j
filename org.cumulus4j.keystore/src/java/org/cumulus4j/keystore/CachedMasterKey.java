@@ -15,7 +15,7 @@ class CachedMasterKey
 
 	public CachedMasterKey(String userName, char[] password, MasterKey masterKey) {
 		this.userName = userName;
-		this.password = password;
+		this.password = password.clone(); // This clone() is essential, because we overwrite the password in the clear() method!
 		this.masterKey = masterKey;
 		this.lastUse = new Date();
 	}

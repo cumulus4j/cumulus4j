@@ -18,7 +18,6 @@ public class KeyServerChannelManager
 	private URL appServerBaseURL;
 	private URL keyServerChannelURL;
 	private int desiredThreadCount;
-	private String keyServerID;
 
 	private Set<KeyServerChannelListenerThread> listenerThreads = Collections.synchronizedSet(new HashSet<KeyServerChannelListenerThread>());
 
@@ -52,8 +51,6 @@ public class KeyServerChannelManager
 			throw new RuntimeException(e);
 		}
 
-		this.keyServerID = sessionManager.getKeyServerID();
-
 		setDesiredThreadCount(10); // TODO make this manage itself automatically according to load statistics
 	}
 
@@ -67,10 +64,6 @@ public class KeyServerChannelManager
 
 	public URL getKeyServerChannelURL() {
 		return keyServerChannelURL;
-	}
-
-	public String getKeyServerID() {
-		return keyServerID;
 	}
 
 	public void setDesiredThreadCount(int desiredThreadCount) {

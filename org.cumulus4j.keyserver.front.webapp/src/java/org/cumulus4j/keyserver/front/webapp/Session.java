@@ -3,6 +3,7 @@ package org.cumulus4j.keyserver.front.webapp;
 import java.util.Arrays;
 import java.util.Date;
 
+import org.cumulus4j.keyserver.front.shared.OpenSessionResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +28,14 @@ public class Session
 			throw new IllegalArgumentException("password == null");
 
 		this.sessionManager = sessionManager;
-		this.cryptoSessionID = IdentifierUtil.createRandomID();
+
+		this.cryptoSessionID = (
+				sessionManager.getCryptoSessionIDPrefix()
+				+ '.'
+				+ Long.toString(sessionManager.nextCryptoSessionSerial(), 36)
+				+ '.'
+				+ IdentifierUtil.createRandomID(10)
+		);
 
 		this.userName = userName;
 		this.password = password;
@@ -40,6 +48,11 @@ public class Session
 	private Date expiry;
 	private boolean locked = true;
 
+	/**
+	 * Get the identifier of this session. See {@link OpenSessionResponse#getCryptoSessionID()} for more details about this
+	 * identifier.
+	 * @return the session's unique identifier.
+	 */
 	public String getCryptoSessionID() {
 		return cryptoSessionID;
 	}

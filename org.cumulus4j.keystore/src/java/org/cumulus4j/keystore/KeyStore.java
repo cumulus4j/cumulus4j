@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
@@ -626,7 +627,7 @@ public class KeyStore
 
 		EncryptedKey encryptedKey = user2keyMap.get(authUserName);
 		if (encryptedKey == null)
-			logger.warn("login: Unknown userName: {}", authUserName); // NOT throw exception here to not disclose the true reason of the AuthenticationException - see below
+			logger.warn("getMasterKey: Unknown userName: {}", authUserName); // NOT throw exception here to not disclose the true reason of the AuthenticationException - see below
 		else {
 			try {
 				Cipher cipher = getCipherForUserPassword(
@@ -642,10 +643,13 @@ public class KeyStore
 				byte[] checksum = checksum(checksumAndData[1], authUserName.getBytes(UTF8), encryptedKey.getChecksumAlgorithm());
 				if (!Arrays.equals(checksumAndData[0], checksum)) {
 					result = null;
-					logger.warn("login: Wrong password for user \"{}\"!", authUserName);
+					logger.warn(
+							"getMasterKey: Wrong password for user \"{}\"! checksumAlgorithm={} expectedChecksum={} calculatedChecksum={}",
+							new Object[] { authUserName, encryptedKey.getChecksumAlgorithm(), encodeHexStr(checksumAndData[0]), encodeHexStr(checksum) }
+					);
 				}
 			} catch (BadPaddingException x) {
-				logger.warn("login: Caught BadPaddingException indicating a wrong password for user \"{}\"!", authUserName);
+				logger.warn("getMasterKey: Caught BadPaddingException indicating a wrong password for user \"{}\"!", authUserName);
 				result = null;
 			} catch (GeneralSecurityException x) {
 				throw new RuntimeException(x);
@@ -801,9 +805,46 @@ public class KeyStore
 		long keyID = nextKeyID();
 		SecretKey key = getKeyGenerator(getKeySize()).generateKey();
 		GeneratedKey generatedKey = new GeneratedKey(keyID, key);
-		setKey(authUserName, authPassword, keyID, key);
-//		storeToFile(); // setKey(...) already calls storeToFile(...)
+		_setKey(authUserName, authPassword, keyID, key);
+		storeToFile();
 		return generatedKey;
+	}
+
+	/**
+	 * <p>
+	 * Generate <code>qty</code> new keys and store them to the file.
+	 * </p>
+	 * <p>
+	 * This method behaves like {@link #generateKey(String, char[])} but is much
+	 * faster when multiple keys have to be generated (bulk operation).
+	 * </p>
+	 *
+	 * @param authUserName the authenticated user authorizing this action.
+	 * @param authPassword the password for authenticating the user specified by <code>authUserName</code>.
+	 * @param qty the number of keys to be generated. If 0, the method will do nothing and return
+	 * an empty list, if &lt; 0, an {@link IllegalArgumentException} will be thrown.
+	 * @return a list of generated keys; never <code>null</code>.
+	 * @throws AuthenticationException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
+	 * is not correct for the given <code>authUserName</code>.
+	 * @throws IOException if writing to the local file-system failed.
+	 */
+	public synchronized List<GeneratedKey> generateKeys(String authUserName, char[] authPassword, int qty)
+	throws AuthenticationException, IOException
+	{
+		if (qty < 0)
+			throw new IllegalArgumentException("qty < 0");
+
+		List<GeneratedKey> result = new ArrayList<GeneratedKey>(qty);
+		KeyGenerator keyGenerator = getKeyGenerator(getKeySize());
+		for (int i = 0; i < qty; ++i) {
+			long keyID = nextKeyID();
+			SecretKey key = keyGenerator.generateKey();
+			GeneratedKey generatedKey = new GeneratedKey(keyID, key);
+			_setKey(authUserName, authPassword, keyID, key);
+			result.add(generatedKey);
+		}
+		storeToFile();
+		return result;
 	}
 
 	/**
@@ -895,15 +936,15 @@ public class KeyStore
 	/**
 	 * The one that is used for new entries.
 	 */
-	private static final String CHECKSUM_ALGORITHM_ACTIVE = CHECKSUM_ALGORITHM_CRC32;
+	private static final String CHECKSUM_ALGORITHM_ACTIVE = CHECKSUM_ALGORITHM_XOR8;
 
 	private MessageDigest checksum_md_sha1; // the checksum(...) method is called only within synchronized blocks - we can thus reuse the MessageDigest.
 	private MessageDigest checksum_md_md5;
 	private CRC32 checksum_crc32; // the checksum(...) method is called only within synchronized blocks - we can thus reuse the CRC32.
 
-	private byte[] checksum(byte[] data, byte[] salt, String hashAlgorithm)
+	private synchronized byte[] checksum(byte[] data, byte[] salt, String algorithm)
 	{
-		if (CHECKSUM_ALGORITHM_CRC32.equals(hashAlgorithm)) {
+		if (CHECKSUM_ALGORITHM_CRC32.equals(algorithm)) {
 			if (checksum_crc32 == null)
 				checksum_crc32 = new CRC32();
 			else
@@ -919,7 +960,7 @@ public class KeyStore
 			result[3] = (byte)crc32Value;
 			return result;
 		}
-		else if (CHECKSUM_ALGORITHM_SHA1.equals(hashAlgorithm)) {
+		else if (CHECKSUM_ALGORITHM_SHA1.equals(algorithm)) {
 			if (checksum_md_sha1 == null) {
 				try {
 					checksum_md_sha1 = MessageDigest.getInstance("SHA1");
@@ -931,7 +972,7 @@ public class KeyStore
 			checksum_md_sha1.update(data);
 			return checksum_md_sha1.digest();
 		}
-		else if (CHECKSUM_ALGORITHM_MD5.equals(hashAlgorithm)) {
+		else if (CHECKSUM_ALGORITHM_MD5.equals(algorithm)) {
 			if (checksum_md_md5 == null) {
 				try {
 					checksum_md_md5 = MessageDigest.getInstance("MD5");
@@ -943,7 +984,7 @@ public class KeyStore
 			checksum_md_md5.update(data);
 			return checksum_md_md5.digest();
 		}
-		else if (CHECKSUM_ALGORITHM_XOR8.equals(hashAlgorithm)) {
+		else if (CHECKSUM_ALGORITHM_XOR8.equals(algorithm)) {
 			byte[] hash = new byte[8];
 			int hi = 0;
 			int si = 0;
@@ -961,7 +1002,7 @@ public class KeyStore
 			return hash;
 		}
 		else
-			throw new UnsupportedOperationException("Unsupported hash algorithm: " + hashAlgorithm);
+			throw new UnsupportedOperationException("Unsupported hash algorithm: " + algorithm);
 	}
 
 	synchronized void storeToFile() throws IOException
@@ -1144,7 +1185,7 @@ public class KeyStore
 		}
 	}
 
-	synchronized void setKey(String authUserName, char[] authPassword, long keyID, Key key)
+	private void _setKey(String authUserName, char[] authPassword, long keyID, Key key)
 	throws AuthenticationException, IOException
 	{
 		MasterKey masterKey = getMasterKey(authUserName, authPassword);
@@ -1165,8 +1206,6 @@ public class KeyStore
 		} catch (GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}
-
-		storeToFile();
 	}
 
 	/**

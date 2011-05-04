@@ -31,7 +31,7 @@ public class GetKeyRequestHandler extends AbstractRequestHandler<GetKeyRequest>
 			throw new IllegalStateException("The session for cryptoSessionID=" + request.getCryptoSessionID() + " is already expired!");
 
 		Key key = sessionManager.getKeyStore().getKey(session.getUserName(), session.getPassword(), request.getKeyID());
-		return new GetKeyResponse(request, key);
+		return new GetKeyResponse(request, request.getKeyID(), key);
 	}
 
 }

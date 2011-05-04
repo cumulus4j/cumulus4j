@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeoutException;
 
+import org.cumulus4j.keyserver.back.shared.ErrorResponse;
 import org.cumulus4j.keyserver.back.shared.Request;
 import org.cumulus4j.keyserver.back.shared.Response;
 import org.slf4j.Logger;
@@ -27,7 +28,7 @@ public class RequestResponseBroker
 	 */
 	public static RequestResponseBroker sharedInstance() { return sharedInstance; }
 
-	private ConcurrentHashMap<String, ConcurrentLinkedQueue<Request>> keyServerID2requestsWaitingForProcessing = new ConcurrentHashMap<String, ConcurrentLinkedQueue<Request>>();
+	private ConcurrentHashMap<String, ConcurrentLinkedQueue<Request>> cryptoSessionIDPrefix2requestsWaitingForProcessing = new ConcurrentHashMap<String, ConcurrentLinkedQueue<Request>>();
 	private ConcurrentHashMap<UUID, Request> requestID2requestCurrentlyBeingProcessed = new ConcurrentHashMap<UUID, Request>();
 
 	/**
@@ -35,38 +36,40 @@ public class RequestResponseBroker
 	 */
 	private ConcurrentHashMap<Request, Response> request2response = new ConcurrentHashMap<Request, Response>();
 
-	private ConcurrentLinkedQueue<Request> getRequestsWaitingForProcessing(String keyServerID)
+	private ConcurrentLinkedQueue<Request> getRequestsWaitingForProcessing(String cryptoSessionIDPrefix)
 	{
-		ConcurrentLinkedQueue<Request> requestsWaitingForProcessing = keyServerID2requestsWaitingForProcessing.get(keyServerID);
+		ConcurrentLinkedQueue<Request> requestsWaitingForProcessing = cryptoSessionIDPrefix2requestsWaitingForProcessing.get(cryptoSessionIDPrefix);
 		if (requestsWaitingForProcessing == null) {
 			requestsWaitingForProcessing = new ConcurrentLinkedQueue<Request>();
-			keyServerID2requestsWaitingForProcessing.putIfAbsent(keyServerID, requestsWaitingForProcessing);
-			requestsWaitingForProcessing = keyServerID2requestsWaitingForProcessing.get(keyServerID);
+			cryptoSessionIDPrefix2requestsWaitingForProcessing.putIfAbsent(cryptoSessionIDPrefix, requestsWaitingForProcessing);
+			requestsWaitingForProcessing = cryptoSessionIDPrefix2requestsWaitingForProcessing.get(cryptoSessionIDPrefix);
 		}
 		return requestsWaitingForProcessing;
 	}
 
 	/**
-	 * The remote key server has to wait this long. Its HTTP client's timeout should thus be longer
+	 * The remote key server has to wait this long (in millisec). Its HTTP client's timeout should thus be longer
 	 * than this time!
 	 */
 	private long timeoutPollRequestForProcessing = 2L * 60L * 1000L;
 
 	/**
-	 * The local API client gets an exception, if the request was not processed &amp; answered within this timeout.
+	 * The local API client gets an exception, if the request was not processed &amp; answered within this timeout (in millisec).
 	 */
 	private long timeoutQuery = 5L * 60L * 1000L;
 
 	/**
 	 * Send <code>request</code> to the key server and return its response.
+	 * @param responseClass the type of the expected response.
 	 * @param request the request to be sent to the key server.
 	 * @return the response from the key server.
 	 * @throws TimeoutException if the request was not replied within the query-timeout.
+	 * @throws ErrorResponseException
 	 */
-	public Response query(Request request)
-	throws TimeoutException
+	public <R extends Response> R query(Class<R> responseClass, Request request)
+	throws TimeoutException, ErrorResponseException
 	{
-		ConcurrentLinkedQueue<Request> requestsWaitingForProcessing = getRequestsWaitingForProcessing(request.getKeyServerID());
+		ConcurrentLinkedQueue<Request> requestsWaitingForProcessing = getRequestsWaitingForProcessing(request.getCryptoSessionIDPrefix());
 		requestsWaitingForProcessing.add(request);
 		requestsWaitingForProcessing.notify();
 
@@ -86,27 +89,34 @@ public class RequestResponseBroker
 			response = request2response.remove(request);
 
 			if (response == null && System.currentTimeMillis() - beginTimestamp > timeoutQuery) {
-				logger.warn("query: Request {} for KeyServer {} was not answered within timeout.", request.getRequestID(), request.getKeyServerID());
+				logger.warn("query: Request {} for session {} was not answered within timeout.", request.getRequestID(), request.getCryptoSessionID());
 
 				boolean removed = requestsWaitingForProcessing.remove(request);
 				if (removed)
-					logger.warn("query: Request {} for KeyServer {} was still in 'requestsWaitingForProcessing'.", request.getRequestID(), request.getKeyServerID());
+					logger.warn("query: Request {} for session {} was still in 'requestsWaitingForProcessing'.", request.getRequestID(), request.getCryptoSessionID());
 
 				Request removedRequest = requestID2requestCurrentlyBeingProcessed.remove(request.getRequestID());
 				if (removedRequest != null)
-					logger.warn("query: Request {} for KeyServer {} was in 'requestID2requestCurrentlyBeingProcessed'.", request.getRequestID(), request.getKeyServerID());
+					logger.warn("query: Request {} for session {} was in 'requestID2requestCurrentlyBeingProcessed'.", request.getRequestID(), request.getCryptoSessionID());
 
 				throw new TimeoutException("Request was not answered within timeout: " + request);
 			}
 
 		} while (response == null);
 
-		return response;
+		if (response instanceof ErrorResponse)
+			throw new ErrorResponseException((ErrorResponse)response);
+
+		try {
+			return responseClass.cast(response);
+		} catch (ClassCastException x) { // this exception has no nice message (according to source code), hence we throw our own below.
+			throw new ClassCastException("Expected a response of type " + responseClass + " but got an instance of " + response.getClass().getName() + "!");
+		}
 	}
 
-	Request pollRequestForProcessing(String keyServerID)
+	Request pollRequestForProcessing(String cryptoSessionIDPrefix)
 	{
-		ConcurrentLinkedQueue<Request> requestsWaitingForProcessing = getRequestsWaitingForProcessing(keyServerID);
+		ConcurrentLinkedQueue<Request> requestsWaitingForProcessing = getRequestsWaitingForProcessing(cryptoSessionIDPrefix);
 
 		long beginTimestamp = System.currentTimeMillis();
 		Request request;

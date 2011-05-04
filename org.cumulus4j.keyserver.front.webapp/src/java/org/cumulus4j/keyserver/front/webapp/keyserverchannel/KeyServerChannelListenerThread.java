@@ -53,7 +53,7 @@ extends Thread
 
 				if (nextRequestWebResourceBuilder == null) {
 					nextRequestWebResourceBuilder = client.resource(
-							new URL(keyServerChannelManager.getKeyServerChannelURL(), "nextRequest/" + keyServerChannelManager.getKeyServerID()).toURI()
+							new URL(keyServerChannelManager.getKeyServerChannelURL(), "nextRequest/" + keyServerChannelManager.getSessionManager().getCryptoSessionIDPrefix()).toURI()
 					).accept(MediaType.APPLICATION_XML_TYPE);
 				}
 
@@ -62,7 +62,6 @@ extends Thread
 
 				if (request != null) {
 					try {
-						@SuppressWarnings("unchecked")
 						RequestHandler<Request> requestHandler = keyServerChannelManager.getRequestHandler(request);
 						response = requestHandler.handle(request);
 					} catch (Throwable x) {

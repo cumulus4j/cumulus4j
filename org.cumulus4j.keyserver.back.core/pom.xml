@@ -41,9 +41,11 @@
 				<configuration>
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
-<!-- We currently don't export anything. This is not an API project. -->
-						<Export-Package>!org.cumulus4j.keyserver.back.core</Export-Package>
-						<Private-Package>org.cumulus4j.keyserver.back.core.*</Private-Package>
+<!-- We export only the 'rest' sub-package. Btw. the order of the two is essential! -->
+						<Export-Package>org.cumulus4j.keyserver.back.core.rest,!org.cumulus4j.keyserver.back.core.*</Export-Package>
+<!--
+						<Private-Package>org.cumulus4j.keyserver.back.core.crypto.*</Private-Package>
+-->
 <!-- We currently don't have an activator.
 						<Bundle-Activator>com.my.company.Activator</Bundle-Activator>
 -->

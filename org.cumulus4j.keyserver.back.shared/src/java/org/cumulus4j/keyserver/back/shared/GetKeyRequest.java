@@ -7,23 +7,15 @@ public class GetKeyRequest extends Request
 {
 	private static final long serialVersionUID = 1L;
 
-	private String cryptoSessionID;
 	private long keyID;
 
 	public GetKeyRequest() { }
 
-	public GetKeyRequest(String keyServerID, String cryptoSessionID, long keyID) {
-		super(keyServerID);
-		this.cryptoSessionID = cryptoSessionID;
+	public GetKeyRequest(String cryptoSessionID, long keyID) {
+		super(cryptoSessionID);
 		this.keyID = keyID;
 	}
 
-	public String getCryptoSessionID() {
-		return cryptoSessionID;
-	}
-	public void setCryptoSessionID(String cryptoSessionID) {
-		this.cryptoSessionID = cryptoSessionID;
-	}
 	public long getKeyID() {
 		return keyID;
 	}

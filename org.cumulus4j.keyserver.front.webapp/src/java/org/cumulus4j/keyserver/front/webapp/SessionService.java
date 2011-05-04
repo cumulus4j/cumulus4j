@@ -58,7 +58,6 @@ public class SessionService extends AbstractService
 			logger.debug("open: authUserName='{}' cryptoSessionID='{}'", auth.getUserName(), session.getCryptoSessionID());
 
 			OpenSessionResponse result = new OpenSessionResponse();
-			result.setKeyServerID(sessionManager.getKeyServerID());
 			result.setCryptoSessionID(session.getCryptoSessionID());
 			result.setExpiry(session.getExpiry());
 			return result;

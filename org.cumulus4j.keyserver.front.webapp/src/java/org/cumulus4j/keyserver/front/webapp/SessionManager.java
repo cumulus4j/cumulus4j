@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.cumulus4j.keystore.AuthenticationException;
 import org.cumulus4j.keystore.KeyNotFoundException;
@@ -70,7 +71,7 @@ public class SessionManager
 		}
 	}
 
-	private String keyServerID;
+	private String cryptoSessionIDPrefix;
 	private KeyStore keyStore;
 
 	private Map<String, Session> userName2Session = new HashMap<String, Session>();
@@ -80,12 +81,19 @@ public class SessionManager
 	{
 		logger.info("Creating instance of SessionManager.");
 		this.keyStore = keyStore;
-		this.keyServerID = IdentifierUtil.createRandomID();
+		this.cryptoSessionIDPrefix = IdentifierUtil.createRandomID(26); // about the same uniqueness as a UUID
 		expireSessionTimer.schedule(expireSessionTimerTask, 60000, 60000); // TODO make this configurable
 	}
 
-	public String getKeyServerID() {
-		return keyServerID;
+	private AtomicLong lastCryptoSessionSerial = new AtomicLong();
+
+	protected long nextCryptoSessionSerial()
+	{
+		return lastCryptoSessionSerial.incrementAndGet();
+	}
+
+	public String getCryptoSessionIDPrefix() {
+		return cryptoSessionIDPrefix;
 	}
 
 	public KeyStore getKeyStore() {

@@ -37,17 +37,17 @@ public class KeyServerChannelService
 			requestResponseBroker.pushResponse(response);
 	}
 
-	@Path("nextRequest/{keyServerID}")
+	@Path("nextRequest/{cryptoSessionIDPrefix}")
 	@POST
-	public Request nextRequest(@PathParam("keyServerID") String keyServerID, Response response)
+	public Request nextRequest(@PathParam("cryptoSessionIDPrefix") String cryptoSessionIDPrefix, Response response)
 	{
-		if (keyServerID == null)
-			throw new IllegalArgumentException("keyServerID == null");
+		if (cryptoSessionIDPrefix == null)
+			throw new IllegalArgumentException("cryptoSessionIDPrefix == null");
 
 		if (response != null)
 			pushResponse(response);
 
-		Request request = requestResponseBroker.pollRequestForProcessing(keyServerID);
+		Request request = requestResponseBroker.pollRequestForProcessing(cryptoSessionIDPrefix);
 		return request;
 	}
 

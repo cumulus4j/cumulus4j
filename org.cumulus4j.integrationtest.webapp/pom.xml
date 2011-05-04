@@ -15,6 +15,12 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>javax.jdo</groupId>
+			<artifactId>jdo-api</artifactId>
+			<!-- We have this dependency declared as 'provided' in the parent (which is IMHO correct), but need to package it here. -->
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-client</artifactId>
 			<scope>test</scope>
@@ -23,18 +29,34 @@
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-server</artifactId>
 		</dependency>
-<!--
+		<dependency>
+			<groupId>org.datanucleus</groupId>
+			<artifactId>datanucleus-rdbms</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.cumulus4j</groupId>
-			<artifactId>org.cumulus4j.keyserver.back.webapp</artifactId>
+			<artifactId>org.cumulus4j.core</artifactId>
 			<version>${project.version}</version>
-			<type>war</type>
 		</dependency>
--->
 		<dependency>
 			<groupId>org.cumulus4j</groupId>
 			<artifactId>org.cumulus4j.keyserver.back.core</artifactId>
 			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.test</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.derby</groupId>
+			<artifactId>derby</artifactId>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 

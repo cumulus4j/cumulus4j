@@ -59,7 +59,7 @@ public class TestUtil
 
 		try {
 			Properties defaultProps = new Properties();
-			InputStream in = TransactionalRunner.class.getClassLoader().getResourceAsStream(fileName);
+			InputStream in = TestUtil.class.getClassLoader().getResourceAsStream(fileName);
 			defaultProps.load(in);
 			in.close();
 			populateMap(result, defaultProps);
