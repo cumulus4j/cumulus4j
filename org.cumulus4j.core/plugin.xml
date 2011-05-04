@@ -1,19 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+  <extension-point id="query_method" name="Query Methods" schema="schema/query_method.exsd"/>
+
   <extension point="org.datanucleus.store_manager">
     <store-manager class-name="org.cumulus4j.core.Cumulus4jStoreManager" key="cumulus4j" url-key="cumulus4j"/>
   </extension>
 
   <extension point="org.datanucleus.store_connectionfactory">
     <connectionfactory name="cumulus4j" class-name="org.cumulus4j.core.Cumulus4jConnectionFactory"
-          datastore="cumulus4j" transactional="true">
-    </connectionfactory>
+          datastore="cumulus4j" transactional="true"/>
   </extension>
 
   <extension point="org.datanucleus.store_query_query">
     <query name="JDOQL" class-name="org.cumulus4j.core.query.JDOQLQuery" datastore="cumulus4j"/>
     <query name="JPQL" class-name="org.cumulus4j.core.query.JPQLQuery" datastore="cumulus4j"/>
+  </extension>
+
+  <extension point="org.cumulus4j.core.query_method">
+    <query-method class="java.lang.String" method="startsWith" 
+      evaluator="org.cumulus4j.core.query.method.StringStartsWithEvaluator"/>
   </extension>
 
   <extension point="org.datanucleus.store_valuegenerator">
