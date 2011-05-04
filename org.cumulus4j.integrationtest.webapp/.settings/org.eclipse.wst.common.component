@@ -3,7 +3,7 @@
     <wb-module deploy-name="org.cumulus4j.integrationtest.webapp">
         <wb-resource deploy-path="/" source-path="/src/webapp"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/java"/>
-        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/test"/>
+        <wb-resource deploy-path="/" source-path="/src/main/webapp"/>
         <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keyserver.back.webapp/org.cumulus4j.keyserver.back.webapp">
             <dependency-type>uses</dependency-type>
         </dependent-module>

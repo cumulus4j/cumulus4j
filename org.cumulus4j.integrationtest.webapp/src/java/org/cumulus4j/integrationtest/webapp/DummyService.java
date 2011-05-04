@@ -15,9 +15,22 @@ public class DummyService
 
 	@Path("test")
 	@POST
-	public void testPost()
+	@Produces(MediaType.TEXT_PLAIN)
+	public String testPost()
 	{
+		// TODO create a PersistenceManagerFactory (lazily only once), get a PersistenceManager, perform some operations (in transactions)
+		// requiring keys and finally return "OK: ...".
 
+
+
+
+
+
+
+
+
+
+		return "OK: " + this.getClass().getName();
 	}
 
 	@Path("test")
@@ -25,7 +38,7 @@ public class DummyService
 	@Produces(MediaType.TEXT_PLAIN)
 	public String testGet()
 	{
-		return "Yabbadabbadoo: " + this.getClass().getName();
+		return "OK: " + this.getClass().getName();
 	}
 
 }

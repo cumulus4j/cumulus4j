@@ -34,6 +34,39 @@
 	<build>
 		<plugins>
 			<plugin>
+				<!--
+				We exclude all tests here, because all the tests in this module are INTEGRATION tests which should
+				be executed only when running "mvn integration-test"
+				-->
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+			<plugin>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<configuration>
+					<includes>
+						<include>**/Test*.java</include>
+						<include>**/*Test.java</include>
+						<include>**/IT*.java</include>
+						<include>**/*IT.java</include>
+					</includes>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
 				<groupId>org.mortbay.jetty</groupId>
 				<artifactId>jetty-maven-plugin</artifactId>
 				<configuration>
