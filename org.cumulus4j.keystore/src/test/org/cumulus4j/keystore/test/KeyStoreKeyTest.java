@@ -7,6 +7,7 @@ import java.util.List;
 import org.cumulus4j.keystore.AuthenticationException;
 import org.cumulus4j.keystore.GeneratedKey;
 import org.cumulus4j.keystore.KeyStore;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,15 +33,15 @@ public class KeyStoreKeyTest
 		keyStore = new KeyStore(keyStoreFile);
 	}
 
-//	@After
-//	public void after()
-//	throws Exception
-//	{
-//		keyStore = null;
-//		File f = keyStoreFile;
-//		if (f != null)
-//			f.delete();
-//	}
+	@After
+	public void after()
+	throws Exception
+	{
+		keyStore = null;
+		File f = keyStoreFile;
+		if (f != null)
+			f.delete();
+	}
 
 	@Test(expected=AuthenticationException.class)
 	public void generateKeyWithoutAnyExistingUser()

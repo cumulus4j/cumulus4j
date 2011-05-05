@@ -1065,7 +1065,7 @@ public class KeyStore
 			throw new RuntimeException(e);
 		}
 		result.setName(name);
-		result.setInternalSerial(propertyInternalSerial);
+		result.setXxx(propertyXxx);
 
 		if (encryptedProperty != null) {
 			if (!propertyType.equals(encryptedProperty.getType()))
@@ -1128,7 +1128,7 @@ public class KeyStore
 		return keyStoreData.name2propertyMap.remove(name) != null;
 	}
 
-	private UUID propertyInternalSerial = UUID.randomUUID();
+	private UUID propertyXxx = UUID.randomUUID();
 
 	/**
 	 * <p>
@@ -1169,8 +1169,11 @@ public class KeyStore
 		if (property == null)
 			throw new IllegalArgumentException("property == null");
 
-		if (!propertyInternalSerial.equals(property.getInternalSerial()))
+		if (!propertyXxx.equals(property.getXxx()))
 			throw new IllegalArgumentException("property was not created by this KeyStore! You should use 'getProperty(...)' instead of 'new SomeProperty(...)'!!! And you should never store properties unencrypted somewhere outside!");
+
+		if (property.getName() == null)
+			throw new IllegalArgumentException("property.name == null");
 
 		keyStoreData.stringConstant(property.getClass().getName());
 

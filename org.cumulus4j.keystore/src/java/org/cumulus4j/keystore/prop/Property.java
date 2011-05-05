@@ -21,7 +21,7 @@ public abstract class Property<T>
 {
 	private String name;
 
-	private UUID internalSerial;
+	private UUID xxx;
 
 	public String getName() {
 		return name;
@@ -55,19 +55,25 @@ public abstract class Property<T>
 	}
 
 	/**
-	 * Internal value used to detect improper usage of the API.
-	 * @return the internal serial.
+	 * <p>Internal value used to detect improper usage of the API.</p>
+	 * <p>
+	 * <b>Important:</b> This method is not part of the API! <b>Do not use this method!</b>
+	 * </p>
+	 * @return the internal value.
 	 * @see KeyStore#getProperty(String, char[], Class, String)
 	 */
-	public UUID getInternalSerial() {
-		return internalSerial;
+	public UUID getXxx() {
+		return xxx;
 	}
 	/**
-	 * Internal value used to detect improper usage of the API.
-	 * @param internalSerial the internal serial.
+	 * <p>Internal value used to detect improper usage of the API.</p>
+	 * <p>
+	 * <b>Important:</b> This method is not part of the API! <b>Do not use this method!</b>
+	 * </p>
+	 * @param xxx the internal value.
 	 * @see KeyStore#getProperty(String, char[], Class, String)
 	 */
-	public void setInternalSerial(UUID internalSerial) {
-		this.internalSerial = internalSerial;
+	public void setXxx(UUID xxx) {
+		this.xxx = xxx;
 	}
 }
