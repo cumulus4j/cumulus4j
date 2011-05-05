@@ -8,7 +8,7 @@ class EncryptedKey
 	private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
 	public EncryptedKey(
-			byte[] data, byte[] salt, String algorithm, byte[] keyEncryptionIV, String keyEncryptionAlgorithm, short checksumSize, String checksumAlgorithm
+			byte[] data, byte[] salt, String algorithm, byte[] encryptionIV, String encryptionAlgorithm, short checksumSize, String checksumAlgorithm
 	)
 	{
 		if (data == null)
@@ -20,11 +20,11 @@ class EncryptedKey
 		if (algorithm == null)
 			throw new IllegalArgumentException("algorithm must not be null!");
 
-		if (keyEncryptionAlgorithm == null)
-			throw new IllegalArgumentException("keyEncryptionAlgorithm must not be null!");
+		if (encryptionAlgorithm == null)
+			throw new IllegalArgumentException("encryptionAlgorithm must not be null!");
 
-		if (checksumSize <= 0)
-			throw new IllegalArgumentException("checksumSize <= 0");
+		if (checksumSize < 1)
+			throw new IllegalArgumentException("checksumSize < 1");
 
 		if (checksumAlgorithm == null || checksumAlgorithm.isEmpty())
 			throw new IllegalArgumentException("checksumAlgorithm must not be null and not be empty!");
@@ -32,8 +32,8 @@ class EncryptedKey
 		this.data = data;
 		this.salt = salt;
 		this.algorithm = algorithm;
-		this.keyEncryptionIV = keyEncryptionIV;
-		this.keyEncryptionAlgorithm = keyEncryptionAlgorithm;
+		this.encryptionIV = encryptionIV;
+		this.encryptionAlgorithm = encryptionAlgorithm;
 		this.checksumSize = checksumSize;
 		this.checksumAlgorithm = checksumAlgorithm;
 	}
@@ -56,16 +56,16 @@ class EncryptedKey
 		return algorithm;
 	}
 
-	byte[] keyEncryptionIV;
+	byte[] encryptionIV;
 
-	public byte[] getKeyEncryptionIV() {
-		return keyEncryptionIV;
+	public byte[] getEncryptionIV() {
+		return encryptionIV;
 	}
 
-	private String keyEncryptionAlgorithm;
+	private String encryptionAlgorithm;
 
-	public String getKeyEncryptionAlgorithm() {
-		return keyEncryptionAlgorithm;
+	public String getEncryptionAlgorithm() {
+		return encryptionAlgorithm;
 	}
 
 	private short checksumSize;

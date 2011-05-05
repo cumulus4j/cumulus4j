@@ -15,25 +15,28 @@ import java.util.Map;
 import java.util.zip.CheckedInputStream;
 import java.util.zip.CheckedOutputStream;
 
+
 /**
  * Container holding all data that is written into the key store file. Instances of this
  * class should never hold unencrypted data - not even in memory!
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-class KeyStoreData
+public class KeyStoreData
 implements Serializable
 {
 	private static final int FILE_VERSION = 1;
 	private static final long serialVersionUID = FILE_VERSION;
 	private static final String FILE_HEADER = "Cumulus4jKeyStore";
 
-	long nextKeyID = 1;
+//	long nextKeyID = 1;
 	Map<String, EncryptedKey> user2keyMap = new HashMap<String, EncryptedKey>();
 	Map<Long, EncryptedKey> keyID2keyMap = new HashMap<Long, EncryptedKey>();
 
 	private Map<String, Integer> stringConstant2idMap = new HashMap<String, Integer>();
 	private ArrayList<String> stringConstantList = new ArrayList<String>();
+
+	Map<String, EncryptedProperty> name2propertyMap = new HashMap<String, EncryptedProperty>();
 
 	synchronized String stringConstant(String s)
 	{
@@ -52,29 +55,16 @@ implements Serializable
 		}
 	}
 
-	private static void readByteArrayCompletely(InputStream in, byte[] dest)
-	throws IOException
-	{
-		int off = 0;
-		while (off < dest.length) {
-			int read = in.read(dest, off, dest.length - off);
-			if (read < 0)
-				throw new IOException("Unexpected early end of stream!");
-
-			off += read;
-		}
-	}
-
 	private EncryptedKey readKey(DataInputStream din) throws IOException
 	{
 		int keySize = din.readInt();
 		byte[] key = new byte[keySize];
-		readByteArrayCompletely(din, key);
+		KeyStoreUtil.readByteArrayCompletely(din, key);
 
 		int saltSize = din.readInt();
 		byte[] salt = saltSize == 0 ? null : new byte[saltSize];
 		if (salt != null)
-			readByteArrayCompletely(din, salt);
+			KeyStoreUtil.readByteArrayCompletely(din, salt);
 
 		int algorithmIdx = din.readInt();
 		String algorithm = stringConstantList.get(algorithmIdx);
@@ -82,7 +72,7 @@ implements Serializable
 		int keyCryptIVSize = din.readInt();
 		byte[] keyCryptIV = keyCryptIVSize == 0 ? null : new byte[keyCryptIVSize];
 		if (keyCryptIV != null)
-			readByteArrayCompletely(din, keyCryptIV);
+			KeyStoreUtil.readByteArrayCompletely(din, keyCryptIV);
 
 		int keyCryptAlgoIdx = din.readInt();
 		String keyCryptAlgo = stringConstantList.get(keyCryptAlgoIdx);
@@ -132,9 +122,9 @@ implements Serializable
 		MessageDigestChecksum checksum = new MessageDigestChecksum.SHA1();
 		CheckedInputStream cin = new CheckedInputStream(in, checksum);
 		din = new DataInputStream(cin);
-		readByteArrayCompletely(din, new byte[headerSizeIncludingVersion]); // We cannot use skip(...), because that would not update our checksum.
+		KeyStoreUtil.readByteArrayCompletely(din, new byte[headerSizeIncludingVersion]); // We cannot use skip(...), because that would not update our checksum.
 
-		nextKeyID = din.readLong();
+//		nextKeyID = din.readLong();
 
 		int stringConstantSize = din.readInt();
 		stringConstant2idMap = new HashMap<String, Integer>(stringConstantSize);
@@ -160,11 +150,18 @@ implements Serializable
 			keyID2keyMap.put(keyID, key);
 		}
 
+		int name2propertyMapSize = din.readInt();
+		name2propertyMap = new HashMap<String, EncryptedProperty>();
+		for (int i = 0; i < name2propertyMapSize; ++i) {
+			EncryptedProperty encryptedProperty = new EncryptedProperty(din, stringConstantList);
+			name2propertyMap.put(encryptedProperty.getName(), encryptedProperty);
+		}
+
 		byte[] checksumValueCalculated = checksum.getChecksum();
 		byte[] checksumValueExpected = new byte[checksumValueCalculated.length];
-		readByteArrayCompletely(din, checksumValueExpected);
+		KeyStoreUtil.readByteArrayCompletely(din, checksumValueExpected);
 		if (!Arrays.equals(checksumValueCalculated, checksumValueExpected))
-			throw new IOException("Checksum error! Expected=" + encodeHexStr(checksumValueExpected) + " Found=" + encodeHexStr(checksumValueCalculated));
+			throw new IOException("Checksum error! Expected=" + KeyStoreUtil.encodeHexStr(checksumValueExpected) + " Found=" + KeyStoreUtil.encodeHexStr(checksumValueCalculated));
 	}
 
 	private void writeObject(java.io.ObjectOutputStream out)
@@ -192,7 +189,7 @@ implements Serializable
 		}
 
 		dout.writeInt(FILE_VERSION);
-		dout.writeLong(nextKeyID);
+//		dout.writeLong(nextKeyID);
 
 		dout.writeInt(stringConstantList.size());
 		for (String stringConstant : stringConstantList) {
@@ -210,6 +207,14 @@ implements Serializable
 			dout.writeLong(me.getKey());
 			writeKey(dout, me.getValue());
 		}
+
+		dout.writeInt(name2propertyMap.size());
+		for (EncryptedProperty encryptedProperty : name2propertyMap.values()) {
+			encryptedProperty.write(dout, stringConstant2idMap);
+		}
+
+		// Flush before fetching checksum, because the checksum is only completely calculated when really all data
+		// is written through. Marco :-)
 		dout.flush();
 
 		byte[] checksumValue = checksum.getChecksum();
@@ -229,61 +234,15 @@ implements Serializable
 		Integer idx = stringConstant2idMap.get(key.getAlgorithm());
 		dout.writeInt(idx);
 
-		dout.writeInt(key.getKeyEncryptionIV().length);
-		dout.write(key.getKeyEncryptionIV());
+		dout.writeInt(key.getEncryptionIV().length);
+		dout.write(key.getEncryptionIV());
 
-		idx = stringConstant2idMap.get(key.getKeyEncryptionAlgorithm());
+		idx = stringConstant2idMap.get(key.getEncryptionAlgorithm());
 		dout.writeInt(idx);
 
 		dout.writeShort(key.getChecksumSize());
 
 		idx = stringConstant2idMap.get(key.getChecksumAlgorithm());
 		dout.writeInt(idx);
-	}
-
-	/**
-	 * This method encodes a byte array into a human readable hex string. For each byte,
-	 * two hex digits are produced. They are concatted without any separators.
-	 * <p>
-	 * This is a convenience method for <code>encodeHexStr(buf, 0, buf.length)</code>
-	 * <p>
-	 * This is copied from project <code>org.nightlabs.util</code>. If we need  more from this
-	 * lib, we should add a dependency onto it.
-	 *
-	 * @param buf The byte array to translate into human readable text.
-	 * @return a human readable string like "fa3d70" for a byte array with 3 bytes and these values.
-	 * @see #encodeHexStr(byte[], int, int)
-	 * @see #decodeHexStr(String)
-	 */
-	static String encodeHexStr(byte[] buf)
-	{
-		return encodeHexStr(buf, 0, buf.length);
-	}
-
-	/**
-	 * Encode a byte array into a human readable hex string. For each byte,
-	 * two hex digits are produced. They are concatted without any separators.
-	 * <p>
-	 * This is copied from project <code>org.nightlabs.util</code>. If we need  more from this
-	 * lib, we should add a dependency onto it.
-	 *
-	 * @param buf The byte array to translate into human readable text.
-	 * @param pos The start position (0-based).
-	 * @param len The number of bytes that shall be processed beginning at the position specified by <code>pos</code>.
-	 * @return a human readable string like "fa3d70" for a byte array with 3 bytes and these values.
-	 * @see #encodeHexStr(byte[])
-	 * @see #decodeHexStr(String)
-	 */
-	static String encodeHexStr(byte[] buf, int pos, int len)
-	{
-		 StringBuffer hex = new StringBuffer();
-		 while (len-- > 0) {
-				byte ch = buf[pos++];
-				int d = (ch >> 4) & 0xf;
-				hex.append((char)(d >= 10 ? 'a' - 10 + d : '0' + d));
-				d = ch & 0xf;
-				hex.append((char)(d >= 10 ? 'a' - 10 + d : '0' + d));
-		 }
-		 return hex.toString();
 	}
 }

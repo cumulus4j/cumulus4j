@@ -8,7 +8,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
-import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.security.MessageDigest;
@@ -27,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.UUID;
 import java.util.zip.CRC32;
 
 import javax.crypto.BadPaddingException;
@@ -38,6 +38,8 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.cumulus4j.keystore.prop.LongProperty;
+import org.cumulus4j.keystore.prop.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +63,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * By default, a <code>KeyStore</code> {@link #generateKey(String, char[]) generates keys} with a size
  * of 128 bit. This can be controlled, however, by specifying the system property
- * {@value #PROPERTY_KEY_SIZE} (e.g. passing the argument "-Dorg.cumulus4j.keystore.KeyStore.keySize=256"
+ * {@value #SYSTEM_PROPERTY_KEY_SIZE} (e.g. passing the argument "-Dorg.cumulus4j.keystore.KeyStore.keySize=256"
  * to the <code>java</code> command line will switch to 256-bit-keys).
  * </p>
  * <p>
@@ -89,7 +91,7 @@ import org.slf4j.LoggerFactory;
  * 		<td align="right" valign="top">4</td><td valign="top">int: File version</td>
  * 	</tr>
  * 	<tr>
- * 		<td align="right" valign="top">8</td><td valign="top">long: Next key ID, i.e. the first not-yet-used ID which will be assigned to the next key that will be generated.</td>
+ * 		<td align="right" valign="top">8</td><td valign="top">REMOVED ! NO LONGER EXISTING ! this is now a property! long: Next key ID, i.e. the first not-yet-used ID which will be assigned to the next key that will be generated.</td>
  * 	</tr>
  *	<tr>
  * 		<td align="right" valign="top">4</td><td valign="top">int: Number of entries in 'Block A' to follow.</td>
@@ -162,7 +164,7 @@ public class KeyStore
 	 * master key used to protect the file managed by the <code>KeyStore</code>.
 	 * </p>
 	 * <p>
-	 * By default (if the system property {@value #PROPERTY_KEY_SIZE} is not specified), keys will have a size of 128 bit.
+	 * By default (if the system property {@value #SYSTEM_PROPERTY_KEY_SIZE} is not specified), keys will have a size of 128 bit.
 	 * </p>
 	 * <p>
 	 * Note, that specifying the system property does currently not change any old keys - only new keys are generated
@@ -171,7 +173,7 @@ public class KeyStore
 	 * {@link #createUser(String, char[], String, char[]) user is created}!
 	 * </p>
 	 */
-	public static final String PROPERTY_KEY_SIZE = "org.cumulus4j.keystore.KeyStore" + ".keySize";
+	public static final String SYSTEM_PROPERTY_KEY_SIZE = "org.cumulus4j.keystore.KeyStore" + ".keySize";
 
 	/**
 	 * <p>
@@ -180,7 +182,7 @@ public class KeyStore
 	 * before data is written to the file, but already most data in memory is encrypted!).
 	 * </p>
 	 * <p>
-	 * By default (if the system property {@value #PROPERTY_ENCRYPTION_ALGORITHM} is not specified),
+	 * By default (if the system property {@value #SYSTEM_PROPERTY_ENCRYPTION_ALGORITHM} is not specified),
 	 * "AES/CFB/NoPadding" is used. For example, to switch to "AES/CBC/PKCS5Padding", you'd have
 	 * to specify the command line argument "-Dorg.cumulus4j.keystore.KeyStore.encryptionAlgorithm=AES/CBC/PKCS5Padding".
 	 * </p>
@@ -189,15 +191,15 @@ public class KeyStore
 	 * for further information about what values are supported.
 	 * </p>
 	 */
-	public static final String PROPERTY_ENCRYPTION_ALGORITHM = "org.cumulus4j.keystore.KeyStore" + ".encryptionAlgorithm";
+	public static final String SYSTEM_PROPERTY_ENCRYPTION_ALGORITHM = "org.cumulus4j.keystore.KeyStore" + ".encryptionAlgorithm";
+
+	private static final String KEY_STORE_PROPERTY_NAME_NEXT_KEY_ID = "nextKeyID";
 
 	private SecureRandom secureRandom = new SecureRandom();
 
 	private static Timer expireCacheEntryTimer = new Timer();
 
 	private TimerTask expireCacheEntryTimerTask = new ExipreCacheEntryTimerTask(this);
-
-	private static final Charset UTF8 = Charset.forName("UTF-8");
 
 	private KeyStoreData keyStoreData = new KeyStoreData();
 
@@ -246,7 +248,7 @@ public class KeyStore
 
 	/**
 	 * Gets the key-size that is currently configured. Therefore, this method checks, if the
-	 * system property {@value #PROPERTY_KEY_SIZE} has been specified, and if so returns its value.
+	 * system property {@value #SYSTEM_PROPERTY_KEY_SIZE} has been specified, and if so returns its value.
 	 * If not, it falls back to 128.
 	 *
 	 * @return the current key-size.
@@ -256,7 +258,7 @@ public class KeyStore
 		int ks = keySize;
 
 		if (ks == 0) {
-			String keySizePropName = PROPERTY_KEY_SIZE;
+			String keySizePropName = SYSTEM_PROPERTY_KEY_SIZE;
 			String keySizePropValue = System.getProperty(keySizePropName);
 			if (keySizePropValue == null || keySizePropValue.trim().isEmpty()) {
 				ks = 128; // default value, if the property was not defined.
@@ -288,7 +290,7 @@ public class KeyStore
 		String ea = encryptionAlgorithm;
 
 		if (ea == null) {
-			String encryptionAlgorithmPropName = PROPERTY_ENCRYPTION_ALGORITHM;
+			String encryptionAlgorithmPropName = SYSTEM_PROPERTY_ENCRYPTION_ALGORITHM;
 			String encryptionAlgorithmPropValue = System.getProperty(encryptionAlgorithmPropName);
 			if (encryptionAlgorithmPropValue == null || encryptionAlgorithmPropValue.trim().isEmpty()) {
 //				ea = "AES/CBC/PKCS5Padding"; // default value, if the property was not defined.
@@ -387,9 +389,18 @@ public class KeyStore
 		return keyStoreData.user2keyMap.isEmpty();
 	}
 
-	synchronized long nextKeyID()
+	synchronized long nextKeyID(String authUserName, char[] authPassword) throws AuthenticationException
 	{
-		long result = keyStoreData.nextKeyID++;
+
+//		long result = keyStoreData.nextKeyID++;
+//		return result;
+		LongProperty property = getProperty(authUserName, authPassword, LongProperty.class, KEY_STORE_PROPERTY_NAME_NEXT_KEY_ID);
+		if (property.getValue() == null)
+			property.setValue(1L);
+
+		long result = property.getValue();
+		property.setValue(result + 1);
+		_setProperty(authUserName, authPassword, property);
 		return result;
 	}
 
@@ -423,7 +434,7 @@ public class KeyStore
 				// TODO we have to pass the key size here - and thus store it in the EncryptedKey.
 				Cipher cipher = getCipherForUserPassword(
 						authPassword, encryptedKey.getSalt(),
-						encryptedKey.getKeyEncryptionIV(), encryptedKey.getKeyEncryptionAlgorithm(),
+						encryptedKey.getEncryptionIV(), encryptedKey.getEncryptionAlgorithm(),
 						Cipher.DECRYPT_MODE
 				);
 				byte[] decrypted = cipher.doFinal(encryptedKey.getData());
@@ -431,12 +442,12 @@ public class KeyStore
 
 				byte[][] checksumAndData = splitChecksumAndData(decrypted, encryptedKey.getChecksumSize());
 				result = new MasterKey(checksumAndData[1], encryptedKey.getAlgorithm());
-				byte[] checksum = checksum(checksumAndData[1], authUserName.getBytes(UTF8), encryptedKey.getChecksumAlgorithm());
+				byte[] checksum = checksum(checksumAndData[1], encryptedKey.getChecksumAlgorithm());
 				if (!Arrays.equals(checksumAndData[0], checksum)) {
 					result = null;
 					logger.warn(
 							"getMasterKey: Wrong password for user \"{}\"! checksumAlgorithm={} expectedChecksum={} calculatedChecksum={}",
-							new Object[] { authUserName, encryptedKey.getChecksumAlgorithm(), KeyStoreData.encodeHexStr(checksumAndData[0]), KeyStoreData.encodeHexStr(checksum) }
+							new Object[] { authUserName, encryptedKey.getChecksumAlgorithm(), KeyStoreUtil.encodeHexStr(checksumAndData[0]), KeyStoreUtil.encodeHexStr(checksum) }
 					);
 				}
 			} catch (BadPaddingException x) {
@@ -522,7 +533,7 @@ public class KeyStore
 		SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1"); // TODO make configurable!
 //		SecretKeyFactory factory = SecretKeyFactory.getInstance("PBEWithSHA256And256BitAES-CBC-BC");
 		// TODO for existing users, we MUST use the key size of that user.
-		KeySpec spec = new PBEKeySpec(password, salt, 1024, getKeySize()); // TODO make iteration-count configurable!
+		KeySpec spec = new PBEKeySpec(password, salt, 1024, salt.length * 8); // TODO make iteration-count configurable!
 		SecretKey tmp = factory.generateSecret(spec);
 		SecretKey secret = new SecretKeySpec(tmp.getEncoded(), getBaseAlgorithm(algorithm));
 		Cipher cipher = Cipher.getInstance(algorithm);
@@ -579,9 +590,9 @@ public class KeyStore
 	 * </p>
 	 * <p>
 	 * The new key will be generated with the size specified by the
-	 * system property {@value #PROPERTY_KEY_SIZE} and encrypted with the
+	 * system property {@value #SYSTEM_PROPERTY_KEY_SIZE} and encrypted with the
 	 * master-key and the encryption-algorithm specified by the
-	 * system property {@value #PROPERTY_ENCRYPTION_ALGORITHM}.
+	 * system property {@value #SYSTEM_PROPERTY_ENCRYPTION_ALGORITHM}.
 	 * </p>
 	 *
 	 * @param authUserName the authenticated user authorizing this action.
@@ -594,7 +605,7 @@ public class KeyStore
 	public synchronized GeneratedKey generateKey(String authUserName, char[] authPassword)
 	throws AuthenticationException, IOException
 	{
-		long keyID = nextKeyID();
+		long keyID = nextKeyID(authUserName, authPassword);
 		SecretKey key = getKeyGenerator(getKeySize()).generateKey();
 		GeneratedKey generatedKey = new GeneratedKey(keyID, key);
 		_setKey(authUserName, authPassword, keyID, key);
@@ -629,7 +640,7 @@ public class KeyStore
 		List<GeneratedKey> result = new ArrayList<GeneratedKey>(qty);
 		KeyGenerator keyGenerator = getKeyGenerator(getKeySize());
 		for (int i = 0; i < qty; ++i) {
-			long keyID = nextKeyID();
+			long keyID = nextKeyID(authUserName, authPassword);
 			SecretKey key = keyGenerator.generateKey();
 			GeneratedKey generatedKey = new GeneratedKey(keyID, key);
 			_setKey(authUserName, authPassword, keyID, key);
@@ -646,7 +657,7 @@ public class KeyStore
 	 * <p>
 	 * Before the <code>KeyStore</code> can be used (i.e. before most methods work), this method has to be called
 	 * to create the first user. When the first user is created, the internal master-key is generated, which will
-	 * then not be changed anymore (double-check that the {@link #PROPERTY_KEY_SIZE key-size} is set correctly at
+	 * then not be changed anymore (double-check that the {@link #SYSTEM_PROPERTY_KEY_SIZE key-size} is set correctly at
 	 * this time).
 	 * </p>
 	 *
@@ -696,10 +707,10 @@ public class KeyStore
 	throws IOException
 	{
 		byte[] plainMasterKeyData = masterKey.getEncoded();
-		byte[] hash = checksum(plainMasterKeyData, userName.getBytes(UTF8), CHECKSUM_ALGORITHM_ACTIVE);
+		byte[] hash = checksum(plainMasterKeyData, CHECKSUM_ALGORITHM_ACTIVE);
 		byte[] hashAndData = catChecksumAndData(hash, plainMasterKeyData);
 
-		byte[] salt = new byte[8]; // TODO make salt-length configurable!
+		byte[] salt = new byte[plainMasterKeyData.length];
 		secureRandom.nextBytes(salt);
 		try {
 			Cipher cipher = getCipherForUserPassword(password, salt, null, null, Cipher.ENCRYPT_MODE);
@@ -728,13 +739,13 @@ public class KeyStore
 	/**
 	 * The one that is used for new entries.
 	 */
-	private static final String CHECKSUM_ALGORITHM_ACTIVE = CHECKSUM_ALGORITHM_XOR8;
+	private static final String CHECKSUM_ALGORITHM_ACTIVE = CHECKSUM_ALGORITHM_CRC32;
 
 	private MessageDigest checksum_md_sha1; // the checksum(...) method is called only within synchronized blocks - we can thus reuse the MessageDigest.
 	private MessageDigest checksum_md_md5;
 	private CRC32 checksum_crc32; // the checksum(...) method is called only within synchronized blocks - we can thus reuse the CRC32.
 
-	private synchronized byte[] checksum(byte[] data, byte[] salt, String algorithm)
+	private synchronized byte[] checksum(byte[] data, String algorithm)
 	{
 		if (CHECKSUM_ALGORITHM_CRC32.equals(algorithm)) {
 			if (checksum_crc32 == null)
@@ -742,14 +753,12 @@ public class KeyStore
 			else
 				checksum_crc32.reset();
 
-			checksum_crc32.update(salt);
 			checksum_crc32.update(data);
 			long crc32Value = checksum_crc32.getValue();
 			byte[] result = new byte[4]; // CRC 32 has only 32 bits (= 4 bytes), hence the name
-			result[0] = (byte)(crc32Value >>> 3);
-			result[1] = (byte)(crc32Value >>> 2);
-			result[2] = (byte)(crc32Value >>> 1);
-			result[3] = (byte)crc32Value;
+			for (int i = 0; i < result.length; ++i)
+				result[i] = (byte)(crc32Value >>> (i * 8));
+
 			return result;
 		}
 		else if (CHECKSUM_ALGORITHM_SHA1.equals(algorithm)) {
@@ -760,7 +769,6 @@ public class KeyStore
 					throw new RuntimeException(e);
 				}
 			}
-			checksum_md_sha1.update(salt);
 			checksum_md_sha1.update(data);
 			return checksum_md_sha1.digest();
 		}
@@ -772,21 +780,13 @@ public class KeyStore
 					throw new RuntimeException(e);
 				}
 			}
-			checksum_md_md5.update(salt);
 			checksum_md_md5.update(data);
 			return checksum_md_md5.digest();
 		}
 		else if (CHECKSUM_ALGORITHM_XOR8.equals(algorithm)) {
 			byte[] hash = new byte[8];
 			int hi = 0;
-			int si = 0;
 			for (int i = 0; i < data.length; ++i) {
-				if (salt != null) {
-					hash[hi] ^= salt[si];
-					if (++si >= salt.length)
-						si = 0;
-				}
-
 				hash[hi] ^= data[i];
 				if (++hi >= hash.length)
 					hi = 0;
@@ -953,14 +953,14 @@ public class KeyStore
 		try {
 			Cipher cipher = getCipherForMasterKey(
 					masterKey,
-					encryptedKey.getKeyEncryptionIV(),
-					encryptedKey.getKeyEncryptionAlgorithm(),
+					encryptedKey.getEncryptionIV(),
+					encryptedKey.getEncryptionAlgorithm(),
 					Cipher.DECRYPT_MODE
 			);
 			byte[] decrypted = cipher.doFinal(encryptedKey.getData());
 			byte[][] checksumAndData = splitChecksumAndData(decrypted, encryptedKey.getChecksumSize());
 
-			byte[] checksum = checksum(checksumAndData[1], authUserName.getBytes(UTF8), encryptedKey.getChecksumAlgorithm());
+			byte[] checksum = checksum(checksumAndData[1], encryptedKey.getChecksumAlgorithm());
 			if (!Arrays.equals(checksumAndData[0], checksum))
 				throw new IllegalStateException("Checksum mismatch!!! This means, the decryption key was wrong!");
 
@@ -971,12 +971,12 @@ public class KeyStore
 	}
 
 	private void _setKey(String authUserName, char[] authPassword, long keyID, Key key)
-	throws AuthenticationException, IOException
+	throws AuthenticationException
 	{
 		MasterKey masterKey = getMasterKey(authUserName, authPassword);
 
 		byte[] plainKeyData = key.getEncoded();
-		byte[] checksum = checksum(plainKeyData, authUserName.getBytes(UTF8), CHECKSUM_ALGORITHM_ACTIVE);
+		byte[] checksum = checksum(plainKeyData, CHECKSUM_ALGORITHM_ACTIVE);
 		byte[] checksumAndData = catChecksumAndData(checksum, plainKeyData);
 
 		try {
@@ -990,6 +990,196 @@ public class KeyStore
 			keyStoreData.keyID2keyMap.put(keyID, encryptedKey);
 		} catch (GeneralSecurityException e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * <p>
+	 * Get a named property.
+	 * </p>
+	 * <p>
+	 * The <code>KeyStore</code> supports managing arbitrary properties in the form of
+	 * name-value-pairs. The names are plain-text, but the values are encrypted.
+	 * A property-value can be of any type for which a subclass of
+	 * {@link org.cumulus4j.keystore.prop.Property} exists.
+	 * </p>
+	 * <p>
+	 * This method will always return an instance of the given <code>propertyType</code>, no matter,
+	 * if the property exists in this <code>KeyStore</code> or not. If the property does not exist,
+	 * its {@link Property#getValue() value} will be <code>null</code>.
+	 * </p>
+	 * <p>
+	 * <b>Important:</b> Never directly instantiate a {@link Property}-subclass. Always use this method
+	 * as a factory for property instances.
+	 * </p>
+	 *
+	 * @param <P> the type of the property.
+	 * @param authUserName the authenticated user authorizing this action.
+	 * @param authPassword the password for authenticating the user specified by <code>authUserName</code>.
+	 * @param propertyType the type of the property; must not be <code>null</code>. If the property does not yet exist,
+	 * every type can be specified. If the property already exists, this type must match the type of the property.
+	 * If they do not match, an {@link IllegalArgumentException} is thrown.
+	 * @param name the unique name of the property; must not be <code>null</code>.
+	 * @return the property; never <code>null</code>. If the property does not yet exist, a new, empty property is returned.
+	 * @throws AuthenticationException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
+	 * is not correct for the given <code>authUserName</code>.
+	 * @see #setProperty(String, char[], Property)
+	 * @see #removeProperty(String, char[], String)
+	 */
+	public synchronized <P extends Property<?>> P getProperty(String authUserName, char[] authPassword, Class<P> propertyType, String name)
+	throws AuthenticationException
+	{
+		MasterKey masterKey = getMasterKey(authUserName, authPassword);
+
+		if (name == null)
+			throw new IllegalArgumentException("name == null");
+
+		EncryptedProperty encryptedProperty = keyStoreData.name2propertyMap.get(name);
+
+		P result;
+		try {
+			result = propertyType.newInstance();
+		} catch (InstantiationException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+		result.setName(name);
+		result.setInternalSerial(propertyInternalSerial);
+
+		if (encryptedProperty != null) {
+			if (!propertyType.equals(encryptedProperty.getType()))
+				throw new IllegalArgumentException("propertyType != encryptedProperty.type :: " + propertyType.getClass().getName() + " != " + encryptedProperty.getType().getName());
+
+			try {
+				Cipher cipher = getCipherForMasterKey(
+						masterKey,
+						encryptedProperty.getEncryptionIV(),
+						encryptedProperty.getEncryptionAlgorithm(),
+						Cipher.DECRYPT_MODE
+				);
+				byte[] decrypted = cipher.doFinal(encryptedProperty.getData());
+				byte[][] checksumAndData = splitChecksumAndData(decrypted, encryptedProperty.getChecksumSize());
+
+				byte[] checksum = checksum(checksumAndData[1], encryptedProperty.getChecksumAlgorithm());
+				if (!Arrays.equals(checksumAndData[0], checksum))
+					throw new IllegalStateException("Checksum mismatch!!! This means, the decryption key was wrong!");
+
+				result.setValueEncoded(checksumAndData[1]);
+			} catch (GeneralSecurityException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * <p>
+	 * Remove a property.
+	 * </p>
+	 * <p>
+	 * If the property with the given name does not exist, this method won't do anything.
+	 * </p>
+	 *
+	 * @param authUserName the authenticated user authorizing this action.
+	 * @param authPassword the password for authenticating the user specified by <code>authUserName</code>.
+	 * @param name the unique name of the property; must not be <code>null</code>.
+	 * @return whether the property was removed, i.e. whether this <code>KeyStore</code> was changed by the operation.
+	 * @throws AuthenticationException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
+	 * is not correct for the given <code>authUserName</code>.
+	 * @throws IOException if writing to the local file-system failed.
+	 */
+	public synchronized boolean removeProperty(String authUserName, char[] authPassword, String name)
+	throws AuthenticationException, IOException
+	{
+		boolean removed = _removeProperty(authUserName, authPassword, name);
+
+		if (removed)
+			storeToFile();
+
+		return removed;
+	}
+
+	boolean _removeProperty(String authUserName, char[] authPassword, String name)
+	throws AuthenticationException
+	{
+		getMasterKey(authUserName, authPassword);
+		return keyStoreData.name2propertyMap.remove(name) != null;
+	}
+
+	private UUID propertyInternalSerial = UUID.randomUUID();
+
+	/**
+	 * <p>
+	 * Set a property.
+	 * </p>
+	 * <p>
+	 * If the property's {@link Property#getValue() value} is <code>null</code>, the property is
+	 * {@link #removeProperty(String, char[], String) removed} instead.
+	 * </p>
+	 * <p>
+	 * If a property with the same {@link Property#getName() name} already exists, it is overwritten.
+	 * </p>
+	 * <p>
+	 * The property's value is encrypted with the internal master-key. The property's name is stored
+	 * in plain (unencrypted) form.
+	 * </p>
+	 *
+	 * @param authUserName the authenticated user authorizing this action.
+	 * @param authPassword the password for authenticating the user specified by <code>authUserName</code>.
+	 * @param property the property to set. Do not instantiate any property directly!
+	 * Use {@link #getProperty(String, char[], Class, String)} instead!
+	 * @throws AuthenticationException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
+	 * is not correct for the given <code>authUserName</code>.
+	 * @throws IOException if writing to the local file-system failed.
+	 */
+	public synchronized void setProperty(String authUserName, char[] authPassword, Property<?> property)
+	throws AuthenticationException, IOException
+	{
+		_setProperty(authUserName, authPassword, property);
+		storeToFile();
+	}
+
+	private void _setProperty(String authUserName, char[] authPassword, Property<?> property)
+	throws AuthenticationException
+	{
+		MasterKey masterKey = getMasterKey(authUserName, authPassword);
+
+		if (property == null)
+			throw new IllegalArgumentException("property == null");
+
+		if (!propertyInternalSerial.equals(property.getInternalSerial()))
+			throw new IllegalArgumentException("property was not created by this KeyStore! You should use 'getProperty(...)' instead of 'new SomeProperty(...)'!!! And you should never store properties unencrypted somewhere outside!");
+
+		keyStoreData.stringConstant(property.getClass().getName());
+
+		if (property.getValue() == null) {
+			_removeProperty(authUserName, authPassword, property.getName());
+		}
+		else {
+			byte[] plainValueEncoded = property.getValueEncoded();
+			if (plainValueEncoded == null)
+				throw new IllegalStateException("property.getValueEncoded() returned null, even though property.getValue() returned a non-null value!");
+
+			byte[] checksum = checksum(plainValueEncoded, CHECKSUM_ALGORITHM_ACTIVE);
+			byte[] checksumAndData = catChecksumAndData(checksum, plainValueEncoded);
+
+			try {
+				Cipher cipher = getCipherForMasterKey(masterKey, null, null, Cipher.ENCRYPT_MODE);
+				byte[] encrypted = cipher.doFinal(checksumAndData);
+
+				@SuppressWarnings("unchecked")
+				Class<? extends Property<?>> propertyType = (Class<? extends Property<?>>) property.getClass();
+				EncryptedProperty encryptedProperty = new EncryptedProperty(
+						property.getName(), propertyType,
+						encrypted, cipher.getIV(), keyStoreData.stringConstant(cipher.getAlgorithm()),
+						(short)checksum.length, keyStoreData.stringConstant(CHECKSUM_ALGORITHM_ACTIVE)
+				);
+				keyStoreData.name2propertyMap.put(encryptedProperty.getName(), encryptedProperty);
+			} catch (GeneralSecurityException e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 

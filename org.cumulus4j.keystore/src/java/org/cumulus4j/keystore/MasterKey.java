@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 class MasterKey
 implements SecretKey, KeySpec
 {
+	private static final long serialVersionUID = 1L;
+
 	private static final Logger logger = LoggerFactory.getLogger(MasterKey.class);
 
 	private byte[] keyData;
