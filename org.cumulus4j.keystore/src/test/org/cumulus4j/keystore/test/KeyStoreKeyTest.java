@@ -19,6 +19,9 @@ public class KeyStoreKeyTest
 {
 	private static final Logger logger = LoggerFactory.getLogger(KeyStoreKeyTest.class);
 
+	protected static final String USER = "marco";
+	protected static final char[] PASSWORD = "test12345".toCharArray();
+
 	private File keyStoreFile;
 	private KeyStore keyStore;
 
@@ -73,9 +76,6 @@ public class KeyStoreKeyTest
 		keyStore.clearCache(null);
 		keyStore.getKey(USER, PASSWORD, firstGeneratedKey.getKeyID());
 	}
-
-	private static final String USER = "marco";
-	private static final char[] PASSWORD = "test12345".toCharArray();
 
 	@Test
 	public void generateKeyAndRetrieveKey()

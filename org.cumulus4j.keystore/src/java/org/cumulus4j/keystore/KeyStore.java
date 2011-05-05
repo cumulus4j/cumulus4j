@@ -1,15 +1,11 @@
 package org.cumulus4j.keystore;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
@@ -32,8 +28,6 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.zip.CRC32;
-import java.util.zip.CheckedInputStream;
-import java.util.zip.CheckedOutputStream;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -205,6 +199,8 @@ public class KeyStore
 
 	private static final Charset UTF8 = Charset.forName("UTF-8");
 
+	private KeyStoreData keyStoreData = new KeyStoreData();
+
 	private static class ExipreCacheEntryTimerTask extends TimerTask
 	{
 		private static final Logger logger = LoggerFactory.getLogger(ExipreCacheEntryTimerTask.class);
@@ -310,33 +306,7 @@ public class KeyStore
 	}
 	private String encryptionAlgorithm = null;
 
-	private long nextKeyID = 1;
-	private Map<String, EncryptedKey> user2keyMap = new HashMap<String, EncryptedKey>();
-	private Map<Long, EncryptedKey> keyID2keyMap = new HashMap<Long, EncryptedKey>();
-
 	private Map<Integer, KeyGenerator> keySize2keyGenerator = new HashMap<Integer, KeyGenerator>();
-
-
-
-	private Map<String, Integer> stringConstant2idMap = new HashMap<String, Integer>();
-	private ArrayList<String> stringConstantList = new ArrayList<String>();
-
-	private synchronized String stringConstant(String s)
-	{
-		Integer idx = stringConstant2idMap.get(s);
-		if (idx == null) {
-			stringConstant2idMap.put(s, stringConstantList.size());
-			stringConstantList.add(s);
-			return s;
-		}
-		else {
-			String e = stringConstantList.get(idx);
-			if (!s.equals(e))
-				throw new IllegalStateException("Map and list are not matching!");
-
-			return e;
-		}
-	}
 
 	synchronized KeyGenerator getKeyGenerator(int keySize)
 	{
@@ -387,197 +357,17 @@ public class KeyStore
 			keyStoreFile = newKeyStoreFile;
 
 		FileInputStream in = keyStoreFile.length() == 0 ? null : new FileInputStream(keyStoreFile);
-
-		if (in != null)
-			load(in);
-
-		if (in != null)
-			in.close();
-
-		if (in == null)
-			storeToFile();
+		if (in != null) {
+			try {
+				keyStoreData.readFromStream(in);
+			} finally {
+				in.close();
+			}
+		}
+		else
+			storeToFile(); // create the file (empty) already now, if it does not exist.
 
 		expireCacheEntryTimer.schedule(expireCacheEntryTimerTask, 60000, 60000); // TODO make this configurable
-	}
-
-	private static final String FILE_HEADER = "Cumulus4jKeyStore";
-	private static final int FILE_VERSION = 1;
-
-	private void load(InputStream in)
-	throws IOException
-	{
-		int headerSizeIncludingVersion = FILE_HEADER.length() + 4; // in bytes
-
-		// We must put the BufferedInputStream here, because we must mark() and reset() - see below. Marco :-)
-		in = new BufferedInputStream(in);
-		in.mark(headerSizeIncludingVersion);
-
-		DataInputStream din = new DataInputStream(in);
-
-		char[] fileHeaderCharArray = FILE_HEADER.toCharArray();
-		char[] buf = new char[fileHeaderCharArray.length];
-		for (int i = 0; i < buf.length; i++)
-			buf[i] = (char) ( din.readByte() & 0xff );
-
-		if (!Arrays.equals(fileHeaderCharArray, buf))
-			throw new IOException("Stream does not start with expected HEADER!");
-
-		int fileVersion = din.readInt();
-		if (FILE_VERSION != fileVersion)
-			throw new IOException("Version not supported! Stream contains a keystore of version \"" + fileVersion + "\" while version \"" + FILE_VERSION + "\" (or lower) is expected!");
-
-		// The checksum is calculated over the complete file, but in order to know which algorithm
-		// to use, we first have to read the beginning of the file until including the version.
-		// We thus use mark(...) and reset().
-		in.reset();
-
-		MessageDigestChecksum checksum = new MessageDigestChecksum.SHA1();
-		CheckedInputStream cin = new CheckedInputStream(in, checksum);
-		din = new DataInputStream(cin);
-		readByteArrayCompletely(din, new byte[headerSizeIncludingVersion]); // We cannot use skip(...), because that would not update our checksum.
-
-		nextKeyID = din.readLong();
-
-		int stringConstantSize = din.readInt();
-		stringConstant2idMap.clear();
-		stringConstantList.clear();
-		for (int i = 0; i < stringConstantSize; ++i) {
-			String stringConstant = din.readUTF();
-			stringConstant(stringConstant);
-		}
-
-		int user2keyMapSize = din.readInt();
-		user2keyMap.clear();
-		for (int i = 0; i < user2keyMapSize; ++i) {
-			String user = din.readUTF();
-			EncryptedKey key = readKey(din);
-			user2keyMap.put(user, key);
-		}
-
-		int keyID2keyMapSize = din.readInt();
-		keyID2keyMap.clear();
-		for (int i = 0; i < keyID2keyMapSize; ++i) {
-			long keyID = din.readLong();
-			EncryptedKey key = readKey(din);
-			keyID2keyMap.put(keyID, key);
-		}
-
-		byte[] checksumValueCalculated = checksum.getChecksum();
-		byte[] checksumValueExpected = new byte[checksumValueCalculated.length];
-		readByteArrayCompletely(din, checksumValueExpected);
-		if (!Arrays.equals(checksumValueCalculated, checksumValueExpected))
-			throw new IOException("Checksum error! Expected=" + encodeHexStr(checksumValueExpected) + " Found=" + encodeHexStr(checksumValueCalculated));
-	}
-
-	private static void readByteArrayCompletely(InputStream in, byte[] dest)
-	throws IOException
-	{
-		int off = 0;
-		while (off < dest.length) {
-			int read = in.read(dest, off, dest.length - off);
-			if (read < 0)
-				throw new IOException("Unexpected early end of stream!");
-
-			off += read;
-		}
-	}
-
-	private void store(OutputStream out)
-	throws IOException
-	{
-		// We calculate the checksum over the complete file.
-		MessageDigestChecksum checksum = new MessageDigestChecksum.SHA1();
-		CheckedOutputStream cout = new CheckedOutputStream(out, checksum);
-
-		// We put the BufferedOutputStream around the CheckedOutputStream, because this is significantly faster
-		// (nearly factor 2; 86 vs 46 sec) and has no disadvantages. Marco.
-		DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(cout));
-
-		for (char c : FILE_HEADER.toCharArray()) {
-			if (c > 255)
-				throw new IllegalStateException("No character in FILE_HEADER should be outside the range 0...255!!! c=" + (int)c);
-
-			dout.writeByte(c);
-		}
-
-		dout.writeInt(FILE_VERSION);
-		dout.writeLong(nextKeyID);
-
-		dout.writeInt(stringConstantList.size());
-		for (String stringConstant : stringConstantList) {
-			dout.writeUTF(stringConstant);
-		}
-
-		dout.writeInt(user2keyMap.size());
-		for (Map.Entry<String, EncryptedKey> me : user2keyMap.entrySet()) {
-			dout.writeUTF(me.getKey());
-			writeKey(dout, me.getValue());
-		}
-
-		dout.writeInt(keyID2keyMap.size());
-		for (Map.Entry<Long, EncryptedKey> me : keyID2keyMap.entrySet()) {
-			dout.writeLong(me.getKey());
-			writeKey(dout, me.getValue());
-		}
-		dout.flush();
-
-		byte[] checksumValue = checksum.getChecksum();
-//		logger.debug("store: checksum={}", checksumValue);
-		dout.write(checksumValue);
-		dout.flush();
-	}
-
-	private void writeKey(DataOutputStream dout, EncryptedKey key) throws IOException
-	{
-		dout.writeInt(key.getData().length);
-		dout.write(key.getData());
-
-		dout.writeInt(key.getSalt().length);
-		dout.write(key.getSalt());
-
-		Integer idx = stringConstant2idMap.get(key.getAlgorithm());
-		dout.writeInt(idx);
-
-		dout.writeInt(key.getKeyEncryptionIV().length);
-		dout.write(key.getKeyEncryptionIV());
-
-		idx = stringConstant2idMap.get(key.getKeyEncryptionAlgorithm());
-		dout.writeInt(idx);
-
-		dout.writeShort(key.getChecksumSize());
-
-		idx = stringConstant2idMap.get(key.getChecksumAlgorithm());
-		dout.writeInt(idx);
-	}
-
-	private EncryptedKey readKey(DataInputStream din) throws IOException
-	{
-		int keySize = din.readInt();
-		byte[] key = new byte[keySize];
-		readByteArrayCompletely(din, key);
-
-		int saltSize = din.readInt();
-		byte[] salt = saltSize == 0 ? null : new byte[saltSize];
-		if (salt != null)
-			readByteArrayCompletely(din, salt);
-
-		int algorithmIdx = din.readInt();
-		String algorithm = stringConstantList.get(algorithmIdx);
-
-		int keyCryptIVSize = din.readInt();
-		byte[] keyCryptIV = keyCryptIVSize == 0 ? null : new byte[keyCryptIVSize];
-		if (keyCryptIV != null)
-			readByteArrayCompletely(din, keyCryptIV);
-
-		int keyCryptAlgoIdx = din.readInt();
-		String keyCryptAlgo = stringConstantList.get(keyCryptAlgoIdx);
-
-		short checksumSize = din.readShort();
-
-		int checksumAlgoIdx = din.readInt();
-		String checksumAlgo = stringConstantList.get(checksumAlgoIdx);
-
-		return new EncryptedKey(key, salt, algorithm, keyCryptIV, keyCryptAlgo, checksumSize, checksumAlgo);
 	}
 
 	File getNewKeyStoreFile()
@@ -594,12 +384,12 @@ public class KeyStore
 	 */
 	public synchronized boolean isEmpty()
 	{
-		return user2keyMap.isEmpty();
+		return keyStoreData.user2keyMap.isEmpty();
 	}
 
 	synchronized long nextKeyID()
 	{
-		long result = nextKeyID++;
+		long result = keyStoreData.nextKeyID++;
 		return result;
 	}
 
@@ -625,11 +415,12 @@ public class KeyStore
 			return result;
 		}
 
-		EncryptedKey encryptedKey = user2keyMap.get(authUserName);
+		EncryptedKey encryptedKey = keyStoreData.user2keyMap.get(authUserName);
 		if (encryptedKey == null)
 			logger.warn("getMasterKey: Unknown userName: {}", authUserName); // NOT throw exception here to not disclose the true reason of the AuthenticationException - see below
 		else {
 			try {
+				// TODO we have to pass the key size here - and thus store it in the EncryptedKey.
 				Cipher cipher = getCipherForUserPassword(
 						authPassword, encryptedKey.getSalt(),
 						encryptedKey.getKeyEncryptionIV(), encryptedKey.getKeyEncryptionAlgorithm(),
@@ -645,7 +436,7 @@ public class KeyStore
 					result = null;
 					logger.warn(
 							"getMasterKey: Wrong password for user \"{}\"! checksumAlgorithm={} expectedChecksum={} calculatedChecksum={}",
-							new Object[] { authUserName, encryptedKey.getChecksumAlgorithm(), encodeHexStr(checksumAndData[0]), encodeHexStr(checksum) }
+							new Object[] { authUserName, encryptedKey.getChecksumAlgorithm(), KeyStoreData.encodeHexStr(checksumAndData[0]), KeyStoreData.encodeHexStr(checksum) }
 					);
 				}
 			} catch (BadPaddingException x) {
@@ -730,6 +521,7 @@ public class KeyStore
 
 		SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1"); // TODO make configurable!
 //		SecretKeyFactory factory = SecretKeyFactory.getInstance("PBEWithSHA256And256BitAES-CBC-BC");
+		// TODO for existing users, we MUST use the key size of that user.
 		KeySpec spec = new PBEKeySpec(password, salt, 1024, getKeySize()); // TODO make iteration-count configurable!
 		SecretKey tmp = factory.generateSecret(spec);
 		SecretKey secret = new SecretKeySpec(tmp.getEncoded(), getBaseAlgorithm(algorithm));
@@ -894,7 +686,7 @@ public class KeyStore
 		else
 			masterKey = getMasterKey(authUserName, authPassword);
 
-		if (user2keyMap.containsKey(userName))
+		if (keyStoreData.user2keyMap.containsKey(userName))
 			throw new UserAlreadyExistsException("User '" + userName + "' already exists!");
 
 		setUser(masterKey, userName, password);
@@ -915,11 +707,11 @@ public class KeyStore
 
 			EncryptedKey encryptedKey = new EncryptedKey(
 					encrypted, salt,
-					stringConstant(masterKey.getAlgorithm()),
-					cipher.getIV(), stringConstant(cipher.getAlgorithm()),
-					(short)hash.length, stringConstant(CHECKSUM_ALGORITHM_ACTIVE)
+					keyStoreData.stringConstant(masterKey.getAlgorithm()),
+					cipher.getIV(), keyStoreData.stringConstant(cipher.getAlgorithm()),
+					(short)hash.length, keyStoreData.stringConstant(CHECKSUM_ALGORITHM_ACTIVE)
 			);
-			user2keyMap.put(userName, encryptedKey);
+			keyStoreData.user2keyMap.put(userName, encryptedKey);
 			usersCache = null;
 		} catch (GeneralSecurityException e) {
 			throw new RuntimeException(e);
@@ -1011,8 +803,11 @@ public class KeyStore
 		boolean deleteNewKeyStoreFile = true;
 		try {
 			OutputStream out = new FileOutputStream(newKeyStoreFile);
-			store(out);
-			out.close();
+			try {
+				keyStoreData.writeToStream(out);
+			} finally {
+				out.close();
+			}
 
 			deleteNewKeyStoreFile = false;
 			keyStoreFile.delete();
@@ -1052,7 +847,7 @@ public class KeyStore
 
 		Set<String> users = usersCache;
 		if (users == null) {
-			users = Collections.unmodifiableSet(new HashSet<String>(user2keyMap.keySet()));
+			users = Collections.unmodifiableSet(new HashSet<String>(keyStoreData.user2keyMap.keySet()));
 			usersCache = users;
 		}
 
@@ -1089,29 +884,19 @@ public class KeyStore
 		// Marco :-)
 		getMasterKey(authUserName, authPassword);
 
-		EncryptedKey encryptedKey = user2keyMap.get(userName);
+		EncryptedKey encryptedKey = keyStoreData.user2keyMap.get(userName);
 		if (encryptedKey == null)
 			throw new UserNotFoundException("The user \"" + userName + "\" does not exist!");
 
-		if (user2keyMap.size() == 1)
+		if (keyStoreData.user2keyMap.size() == 1)
 			throw new CannotDeleteLastUserException("You cannot delete the last user and \"" + userName + "\" is the last user!");
 
 		clearCache(userName);
-		user2keyMap.remove(userName);
+		keyStoreData.user2keyMap.remove(userName);
 		usersCache = null;
 
 		storeToFile();
 	}
-
-//	public synchronized void changeMyPassword(String userName, char[] oldPassword, char[] newPassword)
-//	throws AuthenticationException, IOException
-//	{
-//		try {
-//			changeUserPassword(userName, oldPassword, userName, newPassword);
-//		} catch (UserNotFoundException e) {
-//			throw new RuntimeException("How the hell can this happen? The AuthenticationException should have occured in this case!", e);
-//		}
-//	}
 
 	/**
 	 * <p>
@@ -1137,7 +922,7 @@ public class KeyStore
 	{
 		MasterKey masterKey = getMasterKey(authUserName, authPassword);
 
-		if (!user2keyMap.containsKey(userName))
+		if (!keyStoreData.user2keyMap.containsKey(userName))
 			throw new UserNotFoundException("User '" + userName + "' does not exist!");
 
 		setUser(masterKey, userName, newPassword);
@@ -1161,7 +946,7 @@ public class KeyStore
 	throws AuthenticationException, KeyNotFoundException
 	{
 		MasterKey masterKey = getMasterKey(authUserName, authPassword);
-		EncryptedKey encryptedKey = keyID2keyMap.get(keyID);
+		EncryptedKey encryptedKey = keyStoreData.keyID2keyMap.get(keyID);
 		if (encryptedKey == null)
 			throw new KeyNotFoundException("There is no key with keyID=" + keyID + "!");
 
@@ -1198,11 +983,11 @@ public class KeyStore
 			Cipher cipher = getCipherForMasterKey(masterKey, null, null, Cipher.ENCRYPT_MODE);
 			byte[] encrypted = cipher.doFinal(checksumAndData);
 			EncryptedKey encryptedKey = new EncryptedKey(
-					encrypted, null, stringConstant(key.getAlgorithm()),
-					cipher.getIV(), stringConstant(cipher.getAlgorithm()),
-					(short)checksum.length, stringConstant(CHECKSUM_ALGORITHM_ACTIVE)
+					encrypted, null, keyStoreData.stringConstant(key.getAlgorithm()),
+					cipher.getIV(), keyStoreData.stringConstant(cipher.getAlgorithm()),
+					(short)checksum.length, keyStoreData.stringConstant(CHECKSUM_ALGORITHM_ACTIVE)
 			);
-			keyID2keyMap.put(keyID, encryptedKey);
+			keyStoreData.keyID2keyMap.put(keyID, encryptedKey);
 		} catch (GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}
@@ -1244,49 +1029,4 @@ public class KeyStore
 		super.finalize();
 	}
 
-	/**
-	 * This method encodes a byte array into a human readable hex string. For each byte,
-	 * two hex digits are produced. They are concatted without any separators.
-	 * <p>
-	 * This is a convenience method for <code>encodeHexStr(buf, 0, buf.length)</code>
-	 * <p>
-	 * This is copied from project <code>org.nightlabs.util</code>. If we need  more from this
-	 * lib, we should add a dependency onto it.
-	 *
-	 * @param buf The byte array to translate into human readable text.
-	 * @return a human readable string like "fa3d70" for a byte array with 3 bytes and these values.
-	 * @see #encodeHexStr(byte[], int, int)
-	 * @see #decodeHexStr(String)
-	 */
-	private static String encodeHexStr(byte[] buf)
-	{
-		return encodeHexStr(buf, 0, buf.length);
-	}
-
-	/**
-	 * Encode a byte array into a human readable hex string. For each byte,
-	 * two hex digits are produced. They are concatted without any separators.
-	 * <p>
-	 * This is copied from project <code>org.nightlabs.util</code>. If we need  more from this
-	 * lib, we should add a dependency onto it.
-	 *
-	 * @param buf The byte array to translate into human readable text.
-	 * @param pos The start position (0-based).
-	 * @param len The number of bytes that shall be processed beginning at the position specified by <code>pos</code>.
-	 * @return a human readable string like "fa3d70" for a byte array with 3 bytes and these values.
-	 * @see #encodeHexStr(byte[])
-	 * @see #decodeHexStr(String)
-	 */
-	private static String encodeHexStr(byte[] buf, int pos, int len)
-	{
-		 StringBuffer hex = new StringBuffer();
-		 while (len-- > 0) {
-				byte ch = buf[pos++];
-				int d = (ch >> 4) & 0xf;
-				hex.append((char)(d >= 10 ? 'a' - 10 + d : '0' + d));
-				d = ch & 0xf;
-				hex.append((char)(d >= 10 ? 'a' - 10 + d : '0' + d));
-		 }
-		 return hex.toString();
-	}
 }
