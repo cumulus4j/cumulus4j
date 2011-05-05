@@ -22,7 +22,7 @@ import java.util.zip.CheckedOutputStream;
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public class KeyStoreData
+class KeyStoreData
 implements Serializable
 {
 	private static final int FILE_VERSION = 1;
