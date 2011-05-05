@@ -30,7 +30,7 @@ implements Serializable
 	private static final String FILE_HEADER = "Cumulus4jKeyStore";
 
 //	long nextKeyID = 1;
-	Map<String, EncryptedKey> user2keyMap = new HashMap<String, EncryptedKey>();
+	Map<String, EncryptedMasterKey> user2keyMap = new HashMap<String, EncryptedMasterKey>();
 	Map<Long, EncryptedKey> keyID2keyMap = new HashMap<Long, EncryptedKey>();
 
 	private Map<String, Integer> stringConstant2idMap = new HashMap<String, Integer>();
@@ -53,36 +53,6 @@ implements Serializable
 
 			return e;
 		}
-	}
-
-	private EncryptedKey readKey(DataInputStream din) throws IOException
-	{
-		int keySize = din.readInt();
-		byte[] key = new byte[keySize];
-		KeyStoreUtil.readByteArrayCompletely(din, key);
-
-		int saltSize = din.readInt();
-		byte[] salt = saltSize == 0 ? null : new byte[saltSize];
-		if (salt != null)
-			KeyStoreUtil.readByteArrayCompletely(din, salt);
-
-		int algorithmIdx = din.readInt();
-		String algorithm = stringConstantList.get(algorithmIdx);
-
-		int keyCryptIVSize = din.readInt();
-		byte[] keyCryptIV = keyCryptIVSize == 0 ? null : new byte[keyCryptIVSize];
-		if (keyCryptIV != null)
-			KeyStoreUtil.readByteArrayCompletely(din, keyCryptIV);
-
-		int keyCryptAlgoIdx = din.readInt();
-		String keyCryptAlgo = stringConstantList.get(keyCryptAlgoIdx);
-
-		short checksumSize = din.readShort();
-
-		int checksumAlgoIdx = din.readInt();
-		String checksumAlgo = stringConstantList.get(checksumAlgoIdx);
-
-		return new EncryptedKey(key, salt, algorithm, keyCryptIV, keyCryptAlgo, checksumSize, checksumAlgo);
 	}
 
 	private void readObject(java.io.ObjectInputStream in)
@@ -135,19 +105,17 @@ implements Serializable
 		}
 
 		int user2keyMapSize = din.readInt();
-		user2keyMap = new HashMap<String, EncryptedKey>(user2keyMapSize);
+		user2keyMap = new HashMap<String, EncryptedMasterKey>(user2keyMapSize);
 		for (int i = 0; i < user2keyMapSize; ++i) {
-			String user = din.readUTF();
-			EncryptedKey key = readKey(din);
-			user2keyMap.put(user, key);
+			EncryptedMasterKey key = new EncryptedMasterKey(din, stringConstantList);
+			user2keyMap.put(key.getUserName(), key);
 		}
 
 		int keyID2keyMapSize = din.readInt();
 		keyID2keyMap = new HashMap<Long, EncryptedKey>(keyID2keyMapSize);
 		for (int i = 0; i < keyID2keyMapSize; ++i) {
-			long keyID = din.readLong();
-			EncryptedKey key = readKey(din);
-			keyID2keyMap.put(keyID, key);
+			EncryptedKey key = new EncryptedKey(din, stringConstantList);
+			keyID2keyMap.put(key.getKeyID(), key);
 		}
 
 		int name2propertyMapSize = din.readInt();
@@ -197,15 +165,13 @@ implements Serializable
 		}
 
 		dout.writeInt(user2keyMap.size());
-		for (Map.Entry<String, EncryptedKey> me : user2keyMap.entrySet()) {
-			dout.writeUTF(me.getKey());
-			writeKey(dout, me.getValue());
+		for (EncryptedMasterKey key : user2keyMap.values()) {
+			key.write(dout, stringConstant2idMap);
 		}
 
 		dout.writeInt(keyID2keyMap.size());
-		for (Map.Entry<Long, EncryptedKey> me : keyID2keyMap.entrySet()) {
-			dout.writeLong(me.getKey());
-			writeKey(dout, me.getValue());
+		for (EncryptedKey key : keyID2keyMap.values()) {
+			key.write(dout, stringConstant2idMap);
 		}
 
 		dout.writeInt(name2propertyMap.size());
@@ -223,26 +189,26 @@ implements Serializable
 		dout.flush();
 	}
 
-	private void writeKey(DataOutputStream dout, EncryptedKey key) throws IOException
-	{
-		dout.writeInt(key.getData().length);
-		dout.write(key.getData());
-
-		dout.writeInt(key.getSalt().length);
-		dout.write(key.getSalt());
-
-		Integer idx = stringConstant2idMap.get(key.getAlgorithm());
-		dout.writeInt(idx);
-
-		dout.writeInt(key.getEncryptionIV().length);
-		dout.write(key.getEncryptionIV());
-
-		idx = stringConstant2idMap.get(key.getEncryptionAlgorithm());
-		dout.writeInt(idx);
-
-		dout.writeShort(key.getChecksumSize());
-
-		idx = stringConstant2idMap.get(key.getChecksumAlgorithm());
-		dout.writeInt(idx);
-	}
+//	private void writeKey(DataOutputStream dout, EncryptedKey key) throws IOException
+//	{
+//		dout.writeInt(key.getData().length);
+//		dout.write(key.getData());
+//
+//		dout.writeInt(key.getSalt().length);
+//		dout.write(key.getSalt());
+//
+//		Integer idx = stringConstant2idMap.get(key.getAlgorithm());
+//		dout.writeInt(idx);
+//
+//		dout.writeInt(key.getEncryptionIV().length);
+//		dout.write(key.getEncryptionIV());
+//
+//		idx = stringConstant2idMap.get(key.getEncryptionAlgorithm());
+//		dout.writeInt(idx);
+//
+//		dout.writeShort(key.getChecksumSize());
+//
+//		idx = stringConstant2idMap.get(key.getChecksumAlgorithm());
+//		dout.writeInt(idx);
+//	}
 }

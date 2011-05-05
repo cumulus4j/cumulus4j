@@ -426,14 +426,18 @@ public class KeyStore
 			return result;
 		}
 
-		EncryptedKey encryptedKey = keyStoreData.user2keyMap.get(authUserName);
+		EncryptedMasterKey encryptedKey = keyStoreData.user2keyMap.get(authUserName);
 		if (encryptedKey == null)
 			logger.warn("getMasterKey: Unknown userName: {}", authUserName); // NOT throw exception here to not disclose the true reason of the AuthenticationException - see below
 		else {
 			try {
 				// TODO we have to pass the key size here - and thus store it in the EncryptedKey.
 				Cipher cipher = getCipherForUserPassword(
-						authPassword, encryptedKey.getSalt(),
+						authPassword,
+						encryptedKey.getPasswordBasedKeySize(),
+						encryptedKey.getPasswordBasedInterationCount(),
+						encryptedKey.getPasswordBasedKeyGeneratorAlgorithm(),
+						encryptedKey.getSalt(),
 						encryptedKey.getEncryptionIV(), encryptedKey.getEncryptionAlgorithm(),
 						Cipher.DECRYPT_MODE
 				);
@@ -512,7 +516,10 @@ public class KeyStore
 		return result;
 	}
 
-	private Cipher getCipherForUserPassword(char[] password, byte[] salt, byte[] iv, String algorithm, int opmode) throws GeneralSecurityException
+	private Cipher getCipherForUserPassword(
+			char[] password,
+			int passwordBasedKeySize, int passwordBasedInterationCount, String passwordBasedKeyGeneratorAlgorithm,
+			byte[] salt, byte[] iv, String algorithm, int opmode) throws GeneralSecurityException
 	{
 		if (iv == null) {
 			if (Cipher.ENCRYPT_MODE != opmode)
@@ -530,10 +537,9 @@ public class KeyStore
 			algorithm = getEncryptionAlgorithm();
 		}
 
-		SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1"); // TODO make configurable!
-//		SecretKeyFactory factory = SecretKeyFactory.getInstance("PBEWithSHA256And256BitAES-CBC-BC");
-		// TODO for existing users, we MUST use the key size of that user.
-		KeySpec spec = new PBEKeySpec(password, salt, 1024, salt.length * 8); // TODO make iteration-count configurable!
+		SecretKeyFactory factory = SecretKeyFactory.getInstance(passwordBasedKeyGeneratorAlgorithm);
+
+		KeySpec spec = new PBEKeySpec(password, salt, passwordBasedInterationCount, passwordBasedKeySize);
 		SecretKey tmp = factory.generateSecret(spec);
 		SecretKey secret = new SecretKeySpec(tmp.getEncoded(), getBaseAlgorithm(algorithm));
 		Cipher cipher = Cipher.getInstance(algorithm);
@@ -710,13 +716,27 @@ public class KeyStore
 		byte[] hash = checksum(plainMasterKeyData, CHECKSUM_ALGORITHM_ACTIVE);
 		byte[] hashAndData = catChecksumAndData(hash, plainMasterKeyData);
 
-		byte[] salt = new byte[plainMasterKeyData.length];
+		byte[] salt = new byte[8]; // Are 8 bytes salt salty (i.e. secure) enough?
 		secureRandom.nextBytes(salt);
 		try {
-			Cipher cipher = getCipherForUserPassword(password, salt, null, null, Cipher.ENCRYPT_MODE);
+			int passwordBasedKeySize = getKeySize();
+			int passwordBasedInterationCount = 1024; // TODO make configurable!
+			String passwordBasedKeyGeneratorAlgorithm = "PBKDF2WithHmacSHA1"; // TODO make configurable
+
+			Cipher cipher = getCipherForUserPassword(
+					password,
+					passwordBasedKeySize,
+					passwordBasedInterationCount,
+					passwordBasedKeyGeneratorAlgorithm,
+					salt, null, null, Cipher.ENCRYPT_MODE
+			);
 			byte[] encrypted = cipher.doFinal(hashAndData);
 
-			EncryptedKey encryptedKey = new EncryptedKey(
+			EncryptedMasterKey encryptedKey = new EncryptedMasterKey(
+					userName,
+					passwordBasedKeySize,
+					passwordBasedInterationCount,
+					keyStoreData.stringConstant(passwordBasedKeyGeneratorAlgorithm),
 					encrypted, salt,
 					keyStoreData.stringConstant(masterKey.getAlgorithm()),
 					cipher.getIV(), keyStoreData.stringConstant(cipher.getAlgorithm()),
@@ -884,7 +904,7 @@ public class KeyStore
 		// Marco :-)
 		getMasterKey(authUserName, authPassword);
 
-		EncryptedKey encryptedKey = keyStoreData.user2keyMap.get(userName);
+		EncryptedMasterKey encryptedKey = keyStoreData.user2keyMap.get(userName);
 		if (encryptedKey == null)
 			throw new UserNotFoundException("The user \"" + userName + "\" does not exist!");
 
@@ -983,7 +1003,7 @@ public class KeyStore
 			Cipher cipher = getCipherForMasterKey(masterKey, null, null, Cipher.ENCRYPT_MODE);
 			byte[] encrypted = cipher.doFinal(checksumAndData);
 			EncryptedKey encryptedKey = new EncryptedKey(
-					encrypted, null, keyStoreData.stringConstant(key.getAlgorithm()),
+					keyID, encrypted, keyStoreData.stringConstant(key.getAlgorithm()),
 					cipher.getIV(), keyStoreData.stringConstant(cipher.getAlgorithm()),
 					(short)checksum.length, keyStoreData.stringConstant(CHECKSUM_ALGORITHM_ACTIVE)
 			);

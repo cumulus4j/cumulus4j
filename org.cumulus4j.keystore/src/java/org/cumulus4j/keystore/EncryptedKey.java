@@ -1,82 +1,42 @@
 package org.cumulus4j.keystore;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Map;
+
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 class EncryptedKey
+extends AbstractEncryptedKey
 {
-	private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
+	private long keyID;
 
 	public EncryptedKey(
-			byte[] data, byte[] salt, String algorithm, byte[] encryptionIV, String encryptionAlgorithm, short checksumSize, String checksumAlgorithm
+			long keyID,
+			byte[] data, String algorithm, byte[] encryptionIV, String encryptionAlgorithm, short checksumSize, String checksumAlgorithm
 	)
 	{
-		if (data == null)
-			throw new IllegalArgumentException("data must not be null!");
-
-		if (salt == null)
-			salt = EMPTY_BYTE_ARRAY;
-
-		if (algorithm == null)
-			throw new IllegalArgumentException("algorithm must not be null!");
-
-		if (encryptionAlgorithm == null)
-			throw new IllegalArgumentException("encryptionAlgorithm must not be null!");
-
-		if (checksumSize < 1)
-			throw new IllegalArgumentException("checksumSize < 1");
-
-		if (checksumAlgorithm == null || checksumAlgorithm.isEmpty())
-			throw new IllegalArgumentException("checksumAlgorithm must not be null and not be empty!");
-
-		this.data = data;
-		this.salt = salt;
-		this.algorithm = algorithm;
-		this.encryptionIV = encryptionIV;
-		this.encryptionAlgorithm = encryptionAlgorithm;
-		this.checksumSize = checksumSize;
-		this.checksumAlgorithm = checksumAlgorithm;
+		super(data, algorithm, encryptionIV, encryptionAlgorithm, checksumSize, checksumAlgorithm);
+		this.keyID = keyID;
 	}
 
-	private byte[] data;
-
-	public byte[] getData() {
-		return data;
+	public long getKeyID() {
+		return keyID;
 	}
 
-	private byte[] salt;
-
-	public byte[] getSalt() {
-		return salt;
+	public EncryptedKey(DataInputStream in, ArrayList<String> stringConstantList) throws IOException
+	{
+		keyID = in.readLong();
+		read(in, stringConstantList);
 	}
 
-	private String algorithm;
-
-	public String getAlgorithm() {
-		return algorithm;
-	}
-
-	byte[] encryptionIV;
-
-	public byte[] getEncryptionIV() {
-		return encryptionIV;
-	}
-
-	private String encryptionAlgorithm;
-
-	public String getEncryptionAlgorithm() {
-		return encryptionAlgorithm;
-	}
-
-	private short checksumSize;
-
-	public short getChecksumSize() {
-		return checksumSize;
-	}
-
-	private String checksumAlgorithm;
-
-	public String getChecksumAlgorithm() {
-		return checksumAlgorithm;
+	@Override
+	public void write(DataOutputStream out, Map<String, Integer> stringConstant2idMap) throws IOException
+	{
+		out.writeLong(keyID);
+		super.write(out, stringConstant2idMap);
 	}
 }
