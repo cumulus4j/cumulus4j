@@ -1109,6 +1109,8 @@ public class KeyStore
 	 * @throws AuthenticationException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
 	 * is not correct for the given <code>authUserName</code>.
 	 * @throws IOException if writing to the local file-system failed.
+	 * @see #getProperty(String, char[], Class, String)
+	 * @see #setProperty(String, char[], Property)
 	 */
 	public synchronized boolean removeProperty(String authUserName, char[] authPassword, String name)
 	throws AuthenticationException, IOException
@@ -1153,6 +1155,8 @@ public class KeyStore
 	 * @throws AuthenticationException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
 	 * is not correct for the given <code>authUserName</code>.
 	 * @throws IOException if writing to the local file-system failed.
+	 * @see #getProperty(String, char[], Class, String)
+	 * @see #removeProperty(String, char[], String)
 	 */
 	public synchronized void setProperty(String authUserName, char[] authPassword, Property<?> property)
 	throws AuthenticationException, IOException
