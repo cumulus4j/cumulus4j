@@ -76,7 +76,7 @@ public class KeyStorePropertyTest
 	public void testLongProperty()
 	throws Exception
 	{
-		String propertyName = "property1";
+		String propertyName = "LongProperty1";
 		LongProperty property = keyStore.getProperty(USER, PASSWORD, LongProperty.class, propertyName);
 		Long value = 7823647234L;
 		property.setValue(value);
@@ -91,7 +91,7 @@ public class KeyStorePropertyTest
 	public void testStringProperty()
 	throws Exception
 	{
-		String propertyName = "property1";
+		String propertyName = "StringProperty1";
 		StringProperty property = keyStore.getProperty(USER, PASSWORD, StringProperty.class, propertyName);
 		String value = "test value - bla bla bla";
 		property.setValue(value);
