@@ -41,6 +41,7 @@ public class TransactionalRunner extends BlockJUnit4ClassRunner
 			DriverManager.getConnection("jdbc:derby:;shutdown=true");
 		} catch (SQLException x) {
 			// ignore, because this is to be expected according to http://db.apache.org/derby/docs/dev/devguide/tdevdvlp40464.html
+			doNothing(); // Remove warning from PMD report: http://cumulus4j.org/pmd.html
 		}
 
 //		logger.info("run: ************ children begin ************");
@@ -262,4 +263,6 @@ public class TransactionalRunner extends BlockJUnit4ClassRunner
 //			}
 		}
 	}
+
+	private static final void doNothing() { }
 }

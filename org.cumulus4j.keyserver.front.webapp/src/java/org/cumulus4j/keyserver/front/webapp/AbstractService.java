@@ -113,7 +113,10 @@ public abstract class AbstractService
 			throw new WebApplicationException(Response.status(Status.FORBIDDEN).entity(new Error(e)).build());
 		} catch (KeyNotFoundException e) {
 			// ignore this - it's expected
-		};
+			doNothing(); // Remove warning from PMD report: http://cumulus4j.org/pmd.html
+		}
 		return auth;
 	}
+
+	private static final void doNothing() { }
 }

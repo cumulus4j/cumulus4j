@@ -100,6 +100,8 @@ public class SessionManager
 		return keyStore;
 	}
 
+	private static final void doNothing() { }
+
 	/**
 	 * Open a new or refresh an existing session.
 	 *
@@ -112,6 +114,7 @@ public class SessionManager
 			keyStore.getKey(userName, password, Long.MAX_VALUE);
 		} catch (KeyNotFoundException e) {
 			// very likely, the key does not exist - this is expected and OK!
+			doNothing(); // Remove warning from PMD report: http://cumulus4j.org/pmd.html
 		}
 
 		Session session = userName2Session.get(userName);

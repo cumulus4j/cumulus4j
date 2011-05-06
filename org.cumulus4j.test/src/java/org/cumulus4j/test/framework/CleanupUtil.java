@@ -43,6 +43,7 @@ public class CleanupUtil
 				DriverManager.getConnection("jdbc:derby:;shutdown=true");
 			} catch (SQLException x) {
 				// ignore, because this is to be expected according to http://db.apache.org/derby/docs/dev/devguide/tdevdvlp40464.html
+				doNothing(); // Remove warning from PMD report: http://cumulus4j.org/pmd.html
 			}
 
 			// simply delete the directory - the drop table commands failed and I don't have time to find out why
@@ -156,4 +157,6 @@ public class CleanupUtil
 			return false;
 		}
 	}
+
+	private static final void doNothing() { }
 }
