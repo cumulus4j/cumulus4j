@@ -69,6 +69,9 @@ public abstract class QueryEvaluator
 	/** Map of input parameter values, keyed by the parameter name. */
 	private Map<String, Object> parameterValues;
 
+  /** Positional parameter that we are up to (-1 implies not being used). */
+  Map<Integer, Symbol> paramSymbolByPosition = null;
+
 	/** Map of state symbols for the query evaluation. */
 	private Map<String, Object> state;
 
@@ -83,6 +86,37 @@ public abstract class QueryEvaluator
 	private EncryptionHandler encryptionHandler;
 
 	private boolean complete = true;
+
+	/**
+	 * @param pm our <b>backend</b>-<code>PersistenceManager</code>.
+	 */
+	public QueryEvaluator(
+			String language, Query query, QueryCompilation compilation, Map<String, Object> parameterValues, ClassLoaderResolver clr,
+			PersistenceManager pm
+	)
+	{
+		this.language = language;
+		this.query = query;
+		this.compilation = compilation;
+		this.parameterValues = parameterValues;
+		this.clr = clr;
+		this.ec = query.getExecutionContext();
+		this.storeManager = (Cumulus4jStoreManager) query.getStoreManager();
+		this.pm = pm;
+		this.encryptionHandler = storeManager.getEncryptionHandler();
+
+		this.candidateAlias = (compilation.getCandidateAlias() != null ? compilation.getCandidateAlias() : this.candidateAlias);
+
+		state = new HashMap<String, Object>();
+		state.put(this.candidateAlias, query.getCandidateClass());
+
+		if (parameterValues != null && !parameterValues.isEmpty()) {
+			Object paramKey = parameterValues.keySet().iterator().next();
+			if (paramKey instanceof Integer) {
+				paramSymbolByPosition = new HashMap<Integer, Symbol>();
+			}
+		}
+	}
 
 	public boolean isComplete() {
 		return complete;
@@ -201,34 +235,33 @@ public abstract class QueryEvaluator
 				return resultDescriptor.getResultType();
 		}
 
+		if (symbol.getType() == Symbol.PARAMETER) {
+			// Cater for implicit parameters where the generic compilation doesn't have the type
+			if (paramSymbolByPosition != null) {
+				// Positional parameters
+				Iterator<Map.Entry<Integer, Symbol>> paramIter = paramSymbolByPosition.entrySet().iterator();
+				while (paramIter.hasNext()) {
+					Map.Entry<Integer, Symbol> entry = paramIter.next();
+					if (entry.getValue() == symbol) {
+						return parameterValues.get(entry.getKey()).getClass();
+					}
+				}
+
+				Integer nextPos = paramSymbolByPosition.size();
+				Object value = parameterValues.get(nextPos);
+				paramSymbolByPosition.put(nextPos, symbol);
+				return value.getClass();
+			}
+			else {
+				if (parameterValues.containsKey(symbol.getQualifiedName())) {
+					return parameterValues.get(symbol.getQualifiedName()).getClass();
+				}
+			}
+		}
 		if (throwExceptionIfNotFound)
 			throw new IllegalStateException("Could not determine the resultType of symbol \"" + symbol + "\"! If this is a variable, you might want to declare it.");
 
 		return null;
-	}
-
-	/**
-	 * @param pm our <b>backend</b>-<code>PersistenceManager</code>.
-	 */
-	public QueryEvaluator(
-			String language, Query query, QueryCompilation compilation, Map<String, Object> parameterValues, ClassLoaderResolver clr,
-			PersistenceManager pm
-	)
-	{
-		this.language = language;
-		this.query = query;
-		this.compilation = compilation;
-		this.parameterValues = parameterValues;
-		this.clr = clr;
-		this.ec = query.getExecutionContext();
-		this.storeManager = (Cumulus4jStoreManager) query.getStoreManager();
-		this.pm = pm;
-		this.encryptionHandler = storeManager.getEncryptionHandler();
-
-		this.candidateAlias = (compilation.getCandidateAlias() != null ? compilation.getCandidateAlias() : this.candidateAlias);
-
-		state = new HashMap<String, Object>();
-		state.put(this.candidateAlias, query.getCandidateClass());
 	}
 
 	protected abstract Collection<Object> evaluateSubquery(
