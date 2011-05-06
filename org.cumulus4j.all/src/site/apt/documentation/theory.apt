@@ -13,7 +13,7 @@ Theory
 	Cumulus4j also decrypts data before it is used by your application.
 	All this happens transparent to your application.
 
-	[scheme.jpeg] Basic Cumulus4j scheme
+	[images/scheme.jpeg] Basic Cumulus4j scheme
 
 * Encryption
 
