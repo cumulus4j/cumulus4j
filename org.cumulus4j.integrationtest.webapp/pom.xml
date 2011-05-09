@@ -45,7 +45,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.cumulus4j</groupId>
-			<artifactId>org.cumulus4j.test</artifactId>
+			<artifactId>org.cumulus4j.store.test</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
