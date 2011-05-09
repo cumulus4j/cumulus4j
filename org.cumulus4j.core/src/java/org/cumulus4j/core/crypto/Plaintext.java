@@ -1,4 +1,4 @@
-package org.cumulus4j.api.crypto;
+package org.cumulus4j.core.crypto;
 
 /**
  * Object representing unencrypted information (aka <a href="http://en.wikipedia.org/wiki/Plaintext">plaintext</a>).

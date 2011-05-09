@@ -1,4 +1,4 @@
-package org.cumulus4j.api.crypto;
+package org.cumulus4j.core.crypto;
 
 public class UnknownCryptoManagerIDException extends IllegalArgumentException
 {

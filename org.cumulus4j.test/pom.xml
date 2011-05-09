@@ -17,14 +17,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.cumulus4j</groupId>
-			<artifactId>org.cumulus4j.api</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.cumulus4j</groupId>
 			<artifactId>org.cumulus4j.core</artifactId>
 			<version>${project.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.datanucleus</groupId>

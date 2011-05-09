@@ -8,9 +8,9 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.cumulus4j.api.crypto.AbstractCryptoSession;
-import org.cumulus4j.api.crypto.Ciphertext;
-import org.cumulus4j.api.crypto.Plaintext;
+import org.cumulus4j.core.crypto.AbstractCryptoSession;
+import org.cumulus4j.core.crypto.Ciphertext;
+import org.cumulus4j.core.crypto.Plaintext;
 import org.cumulus4j.keyserver.back.core.rest.RequestResponseBroker;
 import org.cumulus4j.keyserver.back.shared.GetActiveEncryptionKeyRequest;
 import org.cumulus4j.keyserver.back.shared.GetKeyRequest;

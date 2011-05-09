@@ -7,4 +7,4 @@
  * encryption/decryption logic via the extension-point <code>org.cumulus4j.api.cryptoManager</code>.
  * </p>
  */
-package org.cumulus4j.api.crypto;
+package org.cumulus4j.core.crypto;

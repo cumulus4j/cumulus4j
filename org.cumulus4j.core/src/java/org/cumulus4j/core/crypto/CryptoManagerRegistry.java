@@ -1,4 +1,4 @@
-package org.cumulus4j.api.crypto;
+package org.cumulus4j.core.crypto;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -102,7 +102,7 @@ public class CryptoManagerRegistry
 		CryptoManager cryptoManager;
 		try {
 			cryptoManager = (CryptoManager) nucleusContext.getPluginManager().createExecutableExtension(
-					"org.cumulus4j.api.cryptoManager",
+					"org.cumulus4j.core.cryptoManager",
 					"cryptoManagerID", cryptoManagerID,
 					"class",
 					null, null

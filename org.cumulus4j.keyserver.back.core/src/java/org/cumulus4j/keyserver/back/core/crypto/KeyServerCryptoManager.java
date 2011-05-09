@@ -1,7 +1,7 @@
 package org.cumulus4j.keyserver.back.core.crypto;
 
-import org.cumulus4j.api.crypto.AbstractCryptoManager;
-import org.cumulus4j.api.crypto.CryptoSession;
+import org.cumulus4j.core.crypto.AbstractCryptoManager;
+import org.cumulus4j.core.crypto.CryptoSession;
 
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de

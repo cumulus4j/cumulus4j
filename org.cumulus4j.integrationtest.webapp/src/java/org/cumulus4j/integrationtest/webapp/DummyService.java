@@ -13,8 +13,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.cumulus4j.api.crypto.CryptoManager;
-import org.cumulus4j.api.crypto.CryptoSession;
+import org.cumulus4j.core.crypto.CryptoManager;
+import org.cumulus4j.core.crypto.CryptoSession;
 import org.cumulus4j.test.framework.CleanupUtil;
 import org.cumulus4j.test.framework.TestUtil;
 import org.cumulus4j.test.movie.Movie;

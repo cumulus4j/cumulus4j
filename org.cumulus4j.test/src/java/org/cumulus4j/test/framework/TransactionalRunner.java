@@ -10,8 +10,8 @@ import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 
-import org.cumulus4j.api.crypto.CryptoManager;
-import org.cumulus4j.api.crypto.CryptoSession;
+import org.cumulus4j.core.crypto.CryptoManager;
+import org.cumulus4j.core.crypto.CryptoSession;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.internal.runners.model.MultipleFailureException;

@@ -1,4 +1,4 @@
-package org.cumulus4j.api.crypto;
+package org.cumulus4j.core.crypto;
 
 /**
  * Object representing encrypted information (aka <a href="http://en.wikipedia.org/wiki/Ciphertext">ciphertext</a>).

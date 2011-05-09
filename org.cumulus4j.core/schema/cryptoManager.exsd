@@ -62,7 +62,7 @@
                   
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn=":org.cumulus4j.api.crypto.CryptoManager"/>
+                  <meta.attribute kind="java" basedOn=":org.cumulus4j.core.crypto.CryptoManager"/>
                </appinfo>
             </annotation>
          </attribute>

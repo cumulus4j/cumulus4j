@@ -8,11 +8,11 @@ import java.io.ObjectOutputStream;
 
 import javax.jdo.PersistenceManagerFactory;
 
-import org.cumulus4j.api.crypto.Ciphertext;
-import org.cumulus4j.api.crypto.CryptoManager;
-import org.cumulus4j.api.crypto.CryptoManagerRegistry;
-import org.cumulus4j.api.crypto.CryptoSession;
-import org.cumulus4j.api.crypto.Plaintext;
+import org.cumulus4j.core.crypto.Ciphertext;
+import org.cumulus4j.core.crypto.CryptoManager;
+import org.cumulus4j.core.crypto.CryptoManagerRegistry;
+import org.cumulus4j.core.crypto.CryptoSession;
+import org.cumulus4j.core.crypto.Plaintext;
 import org.cumulus4j.core.model.DataEntry;
 import org.cumulus4j.core.model.IndexEntry;
 import org.cumulus4j.core.model.IndexValue;

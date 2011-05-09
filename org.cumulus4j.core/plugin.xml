@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+  <extension-point id="cryptoManager" name="Crypto Manager" schema="schema/cryptoManager.exsd"/>
+
   <extension-point id="query_method" name="Query Methods" schema="schema/query_method.exsd"/>
 
   <extension point="org.datanucleus.store_manager">
@@ -74,7 +76,7 @@
     <valuegenerator name="sequence" class-name="org.cumulus4j.core.Cumulus4jIncrementGenerator" datastore="cumulus4j"/>
   </extension>
 
-  <extension point="org.cumulus4j.api.cryptoManager">
+  <extension point="org.cumulus4j.core.cryptoManager">
     <cryptoManager class="org.cumulus4j.core.DummyCryptoManager" cryptoManagerID="dummy"/>
   </extension>
 
