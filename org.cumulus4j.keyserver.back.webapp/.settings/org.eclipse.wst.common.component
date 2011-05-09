@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project-modules id="moduleCoreId" project-version="1.5.0">
-    <wb-module deploy-name="org.cumulus4j.keyserver.back.webapp">
+    <wb-module deploy-name="org.cumulus4j.keymanager.back.webapp">
         <wb-resource deploy-path="/" source-path="/src/webapp"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/java"/>
         <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.core/org.cumulus4j.core">
@@ -9,10 +9,10 @@
         <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.annotation/org.cumulus4j.annotation">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keyserver.back.shared/org.cumulus4j.keyserver.back.shared">
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keymanager.back.shared/org.cumulus4j.keymanager.back.shared">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <property name="context-root" value="org.cumulus4j.keyserver.back.webapp"/>
         <property name="java-output-path" value="/org.cumulus4j.keyserver.back.webapp/target/classes"/>
+        <property name="context-root" value="org.cumulus4j.keymanager.back.webapp"/>
     </wb-module>
 </project-modules>

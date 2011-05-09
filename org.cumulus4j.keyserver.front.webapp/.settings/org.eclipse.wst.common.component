@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project-modules id="moduleCoreId" project-version="1.5.0">
-    <wb-module deploy-name="org.cumulus4j.keyserver.front.webapp">
+    <wb-module deploy-name="org.cumulus4j.keymanager.front.webapp">
         <wb-resource deploy-path="/" source-path="/src/webapp"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/java"/>
         <wb-resource deploy-path="/" source-path="/src/main/webapp"/>
         <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keystore/org.cumulus4j.keystore">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keyserver.back.shared/org.cumulus4j.keyserver.back.shared">
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keymanager.back.shared/org.cumulus4j.keymanager.back.shared">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keyserver.front.shared/org.cumulus4j.keyserver.front.shared">
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keymanager.front.shared/org.cumulus4j.keymanager.front.shared">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <property name="context-root" value="org.cumulus4j.keyserver.front.webapp"/>
         <property name="java-output-path" value="/org.cumulus4j.keyserver.front.webapp/target/classes"/>
+        <property name="context-root" value="org.cumulus4j.keymanager.front.webapp"/>
     </wb-module>
 </project-modules>

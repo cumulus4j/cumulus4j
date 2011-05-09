@@ -52,8 +52,8 @@
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
 <!-- We currently don't export anything. The API will probably be separate in the org.cumulus4j.api project. -->
-						<Export-Package>!org.cumulus4j.core</Export-Package>
-						<Private-Package>org.cumulus4j.core.*</Private-Package>
+						<Export-Package>!${project.artifactId}</Export-Package>
+						<Private-Package>${project.artifactId}.*</Private-Package>
 <!-- We currently don't have an activator.
 						<Bundle-Activator>com.my.company.Activator</Bundle-Activator>
 -->

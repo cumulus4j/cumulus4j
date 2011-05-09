@@ -45,11 +45,13 @@
 		<module>../org.cumulus4j.core</module>
 		<module>../org.cumulus4j.integrationtest.webapp</module>
 		<module>../org.cumulus4j.store.crypto.keymanager</module>
-		<module>../org.cumulus4j.keyserver.back.shared</module>
-		<module>../org.cumulus4j.keyserver.back.webapp</module>
-		<module>../org.cumulus4j.keyserver.front.client</module>
-		<module>../org.cumulus4j.keyserver.front.shared</module>
-		<module>../org.cumulus4j.keyserver.front.webapp</module>
+		<module>../org.cumulus4j.keymanager</module>
+		<module>../org.cumulus4j.keymanager.api</module>
+		<module>../org.cumulus4j.keymanager.back.shared</module>
+		<module>../org.cumulus4j.keymanager.back.webapp</module>
+		<module>../org.cumulus4j.keymanager.front.client</module>
+		<module>../org.cumulus4j.keymanager.front.shared</module>
+		<module>../org.cumulus4j.keymanager.front.webapp</module>
 		<module>../org.cumulus4j.keystore</module>
 		<module>../org.cumulus4j.parent</module>
 		<module>../org.cumulus4j.test</module>
