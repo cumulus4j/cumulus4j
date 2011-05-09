@@ -14,6 +14,6 @@ Queryable
 	
 	or use XML metadata as
 	
-	<extension vendor-name="datanucleus" key="queryable" value="false"/>
+	\<extension vendor-name="datanucleus" key="queryable" value="false"/\>
 	
 	
