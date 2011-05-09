@@ -1,7 +1,6 @@
 package org.cumulus4j.integrationtest.webapp;
 
 import java.util.Iterator;
-import java.util.UUID;
 
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
@@ -11,6 +10,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.cumulus4j.store.crypto.CryptoManager;
@@ -21,10 +21,10 @@ import org.cumulus4j.store.test.movie.Movie;
 import org.cumulus4j.store.test.movie.Person;
 import org.cumulus4j.store.test.movie.Rating;
 
-@Path("Dummy")
+@Path("Test")
 @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-public class DummyService
+public class TestService
 {
 	private static PersistenceManagerFactory pmf;
 
@@ -42,22 +42,32 @@ public class DummyService
 		return pmf;
 	}
 
-	protected PersistenceManager getPersistenceManager()
+	protected PersistenceManager getPersistenceManager(String cryptoManagerID, String cryptoSessionID)
 	{
+		if (cryptoManagerID == null)
+			throw new IllegalArgumentException("cryptoManagerID == null");
+
+		if (cryptoSessionID == null)
+			throw new IllegalArgumentException("cryptoSessionID == null");
+
 		PersistenceManager pm = getPersistenceManagerFactory().getPersistenceManager();
-		// TODO use real (non-dummy) CryptoManager!
-		pm.setProperty(CryptoManager.PROPERTY_CRYPTO_MANAGER_ID, "dummy");
-		pm.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, UUID.randomUUID().toString());
+		pm.setProperty(CryptoManager.PROPERTY_CRYPTO_MANAGER_ID, cryptoManagerID);
+		pm.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, cryptoSessionID);
 		return pm;
 	}
 
-	@Path("test")
 	@POST
 	@Produces(MediaType.TEXT_PLAIN)
-	public String testPost()
+	public String testPost(
+			@QueryParam("cryptoManagerID") String cryptoManagerID,
+			@QueryParam("cryptoSessionID") String cryptoSessionID
+	)
 	{
+		if (cryptoManagerID == null || cryptoManagerID.isEmpty())
+			cryptoManagerID = "keyManager";
+
 		StringBuilder resultSB = new StringBuilder();
-		PersistenceManager pm = getPersistenceManager();
+		PersistenceManager pm = getPersistenceManager(cryptoManagerID, cryptoSessionID);
 		try {
 			// tx1: persist some data
 			pm.currentTransaction().begin();
@@ -88,7 +98,7 @@ public class DummyService
 				pm.currentTransaction().commit();
 			}
 
-			pm = getPersistenceManager();
+			pm = getPersistenceManager(cryptoManagerID, cryptoSessionID);
 			// TODO I just had this exception. Obviously the PM is closed when its tx is committed - this is IMHO wrong and a DN bug.
 			// I have to tell Andy.
 			// Marco :-)
@@ -105,8 +115,8 @@ public class DummyService
 //					at org.datanucleus.store.query.Query.execute(Query.java:1607)
 //					at org.datanucleus.store.DefaultCandidateExtent.iterator(DefaultCandidateExtent.java:62)
 //					at org.datanucleus.api.jdo.JDOExtent.iterator(JDOExtent.java:120)
-//					at org.cumulus4j.integrationtest.webapp.DummyService.testPost(DummyService.java:86)
-//					at org.cumulus4j.integrationtest.webapp.DummyService.testGet(DummyService.java:106)
+//					at org.cumulus4j.integrationtest.webapp.TestService.testPost(TestService.java:86)
+//					at org.cumulus4j.integrationtest.webapp.TestService.testGet(TestService.java:106)
 //					at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 //					at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
 //					at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
@@ -170,13 +180,11 @@ public class DummyService
 		}
 	}
 
-	@Path("test")
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
 	public String testGet()
 	{
-		return testPost();
-//		return "OK: " + this.getClass().getName();
+		return "OK: " + this.getClass().getName() + ": Use POST on the same URL for a real test.";
 	}
 
 }

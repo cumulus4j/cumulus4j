@@ -6,11 +6,11 @@ import org.cumulus4j.store.crypto.CryptoSession;
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public class KeyServerCryptoManager extends AbstractCryptoManager {
+public class KeyManagerCryptoManager extends AbstractCryptoManager {
 
 	@Override
 	protected CryptoSession createCryptoSession() {
-		return new KeyServerCryptoSession();
+		return new KeyManagerCryptoSession();
 	}
 
 }

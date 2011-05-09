@@ -4,8 +4,8 @@
  <extension
        point="org.cumulus4j.store.cryptoManager">
     <cryptoManager
-          class="org.cumulus4j.store.crypto.keymanager.KeyServerCryptoManager"
-          cryptoManagerID="keyServer">
+          class="org.cumulus4j.store.crypto.keymanager.KeyManagerCryptoManager"
+          cryptoManagerID="keyManager">
     </cryptoManager>
  </extension>
 </plugin>

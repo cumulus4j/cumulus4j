@@ -21,10 +21,10 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public class KeyServerCryptoSession
+public class KeyManagerCryptoSession
 extends AbstractCryptoSession
 {
-	private static final Logger logger = LoggerFactory.getLogger(KeyServerCryptoSession.class);
+	private static final Logger logger = LoggerFactory.getLogger(KeyManagerCryptoSession.class);
 
 	private static final String ALGORITHM_WITH_PARAMS = "AES/CBC/PKCS5Padding"; // TODO this should be configurable!
 	private static final IvParameterSpec NULL_IV = new IvParameterSpec(new byte[16]); // TODO this should be determined based on the configured algorithm!

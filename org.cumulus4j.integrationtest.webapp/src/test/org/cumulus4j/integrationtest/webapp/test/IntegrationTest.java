@@ -1,30 +1,50 @@
 package org.cumulus4j.integrationtest.webapp.test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 import javax.ws.rs.core.MediaType;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.nightlabs.util.IOUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.UniformInterfaceException;
 
 public class IntegrationTest
 {
+	private static final Logger logger = LoggerFactory.getLogger(IntegrationTest.class);
+
 	private static final String URL_INTEGRATIONTEST_WEBAPP = "http://localhost:8585/org.cumulus4j.integrationtest.webapp";
-	private static final String URL_DUMMY = URL_INTEGRATIONTEST_WEBAPP + "/Dummy";
+	private static final String URL_TEST = URL_INTEGRATIONTEST_WEBAPP + "/Test";
 
 	@Test
-	public void test1()
+	public void test1() throws Exception
 	{
 		Client client = new Client();
-		String url = URL_DUMMY + "/test";
+		String url = URL_TEST;
 		String result;
 		try {
 			result = client.resource(url).accept(MediaType.TEXT_PLAIN).post(String.class);
 		} catch (UniformInterfaceException x) {
-//			InputStream in = x.getResponse().getEntityInputStream();
-//			TODO read in and produce a helpful error that is easily readable in jenkins.
-			throw x;
+			String message = null;
+			try {
+				InputStream in = x.getResponse().getEntityInputStream();
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				IOUtil.transferStreamData(in, out);
+				in.close();
+				message = new String(out.toByteArray(), IOUtil.CHARSET_UTF_8);
+			} catch (Exception e) {
+				logger.error("Reading error message failed: " + e, e);
+			}
+			if (message == null)
+				throw x;
+			else
+				throw new IOException("Error-code=" + x.getResponse().getStatus() + " error-message=" + message, x);
 		}
 
 		if (result == null)
