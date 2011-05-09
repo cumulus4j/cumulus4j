@@ -21,22 +21,17 @@
 			<artifactId>jersey-server</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.cumulus4j</groupId>
-			<artifactId>org.cumulus4j.keystore</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.cumulus4j</groupId>
-			<artifactId>org.cumulus4j.keyserver.back.shared</artifactId>
+			<artifactId>org.cumulus4j.keymanager</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.cumulus4j</groupId>
-			<artifactId>org.cumulus4j.keyserver.front.shared</artifactId>
+			<artifactId>org.cumulus4j.keymanager.front.shared</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>

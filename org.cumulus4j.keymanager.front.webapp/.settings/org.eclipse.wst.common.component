@@ -4,7 +4,19 @@
         <wb-resource deploy-path="/" source-path="/src/webapp"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/java"/>
         <wb-resource deploy-path="/" source-path="/src/main/webapp"/>
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keymanager/org.cumulus4j.keymanager">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keymanager.api/org.cumulus4j.keymanager.api">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keymanager.back.shared/org.cumulus4j.keymanager.back.shared">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
         <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keystore/org.cumulus4j.keystore">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keymanager.front.shared/org.cumulus4j.keymanager.front.shared">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <property name="java-output-path" value="/org.cumulus4j.keyserver.front.webapp/target/classes"/>

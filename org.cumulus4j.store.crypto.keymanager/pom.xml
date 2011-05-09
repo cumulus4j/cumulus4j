@@ -27,7 +27,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.cumulus4j</groupId>
-			<artifactId>org.cumulus4j.keyserver.back.shared</artifactId>
+			<artifactId>org.cumulus4j.keymanager.back.shared</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>

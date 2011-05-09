@@ -40,7 +40,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.cumulus4j</groupId>
-			<artifactId>org.cumulus4j.keyserver.back.core</artifactId>
+			<artifactId>org.cumulus4j.store.crypto.keymanager</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

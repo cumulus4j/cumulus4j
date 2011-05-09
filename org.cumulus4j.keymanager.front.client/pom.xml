@@ -19,7 +19,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.cumulus4j</groupId>
-			<artifactId>org.cumulus4j.keyserver.front.shared</artifactId>
+			<artifactId>org.cumulus4j.keymanager.front.shared</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
