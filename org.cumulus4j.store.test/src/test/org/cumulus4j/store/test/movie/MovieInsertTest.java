@@ -1,4 +1,4 @@
-package org.cumulus4j.test.movie;
+package org.cumulus4j.store.test.movie;
 
 import org.cumulus4j.store.test.framework.AbstractTransactionalTest;
 import org.cumulus4j.store.test.framework.CleanupUtil;

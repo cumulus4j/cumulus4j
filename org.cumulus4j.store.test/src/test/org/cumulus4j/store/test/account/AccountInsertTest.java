@@ -1,4 +1,4 @@
-package org.cumulus4j.test.account;
+package org.cumulus4j.store.test.account;
 
 import org.cumulus4j.store.test.account.Account;
 import org.cumulus4j.store.test.account.LocalAccountantDelegate;

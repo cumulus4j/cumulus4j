@@ -1,4 +1,4 @@
-package org.cumulus4j.test.onetoone.mappedby;
+package org.cumulus4j.store.test.onetoone.mappedby;
 
 import java.util.List;
 

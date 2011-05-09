@@ -1,4 +1,4 @@
-package org.cumulus4j.test.collection.mappedby;
+package org.cumulus4j.store.test.collection.mappedby;
 
 import java.util.Arrays;
 import java.util.HashSet;

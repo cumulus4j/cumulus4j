@@ -1,4 +1,4 @@
-package org.cumulus4j.test.movie;
+package org.cumulus4j.store.test.movie;
 
 import java.io.BufferedReader;
 import java.io.IOException;

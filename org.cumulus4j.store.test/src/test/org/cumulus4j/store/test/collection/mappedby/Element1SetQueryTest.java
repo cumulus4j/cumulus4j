@@ -1,18 +1,16 @@
-package org.cumulus4j.test.collection.join;
+package org.cumulus4j.store.test.collection.mappedby;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.jdo.Query;
 
-import org.cumulus4j.store.test.collection.join.ElementA;
-import org.cumulus4j.store.test.collection.join.ElementASetOwner;
+import org.cumulus4j.store.test.collection.mappedby.Element1;
+import org.cumulus4j.store.test.collection.mappedby.Element1SetOwner;
 import org.cumulus4j.store.test.framework.AbstractTransactionalTest;
 import org.cumulus4j.store.test.framework.CleanupUtil;
-import org.datanucleus.util.NucleusLogger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -20,10 +18,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ElementASetQueryTest
+public class Element1SetQueryTest
 extends AbstractTransactionalTest
 {
-	private static final Logger logger = LoggerFactory.getLogger(ElementASetQueryTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(Element1SetQueryTest.class);
 
 	@BeforeClass
 	public static void clearDatabase()
@@ -36,73 +34,73 @@ extends AbstractTransactionalTest
 	@Before
 	public void createTestData()
 	{
-		if (pm.getExtent(ElementASetOwner.class).iterator().hasNext()) {
+		if (pm.getExtent(Element1SetOwner.class).iterator().hasNext()) {
 			logger.info("createTestData: There is already test data. Skipping creation.");
 			return;
 		}
 
 		{
-			ElementASetOwner owner = new ElementASetOwner();
+			Element1SetOwner owner = new Element1SetOwner();
 			owner.setName("Owner 1");
-			owner.addElementA(new ElementA("Element 1.1"));
-			owner.addElementA(new ElementA("Element 1.2"));
-			owner.addElementA(new ElementA("Element 1.3"));
-			owner.addElementA(new ElementA("Element 1.4"));
+			owner.addElement1(new Element1("Element 1.1"));
+			owner.addElement1(new Element1("Element 1.2"));
+			owner.addElement1(new Element1("Element 1.3"));
+			owner.addElement1(new Element1("Element 1.4"));
 			pm.makePersistent(owner);
 		}
 
 		{
-			ElementASetOwner owner = pm.makePersistent(new ElementASetOwner());
+			Element1SetOwner owner = pm.makePersistent(new Element1SetOwner());
 			owner.setName("Owner 2");
-			owner.addElementA(new ElementA("Element 2.1"));
-			owner.addElementA(new ElementA("Element 2.2"));
-			owner.addElementA(new ElementA("Element 2.3"));
-			owner.addElementA(new ElementA("Element 2.4"));
+			owner.addElement1(new Element1("Element 2.1"));
+			owner.addElement1(new Element1("Element 2.2"));
+			owner.addElement1(new Element1("Element 2.3"));
+			owner.addElement1(new Element1("Element 2.4"));
 		}
 
 		{
-			ElementASetOwner owner = pm.makePersistent(new ElementASetOwner());
+			Element1SetOwner owner = pm.makePersistent(new Element1SetOwner());
 			owner.setName("Owner 3");
-			owner.addElementA(new ElementA("Element 3.1"));
-			owner.addElementA(new ElementA("Element 3.2"));
-			owner.addElementA(new ElementA("Element 3.3"));
+			owner.addElement1(new Element1("Element 3.1"));
+			owner.addElement1(new Element1("Element 3.2"));
+			owner.addElement1(new Element1("Element 3.3"));
 		}
 
 		{
-			ElementASetOwner owner = pm.makePersistent(new ElementASetOwner());
+			Element1SetOwner owner = pm.makePersistent(new Element1SetOwner());
 			owner.setName("Owner 4");
-			owner.addElementA(new ElementA("Element 4.3"));
+			owner.addElement1(new Element1("Element 4.3"));
 		}
 
 		{
-			ElementASetOwner owner = pm.makePersistent(new ElementASetOwner());
+			Element1SetOwner owner = pm.makePersistent(new Element1SetOwner());
 			owner.setName("Owner 5");
 		}
 	}
 
 	private void executeQueryAndCheckResult(Query q, Object queryParam, String ... expectedOwnerNames)
 	{
-		String testMethodName = new Exception().getStackTrace()[4].getMethodName();
+		String testMethodName = new Exception().getStackTrace()[1].getMethodName();
 
 		@SuppressWarnings("unchecked")
-		List<ElementASetOwner> resultList = (List<ElementASetOwner>) q.execute(queryParam);
+		List<Element1SetOwner> resultList = (List<Element1SetOwner>) q.execute(queryParam);
 		Assert.assertNotNull("Query returned null as result when a List was expected!", resultList);
 
 		String f = q.toString().replaceFirst("^.* WHERE ", "");
-		logger.info(testMethodName + ": found " + resultList.size() + " ElementASetOwners for query-filter \"" + f + "\" and param \"" + queryParam + "\":");
+		logger.info(testMethodName + ": found " + resultList.size() + " Element1SetOwners for query-filter \"" + f + "\" and param \"" + queryParam + "\":");
 
 		Set<String> expectedOwnerNameSet = new HashSet<String>(Arrays.asList(expectedOwnerNames));
 
-		for (ElementASetOwner resultElement : resultList) {
-			Assert.assertNotNull("Query returned a ElementASetOwner with the 'name' property being null: " + resultElement, resultElement.getName());
-			Assert.assertNotNull("Query returned a ElementASetOwner with the 'set' property being null: " + resultElement, resultElement.getSet());
-NucleusLogger.GENERAL.info(">> result="+ resultElement.getName());
+		for (Element1SetOwner resultElement : resultList) {
+			Assert.assertNotNull("Query returned a Element1SetOwner with the 'name' property being null: " + resultElement, resultElement.getName());
+			Assert.assertNotNull("Query returned a Element1SetOwner with the 'set' property being null: " + resultElement, resultElement.getSet());
+
 			boolean expectedElement = expectedOwnerNameSet.remove(resultElement.getName());
 
 			StringBuilder sb = new StringBuilder();
-			for (ElementA setElement : resultElement.getSet()) {
-				Assert.assertNotNull("Query returned a ElementASetOwner whose set contains a null entry!", setElement);
-				Assert.assertNotNull("Query returned a ElementASetOwner whose set contains an element with a null name!", setElement.getName());
+			for (Element1 setElement : resultElement.getSet()) {
+				Assert.assertNotNull("Query returned a Element1SetOwner whose set contains a null entry!", setElement);
+				Assert.assertNotNull("Query returned a Element1SetOwner whose set contains an element with a null name!", setElement.getName());
 
 				if (sb.length() > 0)
 					sb.append(", ");
@@ -121,45 +119,27 @@ NucleusLogger.GENERAL.info(">> result="+ resultElement.getName());
 			Assert.fail("Query did not return the following expected result-elements: " + expectedOwnerNameSet);
 	}
 
-	private ElementA getExampleElement()
+	private Element1 getExampleElement()
 	{
 		return getExampleElement("Element 3.2");
 	}
-	private ElementA getExampleElement(String name)
+	private Element1 getExampleElement(String name)
 	{
-		Query q = pm.newQuery(ElementA.class);
+		Query q = pm.newQuery(Element1.class);
 		q.setFilter("this.name == :name");
 		q.setUnique(true);
-		ElementA element = (ElementA) q.execute(name);
+		Element1 element = (Element1) q.execute(name);
 		if (element == null)
-			throw new IllegalStateException("No matching ElementA found!");
+			throw new IllegalStateException("No matching element found!");
 
 		return element;
 	}
 
 	@Test
-	public void queryIsEmpty()
-	{
-		ElementA element = getExampleElement();
-		Query q = pm.newQuery(ElementASetOwner.class);
-		q.setFilter("this.set.isEmpty()");
-		executeQueryAndCheckResult(q, element, "Owner 5");
-	}
-
-	@Test
-	public void querySize()
-	{
-		ElementA element = getExampleElement();
-		Query q = pm.newQuery(ElementASetOwner.class);
-		q.setFilter("this.set.size() == 3");
-		executeQueryAndCheckResult(q, element, "Owner 3");
-	}
-
-	@Test
 	public void queryContainsParameter()
 	{
-		ElementA element = getExampleElement();
-		Query q = pm.newQuery(ElementASetOwner.class);
+		Element1 element = getExampleElement();
+		Query q = pm.newQuery(Element1SetOwner.class);
 		q.setFilter("this.set.contains(:element)");
 		executeQueryAndCheckResult(q, element, "Owner 3");
 	}
@@ -167,29 +147,29 @@ NucleusLogger.GENERAL.info(">> result="+ resultElement.getName());
 	@Test
 	public void queryContainsVariableAndVariableIndexOf()
 	{
-		Query q = pm.newQuery(ElementASetOwner.class);
+		Query q = pm.newQuery(Element1SetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && elementVariable.name.indexOf(:elementPart) >= 0");
 		// Implicit variables are now properly supported => don't need to declare them anymore.
-//		q.declareVariables(ElementA.class.getName() + " elementVariable");
+//		q.declareVariables(Element1.class.getName() + " elementVariable");
 		executeQueryAndCheckResult(q, "4", "Owner 1", "Owner 2", "Owner 4");
 	}
 
 	@Test
 	public void queryContainsVariableAndVariableEquals()
 	{
-		ElementA element = getExampleElement();
-		Query q = pm.newQuery(ElementASetOwner.class);
+		Element1 element = getExampleElement();
+		Query q = pm.newQuery(Element1SetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && elementVariable == :element");
 		// Implicit variables are now properly supported => don't need to declare them anymore.
-//		q.declareVariables(ElementA.class.getName() + " elementVariable");
+//		q.declareVariables(Element1.class.getName() + " elementVariable");
 		executeQueryAndCheckResult(q, element, "Owner 3");
 	}
 
 	@Test
 	public void queryNotContainsParameter()
 	{
-		ElementA element = getExampleElement();
-		Query q = pm.newQuery(ElementASetOwner.class);
+		Element1 element = getExampleElement();
+		Query q = pm.newQuery(Element1SetOwner.class);
 		q.setFilter("!this.set.contains(:element)");
 		executeQueryAndCheckResult(q, element, "Owner 1", "Owner 2", "Owner 4", "Owner 5");
 	}
@@ -200,7 +180,7 @@ NucleusLogger.GENERAL.info(">> result="+ resultElement.getName());
 	@Test
 	public void queryContainsVariableAndVariableNotIndexOf()
 	{
-		Query q = pm.newQuery(ElementASetOwner.class);
+		Query q = pm.newQuery(Element1SetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && elementVariable.name.indexOf(:elementPart) < 0");
 		executeQueryAndCheckResult(q, "4", "Owner 1", "Owner 2", "Owner 3");
 	}
@@ -211,16 +191,16 @@ NucleusLogger.GENERAL.info(">> result="+ resultElement.getName());
 	@Test
 	public void queryContainsVariableAndNotVariableIndexOf()
 	{
-		Query q = pm.newQuery(ElementASetOwner.class);
+		Query q = pm.newQuery(Element1SetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && !(elementVariable.name.indexOf(:elementPart) >= 0)");
 		executeQueryAndCheckResult(q, "4", "Owner 1", "Owner 2", "Owner 3");
 	}
 
 	@Test
-	public void queryContainsVariableAndNotVariableEquals4()
+	public void queryContainsVariableAndNotVariableEquals1()
 	{
-		ElementA element = getExampleElement();
-		Query q = pm.newQuery(ElementASetOwner.class);
+		Element1 element = getExampleElement();
+		Query q = pm.newQuery(Element1SetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && !(elementVariable == :element)");
 		executeQueryAndCheckResult(q, element, "Owner 1", "Owner 2", "Owner 3", "Owner 4");
 	}
@@ -228,8 +208,8 @@ NucleusLogger.GENERAL.info(">> result="+ resultElement.getName());
 	@Test
 	public void queryContainsVariableAndNotVariableEquals2()
 	{
-		ElementA element = getExampleElement("Element 4.3");
-		Query q = pm.newQuery(ElementASetOwner.class);
+		Element1 element = getExampleElement("Element 4.3");
+		Query q = pm.newQuery(Element1SetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && !(elementVariable == :element)");
 		executeQueryAndCheckResult(q, element, "Owner 1", "Owner 2", "Owner 3");
 	}
@@ -237,8 +217,8 @@ NucleusLogger.GENERAL.info(">> result="+ resultElement.getName());
 	@Test
 	public void queryNotContainsVariableAndVariableEquals()
 	{
-		ElementA element = getExampleElement();
-		Query q = pm.newQuery(ElementASetOwner.class);
+		Element1 element = getExampleElement();
+		Query q = pm.newQuery(Element1SetOwner.class);
 		q.setFilter("!this.set.contains(elementVariable) && elementVariable == :element");
 		executeQueryAndCheckResult(q, element, "Owner 1", "Owner 2", "Owner 4", "Owner 5");
 	}
@@ -246,21 +226,8 @@ NucleusLogger.GENERAL.info(">> result="+ resultElement.getName());
 	@Test
 	public void queryNotContainsVariableAndVariableIndexOf()
 	{
-		Query q = pm.newQuery(ElementASetOwner.class);
+		Query q = pm.newQuery(Element1SetOwner.class);
 		q.setFilter("!this.set.contains(elementVariable) && elementVariable.name.indexOf(:elementPart) >= 0");
 		executeQueryAndCheckResult(q, "4", "Owner 3", "Owner 5");
-	}
-
-	@Test
-	public void queryCollectionParameterContainsField()
-	{
-		Query q = pm.newQuery(ElementASetOwner.class);
-		q.setFilter(":paramCollection.contains(this.name)");
-
-		Collection<String> inputColl = new HashSet();
-		inputColl.add("Owner 2");
-
-		List<ElementASetOwner> resultList = (List<ElementASetOwner>) q.execute(inputColl);
-		Assert.assertNotNull("Query returned null as result when a List was expected!", resultList);
 	}
 }

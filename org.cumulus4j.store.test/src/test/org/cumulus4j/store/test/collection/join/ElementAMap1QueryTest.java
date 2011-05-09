@@ -1,4 +1,4 @@
-package org.cumulus4j.test.collection.join;
+package org.cumulus4j.store.test.collection.join;
 
 import java.util.Arrays;
 import java.util.HashSet;
