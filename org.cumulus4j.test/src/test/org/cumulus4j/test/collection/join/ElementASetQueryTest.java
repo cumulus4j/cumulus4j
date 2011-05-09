@@ -1,6 +1,7 @@
 package org.cumulus4j.test.collection.join;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -246,5 +247,18 @@ NucleusLogger.GENERAL.info(">> result="+ resultElement.getName());
 		Query q = pm.newQuery(ElementASetOwner.class);
 		q.setFilter("!this.set.contains(elementVariable) && elementVariable.name.indexOf(:elementPart) >= 0");
 		executeQueryAndCheckResult(q, "4", "Owner 3", "Owner 5");
+	}
+
+	@Test
+	public void queryCollectionParameterContainsField()
+	{
+		Query q = pm.newQuery(ElementASetOwner.class);
+		q.setFilter(":paramCollection.contains(this.name)");
+
+		Collection<String> inputColl = new HashSet();
+		inputColl.add("Owner 2");
+
+		List<ElementASetOwner> resultList = (List<ElementASetOwner>) q.execute(inputColl);
+		Assert.assertNotNull("Query returned null as result when a List was expected!", resultList);
 	}
 }
