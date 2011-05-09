@@ -15,11 +15,11 @@ import javax.ws.rs.core.MediaType;
 
 import org.cumulus4j.store.crypto.CryptoManager;
 import org.cumulus4j.store.crypto.CryptoSession;
-import org.cumulus4j.test.framework.CleanupUtil;
-import org.cumulus4j.test.framework.TestUtil;
-import org.cumulus4j.test.movie.Movie;
-import org.cumulus4j.test.movie.Person;
-import org.cumulus4j.test.movie.Rating;
+import org.cumulus4j.store.test.framework.CleanupUtil;
+import org.cumulus4j.store.test.framework.TestUtil;
+import org.cumulus4j.store.test.movie.Movie;
+import org.cumulus4j.store.test.movie.Person;
+import org.cumulus4j.store.test.movie.Rating;
 
 @Path("Dummy")
 @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})

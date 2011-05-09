@@ -1,9 +1,11 @@
 package org.cumulus4j.test.account;
 
-import org.cumulus4j.test.account.id.AnchorID;
-import org.cumulus4j.test.account.id.LocalAccountantDelegateID;
-import org.cumulus4j.test.framework.AbstractTransactionalTest;
-import org.cumulus4j.test.framework.CleanupUtil;
+import org.cumulus4j.store.test.account.Account;
+import org.cumulus4j.store.test.account.LocalAccountantDelegate;
+import org.cumulus4j.store.test.account.id.AnchorID;
+import org.cumulus4j.store.test.account.id.LocalAccountantDelegateID;
+import org.cumulus4j.store.test.framework.AbstractTransactionalTest;
+import org.cumulus4j.store.test.framework.CleanupUtil;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;

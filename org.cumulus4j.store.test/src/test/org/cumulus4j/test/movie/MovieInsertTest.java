@@ -1,7 +1,10 @@
 package org.cumulus4j.test.movie;
 
-import org.cumulus4j.test.framework.AbstractTransactionalTest;
-import org.cumulus4j.test.framework.CleanupUtil;
+import org.cumulus4j.store.test.framework.AbstractTransactionalTest;
+import org.cumulus4j.store.test.framework.CleanupUtil;
+import org.cumulus4j.store.test.movie.Movie;
+import org.cumulus4j.store.test.movie.Person;
+import org.cumulus4j.store.test.movie.Rating;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;

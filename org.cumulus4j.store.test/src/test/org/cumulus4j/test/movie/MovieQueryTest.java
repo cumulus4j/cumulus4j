@@ -8,8 +8,12 @@ import java.util.List;
 import javax.jdo.Extent;
 import javax.jdo.Query;
 
-import org.cumulus4j.test.framework.AbstractTransactionalTest;
-import org.cumulus4j.test.framework.CleanupUtil;
+import org.cumulus4j.store.test.framework.AbstractTransactionalTest;
+import org.cumulus4j.store.test.framework.CleanupUtil;
+import org.cumulus4j.store.test.movie.Language;
+import org.cumulus4j.store.test.movie.Movie;
+import org.cumulus4j.store.test.movie.Person;
+import org.cumulus4j.store.test.movie.Rating;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;

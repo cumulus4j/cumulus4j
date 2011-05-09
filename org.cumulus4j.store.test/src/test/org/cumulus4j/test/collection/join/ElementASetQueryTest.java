@@ -8,8 +8,10 @@ import java.util.Set;
 
 import javax.jdo.Query;
 
-import org.cumulus4j.test.framework.AbstractTransactionalTest;
-import org.cumulus4j.test.framework.CleanupUtil;
+import org.cumulus4j.store.test.collection.join.ElementA;
+import org.cumulus4j.store.test.collection.join.ElementASetOwner;
+import org.cumulus4j.store.test.framework.AbstractTransactionalTest;
+import org.cumulus4j.store.test.framework.CleanupUtil;
 import org.datanucleus.util.NucleusLogger;
 import org.junit.Assert;
 import org.junit.Before;

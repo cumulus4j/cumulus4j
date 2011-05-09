@@ -12,10 +12,12 @@ import java.util.Set;
 import javax.jdo.JDOUserException;
 import javax.jdo.Query;
 
-import org.cumulus4j.test.account.id.AnchorID;
-import org.cumulus4j.test.account.id.LocalAccountantDelegateID;
-import org.cumulus4j.test.framework.AbstractTransactionalTest;
-import org.cumulus4j.test.framework.CleanupUtil;
+import org.cumulus4j.store.test.account.Account;
+import org.cumulus4j.store.test.account.LocalAccountantDelegate;
+import org.cumulus4j.store.test.account.id.AnchorID;
+import org.cumulus4j.store.test.account.id.LocalAccountantDelegateID;
+import org.cumulus4j.store.test.framework.AbstractTransactionalTest;
+import org.cumulus4j.store.test.framework.CleanupUtil;
 import org.datanucleus.NucleusContext;
 import org.datanucleus.api.jdo.JDOPersistenceManagerFactory;
 import org.junit.After;

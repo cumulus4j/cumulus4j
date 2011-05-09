@@ -8,8 +8,11 @@ import java.util.Set;
 
 import javax.jdo.Query;
 
-import org.cumulus4j.test.framework.AbstractTransactionalTest;
-import org.cumulus4j.test.framework.CleanupUtil;
+import org.cumulus4j.store.test.collection.join.ElementA;
+import org.cumulus4j.store.test.collection.join.ElementABMapOwner;
+import org.cumulus4j.store.test.collection.join.ElementB;
+import org.cumulus4j.store.test.framework.AbstractTransactionalTest;
+import org.cumulus4j.store.test.framework.CleanupUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
