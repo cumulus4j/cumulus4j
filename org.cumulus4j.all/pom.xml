@@ -41,7 +41,7 @@
 	<description>Cumulus4j is an encryption layer protecting your data from the hosting company.</description>
 
 	<modules>
-		<module>../org.cumulus4j.api</module>
+		<module>../org.cumulus4j.annotation</module>
 		<module>../org.cumulus4j.core</module>
 		<module>../org.cumulus4j.integrationtest.webapp</module>
 		<module>../org.cumulus4j.keyserver.back.core</module>

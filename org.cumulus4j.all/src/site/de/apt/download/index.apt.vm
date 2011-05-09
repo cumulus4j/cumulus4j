@@ -75,9 +75,9 @@ Herunterladen
 
 	Cumulus4j besteht aus mehreren Modulen.
 
-*** org.cumulus4j.api
+*** org.cumulus4j.annotation
 
-	Wie der Name schon sagt, ist dies die Cumulus4j-API. Um Ihre Applikation zu kompilieren, müssen
+	Wie der Name schon sagt, sind dies die Cumulus4j-Annotationen. Um Ihre Applikation zu kompilieren, müssen
 	Sie diese Abhängigkeit in Ihre <<<pom.xml>>> einfügen:
 
 +------------------------------------------+
@@ -85,7 +85,7 @@ Herunterladen
 	...
 	<dependency>
 		<groupId>org.cumulus4j</groupId>
-		<artifactId>org.cumulus4j.api</artifactId>
+		<artifactId>org.cumulus4j.annotation</artifactId>
 		<version>${cumulus4jStableVersion}</version>
 	</dependency>
 	...
@@ -120,8 +120,8 @@ Herunterladen
 </dependencies>
 +------------------------------------------+  
 
-	Wohlgemerkt ist <<<org.cumulus4j.core>>> abhängig von <<<org.cumulus4j.api>>>, so daß Sie nicht erneut
-	eine Abhängigkeit auf <<<org.cumulus4j.api>>> deklarieren müssen. Allerdings sollten Sie in Ihrer Applikation
+	Wohlgemerkt ist <<<org.cumulus4j.core>>> abhängig von <<<org.cumulus4j.annotation>>>, so daß Sie nicht erneut
+	eine Abhängigkeit auf <<<org.cumulus4j.annotation>>> deklarieren müssen. Allerdings sollten Sie in Ihrer Applikation
 	keinesfalls Klassen aus dem Modul <<<org.cumulus4j.core>>> referenzieren!
 
 * {Quelltext}

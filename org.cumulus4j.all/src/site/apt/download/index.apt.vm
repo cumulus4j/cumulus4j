@@ -74,9 +74,9 @@ Download
 
 	Cumulus4j consists of several modules.
 
-*** org.cumulus4j.api
+*** org.cumulus4j.annotation
 
-	As the name already implies, this is the Cumulus4j API. In order to compile your application, the
+	As the name already implies, these are the Cumulus4j annotations. In order to compile your application, the
 	following dependency needs to be added to your <<<pom.xml>>>:
 
 +------------------------------------------+
@@ -84,7 +84,7 @@ Download
 	...
 	<dependency>
 		<groupId>org.cumulus4j</groupId>
-		<artifactId>org.cumulus4j.api</artifactId>
+		<artifactId>org.cumulus4j.annotation</artifactId>
 		<version>${cumulus4jStableVersion}</version>
 	</dependency>
 	...
@@ -118,8 +118,8 @@ Download
 </dependencies>
 +------------------------------------------+  
 
-	Note, that <<<org.cumulus4j.core>>> has a dependency onto <<<org.cumulus4j.api>>> and thus, you don't need to declare
-	a dependency onto <<<org.cumulus4j.api>>> additionally. However, you should never use classes in your application
+	Note, that <<<org.cumulus4j.core>>> has a dependency onto <<<org.cumulus4j.annotation>>> and thus, you don't need to declare
+	a dependency onto <<<org.cumulus4j.annotation>>> additionally. However, you should never use classes in your application
 	from the <<<org.cumulus4j.core>>> module!
 
 * {Source} code

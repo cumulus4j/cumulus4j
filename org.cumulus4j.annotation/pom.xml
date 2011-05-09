@@ -7,8 +7,8 @@
 		<relativePath>../org.cumulus4j.parent/pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>org.cumulus4j.api</artifactId>
-	<name>org.cumulus4j.api</name>
+	<artifactId>org.cumulus4j.annotation</artifactId>
+	<name>org.cumulus4j.annotation</name>
 	<description>Cumulus4j API providing annotations, interfaces and key management API classes.</description>
 	<packaging>bundle</packaging>
 
