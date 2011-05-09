@@ -8,7 +8,7 @@
 Queryable
 
 	By default all persistable fields are indexed (if they are of an indexable type). 
-	You can make a field/property not queryable by adding
+	You can make a field/property not queryable (it is not indexed) by adding
 	
 	@Extension(vendorName="datanucleus", key="queryable", value="false")
 	
@@ -16,4 +16,5 @@ Queryable
 	
 	\<extension vendor-name="datanucleus" key="queryable" value="false"/\>
 	
+	If you subsequently tried to query a field that is marked as not queryable then an exception would result.
 	
