@@ -70,8 +70,11 @@ public class RequestResponseBroker
 	throws TimeoutException, ErrorResponseException
 	{
 		ConcurrentLinkedQueue<Request> requestsWaitingForProcessing = getRequestsWaitingForProcessing(request.getCryptoSessionIDPrefix());
-		requestsWaitingForProcessing.add(request);
-		requestsWaitingForProcessing.notify();
+		requestsWaitingForProcessing.add(request); // This is a thread-safe object, hence add BEFORE synchronizing.
+
+		synchronized (requestsWaitingForProcessing) { // synchronized only necessary for notification.
+			requestsWaitingForProcessing.notify();
+		}
 
 		long beginTimestamp = System.currentTimeMillis();
 		Response response;
@@ -150,13 +153,18 @@ public class RequestResponseBroker
 		if (response == null)
 			throw new IllegalArgumentException("response == null");
 
+		if (response.getRequestID() == null)
+			throw new IllegalArgumentException("response.requestID == null");
+
 		Request request = requestID2requestCurrentlyBeingProcessed.remove(response.getRequestID());
 		if (request == null) {
 			logger.warn("pushResponse: There is no request currently being processed with requestID={}!!!", response.getRequestID());
 		}
 		else {
-			request2response.put(request, response);
-			request2response.notifyAll();
+			request2response.put(request, response); // thread-safe instance => put BEFORE synchronized block
+			synchronized (request2response) { // synchronized block only necessary for notification.
+				request2response.notifyAll();
+			}
 		}
 	}
 }

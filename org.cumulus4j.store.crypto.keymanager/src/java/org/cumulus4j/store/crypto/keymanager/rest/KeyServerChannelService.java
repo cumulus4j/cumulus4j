@@ -8,6 +8,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.cumulus4j.keymanager.back.shared.NullResponse;
 import org.cumulus4j.keymanager.back.shared.Request;
 import org.cumulus4j.keymanager.back.shared.Response;
 
@@ -33,7 +34,7 @@ public class KeyServerChannelService
 	@POST
 	public void pushResponse(Response response)
 	{
-		if (response != null)
+		if (response != null && (!(response instanceof NullResponse)))
 			requestResponseBroker.pushResponse(response);
 	}
 

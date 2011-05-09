@@ -66,6 +66,8 @@ public class TestService
 		if (cryptoManagerID == null || cryptoManagerID.isEmpty())
 			cryptoManagerID = "keyManager";
 
+		cryptoManagerID = "dummy"; // TODO remove this!
+
 		StringBuilder resultSB = new StringBuilder();
 		PersistenceManager pm = getPersistenceManager(cryptoManagerID, cryptoSessionID);
 		try {

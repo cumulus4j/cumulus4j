@@ -9,10 +9,10 @@ public class ErrorResponse extends Response
 
 	public ErrorResponse() { }
 
-//	public ErrorResponse(Request request, String errorMessage) {
-//		super(request);
-//		this.message = errorMessage;
-//	}
+	public ErrorResponse(Request request, String errorMessage) {
+		super(request);
+		this.message = errorMessage;
+	}
 
 	public ErrorResponse(Request request, Throwable t) {
 		super(request);

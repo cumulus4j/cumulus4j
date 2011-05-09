@@ -7,6 +7,7 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
+import org.cumulus4j.keymanager.back.shared.JAXBContextResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +21,8 @@ extends Application
 	private static final Logger logger = LoggerFactory.getLogger(App.class);
 
 	private static final Class<?>[] serviceClassesArray = {
-		KeyServerChannelService.class
+		KeyServerChannelService.class,
+		JAXBContextResolver.class
 	};
 
 	private static final Set<Class<?>> serviceClassesSet;

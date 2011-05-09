@@ -26,6 +26,8 @@ public class AppServer
 			throw new IllegalArgumentException("appServerBaseURL == null");
 
 		this.appServerManager = appServerManager;
+		this.appServerID = appServerID;
+		this.appServerBaseURL = appServerBaseURL;
 		this.sessionManager = new SessionManager(appServerManager.getKeyStore());
 		this.keyServerChannelManager = new KeyServerChannelManager(sessionManager, appServerBaseURL);
 	}

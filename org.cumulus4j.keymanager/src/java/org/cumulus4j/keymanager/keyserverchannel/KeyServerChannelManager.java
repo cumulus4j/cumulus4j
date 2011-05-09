@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.cumulus4j.keymanager.SessionManager;
+import org.cumulus4j.keymanager.back.shared.GetActiveEncryptionKeyRequest;
 import org.cumulus4j.keymanager.back.shared.GetKeyRequest;
 import org.cumulus4j.keymanager.back.shared.Request;
 
@@ -25,6 +26,7 @@ public class KeyServerChannelManager
 	static {
 		Map<Class<? extends Request>, Class<? extends RequestHandler<?>>> m = new HashMap<Class<? extends Request>, Class<? extends RequestHandler<?>>>();
 		m.put(GetKeyRequest.class, GetKeyRequestHandler.class);
+		m.put(GetActiveEncryptionKeyRequest.class, GetActiveEncryptionKeyRequestHandler.class);
 		requestClass2handlerClass = Collections.unmodifiableMap(m);
 	}
 
@@ -45,8 +47,13 @@ public class KeyServerChannelManager
 		this.sessionManager = sessionManager;
 
 		this.appServerBaseURL = appServerBaseURL;
+
 		try {
-			this.keyServerChannelURL = new URL(appServerBaseURL, "KeyServerChannel");
+			String s = appServerBaseURL.toString();
+			if (!s.endsWith("/"))
+				s += '/';
+
+			this.keyServerChannelURL = new URL(s + "KeyServerChannel");
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}
