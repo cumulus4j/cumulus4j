@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Cumulus4j key server backend core
-Bundle-SymbolicName: org.cumulus4j.keyserver.back.core;singleton:=true
+Bundle-SymbolicName: org.cumulus4j.store.crypto.keymanager;singleton:=true
 Bundle-Version: 0.0.0.DUMMY
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Important: This file is only a DUMMY. It is not used for actual OSGi deployment. The real OSGi descriptor is created 
