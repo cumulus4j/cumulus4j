@@ -1,4 +1,4 @@
-package org.cumulus4j.api.annotation;
+package org.cumulus4j.annotation;
 
 /**
  * <p>
