@@ -17,7 +17,6 @@ import javax.ws.rs.core.Response.Status;
 
 import org.cumulus4j.keymanager.AppServer;
 import org.cumulus4j.keymanager.AppServerManager;
-import org.cumulus4j.keymanager.front.shared.Auth;
 import org.cumulus4j.keymanager.front.shared.Error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

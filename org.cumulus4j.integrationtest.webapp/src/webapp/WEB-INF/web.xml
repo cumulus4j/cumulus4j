@@ -4,7 +4,10 @@
 	version="2.5">
 	<display-name>org.cumulus4j.integrationtest.webapp</display-name>
 
-	<!-- This web.xml merges the contents from the web.xml of org.cumulus4j.keyserver.back.webapp and of this project (org.cumulus4j.integrationtest.webapp). -->
+	<!--
+		This web.xml merges the contents from the web.xml of org.cumulus4j.keymanager.back.webapp
+		and of this project (org.cumulus4j.integrationtest.webapp).
+	-->
 
 	<servlet>
 		<servlet-name>org.cumulus4j.integrationtest.webapp.App</servlet-name>
@@ -19,7 +22,7 @@
 		<url-pattern>/*</url-pattern>
 	</servlet-mapping>
 
-	<!-- BEGIN from org.cumulus4j.keyserver.back.webapp -->
+	<!-- BEGIN from org.cumulus4j.keymanager.back.webapp -->
 	<servlet>
 		<servlet-name>org.cumulus4j.store.crypto.keymanager.rest.App</servlet-name>
 		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
@@ -30,8 +33,8 @@
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>org.cumulus4j.store.crypto.keymanager.rest.App</servlet-name>
-		<url-pattern>/org.cumulus4j.keyserver.back.webapp/*</url-pattern>
+		<url-pattern>/org.cumulus4j.keymanager.back.webapp/*</url-pattern>
 	</servlet-mapping>
-	<!-- END from org.cumulus4j.keyserver.back.webapp -->
+	<!-- END from org.cumulus4j.keymanager.back.webapp -->
 
 </web-app>

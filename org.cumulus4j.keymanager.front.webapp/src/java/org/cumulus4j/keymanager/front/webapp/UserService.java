@@ -16,7 +16,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.cumulus4j.keymanager.front.shared.Auth;
 import org.cumulus4j.keymanager.front.shared.Error;
 import org.cumulus4j.keymanager.front.shared.User;
 import org.cumulus4j.keymanager.front.shared.UserList;

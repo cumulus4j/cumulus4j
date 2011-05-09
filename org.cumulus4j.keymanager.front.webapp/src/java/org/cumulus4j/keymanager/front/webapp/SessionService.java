@@ -17,7 +17,6 @@ import org.cumulus4j.keymanager.AppServer;
 import org.cumulus4j.keymanager.AppServerManager;
 import org.cumulus4j.keymanager.Session;
 import org.cumulus4j.keymanager.SessionManager;
-import org.cumulus4j.keymanager.front.shared.Auth;
 import org.cumulus4j.keymanager.front.shared.Error;
 import org.cumulus4j.keymanager.front.shared.OpenSessionResponse;
 import org.cumulus4j.keystore.AuthenticationException;

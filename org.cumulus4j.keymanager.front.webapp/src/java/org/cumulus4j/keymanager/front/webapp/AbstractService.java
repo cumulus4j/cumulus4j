@@ -12,7 +12,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.cumulus4j.keymanager.front.shared.Auth;
 import org.cumulus4j.keymanager.front.shared.Error;
 import org.cumulus4j.keystore.AuthenticationException;
 import org.cumulus4j.keystore.KeyNotFoundException;
@@ -23,6 +22,8 @@ import org.slf4j.LoggerFactory;
 import com.sun.jersey.core.util.Base64;
 
 /**
+ * Base class for
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public abstract class AbstractService

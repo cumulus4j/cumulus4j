@@ -1,14 +1,11 @@
-package org.cumulus4j.keymanager.front.shared;
+package org.cumulus4j.keymanager.front.webapp;
 
 import java.io.Serializable;
 import java.util.Arrays;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-@XmlRootElement
 public class Auth
 implements Serializable
 {

@@ -31,8 +31,8 @@ public class KeyServerChannelManager
 	/**
 	 *
 	 * @param appServerBaseURL the base-URL before the "/KeyServerChannel" - e.g. if the REST URL of the KeyServerChannel-service is
-	 * "https://serverUsingCumulus4j.mydomain.org/org.cumulus4j.keyserver.back.webapp/KeyServerChannel", then this must be
-	 * "https://serverUsingCumulus4j.mydomain.org/org.cumulus4j.keyserver.back.webapp".
+	 * "https://serverUsingCumulus4j.mydomain.org/org.cumulus4j.keymanager.back.webapp/KeyServerChannel", then this must be
+	 * "https://serverUsingCumulus4j.mydomain.org/org.cumulus4j.keymanager.back.webapp".
 	 */
 	public KeyServerChannelManager(SessionManager sessionManager, URL appServerBaseURL)
 	{

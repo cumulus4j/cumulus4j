@@ -42,7 +42,7 @@
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
 <!-- We export only the 'rest' sub-package. Btw. the order of the two is essential! -->
-						<Export-Package>org.cumulus4j.store.crypto.keymanager.rest,!org.cumulus4j.keyserver.back.core.*</Export-Package>
+						<Export-Package>org.cumulus4j.store.crypto.keymanager.rest,!org.cumulus4j.store.crypto.keymanager.*</Export-Package>
 <!--
 						<Private-Package>org.cumulus4j.store.crypto.keymanager.*</Private-Package>
 -->
