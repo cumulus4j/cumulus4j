@@ -9,9 +9,6 @@
         <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.annotation/org.cumulus4j.annotation">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keymanager.back.shared/org.cumulus4j.keymanager.back.shared">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
         <property name="java-output-path" value="/org.cumulus4j.keyserver.back.webapp/target/classes"/>
         <property name="context-root" value="org.cumulus4j.keymanager.back.webapp"/>
     </wb-module>
