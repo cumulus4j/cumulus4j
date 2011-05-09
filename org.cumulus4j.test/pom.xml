@@ -7,8 +7,8 @@
 		<relativePath>../org.cumulus4j.parent/pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>org.cumulus4j.test</artifactId>
-	<name>org.cumulus4j.test</name>
+	<artifactId>org.cumulus4j.store.test</artifactId>
+	<name>org.cumulus4j.store.test</name>
 	<description>Various example data models for tests and jUnit test classes</description>
 	<dependencies>
 		<dependency>
@@ -17,7 +17,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.cumulus4j</groupId>
-			<artifactId>org.cumulus4j.core</artifactId>
+			<artifactId>org.cumulus4j.store</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

@@ -8,9 +8,9 @@
 		<relativePath>../org.cumulus4j.parent/pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>org.cumulus4j.core</artifactId>
-	<name>org.cumulus4j.core</name>
-	<description>Cumulus4j Core</description>
+	<artifactId>org.cumulus4j.store</artifactId>
+	<name>org.cumulus4j.store</name>
+	<description>DataNucleus-store-plugin providing Cumulus4j encrypted data storage.</description>
 	<packaging>bundle</packaging>
 
 	<dependencies>

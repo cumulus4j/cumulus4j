@@ -93,11 +93,11 @@ Herunterladen
 +------------------------------------------+
 
 	Um jedoch eine lauffähige Applikation zusammenzustellen, benötigen Sie zusätzlich auch noch
-	das Modul <<<org.cumulus4j.core>>> (siehe unten).
+	das Modul <<<org.cumulus4j.store>>> (siehe unten).
 
-*** org.cumulus4j.core
+*** org.cumulus4j.store
 
-	<<<org.cumulus4j.core>>> enthält die Implementation von Cumulus4j und wird benötigt, um es auch tatsächlich
+	<<<org.cumulus4j.store>>> enthält die Implementation von Cumulus4j und wird benötigt, um es auch tatsächlich
 	zu benutzen. Da es sich hierbei um ein DataNucleus-Plugin handelt, welches keinerlei API-Klassen enthält,
 	müssen Sie eine Abhängigkeit darauf nur deklarieren, um Ihre Applikation zusammenzustellen.
 
@@ -105,7 +105,7 @@ Herunterladen
 	dies sind, hängt von Ihrer Situation ab (z.B. der gewünschten Datenbank und auch der API [JDO oder JPA] gegen
 	die Sie Ihre Applikation geschrieben haben).
 
-	Führen Sie Ihrer <<<pom.xml>>> die folgende Abhängigkeit hinzu, um <<<org.cumulus4j.core>>> in Ihren
+	Führen Sie Ihrer <<<pom.xml>>> die folgende Abhängigkeit hinzu, um <<<org.cumulus4j.store>>> in Ihren
 	Build-Prozeß einzubinden:
 
 +------------------------------------------+
@@ -113,16 +113,16 @@ Herunterladen
 	...
 	<dependency>
 		<groupId>org.cumulus4j</groupId>
-		<artifactId>org.cumulus4j.core</artifactId>
+		<artifactId>org.cumulus4j.store</artifactId>
 		<version>${cumulus4jStableVersion}</version>
 	</dependency>
 	...
 </dependencies>
 +------------------------------------------+  
 
-	Wohlgemerkt ist <<<org.cumulus4j.core>>> abhängig von <<<org.cumulus4j.annotation>>>, so daß Sie nicht erneut
+	Wohlgemerkt ist <<<org.cumulus4j.store>>> abhängig von <<<org.cumulus4j.annotation>>>, so daß Sie nicht erneut
 	eine Abhängigkeit auf <<<org.cumulus4j.annotation>>> deklarieren müssen. Allerdings sollten Sie in Ihrer Applikation
-	keinesfalls Klassen aus dem Modul <<<org.cumulus4j.core>>> referenzieren!
+	keinesfalls Klassen aus dem Modul <<<org.cumulus4j.store>>> referenzieren!
 
 * {Quelltext}
 

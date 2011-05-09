@@ -13,8 +13,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.cumulus4j.core.crypto.CryptoManager;
-import org.cumulus4j.core.crypto.CryptoSession;
+import org.cumulus4j.store.crypto.CryptoManager;
+import org.cumulus4j.store.crypto.CryptoSession;
 import org.cumulus4j.test.framework.CleanupUtil;
 import org.cumulus4j.test.framework.TestUtil;
 import org.cumulus4j.test.movie.Movie;
@@ -97,9 +97,9 @@ public class DummyService
 //					at org.datanucleus.api.jdo.JDOPersistenceManager.newQuery(JDOPersistenceManager.java:1286)
 //					at org.datanucleus.api.jdo.JDOPersistenceManager.newQuery(JDOPersistenceManager.java:1237)
 //					at org.datanucleus.api.jdo.JDOPersistenceManager.newQuery(JDOPersistenceManager.java:1349)
-//					at org.cumulus4j.core.query.QueryHelper.getAllPersistentObjectsForCandidateClasses(QueryHelper.java:60)
-//					at org.cumulus4j.core.query.QueryEvaluator.execute(QueryEvaluator.java:272)
-//					at org.cumulus4j.core.query.JDOQLQuery.performExecute(JDOQLQuery.java:83)
+//					at org.cumulus4j.store.query.QueryHelper.getAllPersistentObjectsForCandidateClasses(QueryHelper.java:60)
+//					at org.cumulus4j.store.query.QueryEvaluator.execute(QueryEvaluator.java:272)
+//					at org.cumulus4j.store.query.JDOQLQuery.performExecute(JDOQLQuery.java:83)
 //					at org.datanucleus.store.query.Query.executeQuery(Query.java:1744)
 //					at org.datanucleus.store.query.Query.executeWithArray(Query.java:1634)
 //					at org.datanucleus.store.query.Query.execute(Query.java:1607)

@@ -42,9 +42,7 @@
 
 	<modules>
 		<module>../org.cumulus4j.annotation</module>
-		<module>../org.cumulus4j.core</module>
 		<module>../org.cumulus4j.integrationtest.webapp</module>
-		<module>../org.cumulus4j.store.crypto.keymanager</module>
 		<module>../org.cumulus4j.keymanager</module>
 		<module>../org.cumulus4j.keymanager.api</module>
 		<module>../org.cumulus4j.keymanager.back.shared</module>
@@ -54,7 +52,9 @@
 		<module>../org.cumulus4j.keymanager.front.webapp</module>
 		<module>../org.cumulus4j.keystore</module>
 		<module>../org.cumulus4j.parent</module>
-		<module>../org.cumulus4j.test</module>
+		<module>../org.cumulus4j.store</module>
+		<module>../org.cumulus4j.store.crypto.keymanager</module>
+		<module>../org.cumulus4j.store.test</module>
 	</modules>
 	
 	<distributionManagement>

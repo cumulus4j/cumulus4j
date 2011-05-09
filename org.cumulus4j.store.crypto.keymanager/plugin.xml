@@ -2,7 +2,7 @@
 <?eclipse version="3.4"?>
 <plugin>
  <extension
-       point="org.cumulus4j.core.cryptoManager">
+       point="org.cumulus4j.store.cryptoManager">
     <cryptoManager
           class="org.cumulus4j.store.crypto.keymanager.KeyServerCryptoManager"
           cryptoManagerID="keyServer">

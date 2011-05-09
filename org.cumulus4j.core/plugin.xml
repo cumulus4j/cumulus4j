@@ -6,78 +6,78 @@
   <extension-point id="query_method" name="Query Methods" schema="schema/query_method.exsd"/>
 
   <extension point="org.datanucleus.store_manager">
-    <store-manager class-name="org.cumulus4j.core.Cumulus4jStoreManager" key="cumulus4j" url-key="cumulus4j"/>
+    <store-manager class-name="org.cumulus4j.store.Cumulus4jStoreManager" key="cumulus4j" url-key="cumulus4j"/>
   </extension>
 
   <extension point="org.datanucleus.store_connectionfactory">
-    <connectionfactory name="cumulus4j" class-name="org.cumulus4j.core.Cumulus4jConnectionFactory"
+    <connectionfactory name="cumulus4j" class-name="org.cumulus4j.store.Cumulus4jConnectionFactory"
           datastore="cumulus4j" transactional="true"/>
   </extension>
 
   <extension point="org.datanucleus.store_query_query">
-    <query name="JDOQL" class-name="org.cumulus4j.core.query.JDOQLQuery" datastore="cumulus4j"/>
-    <query name="JPQL" class-name="org.cumulus4j.core.query.JPQLQuery" datastore="cumulus4j"/>
+    <query name="JDOQL" class-name="org.cumulus4j.store.query.JDOQLQuery" datastore="cumulus4j"/>
+    <query name="JPQL" class-name="org.cumulus4j.store.query.JPQLQuery" datastore="cumulus4j"/>
   </extension>
 
-  <extension point="org.cumulus4j.core.query_method">
+  <extension point="org.cumulus4j.store.query_method">
     <query-method class="java.util.Collection" method="contains"
-      evaluator="org.cumulus4j.core.query.method.CollectionContainsEvaluator"/>
+      evaluator="org.cumulus4j.store.query.method.CollectionContainsEvaluator"/>
     <query-method class="java.util.Collection" method="isEmpty"
-      evaluator="org.cumulus4j.core.query.method.CollectionIsEmptyEvaluator"/>
+      evaluator="org.cumulus4j.store.query.method.CollectionIsEmptyEvaluator"/>
     <query-method class="java.util.Collection" method="size"
-      evaluator="org.cumulus4j.core.query.method.CollectionSizeEvaluator"/>
+      evaluator="org.cumulus4j.store.query.method.CollectionSizeEvaluator"/>
 
     <query-method class="java.util.Map" method="containsKey"
-      evaluator="org.cumulus4j.core.query.method.MapContainsKeyEvaluator"/>
+      evaluator="org.cumulus4j.store.query.method.MapContainsKeyEvaluator"/>
     <query-method class="java.util.Map" method="containsValue"
-      evaluator="org.cumulus4j.core.query.method.MapContainsValueEvaluator"/>
+      evaluator="org.cumulus4j.store.query.method.MapContainsValueEvaluator"/>
     <query-method class="java.util.Map" method="isEmpty"
-      evaluator="org.cumulus4j.core.query.method.MapIsEmptyEvaluator"/>
+      evaluator="org.cumulus4j.store.query.method.MapIsEmptyEvaluator"/>
     <query-method class="java.util.Map" method="size"
-      evaluator="org.cumulus4j.core.query.method.MapSizeEvaluator"/>
+      evaluator="org.cumulus4j.store.query.method.MapSizeEvaluator"/>
 
     <query-method class="java.util.Date" method="getDay"
-      evaluator="org.cumulus4j.core.query.method.DateGetDayEvaluator"/>
+      evaluator="org.cumulus4j.store.query.method.DateGetDayEvaluator"/>
     <query-method class="java.util.Date" method="getHour"
-      evaluator="org.cumulus4j.core.query.method.DateGetHourEvaluator"/>
+      evaluator="org.cumulus4j.store.query.method.DateGetHourEvaluator"/>
     <query-method class="java.util.Date" method="getMinute"
-      evaluator="org.cumulus4j.core.query.method.DateGetMinuteEvaluator"/>
+      evaluator="org.cumulus4j.store.query.method.DateGetMinuteEvaluator"/>
     <query-method class="java.util.Date" method="getMonth"
-      evaluator="org.cumulus4j.core.query.method.DateGetMonthEvaluator"/>
+      evaluator="org.cumulus4j.store.query.method.DateGetMonthEvaluator"/>
     <query-method class="java.util.Date" method="getSecond"
-      evaluator="org.cumulus4j.core.query.method.DateGetSecondEvaluator"/>
+      evaluator="org.cumulus4j.store.query.method.DateGetSecondEvaluator"/>
     <query-method class="java.util.Date" method="getYear"
-      evaluator="org.cumulus4j.core.query.method.DateGetYearEvaluator"/>
+      evaluator="org.cumulus4j.store.query.method.DateGetYearEvaluator"/>
 
     <query-method class="java.lang.String" method="endsWith" 
-      evaluator="org.cumulus4j.core.query.method.StringEndsWithEvaluator"/>
+      evaluator="org.cumulus4j.store.query.method.StringEndsWithEvaluator"/>
     <query-method class="java.lang.String" method="equals"
-      evaluator="org.cumulus4j.core.query.method.StringEqualsEvaluator"/>
+      evaluator="org.cumulus4j.store.query.method.StringEqualsEvaluator"/>
     <query-method class="java.lang.String" method="equalsIgnoreCase"
-      evaluator="org.cumulus4j.core.query.method.StringEqualsIgnoreCaseEvaluator"/>
+      evaluator="org.cumulus4j.store.query.method.StringEqualsIgnoreCaseEvaluator"/>
     <query-method class="java.lang.String" method="indexOf" 
-      evaluator="org.cumulus4j.core.query.method.StringIndexOfEvaluator"/>
+      evaluator="org.cumulus4j.store.query.method.StringIndexOfEvaluator"/>
     <query-method class="java.lang.String" method="length"
-      evaluator="org.cumulus4j.core.query.method.StringLengthEvaluator"/>
+      evaluator="org.cumulus4j.store.query.method.StringLengthEvaluator"/>
     <query-method class="java.lang.String" method="matches"
-      evaluator="org.cumulus4j.core.query.method.StringMatchesEvaluator"/>
+      evaluator="org.cumulus4j.store.query.method.StringMatchesEvaluator"/>
     <query-method class="java.lang.String" method="startsWith" 
-      evaluator="org.cumulus4j.core.query.method.StringStartsWithEvaluator"/>
+      evaluator="org.cumulus4j.store.query.method.StringStartsWithEvaluator"/>
     <query-method class="java.lang.String" method="substring"
-      evaluator="org.cumulus4j.core.query.method.StringSubstringEvaluator"/>
+      evaluator="org.cumulus4j.store.query.method.StringSubstringEvaluator"/>
     <query-method class="java.lang.String" method="toLowerCase"
-      evaluator="org.cumulus4j.core.query.method.StringToLowerCaseEvaluator"/>
+      evaluator="org.cumulus4j.store.query.method.StringToLowerCaseEvaluator"/>
     <query-method class="java.lang.String" method="toUpperCase"
-      evaluator="org.cumulus4j.core.query.method.StringToUpperCaseEvaluator"/>
+      evaluator="org.cumulus4j.store.query.method.StringToUpperCaseEvaluator"/>
   </extension>
 
   <extension point="org.datanucleus.store_valuegenerator">
-    <valuegenerator name="increment" class-name="org.cumulus4j.core.Cumulus4jIncrementGenerator" datastore="cumulus4j"/>
-    <valuegenerator name="sequence" class-name="org.cumulus4j.core.Cumulus4jIncrementGenerator" datastore="cumulus4j"/>
+    <valuegenerator name="increment" class-name="org.cumulus4j.store.Cumulus4jIncrementGenerator" datastore="cumulus4j"/>
+    <valuegenerator name="sequence" class-name="org.cumulus4j.store.Cumulus4jIncrementGenerator" datastore="cumulus4j"/>
   </extension>
 
-  <extension point="org.cumulus4j.core.cryptoManager">
-    <cryptoManager class="org.cumulus4j.core.DummyCryptoManager" cryptoManagerID="dummy"/>
+  <extension point="org.cumulus4j.store.cryptoManager">
+    <cryptoManager class="org.cumulus4j.store.DummyCryptoManager" cryptoManagerID="dummy"/>
   </extension>
 
   <extension point="org.datanucleus.persistence_properties">

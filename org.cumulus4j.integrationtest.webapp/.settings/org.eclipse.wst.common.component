@@ -4,7 +4,7 @@
         <wb-resource deploy-path="/" source-path="/src/webapp"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/java"/>
         <wb-resource deploy-path="/" source-path="/src/main/webapp"/>
-        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.core/org.cumulus4j.core">
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.store/org.cumulus4j.store">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.annotation/org.cumulus4j.annotation">
@@ -14,9 +14,6 @@
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keymanager.back.shared/org.cumulus4j.keymanager.back.shared">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.test/org.cumulus4j.test">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <property name="java-output-path" value="/org.cumulus4j.integrationtest.webapp/target/classes"/>
