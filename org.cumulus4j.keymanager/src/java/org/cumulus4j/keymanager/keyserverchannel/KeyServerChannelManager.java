@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.cumulus4j.keymanager.SessionManager;
-import org.cumulus4j.keyserver.back.shared.GetKeyRequest;
-import org.cumulus4j.keyserver.back.shared.Request;
+import org.cumulus4j.keymanager.back.shared.GetKeyRequest;
+import org.cumulus4j.keymanager.back.shared.Request;
 
 public class KeyServerChannelManager
 {

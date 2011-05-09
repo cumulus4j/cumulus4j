@@ -19,7 +19,7 @@
         <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keymanager.front.shared/org.cumulus4j.keymanager.front.shared">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <property name="java-output-path" value="/org.cumulus4j.keyserver.front.webapp/target/classes"/>
+        <property name="java-output-path" value="/org.cumulus4j.keymanager.front.webapp/target/classes"/>
         <property name="context-root" value="org.cumulus4j.keymanager.front.webapp"/>
     </wb-module>
 </project-modules>

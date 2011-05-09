@@ -8,8 +8,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.cumulus4j.keyserver.back.shared.Request;
-import org.cumulus4j.keyserver.back.shared.Response;
+import org.cumulus4j.keymanager.back.shared.Request;
+import org.cumulus4j.keymanager.back.shared.Response;
 
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de

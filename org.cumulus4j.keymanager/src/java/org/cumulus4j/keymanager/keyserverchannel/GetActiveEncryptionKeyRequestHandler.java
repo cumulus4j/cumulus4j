@@ -6,9 +6,9 @@ import java.util.Date;
 
 import org.cumulus4j.keymanager.Session;
 import org.cumulus4j.keymanager.SessionManager;
-import org.cumulus4j.keyserver.back.shared.GetActiveEncryptionKeyRequest;
-import org.cumulus4j.keyserver.back.shared.GetKeyResponse;
-import org.cumulus4j.keyserver.back.shared.Response;
+import org.cumulus4j.keymanager.back.shared.GetActiveEncryptionKeyRequest;
+import org.cumulus4j.keymanager.back.shared.GetKeyResponse;
+import org.cumulus4j.keymanager.back.shared.Response;
 import org.cumulus4j.keystore.AuthenticationException;
 import org.cumulus4j.keystore.GeneratedKey;
 import org.cumulus4j.keystore.KeyNotFoundException;

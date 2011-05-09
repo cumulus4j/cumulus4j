@@ -5,9 +5,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeoutException;
 
-import org.cumulus4j.keyserver.back.shared.ErrorResponse;
-import org.cumulus4j.keyserver.back.shared.Request;
-import org.cumulus4j.keyserver.back.shared.Response;
+import org.cumulus4j.keymanager.back.shared.ErrorResponse;
+import org.cumulus4j.keymanager.back.shared.Request;
+import org.cumulus4j.keymanager.back.shared.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

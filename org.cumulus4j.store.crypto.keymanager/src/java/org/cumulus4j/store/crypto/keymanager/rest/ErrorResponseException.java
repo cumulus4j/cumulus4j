@@ -1,6 +1,6 @@
 package org.cumulus4j.store.crypto.keymanager.rest;
 
-import org.cumulus4j.keyserver.back.shared.ErrorResponse;
+import org.cumulus4j.keymanager.back.shared.ErrorResponse;
 
 public class ErrorResponseException extends Exception
 {

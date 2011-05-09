@@ -1,7 +1,7 @@
 package org.cumulus4j.keymanager.keyserverchannel;
 
-import org.cumulus4j.keyserver.back.shared.Request;
-import org.cumulus4j.keyserver.back.shared.Response;
+import org.cumulus4j.keymanager.back.shared.Request;
+import org.cumulus4j.keymanager.back.shared.Response;
 
 public interface RequestHandler<R extends Request>
 {
