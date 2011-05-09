@@ -1,4 +1,4 @@
-package org.cumulus4j.keyserver.back.core.crypto;
+package org.cumulus4j.store.crypto.keymanager;
 
 import org.cumulus4j.core.crypto.AbstractCryptoManager;
 import org.cumulus4j.core.crypto.CryptoSession;

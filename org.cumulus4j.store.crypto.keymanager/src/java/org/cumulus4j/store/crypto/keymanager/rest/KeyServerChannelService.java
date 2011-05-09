@@ -1,4 +1,4 @@
-package org.cumulus4j.keyserver.back.core.rest;
+package org.cumulus4j.store.crypto.keymanager.rest;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;

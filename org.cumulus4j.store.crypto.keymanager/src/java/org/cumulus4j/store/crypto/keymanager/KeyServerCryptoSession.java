@@ -1,4 +1,4 @@
-package org.cumulus4j.keyserver.back.core.crypto;
+package org.cumulus4j.store.crypto.keymanager;
 
 import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
@@ -11,10 +11,10 @@ import javax.crypto.spec.SecretKeySpec;
 import org.cumulus4j.core.crypto.AbstractCryptoSession;
 import org.cumulus4j.core.crypto.Ciphertext;
 import org.cumulus4j.core.crypto.Plaintext;
-import org.cumulus4j.keyserver.back.core.rest.RequestResponseBroker;
 import org.cumulus4j.keyserver.back.shared.GetActiveEncryptionKeyRequest;
 import org.cumulus4j.keyserver.back.shared.GetKeyRequest;
 import org.cumulus4j.keyserver.back.shared.GetKeyResponse;
+import org.cumulus4j.store.crypto.keymanager.rest.RequestResponseBroker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

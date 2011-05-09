@@ -44,7 +44,7 @@
 		<module>../org.cumulus4j.annotation</module>
 		<module>../org.cumulus4j.core</module>
 		<module>../org.cumulus4j.integrationtest.webapp</module>
-		<module>../org.cumulus4j.keyserver.back.core</module>
+		<module>../org.cumulus4j.store.crypto.keymanager</module>
 		<module>../org.cumulus4j.keyserver.back.shared</module>
 		<module>../org.cumulus4j.keyserver.back.webapp</module>
 		<module>../org.cumulus4j.keyserver.front.client</module>

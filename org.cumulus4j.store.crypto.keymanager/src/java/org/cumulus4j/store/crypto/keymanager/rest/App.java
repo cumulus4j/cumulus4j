@@ -1,4 +1,4 @@
-package org.cumulus4j.keyserver.back.core.rest;
+package org.cumulus4j.store.crypto.keymanager.rest;
 
 import java.util.Collections;
 import java.util.HashSet;

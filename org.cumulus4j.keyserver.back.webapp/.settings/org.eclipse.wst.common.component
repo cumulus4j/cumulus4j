@@ -3,9 +3,6 @@
     <wb-module deploy-name="org.cumulus4j.keyserver.back.webapp">
         <wb-resource deploy-path="/" source-path="/src/webapp"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/java"/>
-        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.store.crypto.keymanager/org.cumulus4j.store.crypto.keymanager">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
         <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.core/org.cumulus4j.core">
             <dependency-type>uses</dependency-type>
         </dependent-module>
