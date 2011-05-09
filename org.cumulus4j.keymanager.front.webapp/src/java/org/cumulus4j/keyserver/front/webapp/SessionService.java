@@ -13,6 +13,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.cumulus4j.keymanager.AppServer;
+import org.cumulus4j.keymanager.AppServerManager;
+import org.cumulus4j.keymanager.Session;
+import org.cumulus4j.keymanager.SessionManager;
 import org.cumulus4j.keyserver.front.shared.Auth;
 import org.cumulus4j.keyserver.front.shared.Error;
 import org.cumulus4j.keyserver.front.shared.OpenSessionResponse;

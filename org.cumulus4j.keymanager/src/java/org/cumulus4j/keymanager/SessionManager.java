@@ -1,4 +1,4 @@
-package org.cumulus4j.keyserver.front.webapp;
+package org.cumulus4j.keymanager;
 
 import java.lang.ref.WeakReference;
 import java.util.Date;

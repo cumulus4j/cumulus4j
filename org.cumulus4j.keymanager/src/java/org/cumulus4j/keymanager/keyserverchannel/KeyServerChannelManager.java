@@ -1,4 +1,4 @@
-package org.cumulus4j.keyserver.front.webapp.keyserverchannel;
+package org.cumulus4j.keymanager.keyserverchannel;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -8,9 +8,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.cumulus4j.keymanager.SessionManager;
 import org.cumulus4j.keyserver.back.shared.GetKeyRequest;
 import org.cumulus4j.keyserver.back.shared.Request;
-import org.cumulus4j.keyserver.front.webapp.SessionManager;
 
 public class KeyServerChannelManager
 {

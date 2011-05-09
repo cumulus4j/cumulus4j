@@ -1,9 +1,8 @@
-package org.cumulus4j.keyserver.front.webapp;
+package org.cumulus4j.keymanager;
 
 import java.util.Arrays;
 import java.util.Date;
 
-import org.cumulus4j.keyserver.front.shared.OpenSessionResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,8 +48,7 @@ public class Session
 	private boolean locked = true;
 
 	/**
-	 * Get the identifier of this session. See {@link OpenSessionResponse#getCryptoSessionID()} for more details about this
-	 * identifier.
+	 * Get the identifier of this session.
 	 * @return the session's unique identifier.
 	 */
 	public String getCryptoSessionID() {

@@ -1,13 +1,13 @@
-package org.cumulus4j.keyserver.front.webapp.keyserverchannel;
+package org.cumulus4j.keymanager.keyserverchannel;
 
 import java.security.Key;
 import java.util.Date;
 
+import org.cumulus4j.keymanager.Session;
+import org.cumulus4j.keymanager.SessionManager;
 import org.cumulus4j.keyserver.back.shared.GetKeyRequest;
 import org.cumulus4j.keyserver.back.shared.GetKeyResponse;
 import org.cumulus4j.keyserver.back.shared.Response;
-import org.cumulus4j.keyserver.front.webapp.Session;
-import org.cumulus4j.keyserver.front.webapp.SessionManager;
 import org.cumulus4j.keystore.AuthenticationException;
 import org.cumulus4j.keystore.KeyNotFoundException;
 

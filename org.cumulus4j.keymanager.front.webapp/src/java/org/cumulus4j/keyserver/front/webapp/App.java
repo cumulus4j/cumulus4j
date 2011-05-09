@@ -9,6 +9,7 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
+import org.cumulus4j.keymanager.AppServerManager;
 import org.cumulus4j.keystore.KeyStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

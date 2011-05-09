@@ -3,6 +3,8 @@ package org.cumulus4j.keyserver.front.webapp;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.ext.Provider;
 
+import org.cumulus4j.keymanager.AppServerManager;
+
 import com.sun.jersey.spi.inject.SingletonTypeInjectableProvider;
 
 /**

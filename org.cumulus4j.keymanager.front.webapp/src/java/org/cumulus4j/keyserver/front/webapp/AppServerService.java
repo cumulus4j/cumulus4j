@@ -15,6 +15,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.cumulus4j.keymanager.AppServer;
+import org.cumulus4j.keymanager.AppServerManager;
 import org.cumulus4j.keyserver.front.shared.Auth;
 import org.cumulus4j.keyserver.front.shared.Error;
 import org.slf4j.Logger;
@@ -47,8 +49,12 @@ public class AppServerService extends AbstractService
 			AppServer appServer = appServerManager.getAppServerForAppServerID(appServerID);
 			if (appServer == null)
 				return null;
-			else
-				return new org.cumulus4j.keyserver.front.shared.AppServer(appServer);
+			else {
+				org.cumulus4j.keyserver.front.shared.AppServer as = new org.cumulus4j.keyserver.front.shared.AppServer();
+				as.setAppServerID(appServer.getAppServerID());
+				as.setAppServerBaseURL(appServer.getAppServerBaseURL());
+				return as;
+			}
 		} finally {
 			auth.clear();
 		}
@@ -62,9 +68,10 @@ public class AppServerService extends AbstractService
 		Auth auth = authenticate();
 		try {
 			for (AppServer appServer : appServerManager.getAppServers()) {
-				appServerList.getAppServers().add(
-						new org.cumulus4j.keyserver.front.shared.AppServer(appServer)
-				);
+				org.cumulus4j.keyserver.front.shared.AppServer as = new org.cumulus4j.keyserver.front.shared.AppServer();
+				as.setAppServerID(appServer.getAppServerID());
+				as.setAppServerBaseURL(appServer.getAppServerBaseURL());
+				appServerList.getAppServers().add(as);
 			}
 		} finally {
 			auth.clear();
@@ -132,7 +139,8 @@ public class AppServerService extends AbstractService
 
 		Auth auth = authenticate();
 		try {
-			appServerManager.putAppServer(new AppServer(appServerManager, appServer));
+			AppServer as = new AppServer(appServerManager, appServer.getAppServerID(), appServer.getAppServerBaseURL());
+			appServerManager.putAppServer(as);
 			// TODO write AppServers to a file!
 			return appServer.getAppServerID();
 //		} catch (IOException e) {

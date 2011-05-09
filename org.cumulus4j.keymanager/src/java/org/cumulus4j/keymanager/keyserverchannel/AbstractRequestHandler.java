@@ -1,4 +1,4 @@
-package org.cumulus4j.keyserver.front.webapp.keyserverchannel;
+package org.cumulus4j.keymanager.keyserverchannel;
 
 import org.cumulus4j.keyserver.back.shared.Request;
 
