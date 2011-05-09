@@ -1,0 +1,19 @@
+	---
+	Usage
+	---
+	Andy Jefferson
+	---
+	2011-05-09
+
+Queryable
+
+	By default all persistable fields are indexed (if they are of an indexable type). 
+	You can make a field/property not queryable by adding
+	
+	@Extension(vendorName="datanucleus", key="queryable", value="false")
+	
+	or use XML metadata as
+	
+	<extension vendor-name="datanucleus" key="queryable" value="false"/>
+	
+	
