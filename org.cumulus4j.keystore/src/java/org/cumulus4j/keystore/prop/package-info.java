@@ -7,6 +7,8 @@
  * name-value-pairs. The names are plain-text, but the values are encrypted.
  * A property-value can be of any type for which a subclass of
  * {@link org.cumulus4j.keystore.prop.Property} exists.
+ * </p>
+ * <p>
  * See {@link org.cumulus4j.keystore.KeyStore#getProperty(String, char[], Class, String)}
  * and {@link org.cumulus4j.keystore.prop.Property} for further infos.
  * </p>

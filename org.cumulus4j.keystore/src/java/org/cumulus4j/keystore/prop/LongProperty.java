@@ -1,13 +1,22 @@
 package org.cumulus4j.keystore.prop;
 
 /**
+ * {@link Property} implementation for the value type {@link Long}.
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class LongProperty extends Property<Long>
 {
-
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * The implementation in <code>LongProperty</code> returns either <code>null</code> or 8 bytes containing
+	 * the long value in a pretty raw form (copied byte-by-byte).
+	 * </p>
+	 */
 	@Override
-	public byte[] getValueEncoded() {
+	public byte[] getValueEncoded()
+	{
 		Long value = getValue();
 		if (value == null)
 			return null;
@@ -21,8 +30,15 @@ public class LongProperty extends Property<Long>
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @throws IllegalArgumentException if the <code>encodedValue</code> is neither <code>null</code> nor a byte-array
+	 * with a length of exactly 8.
+	 */
 	@Override
-	public void setValueEncoded(byte[] encodedValue) {
+	public void setValueEncoded(byte[] encodedValue)
+	throws IllegalArgumentException
+	{
 		if (encodedValue == null)
 			setValue(null);
 		else {

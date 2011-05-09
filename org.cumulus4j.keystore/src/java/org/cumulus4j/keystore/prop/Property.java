@@ -9,6 +9,12 @@ import org.cumulus4j.keystore.KeyStore;
  * Base class for all properties.
  * </p>
  * <p>
+ * The <code>KeyStore</code> supports managing arbitrary properties in the form of
+ * name-value-pairs. The names are plain-text, but the values are encrypted.
+ * A property-value can be of any type for which a subclass of
+ * {@link org.cumulus4j.keystore.prop.Property} exists.
+ * </p>
+ * <p>
  * <b>Important:</b> Do not instantiate properties yourself! Use {@link KeyStore#getProperty(String, char[], Class, String)}
  * instead!
  * </p>
@@ -23,10 +29,30 @@ public abstract class Property<T>
 
 	private UUID xxx;
 
+	/**
+	 * <p>
+	 * Get the property's unique name.
+	 * </p>
+	 * <p>
+	 * This name is used as key to uniquely identify a property in the key store.
+	 * </p>
+	 *
+	 * @return the property's name.
+	 */
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * <p>
+	 * Set the property's unique name.
+	 * </p>
+	 * <p>
+	 * You should never call this method directly. The name is set by {@link KeyStore#getProperty(String, char[], Class, String)}.
+	 * </p>
+	 *
+	 * @param name the property's name.
+	 */
 	public void setName(String name)
 	{
 		if (this.name != null && !this.name.equals(name))
@@ -37,17 +63,52 @@ public abstract class Property<T>
 
 	private T value;
 
+	/**
+	 * Get the property's value.
+	 * @return the value or <code>null</code>.
+	 * @see #setValue(Object)
+	 */
 	public T getValue() {
 		return value;
 	}
+	/**
+	 * Set the property's value.
+	 * @param value the value or <code>null</code>.
+	 * @see #getValue()
+	 */
 	public void setValue(T value)
 	{
 		this.value = value;
 	}
 
+	/**
+	 * <p>
+	 * Get the property's {@link #getValue() value} encoded as byte-array or <code>null</code>, if the
+	 * property is empty.
+	 * </p>
+	 * <p>
+	 * This method must encode the value in a way that can be decoded by {@link #setValueEncoded(byte[])}.
+	 * </p>
+	 * @return the byte-array-representation of the property-value or <code>null</code>.
+	 * @see #setValueEncoded(byte[])
+	 */
 	public abstract byte[] getValueEncoded();
 
-	public abstract void setValueEncoded(byte[] encodedValue);
+	/**
+	 * <p>
+	 * Set the property's {@link #getValue() value} encoded as byte-array or <code>null</code>,
+	 * if the property shall be empty.
+	 * </p>
+	 * <p>
+	 * This method must be symmetric to {@link #getValueEncoded()}, i.e. every possible result of <code>getValueEncoded()</code>
+	 * must be understood by this method. A byte-array that is not understood should cause an {@link IllegalArgumentException}.
+	 * </p>
+	 * @param encodedValue the byte-array-representation of the property-value or <code>null</code>.
+	 * @throws IllegalArgumentException if the <code>encodedValue</code> cannot be parsed.
+	 * @see #getValueEncoded()
+	 */
+	public abstract void setValueEncoded(byte[] encodedValue)
+	throws IllegalArgumentException;
 
 	@Override
 	public String toString() {
