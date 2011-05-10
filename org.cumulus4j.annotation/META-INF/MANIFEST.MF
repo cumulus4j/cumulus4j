@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Cumulus4j Api
+Bundle-Name: Cumulus4j-Annotations
 Bundle-SymbolicName: org.cumulus4j.annotation;singleton:=true
 Bundle-Version: 0.0.0.DUMMY
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
