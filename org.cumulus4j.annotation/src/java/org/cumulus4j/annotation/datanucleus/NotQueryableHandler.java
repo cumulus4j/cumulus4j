@@ -1,4 +1,4 @@
-package org.cumulus4j.annotation;
+package org.cumulus4j.annotation.datanucleus;
 
 import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.metadata.AbstractMemberMetaData;

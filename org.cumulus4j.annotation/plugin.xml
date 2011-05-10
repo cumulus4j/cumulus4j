@@ -3,6 +3,6 @@
 <plugin>
     <extension point="org.datanucleus.member_annotation_handler">
         <member-annotation-handler annotation-class="org.cumulus4j.annotation.NotQueryable" 
-            handler="org.cumulus4j.annotation.NotQueryableHandler"/>
+            handler="org.cumulus4j.annotation.datanucleus.NotQueryableHandler"/>
     </extension>
 </plugin>
