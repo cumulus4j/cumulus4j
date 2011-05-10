@@ -19,9 +19,12 @@
 			<artifactId>jdo-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.cumulus4j</groupId>
-			<artifactId>org.cumulus4j.annotation</artifactId>
-			<version>${project.version}</version>
+			<groupId>org.datanucleus</groupId>
+			<artifactId>datanucleus-api-jdo</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.datanucleus</groupId>
+			<artifactId>datanucleus-core</artifactId>
 		</dependency>
 	</dependencies>
 

@@ -13,7 +13,6 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import org.cumulus4j.annotation.Dummy;
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.DataEntry;
 import org.cumulus4j.store.model.FieldMeta;
@@ -91,10 +90,6 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 		logger.info("====================== Cumulus4j ======================");
 		{ // org.cumulus4j.store
 			String[] bundleNameAndVersion = getBundleNameAndVersion(Cumulus4jConnectionFactory.class);
-			logger.info("Bundle: " + bundleNameAndVersion[0] + " - Version: " + bundleNameAndVersion[1]);
-		}
-		{ // org.cumulus4j.api
-			String[] bundleNameAndVersion = getBundleNameAndVersion(Dummy.class);
 			logger.info("Bundle: " + bundleNameAndVersion[0] + " - Version: " + bundleNameAndVersion[1]);
 		}
 		logger.info("=======================================================");
