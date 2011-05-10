@@ -61,6 +61,7 @@
 						</connector>
 					</connectors>
 				</configuration>
+<!-- No need for automatic start during build here - we only need this in the real integration test (in another project, probably).
 				<executions>
 					<execution>
 						<id>start-jetty</id>
@@ -81,6 +82,7 @@
 						</goals>
 					</execution>
 				</executions>
+-->
 			</plugin>
 
 		</plugins>

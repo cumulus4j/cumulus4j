@@ -20,7 +20,7 @@ public class RequestResponseBroker
 {
 	private static final Logger logger = LoggerFactory.getLogger(RequestResponseBroker.class);
 
-	private static RequestResponseBroker sharedInstance = new RequestResponseBroker();
+	protected static RequestResponseBroker sharedInstance = new RequestResponseBroker();
 
 	/**
 	 * Get the singleton.

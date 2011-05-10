@@ -1,19 +1,23 @@
 package org.cumulus4j.store.crypto.keymanager;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
+import java.security.Security;
+import java.util.zip.CRC32;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.cumulus4j.store.crypto.AbstractCryptoSession;
-import org.cumulus4j.store.crypto.Ciphertext;
-import org.cumulus4j.store.crypto.Plaintext;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.cumulus4j.keymanager.back.shared.GetActiveEncryptionKeyRequest;
 import org.cumulus4j.keymanager.back.shared.GetKeyRequest;
 import org.cumulus4j.keymanager.back.shared.GetKeyResponse;
+import org.cumulus4j.store.crypto.AbstractCryptoSession;
+import org.cumulus4j.store.crypto.Ciphertext;
+import org.cumulus4j.store.crypto.Plaintext;
 import org.cumulus4j.store.crypto.keymanager.rest.RequestResponseBroker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +30,13 @@ extends AbstractCryptoSession
 {
 	private static final Logger logger = LoggerFactory.getLogger(KeyManagerCryptoSession.class);
 
-	private static final String ALGORITHM_WITH_PARAMS = "AES/CBC/PKCS5Padding"; // TODO this should be configurable!
+	private static final BouncyCastleProvider bouncyCastleProvider = new BouncyCastleProvider();
+	static {
+		Security.insertProviderAt(bouncyCastleProvider, 2);
+	}
+
+	private static final ChecksumAlgorithm encryptWithChecksum = ChecksumAlgorithm.crc32;
+	private static final EncryptionAlgorithm ENCRYPTION_ALGORITHM = EncryptionAlgorithm.AES_CBC_PKCS5Padding; // TODO this should be configurable!
 	private static final IvParameterSpec NULL_IV = new IvParameterSpec(new byte[16]); // TODO this should be determined based on the configured algorithm!
 
 	private SecureRandom random = new SecureRandom();
@@ -47,10 +57,12 @@ extends AbstractCryptoSession
 
 		// TODO cache ciphers/keys in general!
 		try {
+			EncryptionAlgorithm activeEncryptionAlgorithm = ENCRYPTION_ALGORITHM;
 			SecretKeySpec key = new SecretKeySpec(getKeyResponse.getKeyEncoded(), getKeyResponse.getKeyAlgorithm());
-			Cipher encrypter = Cipher.getInstance(ALGORITHM_WITH_PARAMS);
+			Cipher encrypter = Cipher.getInstance(activeEncryptionAlgorithm.getTransformation());
 			encrypter.init(Cipher.ENCRYPT_MODE, key, NULL_IV);
 			byte[] encrypted = encrypt(encrypter, plaintext.getData());
+			encrypted[0] = (byte)activeEncryptionAlgorithm.ordinal();
 			Ciphertext ciphertext = new Ciphertext();
 			ciphertext.setData(encrypted);
 			ciphertext.setKeyID(getKeyResponse.getKeyID());
@@ -77,7 +89,9 @@ extends AbstractCryptoSession
 
 		try {
 			SecretKeySpec key = new SecretKeySpec(getKeyResponse.getKeyEncoded(), getKeyResponse.getKeyAlgorithm());
-			Cipher decrypter = Cipher.getInstance(ALGORITHM_WITH_PARAMS);
+			int encryptionAlgoID = ciphertext.getData()[0] & 0xff;
+			EncryptionAlgorithm activeEncryptionAlgorithm = EncryptionAlgorithm.values()[encryptionAlgoID];
+			Cipher decrypter = Cipher.getInstance(activeEncryptionAlgorithm.getTransformation());
 			decrypter.init(Cipher.DECRYPT_MODE, key, NULL_IV);
 			byte[] decrypted = decrypt(decrypter, ciphertext.getData());
 			Plaintext plaintext = new Plaintext();
@@ -93,24 +107,45 @@ extends AbstractCryptoSession
 	private byte[] encrypt(Cipher encrypter, byte[] input) throws GeneralSecurityException
 	{
 		int saltLength = getSaltLength(encrypter);
-		int inputWithSaltSize = input.length + saltLength; // encrypted salt length should be the same as plain salt length
-		int blockSize = encrypter.getBlockSize();
-		int blockQty = inputWithSaltSize / blockSize;
-		int resultSize = blockQty * blockSize;
-		while (resultSize < inputWithSaltSize)
-			resultSize += blockSize;
+		int resultSize = 1 /* encryptionAlgoID */ + encrypter.getOutputSize(saltLength + 1 /* checksum-algo-id */ + 4 /* checksum-length with CRC32 */ + input.length);
 
 		ByteBuffer resultBuf = ByteBuffer.allocate(resultSize);
+		resultBuf.position(1); // We'll write this 'encryptionAlgoID' outside of this method after encrypting.
 
-		ByteBuffer inputBuf = ByteBuffer.wrap(input);
-
-		{ // putting salt into the soup
+		{ // First, we put salt into the soup ;-)
+			// We start with the salt to make sure we have unpredictable plain-text already at the very beginning to
+			// make attacks based on known plain-text impossible.
 			byte[] salt = new byte[saltLength];
 			random.nextBytes(salt);
 			encrypter.update(ByteBuffer.wrap(salt), resultBuf);
 		}
 
-		encrypter.doFinal(inputBuf, resultBuf);
+		// Now we add the check-sum.
+		// It always starts with the algo-identifier, followed by the checksum itself.
+		byte[] checksum;
+		switch (encryptWithChecksum) {
+			case none: {
+				checksum = new byte[1];
+				checksum[0] = (byte)encryptWithChecksum.ordinal();
+				break;
+			}
+			case crc32: {
+				checksum = new byte[5]; // CRC32 has 32 bit, i.e. 4 bytes PLUS 1 byte for the checksumAlgoID
+				checksum[0] = (byte)encryptWithChecksum.ordinal();
+				CRC32 crc32 = new CRC32();
+				crc32.update(input);
+				long crc32Value = crc32.getValue();
+				for (int i = 1; i < checksum.length; ++i)
+					checksum[i] = (byte)(crc32Value >>> ((i - 1) * 8));
+
+				break;
+			}
+			default:
+				throw new IllegalStateException("Unsupported ChecksumAlgorithm: " + encryptWithChecksum);
+		}
+		encrypter.update(ByteBuffer.wrap(checksum), resultBuf);
+
+		encrypter.doFinal(ByteBuffer.wrap(input), resultBuf);
 		if (resultBuf.hasArray()) {
 			if (resultBuf.array().length == resultBuf.position())
 				return resultBuf.array();
@@ -121,7 +156,7 @@ extends AbstractCryptoSession
 			logger.warn("Backing array cannot be directly used, because there is no backing array!");
 
 		byte[] result = new byte[resultBuf.position()];
-		resultBuf.position(0);
+		resultBuf.rewind();
 		resultBuf.get(result);
 		return result;
 	}
@@ -135,14 +170,70 @@ extends AbstractCryptoSession
 		return saltLength;
 	}
 
-	private byte[] decrypt(Cipher decrypter, byte[] input) throws GeneralSecurityException
+	private byte[] decrypt(Cipher decrypter, byte[] input) throws GeneralSecurityException, IOException
 	{
-		byte[] raw = decrypter.doFinal(input);
+		// Performance tests in CryptoAlgoBenchmark show that ByteBuffer is as fast as System.arraycopy(...) after
+		// the JVM had time for hotspot-compilation (only at the beginning there are slight performance differences).
+		// Hence we use the nicer API. Marco :-)
+		ByteBuffer inputBuf = ByteBuffer.wrap(input);
 
+		// Skip 1st byte containing the encryptionAlgoID (handled outside of this method).
+		inputBuf.position(1);
+
+		int rawPlainSize = decrypter.getOutputSize(input.length - inputBuf.position()); // '- inputBuf.position()' because of first skipped byte
+		ByteBuffer rawBuf = ByteBuffer.allocate(rawPlainSize);
+
+		int bytesDecryptedCount = decrypter.doFinal(inputBuf, rawBuf);
+
+		// Discard the salt, the first byte we're interested in is the checksum-id AFTER the salt.
 		int saltLength = getSaltLength(decrypter);
-		// discarding the salt.
-		byte[] result = new byte[raw.length - saltLength];
-		System.arraycopy(raw, saltLength, result, 0, result.length);
+		rawBuf.position(saltLength);
+
+		int checksumAlgoID = rawBuf.get() & 0xff; // the '& 0xff' is necessary to use the whole UNSIGNED range of a byte, i.e. 0...255.
+		if (checksumAlgoID > ChecksumAlgorithm.values().length - 1)
+			throw new IllegalArgumentException("input[" + (rawBuf.position() - 1) + "] == checksumAlgoID == " + checksumAlgoID + " is unknown!");
+
+		ChecksumAlgorithm checksumAlgorithm = ChecksumAlgorithm.values()[checksumAlgoID];
+		byte[] checksum;
+		switch (checksumAlgorithm) {
+			case none: {
+				checksum = new byte[0];
+				break;
+			}
+			case crc32: {
+				checksum = new byte[4]; // CRC32 has 32 bit, i.e. 4 bytes
+//				System.arraycopy(raw, saltLength + 1, checksum, 0, checksum.length);
+				rawBuf.get(checksum);
+				break;
+			}
+			default:
+				throw new IllegalStateException("Unsupported ChecksumAlgorithm: " + encryptWithChecksum);
+		}
+
+//		byte[] result = new byte[raw.length - saltLength - 1 /* checksumAlgoID */ - checksum.length];
+//		System.arraycopy(raw, saltLength + 1 + checksum.length, result, 0, result.length);
+		byte[] result = new byte[bytesDecryptedCount - rawBuf.position()];
+		rawBuf.get(result);
+
+		// And finally calculate a new checksum and verify if it matches the one we read above.
+		switch (checksumAlgorithm) {
+			case none: // nothing to do
+				break;
+			case crc32: {
+				CRC32 crc32 = new CRC32();
+				crc32.update(result);
+				long crc32Value = crc32.getValue();
+				for (int i = 0; i < checksum.length; ++i) {
+					if (checksum[i] != (byte)(crc32Value >>> (i * 8)))
+						throw new IOException("CRC32 checksum mismatch!");
+				}
+
+				break;
+			}
+			default:
+				throw new IllegalStateException("Unsupported ChecksumAlgorithm: " + encryptWithChecksum);
+		}
+
 		return result;
 	}
 
