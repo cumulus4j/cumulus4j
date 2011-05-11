@@ -22,9 +22,9 @@ import org.slf4j.LoggerFactory;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.UniformInterfaceException;
 
-public class IntegrationTest
+public class IntegrationWithAppServerOnlyTest
 {
-	private static final Logger logger = LoggerFactory.getLogger(IntegrationTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(IntegrationWithAppServerOnlyTest.class);
 
 	private static final String URL_APP_SERVER = "http://localhost:8585";
 //	private static final String URL_APP_SERVER = "http://localhost:8080";
@@ -36,7 +36,7 @@ public class IntegrationTest
 	private static final char[] KEY_STORE_PASSWORD = "abcdefg-very+secret".toCharArray();
 
 	@Test
-	public void test1() throws Exception
+	public void testTwoComputerScenario() throws Exception
 	{
 		File keyStoreFile = File.createTempFile("test-", ".keystore");
 		try {
@@ -47,8 +47,6 @@ public class IntegrationTest
 			appServerManager.putAppServer(appServer);
 			Session session = appServer.getSessionManager().openSession(KEY_STORE_USER, KEY_STORE_PASSWORD);
 			session.setLocked(false);
-
-//			Thread.sleep(10000); // TODO remove this - currently here only for making it easier to read the log.
 
 			Client client = new Client();
 			String url = URL_TEST + "?cryptoSessionID=" + URLEncoder.encode(session.getCryptoSessionID(), IOUtil.CHARSET_NAME_UTF_8);

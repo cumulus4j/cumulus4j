@@ -21,9 +21,9 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 
-public class IntegrationWithKeyServerTest
+public class IntegrationWithAppServerAndKeyServerTest
 {
-	private static final Logger logger = LoggerFactory.getLogger(IntegrationWithKeyServerTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(IntegrationWithAppServerAndKeyServerTest.class);
 
 	private static final String URL_APP_SERVER = "http://localhost:8585";
 //	private static final String URL_APP_SERVER = "http://localhost:8080";
@@ -42,7 +42,7 @@ public class IntegrationWithKeyServerTest
 	private static final char[] KEY_SERVER_PASSWORD = "testtesttest".toCharArray();
 
 	@Test
-	public void testThreeComputerConfiguration()
+	public void testThreeComputerScenario()
 	throws Exception
 	{
 		Client clientForKeyServer = new Client();
