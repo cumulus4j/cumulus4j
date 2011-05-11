@@ -43,6 +43,7 @@
 	<modules>
 		<module>../org.cumulus4j.annotation</module>
 		<module>../org.cumulus4j.integrationtest.webapp</module>
+		<module>../org.cumulus4j.integrationtest.withkeyserver</module>
 		<module>../org.cumulus4j.keymanager</module>
 		<module>../org.cumulus4j.keymanager.api</module>
 		<module>../org.cumulus4j.keymanager.back.shared</module>

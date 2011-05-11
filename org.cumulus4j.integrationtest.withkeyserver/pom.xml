@@ -1,0 +1,122 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<artifactId>org.cumulus4j.parent</artifactId>
+		<groupId>org.cumulus4j</groupId>
+		<version>1.0.0-SNAPSHOT</version>
+		<relativePath>../org.cumulus4j.parent/pom.xml</relativePath>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>org.cumulus4j.integrationtest.withkeyserver</artifactId>
+	
+	<dependencies>
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.integrationtest.webapp</artifactId>
+			<version>${project.version}</version>
+			<type>war</type>
+		</dependency>
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.keymanager.front.webapp</artifactId>
+			<version>${project.version}</version>
+			<type>war</type>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<!--
+				We exclude all tests here, because all the tests in this module are INTEGRATION tests which should
+				be executed only when running "mvn integration-test"
+				-->
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+			<plugin>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<configuration>
+					<includes>
+						<include>**/Test*.java</include>
+						<include>**/*Test.java</include>
+						<include>**/IT*.java</include>
+						<include>**/*IT.java</include>
+					</includes>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+<!--
+We comment this out, because we don't want to fail the build, if the integration test fails. We want it
+in the reports just like every other test, too. Marco :-)
+							<goal>verify</goal>
+-->
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.mortbay.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+				<configuration>
+					<webApp>${settings.localRepository}/org/cumulus4j/org.cumulus4j.keymanager.front.webapp/${project.version}/org.cumulus4j.keymanager.front.webapp-${project.version}.war</webApp>
+
+					<!-- <scanIntervalSeconds>10</scanIntervalSeconds> -->
+					<stopKey>stop.${project.artifactId}</stopKey>
+					<stopPort>9996</stopPort>
+					<webAppConfig>
+						<contextPath>/org.cumulus4j.keymanager.front.webapp</contextPath>
+						<!--
+							The following extraClasspath configures log4j and binds slf4j 
+							to log4j so that we have logging when running 'mvn jetty:run'. The WAR itself 
+							does NOT contain this binding and will thus fall-back to NO-OP logging (i.e. 
+							disable logging) with a warning. The log4j.properties is located in /src/test/ 
+							in order to not be packaged into the WAR so that the logging can be configured 
+							without any unexpected interference by the servlet container.
+
+							Even though this is only a test project, we do not package these libs into the WAR, because 
+							it may happen that someone copies this configuration for a productive project. 
+							Additionally, this way, all our web-app-projects have (more or less) the 
+							same configuration.
+						-->
+						<extraClasspath>${basedir}/src/test;${settings.localRepository}/org/slf4j/slf4j-log4j12/${slf4j.version}/slf4j-log4j12-${slf4j.version}.jar;${settings.localRepository}/log4j/log4j/${log4j.version}/log4j-${log4j.version}.jar</extraClasspath>
+					</webAppConfig>
+					<connectors>
+						<connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+							<port>8686</port>
+							<maxIdleTime>60000</maxIdleTime>
+						</connector>
+					</connectors>
+				</configuration>
+				<executions>
+					<execution>
+						<id>start-jetty</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>deploy-war</goal>
+						</goals>
+						<configuration>
+							<scanIntervalSeconds>0</scanIntervalSeconds>
+							<daemon>true</daemon>
+						</configuration>
+					</execution>
+					<execution>
+						<id>stop-jetty</id>
+						<phase>post-integration-test</phase>
+						<goals>
+							<goal>stop</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
