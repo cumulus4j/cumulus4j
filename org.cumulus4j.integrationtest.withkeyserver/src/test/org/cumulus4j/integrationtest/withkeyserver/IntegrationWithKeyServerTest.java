@@ -38,7 +38,7 @@ public class IntegrationWithKeyServerTest
 	private static final String URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_USER = URL_KEY_MANAGER_FRONT_WEBAPP + "/User";
 	private static final String URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_SESSION = URL_KEY_MANAGER_FRONT_WEBAPP + "/Session";
 
-	private static final String KEY_SERVER_USER = "marco";
+	private static final String KEY_SERVER_USER = "devil";
 	private static final char[] KEY_SERVER_PASSWORD = "testtesttest".toCharArray();
 
 	@Test
