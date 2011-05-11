@@ -16,8 +16,6 @@ import org.datanucleus.store.AbstractPersistenceHandler;
 import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.ObjectProvider;
 import org.datanucleus.store.connection.ManagedConnection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * TODO Support one StoreManager for persistable data and one for indexed data. With this you could
@@ -26,8 +24,6 @@ import org.slf4j.LoggerFactory;
  */
 public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 {
-	private static final Logger logger = LoggerFactory.getLogger(Cumulus4jPersistenceHandler.class);
-
 	private Cumulus4jStoreManager storeManager;
 	private EncryptionHandler encryptionHandler;
 

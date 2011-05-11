@@ -26,16 +26,12 @@ import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.ObjectProvider;
 import org.datanucleus.store.fieldmanager.AbstractFieldManager;
 import org.datanucleus.store.types.sco.SCOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class FetchFieldManager extends AbstractFieldManager
 {
-	private static final Logger logger = LoggerFactory.getLogger(FetchFieldManager.class);
-
 	private ObjectProvider op;
 	private PersistenceManager pm;
 	private ExecutionContext executionContext;
