@@ -37,7 +37,9 @@ public class Session
 		);
 
 		this.userName = userName;
-		this.password = password;
+		// Clone to prevent the password in the session from being nulled, when the outside password is nulled
+		// or the outside password from being corrupted when this session is closed. Marco :-)
+		this.password = password.clone();
 	}
 
 	private String cryptoSessionID;
