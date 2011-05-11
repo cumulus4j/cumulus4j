@@ -8,6 +8,6 @@ public class IntegrationWithKeyServerTest
 	public void testThreeComputerConfiguration()
 	throws Exception
 	{
-		Thread.sleep(30000);
+		Thread.sleep(30000); // TODO remove this line and put real test code here!!!
 	}
 }
