@@ -22,6 +22,15 @@
 			<version>${project.version}</version>
 			<type>war</type>
 		</dependency>
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.keymanager.front.client</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.nightlabs</groupId>
+			<artifactId>org.nightlabs.util</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -95,6 +104,16 @@ in the reports just like every other test, too. Marco :-)
 							<maxIdleTime>60000</maxIdleTime>
 						</connector>
 					</connectors>
+					<systemProperties>
+						<systemProperty>
+							<name>org.cumulus4j.keymanager.front.webapp.App.keyStoreFile</name>
+							<value>${java.io.tmpdir}/integrationtest.keystore</value>
+						</systemProperty>
+						<systemProperty>
+							<name>org.cumulus4j.keymanager.front.webapp.App.deleteKeyStoreFileOnStartup</name>
+							<value>true</value>
+						</systemProperty>
+					</systemProperties>
 				</configuration>
 				<executions>
 					<execution>

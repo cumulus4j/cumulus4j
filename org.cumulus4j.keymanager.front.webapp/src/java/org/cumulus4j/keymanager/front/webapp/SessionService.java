@@ -78,14 +78,14 @@ public class SessionService extends AbstractService
 		return appServer.getSessionManager();
 	}
 
-	@Path("{appServerID}/unlock/{cryptoSessionID}")
+	@Path("{appServerID}/{cryptoSessionID}/unlock")
 	@GET
 	public void unlock_GET(@PathParam("appServerID") String appServerID, @PathParam("cryptoSessionID") String cryptoSessionID)
 	{
 		unlock(appServerID, cryptoSessionID);
 	}
 
-	@Path("{appServerID}/unlock/{cryptoSessionID}")
+	@Path("{appServerID}/{cryptoSessionID}/unlock")
 	@POST
 	public void unlock(@PathParam("appServerID") String appServerID, @PathParam("cryptoSessionID") String cryptoSessionID)
 	{
@@ -97,14 +97,14 @@ public class SessionService extends AbstractService
 		session.setLocked(false);
 	}
 
-	@Path("{appServerID}/lock/{cryptoSessionID}")
+	@Path("{appServerID}/{cryptoSessionID}/lock")
 	@GET
 	public void lock_GET(@PathParam("appServerID") String appServerID, @PathParam("cryptoSessionID") String cryptoSessionID)
 	{
 		lock(appServerID, cryptoSessionID);
 	}
 
-	@Path("{appServerID}/lock/{cryptoSessionID}")
+	@Path("{appServerID}/{cryptoSessionID}/lock")
 	@POST
 	public void lock(@PathParam("appServerID") String appServerID, @PathParam("cryptoSessionID") String cryptoSessionID)
 	{

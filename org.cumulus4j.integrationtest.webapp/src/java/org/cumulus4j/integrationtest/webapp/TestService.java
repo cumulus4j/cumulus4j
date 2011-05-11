@@ -63,6 +63,12 @@ public class TestService
 			@QueryParam("cryptoSessionID") String cryptoSessionID
 	)
 	{
+		// We enforce a fresh start every time, because we execute this now with different key-servers / embedded key-stores:
+		if (pmf != null) {
+			pmf.close();
+			pmf = null;
+		}
+
 		if (cryptoManagerID == null || cryptoManagerID.isEmpty())
 			cryptoManagerID = "keyManager";
 

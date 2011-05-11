@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
@@ -22,6 +24,31 @@ public class App
 extends Application
 {
 	private static final Logger logger = LoggerFactory.getLogger(App.class);
+
+	/**
+	 * <p>
+	 * System property to control which key file is to be used. If not specified,
+	 * the file "${user.home}/.cumulus4j/cumulus4j.keystore" will be used.
+	 * </p>
+	 * <p>
+	 * You can use system properties in this system-property's value. For example
+	 * passing "-Dorg.cumulus4j.keymanager.front.webapp.App.keyStoreFile=${java.io.tmpdir}/test.keystore"
+	 * to the java command will be resolved to "/tmp/test.keystore" on GNU+Linux.
+	 * </p>
+	 */
+	public static final String SYSTEM_PROPERTY_KEY_STORE_FILE = "org.cumulus4j.keymanager.front.webapp.App.keyStoreFile";
+
+	/**
+	 * <p>
+	 * System property to control whether to delete the key-store-file on startup.
+	 * Possible values are "true" and "false".
+	 * </p>
+	 * <p>
+	 * <b>Important:</b> This feature is for debugging and test reasons only! Never use it
+	 * on a productive system or you will loose all your keys (and thus your complete database)!!!
+	 * </p>
+	 */
+	public static final String SYSTEM_PROPERTY_DELETE_KEY_STORE_FILE_ON_STARTUP = "org.cumulus4j.keymanager.front.webapp.App.deleteKeyStoreFileOnStartup";
 
 	private static File getUserHome()
 	{
@@ -54,15 +81,64 @@ extends Application
 
 	private Set<Object> singletons;
 
+	private File keyStoreFile;
 	private KeyStore keyStore;
+
+	private void initKeyStoreFile()
+	{
+		String keyStoreFileSysPropVal = System.getProperty(SYSTEM_PROPERTY_KEY_STORE_FILE);
+		if (keyStoreFileSysPropVal == null || keyStoreFileSysPropVal.trim().isEmpty()) {
+			keyStoreFile = new File(new File(getUserHome(), ".cumulus4j"), "cumulus4j.keystore");
+			logger.info(
+					"getSingletons: System property '{}' is empty or not specified. Using default keyStoreFile '{}'.",
+					SYSTEM_PROPERTY_KEY_STORE_FILE, keyStoreFile.getAbsolutePath()
+			);
+		}
+		else {
+			String keyStoreFileSysPropValResolved = keyStoreFileSysPropVal;
+			if (keyStoreFileSysPropValResolved.indexOf('$') >= 0) {
+				for (Map.Entry<?, ?> sysProp : System.getProperties().entrySet()) {
+					keyStoreFileSysPropValResolved = keyStoreFileSysPropValResolved.replaceAll(
+							"\\$\\{" + Pattern.quote(String.valueOf(sysProp.getKey())) + "\\}", String.valueOf(sysProp.getValue())
+					);
+				}
+			}
+			keyStoreFile = new File(keyStoreFileSysPropValResolved);
+			logger.info(
+					"getSingletons: System property '{}' was set to '{}'. Using keyStoreFile '{}'.",
+					new Object[] { SYSTEM_PROPERTY_KEY_STORE_FILE, keyStoreFileSysPropVal, keyStoreFile.getAbsolutePath() }
+			);
+		}
+	}
+
+	private void deleteKeyStoreIfSysPropRequested() throws IOException {
+		String deleteKS = System.getProperty(SYSTEM_PROPERTY_DELETE_KEY_STORE_FILE_ON_STARTUP);
+		if (Boolean.TRUE.toString().equalsIgnoreCase(deleteKS)) {
+			if (keyStoreFile.exists()) {
+				logger.warn(
+						"getSingletons: System property '{}' was set to 'true'. DELETING keyStoreFile '{}'!!!",
+						SYSTEM_PROPERTY_DELETE_KEY_STORE_FILE_ON_STARTUP, keyStoreFile.getAbsolutePath()
+				);
+				if (!keyStoreFile.delete())
+					throw new IOException("Could not delete keyStoreFile '" + keyStoreFile.getAbsolutePath() + "'!");
+			}
+			else {
+				logger.warn(
+						"getSingletons: System property '{}' was set to 'true', but keyStoreFile '{}' does NOT exist, hence not deleting it!",
+						SYSTEM_PROPERTY_DELETE_KEY_STORE_FILE_ON_STARTUP, keyStoreFile.getAbsolutePath()
+				);
+			}
+		}
+	}
 
 	@Override
 	public Set<Object> getSingletons()
 	{
 		if (singletons == null) {
+			initKeyStoreFile();
+
 			try {
-				// TODO make keyStoreFile configurable?!
-				File keyStoreFile = new File(new File(getUserHome(), ".cumulus4j"), "cumulus4j.keystore");
+				deleteKeyStoreIfSysPropRequested();
 
 				if (!keyStoreFile.getParentFile().isDirectory()) {
 					keyStoreFile.getParentFile().mkdirs();
