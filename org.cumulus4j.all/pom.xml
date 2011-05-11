@@ -113,11 +113,10 @@ Marco :-)
 -->
 
 						<plugin>
-							<!--
-							Note, that this requires the mvn command line parameter '-Daggregate=true'!
-							Without this parameter, the test report will be empty.
-							-->
 							<artifactId>maven-surefire-report-plugin</artifactId>
+							<configuration>
+								<reportsDirectories>${basedir}/target/surefire-reports,${basedir}/target/failsafe-reports</reportsDirectories>
+							</configuration>
 						</plugin>
 						<plugin>
 							<groupId>org.apache.maven.plugins</groupId>

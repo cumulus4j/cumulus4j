@@ -95,7 +95,11 @@
 					<execution>
 						<goals>
 							<goal>integration-test</goal>
+<!--
+We comment this out, because we don't want to fail the build, if the integration test fails. We want it
+in the reports just like every other test, too. Marco :-)
 							<goal>verify</goal>
+-->
 						</goals>
 					</execution>
 				</executions>
