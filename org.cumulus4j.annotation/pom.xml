@@ -13,20 +13,25 @@
 	<packaging>bundle</packaging>
 
 	<dependencies>
+		<!--
+			This project should have no dependencies at all! Setting scope=test 
+			was the only way I found to suppress a dependency inherited from the parent-pom. 
+			Hence, I set all dependencies to scope=test here. Marco :-)
+		-->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<optional>true</optional>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>javax.jdo</groupId>
-			<artifactId>jdo-api</artifactId>
-			<optional>true</optional>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.datanucleus</groupId>
-			<artifactId>datanucleus-core</artifactId>
-			<optional>true</optional>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
@@ -35,17 +40,10 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
+						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Export-Package>org.cumulus4j.annotation,org.cumulus4j.annotation.*</Export-Package>
-<!--
-						<Private-Package>org.cumulus4j.annotation.internal,org.cumulus4j.annotation.internal.*</Private-Package>
--->
-<!-- We currently don't have an activator.
-						<Bundle-Activator>com.my.company.Activator</Bundle-Activator>
--->
 					</instructions>
 				</configuration>
 			</plugin>

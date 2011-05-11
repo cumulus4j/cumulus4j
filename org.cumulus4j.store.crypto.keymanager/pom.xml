@@ -41,10 +41,8 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
 <!-- We export only the 'rest' sub-package. Btw. the order of the two is essential! -->
 						<Export-Package>org.cumulus4j.store.crypto.keymanager.rest,!org.cumulus4j.store.crypto.keymanager.*</Export-Package>
 <!--

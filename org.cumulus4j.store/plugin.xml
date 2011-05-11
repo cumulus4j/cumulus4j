@@ -84,4 +84,9 @@
     <persistence-property name="cumulus4j.cryptoManagerID" manager-overrideable="true"/>
     <persistence-property name="cumulus4j.cryptoSessionID" manager-overrideable="true"/>
   </extension>
+  
+  <extension point="org.datanucleus.member_annotation_handler">
+    <member-annotation-handler annotation-class="org.cumulus4j.annotation.NotQueryable" 
+          handler="org.cumulus4j.store.annotation.datanucleus.NotQueryableHandler"/>
+  </extension>
 </plugin>

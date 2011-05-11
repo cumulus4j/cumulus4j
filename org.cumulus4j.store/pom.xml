@@ -19,6 +19,12 @@
 			<artifactId>jdo-api</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.annotation</artifactId>
+			<version>${project.version}</version>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
 			<groupId>org.datanucleus</groupId>
 			<artifactId>datanucleus-api-jdo</artifactId>
 		</dependency>
@@ -50,10 +56,8 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
 <!-- We currently don't export anything. The API will probably be separate in the org.cumulus4j.api project. -->
 						<Export-Package>!${project.artifactId}</Export-Package>
 						<Private-Package>${project.artifactId}.*</Private-Package>

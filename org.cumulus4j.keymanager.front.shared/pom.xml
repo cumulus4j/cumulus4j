@@ -17,10 +17,9 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
+						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 <!-- We currently don't export anything. This is not an API project. -->
 						<Export-Package>${project.artifactId};${project.artifactId}.*</Export-Package>
 <!--						<Private-Package>${project.artifactId}.internal.*</Private-Package> -->

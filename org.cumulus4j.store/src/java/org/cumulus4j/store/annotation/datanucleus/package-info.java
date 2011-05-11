@@ -17,4 +17,4 @@
  *
  * Marco :-)
  */
-package org.cumulus4j.annotation.datanucleus;
+package org.cumulus4j.store.annotation.datanucleus;
