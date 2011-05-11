@@ -134,8 +134,9 @@ public class RequestResponseBroker
 					try {
 						requestsWaitingForProcessing.wait(10000L);
 					} catch (InterruptedException e) {
-						// ignore - only log.
+						// ignore - only log - and break loop.
 						logger.warn("query: requestsWaitingForProcessing.wait(...) was interrupted with an InterruptedException.");
+						break;
 					}
 				}
 			}

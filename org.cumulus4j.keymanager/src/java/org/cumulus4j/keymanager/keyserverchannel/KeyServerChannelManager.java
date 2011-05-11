@@ -58,7 +58,7 @@ public class KeyServerChannelManager
 			throw new RuntimeException(e);
 		}
 
-		setDesiredThreadCount(10); // TODO make this manage itself automatically according to load statistics
+		setDesiredThreadCount(5); // TODO make this manage itself automatically according to load statistics
 	}
 
 	public SessionManager getSessionManager() {
