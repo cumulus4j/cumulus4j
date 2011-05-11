@@ -2,7 +2,7 @@
  * <p>
  * This package provides handlers for use of the Cumulus4J annotations with DataNucleus.
  * </p>
- * @deprecated This should IMHO be moved into org.cumulus4j.store (or another, not yet existing project), because
+ * TODO This should IMHO be moved into org.cumulus4j.store (or another, not yet existing project), because
  * it causes org.cumulus4j.annotation to have a dependency onto org.datanucleus.core. The negative effect is that
  * a client program not using DataNucleus itself would require to have DN deployed when it has a dependency on data
  * model classes (which is likely, if no DTOs are used). Data model classes should only require a dependency on
@@ -17,5 +17,4 @@
  *
  * Marco :-)
  */
-@Deprecated
 package org.cumulus4j.annotation.datanucleus;
