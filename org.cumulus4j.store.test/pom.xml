@@ -61,7 +61,6 @@
 				(e.g. when only needing the integration tests), we uncomment
 				the following. It should always be commented out when checking
 				in!
-			-->
 			<plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
@@ -70,6 +69,7 @@
                     </excludes>
                 </configuration>
             </plugin>
+			-->
 
 			<plugin>
 				<artifactId>maven-clean-plugin</artifactId>
