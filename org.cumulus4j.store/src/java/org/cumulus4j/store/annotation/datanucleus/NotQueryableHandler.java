@@ -1,12 +1,13 @@
 package org.cumulus4j.store.annotation.datanucleus;
 
+import org.cumulus4j.annotation.NotQueryable;
 import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.annotations.AnnotationObject;
 import org.datanucleus.metadata.annotations.MemberAnnotationHandler;
 
 /**
- * Handler for the NotQueryable annotation when applied to a field/property of a persistable class.
+ * Handler for the {@link NotQueryable} annotation when applied to a field/property of a persistable class.
  * Translates it into the extension "queryable" being set to "false".
  */
 public class NotQueryableHandler implements MemberAnnotationHandler
