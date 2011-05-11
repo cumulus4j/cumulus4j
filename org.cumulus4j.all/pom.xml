@@ -115,7 +115,10 @@ Marco :-)
 						<plugin>
 							<artifactId>maven-surefire-report-plugin</artifactId>
 							<configuration>
-								<reportsDirectories>${basedir}/target/surefire-reports,${basedir}/target/failsafe-reports</reportsDirectories>
+								<reportsDirectories>
+									<reportsDirectory>${basedir}/target/surefire-reports</reportsDirectory>
+									<reportsDirectory>${basedir}/target/failsafe-reports</reportsDirectory>
+								</reportsDirectories>
 							</configuration>
 						</plugin>
 						<plugin>
