@@ -108,6 +108,12 @@ in the reports just like every other test, too. Marco :-)
 							<daemon>true</daemon>
 						</configuration>
 					</execution>
+<!--
+	We do not stop jetty, because we want multiple servers to run at the same time.
+	Unfortunately, it seems to be impossible to configure multiple instances of the
+	jetty-maven-plugin in the same pom.xml. Thus, we now launch a jetty in multiple
+	projects and therefore cannot stop them here. Due to the "daemon=true", it should
+	be stopped when the build is done.
 					<execution>
 						<id>stop-jetty</id>
 						<phase>post-integration-test</phase>
@@ -115,6 +121,7 @@ in the reports just like every other test, too. Marco :-)
 							<goal>stop</goal>
 						</goals>
 					</execution>
+-->
 				</executions>
 			</plugin>
 		</plugins>
