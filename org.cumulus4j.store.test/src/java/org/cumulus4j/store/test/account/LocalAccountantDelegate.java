@@ -9,7 +9,6 @@ import javax.jdo.JDOHelper;
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.Discriminator;
 import javax.jdo.annotations.DiscriminatorStrategy;
-import javax.jdo.annotations.Extension;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.Join;
 import javax.jdo.annotations.NullValue;
@@ -50,9 +49,6 @@ public class LocalAccountantDelegate implements Serializable {
 	private String name;
 
 	private String name2;
-
-	@Extension(vendorName="datanucleus", key="queryable", value="false")
-	private String name3;
 
 	private Date creationDate;
 
@@ -105,14 +101,6 @@ public class LocalAccountantDelegate implements Serializable {
 
 	public void setName2(String name2) {
 		this.name2 = name2;
-	}
-
-	public String getName3() {
-		return name3;
-	}
-
-	public void setName3(String name3) {
-		this.name3 = name3;
 	}
 
 	public Date getCreationDate() {
