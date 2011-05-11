@@ -62,7 +62,7 @@ extends AbstractTransactionalTest
 
 		try {
 			q.execute("Franz");
-			Assert.fail("Executing the query should have caused an Exception!");
+			Assert.fail("Executing the query should have caused a MemberNotQueryableException, but it didn't!");
 		} catch (JDOUserException x) {
 			MemberNotQueryableException mnqe = getCause(MemberNotQueryableException.class, x);
 			if (mnqe == null)
@@ -78,7 +78,7 @@ extends AbstractTransactionalTest
 
 		try {
 			q.execute("Emil");
-			Assert.fail("Executing the query should have caused an Exception!");
+			Assert.fail("Executing the query should have caused a MemberNotQueryableException, but it didn't!");
 		} catch (JDOUserException x) {
 			MemberNotQueryableException mnqe = getCause(MemberNotQueryableException.class, x);
 			if (mnqe == null)
