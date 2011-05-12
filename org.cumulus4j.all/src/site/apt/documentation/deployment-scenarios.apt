@@ -1,0 +1,33 @@
+	---
+	Deployment scenarios
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-05-12
+
+Deployment scenarios
+
+	Cumulus4j can be used in 2 different deployment scenarios. But before we explain
+	them, here's the normal deployment scenario (without Cumulus4j) that you're already
+	used to:
+
+[../images/deployment-scenario/deployment-scenario-without-cumulus4j.png] Deployment without Cumulus4j
+
+	As usual, you deploy the backend of your application to your application server (e.g.
+	Tomcat, Glassfish, JBoss, or whatever you like). If your client is a browser, that's already it.
+	If your client is a rich client (aka. fat client), you deploy the frontend to your client-computer(s).
+
+* 2-computer-scenario (without key-server)
+
+	If you add Cumulus4j to the picture, your backend will additionally contain a Cumulus4j REST-based
+	API and your client communicates in parallel with this API to allow for key management:
+
+[../images/deployment-scenario/deployment-scenario-without-keyserver.png] Deployment without key server
+
+	At the moment, this works only with a rich client, because the Cumulus4j project does not (yet) provide
+	JavaScript client-libs. They might follow later. 
+
+* 3-computer-scenario (with key-server)
+
+[../images/deployment-scenario/deployment-scenario-with-keyserver.png] Deployment with key server
+
