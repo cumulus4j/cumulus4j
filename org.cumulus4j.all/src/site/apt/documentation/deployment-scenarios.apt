@@ -13,19 +13,31 @@ Deployment scenarios
 
 [../images/deployment-scenario/deployment-scenario-without-cumulus4j.png] Deployment without Cumulus4j
 
-	As usual, you deploy the backend of your application to your application server (e.g.
-	Tomcat, Glassfish, JBoss, or whatever you like). If your client is a browser, that's already it.
-	If your client is a rich client (aka. fat client), you deploy the frontend to your client-computer(s).
+	As usual, you deploy the back-end of your application to your application server (e.g.
+	Jetty, Tomcat, Glassfish, JBoss, or whatever you like). If your client is a browser, you're already done.
+	If your client is a rich client (aka. fat client), you deploy the front-end to your client-computer(s).
+
+	As indicated by the cyan arrow, the connection (usually a TCP/IP-based protocol like HTTP, HTTPS, RMI
+	etc.) will be initiated by the client. Requests are then sent from the client to the server, while
+	the server's response goes the opposite way.
 
 * 2-computer-scenario (without key-server)
 
-	If you add Cumulus4j to the picture, your backend will additionally contain a Cumulus4j REST-based
+	If you add Cumulus4j to the picture, your back-end will additionally contain a Cumulus4j REST-based
 	API and your client communicates in parallel with this API to allow for key management:
 
 [../images/deployment-scenario/deployment-scenario-without-keyserver.png] Deployment without key server
 
-	At the moment, this works only with a rich client, because the Cumulus4j project does not (yet) provide
-	JavaScript client-libs. They might follow later. 
+	The second communication channel is (as indicated by the yellow arrow) initiated by the client,
+	too, and should thus not lead to any firewall problem.
+
+	The requests, however, are sent from the server to the client inside the existing connection. These
+	key requests happen whenever the server has to encrypt or decrypt data and therefore needs access to
+	certain keys.
+
+	At the moment, this scenario only works with a rich client, because the Cumulus4j project does not (yet)
+	provide JavaScript client-libs. They might follow later. If you want to contribute this functionality, please
+	join the {{{./development.html}development}} team! You're welcome! 
 
 * 3-computer-scenario (with key-server)
 
