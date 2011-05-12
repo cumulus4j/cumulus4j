@@ -38,7 +38,7 @@
 		<menu ref="reports" inherit="bottom" collapse="true" />
 
 		<menu name="Babel">
-			<item name="English" href="../index.html" img="en.png" />
+			<item name="English" href="../index.html" img="images/en.png" />
 		</menu>
 	</body>
 
