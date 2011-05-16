@@ -6,7 +6,7 @@ import javax.jdo.PersistenceManagerFactory;
 import org.junit.runner.RunWith;
 
 @RunWith(TransactionalRunner.class)
-public abstract class AbstractTransactionalTest implements TransactionalTest {
+public abstract class AbstractJDOTransactionalTest implements JDOTransactionalTest {
 
 	protected PersistenceManagerFactory pmf;
 	protected PersistenceManager pm;

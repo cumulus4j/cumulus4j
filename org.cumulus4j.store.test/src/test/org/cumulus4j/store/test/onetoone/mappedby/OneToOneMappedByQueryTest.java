@@ -4,7 +4,7 @@ import java.util.List;
 
 import javax.jdo.Query;
 
-import org.cumulus4j.store.test.framework.AbstractTransactionalTest;
+import org.cumulus4j.store.test.framework.AbstractJDOTransactionalTest;
 import org.cumulus4j.store.test.framework.CleanupUtil;
 import org.cumulus4j.store.test.onetoone.mappedby.LevelA;
 import org.cumulus4j.store.test.onetoone.mappedby.LevelB;
@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class OneToOneMappedByQueryTest
-extends AbstractTransactionalTest
+extends AbstractJDOTransactionalTest
 {
 	private static final Logger logger = LoggerFactory.getLogger(OneToOneMappedByQueryTest.class);
 

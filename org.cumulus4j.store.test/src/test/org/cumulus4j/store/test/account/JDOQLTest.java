@@ -15,7 +15,7 @@ import org.cumulus4j.store.test.account.Account;
 import org.cumulus4j.store.test.account.LocalAccountantDelegate;
 import org.cumulus4j.store.test.account.id.AnchorID;
 import org.cumulus4j.store.test.account.id.LocalAccountantDelegateID;
-import org.cumulus4j.store.test.framework.AbstractTransactionalTest;
+import org.cumulus4j.store.test.framework.AbstractJDOTransactionalTest;
 import org.cumulus4j.store.test.framework.CleanupUtil;
 import org.datanucleus.NucleusContext;
 import org.datanucleus.api.jdo.JDOPersistenceManagerFactory;
@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JDOQLTest
-extends AbstractTransactionalTest
+extends AbstractJDOTransactionalTest
 {
 	private static final Logger logger = LoggerFactory.getLogger(JDOQLTest.class);
 

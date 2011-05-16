@@ -176,9 +176,9 @@ public class TransactionalRunner extends BlockJUnit4ClassRunner
 	throws Throwable
 	{
 		PersistenceManager pm = null;
-		TransactionalTest transactionalTest = null;
-		if (test instanceof TransactionalTest) {
-			transactionalTest = (TransactionalTest) test;
+		JDOTransactionalTest transactionalTest = null;
+		if (test instanceof JDOTransactionalTest) {
+			transactionalTest = (JDOTransactionalTest) test;
 
 			if (pmf == null) {
 				logger.info("run: Setting up PersistenceManagerFactory.");

@@ -10,7 +10,7 @@ import javax.jdo.Query;
 
 import org.cumulus4j.store.test.collection.join.ElementA;
 import org.cumulus4j.store.test.collection.join.ElementASetOwner;
-import org.cumulus4j.store.test.framework.AbstractTransactionalTest;
+import org.cumulus4j.store.test.framework.AbstractJDOTransactionalTest;
 import org.cumulus4j.store.test.framework.CleanupUtil;
 import org.datanucleus.util.NucleusLogger;
 import org.junit.Assert;
@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ElementASetQueryTest
-extends AbstractTransactionalTest
+extends AbstractJDOTransactionalTest
 {
 	private static final Logger logger = LoggerFactory.getLogger(ElementASetQueryTest.class);
 

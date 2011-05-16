@@ -8,7 +8,7 @@ import javax.jdo.Query;
 import junit.framework.Assert;
 
 import org.cumulus4j.store.query.MemberNotQueryableException;
-import org.cumulus4j.store.test.framework.AbstractTransactionalTest;
+import org.cumulus4j.store.test.framework.AbstractJDOTransactionalTest;
 import org.cumulus4j.store.test.framework.CleanupUtil;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class MetaDataTest
-extends AbstractTransactionalTest
+extends AbstractJDOTransactionalTest
 {
 	private static final Logger logger = LoggerFactory.getLogger(MetaDataTest.class);
 

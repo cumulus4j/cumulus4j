@@ -10,7 +10,7 @@ import javax.jdo.Query;
 
 import org.cumulus4j.store.test.collection.mappedby.Element2;
 import org.cumulus4j.store.test.collection.mappedby.Element2MapOwner;
-import org.cumulus4j.store.test.framework.AbstractTransactionalTest;
+import org.cumulus4j.store.test.framework.AbstractJDOTransactionalTest;
 import org.cumulus4j.store.test.framework.CleanupUtil;
 import org.junit.Assert;
 import org.junit.Before;
@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Element2MapQueryTest
-extends AbstractTransactionalTest
+extends AbstractJDOTransactionalTest
 {
 	private static final Logger logger = LoggerFactory.getLogger(Element2MapQueryTest.class);
 
