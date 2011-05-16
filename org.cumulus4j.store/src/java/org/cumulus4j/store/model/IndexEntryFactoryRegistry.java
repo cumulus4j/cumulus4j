@@ -18,8 +18,6 @@ public class IndexEntryFactoryRegistry
 {
 	private static IndexEntryFactoryRegistry sharedInstance = null;
 
-	protected IndexEntryFactoryRegistry() { }
-
 	public static void createSharedInstance(PropertyStore propertyStore)
 	{
 		sharedInstance = new IndexEntryFactoryRegistry();
@@ -42,6 +40,8 @@ public class IndexEntryFactoryRegistry
 	private IndexEntryFactory indexEntryFactoryStringLong = new DefaultIndexEntryFactory(IndexEntryStringLong.class);
 	private IndexEntryFactory indexEntryFactoryDate = new DefaultIndexEntryFactory(IndexEntryDate.class);
 	private IndexEntryFactory indexEntryFactoryContainerSize = new DefaultIndexEntryFactory(IndexEntryContainerSize.class);
+
+	protected IndexEntryFactoryRegistry() { }
 
 	/**
 	 * Get the appropriate {@link IndexEntryFactory} subclass instance for the given {@link FieldMeta}.
@@ -67,7 +67,6 @@ public class IndexEntryFactoryRegistry
 					// Even though the documentation of CollectionMetaData.getElementType() says there could be a comma-separated
 					// list of class names, the whole DataNucleus code-base currently ignores this possibility.
 					// To verify, I just tried the following field annotation:
-					//
 					// @Join
 					// @Element(types={String.class, Long.class})
 					// private Set<Object> set = new HashSet<Object>();
@@ -121,10 +120,15 @@ public class IndexEntryFactoryRegistry
 			return indexEntryFactoryStringShort;
 		}
 
-		if (Long.class.isAssignableFrom(fieldType) || Integer.class.isAssignableFrom(fieldType) || Short.class.isAssignableFrom(fieldType) || Byte.class.isAssignableFrom(fieldType) || long.class == fieldType || int.class == fieldType || short.class == fieldType || byte.class == fieldType)
+//		if (UUID.class.isAssignableFrom(fieldType))
+//			return indexEntryFactoryStringShort;
+
+		if (Long.class.isAssignableFrom(fieldType) || Integer.class.isAssignableFrom(fieldType) || Short.class.isAssignableFrom(fieldType) || Byte.class.isAssignableFrom(fieldType) || 
+				long.class == fieldType || int.class == fieldType || short.class == fieldType || byte.class == fieldType)
 			return indexEntryFactoryLong;
 
-		if (Double.class.isAssignableFrom(fieldType) || Float.class.isAssignableFrom(fieldType) || double.class == fieldType || float.class == fieldType)
+		if (Double.class.isAssignableFrom(fieldType) || Float.class.isAssignableFrom(fieldType) || 
+				double.class == fieldType || float.class == fieldType)
 			return indexEntryFactoryDouble;
 
 		if (Date.class.isAssignableFrom(fieldType))
