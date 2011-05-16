@@ -11,10 +11,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AccountInsertTest
+public class JDOPersistenceTest
 extends AbstractTransactionalTest
 {
-	private static final Logger logger = LoggerFactory.getLogger(AccountInsertTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(JDOPersistenceTest.class);
 
 	private static final String ORGANISATION_ID = "jfire.my.org";
 	private static final LocalAccountantDelegateID LOCAL_ACCOUNTANT_DELEGATE_ID_0 = LocalAccountantDelegateID.create(ORGANISATION_ID, "0");
