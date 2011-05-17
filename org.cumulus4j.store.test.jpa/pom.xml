@@ -98,7 +98,7 @@
 				<artifactId>maven-datanucleus-plugin</artifactId>
 				<configuration>
 					<log4jConfiguration>${basedir}/enhancer-log4j.properties</log4jConfiguration>
-					<verbose>true</verbose>
+					<verbose>false</verbose>
 					<fork>false</fork>
                     <api>JPA</api>
                     <persistenceUnitName>test</persistenceUnitName>
