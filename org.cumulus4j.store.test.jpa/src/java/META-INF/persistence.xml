@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <persistence xmlns="http://java.sun.com/xml/ns/persistence"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
-	version="1.0">
+	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+	version="2.0">
 
 	<persistence-unit name="test">
-		<!--class>org.datanucleus.test.A</class-->
+		<class>org.cumulus4j.store.test.jpa.account.Account</class>
+		<class>org.cumulus4j.store.test.jpa.account.Anchor</class>
+		<class>org.cumulus4j.store.test.jpa.account.SummaryAccount</class>
+		<class>org.cumulus4j.store.test.jpa.account.LocalAccountantDelegate</class>
 		<exclude-unlisted-classes />
 	</persistence-unit>
 

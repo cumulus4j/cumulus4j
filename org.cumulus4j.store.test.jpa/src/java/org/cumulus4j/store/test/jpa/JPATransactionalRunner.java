@@ -184,7 +184,7 @@ public class JPATransactionalRunner extends BlockJUnit4ClassRunner
 			if (emf == null) {
 				logger.info("run: Setting up EntityManagerFactory.");
 				Properties props = TestUtil.loadProperties("cumulus4j-test-datanucleus.properties");
-				// Convert JDO connection props to JPA connection props
+				// Convert JDO-standard connection props to JPA-standard connection props
 				if (props.containsKey("javax.jdo.PersistenceManagerFactoryClass")) {
 				    props.remove("javax.jdo.PersistenceManagerFactoryClass");
 				}
@@ -201,7 +201,7 @@ public class JPATransactionalRunner extends BlockJUnit4ClassRunner
                 if (props.containsKey("javax.jdo.option.ConnectionUserName")) {
                     String val = props.getProperty("javax.jdo.option.ConnectionUserName");
                     props.remove("javax.jdo.option.ConnectionUserName");
-                    props.setProperty("javax.persistence.jdbc.username", val);
+                    props.setProperty("javax.persistence.jdbc.user", val);
                 }
                 if (props.containsKey("javax.jdo.option.ConnectionPassword")) {
                     String val = props.getProperty("javax.jdo.option.ConnectionPassword");

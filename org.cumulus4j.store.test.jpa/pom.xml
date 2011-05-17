@@ -33,7 +33,6 @@
 		<dependency>
 			<groupId>org.datanucleus</groupId>
 			<artifactId>datanucleus-api-jpa</artifactId>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.datanucleus</groupId>
@@ -97,6 +96,13 @@
 			<plugin>
 				<groupId>org.datanucleus</groupId>
 				<artifactId>maven-datanucleus-plugin</artifactId>
+				<configuration>
+					<log4jConfiguration>${basedir}/enhancer-log4j.properties</log4jConfiguration>
+					<verbose>true</verbose>
+					<fork>false</fork>
+                    <api>JPA</api>
+                    <persistenceUnitName>test</persistenceUnitName>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
