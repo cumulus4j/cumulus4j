@@ -189,6 +189,11 @@
 			</dependency>
 			<dependency>
 				<groupId>org.datanucleus</groupId>
+				<artifactId>datanucleus-api-jpa</artifactId>
+				<version>(2.9, )</version>
+			</dependency>
+			<dependency>
+				<groupId>org.datanucleus</groupId>
 				<artifactId>datanucleus-core</artifactId>
 				<version>(2.9, )</version>
 			</dependency>
@@ -292,7 +297,7 @@
 				<plugin>
 					<groupId>org.datanucleus</groupId>
 					<artifactId>maven-datanucleus-plugin</artifactId>
-					<version>3.0.0-m2-SNAPSHOT</version>
+					<version>3.0.0-m2</version>
 					<configuration>
 						<log4jConfiguration>${basedir}/enhancer-log4j.properties</log4jConfiguration>
 						<verbose>false</verbose>
