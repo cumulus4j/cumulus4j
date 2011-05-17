@@ -1,0 +1,104 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<artifactId>org.cumulus4j.parent</artifactId>
+		<groupId>org.cumulus4j</groupId>
+		<version>1.0.0-SNAPSHOT</version>
+		<relativePath>../org.cumulus4j.parent/pom.xml</relativePath>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>org.cumulus4j.store.test.jpa</artifactId>
+	<name>org.cumulus4j.store.test.jpa</name>
+	<description>JPA data models for tests and jUnit test classes</description>
+	<dependencies>
+		<dependency>
+			<groupId>javax.jdo</groupId>
+			<artifactId>jdo-api</artifactId>
+		</dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jpa_2.0_spec</artifactId>
+            <version>1.0</version>
+        </dependency>
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.annotation</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.store</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.datanucleus</groupId>
+			<artifactId>datanucleus-api-jpa</artifactId>
+            <version>[2.9, )</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.datanucleus</groupId>
+			<artifactId>datanucleus-rdbms</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>compile</scope>
+			<!--
+				scope=compile, because we have the test framework in the main
+				sources - not the test sources.
+			-->
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.derby</groupId>
+			<artifactId>derby</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.nightlabs</groupId>
+			<artifactId>org.nightlabs.util</artifactId>
+		</dependency>
+	</dependencies>
+	
+	<build>
+		<plugins>
+			<!-- In order to temporarily skip the execution of the tests
+				(e.g. when only needing the integration tests), we uncomment
+				the following. It should always be commented out when checking
+				in!
+			<plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+			-->
+
+			<plugin>
+				<artifactId>maven-clean-plugin</artifactId>
+				<configuration>
+					<filesets>
+						<fileset>
+							<directory>${basedir}</directory>
+							<includes>
+								<include>*.log</include>
+							</includes>
+						</fileset>
+					</filesets>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.datanucleus</groupId>
+				<artifactId>maven-datanucleus-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+</project>
