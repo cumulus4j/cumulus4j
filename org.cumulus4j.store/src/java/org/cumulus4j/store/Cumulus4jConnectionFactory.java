@@ -160,23 +160,27 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 
 		@Override
 		public XAResource getXAResource() {
-			// TODO How to handle REAL XA?
-			return new Cumulus4jXAResource(pm);
+			return new Cumulus4jXAResource((PersistenceManager)getConnection());
 		}
 
 		public Cumulus4jManagedConnection(Object poolKey, @SuppressWarnings("unchecked") Map options) {
 			this.poolKey = poolKey;
 			this.options = options;
-			this.pm = pmf.getPersistenceManager();
 		}
 
 		@Override
 		public void close() {
-			pm.close();
+			if (pm != null) {
+				pm.close();
+			}
+			pm = null;
 		}
 
 		@Override
 		public Object getConnection() {
+			if (pm == null) {
+				this.pm = pmf.getPersistenceManager();
+			}
 			return pm;
 		}
 	}
