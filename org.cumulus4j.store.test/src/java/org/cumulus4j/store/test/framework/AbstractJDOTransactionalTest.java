@@ -5,7 +5,7 @@ import javax.jdo.PersistenceManagerFactory;
 
 import org.junit.runner.RunWith;
 
-@RunWith(TransactionalRunner.class)
+@RunWith(JDOTransactionalRunner.class)
 public abstract class AbstractJDOTransactionalTest implements JDOTransactionalTest {
 
 	protected PersistenceManagerFactory pmf;
@@ -29,7 +29,7 @@ public abstract class AbstractJDOTransactionalTest implements JDOTransactionalTe
 		// TODO BEGIN workaround for the pm being closed :-(
 		pm.close();
 		pm = pmf.getPersistenceManager();
-		TransactionalRunner.setEncryptionCoordinates(pm);
+		JDOTransactionalRunner.setEncryptionCoordinates(pm);
 		// END workaround
 
 		pm.currentTransaction().begin();

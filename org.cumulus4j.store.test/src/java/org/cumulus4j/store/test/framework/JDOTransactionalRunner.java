@@ -23,13 +23,13 @@ import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TransactionalRunner extends BlockJUnit4ClassRunner
+public class JDOTransactionalRunner extends BlockJUnit4ClassRunner
 {
 	static {
 		TestUtil.configureLoggingOnce();
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(TransactionalRunner.class);
+	private static final Logger logger = LoggerFactory.getLogger(JDOTransactionalRunner.class);
 
 	private PersistenceManagerFactory pmf;
 
@@ -62,7 +62,7 @@ public class TransactionalRunner extends BlockJUnit4ClassRunner
 		}
 	}
 
-	public TransactionalRunner(Class<?> testClass) throws InitializationError {
+	public JDOTransactionalRunner(Class<?> testClass) throws InitializationError {
 		super(testClass);
 	}
 
