@@ -56,6 +56,7 @@
 		<module>../org.cumulus4j.store</module>
 		<module>../org.cumulus4j.store.crypto.keymanager</module>
 		<module>../org.cumulus4j.store.test</module>
+		<module>../org.cumulus4j.store.test.jpa</module>
 	</modules>
 	
 	<distributionManagement>
