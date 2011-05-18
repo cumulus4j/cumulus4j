@@ -5,6 +5,8 @@ import java.util.Map;
 
 import javax.jdo.PersistenceManager;
 
+import org.cumulus4j.store.fieldmanager.FetchFieldManager;
+import org.cumulus4j.store.fieldmanager.StoreFieldManager;
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.DataEntry;
 import org.cumulus4j.store.model.FieldMeta;
@@ -135,14 +137,6 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		return null;
 	}
 
-//	@Override
-//	public boolean useReferentialIntegrity() {
-//		return true; // TO DO this should be false (or better this method *not* overridden).
-//		// Due to a bug in DN, we needed this to be true. The bug is fixed sind 2011-03-17, but the new DN core is not yet in
-//		// DN's maven-nightly-repository and thus the build still fails on our integration server. We should remove this method in
-//		// a few days. Marco.
-//	}
-
 	@Override
 	public void insertObject(ObjectProvider op)
 	{
@@ -172,7 +166,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			DataEntry dataEntry = pm.makePersistent(new DataEntry(classMeta, objectID.toString()));
 
 			// This performs reachability on this input object so that all related objects are persisted
-			op.provideFields(allFieldNumbers, new InsertFieldManager(op, pm, classMeta, dnClassMetaData, objectContainer));
+			op.provideFields(allFieldNumbers, new StoreFieldManager(op, pm, classMeta, dnClassMetaData, objectContainer));
 			objectContainer.setVersion(op.getTransactionalVersion());
 
 			// persist data
@@ -244,7 +238,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			ObjectContainer objectContainerNew = objectContainerOld.clone();
 
 			// This performs reachability on this input object so that all related objects are persisted
-			op.provideFields(fieldNumbers, new InsertFieldManager(op, pm, classMeta, dnClassMetaData, objectContainerNew));
+			op.provideFields(fieldNumbers, new StoreFieldManager(op, pm, classMeta, dnClassMetaData, objectContainerNew));
 			objectContainerNew.setVersion(op.getTransactionalVersion());
 
 			// update persistent data
@@ -266,7 +260,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 				Object fieldValueOld = objectContainerOld.getValue(fieldMeta.getFieldID());
 				Object fieldValueNew = objectContainerNew.getValue(fieldMeta.getFieldID());
 
-				if (!equals(fieldValueOld, fieldValueNew)) {
+				if (!fieldsEqual(fieldValueOld, fieldValueNew)) {
 					removeIndexEntry.perform(executionContext, pm, dataEntryID, fieldMeta, dnMemberMetaData, fieldValueOld);
 					addIndexEntry.perform(executionContext, pm, dataEntryID, fieldMeta, dnMemberMetaData, fieldValueNew);
 				}
@@ -276,10 +270,9 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		}
 	}
 
-	private static boolean equals(Object obj0, Object obj1) {
+	private static boolean fieldsEqual(Object obj0, Object obj1) {
 		if (obj0 instanceof Object[] && obj1 instanceof Object[])
 			return obj0 == obj1 || Arrays.equals((Object[])obj0, (Object[])obj1);
 		return obj0 == obj1 || (obj0 != null && obj0.equals(obj1));
 	}
-
 }

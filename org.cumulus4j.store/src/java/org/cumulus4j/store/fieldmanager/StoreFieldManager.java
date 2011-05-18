@@ -1,4 +1,4 @@
-package org.cumulus4j.store;
+package org.cumulus4j.store.fieldmanager;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.jdo.PersistenceManager;
 
+import org.cumulus4j.store.ObjectContainerHelper;
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.ObjectContainer;
@@ -23,7 +24,7 @@ import org.datanucleus.store.types.sco.SCOUtils;
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public class InsertFieldManager extends AbstractFieldManager
+public class StoreFieldManager extends AbstractFieldManager
 {
 	private ObjectProvider op;
 	private PersistenceManager pm;
@@ -32,7 +33,7 @@ public class InsertFieldManager extends AbstractFieldManager
 	private AbstractClassMetaData dnClassMetaData;
 	private ObjectContainer objectContainer;
 
-	public InsertFieldManager(
+	public StoreFieldManager(
 			ObjectProvider op,
 			PersistenceManager pm,
 			ClassMeta classMeta,

@@ -1,4 +1,4 @@
-package org.cumulus4j.store;
+package org.cumulus4j.store.fieldmanager;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
@@ -9,6 +9,9 @@ import java.util.Set;
 
 import javax.jdo.PersistenceManager;
 
+import org.cumulus4j.store.Cumulus4jStoreManager;
+import org.cumulus4j.store.EncryptionHandler;
+import org.cumulus4j.store.ObjectContainerHelper;
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.DataEntry;
 import org.cumulus4j.store.model.FieldMeta;
