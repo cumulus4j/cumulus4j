@@ -7,8 +7,27 @@
 
 Usage
 
-    We have some {{{./jdo_extensions.html}JDO extension metadata}}.
+	Anyone familiar with either of the two standardised Java persistence APIs (JDO, JPA) should have no problem
+	utilising Cumulus4j to encrypt their data. You can choose the API you prefer, and specify metadata (XML, annotations)
+	for your model classes as you normally would. You then write your persistence code as normal.
+
+	The primary difference between normal persistence and Cumulus4j persistence is that if you want to query
+	a field of one of your model classes then it needs "indexing". This is not indexing in the relational database
+	sense, but instead indexing of the encrypted field value so that it doesn't need loading into memory to determine
+	if it passes a particular query constraint. By default all persistent fields are "indexed". Obviously this has an 
+	impact on performance, so you can specify particular fields to be not indexed. You do this as follows
+
+	[[1]] JDO : Standard Annotations
+	
+	@Extension(vendorName="datanucleus", key="queryable", value="false")
+	
+	[[2]] JDO/JPA : Cumulus4j Annotations
+	
+	@NotQueryable
+	
+	[[3]] JPA : DataNucleus Annotations
+	
+	@Extension(key="queryable", value="false")
+	
 
     You find a documentation of the currently supported {{{./deployment-scenarios.html}deployment scenarios here}}.
-
-	TODO Here we should document how to use Cumulus4j.
