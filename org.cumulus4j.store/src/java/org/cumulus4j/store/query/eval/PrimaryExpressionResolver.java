@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.cumulus4j.store.Cumulus4jStoreManager;
 import org.cumulus4j.store.ObjectContainerHelper;
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.DataEntry;
@@ -99,7 +100,7 @@ public abstract class PrimaryExpressionResolver
 			throw new IllegalStateException("Neither the class " + classMeta.getClassName() + " nor one of its superclasses contain a field named \"" + nextTuple + "\"!");
 
 		AbstractMemberMetaData mmd = fieldMetaForNextTuple.getDataNucleusMemberMetaData(executionContext);
-		if (mmd.hasExtension("queryable") && mmd.getValueForExtension("queryable").equalsIgnoreCase("false")) {
+		if (mmd.hasExtension(Cumulus4jStoreManager.CUMULUS4J_QUERYABLE) && mmd.getValueForExtension(Cumulus4jStoreManager.CUMULUS4J_QUERYABLE).equalsIgnoreCase("false")) {
 			throw new MemberNotQueryableException("Field/property " + mmd.getFullFieldName() + " is not queryable!");
 		}
 

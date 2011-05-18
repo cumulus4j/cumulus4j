@@ -46,9 +46,9 @@ abstract class IndexEntryAction
 			Object fieldValue
 	)
 	{
-		boolean hasQueryable = dnMemberMetaData.hasExtension("queryable");
+		boolean hasQueryable = dnMemberMetaData.hasExtension(Cumulus4jStoreManager.CUMULUS4J_QUERYABLE);
 		if (hasQueryable) {
-			String val = dnMemberMetaData.getValueForExtension("queryable");
+			String val = dnMemberMetaData.getValueForExtension(Cumulus4jStoreManager.CUMULUS4J_QUERYABLE);
 			if (val.equalsIgnoreCase("false")) {
 				// Field marked as not queryable, so don't index it
 				return;

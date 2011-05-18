@@ -34,6 +34,9 @@ import org.datanucleus.store.connection.ManagedConnection;
 public class Cumulus4jStoreManager
 extends AbstractStoreManager
 {
+	/** Extension key for marking field as not queryable */
+	public static final String CUMULUS4J_QUERYABLE = "cumulus4j-queryable";
+
 //	private static final SequenceMetaData SEQUENCE_META_DATA_DATA_ENTRY;
 //	static {
 //		SEQUENCE_META_DATA_DATA_ENTRY = new SequenceMetaData(DataEntry.class.getName(), SequenceStrategy.NONTRANSACTIONAL.toString());

@@ -24,7 +24,7 @@ public class Entity1
 	@NotQueryable
 	private String field2;
 
-	@Extension(vendorName="datanucleus", key="queryable", value="false")
+	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
 	private String field3;
 
 	public String getName() {
