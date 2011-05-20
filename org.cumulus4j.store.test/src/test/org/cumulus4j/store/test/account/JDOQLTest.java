@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.jdo.JDOHelper;
 import javax.jdo.Query;
 
 import org.cumulus4j.store.test.account.Account;
@@ -20,7 +21,6 @@ import org.cumulus4j.store.test.framework.AbstractJDOTransactionalTest;
 import org.cumulus4j.store.test.framework.CleanupUtil;
 import org.datanucleus.NucleusContext;
 import org.datanucleus.api.jdo.JDOPersistenceManagerFactory;
-import org.datanucleus.util.NucleusLogger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -395,7 +395,7 @@ extends AbstractJDOTransactionalTest
 		List<Account> result = (List<Account>) q.execute(Currency.getInstance("GBP"));
 		Assert.assertEquals("Number of results was wrong", 1, result.size());
 		Account acct = result.iterator().next();
-		NucleusLogger.GENERAL.info(">> Found acct="+acct);
+		Assert.assertEquals(ACCOUNT_ID_2, JDOHelper.getObjectId(acct));
 	}
 
 	@After
