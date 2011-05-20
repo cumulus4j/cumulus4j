@@ -2,6 +2,7 @@ package org.cumulus4j.store.test.account;
 
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Currency;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -19,6 +20,7 @@ import org.cumulus4j.store.test.framework.AbstractJDOTransactionalTest;
 import org.cumulus4j.store.test.framework.CleanupUtil;
 import org.datanucleus.NucleusContext;
 import org.datanucleus.api.jdo.JDOPersistenceManagerFactory;
+import org.datanucleus.util.NucleusLogger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -51,11 +53,14 @@ extends AbstractJDOTransactionalTest
 	public void createData()
 	{
 		Account account = new Account(ACCOUNT_ID_0);
+		account.setCurrency(Currency.getInstance("EUR"));
 		LocalAccountantDelegate localAccountantDelegate = new LocalAccountantDelegate(LOCAL_ACCOUNTANT_DELEGATE_ID_0);
 		localAccountantDelegate.setAccount("EUR", account);
 		pm.makePersistent(localAccountantDelegate); // this should implicitely persist the account
 
-		localAccountantDelegate.setAccount("CHF", new Account(ACCOUNT_ID_1));
+		Account account1 = new Account(ACCOUNT_ID_1);
+		account1.setCurrency(Currency.getInstance("CHF"));
+		localAccountantDelegate.setAccount("CHF", account1);
 		localAccountantDelegate.setName("New test bla bla bla.");
 		localAccountantDelegate.setName2("2nd name");
 		localAccountantDelegate.setDescription("description");
@@ -66,6 +71,7 @@ extends AbstractJDOTransactionalTest
 		localAccountantDelegate.setCreationDate(cal.getTime());
 
 		Account account2 = new Account(ACCOUNT_ID_2);
+		account2.setCurrency(Currency.getInstance("GBP"));
 		LocalAccountantDelegate localAccountantDelegate1 = new LocalAccountantDelegate(LOCAL_ACCOUNTANT_DELEGATE_ID_1);
 		localAccountantDelegate1.setAccount("GBP", account2);
 		pm.makePersistent(localAccountantDelegate1); // this should implicitely persist the account
@@ -378,6 +384,18 @@ extends AbstractJDOTransactionalTest
 		Assert.assertEquals("Number of results was wrong", 1, result.size());
 		LocalAccountantDelegate delegate = result.iterator().next();
 		assertDelegate1(delegate);
+	}
+
+	@Test
+	public void queryCurrencyEquals() throws IOException
+	{
+		Query q = pm.newQuery(Account.class);
+		q.setFilter("this.currency == :currency");
+
+		List<Account> result = (List<Account>) q.execute(Currency.getInstance("GBP"));
+		Assert.assertEquals("Number of results was wrong", 1, result.size());
+		Account acct = result.iterator().next();
+		NucleusLogger.GENERAL.info(">> Found acct="+acct);
 	}
 
 	@After

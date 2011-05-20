@@ -2,6 +2,7 @@ package org.cumulus4j.store.test.account;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Currency;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,6 +33,9 @@ implements AttachCallback
 	@Persistent(persistenceModifier=PersistenceModifier.PERSISTENT)
 	private long balance = 0;
 
+	@Persistent
+	private Currency currency = Currency.getInstance("EUR");
+
 	/**
 	 * @deprecated Only for JDO!
 	 */
@@ -59,8 +63,7 @@ implements AttachCallback
 	 *
 	 * @return Returns the balance.
 	 */
-	public long getBalance()
-	{
+	public long getBalance() {
 		return balance;
 	}
 
@@ -69,6 +72,14 @@ implements AttachCallback
 			this.balance = this.balance - amount;
 		else
 			this.balance = this.balance + amount;
+	}
+
+	public Currency getCurrency() {
+		return currency;
+	}
+
+	public void setCurrency(Currency curr) {
+		this.currency = curr;
 	}
 
 	@Persistent(persistenceModifier=PersistenceModifier.NONE)
