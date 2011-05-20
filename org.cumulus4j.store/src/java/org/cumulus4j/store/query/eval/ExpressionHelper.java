@@ -15,7 +15,6 @@ import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.FieldMetaRole;
 import org.cumulus4j.store.model.IndexEntry;
 import org.cumulus4j.store.model.IndexEntryFactory;
-import org.cumulus4j.store.model.IndexEntryFactoryRegistry;
 import org.cumulus4j.store.model.IndexEntryObjectRelationHelper;
 import org.cumulus4j.store.model.IndexValue;
 import org.cumulus4j.store.model.ObjectContainer;
@@ -340,7 +339,7 @@ public class ExpressionHelper
 			}
 			else if (subFieldMeta.getMappedByFieldMeta(executionContext) != null) {
 				FieldMeta oppositeFieldMeta = subFieldMeta.getMappedByFieldMeta(executionContext);
-				IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(executionContext, oppositeFieldMeta, true);
+				IndexEntryFactory indexEntryFactory = queryEvaluator.getStoreManager().getIndexFactoryRegistry().getIndexEntryFactory(executionContext, oppositeFieldMeta, true);
 				IndexEntry indexEntry = indexEntryFactory == null ? null : indexEntryFactory.getIndexEntry(pm, oppositeFieldMeta, constant);
 				if (indexEntry == null)
 					return negateIfNecessary(fieldMeta, emptyDataEntryIDs);
@@ -361,7 +360,7 @@ public class ExpressionHelper
 				return negateIfNecessary(fieldMeta, result);
 			}
 			else {
-				IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(executionContext, subFieldMeta, true);
+				IndexEntryFactory indexEntryFactory = queryEvaluator.getStoreManager().getIndexFactoryRegistry().getIndexEntryFactory(executionContext, subFieldMeta, true);
 				IndexEntry indexEntry = indexEntryFactory == null ? null : indexEntryFactory.getIndexEntry(pm, subFieldMeta, constant);
 				if (indexEntry == null)
 					return negateIfNecessary(fieldMeta, emptyDataEntryIDs);

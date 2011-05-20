@@ -54,17 +54,23 @@ extends AbstractStoreManager
 
 	private EncryptionHandler encryptionHandler;
 
+	private IndexEntryFactoryRegistry indexFactoryRegistry;
+
 	public Cumulus4jStoreManager(ClassLoaderResolver clr, NucleusContext nucleusContext, Map<String, Object> props)
 	{
 		super("cumulus4j", clr, nucleusContext, props);
 
-		IndexEntryFactoryRegistry.createSharedInstance(this);
+		indexFactoryRegistry = new IndexEntryFactoryRegistry(this);
 		encryptionHandler = new EncryptionHandler();
 		persistenceHandler = new Cumulus4jPersistenceHandler(this);
 	}
 
 	public EncryptionHandler getEncryptionHandler() {
 		return encryptionHandler;
+	}
+
+	public IndexEntryFactoryRegistry getIndexFactoryRegistry() {
+		return indexFactoryRegistry;
 	}
 
 	/**

@@ -11,7 +11,6 @@ import javax.jdo.Query;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.IndexEntry;
 import org.cumulus4j.store.model.IndexEntryFactory;
-import org.cumulus4j.store.model.IndexEntryFactoryRegistry;
 import org.cumulus4j.store.model.IndexValue;
 import org.cumulus4j.store.query.QueryEvaluator;
 import org.cumulus4j.store.query.eval.ExpressionHelper;
@@ -64,7 +63,7 @@ public class CollectionSizeEvaluator extends AbstractMethodEvaluator {
 			boolean negate
 	) {
 		ExecutionContext executionContext = queryEval.getExecutionContext();
-		IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactoryForContainerSize();
+		IndexEntryFactory indexEntryFactory = queryEval.getStoreManager().getIndexFactoryRegistry().getIndexEntryFactoryForContainerSize();
 
 		Query q = queryEval.getPersistenceManager().newQuery(indexEntryFactory.getIndexEntryClass());
 		q.setFilter(

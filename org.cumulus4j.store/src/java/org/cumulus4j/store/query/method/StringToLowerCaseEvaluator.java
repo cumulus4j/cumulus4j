@@ -28,7 +28,6 @@ import javax.jdo.Query;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.IndexEntry;
 import org.cumulus4j.store.model.IndexEntryFactory;
-import org.cumulus4j.store.model.IndexEntryFactoryRegistry;
 import org.cumulus4j.store.model.IndexValue;
 import org.cumulus4j.store.query.QueryEvaluator;
 import org.cumulus4j.store.query.eval.ExpressionHelper;
@@ -84,7 +83,7 @@ public class StringToLowerCaseEvaluator extends AbstractMethodEvaluator {
 			boolean negate
 	) {
 		ExecutionContext executionContext = queryEval.getExecutionContext();
-		IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
+		IndexEntryFactory indexEntryFactory = queryEval.getStoreManager().getIndexFactoryRegistry().getIndexEntryFactory(
 				executionContext, fieldMeta, true
 		);
 

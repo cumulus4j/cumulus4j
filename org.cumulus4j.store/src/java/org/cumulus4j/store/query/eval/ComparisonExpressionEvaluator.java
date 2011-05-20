@@ -13,7 +13,6 @@ import org.cumulus4j.store.model.DataEntry;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.IndexEntry;
 import org.cumulus4j.store.model.IndexEntryFactory;
-import org.cumulus4j.store.model.IndexEntryFactoryRegistry;
 import org.cumulus4j.store.model.IndexEntryObjectRelationHelper;
 import org.cumulus4j.store.model.IndexValue;
 import org.cumulus4j.store.query.QueryEvaluator;
@@ -139,7 +138,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		IndexEntryFactory indexEntryFactory;
 		if (Relation.NONE == relationType)
 		{
-			indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
+			indexEntryFactory = getQueryEvaluator().getStoreManager().getIndexFactoryRegistry().getIndexEntryFactory(
 					getQueryEvaluator().getExecutionContext(), fieldMeta, true
 			);
 			queryParam = value;

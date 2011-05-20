@@ -21,7 +21,7 @@ abstract class IndexEntryAction
 	protected Cumulus4jPersistenceHandler persistenceHandler;
 	protected Cumulus4jStoreManager storeManager;
 	protected EncryptionHandler encryptionHandler;
-	protected IndexEntryFactoryRegistry indexEntryFactoryRegistry = IndexEntryFactoryRegistry.sharedInstance();
+	protected IndexEntryFactoryRegistry indexEntryFactoryRegistry;
 
 	public IndexEntryAction(Cumulus4jPersistenceHandler persistenceHandler) {
 		if (persistenceHandler == null)
@@ -30,6 +30,7 @@ abstract class IndexEntryAction
 		this.persistenceHandler = persistenceHandler;
 		this.storeManager = persistenceHandler.getStoreManager();
 		this.encryptionHandler = storeManager.getEncryptionHandler();
+		indexEntryFactoryRegistry = storeManager.getIndexFactoryRegistry();
 	}
 
 	protected abstract IndexEntry getIndexEntry(

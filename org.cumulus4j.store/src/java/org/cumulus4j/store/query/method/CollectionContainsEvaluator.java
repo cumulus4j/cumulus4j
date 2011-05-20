@@ -12,7 +12,6 @@ import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.FieldMetaRole;
 import org.cumulus4j.store.model.IndexEntry;
 import org.cumulus4j.store.model.IndexEntryFactory;
-import org.cumulus4j.store.model.IndexEntryFactoryRegistry;
 import org.cumulus4j.store.model.IndexValue;
 import org.cumulus4j.store.query.QueryEvaluator;
 import org.cumulus4j.store.query.eval.ExpressionHelper;
@@ -99,7 +98,7 @@ public class CollectionContainsEvaluator extends AbstractMethodEvaluator
 		@Override
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
 			ExecutionContext executionContext = queryEvaluator.getExecutionContext();
-			IndexEntryFactory indexEntryFactory = IndexEntryFactoryRegistry.sharedInstance().getIndexEntryFactory(
+			IndexEntryFactory indexEntryFactory = queryEvaluator.getStoreManager().getIndexFactoryRegistry().getIndexEntryFactory(
 					executionContext, fieldMeta, true
 			);
 

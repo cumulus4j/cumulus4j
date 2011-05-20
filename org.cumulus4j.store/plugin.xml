@@ -3,6 +3,7 @@
 <plugin>
   <extension-point id="cryptoManager" name="Crypto Manager" schema="schema/cryptoManager.exsd"/>
   <extension-point id="query_method" name="Query Methods" schema="schema/query_method.exsd"/>
+  <extension-point id="index_mapping" name="Index Mappings" schema="schema/index_mapping.exsd"/>
 
   <extension point="org.datanucleus.store_manager">
     <store-manager class-name="org.cumulus4j.store.Cumulus4jStoreManager" key="cumulus4j" url-key="cumulus4j"/>
@@ -16,6 +17,25 @@
   <extension point="org.datanucleus.store_query_query">
     <query name="JDOQL" class-name="org.cumulus4j.store.query.JDOQLQuery" datastore="cumulus4j"/>
     <query name="JPQL" class-name="org.cumulus4j.store.query.JPQLQuery" datastore="cumulus4j"/>
+  </extension>
+
+  <extension point="org.cumulus4j.store.index_mapping">
+    <index-mapping type="double" index-entry-type="org.cumulus4j.store.model.IndexEntryDouble"/>
+    <index-mapping type="float" index-entry-type="org.cumulus4j.store.model.IndexEntryDouble"/>
+    <index-mapping type="long" index-entry-type="org.cumulus4j.store.model.IndexEntryLong"/>
+    <index-mapping type="int" index-entry-type="org.cumulus4j.store.model.IndexEntryLong"/>
+    <index-mapping type="short" index-entry-type="org.cumulus4j.store.model.IndexEntryLong"/>
+    <index-mapping type="byte" index-entry-type="org.cumulus4j.store.model.IndexEntryLong"/>
+    <index-mapping type="java.lang.Long" index-entry-type="org.cumulus4j.store.model.IndexEntryLong"/>
+    <index-mapping type="java.lang.Integer" index-entry-type="org.cumulus4j.store.model.IndexEntryLong"/>
+    <index-mapping type="java.lang.Short" index-entry-type="org.cumulus4j.store.model.IndexEntryLong"/>
+    <index-mapping type="java.lang.Byte" index-entry-type="org.cumulus4j.store.model.IndexEntryLong"/>
+    <index-mapping type="java.lang.Double" index-entry-type="org.cumulus4j.store.model.IndexEntryDouble"/>
+    <index-mapping type="java.lang.Float" index-entry-type="org.cumulus4j.store.model.IndexEntryDouble"/>
+    <index-mapping type="java.util.Date" index-entry-type="org.cumulus4j.store.model.IndexEntryDate"/>
+    <index-mapping type="java.lang.String" jdbc-types="CLOB" sql-types="CLOB,TEXT" 
+        index-entry-type="org.cumulus4j.store.model.IndexEntryStringLong"/>
+    <index-mapping type="java.lang.String" index-entry-type="org.cumulus4j.store.model.IndexEntryStringShort"/>
   </extension>
 
   <extension point="org.cumulus4j.store.query_method">

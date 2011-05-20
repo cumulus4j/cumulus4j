@@ -1,47 +1,145 @@
 package org.cumulus4j.store.model;
 
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 
+import org.cumulus4j.store.Cumulus4jStoreManager;
 import org.datanucleus.ClassLoaderResolver;
+import org.datanucleus.exceptions.NucleusException;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.CollectionMetaData;
-import org.datanucleus.metadata.ColumnMetaData;
 import org.datanucleus.metadata.MapMetaData;
-import org.datanucleus.properties.PropertyStore;
+import org.datanucleus.plugin.ConfigurationElement;
 import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.exceptions.UnsupportedDataTypeException;
+import org.datanucleus.util.StringUtils;
 
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class IndexEntryFactoryRegistry
 {
-	private static IndexEntryFactoryRegistry sharedInstance = null;
+	/** Cache of factory for use with each java-type+jdbc+sql */
+	private Map<String, IndexEntryFactory> factoryByKey = new HashMap<String, IndexEntryFactory>();
 
-	public static void createSharedInstance(PropertyStore propertyStore)
-	{
-		sharedInstance = new IndexEntryFactoryRegistry();
-
-		if (!propertyStore.getBooleanProperty("cumulus4j.index.clob.enabled", true))
-			sharedInstance.indexEntryFactoryStringLong = null;
-	}
-
-	public static IndexEntryFactoryRegistry sharedInstance()
-	{
-		if (sharedInstance == null)
-			throw new IllegalStateException("createSharedInstance(...) not yet called!");
-
-		return sharedInstance;
-	}
+	/** Mappings of java-type+jdbc+sql type and the factory they should use */
+	private List<IndexMapping> indexMappings = new ArrayList<IndexMapping>();
 
 	private IndexEntryFactory indexEntryFactoryDouble = new DefaultIndexEntryFactory(IndexEntryDouble.class);
 	private IndexEntryFactory indexEntryFactoryLong = new DefaultIndexEntryFactory(IndexEntryLong.class);
-	private IndexEntryFactory indexEntryFactoryStringShort = new DefaultIndexEntryFactory(IndexEntryStringShort.class);
-	private IndexEntryFactory indexEntryFactoryStringLong = new DefaultIndexEntryFactory(IndexEntryStringLong.class);
 	private IndexEntryFactory indexEntryFactoryDate = new DefaultIndexEntryFactory(IndexEntryDate.class);
 	private IndexEntryFactory indexEntryFactoryContainerSize = new DefaultIndexEntryFactory(IndexEntryContainerSize.class);
+	private IndexEntryFactory indexEntryFactoryStringShort = new DefaultIndexEntryFactory(IndexEntryStringShort.class);
+	private IndexEntryFactory indexEntryFactoryStringLong = null;
 
-	protected IndexEntryFactoryRegistry() { }
+	class IndexMapping {
+		Class javaType;
+		String jdbcTypes;
+		String sqlTypes;
+		IndexEntryFactory factory;
+
+		public boolean matches(Class type, String jdbcType, String sqlType) {
+			if (javaType.isAssignableFrom(type)) {
+				if (jdbcTypes != null) {
+					if (jdbcType == null) {
+						return false;
+					}
+					else {
+						return jdbcTypes.indexOf(jdbcType) >= 0;
+					}
+				}
+				else if (sqlTypes != null) {
+					if (sqlType == null) {
+						return false;
+					}
+					else {
+						return sqlTypes.indexOf(sqlType) >= 0;
+					}
+				}
+				else {
+					return true;
+				}
+			}
+			return false;
+		}
+	}
+
+	public IndexEntryFactoryRegistry(Cumulus4jStoreManager storeMgr) {
+
+		if (storeMgr.getBooleanProperty("cumulus4j.index.clob.enabled", true)) {
+			indexEntryFactoryStringLong = new DefaultIndexEntryFactory(IndexEntryStringLong.class);
+		}
+
+		// Load up plugin information
+		ClassLoaderResolver clr = storeMgr.getNucleusContext().getClassLoaderResolver(storeMgr.getClass().getClassLoader());
+		ConfigurationElement[] elems = 
+			storeMgr.getNucleusContext().getPluginManager().getConfigurationElementsForExtension(
+					"org.cumulus4j.store.index_mapping", null, null);
+		if (elems != null) {
+			for (int i=0;i<elems.length;i++) {
+				IndexMapping mapping = new IndexMapping();
+				String typeName = elems[i].getAttribute("type");
+				mapping.javaType = clr.classForName(typeName);
+				String indexTypeName = elems[i].getAttribute("index-entry-type");
+				if (indexTypeName.equals(IndexEntryDate.class.getName())) {
+					mapping.factory = indexEntryFactoryDate;
+				}
+				else if (indexTypeName.equals(IndexEntryLong.class.getName())) {
+					mapping.factory = indexEntryFactoryLong;
+				}
+				else if (indexTypeName.equals(IndexEntryDouble.class.getName())) {
+					mapping.factory = indexEntryFactoryDouble;
+				}
+				else if (indexTypeName.equals(IndexEntryStringShort.class.getName())) {
+					mapping.factory = indexEntryFactoryStringShort;
+				}
+				else if (indexTypeName.equals(IndexEntryStringLong.class.getName())) {
+					mapping.factory = indexEntryFactoryStringLong;
+				}
+				else {
+					throw new NucleusException("Attempt to register index mapping for indexType="+ indexTypeName + " but no such type found");
+				}
+
+				String jdbcTypes = elems[i].getAttribute("jdbc-types");
+				if (!StringUtils.isWhitespace(jdbcTypes)) {
+					mapping.jdbcTypes = jdbcTypes;
+				}
+				String sqlTypes = elems[i].getAttribute("sql-types");
+				if (!StringUtils.isWhitespace(sqlTypes)) {
+					mapping.sqlTypes = sqlTypes;
+				}
+				indexMappings.add(mapping);
+
+				// Populate the primary cache lookups
+				if (jdbcTypes == null && sqlTypes == null) {
+					String key = getKeyForType(typeName, null, null);
+					factoryByKey.put(key, mapping.factory);
+				}
+				else {
+					if (jdbcTypes != null) {
+						StringTokenizer tok = new StringTokenizer(jdbcTypes, ",");
+						while (tok.hasMoreTokens()) {
+							String jdbcType = tok.nextToken();
+							String key = getKeyForType(typeName, jdbcType, null);
+							factoryByKey.put(key, mapping.factory);
+						}
+					}
+					if (sqlTypes != null) {
+						StringTokenizer tok = new StringTokenizer(sqlTypes, ",");
+						while (tok.hasMoreTokens()) {
+							String sqlType = tok.nextToken();
+							String key = getKeyForType(typeName, null, sqlType);
+							factoryByKey.put(key, mapping.factory);
+						}
+					}
+				}
+			}
+		}
+	}
 
 	/**
 	 * Get the appropriate {@link IndexEntryFactory} subclass instance for the given {@link FieldMeta}.
@@ -98,46 +196,37 @@ public class IndexEntryFactoryRegistry
 			break;
 		}
 
-		// TODO Introduce plugin point to extend this and maybe move this configuration into the pluggable factory.
-		if (String.class.isAssignableFrom(fieldType)) {
-			// TODO is this the right way to find out whether we need a long CLOB index or a short VARCHAR index?
-			if (mmd.getColumnMetaData() != null && mmd.getColumnMetaData().length > 0) {
-				ColumnMetaData columnMetaData = mmd.getColumnMetaData()[0];
+		String jdbcType = null;
+		String sqlType = null;
+		if (mmd.getColumnMetaData() != null && mmd.getColumnMetaData().length > 0) {
+			jdbcType = mmd.getColumnMetaData()[0].getJdbcType();
+			sqlType = mmd.getColumnMetaData()[0].getSqlType();
+		}
+		String key = getKeyForType(fieldType.getName(), jdbcType, sqlType);
 
-				if (columnMetaData.getScale() != null && columnMetaData.getScale().intValue() > 255)
-					return indexEntryFactoryStringLong;
-
-				if ("CLOB".equalsIgnoreCase(columnMetaData.getJdbcType()))
-					return indexEntryFactoryStringLong;
-
-				if ("CLOB".equalsIgnoreCase(columnMetaData.getSqlType()))
-					return indexEntryFactoryStringLong;
-
-				if ("TEXT".equalsIgnoreCase(columnMetaData.getSqlType()))
-					return indexEntryFactoryStringLong;
-			}
-
-			return indexEntryFactoryStringShort;
+		// Check the cache
+		if (factoryByKey.containsKey(key)) {
+			return factoryByKey.get(key);
 		}
 
-//		if (UUID.class.isAssignableFrom(fieldType))
-//			return indexEntryFactoryStringShort;
-
-		if (Long.class.isAssignableFrom(fieldType) || Integer.class.isAssignableFrom(fieldType) || Short.class.isAssignableFrom(fieldType) || Byte.class.isAssignableFrom(fieldType) || 
-				long.class == fieldType || int.class == fieldType || short.class == fieldType || byte.class == fieldType)
-			return indexEntryFactoryLong;
-
-		if (Double.class.isAssignableFrom(fieldType) || Float.class.isAssignableFrom(fieldType) || 
-				double.class == fieldType || float.class == fieldType)
-			return indexEntryFactoryDouble;
-
-		if (Date.class.isAssignableFrom(fieldType))
-			return indexEntryFactoryDate;
+		Iterator<IndexMapping> mappingIter = indexMappings.iterator();
+		while (mappingIter.hasNext()) {
+			IndexMapping mapping = mappingIter.next();
+			if (mapping.matches(fieldType, jdbcType, sqlType)) {
+				factoryByKey.put(key, mapping.factory);
+				return mapping.factory;
+			}
+		}
 
 		if (throwExceptionIfNotFound)
 			throw new UnsupportedDataTypeException("No IndexEntryFactory registered for this type: " + mmd);
 
+		factoryByKey.put(key, null);
 		return null;
+	}
+
+	private String getKeyForType(String javaTypeName, String jdbcTypeName, String sqlTypeName) {
+		return javaTypeName + ":" + (jdbcTypeName != null ? jdbcTypeName : "") + ":" + (sqlTypeName != null ? sqlTypeName : "");
 	}
 
 	public IndexEntryFactory getIndexEntryFactoryForContainerSize() {
