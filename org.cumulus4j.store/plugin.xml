@@ -26,14 +26,23 @@
     <index-mapping type="int" index-entry-type="org.cumulus4j.store.model.IndexEntryLong"/>
     <index-mapping type="short" index-entry-type="org.cumulus4j.store.model.IndexEntryLong"/>
     <index-mapping type="byte" index-entry-type="org.cumulus4j.store.model.IndexEntryLong"/>
+
     <index-mapping type="java.lang.Long" index-entry-type="org.cumulus4j.store.model.IndexEntryLong"/>
     <index-mapping type="java.lang.Integer" index-entry-type="org.cumulus4j.store.model.IndexEntryLong"/>
     <index-mapping type="java.lang.Short" index-entry-type="org.cumulus4j.store.model.IndexEntryLong"/>
     <index-mapping type="java.lang.Byte" index-entry-type="org.cumulus4j.store.model.IndexEntryLong"/>
     <index-mapping type="java.lang.Double" index-entry-type="org.cumulus4j.store.model.IndexEntryDouble"/>
     <index-mapping type="java.lang.Float" index-entry-type="org.cumulus4j.store.model.IndexEntryDouble"/>
+
     <index-mapping type="java.util.Date" index-entry-type="org.cumulus4j.store.model.IndexEntryDate"/>
-    <index-mapping type="java.lang.String" jdbc-types="CLOB" sql-types="CLOB,TEXT" 
+    <index-mapping type="java.util.Currency" index-entry-type="org.cumulus4j.store.model.IndexEntryCurrency"/>
+    <index-mapping type="java.util.UUID" index-entry-type="org.cumulus4j.store.model.IndexEntryUUID"/>
+
+    <index-mapping type="java.net.URI" index-entry-type="org.cumulus4j.store.model.IndexEntryURI"/>
+    <index-mapping type="java.net.URL" index-entry-type="org.cumulus4j.store.model.IndexEntryURL"/>
+
+    <!-- Ordering of these is important, with the jdbc-type/sql-type restrictions first -->
+    <index-mapping type="java.lang.String" jdbc-types="CLOB" sql-types="CLOB,TEXT"
         index-entry-type="org.cumulus4j.store.model.IndexEntryStringLong"/>
     <index-mapping type="java.lang.String" index-entry-type="org.cumulus4j.store.model.IndexEntryStringShort"/>
   </extension>

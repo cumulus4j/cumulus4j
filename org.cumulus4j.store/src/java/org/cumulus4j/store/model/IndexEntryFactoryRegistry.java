@@ -9,11 +9,11 @@ import java.util.StringTokenizer;
 
 import org.cumulus4j.store.Cumulus4jStoreManager;
 import org.datanucleus.ClassLoaderResolver;
-import org.datanucleus.exceptions.NucleusException;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.CollectionMetaData;
 import org.datanucleus.metadata.MapMetaData;
 import org.datanucleus.plugin.ConfigurationElement;
+import org.datanucleus.plugin.PluginManager;
 import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.exceptions.UnsupportedDataTypeException;
 import org.datanucleus.util.StringUtils;
@@ -26,15 +26,12 @@ public class IndexEntryFactoryRegistry
 	/** Cache of factory for use with each java-type+jdbc+sql */
 	private Map<String, IndexEntryFactory> factoryByKey = new HashMap<String, IndexEntryFactory>();
 
+	private Map<String, IndexEntryFactory> factoryByEntryType = new HashMap<String, IndexEntryFactory>();
+
 	/** Mappings of java-type+jdbc+sql type and the factory they should use */
 	private List<IndexMapping> indexMappings = new ArrayList<IndexMapping>();
 
-	private IndexEntryFactory indexEntryFactoryDouble = new DefaultIndexEntryFactory(IndexEntryDouble.class);
-	private IndexEntryFactory indexEntryFactoryLong = new DefaultIndexEntryFactory(IndexEntryLong.class);
-	private IndexEntryFactory indexEntryFactoryDate = new DefaultIndexEntryFactory(IndexEntryDate.class);
 	private IndexEntryFactory indexEntryFactoryContainerSize = new DefaultIndexEntryFactory(IndexEntryContainerSize.class);
-	private IndexEntryFactory indexEntryFactoryStringShort = new DefaultIndexEntryFactory(IndexEntryStringShort.class);
-	private IndexEntryFactory indexEntryFactoryStringLong = null;
 
 	class IndexMapping {
 		Class javaType;
@@ -70,38 +67,34 @@ public class IndexEntryFactoryRegistry
 
 	public IndexEntryFactoryRegistry(Cumulus4jStoreManager storeMgr) {
 
-		if (storeMgr.getBooleanProperty("cumulus4j.index.clob.enabled", true)) {
-			indexEntryFactoryStringLong = new DefaultIndexEntryFactory(IndexEntryStringLong.class);
-		}
-
 		// Load up plugin information
 		ClassLoaderResolver clr = storeMgr.getNucleusContext().getClassLoaderResolver(storeMgr.getClass().getClassLoader());
-		ConfigurationElement[] elems = 
-			storeMgr.getNucleusContext().getPluginManager().getConfigurationElementsForExtension(
-					"org.cumulus4j.store.index_mapping", null, null);
+		PluginManager pluginMgr = storeMgr.getNucleusContext().getPluginManager();
+		ConfigurationElement[] elems = pluginMgr.getConfigurationElementsForExtension(
+				"org.cumulus4j.store.index_mapping", null, null);
 		if (elems != null) {
 			for (int i=0;i<elems.length;i++) {
 				IndexMapping mapping = new IndexMapping();
 				String typeName = elems[i].getAttribute("type");
 				mapping.javaType = clr.classForName(typeName);
+
 				String indexTypeName = elems[i].getAttribute("index-entry-type");
-				if (indexTypeName.equals(IndexEntryDate.class.getName())) {
-					mapping.factory = indexEntryFactoryDate;
-				}
-				else if (indexTypeName.equals(IndexEntryLong.class.getName())) {
-					mapping.factory = indexEntryFactoryLong;
-				}
-				else if (indexTypeName.equals(IndexEntryDouble.class.getName())) {
-					mapping.factory = indexEntryFactoryDouble;
-				}
-				else if (indexTypeName.equals(IndexEntryStringShort.class.getName())) {
-					mapping.factory = indexEntryFactoryStringShort;
-				}
-				else if (indexTypeName.equals(IndexEntryStringLong.class.getName())) {
-					mapping.factory = indexEntryFactoryStringLong;
+				if (factoryByEntryType.containsKey(indexTypeName)) {
+					// Reuse the existing factory of this type
+					mapping.factory = factoryByEntryType.get(indexTypeName);
 				}
 				else {
-					throw new NucleusException("Attempt to register index mapping for indexType="+ indexTypeName + " but no such type found");
+					// Create a new factory of this type and cache it
+					Class idxEntryClass = pluginMgr.loadClass(elems[i].getExtension().getPlugin().getSymbolicName(), indexTypeName);
+					IndexEntryFactory factory = new DefaultIndexEntryFactory(idxEntryClass);
+					factoryByEntryType.put(indexTypeName, factory);
+					mapping.factory = factory;
+				}
+
+				if (mapping.factory.getClass().getName().equals(IndexEntryStringLong.class.getName()) &&
+						storeMgr.getBooleanProperty("cumulus4j.index.clob.enabled", true)) {
+					// User doesn't want to use CLOB handing
+					mapping.factory = null;
 				}
 
 				String jdbcTypes = elems[i].getAttribute("jdbc-types");
