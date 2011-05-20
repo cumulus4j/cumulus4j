@@ -201,6 +201,9 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 			throw new IllegalStateException("The ApiAdapter returned null as object-ID for: " + value);
 
 		if (Expression.OP_NOTEQ == op || negate) {
+			// TODO IMHO this is incomplete - the sub-classes are probably missing. But before changing anything here,
+			// we should design a test-case first and check if my assumption is correct.
+			// Marco :-)
 			return DataEntry.getDataEntryIDsNegated(pm, classMeta, valueID.toString());
 		}
 		else {

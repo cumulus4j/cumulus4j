@@ -47,6 +47,13 @@ import javax.jdo.listener.StoreCallback;
 public class DataEntry
 implements StoreCallback
 {
+	/**
+	 * Get the <code>DataEntry</code> identified by the specified {@link #getDataEntryID() dataEntryID} or
+	 * <code>null</code> if no such instance exists.
+	 * @param pm the backend-<code>PersistenceManager</code>. Must not be <code>null</code>.
+	 * @param dataEntryID the <code>DataEntry</code>'s {@link #getDataEntryID() identifier}.
+	 * @return the <code>DataEntry</code> matching the given <code>dataEntryID</code> or <code>null</code>, if no such instance exists.
+	 */
 	public static DataEntry getDataEntry(PersistenceManager pm, long dataEntryID)
 	{
 		DataEntry dataEntry;
@@ -58,6 +65,16 @@ implements StoreCallback
 		return dataEntry;
 	}
 
+	/**
+	 * Get the <code>DataEntry</code> identified by the given type and JDO/JPA-object-ID.
+	 *
+	 * @param pm the backend-<code>PersistenceManager</code>. Must not be <code>null</code>.
+	 * @param classMeta reference to the searched <code>DataEntry</code>'s {@link #getClassMeta() classMeta} (which must match
+	 * the searched instance's concrete type - <b>not</b> the root-type of the inheritance tree!).
+	 * @param objectID the <code>String</code>-representation of the JDO/JPA-object-ID.
+	 * @return the <code>DataEntry</code> matching the given combination of <code>classMeta</code> and <code>objectID</code>;
+	 * or <code>null</code>, if no such instance exists.
+	 */
 	public static DataEntry getDataEntry(PersistenceManager pm, ClassMeta classMeta, String objectID)
 	{
 		javax.jdo.Query q = pm.newNamedQuery(DataEntry.class, "getDataEntryByClassMetaAndObjectID");
@@ -65,6 +82,31 @@ implements StoreCallback
 		// UNIQUE query does not need to be closed, because there is no result list lingering.
 	}
 
+	/**
+	 * <p>
+	 * Get the {@link #getDataEntryID() dataEntryID} of the <code>DataEntry</code> identified by the
+	 * given type and JDO/JPA-object-ID.
+	 * </p>
+	 * <p>
+	 * This method is equivalent to first calling
+	 * </p>
+	 * <pre>DataEntry e = {@link #getDataEntry(PersistenceManager, ClassMeta, String)}</pre>
+	 * <p>
+	 * and then
+	 * </p>
+	 * <pre>e == null ? null : Long.valueOf({@link #getDataEntryID() e.getDataEntryID()})</pre>
+	 * <p>
+	 * but faster, because it does not query unnecessary data from the underlying database.
+	 * </p>
+	 *
+	 * @param pm the backend-<code>PersistenceManager</code>. Must not be <code>null</code>.
+	 * @param classMeta reference to the searched <code>DataEntry</code>'s {@link #getClassMeta() classMeta} (which must match
+	 * the searched instance's concrete type - <b>not</b> the root-type of the inheritance tree!).
+	 * @param objectID the <code>String</code>-representation of the JDO/JPA-object-ID.
+	 * @return the {@link #getDataEntryID() dataEntryID} of the <code>DataEntry</code> matching the
+	 * given combination of <code>classMeta</code> and <code>objectID</code>;
+	 * or <code>null</code>, if no such instance exists.
+	 */
 	public static Long getDataEntryID(PersistenceManager pm, ClassMeta classMeta, String objectID)
 	{
 		javax.jdo.Query q = pm.newNamedQuery(DataEntry.class, "getDataEntryIDByClassMetaAndObjectID");
@@ -72,6 +114,23 @@ implements StoreCallback
 		// UNIQUE query does not need to be closed, because there is no result list lingering.
 	}
 
+	/**
+	 * <p>
+	 * Get the {@link #getDataEntryID() dataEntryID}s of all those <code>DataEntry</code> instances
+	 * which do <b>not</b> match the given type and JDO/JPA-object-ID.
+	 * </p>
+	 * <p>
+	 * This method is thus the negation of {@link #getDataEntryID(PersistenceManager, ClassMeta, String)}.
+	 * </p>
+	 *
+	 * @param pm the backend-<code>PersistenceManager</code>. Must not be <code>null</code>.
+	 * @param classMeta reference to the searched <code>DataEntry</code>'s {@link #getClassMeta() classMeta} (which must match
+	 * the searched instance's concrete type - <b>not</b> the root-type of the inheritance tree!).
+	 * @param notThisObjectID the <code>String</code>-representation of the JDO/JPA-object-ID, which should be
+	 * excluded.
+	 * @return the {@link #getDataEntryID() dataEntryID}s of those <code>DataEntry</code>s which match the given
+	 * <code>classMeta</code> but have an object-ID different from the one specified as <code>notThisObjectID</code>.
+	 */
 	public static Set<Long> getDataEntryIDsNegated(PersistenceManager pm, ClassMeta classMeta, String notThisObjectID)
 	{
 		javax.jdo.Query q = pm.newNamedQuery(DataEntry.class, "getDataEntryIDsByClassMetaAndObjectIDNegated");
@@ -99,6 +158,13 @@ implements StoreCallback
 
 	protected DataEntry() { }
 
+	/**
+	 * Create an instance of <code>DataEntry</code>.
+	 * @param classMeta the type of the entity persisted in this container (which must be the entity's concrete type -
+	 * <b>not</b> the root-type of the inheritance tree!). See {@link #getClassMeta()} for further details.
+	 * @param objectID the <code>String</code>-representation of the entity's identifier (aka OID or object-ID).
+	 * See {@link #getObjectID()} for further details.
+	 */
 	public DataEntry(ClassMeta classMeta, String objectID) {
 		this.classMeta = classMeta;
 		this.objectID = objectID;
@@ -134,8 +200,27 @@ implements StoreCallback
 	}
 
 	/**
-	 * Get the String-representation of the entity's identifier.
-	 * @return the OID in String-form.
+	 * <p>
+	 * Get the <code>String</code>-representation of the entity's identifier.
+	 * </p>
+	 * <p>
+	 * For JDO, please read the following (and related) documentation:
+	 * </p>
+	 * <ul>
+	 * 	<li><a href="http://www.datanucleus.org/products/accessplatform_3_0/jdo/application_identity.html">JDO Mapping / Identity / Application Identity</a></li>
+	 * 	<li><a href="http://www.datanucleus.org/products/accessplatform_3_0/jdo/datastore_identity.html">JDO Mapping / Identity / Datastore Identity</a></li>
+	 * </ul>
+	 * <p>
+	 * For JPA, please read the following (and related) documentation:
+	 * </p>
+	 * <ul>
+	 * 	<li><a href="http://www.datanucleus.org/products/accessplatform_3_0/jpa/application_identity.html">JPA Mapping / Identity / Application Identity</a></li>
+	 * 	<li><a href="http://www.datanucleus.org/products/accessplatform_3_0/jpa/datastore_identity.html">JPA Mapping / Identity / Datastore Identity</a></li>
+	 * </ul>
+	 *
+	 * @return the OID in String-form
+	 * (e.g. the result of <code><a href="http://db.apache.org/jdo/api30/apidocs/javax/jdo/JDOHelper.html#getObjectId%28java.lang.Object%29">JDOHelper.getObjectId</a>(entity).toString()</code>
+	 * when using JDO).
 	 */
 	public String getObjectID() {
 		return objectID;
