@@ -64,17 +64,37 @@ implements DetachCallback
 	@Key(mappedBy="role")
 	private Map<FieldMetaRole, FieldMeta> role2subFieldMeta = new HashMap<FieldMetaRole, FieldMeta>();
 
+	/**
+	 * Internal constructor. This exists only for JDO and should not be used by application code!
+	 */
 	protected FieldMeta() { }
 
+	/**
+	 * Create a <code>FieldMeta</code> referencing a real field.
+	 * @param classMeta the class to which this field belongs.
+	 * @param fieldName the field's name.
+	 * @see #FieldMeta(FieldMeta, FieldMetaRole)
+	 */
 	public FieldMeta(ClassMeta classMeta, String fieldName)
 	{
 		this(classMeta, null, fieldName, FieldMetaRole.primary);
 	}
-	public FieldMeta(FieldMeta ownerFieldMeta, String fieldName, FieldMetaRole role)
+	/**
+	 * Create a <code>FieldMeta</code> referencing a part of a field. This is necessary to index keys and values of a
+	 * <code>Map</code> field (i.e. 2 separate indexes for one field) as well as <code>Collection</code>-elements and similar.
+	 * @param ownerFieldMeta the <code>FieldMeta</code> of the real field (to which the part belongs).
+	 * @param role the role (aka type) of the sub-field (aka part).
+	 * @see #FieldMeta(ClassMeta, String)
+	 */
+	public FieldMeta(FieldMeta ownerFieldMeta, FieldMetaRole role)
 	{
-		this(null, ownerFieldMeta, fieldName, role);
+		this(null, ownerFieldMeta, ownerFieldMeta.getFieldName(), role);
 	}
 
+	/**
+	 * Internal constructor. This exists only for easier implementation of the other constructors and
+	 * should not be used by application code!
+	 */
 	protected FieldMeta(ClassMeta classMeta, FieldMeta ownerFieldMeta, String fieldName, FieldMetaRole role)
 	{
 		if (classMeta == null && ownerFieldMeta == null)
@@ -131,6 +151,12 @@ implements DetachCallback
 		return fieldName;
 	}
 
+	/**
+	 * Get the role of the (sub-)field. If this is not a sub-field, but a primary field
+	 * (i.e. directly meaning a real field of the class referenced by {@link #getClassMeta() classMeta})
+	 * it will be {@link FieldMetaRole#primary}, hence this method never returns <code>null</code>.
+	 * @return the role of this <code>FieldMeta</code>; never <code>null</code>.
+	 */
 	public FieldMetaRole getRole() {
 		return role;
 	}
@@ -153,11 +179,24 @@ implements DetachCallback
 			subFM.setDataNucleusAbsoluteFieldNumber(dataNucleusAbsoluteFieldNumber);
 	}
 
+	/**
+	 * Get a sub-field of this field or <code>null</code>, if no such sub-field exists.
+	 * @param role the role of the sub-field. Must not be <code>null</code>.
+	 * @return the sub-<code>FieldMeta</code> or <code>null</code>.
+	 */
 	public FieldMeta getSubFieldMeta(FieldMetaRole role)
 	{
+		if (role == null)
+			throw new IllegalArgumentException("role == null");
+
 		return role2subFieldMeta.get(role);
 	}
 
+	/**
+	 * Get all sub-fields' meta-data of this field. If there are no sub-fields, this is an
+	 * empty collection.
+	 * @return all sub-<code>FieldMeta</code>s of this field; never <code>null</code>.
+	 */
 	public Collection<FieldMeta> getSubFieldMetas()
 	{
 		return role2subFieldMeta.values();

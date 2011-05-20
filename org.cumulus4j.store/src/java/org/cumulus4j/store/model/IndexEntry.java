@@ -92,6 +92,15 @@ implements StoreCallback
 		return indexEntryID;
 	}
 
+	/**
+	 * <p>
+	 * Get the descriptor of the indexed field.
+	 * </p>
+	 * <p>
+	 * Every <code>IndexEntry</code> instance belongs to one field or a part of the field (e.g. a <code>Map</code>'s key).
+	 * </p>
+	 * @return the descriptor of the indexed field.
+	 */
 	public FieldMeta getFieldMeta() {
 		return fieldMeta;
 	}
@@ -103,18 +112,6 @@ implements StoreCallback
 		this.fieldMeta = fieldMeta;
 	}
 
-	public long getKeyID() {
-		return keyID;
-	}
-
-	public void setKeyID(long keyID)
-	{
-		if (keyID < 0)
-			throw new IllegalArgumentException("keyID < 0");
-
-		this.keyID = keyID;
-	}
-
 	/**
 	 * Get the value which is indexed by this instance. It serves as 2nd part of the unique key together
 	 * with the property {@link #getFieldMeta() fieldMeta}.
@@ -123,6 +120,28 @@ implements StoreCallback
 	public abstract Object getIndexKey();
 
 	protected abstract void setIndexKey(Object indexKey);
+
+	/**
+	 * Get the identifier of the encryption-key used to encrypt the {@link #getIndexValue() indexValue}.
+	 * @return the encryption-key used to encrypt this <code>IndexEntry</code>'s contents.
+	 * @see #setKeyID(long)
+	 */
+	public long getKeyID() {
+		return keyID;
+	}
+
+	/**
+	 * Set the identifier of the encryption-key used to encrypt the {@link #getIndexValue() indexValue}.
+	 * @param keyID the encryption-key used to encrypt this <code>IndexEntry</code>'s contents.
+	 * @see #getKeyID()
+	 */
+	public void setKeyID(long keyID)
+	{
+		if (keyID < 0)
+			throw new IllegalArgumentException("keyID < 0");
+
+		this.keyID = keyID;
+	}
 
 	/**
 	 * Get the <b>encrypted</b> pointers to {@link DataEntry}. After decrypting

@@ -181,7 +181,7 @@ extends AbstractStoreManager
 				FieldMeta subFieldMeta = primaryFieldMeta.getSubFieldMeta(FieldMetaRole.collectionElement);
 				if (subFieldMeta == null) {
 					// adding field that's so far unknown
-					subFieldMeta = new FieldMeta(primaryFieldMeta, memberMetaData.getName(), FieldMetaRole.collectionElement);
+					subFieldMeta = new FieldMeta(primaryFieldMeta, FieldMetaRole.collectionElement);
 					primaryFieldMeta.addSubFieldMeta(subFieldMeta);
 				}
 			}
@@ -192,7 +192,7 @@ extends AbstractStoreManager
 				FieldMeta subFieldMeta = primaryFieldMeta.getSubFieldMeta(FieldMetaRole.arrayElement);
 				if (subFieldMeta == null) {
 					// adding field that's so far unknown
-					subFieldMeta = new FieldMeta(primaryFieldMeta, memberMetaData.getName(), FieldMetaRole.arrayElement);
+					subFieldMeta = new FieldMeta(primaryFieldMeta, FieldMetaRole.arrayElement);
 					primaryFieldMeta.addSubFieldMeta(subFieldMeta);
 				}
 			}
@@ -203,14 +203,14 @@ extends AbstractStoreManager
 				FieldMeta subFieldMeta = primaryFieldMeta.getSubFieldMeta(FieldMetaRole.mapKey);
 				if (subFieldMeta == null) {
 					// adding field that's so far unknown
-					subFieldMeta = new FieldMeta(primaryFieldMeta, memberMetaData.getName(), FieldMetaRole.mapKey);
+					subFieldMeta = new FieldMeta(primaryFieldMeta, FieldMetaRole.mapKey);
 					primaryFieldMeta.addSubFieldMeta(subFieldMeta);
 				}
 
 				subFieldMeta = primaryFieldMeta.getSubFieldMeta(FieldMetaRole.mapValue);
 				if (subFieldMeta == null) {
 					// adding field that's so far unknown
-					subFieldMeta = new FieldMeta(primaryFieldMeta, memberMetaData.getName(), FieldMetaRole.mapValue);
+					subFieldMeta = new FieldMeta(primaryFieldMeta, FieldMetaRole.mapValue);
 					primaryFieldMeta.addSubFieldMeta(subFieldMeta);
 				}
 			}

@@ -156,6 +156,9 @@ implements StoreCallback
 
 	private byte[] value;
 
+	/**
+	 * Internal constructor. This exists only for JDO and should not be used by application code!
+	 */
 	protected DataEntry() { }
 
 	/**
@@ -226,10 +229,20 @@ implements StoreCallback
 		return objectID;
 	}
 
+	/**
+	 * Get the identifier of the encryption-key used to encrypt the {@link #getValue() value}.
+	 * @return the encryption-key used to encrypt this <code>DataEntry</code>'s contents.
+	 * @see #setKeyID(long)
+	 */
 	public long getKeyID() {
 		return keyID;
 	}
 
+	/**
+	 * Set the identifier of the encryption-key used to encrypt the {@link #getValue() value}.
+	 * @param keyID the encryption-key used to encrypt this <code>DataEntry</code>'s contents.
+	 * @see #getKeyID()
+	 */
 	public void setKeyID(long keyID)
 	{
 		if (keyID < 0)
