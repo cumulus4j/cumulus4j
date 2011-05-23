@@ -20,7 +20,7 @@ import org.cumulus4j.keymanager.back.shared.Response;
 @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public class KeyServerChannelService
 {
-	private RequestResponseBroker requestResponseBroker = RequestResponseBroker.sharedInstance();
+	private MessageBroker messageBroker = MessageBroker.sharedInstance();
 
 	@Path("test")
 	@GET
@@ -42,7 +42,7 @@ public class KeyServerChannelService
 		if ((response instanceof NullResponse) && response.getRequestID() == null)
 			return;
 
-		requestResponseBroker.pushResponse(response);
+		messageBroker.pushResponse(response);
 	}
 
 	@Path("nextRequest/{cryptoSessionIDPrefix}")
@@ -55,7 +55,7 @@ public class KeyServerChannelService
 		if (response != null)
 			pushResponse(response);
 
-		Request request = requestResponseBroker.pollRequestForProcessing(cryptoSessionIDPrefix);
+		Request request = messageBroker.pollRequestForProcessing(cryptoSessionIDPrefix);
 		return request;
 	}
 

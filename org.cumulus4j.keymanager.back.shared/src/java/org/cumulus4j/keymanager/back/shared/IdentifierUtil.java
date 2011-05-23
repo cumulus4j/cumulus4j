@@ -1,4 +1,4 @@
-package org.cumulus4j.keymanager;
+package org.cumulus4j.keymanager.back.shared;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;

@@ -18,7 +18,7 @@ import org.cumulus4j.keymanager.back.shared.GetKeyResponse;
 import org.cumulus4j.store.crypto.AbstractCryptoSession;
 import org.cumulus4j.store.crypto.Ciphertext;
 import org.cumulus4j.store.crypto.Plaintext;
-import org.cumulus4j.store.crypto.keymanager.rest.RequestResponseBroker;
+import org.cumulus4j.store.crypto.keymanager.rest.MessageBroker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +47,7 @@ extends AbstractCryptoSession
 		// TODO use a cache for this!!!
 		GetKeyResponse getKeyResponse;
 		try {
-			getKeyResponse = RequestResponseBroker.sharedInstance().query(
+			getKeyResponse = MessageBroker.sharedInstance().query(
 					GetKeyResponse.class, new GetActiveEncryptionKeyRequest(getCryptoSessionID())
 			);
 		} catch (Exception e) {
@@ -79,7 +79,7 @@ extends AbstractCryptoSession
 		// TODO use a cache for keys (or more precisely Cipher instances)!
 		GetKeyResponse getKeyResponse;
 		try {
-			getKeyResponse = RequestResponseBroker.sharedInstance().query(
+			getKeyResponse = MessageBroker.sharedInstance().query(
 					GetKeyResponse.class, new GetKeyRequest(getCryptoSessionID(), ciphertext.getKeyID())
 			);
 		} catch (Exception e) {

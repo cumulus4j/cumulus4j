@@ -11,12 +11,12 @@ import org.cumulus4j.keymanager.back.shared.GetKeyResponse;
 import org.cumulus4j.keymanager.back.shared.Request;
 import org.cumulus4j.keymanager.back.shared.Response;
 import org.cumulus4j.store.crypto.keymanager.rest.ErrorResponseException;
-import org.cumulus4j.store.crypto.keymanager.rest.RequestResponseBroker;
+import org.cumulus4j.store.crypto.keymanager.rest.MessageBroker;
 
-public class MockRequestResponseBroker extends RequestResponseBroker
+public class MockRequestResponseBroker extends MessageBroker
 {
 	public static void setMockSharedInstance() {
-		RequestResponseBroker.sharedInstance = new MockRequestResponseBroker();
+		setSharedInstance(new MockRequestResponseBroker());
 	}
 
 	private static byte[] keyData = new byte[128 / 8]; // testing with 128 bits is sufficient
@@ -40,4 +40,13 @@ public class MockRequestResponseBroker extends RequestResponseBroker
 		throw new UnsupportedOperationException("NYI");
 	}
 
+	@Override
+	protected Request pollRequestForProcessing(String cryptoSessionIDPrefix) {
+		throw new UnsupportedOperationException("Mock does not implement this!");
+	}
+
+	@Override
+	protected void pushResponse(Response response) {
+		throw new UnsupportedOperationException("Mock does not implement this!");
+	}
 }

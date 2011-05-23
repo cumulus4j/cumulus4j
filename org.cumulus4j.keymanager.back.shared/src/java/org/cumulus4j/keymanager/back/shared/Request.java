@@ -1,19 +1,14 @@
 package org.cumulus4j.keymanager.back.shared;
 
-import java.io.Serializable;
-import java.util.UUID;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @XmlRootElement
-public abstract class Request implements Serializable
+public abstract class Request extends Message
 {
 	private static final long serialVersionUID = 1L;
-
-	private UUID requestID;
 
 	private String cryptoSessionID;
 
@@ -24,16 +19,8 @@ public abstract class Request implements Serializable
 		if (cryptoSessionID == null)
 			throw new IllegalArgumentException("cryptoSessionID == null");
 
-		this.requestID = UUID.randomUUID();
+		setRequestID(IdentifierUtil.createRandomID(26));
 		this.cryptoSessionID = cryptoSessionID;
-	}
-
-	public UUID getRequestID() {
-		return requestID;
-	}
-
-	public void setRequestID(UUID requestID) {
-		this.requestID = requestID;
 	}
 
 	public String getCryptoSessionID() {
@@ -58,6 +45,6 @@ public abstract class Request implements Serializable
 
 	@Override
 	public String toString() {
-		return super.toString() + '[' + requestID + ',' + cryptoSessionID + ']';
+		return super.toString() + '[' + getRequestID() + ',' + cryptoSessionID + ']';
 	}
 }

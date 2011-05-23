@@ -3,6 +3,7 @@ package org.cumulus4j.keymanager;
 import java.util.Arrays;
 import java.util.Date;
 
+import org.cumulus4j.keymanager.back.shared.IdentifierUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

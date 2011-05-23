@@ -1,6 +1,5 @@
 package org.cumulus4j.store.crypto.keymanager.rest;
 
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeoutException;
@@ -13,24 +12,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
- *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ * @deprecated This only works in a single JVM which is of no use at all in a cluster. Therefore this class will be removed soon. Was created for experimental reasons, only.
  */
-public class RequestResponseBroker
+@Deprecated
+public class MessageBrokerJVMSingleton
+extends MessageBroker
 {
-	private static final Logger logger = LoggerFactory.getLogger(RequestResponseBroker.class);
-
-	protected static RequestResponseBroker sharedInstance = new RequestResponseBroker();
-
-	/**
-	 * Get the singleton.
-	 * @return the single shared instance.
-	 */
-	public static RequestResponseBroker sharedInstance() { return sharedInstance; }
+	private static final Logger logger = LoggerFactory.getLogger(MessageBrokerJVMSingleton.class);
 
 	private ConcurrentHashMap<String, ConcurrentLinkedQueue<Request>> cryptoSessionIDPrefix2requestsWaitingForProcessing = new ConcurrentHashMap<String, ConcurrentLinkedQueue<Request>>();
-	private ConcurrentHashMap<UUID, Request> requestID2requestCurrentlyBeingProcessed = new ConcurrentHashMap<UUID, Request>();
+	private ConcurrentHashMap<String, Request> requestID2requestCurrentlyBeingProcessed = new ConcurrentHashMap<String, Request>();
 
 	/**
 	 * When a request was completed and a response returned, both are stored together here.
@@ -39,6 +31,9 @@ public class RequestResponseBroker
 
 	private ConcurrentLinkedQueue<Request> getRequestsWaitingForProcessing(String cryptoSessionIDPrefix)
 	{
+		if (cryptoSessionIDPrefix == null)
+			throw new IllegalArgumentException("cryptoSessionIDPrefix == null");
+
 		ConcurrentLinkedQueue<Request> requestsWaitingForProcessing = cryptoSessionIDPrefix2requestsWaitingForProcessing.get(cryptoSessionIDPrefix);
 		if (requestsWaitingForProcessing == null) {
 			requestsWaitingForProcessing = new ConcurrentLinkedQueue<Request>();
@@ -48,27 +43,7 @@ public class RequestResponseBroker
 		return requestsWaitingForProcessing;
 	}
 
-	/**
-	 * The remote key server has to wait this long (in millisec). Its HTTP client's timeout should thus be longer
-	 * than this time!
-	 */
-	private long timeoutPollRequestForProcessing = 2L * 60L * 1000L;
-
-	/**
-	 * The local API client gets an exception, if the request was not processed &amp; answered within this timeout (in millisec).
-	 */
-	private long timeoutQuery = 5L * 60L * 1000L;
-
-	/**
-	 * Send <code>request</code> to the key-manager (embedded in client or separate in key-server) and return its response.
-	 * @param responseClass the type of the expected response.
-	 * @param request the request to be sent to the key-manager.
-	 * @return the response from the key-manager. Will be <code>null</code>, if the key-manager replied with a {@link NullResponse}
-	 * (if valid for the given request).
-	 * @throws TimeoutException if the request was not replied within the query-timeout.
-	 * @throws ErrorResponseException if the key-manager (either running embedded on the remote client or
-	 * in a separate key-server) sent an {@link ErrorResponse}.
-	 */
+	@Override
 	public <R extends Response> R query(Class<R> responseClass, Request request)
 	throws TimeoutException, ErrorResponseException
 	{
@@ -124,7 +99,8 @@ public class RequestResponseBroker
 		}
 	}
 
-	Request pollRequestForProcessing(String cryptoSessionIDPrefix)
+	@Override
+	protected Request pollRequestForProcessing(String cryptoSessionIDPrefix)
 	{
 		ConcurrentLinkedQueue<Request> requestsWaitingForProcessing = getRequestsWaitingForProcessing(cryptoSessionIDPrefix);
 
@@ -156,7 +132,8 @@ public class RequestResponseBroker
 		return request;
 	}
 
-	void pushResponse(Response response)
+	@Override
+	protected void pushResponse(Response response)
 	{
 		if (response == null)
 			throw new IllegalArgumentException("response == null");

@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.cumulus4j.store.crypto.Ciphertext;
 import org.cumulus4j.store.crypto.Plaintext;
 import org.cumulus4j.store.crypto.keymanager.KeyManagerCryptoSession;
-import org.cumulus4j.store.crypto.keymanager.rest.RequestResponseBroker;
+import org.cumulus4j.store.crypto.keymanager.rest.MessageBroker;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -20,7 +20,7 @@ public class KeyManagerCryptoSessionTest
 	public static void beforeClass()
 	{
 		MockRequestResponseBroker.setMockSharedInstance();
-		if (!(RequestResponseBroker.sharedInstance() instanceof MockRequestResponseBroker))
+		if (!(MessageBroker.sharedInstance() instanceof MockRequestResponseBroker))
 			Assert.fail("Setting MockRequestResponseBroker failed!");
 	}
 

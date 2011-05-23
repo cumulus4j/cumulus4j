@@ -4,14 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
 import org.cumulus4j.keymanager.AppServerManager;
+import org.cumulus4j.keymanager.back.shared.SystemPropertyUtil;
 import org.cumulus4j.keystore.KeyStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,14 +94,7 @@ extends Application
 			);
 		}
 		else {
-			String keyStoreFileSysPropValResolved = keyStoreFileSysPropVal;
-			if (keyStoreFileSysPropValResolved.indexOf('$') >= 0) {
-				for (Map.Entry<?, ?> sysProp : System.getProperties().entrySet()) {
-					keyStoreFileSysPropValResolved = keyStoreFileSysPropValResolved.replaceAll(
-							"\\$\\{" + Pattern.quote(String.valueOf(sysProp.getKey())) + "\\}", String.valueOf(sysProp.getValue())
-					);
-				}
-			}
+			String keyStoreFileSysPropValResolved = SystemPropertyUtil.resolveSystemProperties(keyStoreFileSysPropVal);
 			keyStoreFile = new File(keyStoreFileSysPropValResolved);
 			logger.info(
 					"getSingletons: System property '{}' was set to '{}'. Using keyStoreFile '{}'.",
