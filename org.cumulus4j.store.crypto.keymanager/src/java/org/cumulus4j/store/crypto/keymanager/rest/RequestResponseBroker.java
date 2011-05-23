@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeoutException;
 
 import org.cumulus4j.keymanager.back.shared.ErrorResponse;
+import org.cumulus4j.keymanager.back.shared.NullResponse;
 import org.cumulus4j.keymanager.back.shared.Request;
 import org.cumulus4j.keymanager.back.shared.Response;
 import org.slf4j.Logger;
@@ -59,12 +60,14 @@ public class RequestResponseBroker
 	private long timeoutQuery = 5L * 60L * 1000L;
 
 	/**
-	 * Send <code>request</code> to the key server and return its response.
+	 * Send <code>request</code> to the key-manager (embedded in client or separate in key-server) and return its response.
 	 * @param responseClass the type of the expected response.
-	 * @param request the request to be sent to the key server.
-	 * @return the response from the key server.
+	 * @param request the request to be sent to the key-manager.
+	 * @return the response from the key-manager. Will be <code>null</code>, if the key-manager replied with a {@link NullResponse}
+	 * (if valid for the given request).
 	 * @throws TimeoutException if the request was not replied within the query-timeout.
-	 * @throws ErrorResponseException
+	 * @throws ErrorResponseException if the key-manager (either running embedded on the remote client or
+	 * in a separate key-server) sent an {@link ErrorResponse}.
 	 */
 	public <R extends Response> R query(Class<R> responseClass, Request request)
 	throws TimeoutException, ErrorResponseException
@@ -106,6 +109,10 @@ public class RequestResponseBroker
 			}
 
 		} while (response == null);
+
+		// A NullResponse which has a requestID assigned is forwarded to the requester and must be transformed into null here.
+		if (response instanceof NullResponse)
+			return null;
 
 		if (response instanceof ErrorResponse)
 			throw new ErrorResponseException((ErrorResponse)response);

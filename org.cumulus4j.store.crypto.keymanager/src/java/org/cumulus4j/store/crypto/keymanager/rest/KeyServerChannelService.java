@@ -34,8 +34,15 @@ public class KeyServerChannelService
 	@POST
 	public void pushResponse(Response response)
 	{
-		if (response != null && (!(response instanceof NullResponse)))
-			requestResponseBroker.pushResponse(response);
+		if (response == null)
+			return;
+
+		// The NullResponse can either be a filler without request and thus needs to be discarded here,
+		// or it can be a response to a specific request. Hence, we check whether the NullResponse.requestID is null.
+		if ((response instanceof NullResponse) && response.getRequestID() == null)
+			return;
+
+		requestResponseBroker.pushResponse(response);
 	}
 
 	@Path("nextRequest/{cryptoSessionIDPrefix}")
