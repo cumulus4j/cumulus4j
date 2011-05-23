@@ -72,6 +72,7 @@ public class IndexEntryFactoryRegistry
 		PluginManager pluginMgr = storeMgr.getNucleusContext().getPluginManager();
 		ConfigurationElement[] elems = pluginMgr.getConfigurationElementsForExtension(
 				"org.cumulus4j.store.index_mapping", null, null);
+		boolean useClob = storeMgr.getBooleanProperty("cumulus4j.index.clob.enabled", true);
 		if (elems != null) {
 			for (int i=0;i<elems.length;i++) {
 				IndexMapping mapping = new IndexMapping();
@@ -91,12 +92,6 @@ public class IndexEntryFactoryRegistry
 					mapping.factory = factory;
 				}
 
-				if (mapping.factory.getClass().getName().equals(IndexEntryStringLong.class.getName()) &&
-						storeMgr.getBooleanProperty("cumulus4j.index.clob.enabled", true)) {
-					// User doesn't want to use CLOB handing
-					mapping.factory = null;
-				}
-
 				String jdbcTypes = elems[i].getAttribute("jdbc-types");
 				if (!StringUtils.isWhitespace(jdbcTypes)) {
 					mapping.jdbcTypes = jdbcTypes;
@@ -105,6 +100,12 @@ public class IndexEntryFactoryRegistry
 				if (!StringUtils.isWhitespace(sqlTypes)) {
 					mapping.sqlTypes = sqlTypes;
 				}
+
+				if (indexTypeName.equals(IndexEntryStringLong.class.getName()) && !useClob) {
+					// User doesn't want to use CLOB handing
+					mapping.factory = null;
+				}
+
 				indexMappings.add(mapping);
 
 				// Populate the primary cache lookups
