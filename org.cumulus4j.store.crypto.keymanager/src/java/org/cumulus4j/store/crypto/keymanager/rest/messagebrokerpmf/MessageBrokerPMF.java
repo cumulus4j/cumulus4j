@@ -56,8 +56,16 @@ public class MessageBrokerPMF extends MessageBroker
 
 		pmf = JDOHelper.getPersistenceManagerFactory(properties);
 		PersistenceManager pm = pmf.getPersistenceManager();
-		pm.getExtent(PendingRequest.class);
-		pm.close();
+		try {
+			pm.currentTransaction().begin();
+			pm.getExtent(PendingRequest.class);
+			pm.currentTransaction().commit();
+		} finally {
+			if (pm.currentTransaction().isActive())
+				pm.currentTransaction().rollback();
+
+			pm.close();
+		}
 	}
 
 	protected PersistenceManager createTransactionalPersistenceManager()
