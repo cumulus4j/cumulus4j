@@ -183,7 +183,7 @@ public class MessageBrokerPMF extends MessageBroker
 		do {
 			PersistenceManager pm = createTransactionalPersistenceManager();
 			try {
-				pm.currentTransaction().setSerializeRead(true);
+//				pm.currentTransaction().setSerializeRead(true);
 
 				PendingRequest pendingRequest = PendingRequest.getOldestPendingRequest(
 						pm, cryptoSessionIDPrefix, PendingRequestStatus.waitingForProcessing
@@ -230,7 +230,7 @@ public class MessageBrokerPMF extends MessageBroker
 
 		PersistenceManager pm = createTransactionalPersistenceManager();
 		try {
-			pm.currentTransaction().setSerializeRead(true);
+//			pm.currentTransaction().setSerializeRead(true);
 
 			PendingRequest pendingRequest = PendingRequest.getPendingRequest(pm, response.getRequestID());
 			if (pendingRequest == null || pendingRequest.getStatus() != PendingRequestStatus.currentlyBeingProcessed)
