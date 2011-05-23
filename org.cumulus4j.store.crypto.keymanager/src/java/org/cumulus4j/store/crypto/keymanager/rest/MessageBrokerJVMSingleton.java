@@ -13,7 +13,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
- * @deprecated This only works in a single JVM which is of no use at all in a cluster. Therefore this class will be removed soon. Was created for experimental reasons, only.
+ * @deprecated This only works in a single JVM which is of no use at all in a cluster. Therefore this class will be removed soon.
+ * It was created for experimental reasons, only. Please DO NOT remove it yourself, though, as I'll still reuse the code for my manually
+ * written message-queue (sth. that's fast and works with GAE - unfortunately, there seems to be no ready-made solution). Marco :-)
  */
 @Deprecated
 public class MessageBrokerJVMSingleton

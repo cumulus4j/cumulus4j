@@ -24,7 +24,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ * @deprecated This doesn't work properly either and is not really fast. We need to manually write a solution that is compatible with
+ * the GAE :-( Marco :-)
  */
+@Deprecated
 public class MessageBrokerPMF extends MessageBroker
 {
 	private static final Logger logger = LoggerFactory.getLogger(MessageBrokerPMF.class);
