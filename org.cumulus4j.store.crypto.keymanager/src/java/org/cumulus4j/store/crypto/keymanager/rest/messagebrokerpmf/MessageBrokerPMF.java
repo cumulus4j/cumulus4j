@@ -91,7 +91,7 @@ public class MessageBrokerPMF extends MessageBroker
 		do {
 
 			try {
-				Thread.sleep(300L); // TODO make configurable?!
+				Thread.sleep(1000L); // TODO make configurable?!
 			} catch (InterruptedException e) {
 				// ignore
 			}
@@ -199,7 +199,7 @@ public class MessageBrokerPMF extends MessageBroker
 					break;
 
 				try {
-					Thread.sleep(300L); // TODO make configurable?!
+					Thread.sleep(1000L); // TODO make configurable?!
 				} catch (InterruptedException e) {
 					// ignore - only log - and break loop.
 					logger.warn("query: requestsWaitingForProcessing.wait(...) was interrupted with an InterruptedException.");
