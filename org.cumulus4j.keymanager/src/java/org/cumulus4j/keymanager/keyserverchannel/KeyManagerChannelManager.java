@@ -13,14 +13,17 @@ import org.cumulus4j.keymanager.back.shared.GetActiveEncryptionKeyRequest;
 import org.cumulus4j.keymanager.back.shared.GetKeyRequest;
 import org.cumulus4j.keymanager.back.shared.Request;
 
-public class KeyServerChannelManager
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
+public class KeyManagerChannelManager
 {
 	private SessionManager sessionManager;
 	private URL appServerBaseURL;
-	private URL keyServerChannelURL;
+	private URL keyManagerChannelURL;
 	private int desiredThreadCount;
 
-	private Set<KeyServerChannelListenerThread> listenerThreads = Collections.synchronizedSet(new HashSet<KeyServerChannelListenerThread>());
+	private Set<KeyManagerChannelListenerThread> listenerThreads = Collections.synchronizedSet(new HashSet<KeyManagerChannelListenerThread>());
 
 	private static final Map<Class<? extends Request>, Class<? extends RequestHandler<?>>> requestClass2handlerClass;
 	static {
@@ -32,11 +35,11 @@ public class KeyServerChannelManager
 
 	/**
 	 *
-	 * @param appServerBaseURL the base-URL before the "/KeyServerChannel" - e.g. if the REST URL of the KeyServerChannel-service is
-	 * "https://serverUsingCumulus4j.mydomain.org/org.cumulus4j.keymanager.back.webapp/KeyServerChannel", then this must be
+	 * @param appServerBaseURL the base-URL before the "/KeyManagerChannel" - e.g. if the REST URL of the KeyManagerChannel-service is
+	 * "https://serverUsingCumulus4j.mydomain.org/org.cumulus4j.keymanager.back.webapp/KeyManagerChannel", then this must be
 	 * "https://serverUsingCumulus4j.mydomain.org/org.cumulus4j.keymanager.back.webapp".
 	 */
-	public KeyServerChannelManager(SessionManager sessionManager, URL appServerBaseURL)
+	public KeyManagerChannelManager(SessionManager sessionManager, URL appServerBaseURL)
 	{
 		if (sessionManager == null)
 			throw new IllegalArgumentException("sessionManager == null");
@@ -53,7 +56,7 @@ public class KeyServerChannelManager
 			if (!s.endsWith("/"))
 				s += '/';
 
-			this.keyServerChannelURL = new URL(s + "KeyServerChannel");
+			this.keyManagerChannelURL = new URL(s + "KeyManagerChannel");
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}
@@ -69,14 +72,14 @@ public class KeyServerChannelManager
 		return appServerBaseURL;
 	}
 
-	public URL getKeyServerChannelURL() {
-		return keyServerChannelURL;
+	public URL getKeyManagerChannelURL() {
+		return keyManagerChannelURL;
 	}
 
 	public void setDesiredThreadCount(int desiredThreadCount) {
 		this.desiredThreadCount = desiredThreadCount;
 		while (listenerThreads.size() < desiredThreadCount) {
-			KeyServerChannelListenerThread thread = new KeyServerChannelListenerThread(this);
+			KeyManagerChannelListenerThread thread = new KeyManagerChannelListenerThread(this);
 			listenerThreads.add(thread);
 			thread.start();
 		}
@@ -86,7 +89,7 @@ public class KeyServerChannelManager
 		return desiredThreadCount;
 	}
 
-	protected boolean unregisterThreadIfMoreThanDesiredThreadCount(KeyServerChannelListenerThread thread)
+	protected boolean unregisterThreadIfMoreThanDesiredThreadCount(KeyManagerChannelListenerThread thread)
 	{
 		synchronized (listenerThreads) {
 			if (listenerThreads.size() > desiredThreadCount) {
@@ -111,7 +114,7 @@ public class KeyServerChannelManager
 
 		@SuppressWarnings("unchecked")
 		RequestHandler<R> requestHandler = (RequestHandler<R>) handlerClass.newInstance();
-		requestHandler.setKeyServerChannelManager(this);
+		requestHandler.setKeyManagerChannelManager(this);
 		return requestHandler;
 	}
 }

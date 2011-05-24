@@ -23,17 +23,17 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 
-public class KeyServerChannelListenerThread
+public class KeyManagerChannelListenerThread
 extends Thread
 {
-	private static final Logger logger = LoggerFactory.getLogger(KeyServerChannelListenerThread.class);
-	private KeyServerChannelManager keyServerChannelManager;
+	private static final Logger logger = LoggerFactory.getLogger(KeyManagerChannelListenerThread.class);
+	private KeyManagerChannelManager keyManagerChannelManager;
 
-	public KeyServerChannelListenerThread(KeyServerChannelManager keyServerChannelManager) {
-		if (keyServerChannelManager == null)
-			throw new IllegalArgumentException("keyServerChannelManager == null");
+	public KeyManagerChannelListenerThread(KeyManagerChannelManager keyManagerChannelManager) {
+		if (keyManagerChannelManager == null)
+			throw new IllegalArgumentException("keyManagerChannelManager == null");
 
-		this.keyServerChannelManager = keyServerChannelManager;
+		this.keyManagerChannelManager = keyManagerChannelManager;
 		setDaemon(true);
 	}
 
@@ -58,7 +58,7 @@ extends Thread
 		Response response = null;
 		while (!isInterrupted()) {
 			try {
-				if (keyServerChannelManager.unregisterThreadIfMoreThanDesiredThreadCount(this))
+				if (keyManagerChannelManager.unregisterThreadIfMoreThanDesiredThreadCount(this))
 					return;
 
 				if (client == null) {
@@ -67,11 +67,11 @@ extends Thread
 				}
 
 				if (nextRequestURI == null) {
-					String s = keyServerChannelManager.getKeyServerChannelURL().toString();
+					String s = keyManagerChannelManager.getKeyManagerChannelURL().toString();
 					if (!s.endsWith("/"))
 						s += '/';
 
-					nextRequestURI = new URL(s + "nextRequest/" + keyServerChannelManager.getSessionManager().getCryptoSessionIDPrefix()).toURI();
+					nextRequestURI = new URL(s + "nextRequest/" + keyManagerChannelManager.getSessionManager().getCryptoSessionIDPrefix()).toURI();
 				}
 
 				WebResource.Builder nextRequestWebResourceBuilder = client.resource(
@@ -87,7 +87,7 @@ extends Thread
 
 				if (request != null) {
 					try {
-						RequestHandler<Request> requestHandler = keyServerChannelManager.getRequestHandler(request);
+						RequestHandler<Request> requestHandler = keyManagerChannelManager.getRequestHandler(request);
 						response = requestHandler.handle(request);
 					} catch (Throwable t) {
 						logger.error("run: " + t, t);

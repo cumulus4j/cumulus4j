@@ -4,16 +4,16 @@ import org.cumulus4j.keymanager.back.shared.Request;
 
 public abstract class AbstractRequestHandler<R extends Request> implements RequestHandler<R>
 {
-	private KeyServerChannelManager keyServerChannelManager;
+	private KeyManagerChannelManager keyManagerChannelManager;
 
 	@Override
-	public KeyServerChannelManager getKeyServerChannelManager() {
-		return keyServerChannelManager;
+	public KeyManagerChannelManager getKeyManagerChannelManager() {
+		return keyManagerChannelManager;
 	}
 
 	@Override
-	public void setKeyServerChannelManager(KeyServerChannelManager keyServerChannelManager) {
-		this.keyServerChannelManager = keyServerChannelManager;
+	public void setKeyManagerChannelManager(KeyManagerChannelManager keyManagerChannelManager) {
+		this.keyManagerChannelManager = keyManagerChannelManager;
 	}
 
 }

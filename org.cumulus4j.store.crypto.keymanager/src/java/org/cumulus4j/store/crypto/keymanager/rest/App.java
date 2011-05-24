@@ -21,7 +21,7 @@ extends Application
 	private static final Logger logger = LoggerFactory.getLogger(App.class);
 
 	private static final Class<?>[] serviceClassesArray = {
-		KeyServerChannelService.class,
+		KeyManagerChannelService.class,
 		JAXBContextResolver.class
 	};
 

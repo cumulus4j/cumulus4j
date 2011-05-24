@@ -22,7 +22,7 @@ public class GetActiveEncryptionKeyRequestHandler extends AbstractRequestHandler
 	public Response handle(GetActiveEncryptionKeyRequest request)
 	throws AuthenticationException, KeyNotFoundException, IOException
 	{
-		SessionManager sessionManager = getKeyServerChannelManager().getSessionManager();
+		SessionManager sessionManager = getKeyManagerChannelManager().getSessionManager();
 		Session session = sessionManager.getSessionForCryptoSessionID(request.getCryptoSessionID());
 
 		// TODO typed exceptions/typed responses?!

@@ -17,7 +17,7 @@ public class GetKeyRequestHandler extends AbstractRequestHandler<GetKeyRequest>
 	@Override
 	public Response handle(GetKeyRequest request) throws AuthenticationException, KeyNotFoundException
 	{
-		SessionManager sessionManager = getKeyServerChannelManager().getSessionManager();
+		SessionManager sessionManager = getKeyManagerChannelManager().getSessionManager();
 		Session session = sessionManager.getSessionForCryptoSessionID(request.getCryptoSessionID());
 
 		// TODO typed exceptions/typed responses?!

@@ -5,8 +5,8 @@ import org.cumulus4j.keymanager.back.shared.Response;
 
 public interface RequestHandler<R extends Request>
 {
-	KeyServerChannelManager getKeyServerChannelManager();
-	void setKeyServerChannelManager(KeyServerChannelManager keyServerChannelManager);
+	KeyManagerChannelManager getKeyManagerChannelManager();
+	void setKeyManagerChannelManager(KeyManagerChannelManager keyManagerChannelManager);
 
 	/**
 	 * Handle the given request.

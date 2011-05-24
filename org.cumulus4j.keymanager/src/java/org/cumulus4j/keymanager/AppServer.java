@@ -2,7 +2,7 @@ package org.cumulus4j.keymanager;
 
 import java.net.URL;
 
-import org.cumulus4j.keymanager.keyserverchannel.KeyServerChannelManager;
+import org.cumulus4j.keymanager.keyserverchannel.KeyManagerChannelManager;
 
 public class AppServer
 {
@@ -12,7 +12,7 @@ public class AppServer
 	private String appServerID;
 	private URL appServerBaseURL;
 	private SessionManager sessionManager;
-	private KeyServerChannelManager keyServerChannelManager;
+	private KeyManagerChannelManager keyManagerChannelManager;
 
 	public AppServer(AppServerManager appServerManager, String appServerID, URL appServerBaseURL)
 	{
@@ -29,7 +29,7 @@ public class AppServer
 		this.appServerID = appServerID;
 		this.appServerBaseURL = appServerBaseURL;
 		this.sessionManager = new SessionManager(appServerManager.getKeyStore());
-		this.keyServerChannelManager = new KeyServerChannelManager(sessionManager, appServerBaseURL);
+		this.keyManagerChannelManager = new KeyManagerChannelManager(sessionManager, appServerBaseURL);
 	}
 
 	public String getAppServerID() {
@@ -48,7 +48,7 @@ public class AppServer
 		return sessionManager;
 	}
 
-	public KeyServerChannelManager getKeyServerChannelManager() {
-		return keyServerChannelManager;
+	public KeyManagerChannelManager getKeyManagerChannelManager() {
+		return keyManagerChannelManager;
 	}
 }

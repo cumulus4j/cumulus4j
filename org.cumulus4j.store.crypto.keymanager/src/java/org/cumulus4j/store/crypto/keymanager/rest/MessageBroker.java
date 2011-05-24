@@ -1,11 +1,13 @@
 package org.cumulus4j.store.crypto.keymanager.rest;
 
+import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
 import org.cumulus4j.keymanager.back.shared.ErrorResponse;
 import org.cumulus4j.keymanager.back.shared.NullResponse;
 import org.cumulus4j.keymanager.back.shared.Request;
 import org.cumulus4j.keymanager.back.shared.Response;
+import org.cumulus4j.store.crypto.keymanager.rest.messagebrokerhttppmf.MessageBrokerHttpPmf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,8 +30,8 @@ public abstract class MessageBroker
 	public static final String SYSTEM_PROPERTY_MESSAGE_BROKER = "org.cumulus4j.store.crypto.keymanager.rest.MessageBroker";
 
 	private static final Class<?>[] MESSAGE_BROKER_IMPLEMENTATION_CLASSES = {
-//		MessageBrokerPMF.class
-		MessageBrokerJVMSingleton.class
+		MessageBrokerHttpPmf.class
+//		MessageBrokerJVMSingleton.class
 	};
 
 	/**
@@ -39,9 +41,21 @@ public abstract class MessageBroker
 	protected long timeoutPollRequestForProcessing = 2L * 60L * 1000L;
 
 	/**
-	 * The local API client gets an exception, if the request was not processed &amp; answered within this timeout (in millisec).
+	 * The local API client (who calls {@link #query(Class, Request)}) gets an exception, if the request was not processed &amp;
+	 * answered within this timeout (in millisec).
 	 */
-	protected long timeoutQuery = 5L * 60L * 1000L;
+	protected long queryTimeoutMSec = 5L * 60L * 1000L;
+
+	protected ActiveKeyManagerChannelRegistration registerActiveKeyManagerChannel(String cryptoSessionIDPrefix, String internalKeyManagerChannelURL)
+	{
+		// no-op
+		return new ActiveKeyManagerChannelRegistration(UUID.randomUUID().toString(), cryptoSessionIDPrefix);
+	}
+
+	protected void unregisterActiveKeyManagerChannel(ActiveKeyManagerChannelRegistration registration)
+	{
+		// no-op
+	}
 
 	/**
 	 * Get the singleton.

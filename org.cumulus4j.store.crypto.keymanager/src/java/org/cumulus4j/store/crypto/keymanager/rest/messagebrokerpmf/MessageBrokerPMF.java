@@ -32,7 +32,7 @@ public class MessageBrokerPMF extends MessageBroker
 {
 	private static final Logger logger = LoggerFactory.getLogger(MessageBrokerPMF.class);
 
-	public static final String SYSTEM_PROPERTY_MESSAGE_BROKER_PMF_CONFIG_PREFIX = "cumulus4j.keymanager.messagebroker.";
+	public static final String SYSTEM_PROPERTY_MESSAGE_BROKER_PMF_CONFIG_PREFIX = "cumulus4j.keymanager.messagebroker.pmf.";
 
 	private PersistenceManagerFactory pmf;
 
@@ -136,7 +136,7 @@ public class MessageBrokerPMF extends MessageBroker
 						pm.deletePersistent(pendingRequest);
 				}
 
-				if (response == null && System.currentTimeMillis() - beginTimestamp > timeoutQuery) {
+				if (response == null && System.currentTimeMillis() - beginTimestamp > queryTimeoutMSec) {
 					logger.warn(
 							"query: Request {} for session {} was not answered within timeout. Current status is {}.",
 							new Object[] {

@@ -49,6 +49,12 @@ extends MessageBroker
 	public <R extends Response> R query(Class<R> responseClass, Request request)
 	throws TimeoutException, ErrorResponseException
 	{
+		return query(responseClass, request, queryTimeoutMSec);
+	}
+
+	protected <R extends Response> R query(Class<R> responseClass, Request request, long queryTimeoutMSec)
+	throws TimeoutException, ErrorResponseException
+	{
 		ConcurrentLinkedQueue<Request> requestsWaitingForProcessing = getRequestsWaitingForProcessing(request.getCryptoSessionIDPrefix());
 		requestsWaitingForProcessing.add(request); // This is a thread-safe object, hence add BEFORE synchronizing.
 
@@ -71,7 +77,7 @@ extends MessageBroker
 
 			response = request2response.remove(request);
 
-			if (response == null && System.currentTimeMillis() - beginTimestamp > timeoutQuery) {
+			if (response == null && System.currentTimeMillis() - beginTimestamp > queryTimeoutMSec) {
 				logger.warn("query: Request {} for session {} was not answered within timeout.", request.getRequestID(), request.getCryptoSessionID());
 
 				boolean removed = requestsWaitingForProcessing.remove(request);
