@@ -7,6 +7,7 @@ import org.cumulus4j.keymanager.back.shared.ErrorResponse;
 import org.cumulus4j.keymanager.back.shared.NullResponse;
 import org.cumulus4j.keymanager.back.shared.Request;
 import org.cumulus4j.keymanager.back.shared.Response;
+import org.cumulus4j.store.crypto.keymanager.rest.messagebrokerpmf.MessageBrokerPMF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +31,8 @@ public abstract class MessageBroker
 
 	private static final Class<?>[] MESSAGE_BROKER_IMPLEMENTATION_CLASSES = {
 //		MessageBrokerHttpPmf.class
-		MessageBrokerJVMSingleton.class
+//		MessageBrokerJVMSingleton.class
+		MessageBrokerPMF.class
 	};
 
 	/**
