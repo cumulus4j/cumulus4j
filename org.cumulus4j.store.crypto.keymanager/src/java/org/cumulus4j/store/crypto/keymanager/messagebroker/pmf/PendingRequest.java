@@ -1,4 +1,4 @@
-package org.cumulus4j.store.crypto.keymanager.rest.messagebrokerpmf;
+package org.cumulus4j.store.crypto.keymanager.messagebroker.pmf;
 
 import java.util.Collection;
 import java.util.Date;

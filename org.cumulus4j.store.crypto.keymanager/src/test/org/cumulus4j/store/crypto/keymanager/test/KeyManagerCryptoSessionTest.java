@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.cumulus4j.store.crypto.Ciphertext;
 import org.cumulus4j.store.crypto.Plaintext;
 import org.cumulus4j.store.crypto.keymanager.KeyManagerCryptoSession;
-import org.cumulus4j.store.crypto.keymanager.rest.MessageBroker;
+import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBroker;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;

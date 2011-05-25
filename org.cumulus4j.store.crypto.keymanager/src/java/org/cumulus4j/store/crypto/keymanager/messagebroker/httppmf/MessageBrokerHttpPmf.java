@@ -1,4 +1,4 @@
-package org.cumulus4j.store.crypto.keymanager.rest.messagebrokerhttppmf;
+package org.cumulus4j.store.crypto.keymanager.messagebroker.httppmf;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,9 +18,9 @@ import org.cumulus4j.keymanager.back.shared.IdentifierUtil;
 import org.cumulus4j.keymanager.back.shared.Request;
 import org.cumulus4j.keymanager.back.shared.Response;
 import org.cumulus4j.keymanager.back.shared.SystemPropertyUtil;
+import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBrokerJVMSingleton;
 import org.cumulus4j.store.crypto.keymanager.rest.ActiveKeyManagerChannelRegistration;
 import org.cumulus4j.store.crypto.keymanager.rest.ErrorResponseException;
-import org.cumulus4j.store.crypto.keymanager.rest.MessageBrokerJVMSingleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,7 +97,7 @@ public class MessageBrokerHttpPmf extends MessageBrokerJVMSingleton
 	private Map<String, Integer> cryptoSessionIDPrefix2activeKeyManagerChannelRegistrationCount = new HashMap<String, Integer>();
 
 	@Override
-	protected ActiveKeyManagerChannelRegistration registerActiveKeyManagerChannel(String cryptoSessionIDPrefix, String internalKeyManagerChannelURL)
+	public ActiveKeyManagerChannelRegistration registerActiveKeyManagerChannel(String cryptoSessionIDPrefix, String internalKeyManagerChannelURL)
 	{
 		if (cryptoSessionIDPrefix == null)
 			throw new IllegalArgumentException("cryptoSessionIDPrefix == null");
@@ -160,7 +160,7 @@ public class MessageBrokerHttpPmf extends MessageBrokerJVMSingleton
 	}
 
 	@Override
-	protected void unregisterActiveKeyManagerChannel(ActiveKeyManagerChannelRegistration registration)
+	public void unregisterActiveKeyManagerChannel(ActiveKeyManagerChannelRegistration registration)
 	{
 		synchronized (this) {
 			if (!activeKeyManagerChannelRegistrations.remove(registration))

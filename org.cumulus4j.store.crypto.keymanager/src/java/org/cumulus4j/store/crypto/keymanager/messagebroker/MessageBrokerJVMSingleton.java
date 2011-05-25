@@ -1,4 +1,4 @@
-package org.cumulus4j.store.crypto.keymanager.rest;
+package org.cumulus4j.store.crypto.keymanager.messagebroker;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -8,6 +8,7 @@ import org.cumulus4j.keymanager.back.shared.ErrorResponse;
 import org.cumulus4j.keymanager.back.shared.NullResponse;
 import org.cumulus4j.keymanager.back.shared.Request;
 import org.cumulus4j.keymanager.back.shared.Response;
+import org.cumulus4j.store.crypto.keymanager.rest.ErrorResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,7 +109,7 @@ extends MessageBroker
 	}
 
 	@Override
-	protected Request pollRequestForProcessing(String cryptoSessionIDPrefix)
+	public Request pollRequestForProcessing(String cryptoSessionIDPrefix)
 	{
 		ConcurrentLinkedQueue<Request> requestsWaitingForProcessing = getRequestsWaitingForProcessing(cryptoSessionIDPrefix);
 
@@ -141,7 +142,7 @@ extends MessageBroker
 	}
 
 	@Override
-	protected void pushResponse(Response response)
+	public void pushResponse(Response response)
 	{
 		if (response == null)
 			throw new IllegalArgumentException("response == null");

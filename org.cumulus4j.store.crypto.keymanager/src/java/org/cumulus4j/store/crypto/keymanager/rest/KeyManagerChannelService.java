@@ -12,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.cumulus4j.keymanager.back.shared.Request;
 import org.cumulus4j.keymanager.back.shared.Response;
+import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBroker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

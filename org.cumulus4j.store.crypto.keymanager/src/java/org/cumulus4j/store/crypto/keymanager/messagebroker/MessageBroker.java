@@ -1,4 +1,4 @@
-package org.cumulus4j.store.crypto.keymanager.rest;
+package org.cumulus4j.store.crypto.keymanager.messagebroker;
 
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
@@ -7,7 +7,9 @@ import org.cumulus4j.keymanager.back.shared.ErrorResponse;
 import org.cumulus4j.keymanager.back.shared.NullResponse;
 import org.cumulus4j.keymanager.back.shared.Request;
 import org.cumulus4j.keymanager.back.shared.Response;
-import org.cumulus4j.store.crypto.keymanager.rest.messagebrokerpmf.MessageBrokerPMF;
+import org.cumulus4j.store.crypto.keymanager.messagebroker.pmf.MessageBrokerPMF;
+import org.cumulus4j.store.crypto.keymanager.rest.ActiveKeyManagerChannelRegistration;
+import org.cumulus4j.store.crypto.keymanager.rest.ErrorResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,13 +49,13 @@ public abstract class MessageBroker
 	 */
 	protected long queryTimeoutMSec = 5L * 60L * 1000L;
 
-	protected ActiveKeyManagerChannelRegistration registerActiveKeyManagerChannel(String cryptoSessionIDPrefix, String internalKeyManagerChannelURL)
+	public ActiveKeyManagerChannelRegistration registerActiveKeyManagerChannel(String cryptoSessionIDPrefix, String internalKeyManagerChannelURL)
 	{
 		// no-op
 		return new ActiveKeyManagerChannelRegistration(UUID.randomUUID().toString(), cryptoSessionIDPrefix);
 	}
 
-	protected void unregisterActiveKeyManagerChannel(ActiveKeyManagerChannelRegistration registration)
+	public void unregisterActiveKeyManagerChannel(ActiveKeyManagerChannelRegistration registration)
 	{
 		// no-op
 	}
@@ -120,7 +122,7 @@ public abstract class MessageBroker
 	public abstract <R extends Response> R query(Class<R> responseClass, Request request)
 	throws TimeoutException, ErrorResponseException;
 
-	protected abstract Request pollRequestForProcessing(String cryptoSessionIDPrefix);
+	public abstract Request pollRequestForProcessing(String cryptoSessionIDPrefix);
 
-	protected abstract void pushResponse(Response response);
+	public abstract void pushResponse(Response response);
 }

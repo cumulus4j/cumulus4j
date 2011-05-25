@@ -18,7 +18,7 @@ import org.cumulus4j.keymanager.back.shared.GetKeyResponse;
 import org.cumulus4j.store.crypto.AbstractCryptoSession;
 import org.cumulus4j.store.crypto.Ciphertext;
 import org.cumulus4j.store.crypto.Plaintext;
-import org.cumulus4j.store.crypto.keymanager.rest.MessageBroker;
+import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBroker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

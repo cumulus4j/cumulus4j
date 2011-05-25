@@ -1,4 +1,4 @@
-package org.cumulus4j.store.crypto.keymanager.rest.messagebrokerhttppmf;
+package org.cumulus4j.store.crypto.keymanager.messagebroker.httppmf;
 
 import java.util.ArrayList;
 import java.util.Collection;

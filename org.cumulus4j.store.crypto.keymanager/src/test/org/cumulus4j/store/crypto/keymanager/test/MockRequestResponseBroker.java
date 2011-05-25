@@ -10,9 +10,12 @@ import org.cumulus4j.keymanager.back.shared.GetKeyRequest;
 import org.cumulus4j.keymanager.back.shared.GetKeyResponse;
 import org.cumulus4j.keymanager.back.shared.Request;
 import org.cumulus4j.keymanager.back.shared.Response;
+import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBroker;
 import org.cumulus4j.store.crypto.keymanager.rest.ErrorResponseException;
-import org.cumulus4j.store.crypto.keymanager.rest.MessageBroker;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class MockRequestResponseBroker extends MessageBroker
 {
 	public static void setMockSharedInstance() {
@@ -41,12 +44,12 @@ public class MockRequestResponseBroker extends MessageBroker
 	}
 
 	@Override
-	protected Request pollRequestForProcessing(String cryptoSessionIDPrefix) {
+	public Request pollRequestForProcessing(String cryptoSessionIDPrefix) {
 		throw new UnsupportedOperationException("Mock does not implement this!");
 	}
 
 	@Override
-	protected void pushResponse(Response response) {
+	public void pushResponse(Response response) {
 		throw new UnsupportedOperationException("Mock does not implement this!");
 	}
 }

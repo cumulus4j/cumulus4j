@@ -1,4 +1,4 @@
-package org.cumulus4j.store.crypto.keymanager.rest.messagebrokerpmf;
+package org.cumulus4j.store.crypto.keymanager.messagebroker.pmf;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,8 +20,8 @@ import org.cumulus4j.keymanager.back.shared.NullResponse;
 import org.cumulus4j.keymanager.back.shared.Request;
 import org.cumulus4j.keymanager.back.shared.Response;
 import org.cumulus4j.keymanager.back.shared.SystemPropertyUtil;
+import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBroker;
 import org.cumulus4j.store.crypto.keymanager.rest.ErrorResponseException;
-import org.cumulus4j.store.crypto.keymanager.rest.MessageBroker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -212,7 +212,7 @@ public class MessageBrokerPMF extends MessageBroker
 //	private Set<String> testCollisionDetection = Collections.synchronizedSet(new HashSet<String>());
 
 	@Override
-	protected Request pollRequestForProcessing(String cryptoSessionIDPrefix)
+	public Request pollRequestForProcessing(String cryptoSessionIDPrefix)
 	{
 		logger.debug("pollRequestForProcessing[cryptoSessionIDPrefix={}]: Entered.", cryptoSessionIDPrefix);
 
@@ -282,7 +282,7 @@ public class MessageBrokerPMF extends MessageBroker
 	}
 
 	@Override
-	protected void pushResponse(Response response)
+	public void pushResponse(Response response)
 	{
 		if (response == null)
 			throw new IllegalArgumentException("response == null");
