@@ -19,6 +19,7 @@ import org.cumulus4j.store.crypto.AbstractCryptoSession;
 import org.cumulus4j.store.crypto.Ciphertext;
 import org.cumulus4j.store.crypto.Plaintext;
 import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBroker;
+import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBrokerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,13 +42,17 @@ extends AbstractCryptoSession
 
 	private SecureRandom random = new SecureRandom();
 
+	private MessageBroker getMessageBroker() {
+		return MessageBrokerRegistry.sharedInstance().getActiveMessageBroker();
+	}
+
 	@Override
 	public Ciphertext encrypt(Plaintext plaintext)
 	{
 		// TODO use a cache for this!!!
 		GetKeyResponse getKeyResponse;
 		try {
-			getKeyResponse = MessageBroker.sharedInstance().query(
+			getKeyResponse = getMessageBroker().query(
 					GetKeyResponse.class, new GetActiveEncryptionKeyRequest(getCryptoSessionID())
 			);
 		} catch (Exception e) {
@@ -79,7 +84,7 @@ extends AbstractCryptoSession
 		// TODO use a cache for keys (or more precisely Cipher instances)!
 		GetKeyResponse getKeyResponse;
 		try {
-			getKeyResponse = MessageBroker.sharedInstance().query(
+			getKeyResponse = getMessageBroker().query(
 					GetKeyResponse.class, new GetKeyRequest(getCryptoSessionID(), ciphertext.getKeyID())
 			);
 		} catch (Exception e) {

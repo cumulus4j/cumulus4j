@@ -10,7 +10,7 @@ import com.sun.jersey.api.client.Client;
  * Hello world!
  *
  */
-public class App
+public class Dummy
 {
     public static void main( String[] args )
     {

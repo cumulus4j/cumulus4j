@@ -19,10 +19,10 @@ import org.slf4j.LoggerFactory;
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @ApplicationPath("/")
-public class App
+public class KeyManagerFrontWebApp
 extends Application
 {
-	private static final Logger logger = LoggerFactory.getLogger(App.class);
+	private static final Logger logger = LoggerFactory.getLogger(KeyManagerFrontWebApp.class);
 
 	/**
 	 * <p>
@@ -35,7 +35,7 @@ extends Application
 	 * to the java command will be resolved to "/tmp/test.keystore" on GNU+Linux.
 	 * </p>
 	 */
-	public static final String SYSTEM_PROPERTY_KEY_STORE_FILE = "org.cumulus4j.keymanager.front.webapp.App.keyStoreFile";
+	public static final String SYSTEM_PROPERTY_KEY_STORE_FILE = "cumulus4j.KeyManagerFrontWebApp.keyStoreFile";
 
 	/**
 	 * <p>
@@ -47,7 +47,7 @@ extends Application
 	 * on a productive system or you will loose all your keys (and thus your complete database)!!!
 	 * </p>
 	 */
-	public static final String SYSTEM_PROPERTY_DELETE_KEY_STORE_FILE_ON_STARTUP = "org.cumulus4j.keymanager.front.webapp.App.deleteKeyStoreFileOnStartup";
+	public static final String SYSTEM_PROPERTY_DELETE_KEY_STORE_FILE_ON_STARTUP = "cumulus4j.KeyManagerFrontWebApp.deleteKeyStoreFileOnStartup";
 
 	private static File getUserHome()
 	{

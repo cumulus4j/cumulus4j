@@ -17,7 +17,9 @@ import javax.jdo.annotations.Unique;
 
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ * @deprecated This is unfinished work - an experiment so to say - and probably will never be finished as this doesn't work in GAE anyway.
  */
+@Deprecated
 @PersistenceCapable
 @Unique(members={"clusterNodeID", "cryptoSessionIDPrefix"})
 @Indices({

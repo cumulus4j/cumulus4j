@@ -12,7 +12,9 @@ import javax.ws.rs.core.MediaType;
 
 import org.cumulus4j.keymanager.back.shared.Request;
 import org.cumulus4j.keymanager.back.shared.Response;
+import org.cumulus4j.store.crypto.keymanager.messagebroker.ActiveKeyManagerChannelRegistration;
 import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBroker;
+import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBrokerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +27,7 @@ import org.slf4j.LoggerFactory;
 public class KeyManagerChannelService
 {
 	private static final Logger logger = LoggerFactory.getLogger(KeyManagerChannelService.class);
-	private MessageBroker messageBroker = MessageBroker.sharedInstance();
+	private MessageBroker messageBroker = MessageBrokerRegistry.sharedInstance().getActiveMessageBroker();
 
 	@Context
 	private HttpServletRequest httpServletRequest;
@@ -49,7 +51,7 @@ public class KeyManagerChannelService
 		String keyManagerChannelURI = requestURI.substring(0, idx + keyManagerChannelURLPart.length());
 
 		String internalKeyManagerChannelProtocol = "http"; // TODO make configurable via system property
-		String internalKeyManagerChannelHost = httpServletRequest.getLocalAddr(); // TODO allow overriding (instead of auto-detection) via system property
+		String internalKeyManagerChannelHost = httpServletRequest.getLocalName(); // TODO allow overriding (instead of auto-detection) via system property
 		int internalKeyManagerChannelPort = httpServletRequest.getLocalPort(); // TODO allow overriding (instead of auto-detection) via system property
 
 		String internalKeyManagerChannelURL = (
@@ -68,7 +70,9 @@ public class KeyManagerChannelService
 	public String testGet()
 	{
 		ActiveKeyManagerChannelRegistration registration = registerActiveKeyManagerChannel("test");
-		messageBroker.unregisterActiveKeyManagerChannel(registration);
+		if (registration != null)
+			messageBroker.unregisterActiveKeyManagerChannel(registration);
+
 		return "OK: " + this.getClass().getName();
 	}
 
@@ -109,7 +113,8 @@ public class KeyManagerChannelService
 			Request request = messageBroker.pollRequestForProcessing(cryptoSessionIDPrefix);
 			return request;
 		} finally {
-			messageBroker.unregisterActiveKeyManagerChannel(registration);
+			if (registration != null)
+				messageBroker.unregisterActiveKeyManagerChannel(registration);
 		}
 	}
 

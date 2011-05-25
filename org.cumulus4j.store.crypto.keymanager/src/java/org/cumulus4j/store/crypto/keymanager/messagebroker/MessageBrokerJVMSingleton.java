@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  */
 @Deprecated
 public class MessageBrokerJVMSingleton
-extends MessageBroker
+extends AbstractMessageBroker
 {
 	private static final Logger logger = LoggerFactory.getLogger(MessageBrokerJVMSingleton.class);
 

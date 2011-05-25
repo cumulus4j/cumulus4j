@@ -10,16 +10,17 @@ import org.cumulus4j.keymanager.back.shared.GetKeyRequest;
 import org.cumulus4j.keymanager.back.shared.GetKeyResponse;
 import org.cumulus4j.keymanager.back.shared.Request;
 import org.cumulus4j.keymanager.back.shared.Response;
-import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBroker;
+import org.cumulus4j.store.crypto.keymanager.messagebroker.AbstractMessageBroker;
+import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBrokerRegistry;
 import org.cumulus4j.store.crypto.keymanager.rest.ErrorResponseException;
 
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public class MockRequestResponseBroker extends MessageBroker
+public class MockMessageBroker extends AbstractMessageBroker
 {
 	public static void setMockSharedInstance() {
-		setSharedInstance(new MockRequestResponseBroker());
+		MessageBrokerRegistry.sharedInstance().setActiveMessageBroker(new MockMessageBroker());
 	}
 
 	private static byte[] keyData = new byte[128 / 8]; // testing with 128 bits is sufficient

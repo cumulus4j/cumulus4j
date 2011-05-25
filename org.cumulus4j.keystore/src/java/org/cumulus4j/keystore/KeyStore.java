@@ -63,7 +63,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * By default, a <code>KeyStore</code> {@link #generateKey(String, char[]) generates keys} with a size
  * of 128 bit. This can be controlled, however, by specifying the system property
- * {@value #SYSTEM_PROPERTY_KEY_SIZE} (e.g. passing the argument "-Dorg.cumulus4j.keystore.KeyStore.keySize=256"
+ * {@value #SYSTEM_PROPERTY_KEY_SIZE} (e.g. passing the argument "-Dcumulus4j.KeyStore.keySize=256"
  * to the <code>java</code> command line will switch to 256-bit-keys).
  * </p>
  * <p>
@@ -173,7 +173,7 @@ public class KeyStore
 	 * {@link #createUser(String, char[], String, char[]) user is created}!
 	 * </p>
 	 */
-	public static final String SYSTEM_PROPERTY_KEY_SIZE = "org.cumulus4j.keystore.KeyStore" + ".keySize";
+	public static final String SYSTEM_PROPERTY_KEY_SIZE = "cumulus4j.KeyStore" + ".keySize";
 
 	/**
 	 * <p>
@@ -184,14 +184,14 @@ public class KeyStore
 	 * <p>
 	 * By default (if the system property {@value #SYSTEM_PROPERTY_ENCRYPTION_ALGORITHM} is not specified),
 	 * "AES/CFB/NoPadding" is used. For example, to switch to "AES/CBC/PKCS5Padding", you'd have
-	 * to specify the command line argument "-Dorg.cumulus4j.keystore.KeyStore.encryptionAlgorithm=AES/CBC/PKCS5Padding".
+	 * to specify the command line argument "-Dcumulus4j.KeyStore.encryptionAlgorithm=AES/CBC/PKCS5Padding".
 	 * </p>
 	 * <p>
 	 * See <a href="http://download.java.net/jdk7/docs/technotes/guides/security/SunProviders.html#SunJCEProvider">this document</a>
 	 * for further information about what values are supported.
 	 * </p>
 	 */
-	public static final String SYSTEM_PROPERTY_ENCRYPTION_ALGORITHM = "org.cumulus4j.keystore.KeyStore" + ".encryptionAlgorithm";
+	public static final String SYSTEM_PROPERTY_ENCRYPTION_ALGORITHM = "cumulus4j.KeyStore" + ".encryptionAlgorithm";
 
 	private static final String KEY_STORE_PROPERTY_NAME_NEXT_KEY_ID = "nextKeyID";
 

@@ -137,7 +137,7 @@ in the reports just like every other test, too. Marco :-)
 					</connectors>
 					<systemProperties>
 						<systemProperty>
-							<name>cumulus4j.keymanager.messagebroker.pmf.javax.jdo.option.ConnectionURL</name>
+							<name>cumulus4j.MessageBrokerPMF.persistenceProperties.javax.jdo.option.ConnectionURL</name>
 							<value>jdbc:derby:${basedir}/target/derby/messagebroker;create=true</value>
 						</systemProperty>
 					</systemProperties>

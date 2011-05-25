@@ -15,10 +15,10 @@ import org.slf4j.LoggerFactory;
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @ApplicationPath("/org.cumulus4j.keyserver.back.webapp")
-public class App
+public class KeyManagerBackWebApp
 extends Application
 {
-	private static final Logger logger = LoggerFactory.getLogger(App.class);
+	private static final Logger logger = LoggerFactory.getLogger(KeyManagerBackWebApp.class);
 
 	private static final Class<?>[] serviceClassesArray = {
 		KeyManagerChannelService.class,

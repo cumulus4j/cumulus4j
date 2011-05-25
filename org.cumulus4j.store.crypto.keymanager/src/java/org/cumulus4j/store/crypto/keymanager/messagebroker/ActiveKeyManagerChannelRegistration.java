@@ -1,4 +1,4 @@
-package org.cumulus4j.store.crypto.keymanager.rest;
+package org.cumulus4j.store.crypto.keymanager.messagebroker;
 
 import java.io.Serializable;
 import java.util.UUID;

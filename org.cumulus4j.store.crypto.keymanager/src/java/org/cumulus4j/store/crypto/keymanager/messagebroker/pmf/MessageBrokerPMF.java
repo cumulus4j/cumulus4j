@@ -20,7 +20,7 @@ import org.cumulus4j.keymanager.back.shared.NullResponse;
 import org.cumulus4j.keymanager.back.shared.Request;
 import org.cumulus4j.keymanager.back.shared.Response;
 import org.cumulus4j.keymanager.back.shared.SystemPropertyUtil;
-import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBroker;
+import org.cumulus4j.store.crypto.keymanager.messagebroker.AbstractMessageBroker;
 import org.cumulus4j.store.crypto.keymanager.rest.ErrorResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,11 +28,11 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public class MessageBrokerPMF extends MessageBroker
+public class MessageBrokerPMF extends AbstractMessageBroker
 {
 	private static final Logger logger = LoggerFactory.getLogger(MessageBrokerPMF.class);
 
-	public static final String SYSTEM_PROPERTY_MESSAGE_BROKER_PMF_CONFIG_PREFIX = "cumulus4j.keymanager.messagebroker.pmf.";
+	public static final String SYSTEM_PROPERTY_MESSAGE_BROKER_PMF_CONFIG_PREFIX = "cumulus4j.MessageBrokerPMF.persistenceProperties.";
 
 	private PersistenceManagerFactory pmf;
 

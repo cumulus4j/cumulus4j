@@ -18,20 +18,22 @@ import org.cumulus4j.keymanager.back.shared.IdentifierUtil;
 import org.cumulus4j.keymanager.back.shared.Request;
 import org.cumulus4j.keymanager.back.shared.Response;
 import org.cumulus4j.keymanager.back.shared.SystemPropertyUtil;
+import org.cumulus4j.store.crypto.keymanager.messagebroker.ActiveKeyManagerChannelRegistration;
 import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBrokerJVMSingleton;
-import org.cumulus4j.store.crypto.keymanager.rest.ActiveKeyManagerChannelRegistration;
 import org.cumulus4j.store.crypto.keymanager.rest.ErrorResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ * @deprecated This is unfinished work - an experiment so to say - and probably will never be finished as this doesn't work in GAE anyway.
  */
+@Deprecated
 public class MessageBrokerHttpPmf extends MessageBrokerJVMSingleton
 {
 	private static final Logger logger = LoggerFactory.getLogger(MessageBrokerHttpPmf.class);
 
-	public static final String SYSTEM_PROPERTY_MESSAGE_BROKER_PMF_CONFIG_PREFIX = "cumulus4j.keymanager.messagebroker.pmf.";
+	public static final String SYSTEM_PROPERTY_MESSAGE_BROKER_PMF_CONFIG_PREFIX = "cumulus4j.MessageBrokerHttpPmf.persistenceProperties.";
 
 	private PersistenceManagerFactory pmf;
 
