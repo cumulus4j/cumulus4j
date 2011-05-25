@@ -52,9 +52,6 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 
 		for (Map.Entry<?, ?> me : System.getProperties().entrySet()) {
 			String key = String.valueOf(me.getKey());
-
-			logger.debug("SystemProperty: {}={}", key, me.getValue());
-
 			if (key.startsWith(SYSTEM_PROPERTY_MESSAGE_BROKER_PMF_CONFIG_PREFIX))
 				propertiesRaw.setProperty(key.substring(SYSTEM_PROPERTY_MESSAGE_BROKER_PMF_CONFIG_PREFIX.length()), String.valueOf(me.getValue()));
 		}
