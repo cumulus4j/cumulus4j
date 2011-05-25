@@ -1,6 +1,7 @@
 package org.cumulus4j.keymanager.keyserverchannel;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.util.Date;
 
@@ -8,6 +9,7 @@ import org.cumulus4j.keymanager.Session;
 import org.cumulus4j.keymanager.SessionManager;
 import org.cumulus4j.keymanager.back.shared.GetActiveEncryptionKeyRequest;
 import org.cumulus4j.keymanager.back.shared.GetKeyResponse;
+import org.cumulus4j.keymanager.back.shared.KeyEncryptionUtil;
 import org.cumulus4j.keymanager.back.shared.Response;
 import org.cumulus4j.keystore.AuthenticationException;
 import org.cumulus4j.keystore.GeneratedKey;
@@ -20,7 +22,7 @@ public class GetActiveEncryptionKeyRequestHandler extends AbstractRequestHandler
 
 	@Override
 	public Response handle(GetActiveEncryptionKeyRequest request)
-	throws AuthenticationException, KeyNotFoundException, IOException
+	throws AuthenticationException, KeyNotFoundException, IOException, GeneralSecurityException
 	{
 		SessionManager sessionManager = getKeyManagerChannelManager().getSessionManager();
 		Session session = sessionManager.getSessionForCryptoSessionID(request.getCryptoSessionID());
@@ -47,7 +49,8 @@ public class GetActiveEncryptionKeyRequestHandler extends AbstractRequestHandler
 		}
 
 		Key key = sessionManager.getKeyStore().getKey(session.getUserName(), session.getPassword(), keyID);
-		return new GetKeyResponse(request, keyID, key);
+		byte[] keyEncodedEncrypted = KeyEncryptionUtil.encryptKey(key, request.getKeyEncryptionAlgorithm(), request.getKeyEncryptionPublicKey());
+		return new GetKeyResponse(request, keyID, key.getAlgorithm(), keyEncodedEncrypted);
 	}
 
 }

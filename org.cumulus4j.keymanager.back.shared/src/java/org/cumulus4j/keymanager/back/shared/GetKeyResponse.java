@@ -1,7 +1,5 @@
 package org.cumulus4j.keymanager.back.shared;
 
-import java.security.Key;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -14,19 +12,22 @@ public class GetKeyResponse extends Response
 
 	private long keyID;
 	private String keyAlgorithm;
-	private byte[] keyEncoded;
+	private byte[] keyEncodedEncrypted;
 
 	public GetKeyResponse() { }
 
-	public GetKeyResponse(Request request, long keyID, Key key) {
+	public GetKeyResponse(Request request, long keyID, String keyAlgorithm, byte[] keyEncodedEncrypted) {
 		super(request);
 
-		if (key == null)
-			throw new IllegalArgumentException("keyEncoded == null");
+		if (keyAlgorithm == null)
+			throw new IllegalArgumentException("keyAlgorithm == null");
+
+		if (keyEncodedEncrypted == null)
+			throw new IllegalArgumentException("keyEncodedEncrypted == null");
 
 		this.keyID = keyID;
-		this.keyAlgorithm = key.getAlgorithm();
-		this.keyEncoded = key.getEncoded();
+		this.keyAlgorithm = keyAlgorithm;
+		this.keyEncodedEncrypted = keyEncodedEncrypted;
 	}
 
 	public long getKeyID() {
@@ -43,10 +44,10 @@ public class GetKeyResponse extends Response
 		this.keyAlgorithm = keyAlgorithm;
 	}
 
-	public byte[] getKeyEncoded() {
-		return keyEncoded;
+	public byte[] getKeyEncodedEncrypted() {
+		return keyEncodedEncrypted;
 	}
-	public void setKeyEncoded(byte[] key) {
-		this.keyEncoded = key;
+	public void setKeyEncodedEncrypted(byte[] key) {
+		this.keyEncodedEncrypted = key;
 	}
 }

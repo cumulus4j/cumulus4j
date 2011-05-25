@@ -1,5 +1,6 @@
 package org.cumulus4j.store.crypto.keymanager.test;
 
+import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.util.concurrent.TimeoutException;
 
@@ -8,6 +9,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.cumulus4j.keymanager.back.shared.GetActiveEncryptionKeyRequest;
 import org.cumulus4j.keymanager.back.shared.GetKeyRequest;
 import org.cumulus4j.keymanager.back.shared.GetKeyResponse;
+import org.cumulus4j.keymanager.back.shared.KeyEncryptionUtil;
 import org.cumulus4j.keymanager.back.shared.Request;
 import org.cumulus4j.keymanager.back.shared.Response;
 import org.cumulus4j.store.crypto.keymanager.messagebroker.AbstractMessageBroker;
@@ -32,14 +34,21 @@ public class MockMessageBroker extends AbstractMessageBroker
 	public <R extends Response> R query(Class<R> responseClass, Request request)
 	throws TimeoutException, ErrorResponseException
 	{
-		if (request instanceof GetActiveEncryptionKeyRequest) {
-			SecretKeySpec key = new SecretKeySpec(keyData, "AES");
-			return responseClass.cast(new GetKeyResponse(request, 123, key));
-		}
-		if (request instanceof GetKeyRequest) {
-			GetKeyRequest r = (GetKeyRequest) request;
-			SecretKeySpec key = new SecretKeySpec(keyData, "AES");
-			return responseClass.cast(new GetKeyResponse(request, r.getKeyID(), key));
+		try {
+			if (request instanceof GetActiveEncryptionKeyRequest) {
+				GetActiveEncryptionKeyRequest r = (GetActiveEncryptionKeyRequest) request;
+				SecretKeySpec key = new SecretKeySpec(keyData, "AES");
+				byte[] keyEncodedEncrypted = KeyEncryptionUtil.encryptKey(key, r.getKeyEncryptionAlgorithm(), r.getKeyEncryptionPublicKey());
+				return responseClass.cast(new GetKeyResponse(request, 123, key.getAlgorithm(), keyEncodedEncrypted));
+			}
+			if (request instanceof GetKeyRequest) {
+				GetKeyRequest r = (GetKeyRequest) request;
+				SecretKeySpec key = new SecretKeySpec(keyData, "AES");
+				byte[] keyEncodedEncrypted = KeyEncryptionUtil.encryptKey(key, r.getKeyEncryptionAlgorithm(), r.getKeyEncryptionPublicKey());
+				return responseClass.cast(new GetKeyResponse(request, r.getKeyID(), key.getAlgorithm(), keyEncodedEncrypted));
+			}
+		} catch (GeneralSecurityException x) {
+			throw new RuntimeException(x);
 		}
 		throw new UnsupportedOperationException("NYI");
 	}

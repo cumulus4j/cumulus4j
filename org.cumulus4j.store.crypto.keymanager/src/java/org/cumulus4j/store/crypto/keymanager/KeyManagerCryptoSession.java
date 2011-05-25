@@ -3,8 +3,11 @@ package org.cumulus4j.store.crypto.keymanager;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.SecureRandom;
 import java.security.Security;
+import java.security.spec.RSAKeyGenParameterSpec;
 import java.util.zip.CRC32;
 
 import javax.crypto.Cipher;
@@ -15,6 +18,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.cumulus4j.keymanager.back.shared.GetActiveEncryptionKeyRequest;
 import org.cumulus4j.keymanager.back.shared.GetKeyRequest;
 import org.cumulus4j.keymanager.back.shared.GetKeyResponse;
+import org.cumulus4j.keymanager.back.shared.KeyEncryptionUtil;
 import org.cumulus4j.store.crypto.AbstractCryptoSession;
 import org.cumulus4j.store.crypto.Ciphertext;
 import org.cumulus4j.store.crypto.Plaintext;
@@ -37,7 +41,7 @@ extends AbstractCryptoSession
 	}
 
 	private static final ChecksumAlgorithm encryptWithChecksum = ChecksumAlgorithm.crc32;
-	private static final EncryptionAlgorithm ENCRYPTION_ALGORITHM = EncryptionAlgorithm.AES_CBC_PKCS5Padding; // TODO this should be configurable!
+	private static final EncryptionAlgorithm DATA_ENCRYPTION_ALGORITHM = EncryptionAlgorithm.AES_CBC_PKCS5Padding; // TODO this should be configurable!
 	private static final IvParameterSpec NULL_IV = new IvParameterSpec(new byte[16]); // TODO this should be determined based on the configured algorithm!
 
 	private SecureRandom random = new SecureRandom();
@@ -46,14 +50,63 @@ extends AbstractCryptoSession
 		return MessageBrokerRegistry.sharedInstance().getActiveMessageBroker();
 	}
 
+	/**
+	 * <p>
+	 * The <b>a</b>symmetric encryption algorithm used to encrypt the keys when they are sent from key-manager
+	 * to here (app-server).
+	 * </p>
+	 * <p>
+	 * Alternatively, we could use "EC": http://en.wikipedia.org/wiki/Elliptic_curve_cryptography
+	 * </p>
+	 */
+	private static final String keyEncryptionAlgorithm = "RSA/ECB/OAEPWITHSHA1ANDMGF1PADDING";
+
+	private static final KeyPair keyEncryptionKeyPair;
+
+	private static final Cipher keyDecrypter;
+//	private static final Cipher keyWrapper;
+
+	static {
+		try {
+			String rawAlgo = KeyEncryptionUtil.getRawEncryptionAlgorithmWithoutModeAndPadding(keyEncryptionAlgorithm);
+			KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(rawAlgo);
+			if ("RSA".equals(rawAlgo)) {
+				 RSAKeyGenParameterSpec rsaParamGenSpec = new RSAKeyGenParameterSpec(4096, RSAKeyGenParameterSpec.F4);
+				 keyPairGenerator.initialize(rsaParamGenSpec);
+			}
+
+			keyEncryptionKeyPair = keyPairGenerator.genKeyPair();
+
+			keyDecrypter = Cipher.getInstance(keyEncryptionAlgorithm);
+			keyDecrypter.init(Cipher.DECRYPT_MODE, keyEncryptionKeyPair.getPrivate());
+
+//			keyWrapper = Cipher.getInstance(keyEncryptionAlgorithm);
+//			keyWrapper.init(Cipher.WRAP_MODE, keyEncryptionKeyPair.getPrivate());
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+//	public static void main(String[] args)
+//	throws Exception
+//	{
+//		Key symmetricKey = KeyGenerator.getInstance("AES").generateKey();
+//		byte[] encryptedKey = KeyEncryptionUtil.encryptKey(symmetricKey, keyEncryptionAlgorithm, keyEncryptionKeyPair.getPublic().getEncoded());
+//		byte[] decryptedKey = KeyEncryptionUtil.decryptKey(keyDecrypter, encryptedKey);
+//	}
+
 	@Override
 	public Ciphertext encrypt(Plaintext plaintext)
 	{
 		// TODO use a cache for this!!!
 		GetKeyResponse getKeyResponse;
 		try {
+			GetActiveEncryptionKeyRequest getActiveEncryptionKeyRequest = new GetActiveEncryptionKeyRequest(
+					getCryptoSessionID(), keyEncryptionAlgorithm, keyEncryptionKeyPair.getPublic().getEncoded()
+			);
 			getKeyResponse = getMessageBroker().query(
-					GetKeyResponse.class, new GetActiveEncryptionKeyRequest(getCryptoSessionID())
+					GetKeyResponse.class,
+					getActiveEncryptionKeyRequest
 			);
 		} catch (Exception e) {
 			logger.warn("Could not query active encryption key: " + e, e);
@@ -62,8 +115,10 @@ extends AbstractCryptoSession
 
 		// TODO cache ciphers/keys in general!
 		try {
-			EncryptionAlgorithm activeEncryptionAlgorithm = ENCRYPTION_ALGORITHM;
-			SecretKeySpec key = new SecretKeySpec(getKeyResponse.getKeyEncoded(), getKeyResponse.getKeyAlgorithm());
+			byte[] keyEncodedPlain = KeyEncryptionUtil.decryptKey(keyDecrypter, getKeyResponse.getKeyEncodedEncrypted());
+
+			EncryptionAlgorithm activeEncryptionAlgorithm = DATA_ENCRYPTION_ALGORITHM;
+			SecretKeySpec key = new SecretKeySpec(keyEncodedPlain, getKeyResponse.getKeyAlgorithm());
 			Cipher encrypter = Cipher.getInstance(activeEncryptionAlgorithm.getTransformation());
 			encrypter.init(Cipher.ENCRYPT_MODE, key, NULL_IV);
 			byte[] encrypted = encrypt(encrypter, plaintext.getData());
@@ -84,8 +139,12 @@ extends AbstractCryptoSession
 		// TODO use a cache for keys (or more precisely Cipher instances)!
 		GetKeyResponse getKeyResponse;
 		try {
+			GetKeyRequest getKeyRequest = new GetKeyRequest(
+					getCryptoSessionID(), ciphertext.getKeyID(),
+					keyEncryptionAlgorithm, keyEncryptionKeyPair.getPublic().getEncoded()
+			);
 			getKeyResponse = getMessageBroker().query(
-					GetKeyResponse.class, new GetKeyRequest(getCryptoSessionID(), ciphertext.getKeyID())
+					GetKeyResponse.class, getKeyRequest
 			);
 		} catch (Exception e) {
 			logger.warn("Could not query key " + ciphertext.getKeyID() + ": " + e, e);
@@ -93,7 +152,9 @@ extends AbstractCryptoSession
 		}
 
 		try {
-			SecretKeySpec key = new SecretKeySpec(getKeyResponse.getKeyEncoded(), getKeyResponse.getKeyAlgorithm());
+			byte[] keyEncodedPlain = KeyEncryptionUtil.decryptKey(keyDecrypter, getKeyResponse.getKeyEncodedEncrypted());
+
+			SecretKeySpec key = new SecretKeySpec(keyEncodedPlain, getKeyResponse.getKeyAlgorithm());
 			int encryptionAlgoID = ciphertext.getData()[0] & 0xff;
 			EncryptionAlgorithm activeEncryptionAlgorithm = EncryptionAlgorithm.values()[encryptionAlgoID];
 			Cipher decrypter = Cipher.getInstance(activeEncryptionAlgorithm.getTransformation());
