@@ -32,7 +32,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 {
 	private static final Logger logger = LoggerFactory.getLogger(MessageBrokerPMF.class);
 
-	public static final String SYSTEM_PROPERTY_MESSAGE_BROKER_PMF_CONFIG_PREFIX = "cumulus4j.MessageBrokerPMF.persistenceProperties.";
+	public static final String SYSTEM_PROPERTY_PERSISTENCE_PROPERTIES_PREFIX = "cumulus4j.MessageBrokerPMF.persistenceProperties.";
 
 	private PersistenceManagerFactory pmf;
 
@@ -52,8 +52,8 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 
 		for (Map.Entry<?, ?> me : System.getProperties().entrySet()) {
 			String key = String.valueOf(me.getKey());
-			if (key.startsWith(SYSTEM_PROPERTY_MESSAGE_BROKER_PMF_CONFIG_PREFIX))
-				propertiesRaw.setProperty(key.substring(SYSTEM_PROPERTY_MESSAGE_BROKER_PMF_CONFIG_PREFIX.length()), String.valueOf(me.getValue()));
+			if (key.startsWith(SYSTEM_PROPERTY_PERSISTENCE_PROPERTIES_PREFIX))
+				propertiesRaw.setProperty(key.substring(SYSTEM_PROPERTY_PERSISTENCE_PROPERTIES_PREFIX.length()), String.valueOf(me.getValue()));
 		}
 
 		Map<String, Object> properties = new HashMap<String, Object>(propertiesRaw.size());
