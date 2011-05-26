@@ -2,7 +2,7 @@ package org.cumulus4j.store.crypto.keymanager;
 
 /**
  * <p>
- * The encryption algorithms that are currently supported by Cumulus4j.
+ * Encryption algorithms currently supported by Cumulus4j's persistent data storage.
  * </p>
  * <p>
  * For more details (including when you want to extend Cumulus4j) look at
@@ -75,9 +75,9 @@ public enum EncryptionAlgorithm
 		return transformation;
 	}
 
-	private boolean saltInsteadIVSupported;
-
-	public boolean isSaltInsteadIVSupported() {
-		return saltInsteadIVSupported;
-	}
+//	private boolean saltInsteadIVSupported;
+//
+//	public boolean isSaltInsteadIVSupported() {
+//		return saltInsteadIVSupported;
+//	}
 }
