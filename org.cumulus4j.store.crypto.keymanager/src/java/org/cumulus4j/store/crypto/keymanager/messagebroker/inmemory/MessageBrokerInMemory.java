@@ -1,4 +1,4 @@
-package org.cumulus4j.store.crypto.keymanager.messagebroker;
+package org.cumulus4j.store.crypto.keymanager.messagebroker.inmemory;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -8,21 +8,27 @@ import org.cumulus4j.keymanager.back.shared.ErrorResponse;
 import org.cumulus4j.keymanager.back.shared.NullResponse;
 import org.cumulus4j.keymanager.back.shared.Request;
 import org.cumulus4j.keymanager.back.shared.Response;
+import org.cumulus4j.store.crypto.keymanager.messagebroker.AbstractMessageBroker;
 import org.cumulus4j.store.crypto.keymanager.rest.ErrorResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <p>
+ * Implementation of {@link org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBroker MessageBroker} which
+ * works only in a single JVM. It manages all messages in-memory.
+ * </p>
+ * <p>
+ * <b>Important:</b> This implementation can usually not be used in a cluster! It is only cluster-able, if you use transparent
+ * JVM-clustering, e.g. with <a href="http://www.terracotta.org/">Terracotta</a>!
+ * </p>
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
- * @deprecated This only works in a single JVM which is of no use at all in a cluster. Therefore this class will be removed soon.
- * It was created for experimental reasons, only. Please DO NOT remove it yourself, though, as I'll still reuse the code for my manually
- * written message-queue (sth. that's fast and works with GAE - unfortunately, there seems to be no ready-made solution). Marco :-)
  */
-@Deprecated
-public class MessageBrokerJVMSingleton
+public class MessageBrokerInMemory
 extends AbstractMessageBroker
 {
-	private static final Logger logger = LoggerFactory.getLogger(MessageBrokerJVMSingleton.class);
+	private static final Logger logger = LoggerFactory.getLogger(MessageBrokerInMemory.class);
 
 	private ConcurrentHashMap<String, ConcurrentLinkedQueue<Request>> cryptoSessionIDPrefix2requestsWaitingForProcessing = new ConcurrentHashMap<String, ConcurrentLinkedQueue<Request>>();
 	private ConcurrentHashMap<String, Request> requestID2requestCurrentlyBeingProcessed = new ConcurrentHashMap<String, Request>();
@@ -44,6 +50,12 @@ extends AbstractMessageBroker
 			requestsWaitingForProcessing = cryptoSessionIDPrefix2requestsWaitingForProcessing.get(cryptoSessionIDPrefix);
 		}
 		return requestsWaitingForProcessing;
+	}
+
+	public MessageBrokerInMemory() {
+		// TODO We should try to find out if we run in a Terracotta-environment (e.g. check a system property, if available) and
+		// throw an exception here, if we are not running with Terracotta. For now, I always log a warning. Marco :-)
+		logger.warn("MessageBrokerInMemory instantiated. This implementation is NOT cluster-able without Terracotta! You MUST NOT use it, if you do not have transparent JVM-clustering present!");
 	}
 
 	@Override

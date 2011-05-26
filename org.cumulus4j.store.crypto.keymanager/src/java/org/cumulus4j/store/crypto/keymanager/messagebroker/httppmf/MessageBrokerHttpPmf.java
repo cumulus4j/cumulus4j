@@ -29,7 +29,7 @@
 // * @deprecated This is unfinished work - an experiment so to say - and probably will never be finished as this doesn't work in GAE anyway.
 // */
 //@Deprecated
-//public class MessageBrokerHttpPmf extends MessageBrokerJVMSingleton
+//public class MessageBrokerHttpPmf extends MessageBrokerInMemory
 //{
 //	private static final Logger logger = LoggerFactory.getLogger(MessageBrokerHttpPmf.class);
 //

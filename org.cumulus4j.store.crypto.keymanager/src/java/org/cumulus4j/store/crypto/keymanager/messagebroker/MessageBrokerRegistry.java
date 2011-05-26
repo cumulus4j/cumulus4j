@@ -1,5 +1,6 @@
 package org.cumulus4j.store.crypto.keymanager.messagebroker;
 
+import org.cumulus4j.store.crypto.keymanager.messagebroker.inmemory.MessageBrokerInMemory;
 import org.cumulus4j.store.crypto.keymanager.messagebroker.pmf.MessageBrokerPMF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,9 +25,8 @@ public class MessageBrokerRegistry
 	public static final String SYSTEM_PROPERTY_ACTIVE_MESSAGE_BROKER = "cumulus4j.MessageBrokerRegistry.activeMessageBroker";
 
 	private static final Class<?>[] MESSAGE_BROKER_IMPLEMENTATION_CLASSES = {
-//		MessageBrokerHttpPmf.class
-//		MessageBrokerJVMSingleton.class
-		MessageBrokerPMF.class
+		MessageBrokerPMF.class,
+		MessageBrokerInMemory.class
 	};
 
 

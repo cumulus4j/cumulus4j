@@ -9,7 +9,22 @@ import org.cumulus4j.keymanager.back.shared.Response;
 import org.cumulus4j.store.crypto.keymanager.rest.ErrorResponseException;
 
 /**
- *
+ * <p>
+ * Broker transmitting messages between application-server and key-manager.
+ * </p>
+ * <p>
+ * As documented in <a href="http://cumulus4j.org/documentation/deployment-scenarios.html">Deployment scenarios</a>,
+ * TCP connections are always established from the key-manager (i.e. client or key-server) to the application server.
+ * Since this means that the key-exchange-request-response-cycle works opposite the HTTP-request-response-cycle,
+ * we need this <code>MessageBroker</code>.
+ * </p>
+ * <p>
+ * Within every JVM, there is one single {@link MessageBrokerRegistry#getActiveMessageBroker() active MessageBroker}.
+ * This instance must make sure that messages can be exchanged from every cluster-node to every key-manager; i.e. if
+ * the key-manager connects to a different cluster-node than the primary connection (established by the application logic),
+ * the {@link Request}s must be proxied over the right cluster-node to the key-manager. The {@link Response} must
+ * of course be routed appropriately back to the correct cluster-node.
+ * </p>
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */

@@ -3,7 +3,7 @@
 	---
 	Marco หงุ่ยตระกูล-Schulze
 	---
-	2011-05-12
+	2011-05-26
 
 Deployment scenarios
 
@@ -42,5 +42,27 @@ Deployment scenarios
 
 * 3-computer-scenario (with key-server)
 
+	Alternatively to holding the keys on every client, it is possible to run a separate key-server:
+
 [../images/deployment-scenario/deployment-scenario-with-keyserver.png] Deployment with key server
 
+	This key-server could be located in your company's private LAN, for example, or somewhere in the
+	internet, but separated from the application servers (e.g. another cloud or a hosting provider).
+
+* Cluster-nodes
+
+	It is important to understand that the application server is not one single machine, but usually a cluster.
+	Especially when using the cloud, the application server might be distributed over an unknown number
+	of physical machines (cluster-nodes).
+
+	Therefore, it can happen that the two connections arrive on separate cluster-nodes, like shown in this
+	example:
+
+[../images/deployment-scenario/deployment-scenario-without-keyserver-with-cluster.png] Deployment without key server with clustered application server
+
+	Therefore, the original key request (1) must be sent to the cluster-node having a direct connection
+	with the key-manager, first. Then, this other cluster-node forwards the key request (2) to the key-manager
+	and after receiving the response (3) it finally forwards that response to the original requestor (4).
+
+	The handling of this complete process is done by implementations of
+	{{{https://www.cumulus4j.org/apidocs/index.html?org/cumulus4j/store/crypto/keymanager/messagebroker/MessageBroker.html}MessageBroker}}.
