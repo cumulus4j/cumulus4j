@@ -33,7 +33,8 @@ import org.slf4j.LoggerFactory;
  * {@link PersistenceManagerFactory}-backed implementation of {@link MessageBroker}.
  * </p>
  * <p>
- * All {@link Message messages} are transferred via a shared database.
+ * All {@link Message messages} are transferred via a shared database. Which database to be used can be
+ * configured by {@link #SYSTEM_PROPERTY_PERSISTENCE_PROPERTIES_PREFIX system properties}.
  * </p>
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
@@ -42,6 +43,31 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 {
 	private static final Logger logger = LoggerFactory.getLogger(MessageBrokerPMF.class);
 
+	/**
+	 * Prefix for system properties used to configure the {@link PersistenceManagerFactory}.
+	 * <p>
+	 * Every system property that begins with {@value #SYSTEM_PROPERTY_PERSISTENCE_PROPERTIES_PREFIX}
+	 * is passed (after truncating this prefix, of course) to the {@link JDOHelper#getPersistenceManagerFactory(Map)}.
+	 * </p>
+	 * <p>
+	 * For example, to set the property "javax.jdo.option.ConnectionURL", you have to define the system
+	 * property "cumulus4j.MessageBrokerPMF.persistenceProperties.javax.jdo.option.ConnectionURL".
+	 * </p>
+	 * <p>
+	 * A set of defaults is loaded from a resource file, hence you do not need to configure everything, but
+	 * without setting some basic coordinates (e.g. the JDBC URL), it is unlikely that your database server can be
+	 * contacted. Of course, you could add an appropriate host record to your "/etc/hosts"
+	 * and create a database with the name from our defaults on this host, but very likely you want to override these default
+	 * coordinates:
+	 * </p>
+	 * <ul>
+	 * <li>javax.jdo.option.ConnectionDriverName=com.mysql.jdbc.Driver</li>
+	 * <li>javax.jdo.option.ConnectionURL=jdbc:mysql://cumulus4j-db/cumulus4jmessagebroker</li>
+	 * </ul>
+	 * <p>
+	 * These defaults might be changed with a future version.
+	 * </p>
+	 */
 	public static final String SYSTEM_PROPERTY_PERSISTENCE_PROPERTIES_PREFIX = "cumulus4j.MessageBrokerPMF.persistenceProperties.";
 
 	private PersistenceManagerFactory pmf;
