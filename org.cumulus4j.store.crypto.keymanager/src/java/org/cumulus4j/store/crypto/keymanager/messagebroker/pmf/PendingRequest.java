@@ -25,6 +25,9 @@ import org.cumulus4j.keymanager.back.shared.Request;
 import org.cumulus4j.keymanager.back.shared.Response;
 
 /**
+ * Persistent container holding a {@link Request} and optionally
+ * the corresponding {@link Response}. Used by {@link MessageBrokerPMF}
+ * to transmit messages via a backing-database.
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION)
@@ -50,6 +53,15 @@ public class PendingRequest
 		public static final String response = "PendingRequest.response";
 	}
 
+	/**
+	 * Get the oldest <code>PendingRequest</code> matching the given criteria.
+	 * @param pm the {@link PersistenceManager} for accessing the message-transfer-database.
+	 * @param cryptoSessionIDPrefix the {@link #getCryptoSessionIDPrefix() cryptoSessionIDPrefix} used
+	 * as criterion to filter the candidate-<code>PendingRequest</code>s.
+	 * @param status the {@link #getStatus() status} used as criterion to filter the candidate-<code>PendingRequest</code>s.
+	 * @return the oldest <code>PendingRequest</code> matching the given criteria or <code>null</code> if there is
+	 * no <code>PendingRequest</code> in the datastore which matches the criteria.
+	 */
 	public static PendingRequest getOldestPendingRequest(PersistenceManager pm, String cryptoSessionIDPrefix, PendingRequestStatus status)
 	{
 		if (pm == null)
@@ -75,6 +87,14 @@ public class PendingRequest
 		}
 	}
 
+	/**
+	 * Get the <code>PendingRequest</code> uniquely identified by the given <code>requestID</code>.
+	 * If no such  <code>PendingRequest</code> exists, return <code>null</code>.
+	 * @param pm the {@link PersistenceManager} for accessing the message-transfer-database.
+	 * @param requestID the unique identifier of the {@link PendingRequest} to obtain.
+	 * @return the {@link PendingRequest} identified by the given <code>requestID</code> or <code>null</code>, if
+	 * no such object exists in the datastore.
+	 */
 	public static PendingRequest getPendingRequest(PersistenceManager pm, String requestID)
 	{
 		if (pm == null)
@@ -115,6 +135,10 @@ public class PendingRequest
 
 	protected PendingRequest() { }
 
+	/**
+	 * Create an instance of <code>PendingRequest</code> for the given <code>request</code>.
+	 * @param request the request to be processed and thus temporarily stored in the database.
+	 */
 	public PendingRequest(Request request)
 	{
 		this.requestID = request.getRequestID();
