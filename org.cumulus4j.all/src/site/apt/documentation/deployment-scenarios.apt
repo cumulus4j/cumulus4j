@@ -51,12 +51,12 @@ Deployment scenarios
 
 * Cluster-nodes
 
-	It is important to understand that the application server is not one single machine, but usually a cluster.
+	It is important to understand that the application server usually is not one single machine, but a cluster.
 	Especially when using the cloud, the application server might be distributed over an unknown number
 	of physical machines (cluster-nodes).
 
-	Therefore, it can happen that the two connections arrive on separate cluster-nodes, like shown in this
-	example:
+	Therefore, it can happen (and is even very likely!) that the two connections arrive on separate cluster-nodes,
+	like shown in this example:
 
 [../images/deployment-scenario/deployment-scenario-without-keyserver-with-cluster.png] Deployment without key server with clustered application server
 

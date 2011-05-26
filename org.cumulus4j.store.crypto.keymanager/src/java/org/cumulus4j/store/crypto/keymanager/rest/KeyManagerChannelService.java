@@ -8,6 +8,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.cumulus4j.keymanager.back.shared.NullResponse;
 import org.cumulus4j.keymanager.back.shared.Request;
 import org.cumulus4j.keymanager.back.shared.Response;
 import org.cumulus4j.store.crypto.keymanager.messagebroker.ActiveKeyManagerChannelRegistration;
@@ -15,6 +16,8 @@ import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBroker;
 import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBrokerRegistry;
 
 /**
+ * REST service for the communication channel between key-manager and app-server.
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @Path("KeyManagerChannel")
@@ -67,6 +70,10 @@ public class KeyManagerChannelService
 //			messageBroker.unregisterActiveKeyManagerChannel(registration);
 	}
 
+	/**
+	 * Test method to allow an administrator to verify the URL in a browser.
+	 * @return a string beginning with "OK:".
+	 */
 	@Path("test")
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
@@ -95,6 +102,17 @@ public class KeyManagerChannelService
 //		messageBroker.pushResponse(response);
 //	}
 
+	/**
+	 * Upload a {@link Response} and fetch the next {@link Request}. If there is no <code>Response</code>, yet,
+	 * the key-manager must upload a {@link NullResponse}. This method forwards the <code>response</code>
+	 * to {@link MessageBroker#pushResponse(Response)} and then {@link MessageBroker#pollRequest(String)
+	 * polls the next request}.
+	 * @param cryptoSessionIDPrefix the prefix used by the key-manager, i.e. the unique identifier of the key-manager.
+	 * This is used for efficient routing of requests, i.e. by {@link MessageBroker#pollRequest(String)}.
+	 * @param response the last response or an instance of {@link NullResponse} (without <code>requestID</code>)
+	 * if there is no last request to be replied.
+	 * @return the next polled request or <code>null</code> if none popped up before the timeout.
+	 */
 	@Path("nextRequest/{cryptoSessionIDPrefix}")
 	@POST
 	public Request nextRequest(@PathParam("cryptoSessionIDPrefix") String cryptoSessionIDPrefix, Response response)

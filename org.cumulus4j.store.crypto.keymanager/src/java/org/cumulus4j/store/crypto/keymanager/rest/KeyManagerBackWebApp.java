@@ -8,17 +8,18 @@ import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
 import org.cumulus4j.keymanager.back.shared.JAXBContextResolver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
+ * REST application providing the API for the communication between key-manager and application-server.
+ * The URL to this application must be given to the key-manager (i.e. more precisely the <code>AppServer</code>).
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @ApplicationPath("/org.cumulus4j.keyserver.back.webapp")
 public class KeyManagerBackWebApp
 extends Application
 {
-	private static final Logger logger = LoggerFactory.getLogger(KeyManagerBackWebApp.class);
+//	private static final Logger logger = LoggerFactory.getLogger(KeyManagerBackWebApp.class);
 
 	private static final Class<?>[] serviceClassesArray = {
 		KeyManagerChannelService.class,
