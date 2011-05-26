@@ -1,11 +1,14 @@
 package org.cumulus4j.store.crypto.keymanager.messagebroker;
 
+import org.cumulus4j.keymanager.back.shared.Message;
 import org.cumulus4j.store.crypto.keymanager.messagebroker.inmemory.MessageBrokerInMemory;
 import org.cumulus4j.store.crypto.keymanager.messagebroker.pmf.MessageBrokerPMF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * JVM-singleton to access the {@link #getActiveMessageBroker() active message-broker}.
+ * It handles the registration and instantiation of {@link MessageBroker} implementations.
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class MessageBrokerRegistry
@@ -15,7 +18,6 @@ public class MessageBrokerRegistry
 	private static MessageBrokerRegistry sharedInstance = new MessageBrokerRegistry();
 
 	public static MessageBrokerRegistry sharedInstance() { return sharedInstance; }
-
 
 	/**
 	 * The system property configuring which message-broker-implementation is to be used.
@@ -29,9 +31,16 @@ public class MessageBrokerRegistry
 		MessageBrokerInMemory.class
 	};
 
-
 	private volatile MessageBroker activeMessageBroker;
 
+	/**
+	 * Get the active {@link MessageBroker}. All {@link Message}s are transmitted over this active instance.
+	 * If there is no active <code>MessageBroker</code>, yet, this method will
+	 * check the system property {@value #SYSTEM_PROPERTY_ACTIVE_MESSAGE_BROKER} and either instantiate the
+	 * class configured there or iterate a list of known <code>MessageBroker</code>-implementation-classes.
+	 * @return the active <code>MessageBroker</code>; never <code>null</code>. If no active message-broker is set
+	 * and none can be instantiated, an exception is thrown.
+	 */
 	public MessageBroker getActiveMessageBroker()
 	{
 		MessageBroker result = activeMessageBroker;
@@ -78,6 +87,12 @@ public class MessageBrokerRegistry
 		return result;
 	}
 
+	/**
+	 * Set the active {@link MessageBroker}. Whatever is passed here will be returned by {@link #getActiveMessageBroker()}
+	 * except for <code>null</code>. Setting <code>null</code> will cause {@link #getActiveMessageBroker()} to perform
+	 * a re-initialisation (i.e. instantiate a <code>MessageBroker</code> as needed).
+	 * @param messageBroker the {@link MessageBroker} instance to be set or <code>null</code> to clear the current one.
+	 */
 	public void setActiveMessageBroker(MessageBroker messageBroker)
 	{
 		MessageBroker amb = this.activeMessageBroker;

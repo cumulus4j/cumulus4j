@@ -112,7 +112,7 @@ public class KeyManagerChannelService
 					messageBroker.pushResponse(response);
 			}
 
-			Request request = messageBroker.pollRequestForProcessing(cryptoSessionIDPrefix);
+			Request request = messageBroker.pollRequest(cryptoSessionIDPrefix);
 			return request;
 		} finally {
 			unregisterActiveKeyManagerChannel(registration);

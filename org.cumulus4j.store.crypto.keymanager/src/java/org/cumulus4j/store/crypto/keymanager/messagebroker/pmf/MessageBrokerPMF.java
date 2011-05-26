@@ -16,16 +16,26 @@ import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 
 import org.cumulus4j.keymanager.back.shared.ErrorResponse;
+import org.cumulus4j.keymanager.back.shared.Message;
 import org.cumulus4j.keymanager.back.shared.NullResponse;
 import org.cumulus4j.keymanager.back.shared.Request;
 import org.cumulus4j.keymanager.back.shared.Response;
 import org.cumulus4j.keymanager.back.shared.SystemPropertyUtil;
 import org.cumulus4j.store.crypto.keymanager.messagebroker.AbstractMessageBroker;
+import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBroker;
+import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBrokerRegistry;
 import org.cumulus4j.store.crypto.keymanager.rest.ErrorResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <p>
+ * {@link PersistenceManagerFactory}-backed implementation of {@link MessageBroker}.
+ * </p>
+ * <p>
+ * All {@link Message messages} are transferred via a shared database.
+ * </p>
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class MessageBrokerPMF extends AbstractMessageBroker
@@ -38,6 +48,10 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 
 	private Random random = new Random();
 
+	/**
+	 * Create an instance of <code>MessageBrokerPMF</code>. You should not call this constructor directly, but
+	 * instead use {@link MessageBrokerRegistry#getActiveMessageBroker()} to obtain the currently active {@link MessageBroker}.
+	 */
 	public MessageBrokerPMF()
 	{
 		logger.info("Instantiating MessageBrokerPMF.");
@@ -159,7 +173,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 						pm.deletePersistent(pendingRequest);
 				}
 
-				if (response == null && System.currentTimeMillis() - beginTimestamp > queryTimeoutMSec) {
+				if (response == null && System.currentTimeMillis() - beginTimestamp > getQueryTimeout()) {
 					logger.warn(
 							"query[requestID={}]: Request for session {} was not answered within timeout. Current status is {}.",
 							new Object[] {
@@ -209,7 +223,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 //	private Set<String> testCollisionDetection = Collections.synchronizedSet(new HashSet<String>());
 
 	@Override
-	public Request pollRequestForProcessing(String cryptoSessionIDPrefix)
+	public Request pollRequest(String cryptoSessionIDPrefix)
 	{
 		logger.debug("pollRequestForProcessing[cryptoSessionIDPrefix={}]: Entered.", cryptoSessionIDPrefix);
 
@@ -257,7 +271,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 			logger.trace("pollRequestForProcessing[cryptoSessionIDPrefix={}]: Ended tx. request={}", cryptoSessionIDPrefix, request);
 
 			if (request == null) {
-				if (System.currentTimeMillis() - beginTimestamp > timeoutPollRequestForProcessing)
+				if (System.currentTimeMillis() - beginTimestamp > getPollRequestTimeout())
 					break;
 
 				try {

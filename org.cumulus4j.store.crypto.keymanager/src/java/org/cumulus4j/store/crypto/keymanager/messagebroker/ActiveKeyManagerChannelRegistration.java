@@ -3,6 +3,11 @@ package org.cumulus4j.store.crypto.keymanager.messagebroker;
 import java.io.Serializable;
 import java.util.UUID;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ * @deprecated Currently not used anymore. This class might disappear or it might be used again, later.
+ */
+@Deprecated
 public class ActiveKeyManagerChannelRegistration
 implements Serializable
 {

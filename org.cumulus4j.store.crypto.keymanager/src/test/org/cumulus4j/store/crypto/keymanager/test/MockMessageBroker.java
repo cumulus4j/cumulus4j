@@ -54,7 +54,7 @@ public class MockMessageBroker extends AbstractMessageBroker
 	}
 
 	@Override
-	public Request pollRequestForProcessing(String cryptoSessionIDPrefix) {
+	public Request pollRequest(String cryptoSessionIDPrefix) {
 		throw new UnsupportedOperationException("Mock does not implement this!");
 	}
 

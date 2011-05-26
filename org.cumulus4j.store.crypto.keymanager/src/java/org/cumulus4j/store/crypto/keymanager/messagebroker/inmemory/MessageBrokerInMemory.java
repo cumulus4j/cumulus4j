@@ -62,10 +62,10 @@ extends AbstractMessageBroker
 	public <R extends Response> R query(Class<R> responseClass, Request request)
 	throws TimeoutException, ErrorResponseException
 	{
-		return query(responseClass, request, queryTimeoutMSec);
+		return query(responseClass, request, getQueryTimeout());
 	}
 
-	protected <R extends Response> R query(Class<R> responseClass, Request request, long queryTimeoutMSec)
+	protected <R extends Response> R query(Class<R> responseClass, Request request, long queryTimeout)
 	throws TimeoutException, ErrorResponseException
 	{
 		ConcurrentLinkedQueue<Request> requestsWaitingForProcessing = getRequestsWaitingForProcessing(request.getCryptoSessionIDPrefix());
@@ -90,7 +90,7 @@ extends AbstractMessageBroker
 
 			response = request2response.remove(request);
 
-			if (response == null && System.currentTimeMillis() - beginTimestamp > queryTimeoutMSec) {
+			if (response == null && System.currentTimeMillis() - beginTimestamp > queryTimeout) {
 				logger.warn("query: Request {} for session {} was not answered within timeout.", request.getRequestID(), request.getCryptoSessionID());
 
 				boolean removed = requestsWaitingForProcessing.remove(request);
@@ -121,7 +121,12 @@ extends AbstractMessageBroker
 	}
 
 	@Override
-	public Request pollRequestForProcessing(String cryptoSessionIDPrefix)
+	public Request pollRequest(String cryptoSessionIDPrefix)
+	{
+		return pollRequest(cryptoSessionIDPrefix, getPollRequestTimeout());
+	}
+
+	protected Request pollRequest(String cryptoSessionIDPrefix, long pollRequestTimeout)
 	{
 		ConcurrentLinkedQueue<Request> requestsWaitingForProcessing = getRequestsWaitingForProcessing(cryptoSessionIDPrefix);
 
@@ -131,7 +136,7 @@ extends AbstractMessageBroker
 			request = requestsWaitingForProcessing.poll();
 
 			if (request == null) {
-				if (System.currentTimeMillis() - beginTimestamp > timeoutPollRequestForProcessing)
+				if (System.currentTimeMillis() - beginTimestamp > pollRequestTimeout)
 					break;
 
 				synchronized(requestsWaitingForProcessing) {
