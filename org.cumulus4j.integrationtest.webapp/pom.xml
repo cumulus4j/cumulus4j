@@ -137,6 +137,10 @@ in the reports just like every other test, too. Marco :-)
 					</connectors>
 					<systemProperties>
 						<systemProperty>
+							<name>cumulus4j.MessageBrokerPMF.persistenceProperties.javax.jdo.option.ConnectionDriverName</name>
+							<value>org.apache.derby.jdbc.EmbeddedDriver</value>
+						</systemProperty>
+						<systemProperty>
 							<name>cumulus4j.MessageBrokerPMF.persistenceProperties.javax.jdo.option.ConnectionURL</name>
 							<value>jdbc:derby:${basedir}/target/derby/messagebroker;create=true</value>
 						</systemProperty>
