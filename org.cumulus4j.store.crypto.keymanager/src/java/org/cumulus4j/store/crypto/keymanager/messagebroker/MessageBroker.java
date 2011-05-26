@@ -25,6 +25,9 @@ import org.cumulus4j.store.crypto.keymanager.rest.ErrorResponseException;
  * the {@link Request}s must be proxied over the right cluster-node to the key-manager. The {@link Response} must
  * of course be routed appropriately back to the correct cluster-node.
  * </p>
+ * <p>
+ * <img src="http://cumulus4j.org/images/deployment-scenario/deployment-scenario-without-keyserver-with-cluster.png" />
+ * </p>
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
