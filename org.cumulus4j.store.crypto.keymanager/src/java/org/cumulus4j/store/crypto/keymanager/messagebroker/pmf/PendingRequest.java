@@ -55,10 +55,11 @@ public class PendingRequest
 
 	/**
 	 * Get the oldest <code>PendingRequest</code> matching the given criteria.
-	 * @param pm the {@link PersistenceManager} for accessing the message-transfer-database.
+	 * @param pm the {@link PersistenceManager} for accessing the message-transfer-database. Must not be <code>null</code>.
 	 * @param cryptoSessionIDPrefix the {@link #getCryptoSessionIDPrefix() cryptoSessionIDPrefix} used
-	 * as criterion to filter the candidate-<code>PendingRequest</code>s.
+	 * as criterion to filter the candidate-<code>PendingRequest</code>s. Must not be <code>null</code>.
 	 * @param status the {@link #getStatus() status} used as criterion to filter the candidate-<code>PendingRequest</code>s.
+	 * Must not be <code>null</code>.
 	 * @return the oldest <code>PendingRequest</code> matching the given criteria or <code>null</code> if there is
 	 * no <code>PendingRequest</code> in the datastore which matches the criteria.
 	 */
@@ -90,8 +91,8 @@ public class PendingRequest
 	/**
 	 * Get the <code>PendingRequest</code> uniquely identified by the given <code>requestID</code>.
 	 * If no such  <code>PendingRequest</code> exists, return <code>null</code>.
-	 * @param pm the {@link PersistenceManager} for accessing the message-transfer-database.
-	 * @param requestID the unique identifier of the {@link PendingRequest} to obtain.
+	 * @param pm the {@link PersistenceManager} for accessing the message-transfer-database. Must not be <code>null</code>.
+	 * @param requestID the unique identifier of the {@link PendingRequest} to obtain. Must not be <code>null</code>.
 	 * @return the {@link PendingRequest} identified by the given <code>requestID</code> or <code>null</code>, if
 	 * no such object exists in the datastore.
 	 */
@@ -133,11 +134,15 @@ public class PendingRequest
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	private Date lastStatusChangeTimestamp;
 
+	/**
+	 * Internal constructor only used by JDO. Never call this constructor directly!
+	 */
 	protected PendingRequest() { }
 
 	/**
 	 * Create an instance of <code>PendingRequest</code> for the given <code>request</code>.
-	 * @param request the request to be processed and thus temporarily stored in the database.
+	 * @param request the request to be processed and thus temporarily stored in the database;
+	 * must not be <code>null</code>.
 	 */
 	public PendingRequest(Request request)
 	{
@@ -149,38 +154,82 @@ public class PendingRequest
 		this.lastStatusChangeTimestamp = new Date();
 	}
 
+	/**
+	 * Get the {@link Request#getRequestID() requestID} of the <code>Request</code> that was passed to
+	 * {@link #PendingRequest(Request)}. This property is the primary key of this class.
+	 * @return the request's {@link Request#getRequestID() requestID}.
+	 */
 	public String getRequestID() {
 		return requestID;
 	}
 
+	/**
+	 * Get the {@link Request#getCryptoSessionIDPrefix() cryptoSessionIDPrefix} of the <code>Request</code> that was passed to
+	 * {@link #PendingRequest(Request)}.
+	 * @return the request's {@link Request#getCryptoSessionIDPrefix() cryptoSessionIDPrefix}.
+	 */
 	public String getCryptoSessionIDPrefix() {
 		return cryptoSessionIDPrefix;
 	}
 
+	/**
+	 * Get the current status.
+	 * @return the current status. Can be <code>null</code>, if the instance was not yet
+	 * persisted.
+	 * @see #setStatus(PendingRequestStatus)
+	 */
 	public PendingRequestStatus getStatus() {
 		return status;
 	}
+	/**
+	 * Set the current status. This method will automatically update the
+	 * {@link #getLastStatusChangeTimestamp() lastStatusChangeTimestamp}.
+	 * @param status the new status; must not be <code>null</code> (because of {@link NullValue#EXCEPTION}).
+	 * @see #getStatus()
+	 */
 	public void setStatus(PendingRequestStatus status) {
 		this.status = status;
 		this.lastStatusChangeTimestamp = new Date();
 	}
 
+	/**
+	 * Get the {@link Request} that was passed to {@link #PendingRequest(Request)}.
+	 * @return the request; never <code>null</code>.
+	 */
 	public Request getRequest() {
 		return request;
 	}
 
+	/**
+	 * Get the {@link Response} previously {@link #setResponse(Response) set} or <code>null</code>, if none is set, yet.
+	 * @return the response or <code>null</code>.
+	 */
 	public Response getResponse() {
 		return response;
 	}
 
+	/**
+	 * Set the {@link Response}.
+	 * @param response the response.
+	 */
 	public void setResponse(Response response) {
 		this.response = response;
 	}
 
+	/**
+	 * Get the timestamp when this <code>PendingRequest</code> was instantiated.
+	 * @return when was this <code>PendingRequest</code> created.
+	 */
 	public Date getCreationTimestamp() {
 		return creationTimestamp;
 	}
 
+	/**
+	 * Get the timestamp when the {@link #getStatus() status} was changed
+	 * the last time.
+	 * @return the timestamp of the last {@link #getStatus() status}-change.
+
+	 */
 	public Date getLastStatusChangeTimestamp() {
 		return lastStatusChangeTimestamp;
 	}

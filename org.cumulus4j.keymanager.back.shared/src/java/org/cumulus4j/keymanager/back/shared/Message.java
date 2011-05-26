@@ -50,4 +50,23 @@ public abstract class Message implements Serializable
 	public void setRequestID(String requestID) {
 		this.requestID = requestID;
 	}
+
+	@Override
+	public int hashCode()
+	{
+		return (requestID == null) ? 0 : requestID.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		Message other = (Message) obj;
+		return (
+				this.requestID == other.requestID ||
+				(this.requestID != null && this.requestID.equals(other.requestID))
+		);
+	}
 }
