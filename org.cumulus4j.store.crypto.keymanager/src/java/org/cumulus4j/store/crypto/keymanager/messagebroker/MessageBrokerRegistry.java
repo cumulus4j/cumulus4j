@@ -70,6 +70,7 @@ public class MessageBrokerRegistry
 					}
 
 					activeMessageBroker = result;
+					logger.info("getActiveMessageBroker: New activeMessageBroker={}", result);
 				}
 			}
 		}
@@ -86,5 +87,6 @@ public class MessageBrokerRegistry
 		}
 
 		this.activeMessageBroker = messageBroker;
+		logger.info("setActiveMessageBroker: New activeMessageBroker={}", messageBroker);
 	}
 }

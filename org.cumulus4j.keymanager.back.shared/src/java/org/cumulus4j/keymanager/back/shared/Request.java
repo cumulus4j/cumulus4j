@@ -19,7 +19,7 @@ public abstract class Request extends Message
 		if (cryptoSessionID == null)
 			throw new IllegalArgumentException("cryptoSessionID == null");
 
-		setRequestID(IdentifierUtil.createRandomID(26));
+		setRequestID(IdentifierUtil.createRandomID());
 		this.cryptoSessionID = cryptoSessionID;
 	}
 

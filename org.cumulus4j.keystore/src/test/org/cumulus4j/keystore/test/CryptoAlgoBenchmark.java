@@ -7,6 +7,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.zip.CRC32;
 
 import javax.crypto.Cipher;
@@ -16,6 +18,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import junit.framework.Assert;
 
+import org.bouncycastle.jce.RepeatedKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Test;
 import org.nightlabs.util.Stopwatch;
@@ -169,13 +172,29 @@ public class CryptoAlgoBenchmark
 				"Twofish/CFB/NoPadding"
 		};
 
+		Map<String, Throwable> algo2error = new TreeMap<String, Throwable>();
 		for (int i = 0; i < 10; ++i) {
 			int dataLength = 64 + random.nextInt(10240);
 			for (String algo : algos) {
 				int idx = algo.indexOf('/');
 				String baseAlgo = algo.substring(0, idx);
-				benchmark(baseAlgo, baseAlgo, 128, algo, true, dataLength);
+				try {
+					benchmark(baseAlgo, baseAlgo, 128, algo, true, dataLength);
+				} catch (Exception x) {
+					x = new RuntimeException("benchmark with algo=" + algo + " failed: " + x, x);
+					logger.warn("benchmarkEncryptRandomLengthData: " + x.getMessage(), x);
+					algo2error.put(algo, x);
+				}
 			}
+		}
+
+		if (!algo2error.isEmpty()) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("The following algorithms caused exceptions:\n");
+			for (Map.Entry<String, Throwable> me : algo2error.entrySet()) {
+				sb.append("  * ").append(me.getKey()).append(": ").append(me.getValue()).append('\n');
+			}
+			throw new RuntimeException(sb.toString());
 		}
 	}
 
@@ -269,38 +288,72 @@ public class CryptoAlgoBenchmark
 		}
 		stopwatch.stop("11.initDecrypterWithSameKeyAndNewIVManyTimes");
 
+		stopwatch.start("12.initDecrypterWithRepeatedKeyAndNewIVManyTimes");
+		for (int i = 0; i < ITERATION_COUNT; i++) {
+			random.nextBytes(altIV);
+			IvParameterSpec tmpIV = new IvParameterSpec(altIV);
+			decrypter.init(Cipher.DECRYPT_MODE, new RepeatedKey(key.getAlgorithm()), tmpIV);
+		}
+		stopwatch.stop("12.initDecrypterWithRepeatedKeyAndNewIVManyTimes");
+
 		encrypter.init(Cipher.ENCRYPT_MODE, key, iv);
 		decrypter.init(Cipher.DECRYPT_MODE, key, iv);
 
-		byte[] input = new byte[dataLength];
-		random.nextBytes(input);
+		byte[] input1 = new byte[dataLength];
+		random.nextBytes(input1);
 //		logger.info("input (" + input.length + " Byte): " +Util.encodeHexStr(input));
 
-		byte[] encrypted = encrypt(encrypter, salty, input); // encrypter.doFinal(input);
+		byte[] encrypted1 = encrypt(encrypter, salty, input1); // encrypter.doFinal(input);
 //		logger.info("encrypted (" + encrypted.length + " Byte): " +Util.encodeHexStr(encrypted));
 
-		byte[] encrypted2 = encrypt(encrypter, salty, input); // encrypter.doFinal(input);
+		byte[] encrypted2 = encrypt(encrypter, salty, input1); // encrypter.doFinal(input);
 //		logger.info("encrypted2 (" + encrypted2.length + " Byte): " +Util.encodeHexStr(encrypted2));
-		logger.info("encrypted == encrypted2: " + Arrays.equals(encrypted, encrypted2));
+		logger.info("encrypted == encrypted2: " + Arrays.equals(encrypted1, encrypted2));
 
-		byte[] decrypted = decrypt(decrypter, salty, encrypted);
+		byte[] decrypted1 = decrypt(decrypter, salty, encrypted1);
 		byte[] decrypted2 = decrypt(decrypter, salty, encrypted2);
 //		logger.info("decrypted (" + decrypted.length + " Byte): " +Util.encodeHexStr(decrypted));
 
-		Assert.assertTrue("input != decrypted", Arrays.equals(input, decrypted));
-		Assert.assertTrue("input != decrypted2", Arrays.equals(input, decrypted2));
+		Assert.assertTrue("input1 != decrypted", Arrays.equals(input1, decrypted1));
+		Assert.assertTrue("input1 != decrypted2", Arrays.equals(input1, decrypted2));
 
 		stopwatch.start("20.encryptManyTimes");
 		for (int i = 0; i < ITERATION_COUNT; i++) {
-			encrypt(encrypter, salty, input);
+			encrypt(encrypter, salty, input1);
 		}
 		stopwatch.stop("20.encryptManyTimes");
 
 		stopwatch.start("30.decryptManyTimes");
 		for (int i = 0; i < ITERATION_COUNT; i++) {
-			decrypter.doFinal(encrypted);
+			decrypter.doFinal(encrypted1);
 		}
 		stopwatch.stop("30.decryptManyTimes");
+
+
+		// Test the RepeatedKey
+		byte[] input2 = new byte[dataLength];
+		random.nextBytes(input2);
+
+		byte[] encodedIV2 = new byte[ivLengthBit / 8];
+		random.nextBytes(encodedIV2);
+		IvParameterSpec iv2 = new IvParameterSpec(encodedIV2);
+
+		encrypter.init(Cipher.ENCRYPT_MODE, key, iv);
+		encrypted1 = encrypter.doFinal(input1);
+
+		encrypter.init(Cipher.ENCRYPT_MODE, new RepeatedKey(key.getAlgorithm()), iv2);
+		encrypted2 = encrypter.doFinal(input2);
+
+		decrypter.init(Cipher.DECRYPT_MODE, key, iv);
+		decrypted1 = decrypter.doFinal(encrypted1);
+
+		decrypter.init(Cipher.DECRYPT_MODE, new RepeatedKey(key.getAlgorithm()), iv2);
+		decrypted2 = decrypter.doFinal(encrypted2);
+
+		byte[] decrypted1WithWrongIV = decrypter.doFinal(encrypted1);
+		Assert.assertTrue("input1 != decrypted", Arrays.equals(input1, decrypted1));
+		Assert.assertTrue("input2 != decrypted2", Arrays.equals(input2, decrypted2));
+		Assert.assertFalse("input1 == decrypted2", Arrays.equals(input1, decrypted1WithWrongIV));
 
 		logger.info(stopwatch.createHumanReport(true));
 		logger.info("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");

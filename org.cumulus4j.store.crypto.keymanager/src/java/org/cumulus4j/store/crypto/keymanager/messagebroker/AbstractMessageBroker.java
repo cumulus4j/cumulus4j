@@ -20,16 +20,16 @@ implements MessageBroker
 	 */
 	protected long queryTimeoutMSec = 5L * 60L * 1000L;
 
-	@Override
-	public ActiveKeyManagerChannelRegistration registerActiveKeyManagerChannel(String cryptoSessionIDPrefix, String internalKeyManagerChannelURL)
-	{
-		// no-op
-		return null;
-	}
-
-	@Override
-	public void unregisterActiveKeyManagerChannel(ActiveKeyManagerChannelRegistration registration)
-	{
-		// no-op
-	}
+//	@Override
+//	public ActiveKeyManagerChannelRegistration registerActiveKeyManagerChannel(String cryptoSessionIDPrefix, String internalKeyManagerChannelURL)
+//	{
+//		// no-op
+//		return null;
+//	}
+//
+//	@Override
+//	public void unregisterActiveKeyManagerChannel(ActiveKeyManagerChannelRegistration registration)
+//	{
+//		// no-op
+//	}
 }

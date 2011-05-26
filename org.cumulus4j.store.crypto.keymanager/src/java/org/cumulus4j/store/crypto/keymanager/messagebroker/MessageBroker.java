@@ -15,9 +15,9 @@ import org.cumulus4j.store.crypto.keymanager.rest.ErrorResponseException;
  */
 public interface MessageBroker
 {
-	ActiveKeyManagerChannelRegistration registerActiveKeyManagerChannel(String cryptoSessionIDPrefix, String internalKeyManagerChannelURL);
-
-	void unregisterActiveKeyManagerChannel(ActiveKeyManagerChannelRegistration registration);
+//	ActiveKeyManagerChannelRegistration registerActiveKeyManagerChannel(String cryptoSessionIDPrefix, String internalKeyManagerChannelURL);
+//
+//	void unregisterActiveKeyManagerChannel(ActiveKeyManagerChannelRegistration registration);
 
 	/**
 	 * Send <code>request</code> to the key-manager (embedded in client or separate in key-server) and return its response.

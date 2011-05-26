@@ -82,7 +82,7 @@ public class SessionManager
 	{
 		logger.info("Creating instance of SessionManager.");
 		this.keyStore = keyStore;
-		this.cryptoSessionIDPrefix = IdentifierUtil.createRandomID(26); // about the same uniqueness as a UUID
+		this.cryptoSessionIDPrefix = IdentifierUtil.createRandomID();
 		expireSessionTimer.schedule(expireSessionTimerTask, 60000, 60000); // TODO make this configurable
 	}
 

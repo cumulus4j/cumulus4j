@@ -40,7 +40,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 
 	public MessageBrokerPMF()
 	{
-		logger.debug("Instantiating MessageBrokerPMF.");
+		logger.info("Instantiating MessageBrokerPMF.");
 		Properties propertiesRaw = new Properties();
 		InputStream in = MessageBrokerPMF.class.getResourceAsStream("messagebroker-datanucleus.properties");
 		try {
@@ -127,7 +127,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 				// ignore
 			}
 
-			logger.debug("query[requestID={}]: Beginning tx.", requestID);
+			logger.trace("query[requestID={}]: Beginning tx.", requestID);
 
 			pm = createTransactionalPersistenceManager();
 			try {
@@ -188,7 +188,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 				pm.close();
 			}
 
-			logger.debug("query[requestID={}]: Ended tx. response={}", requestID, response);
+			logger.trace("query[requestID={}]: Ended tx. response={}", requestID, response);
 
 		} while (response == null);
 
@@ -216,7 +216,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 		long beginTimestamp = System.currentTimeMillis();
 		Request request = null;
 		do {
-			logger.debug("pollRequestForProcessing[cryptoSessionIDPrefix={}]: Beginning tx.", cryptoSessionIDPrefix);
+			logger.trace("pollRequestForProcessing[cryptoSessionIDPrefix={}]: Beginning tx.", cryptoSessionIDPrefix);
 
 			PersistenceManager pm = createTransactionalPersistenceManager();
 			try {
@@ -254,7 +254,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 				pm.close();
 			}
 
-			logger.debug("pollRequestForProcessing[cryptoSessionIDPrefix={}]: Ended tx. request={}", cryptoSessionIDPrefix, request);
+			logger.trace("pollRequestForProcessing[cryptoSessionIDPrefix={}]: Ended tx. request={}", cryptoSessionIDPrefix, request);
 
 			if (request == null) {
 				if (System.currentTimeMillis() - beginTimestamp > timeoutPollRequestForProcessing)
@@ -288,6 +288,8 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 			throw new IllegalArgumentException("response.requestID == null");
 
 		String requestID = response.getRequestID();
+
+		logger.debug("pushResponse[requestID={}]: Entered.", requestID);
 
 		List<Throwable> errors = new LinkedList<Throwable>();
 		boolean successful;
