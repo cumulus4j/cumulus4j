@@ -48,8 +48,19 @@ import org.cumulus4j.keymanager.back.shared.Response;
 })
 public class PendingRequest
 {
+	/**
+	 * <a href="http://www.datanucleus.org/products/accessplatform_3_0/jdo/fetchgroup.html">Fetch-groups</a> for
+	 * {@link PendingRequest}.
+	 * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+	 */
 	public static final class FetchGroup {
+		/**
+		 * Indicates fetching the {@link PendingRequest#getRequest() request} property of <code>PendingRequest</code>.
+		 */
 		public static final String request = "PendingRequest.request";
+		/**
+		 * Indicates fetching the {@link PendingRequest#getResponse() response} property of <code>PendingRequest</code>.
+		 */
 		public static final String response = "PendingRequest.response";
 	}
 
