@@ -1356,14 +1356,11 @@ public class KeyStore
 
 		keyStoreData.stringConstant(property.getClass().getName());
 
-		if (property.getValue() == null) {
+		byte[] plainValueEncoded = property.getValueEncoded();
+		if (plainValueEncoded == null) {
 			_removeProperty(authUserName, authPassword, property.getName());
 		}
 		else {
-			byte[] plainValueEncoded = property.getValueEncoded();
-			if (plainValueEncoded == null)
-				throw new IllegalStateException("property.getValueEncoded() returned null, even though property.getValue() returned a non-null value!");
-
 			byte[] checksum = checksum(plainValueEncoded, CHECKSUM_ALGORITHM_ACTIVE);
 			byte[] checksumAndData = catChecksumAndData(checksum, plainValueEncoded);
 

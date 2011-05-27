@@ -1,10 +1,12 @@
 package org.cumulus4j.keystore.test;
 
 import java.io.File;
+import java.util.Map;
 
 import junit.framework.Assert;
 
 import org.cumulus4j.keystore.KeyStore;
+import org.cumulus4j.keystore.prop.Long2LongSortedMapProperty;
 import org.cumulus4j.keystore.prop.LongProperty;
 import org.cumulus4j.keystore.prop.StringProperty;
 import org.junit.After;
@@ -100,6 +102,34 @@ public class KeyStorePropertyTest
 		keyStore = new KeyStore(keyStoreFile);
 		property = keyStore.getProperty(USER, PASSWORD, StringProperty.class, propertyName);
 		Assert.assertEquals(value, property.getValue());
+	}
+
+	@Test
+	public void testLong2LongSortedMapProperty()
+	throws Exception
+	{
+		String propertyName = "Long2LongSortedMapProperty1";
+		Long2LongSortedMapProperty property = keyStore.getProperty(USER, PASSWORD, Long2LongSortedMapProperty.class, propertyName);
+		property.getValue().put(System.currentTimeMillis(), 1L);
+		Long exampleMapKey = System.currentTimeMillis() + 24 * 3600 * 1000;
+		Long exampleMapValue = 113344L;
+		property.getValue().put(exampleMapKey, exampleMapValue);
+		property.getValue().put(System.currentTimeMillis() + 2 * 24 * 3600 * 1000, 375438972L);
+		keyStore.setProperty(USER, PASSWORD, property);
+
+		keyStore = new KeyStore(keyStoreFile);
+		Long2LongSortedMapProperty property2 = keyStore.getProperty(USER, PASSWORD, Long2LongSortedMapProperty.class, propertyName);
+		if (property.getValue().size() != property2.getValue().size())
+			Assert.fail("Map sizes are not equal");
+
+		Assert.assertEquals(3, property.getValue().size());
+
+		for (Map.Entry<Long, Long> me : property.getValue().entrySet()) {
+			Long prop2Val = property2.getValue().get(me.getKey());
+			Assert.assertEquals("Map-entry's values are different!", me.getValue(), prop2Val);
+		}
+
+		Assert.assertEquals(exampleMapValue, property2.getValue().get(exampleMapKey));
 	}
 
 }

@@ -1,5 +1,6 @@
 package org.cumulus4j.keystore.prop;
 
+import java.util.Collection;
 import java.util.UUID;
 
 import org.cumulus4j.keystore.KeyStore;
@@ -84,7 +85,8 @@ public abstract class Property<T>
 	/**
 	 * <p>
 	 * Get the property's {@link #getValue() value} encoded as byte-array or <code>null</code>, if the
-	 * property is empty.
+	 * property is empty. Note, that this might be <code>null</code>, even though {@link #getValue()} returns
+	 * a non-<code>null</code> value; for example an empty {@link Collection} might cause this.
 	 * </p>
 	 * <p>
 	 * This method must encode the value in a way that can be decoded by {@link #setValueEncoded(byte[])}.
