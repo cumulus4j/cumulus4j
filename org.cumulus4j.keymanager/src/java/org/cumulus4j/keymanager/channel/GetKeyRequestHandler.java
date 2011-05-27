@@ -1,4 +1,4 @@
-package org.cumulus4j.keymanager.keyserverchannel;
+package org.cumulus4j.keymanager.channel;
 
 import java.security.GeneralSecurityException;
 import java.security.Key;

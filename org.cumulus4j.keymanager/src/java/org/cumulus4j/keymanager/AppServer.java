@@ -2,7 +2,7 @@ package org.cumulus4j.keymanager;
 
 import java.net.URL;
 
-import org.cumulus4j.keymanager.keyserverchannel.KeyManagerChannelManager;
+import org.cumulus4j.keymanager.channel.KeyManagerChannelManager;
 
 public class AppServer
 {
