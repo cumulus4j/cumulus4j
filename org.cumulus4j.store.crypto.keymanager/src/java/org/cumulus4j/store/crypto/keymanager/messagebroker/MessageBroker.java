@@ -40,7 +40,36 @@ import org.cumulus4j.store.crypto.keymanager.rest.ErrorResponseException;
  */
 public interface MessageBroker
 {
+	/**
+	 * <p>
+	 * System property to control the timeout (in milliseconds) for the {@link #query(Class, Request)} method.
+	 * </p>
+	 * <p>
+	 * The <code>query(...)</code> method will throw a {@link TimeoutException}, if no {@link Response}
+	 * to a given {@link Request} arrived within this timeout.
+	 * </p>
+	 * <p>
+	 * If the system property is not present or not a valid number, it is up to the <code>MessageBroker</code>
+	 * implementation, what default value should be used. See {@link AbstractMessageBroker#getQueryTimeout()}
+	 * for the default implemented there.
+	 * </p>
+	 */
 	static final String SYSTEM_PROPERTY_QUERY_TIMEOUT = "cumulus4j.MessageBroker.queryTimeout";
+
+	/**
+	 * <p>
+	 * System property to control the timeout (in milliseconds) for the {@link #pollRequest(String)} method.
+	 * </p>
+	 * <p>
+	 * The <code>pollRequest(...)</code> method returns <code>null</code>, if no {@link Request} popped up
+	 * in the to-do-queue within the timeout.
+	 * </p>
+	 * <p>
+	 * If the system property is not present or not a valid number, it is up to the <code>MessageBroker</code>
+	 * implementation, what default value should be used. See {@link AbstractMessageBroker#getPollRequestTimeout()}
+	 * for the default implemented there.
+	 * </p>
+	 */
 	static final String SYSTEM_PROPERTY_POLL_REQUEST_TIMEOUT = "cumulus4j.MessageBroker.pollRequestTimeout";
 
 //	ActiveKeyManagerChannelRegistration registerActiveKeyManagerChannel(String cryptoSessionIDPrefix, String internalKeyManagerChannelURL);
@@ -87,9 +116,13 @@ public interface MessageBroker
 	 * this method should return <code>null</code> (before the remote client would timeout).
 	 * </p>
 	 * <p>
-	 * Usually, blocking at most 1 or 2 minutes is recommended in most situations. However, when
+	 * Usually, blocking about 1 minute is recommended in most situations. However, when
 	 * using certain runtimes, it must be much shorter  (e.g. the Google App Engine allows
 	 * requests not to take longer than 30 sec, thus 20 sec are an appropriate time to stay safe).
+	 * </p>
+	 * <p>
+	 * Additionally, since the remote key-manager must wait at maximum this time, its HTTP-client's
+	 * timeout must be longer than this timeout.
 	 * </p>
 	 * <p>
 	 * It should be possible to configure this timeout via the system property

@@ -12,25 +12,58 @@ import org.cumulus4j.keymanager.back.shared.Request;
 public abstract class AbstractMessageBroker
 implements MessageBroker
 {
-	/**
-	 * The remote key server has to wait this long (in millisec). Its HTTP client's timeout should thus be longer
-	 * than this time!
-	 */
-	private long pollRequestTimeout = 2L * 60L * 1000L;
+	private long queryTimeoutMSec = -1;
+
+	private long pollRequestTimeout = -1;
 
 	/**
-	 * The local API client (who calls {@link #query(Class, Request)}) gets an exception, if the request was not processed &amp;
-	 * answered within this timeout (in millisec).
+	 * <p>
+	 * Get the {@link MessageBroker#query(Class, Request) query} timeout in milliseconds.
+	 * </p>
+	 * <p>
+	 * This method takes the system property {@link MessageBroker#SYSTEM_PROPERTY_QUERY_TIMEOUT} into account.
+	 * If the system property is not present or not a valid number, the default value 300000 (5 minutes) is returned.
+	 * </p>
+	 *
+	 * @return the {@link MessageBroker#query(Class, Request) query} timeout in milliseconds.
 	 */
-	private long queryTimeoutMSec = 5L * 60L * 1000L;
+	public long getQueryTimeout()
+	{
+		if (queryTimeoutMSec < 0) {
+			// TODO take MessageBroker.SYSTEM_PROPERTY_QUERY_TIMEOUT into account!
+			queryTimeoutMSec = 5L * 60L * 1000L;
+		}
 
-	public long getQueryTimeout() {
-		// TODO take MessageBroker.SYSTEM_PROPERTY_QUERY_TIMEOUT into account!
 		return queryTimeoutMSec;
 	}
 
-	public long getPollRequestTimeout() {
-		// TODO take MessageBroker.SYSTEM_PROPERTY_POLL_REQUEST_TIMEOUT into account!
+	/**
+	 * <p>
+	 * Get the {@link MessageBroker#pollRequest(String) pollRequest(....)} timeout in milliseconds.
+	 * </p>
+	 * <p>
+	 * This method takes the system property {@link MessageBroker#SYSTEM_PROPERTY_POLL_REQUEST_TIMEOUT} into account.
+	 * If the system property is not present or not a valid number, the default value 60000 (1 minute) is returned.
+	 * </p>
+	 * <p>
+	 * Usually, a value of about 1 minute is recommended in most situations. However, when
+	 * using certain runtimes, it must be much shorter  (e.g. the Google App Engine allows
+	 * requests not to take longer than 30 sec, thus 20 sec are an appropriate time to stay safe).
+	 * </p>
+	 * <p>
+	 * Additionally, since the remote key-manager must wait at maximum this time, its HTTP-client's
+	 * timeout must be longer than this timeout.
+	 * </p>
+	 *
+	 * @return the {@link MessageBroker#pollRequest(String) pollRequest(....)} timeout in milliseconds.
+	 */
+	public long getPollRequestTimeout()
+	{
+		if (pollRequestTimeout < 0) {
+			// TODO take MessageBroker.SYSTEM_PROPERTY_POLL_REQUEST_TIMEOUT into account!
+			pollRequestTimeout = 1L * 60L * 1000L;
+		}
+
 		return pollRequestTimeout;
 	}
 
