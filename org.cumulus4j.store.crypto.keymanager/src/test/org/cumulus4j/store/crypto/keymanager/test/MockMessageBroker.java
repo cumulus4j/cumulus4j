@@ -31,7 +31,7 @@ public class MockMessageBroker extends AbstractMessageBroker
 	}
 
 	@Override
-	public <R extends Response> R query(Class<R> responseClass, Request request)
+	protected Response _query(Class<? extends Response> responseClass, Request request)
 	throws TimeoutException, ErrorResponseException
 	{
 		try {
@@ -54,12 +54,12 @@ public class MockMessageBroker extends AbstractMessageBroker
 	}
 
 	@Override
-	public Request pollRequest(String cryptoSessionIDPrefix) {
+	protected Request _pollRequest(String cryptoSessionIDPrefix) {
 		throw new UnsupportedOperationException("Mock does not implement this!");
 	}
 
 	@Override
-	public void pushResponse(Response response) {
+	protected void _pushResponse(Response response) {
 		throw new UnsupportedOperationException("Mock does not implement this!");
 	}
 }

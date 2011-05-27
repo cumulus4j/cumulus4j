@@ -93,7 +93,7 @@ public interface MessageBroker
 	 * a {@link TimeoutException}.
 	 * </p>
 	 *
-	 * @param responseClass the type of the expected response.
+	 * @param responseClass the type of the expected response; can be null, if you expect to receive null (i.e. you pass a "void" request).
 	 * @param request the request to be sent to the key-manager.
 	 * @return the response from the key-manager. Will be <code>null</code>, if the key-manager replied with a {@link NullResponse}.
 	 * @throws TimeoutException if the request was not replied within the {@link #SYSTEM_PROPERTY_QUERY_TIMEOUT query-timeout}.
@@ -131,7 +131,8 @@ public interface MessageBroker
 	 * @param cryptoSessionIDPrefix usually, every key-manager uses the same prefix for
 	 * all crypto-sessions. Thus, this prefix is used to efficiently route requests to
 	 * the right key-manager.
-	 * @return
+	 * @return the next request waiting for processing and fitting to the given <code>cryptoSessionIDPrefix</code>
+	 * or <code>null</code>, if no such request pops up in the to-do-queue within the timeout.
 	 */
 	Request pollRequest(String cryptoSessionIDPrefix);
 

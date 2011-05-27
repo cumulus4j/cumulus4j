@@ -4,8 +4,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeoutException;
 
-import org.cumulus4j.keymanager.back.shared.ErrorResponse;
-import org.cumulus4j.keymanager.back.shared.NullResponse;
 import org.cumulus4j.keymanager.back.shared.Request;
 import org.cumulus4j.keymanager.back.shared.Response;
 import org.cumulus4j.store.crypto.keymanager.messagebroker.AbstractMessageBroker;
@@ -59,13 +57,13 @@ extends AbstractMessageBroker
 	}
 
 	@Override
-	public <R extends Response> R query(Class<R> responseClass, Request request)
+	protected Response _query(Class<? extends Response> responseClass, Request request)
 	throws TimeoutException, ErrorResponseException
 	{
-		return query(responseClass, request, getQueryTimeout());
+		return _query(responseClass, request, getQueryTimeout());
 	}
 
-	protected <R extends Response> R query(Class<R> responseClass, Request request, long queryTimeout)
+	protected Response _query(Class<? extends Response> responseClass, Request request, long queryTimeout)
 	throws TimeoutException, ErrorResponseException
 	{
 		ConcurrentLinkedQueue<Request> requestsWaitingForProcessing = getRequestsWaitingForProcessing(request.getCryptoSessionIDPrefix());
@@ -84,49 +82,38 @@ extends AbstractMessageBroker
 					request2response.wait(10000L);
 				} catch (InterruptedException e) {
 					// ignore - only log.
-					logger.warn("query: request2response.wait(...) was interrupted with an InterruptedException.");
+					logger.warn("_query: request2response.wait(...) was interrupted with an InterruptedException.");
 				}
 			}
 
 			response = request2response.remove(request);
 
 			if (response == null && System.currentTimeMillis() - beginTimestamp > queryTimeout) {
-				logger.warn("query: Request {} for session {} was not answered within timeout.", request.getRequestID(), request.getCryptoSessionID());
+				logger.warn("_query: Request {} for session {} was not answered within timeout.", request.getRequestID(), request.getCryptoSessionID());
 
 				boolean removed = requestsWaitingForProcessing.remove(request);
 				if (removed)
-					logger.warn("query: Request {} for session {} was still in 'requestsWaitingForProcessing'.", request.getRequestID(), request.getCryptoSessionID());
+					logger.warn("_query: Request {} for session {} was still in 'requestsWaitingForProcessing'.", request.getRequestID(), request.getCryptoSessionID());
 
 				Request removedRequest = requestID2requestCurrentlyBeingProcessed.remove(request.getRequestID());
 				if (removedRequest != null)
-					logger.warn("query: Request {} for session {} was in 'requestID2requestCurrentlyBeingProcessed'.", request.getRequestID(), request.getCryptoSessionID());
+					logger.warn("_query: Request {} for session {} was in 'requestID2requestCurrentlyBeingProcessed'.", request.getRequestID(), request.getCryptoSessionID());
 
 				throw new TimeoutException("Request was not answered within timeout: " + request);
 			}
 
 		} while (response == null);
 
-		// A NullResponse which has a requestID assigned is forwarded to the requester and must be transformed into null here.
-		if (response instanceof NullResponse)
-			return null;
-
-		if (response instanceof ErrorResponse)
-			throw new ErrorResponseException((ErrorResponse)response);
-
-		try {
-			return responseClass.cast(response);
-		} catch (ClassCastException x) { // this exception has no nice message (according to source code), hence we throw our own below.
-			throw new ClassCastException("Expected a response of type " + responseClass + " but got an instance of " + response.getClass().getName() + "!");
-		}
+		return response;
 	}
 
 	@Override
-	public Request pollRequest(String cryptoSessionIDPrefix)
+	protected Request _pollRequest(String cryptoSessionIDPrefix)
 	{
-		return pollRequest(cryptoSessionIDPrefix, getPollRequestTimeout());
+		return _pollRequest(cryptoSessionIDPrefix, getPollRequestTimeout());
 	}
 
-	protected Request pollRequest(String cryptoSessionIDPrefix, long pollRequestTimeout)
+	protected Request _pollRequest(String cryptoSessionIDPrefix, long pollRequestTimeout)
 	{
 		ConcurrentLinkedQueue<Request> requestsWaitingForProcessing = getRequestsWaitingForProcessing(cryptoSessionIDPrefix);
 
@@ -144,7 +131,7 @@ extends AbstractMessageBroker
 						requestsWaitingForProcessing.wait(10000L);
 					} catch (InterruptedException e) {
 						// ignore - only log - and break loop.
-						logger.warn("query: requestsWaitingForProcessing.wait(...) was interrupted with an InterruptedException.");
+						logger.warn("_pollRequest: requestsWaitingForProcessing.wait(...) was interrupted with an InterruptedException.");
 						break;
 					}
 				}
@@ -159,14 +146,8 @@ extends AbstractMessageBroker
 	}
 
 	@Override
-	public void pushResponse(Response response)
+	protected void _pushResponse(Response response)
 	{
-		if (response == null)
-			throw new IllegalArgumentException("response == null");
-
-		if (response.getRequestID() == null)
-			throw new IllegalArgumentException("response.requestID == null");
-
 		Request request = requestID2requestCurrentlyBeingProcessed.remove(response.getRequestID());
 		if (request == null) {
 			logger.warn("pushResponse: There is no request currently being processed with requestID={}!!!", response.getRequestID());
