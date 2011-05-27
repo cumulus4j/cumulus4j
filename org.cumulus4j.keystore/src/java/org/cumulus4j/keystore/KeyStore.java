@@ -77,7 +77,6 @@ import org.slf4j.LoggerFactory;
  * bit require the "Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files" to be installed!
  * </p>
  * <h3>File format of the key store file (version 1)</h3>
- * <h4>Main</h4>
  * <p>
  * <table border="1" width="100%">
  * 	<tbody>
@@ -90,65 +89,241 @@ import org.slf4j.LoggerFactory;
  * 	<tr>
  * 		<td align="right" valign="top">4</td><td valign="top">int: File version</td>
  * 	</tr>
- * 	<tr>
- * 		<td align="right" valign="top">8</td><td valign="top">REMOVED ! NO LONGER EXISTING ! this is now a property! long: Next key ID, i.e. the first not-yet-used ID which will be assigned to the next key that will be generated.</td>
- * 	</tr>
  *	<tr>
  * 		<td align="right" valign="top">4</td><td valign="top">int: Number of entries in 'Block A' to follow.</td>
  * 	</tr>
  * 	<tr>
- * 		<td align="right" valign="top">var</td><td valign="top">Block A: String constants</td>
- * 	</tr>
- * 	<tr>
- * 		<td align="right" valign="top">4</td><td valign="top">int: Number of entries in 'Block B' to follow.</td>
- * 	</tr>
- * 	<tr>
- * 		<td align="right" valign="top">var</td><td valign="top">Block B: User-key-map</td>
- * 	</tr>
- * 	<tr>
- * 		<td align="right" valign="top">4</td><td valign="top">int: Number of entries in 'Block C' to follow.</td>
- * 	</tr>
- * 	<tr>
- * 		<td align="right" valign="top">var</td><td valign="top">Block C: Key-ID-key-map</td>
- * 	</tr>
- * 	</tbody>
- * </table>
- * </p>
- *
- * <h4>Block A: String constants</h4>
- * <p>
- * </p>
+ * 		<td colspan="2">
+ * 		<table bgcolor="#F0F0F0" border="1" width="100%">
+ * 			<tbody>
+ * 			<tr><td bgcolor="#D0D0D0" colspan="2"><b>Block A: String constants</b></td></tr>
+ * 			<tr>
+ * 				<td colspan="2">
  * In order to reduce the file size (and thus increase the write speed), various
  * strings like encryption algorithm, checksum algorithm and the like are not written
  * again and again for every key, but instead only once here. In every key, these
  * Strings are then referenced instead by their position-index (zero-based).
- * <p>
- * <p>
- * Every record in this block has the following structure:
- * </p>
- * <table border="1" width="100%">
- * 	<tbody>
+ * 				</td>
+ * 			</tr>
+ *
+ * 			<tr>
+ * 				<td align="right" valign="top"><b>Bytes</b></td><td valign="top"><b>Descrition</b></td>
+ * 			</tr>
+ * 			<tr>
+ * 				<td align="right" valign="top">2</td><td valign="top">short <i>len</i>: Number of bytes to follow (written by {@link DataOutputStream#writeUTF(String)}).</td>
+ * 			</tr>
+ * 			<tr>
+ * 				<td align="right" valign="top"><i>len</i></td><td valign="top">String: Constant&apos;s value (written by {@link DataOutputStream#writeUTF(String)}).</td>
+ * 			</tr>
+ * 			</tbody>
+ * 		</table>
+ * 		</td>
+ * 	</tr>
+ *
+ *
  * 	<tr>
- * 		<td align="right" valign="top"><b>Bytes</b></td><td valign="top"><b>Descrition</b></td>
+ * 		<td align="right" valign="top">4</td><td valign="top">int: Number of entries in 'Block B' to follow.</td>
+ * 	</tr>
+ *  <tr>
+ * 		<td colspan="2">
+ * 		<table bgcolor="#F0F0F0" border="1" width="100%">
+ * 			<tbody>
+ * 			<tr><td bgcolor="#D0D0D0" colspan="2"><b>Block B: User-key-map</b></td></tr>
+ *
+ * 			<tr>
+ * 				<td colspan="2">
+ * TODO document User-key-map!
+ * 				</td>
+ * 			</tr>
+ *
+ * 			<tr>
+ * 				<td align="right" valign="top"><b>Bytes</b></td><td valign="top"><b>Descrition</b></td>
+ * 			</tr>
+ *
+ * 			<tr>
+ * 				<td align="right" valign="top">2</td><td valign="top">short <i>len1</i>: User name: Number of bytes to follow (written by {@link DataOutputStream#writeUTF(String)}).</td>
+ * 			</tr>
+ * 			<tr>
+ * 				<td align="right" valign="top"><i>len1</i></td><td valign="top">String: User name (written by {@link DataOutputStream#writeUTF(String)}).</td>
+ * 			</tr>
+ *
+ * 			<tr>
+ * 				<td align="right" valign="top">4</td><td valign="top">int: Key size for the password-based key.</td>
+ * 			</tr>
+ * 			<tr>
+ * 				<td align="right" valign="top">4</td><td valign="top">int: Iteration count for the password-based key.</td>
+ * 			</tr>
+ * 			<tr>
+ * 				<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the key-generator-algorithm for creating the password-based key (index in the list of 'Block A').</td>
+ * 			</tr>
+ *
+ * 			<tr>
+ * 				<td align="right" valign="top">2</td><td valign="top">short <i>len2</i>: Salt: Number of bytes to follow (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
+ * 			</tr>
+ * 			<tr>
+ * 				<td align="right" valign="top"><i>len2</i></td><td valign="top">byte[]: Salt to be used when generating the password-based key (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
+ * 			</tr>
+ *
+ *			<!-- BEGIN written by {@link AbstractEncryptedKey#write(DataOutputStream, Map)} -->
+ *
+ * 				<tr>
+ * 					<td align="right" valign="top">2</td><td valign="top">short <i>len3</i>: Data: Number of bytes to follow (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
+ * 				</tr>
+ * 				<tr>
+ * 					<td align="right" valign="top"><i>len3</i></td><td valign="top">byte[]: The actual key's data (encrypted, written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
+ * 				</tr>
+ *
+ * 				<tr>
+ * 					<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the encryption algorithm this key will be used for (see {@link Key#getAlgorithm()}, index in the list of 'Block A').</td>
+ * 				</tr>
+ *
+ * 				<tr>
+ * 					<td align="right" valign="top">2</td><td valign="top">short <i>len4</i>: IV: Number of bytes to follow (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
+ * 				</tr>
+ * 				<tr>
+ * 					<td align="right" valign="top"><i>len4</i></td><td valign="top">byte[]: The actual IV (initialisation vector) used to encrypt the key's data (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
+ * 				</tr>
+ *
+ * 				<tr>
+ * 					<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the encryption algorithm used to encrypt the key's data (index in the list of 'Block A').</td>
+ * 				</tr>
+ *
+ * 				<tr>
+ * 					<td align="right" valign="top">2</td><td valign="top">short: Checksum size, i.e. how many bytes inside the encrypted key's data are the checksum (at the beginning).</td>
+ * 				</tr>
+ * 				<tr>
+ * 					<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the checksum algorithm used when encrypting the key's data (index in the list of 'Block A').</td>
+ * 				</tr>
+ *
+ *			<!-- END written by {@link AbstractEncryptedKey#write(DataOutputStream, Map)} -->
+ *			</tbody>
+ * 		</table>
+ * 		</td>
+ * 	</tr>
+ *
+ *
+ * 	<tr>
+ * 		<td align="right" valign="top">4</td><td valign="top">int: Number of entries in 'Block C' to follow.</td>
  * 	</tr>
  * 	<tr>
- * 		<td align="right" valign="top">2</td><td valign="top">short <i>len</i>: Number of bytes to follow (written by {@link DataOutputStream#writeUTF(String)}).</td>
+ * 		<td colspan="2">
+ * 		<table bgcolor="#F0F0F0" border="1" width="100%">
+ * 			<tbody>
+ * 			<tr><td bgcolor="#D0D0D0" colspan="2"><b>Block C: Key-ID-key-map</b></td></tr>
+ *
+ * 			<tr>
+ * 				<td colspan="2">
+ * TODO document Key-ID-key-map!
+ * 				</td>
+ * 			</tr>
+ *
+ * 			<tr>
+ * 				<td align="right" valign="top"><b>Bytes</b></td><td valign="top"><b>Descrition</b></td>
+ * 			</tr>
+ *
+ * 			<tr>
+ * 				<td align="right" valign="top">8</td><td valign="top">long: Key identifier.</td>
+ * 			</tr>
+ *
+ *			<!-- BEGIN written by {@link AbstractEncryptedKey#write(DataOutputStream, Map)} -->
+ *
+ * 				<tr>
+ * 					<td align="right" valign="top">2</td><td valign="top">short <i>len3</i>: Data: Number of bytes to follow (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
+ * 				</tr>
+ * 				<tr>
+ * 					<td align="right" valign="top"><i>len3</i></td><td valign="top">byte[]: The actual key's data (encrypted, written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
+ * 				</tr>
+ *
+ * 				<tr>
+ * 					<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the encryption algorithm this key will be used for (see {@link Key#getAlgorithm()}, index in the list of 'Block A').</td>
+ * 				</tr>
+ *
+ * 				<tr>
+ * 					<td align="right" valign="top">2</td><td valign="top">short <i>len4</i>: IV: Number of bytes to follow (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
+ * 				</tr>
+ * 				<tr>
+ * 					<td align="right" valign="top"><i>len4</i></td><td valign="top">byte[]: The actual IV (initialisation vector) used to encrypt the key's data (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
+ * 				</tr>
+ *
+ * 				<tr>
+ * 					<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the encryption algorithm used to encrypt the key's data (index in the list of 'Block A').</td>
+ * 				</tr>
+ *
+ * 				<tr>
+ * 					<td align="right" valign="top">2</td><td valign="top">short: Checksum size, i.e. how many bytes inside the encrypted key's data are the checksum (at the beginning).</td>
+ * 				</tr>
+ * 				<tr>
+ * 					<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the checksum algorithm used when encrypting the key's data (index in the list of 'Block A').</td>
+ * 				</tr>
+ *
+ *			<!-- END written by {@link AbstractEncryptedKey#write(DataOutputStream, Map)} -->
+ *			</tbody>
+ * 		</table>
+ * 		</td>
+ * 	</tr>
+ *
+ *
+ *	<tr>
+ * 		<td align="right" valign="top">4</td><td valign="top">int: Number of entries in 'Block D' to follow.</td>
  * 	</tr>
  * 	<tr>
- * 		<td align="right" valign="top"><i>len</i></td><td valign="top">The actual String constant (written by {@link DataOutputStream#writeUTF(String)}).</td>
+ * 		<td colspan="2">
+ * 		<table bgcolor="#F0F0F0" border="1" width="100%">
+ * 			<tbody>
+ * 			<tr><td bgcolor="#D0D0D0" colspan="2"><b>Block D: Properties</b></td></tr>
+ * 			<tr>
+ * 				<td colspan="2">
+ * See {@link Property} for details about what this block is used for.
+ * 				</td>
+ * 			</tr>
+ * 			<tr>
+ * 				<td align="right" valign="top"><b>Bytes</b></td><td valign="top"><b>Descrition</b></td>
+ * 			</tr>
+ *
+ * 			<tr>
+ * 				<td align="right" valign="top">2</td><td valign="top">short <i>len1</i>: Property name: Number of bytes to follow (written by {@link DataOutputStream#writeUTF(String)}).</td>
+ * 			</tr>
+ * 			<tr>
+ * 				<td align="right" valign="top"><i>len1</i></td><td valign="top">String: Property name (written by {@link DataOutputStream#writeUTF(String)}).</td>
+ * 			</tr>
+ *
+ * 			<tr>
+ * 				<td align="right" valign="top">4</td><td valign="top">int: Reference to the fully qualified class name of the {@link Property} (index in the list of 'Block A').</td>
+ * 			</tr>
+ *
+ * 			<tr>
+ * 				<td align="right" valign="top">2</td><td valign="top">short <i>len4</i>: Data: Number of bytes to follow (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
+ * 			</tr>
+ * 			<tr>
+ * 				<td align="right" valign="top"><i>len4</i></td><td valign="top">byte[]: The actual encrypted data of the property (obtained from {@link Property#getValueEncoded()}, then encrypted, finally written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
+ * 			</tr>
+ *
+ * 			<tr>
+ * 				<td align="right" valign="top">2</td><td valign="top">short <i>len4</i>: IV: Number of bytes to follow (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
+ * 			</tr>
+ * 			<tr>
+ * 				<td align="right" valign="top"><i>len4</i></td><td valign="top">byte[]: The actual IV (initialisation vector) used to encrypt the property's data (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
+ * 			</tr>
+ *
+ * 			<tr>
+ * 				<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the encryption algorithm used to encrypt the property's data (index in the list of 'Block A').</td>
+ * 			</tr>
+ *
+ * 			<tr>
+ * 				<td align="right" valign="top">2</td><td valign="top">short: Checksum size, i.e. how many bytes inside the encrypted property's data are the checksum (at the beginning).</td>
+ * 			</tr>
+ * 			<tr>
+ * 				<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the checksum algorithm used when encrypting the property's data (index in the list of 'Block A').</td>
+ * 			</tr>
+ *
+ *			<!-- END written by {@link AbstractEncryptedKey#write(DataOutputStream, Map)} -->
+ *			</tbody>
+ * 		</table>
+ * 		</td>
  * 	</tr>
+ *
  * 	</tbody>
  * </table>
- * </p>
- *
- * <h4>Block B: User-key-map</h4>
- * <p>
- * TODO document this!
- * </p>
- *
- * <h4>Block C: Key-ID-key-map</h4>
- * <p>
- * TODO document this!
  * </p>
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
@@ -435,7 +610,7 @@ public class KeyStore
 				Cipher cipher = getCipherForUserPassword(
 						authPassword,
 						encryptedKey.getPasswordBasedKeySize(),
-						encryptedKey.getPasswordBasedInterationCount(),
+						encryptedKey.getPasswordBasedIterationCount(),
 						encryptedKey.getPasswordBasedKeyGeneratorAlgorithm(),
 						encryptedKey.getSalt(),
 						encryptedKey.getEncryptionIV(), encryptedKey.getEncryptionAlgorithm(),
@@ -518,7 +693,7 @@ public class KeyStore
 
 	private Cipher getCipherForUserPassword(
 			char[] password,
-			int passwordBasedKeySize, int passwordBasedInterationCount, String passwordBasedKeyGeneratorAlgorithm,
+			int passwordBasedKeySize, int passwordBasedIterationCount, String passwordBasedKeyGeneratorAlgorithm,
 			byte[] salt, byte[] iv, String algorithm, int opmode) throws GeneralSecurityException
 	{
 		if (iv == null) {
@@ -539,7 +714,7 @@ public class KeyStore
 
 		SecretKeyFactory factory = SecretKeyFactory.getInstance(passwordBasedKeyGeneratorAlgorithm);
 
-		KeySpec spec = new PBEKeySpec(password, salt, passwordBasedInterationCount, passwordBasedKeySize);
+		KeySpec spec = new PBEKeySpec(password, salt, passwordBasedIterationCount, passwordBasedKeySize);
 		SecretKey tmp = factory.generateSecret(spec);
 		SecretKey secret = new SecretKeySpec(tmp.getEncoded(), getBaseAlgorithm(algorithm));
 		Cipher cipher = Cipher.getInstance(algorithm);

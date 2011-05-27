@@ -21,10 +21,10 @@ extends AbstractEncryptedKey
 		return passwordBasedKeySize;
 	}
 
-	private int passwordBasedInterationCount;
+	private int passwordBasedIterationCount;
 
-	public int getPasswordBasedInterationCount() {
-		return passwordBasedInterationCount;
+	public int getPasswordBasedIterationCount() {
+		return passwordBasedIterationCount;
 	}
 
 	private String passwordBasedKeyGeneratorAlgorithm;
@@ -53,7 +53,7 @@ extends AbstractEncryptedKey
 
 		this.userName = userName;
 		this.passwordBasedKeySize = passwordBasedKeySize;
-		this.passwordBasedInterationCount = passwordBasedInterationCount;
+		this.passwordBasedIterationCount = passwordBasedInterationCount;
 		this.passwordBasedKeyGeneratorAlgorithm = passwordBasedKeyGeneratorAlgorithm;
 		this.salt = salt;
 	}
@@ -62,7 +62,7 @@ extends AbstractEncryptedKey
 	{
 		userName = in.readUTF();
 		passwordBasedKeySize = in.readInt();
-		passwordBasedInterationCount = in.readInt();
+		passwordBasedIterationCount = in.readInt();
 
 		int idx = in.readInt();
 		passwordBasedKeyGeneratorAlgorithm = stringConstantList.get(idx);
@@ -80,7 +80,7 @@ extends AbstractEncryptedKey
 		out.writeUTF(userName);
 
 		out.writeInt(passwordBasedKeySize);
-		out.writeInt(passwordBasedInterationCount);
+		out.writeInt(passwordBasedIterationCount);
 
 		Integer idx = stringConstant2idMap.get(passwordBasedKeyGeneratorAlgorithm);
 		if (idx == null)

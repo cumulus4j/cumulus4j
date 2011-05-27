@@ -66,9 +66,17 @@ class EncryptedProperty
 
 		data = KeyStoreUtil.readByteArrayWithLengthHeader(din);
 		encryptionIV = KeyStoreUtil.readByteArrayWithLengthHeader(din);
-		encryptionAlgorithm = din.readUTF();
+//		encryptionAlgorithm = din.readUTF();
+//		checksumSize = din.readShort();
+//		checksumAlgorithm = din.readUTF();
+
+		int idx = din.readInt();
+		encryptionAlgorithm = stringConstantList.get(idx);
+
 		checksumSize = din.readShort();
-		checksumAlgorithm = din.readUTF();
+
+		idx = din.readInt();
+		checksumAlgorithm = stringConstantList.get(idx);
 	}
 
 	public void write(DataOutputStream dout, Map<String, Integer> stringConstant2idMap) throws IOException
@@ -83,9 +91,17 @@ class EncryptedProperty
 
 		KeyStoreUtil.writeByteArrayWithLengthHeader(dout, data);
 		KeyStoreUtil.writeByteArrayWithLengthHeader(dout, encryptionIV);
-		dout.writeUTF(encryptionAlgorithm);
+//		dout.writeUTF(encryptionAlgorithm);
+//		dout.writeShort(checksumSize);
+//		dout.writeUTF(checksumAlgorithm);
+
+		Integer idx = stringConstant2idMap.get(encryptionAlgorithm);
+		dout.writeInt(idx);
+
 		dout.writeShort(checksumSize);
-		dout.writeUTF(checksumAlgorithm);
+
+		idx = stringConstant2idMap.get(checksumAlgorithm);
+		dout.writeInt(idx);
 	}
 
 	private String name;
