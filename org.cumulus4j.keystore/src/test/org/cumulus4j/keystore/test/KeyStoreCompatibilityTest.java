@@ -6,6 +6,7 @@ import java.security.Key;
 import junit.framework.Assert;
 
 import org.cumulus4j.keystore.KeyStore;
+import org.cumulus4j.keystore.prop.Long2LongSortedMapProperty;
 import org.cumulus4j.keystore.prop.LongProperty;
 import org.cumulus4j.keystore.prop.StringProperty;
 import org.cumulus4j.keystore.test.resource.ResourceHelper;
@@ -70,6 +71,17 @@ public class KeyStoreCompatibilityTest
 					"Himmlische, dein Heiligthum.\n"
 			);
 			keyStore.setProperty(USER, PASSWORD, p);
+		}
+
+		{
+			String propertyName = "Long2LongSortedMapProperty1";
+			Long2LongSortedMapProperty property = keyStore.getProperty(USER, PASSWORD, Long2LongSortedMapProperty.class, propertyName);
+			property.getValue().put(System.currentTimeMillis(), 1L);
+			Long exampleMapKey = System.currentTimeMillis() + 24 * 3600 * 1000;
+			Long exampleMapValue = 113344L;
+			property.getValue().put(exampleMapKey, exampleMapValue);
+			property.getValue().put(System.currentTimeMillis() + 2 * 24 * 3600 * 1000, 375438972L);
+			keyStore.setProperty(USER, PASSWORD, property);
 		}
 	}
 
