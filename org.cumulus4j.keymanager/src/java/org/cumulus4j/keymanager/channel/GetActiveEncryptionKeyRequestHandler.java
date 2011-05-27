@@ -15,6 +15,19 @@ import org.cumulus4j.keystore.AuthenticationException;
 import org.cumulus4j.keystore.GeneratedKey;
 import org.cumulus4j.keystore.KeyNotFoundException;
 
+/**
+ * <p>
+ * Handler for {@link GetActiveEncryptionKeyRequest}.
+ * </p>
+ * <p>
+ * If the {@link Session} is found for the given
+ * {@link org.cumulus4j.keymanager.back.shared.Request#getCryptoSessionID() cryptoSessionID} and
+ * it is not {@link Session#isLocked() locked}, this handler determines the currently active
+ * encryption key and sends it in a {@link GetKeyResponse} to the server.
+ * </p>
+ *
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class GetActiveEncryptionKeyRequestHandler extends AbstractRequestHandler<GetActiveEncryptionKeyRequest>
 {
 	private static Date lastKeyChangeTimestamp = null;

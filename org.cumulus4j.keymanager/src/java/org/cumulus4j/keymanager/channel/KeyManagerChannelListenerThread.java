@@ -23,13 +23,26 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 
+/**
+ * <p>
+ * Thread that listens to incoming {@link Request}s and processes them.
+ * </p>
+ *
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class KeyManagerChannelListenerThread
 extends Thread
 {
 	private static final Logger logger = LoggerFactory.getLogger(KeyManagerChannelListenerThread.class);
 	private KeyManagerChannelManager keyManagerChannelManager;
 
-	public KeyManagerChannelListenerThread(KeyManagerChannelManager keyManagerChannelManager) {
+	/**
+	 * Instantiate a new listener thread.
+	 * @param keyManagerChannelManager the manager which instantiates this thread and manages
+	 * the {@link RequestHandler}s to dispatch the incoming requests to.
+	 */
+	public KeyManagerChannelListenerThread(KeyManagerChannelManager keyManagerChannelManager)
+	{
 		if (keyManagerChannelManager == null)
 			throw new IllegalArgumentException("keyManagerChannelManager == null");
 

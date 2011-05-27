@@ -26,6 +26,9 @@ import org.cumulus4j.keymanager.back.shared.Response;
  * <p>
  * If handling a request fails, an {@link ErrorResponse} is sent to the server.
  * </p>
+ * <p>
+ * <b>Important:</b> You should not directly implement this interface but instead subclass {@link AbstractRequestHandler}!
+ * </p>
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  *
