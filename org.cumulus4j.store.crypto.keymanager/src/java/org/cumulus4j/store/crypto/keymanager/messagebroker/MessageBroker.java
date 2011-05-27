@@ -95,8 +95,7 @@ public interface MessageBroker
 	 *
 	 * @param responseClass the type of the expected response.
 	 * @param request the request to be sent to the key-manager.
-	 * @return the response from the key-manager. Will be <code>null</code>, if the key-manager replied with a {@link NullResponse}
-	 * (if valid for the given request).
+	 * @return the response from the key-manager. Will be <code>null</code>, if the key-manager replied with a {@link NullResponse}.
 	 * @throws TimeoutException if the request was not replied within the {@link #SYSTEM_PROPERTY_QUERY_TIMEOUT query-timeout}.
 	 * @throws ErrorResponseException if the key-manager (either running embedded on the remote client or
 	 * in a separate key-server) sent an {@link ErrorResponse}.

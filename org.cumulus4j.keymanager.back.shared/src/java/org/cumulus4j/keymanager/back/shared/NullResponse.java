@@ -20,7 +20,9 @@ extends Response
 	/**
 	 * Create a <code>NullResponse</code> as answer to a prior request. It is
 	 * processed like any other response, i.e. forwarded to the requester, but finally
-	 * transformed to <code>null</code>.
+	 * translated to <code>null</code>
+	 * (<code>org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBroker.query(Class<R>, Request)</code>
+	 * never returns a <code>NullResponse</code> instance).
 	 * @param request the request that is answered by this new <code>NullResponse</code> instance.
 	 */
 	public NullResponse(Request request)

@@ -93,6 +93,9 @@ extends Thread
 						logger.error("run: " + t, t);
 						response = new ErrorResponse(request, t);
 					}
+
+					if (response == null)
+						response = new NullResponse(request);
 				}
 			} catch (UniformInterfaceException x) {
 				try {
