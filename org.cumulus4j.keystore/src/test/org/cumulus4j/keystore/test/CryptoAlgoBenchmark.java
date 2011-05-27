@@ -31,9 +31,11 @@ import org.slf4j.LoggerFactory;
  */
 public class CryptoAlgoBenchmark
 {
-	private static final BouncyCastleProvider bouncyCastleProvider = new BouncyCastleProvider();
+	private static final boolean USE_BOUNCY_CASTLE = true;
+	private static final BouncyCastleProvider bouncyCastleProvider = USE_BOUNCY_CASTLE ? new BouncyCastleProvider() : null;
 	static {
-		Security.insertProviderAt(bouncyCastleProvider, 2);
+		if (bouncyCastleProvider != null)
+			Security.insertProviderAt(bouncyCastleProvider, 2);
 	}
 
 //	private static final int ITERATION_COUNT = 1000000;
@@ -136,22 +138,22 @@ public class CryptoAlgoBenchmark
 	throws Exception
 	{
 		String[] algos = {
-				// CBC and PCBC do require padding!
-				"AES/CBC/PKCS5Padding",
-				"AES/CBC/ISO10126Padding",
-
-				"AES/PCBC/PKCS5Padding",
-				"AES/PCBC/ISO10126Padding",
-
-				// CTR, CTS, CFB and OFB do not require padding.
-				// CTR and CTS even *MUST* be used with NoPadding
-				"AES/CTR/NoPadding",
-
-				"AES/CTS/NoPadding",
-
-				"AES/CFB/PKCS5Padding",
-				"AES/CFB/ISO10126Padding",
-				"AES/CFB/NoPadding",
+//				// CBC and PCBC do require padding!
+//				"AES/CBC/PKCS5Padding",
+//				"AES/CBC/ISO10126Padding",
+//
+//				"AES/PCBC/PKCS5Padding",
+//				"AES/PCBC/ISO10126Padding",
+//
+//				// CTR, CTS, CFB and OFB do not require padding.
+//				// CTR and CTS even *MUST* be used with NoPadding
+//				"AES/CTR/NoPadding",
+//
+//				"AES/CTS/NoPadding",
+//
+//				"AES/CFB/PKCS5Padding",
+//				"AES/CFB/ISO10126Padding",
+//				"AES/CFB/NoPadding",
 
 				"AES/OFB/PKCS5Padding",
 				"AES/OFB/ISO10126Padding",
@@ -163,13 +165,13 @@ public class CryptoAlgoBenchmark
 
 				"AES/OFB8/NoPadding",
 				"AES/OFB128/NoPadding",
-				"Blowfish/CBC/PKCS5Padding",
-				"Blowfish/CFB/PKCS5Padding",
-				"Blowfish/CFB/NoPadding",
-
-				"Twofish/CBC/PKCS5Padding",
-				"Twofish/CFB/PKCS5Padding",
-				"Twofish/CFB/NoPadding"
+//				"Blowfish/CBC/PKCS5Padding",
+//				"Blowfish/CFB/PKCS5Padding",
+//				"Blowfish/CFB/NoPadding",
+//
+//				"Twofish/CBC/PKCS5Padding",
+//				"Twofish/CFB/PKCS5Padding",
+//				"Twofish/CFB/NoPadding"
 		};
 
 		Map<String, Throwable> algo2error = new TreeMap<String, Throwable>();
@@ -288,13 +290,15 @@ public class CryptoAlgoBenchmark
 		}
 		stopwatch.stop("11.initDecrypterWithSameKeyAndNewIVManyTimes");
 
-		stopwatch.start("12.initDecrypterWithRepeatedKeyAndNewIVManyTimes");
-		for (int i = 0; i < ITERATION_COUNT; i++) {
-			random.nextBytes(altIV);
-			IvParameterSpec tmpIV = new IvParameterSpec(altIV);
-			decrypter.init(Cipher.DECRYPT_MODE, new RepeatedKey(key.getAlgorithm()), tmpIV);
+		if (bouncyCastleProvider != null) { // RepeatedKey is only supported by BC, not trying it with Sun's provider.
+			stopwatch.start("12.initDecrypterWithRepeatedKeyAndNewIVManyTimes");
+			for (int i = 0; i < ITERATION_COUNT; i++) {
+				random.nextBytes(altIV);
+				IvParameterSpec tmpIV = new IvParameterSpec(altIV);
+				decrypter.init(Cipher.DECRYPT_MODE, new RepeatedKey(key.getAlgorithm()), tmpIV);
+			}
+			stopwatch.stop("12.initDecrypterWithRepeatedKeyAndNewIVManyTimes");
 		}
-		stopwatch.stop("12.initDecrypterWithRepeatedKeyAndNewIVManyTimes");
 
 		encrypter.init(Cipher.ENCRYPT_MODE, key, iv);
 		decrypter.init(Cipher.DECRYPT_MODE, key, iv);
@@ -331,29 +335,43 @@ public class CryptoAlgoBenchmark
 
 
 		// Test the RepeatedKey
-		byte[] input2 = new byte[dataLength];
-		random.nextBytes(input2);
+		if (bouncyCastleProvider != null) { // RepeatedKey is only supported by BC, not trying it with Sun's provider.
+			byte[] input2 = new byte[dataLength];
+			random.nextBytes(input2);
 
-		byte[] encodedIV2 = new byte[ivLengthBit / 8];
-		random.nextBytes(encodedIV2);
-		IvParameterSpec iv2 = new IvParameterSpec(encodedIV2);
+			byte[] encodedIV2 = new byte[ivLengthBit / 8];
+			random.nextBytes(encodedIV2);
+			IvParameterSpec iv2 = new IvParameterSpec(encodedIV2);
 
-		encrypter.init(Cipher.ENCRYPT_MODE, key, iv);
-		encrypted1 = encrypter.doFinal(input1);
+			encrypter.init(Cipher.ENCRYPT_MODE, key, iv);
+			encrypted1 = encrypter.doFinal(input1);
 
-		encrypter.init(Cipher.ENCRYPT_MODE, new RepeatedKey(key.getAlgorithm()), iv2);
-		encrypted2 = encrypter.doFinal(input2);
+			encrypter.init(Cipher.ENCRYPT_MODE, new RepeatedKey(key.getAlgorithm()), iv2);
+			encrypted2 = encrypter.doFinal(input2);
 
-		decrypter.init(Cipher.DECRYPT_MODE, key, iv);
-		decrypted1 = decrypter.doFinal(encrypted1);
+			decrypter.init(Cipher.DECRYPT_MODE, key, iv);
+			decrypted1 = decrypter.doFinal(encrypted1);
 
-		decrypter.init(Cipher.DECRYPT_MODE, new RepeatedKey(key.getAlgorithm()), iv2);
-		decrypted2 = decrypter.doFinal(encrypted2);
+			decrypter.init(Cipher.DECRYPT_MODE, new RepeatedKey(key.getAlgorithm()), iv2);
+			decrypted2 = decrypter.doFinal(encrypted2);
 
-		byte[] decrypted1WithWrongIV = decrypter.doFinal(encrypted1);
-		Assert.assertTrue("input1 != decrypted", Arrays.equals(input1, decrypted1));
-		Assert.assertTrue("input2 != decrypted2", Arrays.equals(input2, decrypted2));
-		Assert.assertFalse("input1 == decrypted2", Arrays.equals(input1, decrypted1WithWrongIV));
+			byte[] decrypted1WithWrongIV;
+			try {
+				decrypted1WithWrongIV = decrypter.doFinal(encrypted1);
+			} catch (GeneralSecurityException x) {
+				logger.info("Decrypting with wrong IV threw this exception: " + x);
+				// That's likely, because the IV is wrong ;-)
+				decrypted1WithWrongIV = new byte[0];
+			}
+
+			// After the previous decryption failed, we should still be able to use the decrypter.
+			byte[] decrypted2_again = decrypter.doFinal(encrypted2);
+
+			Assert.assertTrue("input1 != decrypted", Arrays.equals(input1, decrypted1));
+			Assert.assertTrue("input2 != decrypted2", Arrays.equals(input2, decrypted2));
+			Assert.assertTrue("input2 != decrypted2_again", Arrays.equals(input2, decrypted2_again));
+			Assert.assertFalse("input1 == decrypted2", Arrays.equals(input1, decrypted1WithWrongIV));
+		}
 
 		logger.info(stopwatch.createHumanReport(true));
 		logger.info("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
