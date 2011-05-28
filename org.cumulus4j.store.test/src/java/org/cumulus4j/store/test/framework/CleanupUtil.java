@@ -28,8 +28,17 @@ public class CleanupUtil
 		Properties properties = TestUtil.loadProperties("cumulus4j-test-datanucleus.properties");
 
 		logger.debug("Deleting all tables");
-		String connectionDriverName = properties.getProperty("javax.jdo.option.ConnectionDriverName");
+		String connectionURL = properties.getProperty("javax.jdo.option.ConnectionURL");
+		if (connectionURL == null) {
+			logger.warn("dropAllTables: Property 'javax.jdo.option.ConnectionURL' is not set! Skipping!");
+			return;
+		}
+		else if (!connectionURL.startsWith("jdbc:")) {
+			logger.info("dropAllTables: Not RDBMS datastore so skipping");
+			return;
+		}
 
+		String connectionDriverName = properties.getProperty("javax.jdo.option.ConnectionDriverName");
 		if (connectionDriverName == null) {
 			logger.warn("dropAllTables: Property 'javax.jdo.option.ConnectionDriverName' is not set! Skipping!");
 			return;
@@ -47,11 +56,10 @@ public class CleanupUtil
 			}
 
 			// simply delete the directory - the drop table commands failed and I don't have time to find out why
-			String url = properties.getProperty("javax.jdo.option.ConnectionURL");
-			if (!url.startsWith("jdbc:derby:"))
+			if (!connectionURL.startsWith("jdbc:derby:"))
 				throw new IllegalStateException("URL is not \"jdbc:derby:\"");
 
-			String path = url.substring(11);
+			String path = connectionURL.substring(11);
 			int semicolonIdx = path.indexOf(';');
 			if (semicolonIdx >= 0)
 				path = path.substring(0, semicolonIdx);
@@ -62,9 +70,8 @@ public class CleanupUtil
 			return;
 		}
 
-		String url = properties.getProperty("javax.jdo.option.ConnectionURL");
 		java.sql.Connection con = DriverManager.getConnection(
-				url,
+				connectionURL,
 				properties.getProperty("javax.jdo.option.ConnectionUserName"),
 				properties.getProperty("javax.jdo.option.ConnectionPassword")
 		);
