@@ -35,6 +35,7 @@
 <!-- We currently don't have an activator.
 						<Bundle-Activator>com.my.company.Activator</Bundle-Activator>
 -->
+						<Main-Class>org.cumulus4j.keystore.admin.KeyStoreAdmin</Main-Class>
 					</instructions>
 				</configuration>
 			</plugin>
