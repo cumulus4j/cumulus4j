@@ -43,11 +43,14 @@
                     <execution>
                         <configuration>
 	                        <mainClass>org.cumulus4j.keystore.cli.KeyStoreCLI</mainClass>
-                        
+
                             <!-- Optional -->
-                            <onejarVersion>0.97</onejarVersion>
-                            <!-- Optional, default is false -->
-                            <attachToBuild>true</attachToBuild>
+                            <onejarVersion>0.96</onejarVersion>
+                            <!--
+                            We use attachToBuild=false, because otherwise the *.one-jar.jar file is
+                            registered in the build, but missing, because we rename it below.
+                            -->
+                            <attachToBuild>false</attachToBuild>
                         </configuration>
                         <goals>
                             <goal>one-jar</goal>
@@ -55,6 +58,25 @@
                     </execution>
                 </executions>
             </plugin>
+
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.6</version>
+				<executions>
+					<execution>
+						<phase>verify</phase>
+						<configuration>
+							<target>
+								<delete file="${basedir}/target/${project.artifactId}-${project.version}.jar"/>
+								<move file="${basedir}/target/${project.artifactId}-${project.version}.one-jar.jar" tofile="${basedir}/target/${project.artifactId}-${project.version}.jar" />
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 </project>
