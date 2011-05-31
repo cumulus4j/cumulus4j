@@ -64,7 +64,7 @@ Workspace-Setup Cumulus4j-DataNucleus-Plug-in
 ** A: Step 1
 
 	Start Eclipse, go to the “SVN Repository Exploring” perspective and add the following SVN repository:
-	{{https://dev.nightlabs.org/svn/private/fzi/src}}
+	{{https://dev.nightlabs.org/svn/public/cumulus4j/}}
 
 ** A: Step 2
 
@@ -104,7 +104,7 @@ Workspace-Setup Cumulus4j-DataNucleus-Plug-in
 ** B: Step 2
 
 	Go to the "SVN Repository Exploring" perspective and add the following SVN repository:
-	{{https://dev.nightlabs.org/svn/private/fzi/src}}
+	{{https://dev.nightlabs.org/svn/public/cumulus4j/trunk/}}
 
 ** B: Step 3
 
