@@ -126,7 +126,7 @@ public interface MessageBroker
 	 * <p>
 	 * It should be possible to configure this timeout via the system property
 	 * {@value #SYSTEM_PROPERTY_POLL_REQUEST_TIMEOUT}. Implementors should use
-	 * {@link AbstractMessageBroker#getPollRequestTimeout()} for this purpose.
+	 * {@link #getPollRequestTimeout()} for this purpose.
 	 * </p>
 	 * @param cryptoSessionIDPrefix usually, every key-manager uses the same prefix for
 	 * all crypto-sessions. Thus, this prefix is used to efficiently route requests to
@@ -147,4 +147,39 @@ public interface MessageBroker
 	 * @param response the response answering a previous {@link Request} enqueued by {@link #query(Class, Request)}.
 	 */
 	void pushResponse(Response response);
+
+	/**
+	 * <p>
+	 * Get the {@link MessageBroker#pollRequest(String) pollRequest(....)} timeout in milliseconds.
+	 * </p>
+	 * <p>
+	 * This method takes the system property {@link MessageBroker#SYSTEM_PROPERTY_POLL_REQUEST_TIMEOUT} into account.
+	 * If the system property is not present or not a valid number, the default value 60000 (1 minute) is returned.
+	 * </p>
+	 * <p>
+	 * Usually, a value of about 1 minute is recommended in most situations. However, when
+	 * using certain runtimes, it must be much shorter  (e.g. the Google App Engine allows
+	 * requests not to take longer than 30 sec, thus 20 sec are an appropriate time to stay safe).
+	 * </p>
+	 * <p>
+	 * Additionally, since the remote key-manager must wait at maximum this time, its HTTP-client's
+	 * timeout must be longer than this timeout.
+	 * </p>
+	 *
+	 * @return the {@link MessageBroker#pollRequest(String) pollRequest(....)} timeout in milliseconds.
+	 */
+	long getPollRequestTimeout();
+
+	/**
+	 * <p>
+	 * Get the {@link MessageBroker#query(Class, Request) query} timeout in milliseconds.
+	 * </p>
+	 * <p>
+	 * This method takes the system property {@link MessageBroker#SYSTEM_PROPERTY_QUERY_TIMEOUT} into account.
+	 * If the system property is not present or not a valid number, the default value 300000 (5 minutes) is returned.
+	 * </p>
+	 *
+	 * @return the {@link MessageBroker#query(Class, Request) query} timeout in milliseconds.
+	 */
+	long getQueryTimeout();
 }

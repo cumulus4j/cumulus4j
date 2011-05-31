@@ -3,11 +3,9 @@ package org.cumulus4j.store.crypto.keymanager.messagebroker;
 import java.util.concurrent.TimeoutException;
 
 import org.cumulus4j.keymanager.back.shared.ErrorResponse;
-import org.cumulus4j.keymanager.back.shared.GetKeyRequest;
 import org.cumulus4j.keymanager.back.shared.NullResponse;
 import org.cumulus4j.keymanager.back.shared.Request;
 import org.cumulus4j.keymanager.back.shared.Response;
-import org.cumulus4j.store.crypto.keymanager.messagebroker.pmf.MessageBrokerPMF;
 import org.cumulus4j.store.crypto.keymanager.rest.ErrorResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,63 +26,72 @@ implements MessageBroker
 
 	private long pollRequestTimeout = -1;
 
-	/**
-	 * <p>
-	 * Get the {@link MessageBroker#query(Class, Request) query} timeout in milliseconds.
-	 * </p>
-	 * <p>
-	 * This method takes the system property {@link MessageBroker#SYSTEM_PROPERTY_QUERY_TIMEOUT} into account.
-	 * If the system property is not present or not a valid number, the default value 300000 (5 minutes) is returned.
-	 * </p>
-	 *
-	 * @return the {@link MessageBroker#query(Class, Request) query} timeout in milliseconds.
-	 */
+	@Override
 	public long getQueryTimeout()
 	{
 		if (queryTimeoutMSec < 0) {
-			// TODO take MessageBroker.SYSTEM_PROPERTY_QUERY_TIMEOUT into account!
-			queryTimeoutMSec = 5L * 60L * 1000L;
+			String property = System.getProperty(SYSTEM_PROPERTY_QUERY_TIMEOUT);
+			long timeout = -1;
+			if (property != null && !property.isEmpty()) {
+				try {
+					timeout = Long.parseLong(property);
+				} catch (NumberFormatException x) {
+					logger.warn("Value \"{}\" of system property '{}' is not valid, because it cannot be parsed as number!", property, SYSTEM_PROPERTY_QUERY_TIMEOUT);
+				}
+				if (timeout < 0)
+					logger.warn("Value \"{}\" of system property '{}' is not valid, because it is less than 0!", property, SYSTEM_PROPERTY_QUERY_TIMEOUT);
+				else {
+					logger.info("System property '{}' is specified with value {}.", SYSTEM_PROPERTY_QUERY_TIMEOUT, timeout);
+					queryTimeoutMSec = timeout;
+				}
+			}
+
+			if (queryTimeoutMSec < 0) {
+				timeout = 5L * 60L * 1000L;
+				queryTimeoutMSec = timeout;
+				logger.info("System property '{}' is not specified; using default value {}.", SYSTEM_PROPERTY_QUERY_TIMEOUT, timeout);
+			}
 		}
 
 		return queryTimeoutMSec;
 	}
 
-	/**
-	 * <p>
-	 * Get the {@link MessageBroker#pollRequest(String) pollRequest(....)} timeout in milliseconds.
-	 * </p>
-	 * <p>
-	 * This method takes the system property {@link MessageBroker#SYSTEM_PROPERTY_POLL_REQUEST_TIMEOUT} into account.
-	 * If the system property is not present or not a valid number, the default value 60000 (1 minute) is returned.
-	 * </p>
-	 * <p>
-	 * Usually, a value of about 1 minute is recommended in most situations. However, when
-	 * using certain runtimes, it must be much shorter  (e.g. the Google App Engine allows
-	 * requests not to take longer than 30 sec, thus 20 sec are an appropriate time to stay safe).
-	 * </p>
-	 * <p>
-	 * Additionally, since the remote key-manager must wait at maximum this time, its HTTP-client's
-	 * timeout must be longer than this timeout.
-	 * </p>
-	 *
-	 * @return the {@link MessageBroker#pollRequest(String) pollRequest(....)} timeout in milliseconds.
-	 */
+	@Override
 	public long getPollRequestTimeout()
 	{
 		if (pollRequestTimeout < 0) {
-			// TODO take MessageBroker.SYSTEM_PROPERTY_POLL_REQUEST_TIMEOUT into account!
-			pollRequestTimeout = 1L * 60L * 1000L;
+			String property = System.getProperty(SYSTEM_PROPERTY_POLL_REQUEST_TIMEOUT);
+			long timeout = -1;
+			if (property != null && !property.isEmpty()) {
+				try {
+					timeout = Long.parseLong(property);
+				} catch (NumberFormatException x) {
+					logger.warn("Value \"{}\" of system property '{}' is not valid, because it cannot be parsed as number!", property, SYSTEM_PROPERTY_POLL_REQUEST_TIMEOUT);
+				}
+				if (timeout < 0)
+					logger.warn("Value \"{}\" of system property '{}' is not valid, because it is less than 0!", property, SYSTEM_PROPERTY_POLL_REQUEST_TIMEOUT);
+				else {
+					logger.info("System property '{}' is specified with value {}.", SYSTEM_PROPERTY_POLL_REQUEST_TIMEOUT, timeout);
+					pollRequestTimeout = timeout;
+				}
+			}
+
+			if (pollRequestTimeout < 0) {
+				timeout = 1L * 60L * 1000L;
+				pollRequestTimeout = timeout;
+				logger.info("System property '{}' is not specified; using default value {}.", SYSTEM_PROPERTY_POLL_REQUEST_TIMEOUT, timeout);
+			}
 		}
 
 		return pollRequestTimeout;
 	}
 
-	public static void main(String[] args)
-	throws Exception
-	{
-		MessageBroker mb = new MessageBrokerPMF();
-		mb.query(null, new GetKeyRequest());
-	}
+//	public static void main(String[] args)
+//	throws Exception
+//	{
+//		MessageBroker mb = new MessageBrokerPMF();
+//		mb.query(null, new GetKeyRequest());
+//	}
 
 	@Override
 	public final <R extends Response> R query(Class<R> responseClass, Request request)
