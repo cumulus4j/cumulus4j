@@ -22,7 +22,7 @@
 		SCM URL, which is definitely wrong for this aggregator. Marco.
 	-->
 	<scm>
-		<connection>scm:svn:https://dev.nightlabs.org/svn/private/fzi/src/trunk/</connection>
+		<connection>scm:svn:https://dev.nightlabs.org/svn/public/cumulus4j/trunk/</connection>
 	</scm>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>org.cumulus4j.all</artifactId>
