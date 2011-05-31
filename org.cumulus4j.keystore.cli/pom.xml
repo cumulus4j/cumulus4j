@@ -42,6 +42,8 @@
                 <executions>
                     <execution>
                         <configuration>
+	                        <mainClass>org.cumulus4j.keystore.cli.KeyStoreCLI</mainClass>
+                        
                             <!-- Optional -->
                             <onejarVersion>0.97</onejarVersion>
                             <!-- Optional, default is false -->
