@@ -35,7 +35,7 @@ extends AbstractJDOTransactionalTest
 			Account account = new Account(ACCOUNT_ID_0);
 			LocalAccountantDelegate localAccountantDelegate = new LocalAccountantDelegate(LOCAL_ACCOUNTANT_DELEGATE_ID_0);
 			localAccountantDelegate.setAccount("EUR", account);
-			pm.makePersistent(localAccountantDelegate); // this should implicitely persist the account
+			pm.makePersistent(localAccountantDelegate); // this should implicitly persist the account
 		}
 
 		commitAndBeginNewTransaction();
