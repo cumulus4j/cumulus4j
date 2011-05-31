@@ -5,7 +5,7 @@ import org.kohsuke.args4j.Option;
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public class CreateUserSubCommand extends SubCommandWithKeyStore
+public class CreateUserSubCommand extends SubCommandWithKeyStoreWithAuth
 {
 	@Option(name="-userName", required=true, usage="The new user to be created.")
 	private String userName;

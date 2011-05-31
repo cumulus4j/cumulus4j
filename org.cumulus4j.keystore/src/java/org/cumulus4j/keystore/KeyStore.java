@@ -13,6 +13,7 @@ import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.Security;
 import java.security.spec.KeySpec;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,6 +40,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.cumulus4j.keystore.prop.LongProperty;
 import org.cumulus4j.keystore.prop.Property;
 import org.slf4j.Logger;
@@ -332,6 +334,22 @@ import org.slf4j.LoggerFactory;
 public class KeyStore
 {
 	private static final Logger logger = LoggerFactory.getLogger(KeyStore.class);
+
+	private static final BouncyCastleProvider bouncyCastleProvider = new BouncyCastleProvider();
+	static {
+		Security.insertProviderAt(bouncyCastleProvider, 2);
+
+		KeyGenerator kg;
+		try {
+			kg = KeyGenerator.getInstance("AES");
+		} catch (NoSuchAlgorithmException e) {
+			logger.warn("KeyGenerator.getInstance(\"AES\") failed: " + e, e);
+			kg = null;
+		}
+
+		if (kg == null || kg.getProvider() != bouncyCastleProvider)
+			logger.warn("BouncyCastleProvider was NOT registered!!!");
+	}
 
 	/**
 	 * <p>

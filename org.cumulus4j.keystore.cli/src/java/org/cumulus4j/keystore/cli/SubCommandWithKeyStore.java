@@ -19,27 +19,6 @@ extends SubCommand
 		return keyStoreFile;
 	}
 
-	@Option(name="-authUserName", required=true, usage="The authenticated user authorizing this action. If the very first user is created, this value is ignored.")
-	private String authUserName;
-
-	public String getAuthUserName()
-	{
-		return authUserName;
-	}
-
-	@Option(name="-authPassword", required=false, usage="The password for authenticating the user specified by -authUserName. If the very first user is created, this value is ignored. If omitted, the user will be asked interactively (if required, i.e. if not creating the very first user).")
-	private String authPassword;
-
-	public char[] getAuthPasswordAsCharArray()
-	{
-		return authPassword == null ? null : authPassword.toCharArray();
-	}
-
-	public String getAuthPassword()
-	{
-		return authPassword;
-	}
-
 	private KeyStore keyStore;
 
 	public KeyStore getKeyStore()
@@ -52,14 +31,14 @@ extends SubCommand
 	{
 		super.prepare();
 		keyStore = new KeyStore(keyStoreFile);
-
-		if (authPassword == null && !keyStore.isEmpty())
-			authPassword = promptPassword("authPassword: ");
 	}
 
 	protected String promptPassword(String fmt, Object ... args)
 	{
 		Console console = System.console();
+		if (console == null)
+			throw new IllegalStateException("There is no system console! Cannot prompt \"" + String.format(fmt, args) + "\"!!!");
+
 		char[] pw = console.readPassword(fmt, args);
 		if (pw == null)
 			return null;

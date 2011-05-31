@@ -10,7 +10,7 @@ import org.cumulus4j.keystore.prop.Property;
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public class InfoSubCommand extends SubCommandWithKeyStore
+public class InfoSubCommand extends SubCommandWithKeyStoreWithAuth
 {
 	@Override
 	public String getSubCommandName() {
@@ -77,9 +77,14 @@ public class InfoSubCommand extends SubCommandWithKeyStore
 		if (properties.isEmpty())
 			System.out.println("  --- EMPTY ---");
 
+		// We do not output the details here! 'info' should give an overview only. Details can be obtained via other sub-commands.
+//		for (Property<?> property : properties) {
+//			System.out.println("  " + property.getName() + " (" + property.getClass().getName() + ") = " + property.getValue());
+//		}
 		for (Property<?> property : properties) {
-			System.out.println("  " + property.getName() + " (" + property.getClass().getName() + ") = " + property.getValue());
+			System.out.println("  " + property.getName() + " (" + property.getClass().getName() + ", " + property.getValueEncoded().length + " Byte)");
 		}
+
 		System.out.println();
 	}
 

@@ -138,22 +138,22 @@ public class CryptoAlgoBenchmark
 	throws Exception
 	{
 		String[] algos = {
-//				// CBC and PCBC do require padding!
-//				"AES/CBC/PKCS5Padding",
-//				"AES/CBC/ISO10126Padding",
-//
-//				"AES/PCBC/PKCS5Padding",
-//				"AES/PCBC/ISO10126Padding",
-//
-//				// CTR, CTS, CFB and OFB do not require padding.
-//				// CTR and CTS even *MUST* be used with NoPadding
-//				"AES/CTR/NoPadding",
-//
-//				"AES/CTS/NoPadding",
-//
-//				"AES/CFB/PKCS5Padding",
-//				"AES/CFB/ISO10126Padding",
-//				"AES/CFB/NoPadding",
+				// CBC and PCBC do require padding!
+				"AES/CBC/PKCS5Padding",
+				"AES/CBC/ISO10126Padding",
+
+				"AES/PCBC/PKCS5Padding",
+				"AES/PCBC/ISO10126Padding",
+
+				// CTR, CTS, CFB and OFB do not require padding.
+				// CTR and CTS even *MUST* be used with NoPadding
+				"AES/CTR/NoPadding",
+
+				"AES/CTS/NoPadding",
+
+				"AES/CFB/PKCS5Padding",
+				"AES/CFB/ISO10126Padding",
+				"AES/CFB/NoPadding",
 
 				"AES/OFB/PKCS5Padding",
 				"AES/OFB/ISO10126Padding",
@@ -165,13 +165,13 @@ public class CryptoAlgoBenchmark
 
 				"AES/OFB8/NoPadding",
 				"AES/OFB128/NoPadding",
-//				"Blowfish/CBC/PKCS5Padding",
-//				"Blowfish/CFB/PKCS5Padding",
-//				"Blowfish/CFB/NoPadding",
-//
-//				"Twofish/CBC/PKCS5Padding",
-//				"Twofish/CFB/PKCS5Padding",
-//				"Twofish/CFB/NoPadding"
+				"Blowfish/CBC/PKCS5Padding",
+				"Blowfish/CFB/PKCS5Padding",
+				"Blowfish/CFB/NoPadding",
+
+				"Twofish/CBC/PKCS5Padding",
+				"Twofish/CFB/PKCS5Padding",
+				"Twofish/CFB/NoPadding"
 		};
 
 		Map<String, Throwable> algo2error = new TreeMap<String, Throwable>();

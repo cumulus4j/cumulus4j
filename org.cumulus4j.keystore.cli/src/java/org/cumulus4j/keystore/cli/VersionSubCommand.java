@@ -14,6 +14,9 @@ extends SubCommand
 	{
 		Properties properties = new Properties();
 		InputStream in = VersionSubCommand.class.getResourceAsStream("/META-INF/maven/org.cumulus4j/org.cumulus4j.keystore.cli/pom.properties");
+		if (in == null)
+			return "UNKNOWN";
+
 		try {
 			properties.load(in);
 		} catch (IOException x) {

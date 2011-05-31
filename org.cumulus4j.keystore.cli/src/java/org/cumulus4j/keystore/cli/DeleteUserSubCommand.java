@@ -5,7 +5,7 @@ import org.kohsuke.args4j.Option;
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public class DeleteUserSubCommand extends SubCommandWithKeyStore
+public class DeleteUserSubCommand extends SubCommandWithKeyStoreWithAuth
 {
 	@Option(name="-userName", required=true, usage="The user to be deleted.")
 	private String userName;
