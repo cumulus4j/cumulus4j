@@ -1,5 +1,6 @@
 package org.cumulus4j.keystore.cli;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,8 +23,10 @@ public class KeyStoreCLI
 		ArrayList<Class<? extends SubCommand>> l = new ArrayList<Class<? extends SubCommand>>();
 
 		l.add(CreateUserSubCommand.class);
+		l.add(DeleteUserSubCommand.class);
 		l.add(HelpSubCommand.class);
 		l.add(InfoSubCommand.class);
+		l.add(InitDateDependentKeyStrategySubCommand.class);
 		l.add(VersionSubCommand.class);
 
 		l.trimToSize();
@@ -50,7 +53,14 @@ public class KeyStoreCLI
 		}
 	}
 
-	private static final String CMD_PREFIX = "java -jar org.cumulus4j.keystore-VERSION.one-jar.jar";
+	private static final String CMD_PREFIX;
+	static {
+		try {
+			CMD_PREFIX = "java -jar org.cumulus4j.keystore.cli-" + VersionSubCommand.getVersion() + ".jar";
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	private static final String[] stripSubCommand(String[] args)
 	{

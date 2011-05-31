@@ -19,13 +19,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.zip.CRC32;
 
@@ -581,6 +582,13 @@ public class KeyStore
 
 	private Map<String, CachedMasterKey> cache_userName2cachedMasterKey = new HashMap<String, CachedMasterKey>();
 
+	public synchronized int getMasterKeySize(String authUserName, char[] authPassword)
+	throws AuthenticationException
+	{
+		MasterKey masterKey = getMasterKey(authUserName, authPassword);
+		return masterKey.getEncoded().length * 8;
+	}
+
 	/**
 	 * Authenticate and get the master-key. If there is a cache-entry existing, directly return this
 	 * (after comparing the password); otherwise decrypt the master-key using the given password.
@@ -1031,7 +1039,7 @@ public class KeyStore
 	 * @throws AuthenticationException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
 	 * is not correct for the given <code>authUserName</code>.
 	 */
-	public synchronized Set<String> getUsers(String authUserName, char[] authPassword)
+	public synchronized SortedSet<String> getUsers(String authUserName, char[] authPassword)
 	throws AuthenticationException
 	{
 		// The following getMasterKey(...) is no real protection, because the information returned by this method
@@ -1040,16 +1048,16 @@ public class KeyStore
 		// Marco :-)
 		getMasterKey(authUserName, authPassword);
 
-		Set<String> users = usersCache;
+		SortedSet<String> users = usersCache;
 		if (users == null) {
-			users = Collections.unmodifiableSet(new HashSet<String>(keyStoreData.user2keyMap.keySet()));
+			users = Collections.unmodifiableSortedSet(new TreeSet<String>(keyStoreData.user2keyMap.keySet()));
 			usersCache = users;
 		}
 
 		return users;
 	}
 
-	private Set<String> usersCache = null;
+	private SortedSet<String> usersCache = null;
 
 	/**
 	 * <p>
@@ -1165,6 +1173,14 @@ public class KeyStore
 		}
 	}
 
+	public synchronized SortedSet<Long> getKeyIDs(String authUserName, char[] authPassword)
+	throws AuthenticationException
+	{
+		getMasterKey(authUserName, authPassword);
+		SortedSet<Long> result = new TreeSet<Long>(keyStoreData.keyID2keyMap.keySet());
+		return result;
+	}
+
 	private void _setKey(String authUserName, char[] authPassword, long keyID, Key key)
 	throws AuthenticationException
 	{
@@ -1266,6 +1282,17 @@ public class KeyStore
 			}
 		}
 
+		return result;
+	}
+
+	public synchronized SortedSet<Property<?>> getProperties(String authUserName, char[] authPassword)
+	throws AuthenticationException
+	{
+		SortedSet<Property<?>> result = new TreeSet<Property<?>>();
+		for (Map.Entry<String, EncryptedProperty> me : keyStoreData.name2propertyMap.entrySet()) {
+			Property<?> property = getProperty(authUserName, authPassword, me.getValue().getType(), me.getKey());
+			result.add(property);
+		}
 		return result;
 	}
 

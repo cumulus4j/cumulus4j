@@ -25,6 +25,7 @@ import org.cumulus4j.keystore.KeyStore;
  * @param <T> the type of the property-value.
  */
 public abstract class Property<T>
+implements Comparable<Property<?>>
 {
 	private String name;
 
@@ -138,5 +139,42 @@ public abstract class Property<T>
 	 */
 	public void setXxx(UUID xxx) {
 		this.xxx = xxx;
+	}
+
+	@Override
+	public int compareTo(Property<?> o)
+	{
+		if (o == null)
+			return 1;
+
+		if (this.getName() == null) {
+			if (o.getName() == null)
+				return 0;
+			else
+				return -1;
+		}
+
+		if (o.getName() == null)
+			return 1;
+		else
+			return this.getName().compareTo(o.getName());
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return name == null ? 0 : name.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		Property<?> other = (Property<?>) obj;
+		return (
+				this.getName() == other.getName() ||
+				(this.getName() != null && this.getName().equals(other.getName()))
+		);
 	}
 }

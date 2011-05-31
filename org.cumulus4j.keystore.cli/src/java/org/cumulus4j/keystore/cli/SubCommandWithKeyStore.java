@@ -1,13 +1,14 @@
 package org.cumulus4j.keystore.cli;
 
-import java.io.BufferedReader;
+import java.io.Console;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
 
 import org.cumulus4j.keystore.KeyStore;
 import org.kohsuke.args4j.Option;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public abstract class SubCommandWithKeyStore
 extends SubCommand
 {
@@ -29,6 +30,11 @@ extends SubCommand
 	@Option(name="-authPassword", required=false, usage="The password for authenticating the user specified by -authUserName. If the very first user is created, this value is ignored. If omitted, the user will be asked interactively (if required, i.e. if not creating the very first user).")
 	private String authPassword;
 
+	public char[] getAuthPasswordAsCharArray()
+	{
+		return authPassword == null ? null : authPassword.toCharArray();
+	}
+
 	public String getAuthPassword()
 	{
 		return authPassword;
@@ -48,17 +54,17 @@ extends SubCommand
 		keyStore = new KeyStore(keyStoreFile);
 
 		if (authPassword == null && !keyStore.isEmpty())
-			authPassword = promptPassword("authPassword");
+			authPassword = promptPassword("authPassword: ");
 	}
 
-	protected String promptPassword(String display)
+	protected String promptPassword(String fmt, Object ... args)
 	{
-		System.err.print(display + ": ");
-		try {
-			return new BufferedReader(new InputStreamReader(System.in)).readLine();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		Console console = System.console();
+		char[] pw = console.readPassword(fmt, args);
+		if (pw == null)
+			return null;
+		else
+			return new String(pw);
 	}
 
 }
