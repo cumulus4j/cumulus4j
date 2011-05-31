@@ -104,7 +104,7 @@ Workspace-Setup Cumulus4j-DataNucleus-Plug-in
 ** B: Step 2
 
 	Go to the "SVN Repository Exploring" perspective and add the following SVN repository:
-	{{https://dev.nightlabs.org/svn/public/cumulus4j/trunk/}}
+	{{https://dev.nightlabs.org/svn/public/cumulus4j/}}
 
 ** B: Step 3
 
