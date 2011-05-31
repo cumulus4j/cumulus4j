@@ -1,15 +1,15 @@
 package org.cumulus4j.keystore.cli;
 
-public class CreateUserSubCommand extends SubCommand
-{
+public class InfoSubCommand extends SubCommandWithKeyStore {
+
 	@Override
 	public String getSubCommandName() {
-		return "createUser";
+		return "info";
 	}
 
 	@Override
 	public String getSubCommandDescription() {
-		return "Create a new user by encrypting the master-key with the new user's password.";
+		return "Display infos about the key-store.";
 	}
 
 	@Override

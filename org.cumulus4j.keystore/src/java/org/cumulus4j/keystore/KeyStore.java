@@ -372,7 +372,7 @@ public class KeyStore
 
 	private SecureRandom secureRandom = new SecureRandom();
 
-	private static Timer expireCacheEntryTimer = new Timer();
+	private static Timer expireCacheEntryTimer = new Timer(true);
 
 	private TimerTask expireCacheEntryTimerTask = new ExipreCacheEntryTimerTask(this);
 

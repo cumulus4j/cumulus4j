@@ -1,21 +1,20 @@
 package org.cumulus4j.keystore.cli;
 
-public class InfoSubCommand extends SubCommand {
+public class HelpSubCommand extends SubCommand {
 
 	@Override
 	public String getSubCommandName() {
-		return "info";
+		return "help";
 	}
 
 	@Override
 	public String getSubCommandDescription() {
-		return "Display infos about the key-store.";
+		return "Get help.";
 	}
 
 	@Override
 	public void run() throws Exception {
-		// TODO Auto-generated method stub
-
+		throw new UnsupportedOperationException("The help command is handled by the KeyStoreCLI itself.");
 	}
 
 }

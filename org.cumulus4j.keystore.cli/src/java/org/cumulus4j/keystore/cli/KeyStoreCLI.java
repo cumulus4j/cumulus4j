@@ -6,10 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.cumulus4j.keystore.KeyStore;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
-
-
 
 /**
  * Command line tool for the key store.
@@ -18,19 +17,21 @@ import org.kohsuke.args4j.CmdLineParser;
  */
 public class KeyStoreCLI
 {
-	private static final List<Class<? extends SubCommand>> subCommandClasses;
+	public static final List<Class<? extends SubCommand>> subCommandClasses;
 	static {
 		ArrayList<Class<? extends SubCommand>> l = new ArrayList<Class<? extends SubCommand>>();
 
-		l.add(InfoSubCommand.class);
 		l.add(CreateUserSubCommand.class);
+		l.add(HelpSubCommand.class);
+		l.add(InfoSubCommand.class);
+		l.add(VersionSubCommand.class);
 
 		l.trimToSize();
 		subCommandClasses = Collections.unmodifiableList(l);
 	};
 
-	private static final List<SubCommand> subCommands;
-	private static final Map<String, SubCommand> subCommandName2subCommand;
+	public static final List<SubCommand> subCommands;
+	public static final Map<String, SubCommand> subCommandName2subCommand;
 	static {
 		try {
 			ArrayList<SubCommand> l = new ArrayList<SubCommand>();
@@ -51,12 +52,23 @@ public class KeyStoreCLI
 
 	private static final String CMD_PREFIX = "java -jar org.cumulus4j.keystore-VERSION.one-jar.jar";
 
+	private static final String[] stripSubCommand(String[] args)
+	{
+		String[] result = new String[args.length - 1];
+		for (int i = 0; i < result.length; i++)
+			result[i] = args[i + 1];
+
+		return result;
+	}
+
 	/**
+	 * Main method providing a command line interface (CLI) to the {@link KeyStore}.
 	 *
 	 * @param args the program arguments.
 	 */
 	public static void main(String[] args)
 	{
+		int programExitStatus = 1;
 		boolean displayHelp = true;
 		String subCommandName = null;
 		SubCommand subCommand = null;
@@ -85,13 +97,19 @@ public class KeyStoreCLI
 
 					CmdLineParser parser = new CmdLineParser(subCommand);
 					try {
-						parser.parseArgument(args);
+						String[] argsWithoutSubCommand = stripSubCommand(args);
+						parser.parseArgument(argsWithoutSubCommand);
+						subCommand.prepare();
 						subCommand.run();
+						programExitStatus = 0;
 					} catch (CmdLineException e) {
 						// handling of wrong arguments
-						System.err.println(e.getMessage());
-						parser.printUsage(System.err);
+						programExitStatus = 2;
+						displayHelp = true;
+						System.err.println("Error: " + e.getMessage());
+						System.err.println();
 					} catch (Exception x) {
+						programExitStatus = 3;
 						x.printStackTrace();
 					}
 				}
@@ -100,11 +118,11 @@ public class KeyStoreCLI
 
 		if (displayHelp) {
 			if (subCommand == null) {
-				System.err.println("Syntax: " + CMD_PREFIX + " <subcommand> <options>");
+				System.err.println("Syntax: " + CMD_PREFIX + " <sub-command> <options>");
 				System.err.println();
-				System.err.println("Get help for a specific sub-command: " + CMD_PREFIX + " help <subcommand>");
+				System.err.println("Get help for a specific sub-command: " + CMD_PREFIX + " help <sub-command>");
 				System.err.println();
-				System.err.println("Available SUBCOMMANDs:");
+				System.err.println("Available sub-commands:");
 				for (SubCommand sc : subCommands) {
 					System.err.println("  " + sc.getSubCommandName());
 				}
@@ -121,6 +139,8 @@ public class KeyStoreCLI
 				parser.printUsage(System.err);
 			}
 		}
+
+		System.exit(programExitStatus);
 	}
 
 }
