@@ -12,7 +12,7 @@ Module org.cumulus4j.annotation
 
 * Maven
 
-	After adding the repositories documented on the {{{./download/index.html}Download}} page
+	After adding the repositories documented on the {{{../download/index.html}Download}} page
 	to your <<<pom.xml>>>, you can add the following dependency in order to use this module: 
 
 +------------------------------------------+

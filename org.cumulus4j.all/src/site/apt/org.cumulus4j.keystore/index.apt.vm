@@ -13,7 +13,7 @@ Module org.cumulus4j.keystore
 
 * Maven
 
-	After adding the repositories documented on the {{{./download/index.html}Download}} page
+	After adding the repositories documented on the {{{../download/index.html}Download}} page
 	to your <<<pom.xml>>>, you can add the following dependency in order to use this module: 
 
 +------------------------------------------+
