@@ -5,6 +5,6 @@
 	<skin>
 		<groupId>org.nightlabs.maven</groupId>
 		<artifactId>nightabs-maven-site-skin</artifactId>
-		<version>0.0.2-SNAPSHOT</version>
+		<version>0.0.3</version>
 	</skin>
 </project>
