@@ -8,8 +8,29 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
+import javax.jdo.JDOHelper;
+
+import org.cumulus4j.store.model.ClassMeta;
+import org.cumulus4j.store.model.DataEntry;
+import org.cumulus4j.store.model.FieldMeta;
+import org.cumulus4j.store.model.IndexEntryContainerSize;
+import org.cumulus4j.store.model.IndexEntryCurrency;
+import org.cumulus4j.store.model.IndexEntryDate;
+import org.cumulus4j.store.model.IndexEntryDouble;
+import org.cumulus4j.store.model.IndexEntryLong;
+import org.cumulus4j.store.model.IndexEntryStringLong;
+import org.cumulus4j.store.model.IndexEntryStringShort;
+import org.cumulus4j.store.model.IndexEntryURI;
+import org.cumulus4j.store.model.IndexEntryURL;
+import org.cumulus4j.store.model.IndexEntryUUID;
+import org.cumulus4j.store.model.Sequence;
+import org.datanucleus.api.jdo.JDOPersistenceManagerFactory;
+import org.datanucleus.store.StoreManager;
+import org.datanucleus.store.schema.SchemaAwareStoreManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +55,35 @@ public class CleanupUtil
 			return;
 		}
 		else if (!connectionURL.startsWith("jdbc:")) {
-			logger.info("dropAllTables: Not RDBMS datastore so skipping");
+			properties.remove("datanucleus.storeManagerType");
+			JDOPersistenceManagerFactory pmf = (JDOPersistenceManagerFactory)JDOHelper.getPersistenceManagerFactory(properties);
+			StoreManager storeMgr = pmf.getNucleusContext().getStoreManager();
+			if (storeMgr instanceof SchemaAwareStoreManager) {
+				// Use SchemaTool to delete the schema
+				SchemaAwareStoreManager schemaMgr = (SchemaAwareStoreManager) storeMgr;
+				Set<String> schemaClassNames = new HashSet<String>();
+				// TODO Get this list of classes from somewhere
+				schemaClassNames.add(ClassMeta.class.getName());
+				schemaClassNames.add(FieldMeta.class.getName());
+				schemaClassNames.add(DataEntry.class.getName());
+				schemaClassNames.add(Sequence.class.getName());
+				schemaClassNames.add(IndexEntryStringLong.class.getName());
+				schemaClassNames.add(IndexEntryStringShort.class.getName());
+				schemaClassNames.add(IndexEntryDate.class.getName());
+				schemaClassNames.add(IndexEntryLong.class.getName());
+				schemaClassNames.add(IndexEntryDouble.class.getName());
+				schemaClassNames.add(IndexEntryCurrency.class.getName());
+				schemaClassNames.add(IndexEntryContainerSize.class.getName());
+				schemaClassNames.add(IndexEntryURI.class.getName());
+				schemaClassNames.add(IndexEntryURL.class.getName());
+				schemaClassNames.add(IndexEntryUUID.class.getName());
+				logger.info("dropAllTables : running SchemaTool to delete Cumulus4J schema");
+				schemaMgr.deleteSchema(schemaClassNames, null);
+				logger.info("dropAllTables : SchemaTool deletion of Cumulus4J schema complete");
+			}
+			else {
+				logger.info("dropAllTables: Not RDBMS nor Schema-Aware datastore so skipping");
+			}
 			return;
 		}
 
