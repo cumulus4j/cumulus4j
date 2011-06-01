@@ -10,6 +10,11 @@
 			href="http://www.datanucleus.org"
 			target="_blank" />
 
+		<logo name="BouncyCastle"
+			img="http://www.cumulus4j.org/images/TheLegionOfTheBouncyCastle.png"
+			href="http://www.bouncycastle.org"
+			target="_blank" />
+
 		<logo name="SourceForge" href="http://sourceforge.net/projects/cumulus4j"
 			img="http://sflogo.sourceforge.net/sflogo.php?group_id=517465&amp;type=12"
 			width="120" height="30" alt="Get cumulus4j at SourceForge.net. Fast, secure and Free Open Source software downloads"
