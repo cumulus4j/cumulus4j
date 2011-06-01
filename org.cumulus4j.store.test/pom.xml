@@ -103,16 +103,41 @@
 		<profile>
 			<id>mongodb</id>
 			<dependencies>
-                <dependency>
-                    <groupId>org.datanucleus</groupId>
-                    <artifactId>datanucleus-mongodb</artifactId>
-                    <scope>test</scope>
+				<dependency>
+					<groupId>org.datanucleus</groupId>
+					<artifactId>datanucleus-mongodb</artifactId>
+					<scope>test</scope>
 				</dependency>
 				<dependency>
 					<groupId>org.mongodb</groupId>
 					<artifactId>mongo-java-driver</artifactId>
 					<version>2.5.2</version>
 					<scope>test</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>hbase</id>
+			<dependencies>
+				<dependency>
+					<groupId>org.datanucleus</groupId>
+					<artifactId>datanucleus-hbase</artifactId>
+					<scope>test</scope>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.hadoop</groupId>
+					<artifactId>hadoop-core</artifactId>
+					<version>[0.20.2, ]</version>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.hbase</groupId>
+					<artifactId>hbase</artifactId>
+					<version>0.90.0</version>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.hadoop</groupId>
+					<artifactId>zookeeper</artifactId>
+					<version>3.3.1</version>
 				</dependency>
 			</dependencies>
 		</profile>
