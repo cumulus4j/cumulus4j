@@ -1,0 +1,28 @@
+	---
+	Module org.cumulus4j.annotation
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-02
+
+Module org.cumulus4j.annotation
+
+	Annotations which can be used in the data model classes additionally to the JDO/JPA annotations
+	in order to control the behaviour of Cumulus4j.
+
+* Maven
+
+	After adding the repositories documented on the {{{./download/index.html}Download}} page
+	to your <<<pom.xml>>>, you can add the following dependency in order to use this module: 
+
++------------------------------------------+
+<dependencies>
+	...
+	<dependency>
+		<groupId>org.cumulus4j</groupId>
+		<artifactId>org.cumulus4j.annotation</artifactId>
+		<version>${cumulus4jStableVersion}</version>
+	</dependency>
+	...
+</dependencies>
++------------------------------------------+

@@ -30,8 +30,10 @@ Usage
 	[[3]] JPA : DataNucleus Annotations
 	
 	@Extension(key="cumulus4j-queryable", value="false")
-	
+
 
 * Deployment
-	
+
     You find a documentation of the currently supported {{{./deployment-scenarios.html}deployment scenarios here}}.
+    For details about which modules need to be deployed where, please consult the
+    {{{./deployment-of-modules.html}Deployment of modules}} page.

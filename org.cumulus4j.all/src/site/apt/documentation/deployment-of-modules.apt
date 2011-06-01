@@ -1,0 +1,38 @@
+	---
+	Modules
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-02
+
+Modules
+
+	Cumulus4j consists of multiple modules which need to be deployed to different locations.
+	Which location depends on your {{{./deployment-scenarios.html}deployment scenario}}:
+
+* 2-computer-scenario (without key-server)
+
+
+* 3-computer-scenario (with key-server)
+
+*-------------------------------------------------------------------+-------------------------------------------------------------------+-------------------------------------------------------------------+
+| <<Application server>>                                            | <<Key server>>                                                    | <<Client>>                                                        |
+*-------------------------------------------------------------------+-------------------------------------------------------------------+-------------------------------------------------------------------+
+| The application server is running in the cloud. That means,       | The key server is a tiny server (jetty/tomcat) that might be      | The client may be a rich client or a web-application. If it's     |
+| in fact this one logical computer might be a dozen or even        | running in a company's intranet or provided by a secure third     | running in a browser (not as a Java applet, but as an ordinary    |
+| a hundred cluster nodes. Since it manages the actual database,    | party in the internet. It contains the key store with all keys    | web app), it will of course use JavaScript instead of the Java    |
+| it needs JDO, DataNucleus with all plugins needed to access       | and the key manager, but no DN, as it doesn't access any          | libraries listed below. But if the client is Java, the following  |
+| the database and the backend-part of the keymanager.              | database.                                                         | modules will be required (JDO + C4J-annotations are required, if  |
+|                                                                   |                                                                   | data model classes are used directly - if DTOs are used, these    |
+| Here the modules that are required on the server:                 | Here the module list:                                             | dependencies are unnecessary):                                    |
+|                                                                   |                                                                   |                                                                   |
+|    * javax.jdo:jdo-api                                            |    * org.cumulus4j.keystore                                       |    * javax.jdo:jdo-api (not necessary when using DTOs)            |
+|    * org.datanucleus.core                                         |    * org.cumulus4j.keymanager                                     |    * org.cumulus4j.annotation (not necessary when using DTOs)     |
+|    * org.datanucleus.* (DB-/API-dependent plugins)                |    * org.cumulus4j.keymanager.api                                 |    * org.cumulus4j.keymanager.api                                 |
+|    * org.cumulus4j.annotation                                     |    * org.cumulus4j.keymanager.back.shared                         |    * org.cumulus4j.keymanager.front.client                        |
+|    * org.cumulus4j.store                                          |    * org.cumulus4j.keymanager.front.shared                        |    * org.cumulus4j.keymanager.front.shared                        |
+|    * org.cumulus4j.store.crypto.keymanager                        |    * org.cumulus4j.keymanager.front.webapp                        |                                                                   |
+|    * org.cumulus4j.keymanager.back.shared                         |                                                                   |                                                                   |
+|    * org.cumulus4j.keymanager.back.webapp                         |                                                                   |                                                                   |
+*-------------------------------------------------------------------+-------------------------------------------------------------------+-------------------------------------------------------------------+
+Locations with deployed modules in 3-computer-scenario

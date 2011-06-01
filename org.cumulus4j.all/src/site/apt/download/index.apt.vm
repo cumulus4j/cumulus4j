@@ -72,55 +72,16 @@ Download
 
 ** Dependencies
 
-	Cumulus4j consists of several modules.
+	Cumulus4j consists of several {{{../modules.html}modules}}. Their Maven coordinates are documented separately
+	for each module.
 
-*** org.cumulus4j.annotation
-
-	As the name already implies, these are the Cumulus4j annotations. In order to compile your application, the
-	following dependency needs to be added to your <<<pom.xml>>>:
-
-+------------------------------------------+
-<dependencies>
-	...
-	<dependency>
-		<groupId>org.cumulus4j</groupId>
-		<artifactId>org.cumulus4j.annotation</artifactId>
-		<version>${cumulus4jStableVersion}</version>
-	</dependency>
-	...
-</dependencies>
-+------------------------------------------+
-
-	However, if you want to package a runnable application, you additionally need the
-	<<<org.cumulus4j.store>>> module (see below).
-
-*** org.cumulus4j.store
-
-	<<<org.cumulus4j.store>>> contains the implementation of Cumulus4j and is needed to actually use it.
-	Since it is a DataNucleus plug-in and does not contain any API classes, you only need to declare a dependency
-	onto this module, if you package your application.
-	
-	Note, that you'll then need to package all required
-	DataNucleus modules, too. Which ones depends on your environment (e.g. the database backend you want to use,
-	as well as the API [JDO or JPA] against which you wrote your application).
-
-	Add the following dependency to your <<<pom.xml>>> to include <<<org.cumulus4j.store>>> into your build process:
-
-+------------------------------------------+
-<dependencies>
-	...
-	<dependency>
-		<groupId>org.cumulus4j</groupId>
-		<artifactId>org.cumulus4j.store</artifactId>
-		<version>${cumulus4jStableVersion}</version>
-	</dependency>
-	...
-</dependencies>
-+------------------------------------------+  
-
-	Note, that <<<org.cumulus4j.store>>> has a dependency onto <<<org.cumulus4j.annotation>>> and thus, you don't need to declare
-	a dependency onto <<<org.cumulus4j.annotation>>> additionally. However, you should never use classes in your application
-	from the <<<org.cumulus4j.store>>> module!
+	Note, that you'll additionally need to package all required
+	{{{http://www.datanucleus.org/plugins/core/index.html}DataNucleus modules}}, too.
+	Which ones depends on your environment (e.g. the
+	{{{http://www.datanucleus.org/products/accessplatform_3_0/datastores.html}database backend}} you want to use,
+	as well as the
+	{{{http://www.datanucleus.org/products/accessplatform_3_0/api.html}API}} [JDO or JPA] against which you wrote
+	your application).
 
 * {Source} code
 

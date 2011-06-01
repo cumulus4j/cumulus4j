@@ -49,6 +49,11 @@ Deployment scenarios
 	This key-server could be located in your company's private LAN, for example, or somewhere in the
 	internet, but separated from the application servers (e.g. another cloud or a hosting provider).
 
+* Modules
+
+	Which modules need to be deployed where is documented on the
+	{{{./deployment-of-modules.html}Deployment of modules}} page.
+
 * Cluster-nodes
 
 	It is important to understand that the application server usually is not one single machine, but a cluster.
