@@ -454,15 +454,19 @@
 					<configuration>
 						<groups>
 							<group>
-            					<title>org.cumulus4j.crypto</title>
+            					<title><a href="http://cumulus4j.org/org.cumulus4j.annotation/">org.cumulus4j.annotation</a></title>
+            					<packages>org.cumulus4j.annotation:org.cumulus4j.annotation.*</packages>
+            				</group>
+							<group>
+            					<title><a href="http://cumulus4j.org/org.cumulus4j.crypto/">org.cumulus4j.crypto</a></title>
             					<packages>org.cumulus4j.crypto:org.cumulus4j.crypto.*</packages>
             				</group>
 							<group>
-            					<title>org.cumulus4j.keymanager</title>
+            					<title><a href="http://cumulus4j.org/org.cumulus4j.keymanager/">org.cumulus4j.keymanager</a></title>
             					<packages>org.cumulus4j.keymanager:org.cumulus4j.keymanager.*</packages>
             				</group>
             				<group>
-            					<title>org.cumulus4j.keymanager.api</title>
+            					<title><a href="http://cumulus4j.org/org.cumulus4j.keymanager.api/">org.cumulus4j.keymanager.api</a></title>
             					<packages>org.cumulus4j.keymanager.api:org.cumulus4j.keymanager.api.*</packages>
             				</group>
             				<group>
@@ -486,11 +490,11 @@
             					<packages>org.cumulus4j.keymanager.front.webapp:org.cumulus4j.keymanager.front.webapp.*</packages>
             				</group>
             				<group>
-            					<title>org.cumulus4j.keystore</title>
+            					<title><a href="http://cumulus4j.org/org.cumulus4j.keystore/">org.cumulus4j.keystore</a></title>
             					<packages>org.cumulus4j.keystore:org.cumulus4j.keystore.*</packages>
             				</group>
             				<group>
-            					<title>org.cumulus4j.keystore.cli</title>
+            					<title><a href="http://cumulus4j.org/org.cumulus4j.keystore.cli/">org.cumulus4j.keystore.cli</a></title>
             					<packages>org.cumulus4j.keystore.cli:org.cumulus4j.keystore.cli.*</packages>
             				</group>
             				<group>
