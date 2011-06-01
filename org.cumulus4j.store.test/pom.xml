@@ -64,6 +64,9 @@
 							<directory>${basedir}</directory>
 							<includes>
 								<include>*.log</include>
+								<include>*.xls</include>
+								<include>*.odf</include>
+								<include>*.ooxml</include>
 							</includes>
 						</fileset>
 					</filesets>
@@ -138,6 +141,56 @@
 					<groupId>org.apache.hadoop</groupId>
 					<artifactId>zookeeper</artifactId>
 					<version>3.3.1</version>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>excel</id>
+			<dependencies>
+				<dependency>
+					<groupId>org.datanucleus</groupId>
+					<artifactId>datanucleus-excel</artifactId>
+					<scope>test</scope>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.poi</groupId>
+					<artifactId>poi</artifactId>
+					<version>[3.5, 4.0)</version>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>ooxml</id>
+			<dependencies>
+				<dependency>
+					<groupId>org.datanucleus</groupId>
+					<artifactId>datanucleus-excel</artifactId>
+					<scope>test</scope>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.poi</groupId>
+					<artifactId>poi</artifactId>
+					<version>[3.5, 4.0)</version>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.poi</groupId>
+					<artifactId>poi-ooxml</artifactId>
+					<version>[3.5, 4.0)</version>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>odf</id>
+			<dependencies>
+				<dependency>
+					<groupId>org.datanucleus</groupId>
+					<artifactId>datanucleus-odf</artifactId>
+					<scope>test</scope>
+				</dependency>
+				<dependency>
+					<groupId>org.odftoolkit</groupId>
+					<artifactId>odfdom-java</artifactId>
+					<version>[0.8.7, )</version>
 				</dependency>
 			</dependencies>
 		</profile>
