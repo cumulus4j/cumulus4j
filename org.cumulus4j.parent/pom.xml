@@ -418,8 +418,8 @@
             					<title>org.cumulus4j.store.crypto.keymanager</title>
             					<packages>org.cumulus4j.store.crypto.keymanager:org.cumulus4j.store.crypto.keymanager.*</packages>
             				</group>
-            				<excludePackageNames>org.cumulus4j.store.test*:org.cumulus4j.integrationtest*</excludePackageNames>
             			</groups>
+            			<excludePackageNames>org.cumulus4j.store.test*:org.cumulus4j.integrationtest*</excludePackageNames>
 					</configuration>
 				</plugin>
 
