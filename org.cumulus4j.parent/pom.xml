@@ -216,6 +216,11 @@
 				<artifactId>datanucleus-rdbms</artifactId>
 				<version>(2.9, )</version>
 			</dependency>
+			<dependency>
+				<groupId>org.datanucleus</groupId>
+				<artifactId>datanucleus-mongodb</artifactId>
+				<version>(2.9, )</version>
+			</dependency>
 
 			<dependency>
 				<groupId>org.nightlabs</groupId>
