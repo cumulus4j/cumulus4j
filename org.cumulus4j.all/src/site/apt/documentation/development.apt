@@ -70,13 +70,13 @@ Workspace-Setup Cumulus4j-DataNucleus-Plug-in
 
 	Check-out all projects starting on “org.cumulus4j.”.
 
-** A: Step 3
+** {A: Step 3}
 
 	Open a console (aka shell), go to the directory <<<${workspace}/org.cumulus4j.all/>>> and run one of the following commands:
 
-	* <<<mvn clean install>>>
+	* <<<MAVEN_OPTS='-Xmx256m' mvn clean install>>>
 
-	* <<<mvn clean install -Dmaven.test.skip=true>>>
+	* <<<MAVEN_OPTS='-Xmx256m' mvn clean install -Dmaven.test.skip=true>>>
 	
 	[]
 
@@ -109,3 +109,7 @@ Workspace-Setup Cumulus4j-DataNucleus-Plug-in
 ** B: Step 3
 
 	Check-out all projects starting on "org.cumulus4j.".
+
+** B: Step 4
+
+	You can optionally run the Maven build now (see "{{A: Step 3}}" above).
