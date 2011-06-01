@@ -358,6 +358,22 @@
 				<plugin>
 					<artifactId>maven-javadoc-plugin</artifactId>
 					<version>2.7</version>
+					<configuration>
+						<groups>
+            				<group>
+            					<title>Tests</title>
+            					<packages>org.cumulus4j.store.test*:org.cumulus4j.integrationtest*</packages>
+            				</group>
+            				<group>
+            					<title>Key manager</title>
+            					<packages>org.cumulus4j.store.crypto.keymanager*:org.cumulus4j.keymanager*</packages>
+            				</group>
+            				<group>
+            					<title>DataNucleus Store plug-in</title>
+            					<packages>org.cumulus4j.store*</packages>
+            				</group>
+            			</groups>
+					</configuration>
 				</plugin>
 
 				<plugin>

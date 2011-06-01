@@ -42,6 +42,7 @@
 
 	<modules>
 		<module>../org.cumulus4j.annotation</module>
+		<module>../org.cumulus4j.crypto</module>
 		<module>../org.cumulus4j.integrationtest.webapp</module>
 		<module>../org.cumulus4j.integrationtest.withkeyserver</module>
 		<module>../org.cumulus4j.keymanager</module>

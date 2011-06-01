@@ -7,16 +7,16 @@
 		<relativePath>../org.cumulus4j.parent/pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>org.cumulus4j.keystore</artifactId>
+	<artifactId>org.cumulus4j.crypto</artifactId>
 	<packaging>bundle</packaging>
 
-	<name>org.cumulus4j.keystore</name>
+	<name>org.cumulus4j.crypto</name>
 
 	<dependencies>
 		<dependency>
-			<groupId>org.cumulus4j</groupId>
-			<artifactId>org.cumulus4j.crypto</artifactId>
-			<version>${project.version}</version>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk16</artifactId>
+			<version>1.46</version>
 		</dependency>
 		<dependency>
 			<groupId>org.nightlabs</groupId>

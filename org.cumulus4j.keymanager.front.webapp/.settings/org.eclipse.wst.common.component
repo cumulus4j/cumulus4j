@@ -16,6 +16,9 @@
         <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keystore/org.cumulus4j.keystore">
             <dependency-type>uses</dependency-type>
         </dependent-module>
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.crypto/org.cumulus4j.crypto">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
         <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keymanager.front.shared/org.cumulus4j.keymanager.front.shared">
             <dependency-type>uses</dependency-type>
         </dependent-module>
