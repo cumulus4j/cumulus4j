@@ -72,6 +72,11 @@
 							<directory>${basedir}</directory>
 							<includes>
 								<include>*.log</include>
+								<include>*.xls</include>
+								<include>*.ods</include>
+								<include>*.odf</include>
+								<include>*.ooxml</include>
+								<include>*.xlsx</include>
 							</includes>
 						</fileset>
 					</filesets>
