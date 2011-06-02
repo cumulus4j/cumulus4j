@@ -1,0 +1,33 @@
+	---
+	Module org.cumulus4j.keystore.cli
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-02
+
+Module org.cumulus4j.keystore.cli
+
+	This is a command line interface for managing a key store and not meant to be deployed anywhere.
+	
+	After downloading the JAR, use the following command to get help for this tool:
+
++------------------------------------------+
+# java -jar org.cumulus4j.keystore.cli-${cumulus4jStableVersion}.jar help
++------------------------------------------+
+
+* Maven
+
+	After adding the repositories documented on the {{{../download/index.html}Download}} page
+	to your <<<pom.xml>>>, you can add the following dependency in order to use this module: 
+
++------------------------------------------+
+<dependencies>
+	...
+	<dependency>
+		<groupId>org.cumulus4j</groupId>
+		<artifactId>org.cumulus4j.keystore.cli</artifactId>
+		<version>${cumulus4jStableVersion}</version>
+	</dependency>
+	...
+</dependencies>
++------------------------------------------+

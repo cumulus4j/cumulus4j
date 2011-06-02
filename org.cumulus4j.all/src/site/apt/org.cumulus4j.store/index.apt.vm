@@ -1,0 +1,27 @@
+	---
+	Module org.cumulus4j.store
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-02
+
+Module org.cumulus4j.store
+
+	TODO document this module!
+
+* Maven
+
+	After adding the repositories documented on the {{{../download/index.html}Download}} page
+	to your <<<pom.xml>>>, you can add the following dependency in order to use this module: 
+
++------------------------------------------+
+<dependencies>
+	...
+	<dependency>
+		<groupId>org.cumulus4j</groupId>
+		<artifactId>org.cumulus4j.store</artifactId>
+		<version>${cumulus4jStableVersion}</version>
+	</dependency>
+	...
+</dependencies>
++------------------------------------------+

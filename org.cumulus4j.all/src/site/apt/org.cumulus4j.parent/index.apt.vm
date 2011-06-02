@@ -1,0 +1,16 @@
+	---
+	Module org.cumulus4j.parent
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-02
+
+Module org.cumulus4j.parent
+
+	Maven-project containing the common
+	parent-{{{http://maven.apache.org/guides/introduction/introduction-to-the-pom.html}pom.xml}}
+	for all Cumulus4j modules. In other words, the project configuration of all Cumulus4j modules
+	is inherited from the <<<pom.xml>>> contained in this project.
+
+	Besides the <<<pom.xml>>>, there are some other global settings declared in this project
+	(e.g. the used skin for this web-site is configured in <<</src/site/site.xml>>>).
