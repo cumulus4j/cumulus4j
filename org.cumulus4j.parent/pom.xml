@@ -454,19 +454,19 @@
 					<configuration>
 						<groups>
 							<group>
-            					<title><a href="http://cumulus4j.org/org.cumulus4j.annotation/">org.cumulus4j.annotation</a></title>
+            					<title><![CDATA[<a href="http://cumulus4j.org/org.cumulus4j.annotation/">org.cumulus4j.annotation</a>]]></title>
             					<packages>org.cumulus4j.annotation:org.cumulus4j.annotation.*</packages>
             				</group>
 							<group>
-            					<title><a href="http://cumulus4j.org/org.cumulus4j.crypto/">org.cumulus4j.crypto</a></title>
+            					<title><![CDATA[<a href="http://cumulus4j.org/org.cumulus4j.crypto/">org.cumulus4j.crypto</a>]]></title>
             					<packages>org.cumulus4j.crypto:org.cumulus4j.crypto.*</packages>
             				</group>
 							<group>
-            					<title><a href="http://cumulus4j.org/org.cumulus4j.keymanager/">org.cumulus4j.keymanager</a></title>
+            					<title><![CDATA[<a href="http://cumulus4j.org/org.cumulus4j.keymanager/">org.cumulus4j.keymanager</a>]]></title>
             					<packages>org.cumulus4j.keymanager:org.cumulus4j.keymanager.*</packages>
             				</group>
             				<group>
-            					<title><a href="http://cumulus4j.org/org.cumulus4j.keymanager.api/">org.cumulus4j.keymanager.api</a></title>
+            					<title><![CDATA[<a href="http://cumulus4j.org/org.cumulus4j.keymanager.api/">org.cumulus4j.keymanager.api</a>]]></title>
             					<packages>org.cumulus4j.keymanager.api:org.cumulus4j.keymanager.api.*</packages>
             				</group>
             				<group>
@@ -490,19 +490,19 @@
             					<packages>org.cumulus4j.keymanager.front.webapp:org.cumulus4j.keymanager.front.webapp.*</packages>
             				</group>
             				<group>
-            					<title><a href="http://cumulus4j.org/org.cumulus4j.keystore/">org.cumulus4j.keystore</a></title>
+            					<title><![CDATA[<a href="http://cumulus4j.org/org.cumulus4j.keystore/">org.cumulus4j.keystore</a>]]></title>
             					<packages>org.cumulus4j.keystore:org.cumulus4j.keystore.*</packages>
             				</group>
             				<group>
-            					<title><a href="http://cumulus4j.org/org.cumulus4j.keystore.cli/">org.cumulus4j.keystore.cli</a></title>
+            					<title><![CDATA[<a href="http://cumulus4j.org/org.cumulus4j.keystore.cli/">org.cumulus4j.keystore.cli</a>]]></title>
             					<packages>org.cumulus4j.keystore.cli:org.cumulus4j.keystore.cli.*</packages>
             				</group>
             				<group>
-            					<title>org.cumulus4j.store</title>
+            					<title><![CDATA[<a href="http://cumulus4j.org/org.cumulus4j.store/">org.cumulus4j.store</a>]]></title>
             					<packages>org.cumulus4j.store:org.cumulus4j.store.*</packages>
             				</group>
             				<group>
-            					<title>org.cumulus4j.store.crypto.keymanager</title>
+            					<title><![CDATA[<a href="http://cumulus4j.org/org.cumulus4j.store.crypto.keymanager/">org.cumulus4j.store.crypto.keymanager</a>]]></title>
             					<packages>org.cumulus4j.store.crypto.keymanager:org.cumulus4j.store.crypto.keymanager.*</packages>
             				</group>
             			</groups>
