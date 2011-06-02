@@ -11,7 +11,7 @@
 	<packaging>war</packaging>
 
 	<name>org.cumulus4j.integrationtest.webapp</name>
-	<description>Web-app providing a dummy-service that uses DataNucleus+Cumulus4j for persisting dummy-data. It integrates the keyserver-backend in order to test the whole system.</description>
+	<description>Web-app providing a dummy-service that uses DataNucleus+Cumulus4j for persisting dummy-data. It integrates the keyserver-backend in order to test the whole system. The tests in this project use a client-sided embedded key manager and local key store (in the local file system).</description>
 
 	<dependencies>
 		<dependency>

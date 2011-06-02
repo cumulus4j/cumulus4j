@@ -8,6 +8,8 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>org.cumulus4j.integrationtest.withkeyserver</artifactId>
+	<name>org.cumulus4j.integrationtest.withkeyserver</name>
+	<description>Web-app providing a key server that extends the deployment scenario tested by org.cumulus4j.integrationtest.webapp. It integrates an app server, a client and a separate key server in order to test the whole system. The tests in this project use a key manager running inside the key server as opposed to the tests in org.cumulus4j.integrationtest.webapp.</description>
 	
 	<dependencies>
 		<dependency>
