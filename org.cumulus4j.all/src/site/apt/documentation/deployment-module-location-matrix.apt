@@ -1,11 +1,11 @@
 	---
-	Modules
+	Deployment: Module-location-matrix
 	---
 	Marco หงุ่ยตระกูล-Schulze
 	---
 	2011-06-02
 
-Modules
+Deployment: Module-location-matrix
 
 	Cumulus4j consists of multiple modules which need to be deployed to different locations.
 	Which location depends on your {{{./deployment-scenarios.html}deployment scenario}}:
