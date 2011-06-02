@@ -51,8 +51,8 @@ Deployment scenarios
 
 * Modules
 
-	Which modules need to be deployed where is documented on the
-	{{{./deployment-of-modules.html}Deployment of modules}} page.
+	Which modules need to be deployed where is documented in the
+	{{{./deployment-module-location-matrix.html}module-location-matrix}}.
 
 * Cluster-nodes
 
