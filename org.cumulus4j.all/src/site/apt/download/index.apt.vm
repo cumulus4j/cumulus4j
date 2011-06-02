@@ -30,9 +30,8 @@ Download
 <repositories>
 	...
 	<repository>
-		<id>dev.nightlabs.org</id>
-		<name>dev.nightlabs.org-releases</name>
-		<url>http://dev.nightlabs.org/maven-repository/libs-releases/</url>
+		<id>dev.nightlabs.org-libs-releases-local</id>
+		<url>http://dev.nightlabs.org/maven-repository/libs-releases-local/</url>
 		<snapshots>
 			<enabled>false</enabled>
 		</snapshots>
@@ -53,9 +52,8 @@ Download
 <repositories>
 	...
 	<repository>
-		<id>dev.nightlabs.org</id>
-		<name>dev.nightlabs.org-releases</name>
-		<url>http://dev.nightlabs.org/maven-repository/libs-snapshots/</url>
+		<id>dev.nightlabs.org-libs-snapshots-local</id>
+		<url>http://dev.nightlabs.org/maven-repository/libs-snapshots-local/</url>
 		<snapshots>
 			<enabled>true</enabled>
 		</snapshots>
