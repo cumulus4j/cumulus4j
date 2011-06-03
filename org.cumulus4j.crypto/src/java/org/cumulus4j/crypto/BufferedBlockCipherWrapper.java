@@ -18,10 +18,10 @@ extends AbstractCipher
 	}
 
 	@Override
-	public void init(boolean forEncryption, CipherParameters params)
+	public void _init(CipherOperationMode mode, CipherParameters parameters)
 	throws IllegalArgumentException
 	{
-		delegate.init(forEncryption, params);
+		delegate.init(CipherOperationMode.ENCRYPT == mode, parameters);
 	}
 
 	@Override

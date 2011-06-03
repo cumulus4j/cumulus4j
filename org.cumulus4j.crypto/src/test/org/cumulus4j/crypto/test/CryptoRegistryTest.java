@@ -18,6 +18,7 @@ import junit.framework.Assert;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.cumulus4j.crypto.CipherOperationMode;
 import org.cumulus4j.crypto.CryptoRegistry;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -210,7 +211,7 @@ public class CryptoRegistryTest
 				byte[] key = new byte[128 / 8];
 				random.nextBytes(key);
 
-				c4jCipher.init(true, new ParametersWithIV(new KeyParameter(key), iv));
+				c4jCipher.init(CipherOperationMode.ENCRYPT, new ParametersWithIV(new KeyParameter(key), iv));
 				jceCipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(key, getEngineName(transformation)), new IvParameterSpec(iv));
 
 				byte[] encrypted = c4jCipher.doFinal(original);
@@ -267,7 +268,7 @@ public class CryptoRegistryTest
 					byte[] key = new byte[128 / 8];
 					random.nextBytes(key);
 
-					c4jCipher.init(true, new ParametersWithIV(new KeyParameter(key), iv));
+					c4jCipher.init(CipherOperationMode.ENCRYPT, new ParametersWithIV(new KeyParameter(key), iv));
 					jceCipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(key, getEngineName(transformation)), new IvParameterSpec(iv));
 
 					byte[] encrypted = c4jCipher.doFinal(original);

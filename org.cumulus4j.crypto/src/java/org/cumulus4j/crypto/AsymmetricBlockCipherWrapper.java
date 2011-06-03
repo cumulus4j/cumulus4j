@@ -23,8 +23,8 @@ extends AbstractCipher
 	}
 
 	@Override
-	public void init(boolean forEncryption, CipherParameters param) {
-		delegate.init(forEncryption, param);
+	public void _init(CipherOperationMode mode, CipherParameters parameters) {
+		delegate.init(CipherOperationMode.ENCRYPT == mode, parameters);
 	}
 
 	public int getInputBlockSize() {

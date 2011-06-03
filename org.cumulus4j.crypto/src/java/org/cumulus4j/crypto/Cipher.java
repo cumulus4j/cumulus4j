@@ -9,9 +9,24 @@ import org.bouncycastle.crypto.DataLengthException;
  */
 public interface Cipher
 {
-
-	void init(boolean forEncryption, CipherParameters params)
+	void init(CipherOperationMode mode, CipherParameters parameters)
 	throws IllegalArgumentException;
+
+	/**
+	 * Get the mode of this cipher. This is <code>null</code>, before
+	 * {@link #init(CipherOperationMode, CipherParameters)} was called the first
+	 * time.
+	 * @return the mode of this cipher.
+	 */
+	CipherOperationMode getMode();
+
+	/**
+	 * Get the parameters of this cipher. This is <code>null</code>, before
+	 * {@link #init(CipherOperationMode, CipherParameters)} was called the first
+	 * time.
+	 * @return the parameters of this cipher.
+	 */
+	CipherParameters getParameters();
 
 	String getAlgorithmName();
 

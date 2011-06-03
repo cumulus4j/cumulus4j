@@ -31,16 +31,19 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.zip.CRC32;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.bouncycastle.crypto.CryptoException;
+import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.cumulus4j.crypto.Cipher;
+import org.cumulus4j.crypto.CipherOperationMode;
+import org.cumulus4j.crypto.CryptoRegistry;
 import org.cumulus4j.keystore.prop.LongProperty;
 import org.cumulus4j.keystore.prop.Property;
 import org.slf4j.Logger;
@@ -640,7 +643,7 @@ public class KeyStore
 						encryptedKey.getPasswordBasedKeyGeneratorAlgorithm(),
 						encryptedKey.getSalt(),
 						encryptedKey.getEncryptionIV(), encryptedKey.getEncryptionAlgorithm(),
-						Cipher.DECRYPT_MODE
+						CipherOperationMode.DECRYPT
 				);
 				byte[] decrypted = cipher.doFinal(encryptedKey.getData());
 //				result = new MasterKey(new SecretKeySpec(decrypted, encryptedKey.getAlgorithm()));
@@ -655,8 +658,8 @@ public class KeyStore
 							new Object[] { authUserName, encryptedKey.getChecksumAlgorithm(), KeyStoreUtil.encodeHexStr(checksumAndData[0]), KeyStoreUtil.encodeHexStr(checksum) }
 					);
 				}
-			} catch (BadPaddingException x) {
-				logger.warn("getMasterKey: Caught BadPaddingException indicating a wrong password for user \"{}\"!", authUserName);
+			} catch (CryptoException x) {
+				logger.warn("getMasterKey: Caught CryptoException indicating a wrong password for user \"{}\"!", authUserName);
 				result = null;
 			} catch (GeneralSecurityException x) {
 				throw new RuntimeException(x);
@@ -720,19 +723,19 @@ public class KeyStore
 	private Cipher getCipherForUserPassword(
 			char[] password,
 			int passwordBasedKeySize, int passwordBasedIterationCount, String passwordBasedKeyGeneratorAlgorithm,
-			byte[] salt, byte[] iv, String algorithm, int opmode) throws GeneralSecurityException
+			byte[] salt, byte[] iv, String algorithm, CipherOperationMode opmode) throws GeneralSecurityException
 	{
 		if (iv == null) {
-			if (Cipher.ENCRYPT_MODE != opmode)
+			if (CipherOperationMode.ENCRYPT != opmode)
 				throw new IllegalArgumentException("iv must not be null when decrypting!");
 		}
 		else {
-			if (Cipher.ENCRYPT_MODE == opmode)
+			if (CipherOperationMode.ENCRYPT == opmode)
 				throw new IllegalArgumentException("iv must be null when encrypting!");
 		}
 
 		if (algorithm == null) {
-			if (Cipher.ENCRYPT_MODE != opmode)
+			if (CipherOperationMode.ENCRYPT != opmode)
 				throw new IllegalArgumentException("algorithm must not be null when decrypting!");
 
 			algorithm = getEncryptionAlgorithm();
@@ -741,14 +744,16 @@ public class KeyStore
 		SecretKeyFactory factory = SecretKeyFactory.getInstance(passwordBasedKeyGeneratorAlgorithm);
 
 		KeySpec spec = new PBEKeySpec(password, salt, passwordBasedIterationCount, passwordBasedKeySize);
-		SecretKey tmp = factory.generateSecret(spec);
-		SecretKey secret = new SecretKeySpec(tmp.getEncoded(), getBaseAlgorithm(algorithm));
-		Cipher cipher = Cipher.getInstance(algorithm);
+		SecretKey secretKey = factory.generateSecret(spec);
 
-		if (iv == null)
-			cipher.init(opmode, secret);
-		else
-			cipher.init(opmode, secret, new IvParameterSpec(iv));
+		Cipher cipher = CryptoRegistry.sharedInstance().createCipher(algorithm);
+
+		if (iv == null) {
+			iv = new byte[cipher.getIVSize()];
+			secureRandom.nextBytes(iv);
+		}
+
+		cipher.init(opmode, new ParametersWithIV(new KeyParameter(secretKey.getEncoded()), iv));
 
 		return cipher;
 	}
@@ -763,31 +768,31 @@ public class KeyStore
 		return algorithm.substring(0, slashIdx);
 	}
 
-	private Cipher getCipherForMasterKey(MasterKey masterKey, byte[] iv, String algorithm, int opmode) throws GeneralSecurityException
+	private Cipher getCipherForMasterKey(MasterKey masterKey, byte[] iv, String algorithm, CipherOperationMode opmode) throws GeneralSecurityException
 	{
 		if (iv == null) {
-			if (Cipher.ENCRYPT_MODE != opmode)
+			if (CipherOperationMode.ENCRYPT != opmode)
 				throw new IllegalArgumentException("iv must not be null when decrypting!");
 		}
 		else {
-			if (Cipher.ENCRYPT_MODE == opmode)
+			if (CipherOperationMode.ENCRYPT == opmode)
 				throw new IllegalArgumentException("iv must be null when encrypting!");
 		}
 
 		if (algorithm == null) {
-			if (Cipher.ENCRYPT_MODE != opmode)
+			if (CipherOperationMode.ENCRYPT != opmode)
 				throw new IllegalArgumentException("algorithm must not be null when decrypting!");
 
 			algorithm = getEncryptionAlgorithm();
 		}
 
-		Cipher cipher = Cipher.getInstance(algorithm);
+		Cipher cipher = CryptoRegistry.sharedInstance().createCipher(algorithm);
 
-		if (iv == null)
-			cipher.init(opmode, masterKey);
-		else
-			cipher.init(opmode, masterKey, new IvParameterSpec(iv));
-
+		if (iv == null) {
+			iv = new byte[cipher.getIVSize()];
+			secureRandom.nextBytes(iv);
+		}
+		cipher.init(opmode, new ParametersWithIV(new KeyParameter(masterKey.getEncoded()), iv));
 		return cipher;
 	}
 
@@ -929,9 +934,11 @@ public class KeyStore
 					passwordBasedKeySize,
 					passwordBasedInterationCount,
 					passwordBasedKeyGeneratorAlgorithm,
-					salt, null, null, Cipher.ENCRYPT_MODE
+					salt, null, null, CipherOperationMode.ENCRYPT
 			);
 			byte[] encrypted = cipher.doFinal(hashAndData);
+
+			byte[] iv = ((ParametersWithIV)cipher.getParameters()).getIV();
 
 			EncryptedMasterKey encryptedKey = new EncryptedMasterKey(
 					userName,
@@ -940,11 +947,13 @@ public class KeyStore
 					keyStoreData.stringConstant(passwordBasedKeyGeneratorAlgorithm),
 					encrypted, salt,
 					keyStoreData.stringConstant(masterKey.getAlgorithm()),
-					cipher.getIV(), keyStoreData.stringConstant(cipher.getAlgorithm()),
+					iv, keyStoreData.stringConstant(cipher.getAlgorithmName()),
 					(short)hash.length, keyStoreData.stringConstant(CHECKSUM_ALGORITHM_ACTIVE)
 			);
 			keyStoreData.user2keyMap.put(userName, encryptedKey);
 			usersCache = null;
+		} catch (CryptoException e) {
+			throw new RuntimeException(e);
 		} catch (GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}
@@ -1176,7 +1185,7 @@ public class KeyStore
 					masterKey,
 					encryptedKey.getEncryptionIV(),
 					encryptedKey.getEncryptionAlgorithm(),
-					Cipher.DECRYPT_MODE
+					CipherOperationMode.DECRYPT
 			);
 			byte[] decrypted = cipher.doFinal(encryptedKey.getData());
 			byte[][] checksumAndData = splitChecksumAndData(decrypted, encryptedKey.getChecksumSize());
@@ -1186,6 +1195,8 @@ public class KeyStore
 				throw new IllegalStateException("Checksum mismatch!!! This means, the decryption key was wrong!");
 
 			return new SecretKeySpec(checksumAndData[1], encryptedKey.getAlgorithm());
+		} catch (CryptoException e) {
+			throw new RuntimeException(e);
 		} catch (GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}
@@ -1209,14 +1220,17 @@ public class KeyStore
 		byte[] checksumAndData = catChecksumAndData(checksum, plainKeyData);
 
 		try {
-			Cipher cipher = getCipherForMasterKey(masterKey, null, null, Cipher.ENCRYPT_MODE);
+			Cipher cipher = getCipherForMasterKey(masterKey, null, null, CipherOperationMode.ENCRYPT);
+			byte[] iv = ((ParametersWithIV)cipher.getParameters()).getIV();
 			byte[] encrypted = cipher.doFinal(checksumAndData);
 			EncryptedKey encryptedKey = new EncryptedKey(
 					keyID, encrypted, keyStoreData.stringConstant(key.getAlgorithm()),
-					cipher.getIV(), keyStoreData.stringConstant(cipher.getAlgorithm()),
+					iv, keyStoreData.stringConstant(cipher.getAlgorithmName()),
 					(short)checksum.length, keyStoreData.stringConstant(CHECKSUM_ALGORITHM_ACTIVE)
 			);
 			keyStoreData.keyID2keyMap.put(keyID, encryptedKey);
+		} catch (CryptoException e) {
+			throw new RuntimeException(e);
 		} catch (GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}
@@ -1285,7 +1299,7 @@ public class KeyStore
 						masterKey,
 						encryptedProperty.getEncryptionIV(),
 						encryptedProperty.getEncryptionAlgorithm(),
-						Cipher.DECRYPT_MODE
+						CipherOperationMode.DECRYPT
 				);
 				byte[] decrypted = cipher.doFinal(encryptedProperty.getData());
 				byte[][] checksumAndData = splitChecksumAndData(decrypted, encryptedProperty.getChecksumSize());
@@ -1295,6 +1309,8 @@ public class KeyStore
 					throw new IllegalStateException("Checksum mismatch!!! This means, the decryption key was wrong!");
 
 				result.setValueEncoded(checksumAndData[1]);
+			} catch (CryptoException e) {
+				throw new RuntimeException(e);
 			} catch (GeneralSecurityException e) {
 				throw new RuntimeException(e);
 			}
@@ -1410,17 +1426,20 @@ public class KeyStore
 			byte[] checksumAndData = catChecksumAndData(checksum, plainValueEncoded);
 
 			try {
-				Cipher cipher = getCipherForMasterKey(masterKey, null, null, Cipher.ENCRYPT_MODE);
+				Cipher cipher = getCipherForMasterKey(masterKey, null, null, CipherOperationMode.ENCRYPT);
 				byte[] encrypted = cipher.doFinal(checksumAndData);
+				byte[] iv = ((ParametersWithIV)cipher.getParameters()).getIV();
 
 				@SuppressWarnings("unchecked")
 				Class<? extends Property<?>> propertyType = (Class<? extends Property<?>>) property.getClass();
 				EncryptedProperty encryptedProperty = new EncryptedProperty(
 						property.getName(), propertyType,
-						encrypted, cipher.getIV(), keyStoreData.stringConstant(cipher.getAlgorithm()),
+						encrypted, iv, keyStoreData.stringConstant(cipher.getAlgorithmName()),
 						(short)checksum.length, keyStoreData.stringConstant(CHECKSUM_ALGORITHM_ACTIVE)
 				);
 				keyStoreData.name2propertyMap.put(encryptedProperty.getName(), encryptedProperty);
+			} catch (CryptoException e) {
+				throw new RuntimeException(e);
 			} catch (GeneralSecurityException e) {
 				throw new RuntimeException(e);
 			}
