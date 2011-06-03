@@ -182,49 +182,49 @@ public class CryptoRegistryTest
 		return CipherRegistry.splitTransformation(transformation)[2];
 	}
 
-	@Test
-	public void testSymmetricEncryptionCompatibilityWithJCE_SunProvider()
-	throws Exception
-	{
-		for (String transformation : SYMMETRIC_TRANSFORMATIONS)
-		{
-			try {
-				String paddingName = getPaddingName(transformation);
-				if ("".equals(paddingName) || "NOPADDING".equals(paddingName.toUpperCase(Locale.ENGLISH)))
-					continue;
-
-				Cipher jceCipher;
-				try {
-					jceCipher = Cipher.getInstance(transformation);
-				} catch (Throwable t) {
-					continue;
-				}
-
-				org.cumulus4j.crypto.Cipher c4jCipher = CipherRegistry.sharedInstance().createCipher(transformation);
-				byte[] original = new byte[1024 + random.nextInt(10240)];
-				random.nextBytes(original);
-
-				byte[] iv = new byte[c4jCipher.getIVSize()];
-				random.nextBytes(iv);
-
-				// we generate a random 128 bit key
-				byte[] key = new byte[128 / 8];
-				random.nextBytes(key);
-
-				c4jCipher.init(CipherOperationMode.ENCRYPT, new ParametersWithIV(new KeyParameter(key), iv));
-				jceCipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(key, getEngineName(transformation)), new IvParameterSpec(iv));
-
-				byte[] encrypted = c4jCipher.doFinal(original);
-				byte[] decrypted = jceCipher.doFinal(encrypted);
-				Assert.assertTrue(
-						"Decrypted does not match original for transformation \"" + transformation + "\"!",
-						Arrays.equals(original, decrypted)
-				);
-			} catch (Exception x) {
-				throw new Exception("Processing transformation \"" + transformation + "\" failed: " + x, x);
-			}
-		}
-	}
+//	@Test
+//	public void testSymmetricEncryptionCompatibilityWithJCE_SunProvider()
+//	throws Exception
+//	{
+//		for (String transformation : SYMMETRIC_TRANSFORMATIONS)
+//		{
+//			try {
+//				String paddingName = getPaddingName(transformation);
+//				if ("".equals(paddingName) || "NOPADDING".equals(paddingName.toUpperCase(Locale.ENGLISH)))
+//					continue;
+//
+//				Cipher jceCipher;
+//				try {
+//					jceCipher = Cipher.getInstance(transformation);
+//				} catch (Throwable t) {
+//					continue;
+//				}
+//
+//				org.cumulus4j.crypto.Cipher c4jCipher = CipherRegistry.sharedInstance().createCipher(transformation);
+//				byte[] original = new byte[1024 + random.nextInt(10240)];
+//				random.nextBytes(original);
+//
+//				byte[] iv = new byte[c4jCipher.getIVSize()];
+//				random.nextBytes(iv);
+//
+//				// we generate a random 128 bit key
+//				byte[] key = new byte[128 / 8];
+//				random.nextBytes(key);
+//
+//				c4jCipher.init(CipherOperationMode.ENCRYPT, new ParametersWithIV(new KeyParameter(key), iv));
+//				jceCipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(key, getEngineName(transformation)), new IvParameterSpec(iv));
+//
+//				byte[] encrypted = c4jCipher.doFinal(original);
+//				byte[] decrypted = jceCipher.doFinal(encrypted);
+//				Assert.assertTrue(
+//						"Decrypted does not match original for transformation \"" + transformation + "\"!",
+//						Arrays.equals(original, decrypted)
+//				);
+//			} catch (Exception x) {
+//				throw new Exception("Processing transformation \"" + transformation + "\" failed: " + x, x);
+//			}
+//		}
+//	}
 
 	@Test
 	public void testSymmetricEncryptionCompatibilityWithJCE_BouncyCastleProvider()

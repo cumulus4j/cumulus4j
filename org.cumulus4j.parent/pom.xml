@@ -526,6 +526,11 @@
 				<plugin>
 					<artifactId>maven-source-plugin</artifactId>
 					<version>2.1.2</version>
+<!--
+					<configuration>
+						<includePom>true</includePom>
+					</configuration>
+-->
 				</plugin>
 
 				<plugin>
