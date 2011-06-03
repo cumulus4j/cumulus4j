@@ -1,6 +1,7 @@
 package org.cumulus4j.crypto;
 
 import org.bouncycastle.crypto.CipherParameters;
+import org.bouncycastle.crypto.CryptoException;
 import org.bouncycastle.crypto.DataLengthException;
 
 /**
@@ -14,22 +15,50 @@ public interface Cipher
 
 	String getAlgorithmName();
 
-	/**
-	 * Process one block of input from the array <code>in</code> and write it to
-	 * the <code>out</code> array.
-	 *
-	 * @param in the array containing the input data.
-	 * @param inOff offset into the <code>in</code> array the data starts at.
-	 * @param inLen the number of bytes from <code>in</code> to read (starting at the given offset <code>inOff</code>).
-	 * @param out the array the output data will be copied into.
-	 * @param outOff the offset into the out array the output will start at.
-	 * @exception DataLengthException if there isn't enough data in <code>in</code>, or
-	 * space in <code>out</code>.
-	 * @exception IllegalStateException if the cipher isn't initialised.
-	 * @return the number of bytes processed and produced.
-	 */
-	int processBlock(byte[] in, int inOff, int inLen, byte[] out, int outOff)
-	throws DataLengthException, IllegalStateException;
-
 	void reset();
+
+	/**
+   * Get the input block size for this cipher (in bytes).
+   * If this is a symmetric cipher, this equals {@link #getOutputBlockSize()}.
+   *
+   * @return the input block size for this cipher in bytes.
+   */
+	int getInputBlockSize();
+
+	/**
+   * Get the output block size for this cipher (in bytes).
+   * If this is a symmetric cipher, this equals {@link #getInputBlockSize()}.
+   *
+   * @return the output block size for this cipher in bytes.
+   */
+	int getOutputBlockSize();
+
+	int getUpdateOutputSize(int length);
+
+	int getOutputSize(int length);
+
+	int update(byte in, byte[] out, int outOff) throws DataLengthException,
+			IllegalStateException, CryptoException;
+
+	int update(byte[] in, int inOff, int inLen, byte[] out, int outOff)
+			throws DataLengthException, IllegalStateException, CryptoException;
+
+	int doFinal(byte[] out, int outOff) throws DataLengthException,
+			IllegalStateException, CryptoException;
+
+	/**
+	 * Convenience method to encrypt/decrypt the complete input byte array at once.
+	 * @param in the input to be encrypted or decrypted.
+	 * @return the processed output.
+	 * @throws IllegalStateException if the cipher isn't initialised.
+	 * @throws CryptoException if padding is expected and not found or sth. else goes wrong while encrypting or decrypting.
+	 */
+	byte[] doFinal(byte[] in)
+	throws IllegalStateException, CryptoException;
+
+	/**
+	 * Get the required size of the IV (in bytes). If a cipher supports multiple sizes, this is the optimal (most secure) IV size.
+	 * @return the required size of the IV.
+	 */
+	int getIVSize();
 }
