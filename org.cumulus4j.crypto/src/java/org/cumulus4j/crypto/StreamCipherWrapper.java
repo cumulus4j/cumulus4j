@@ -12,6 +12,9 @@ import org.bouncycastle.crypto.engines.ISAACEngine;
 import org.bouncycastle.crypto.engines.RC4Engine;
 import org.bouncycastle.crypto.engines.Salsa20Engine;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 class StreamCipherWrapper
 extends AbstractCipher
 {

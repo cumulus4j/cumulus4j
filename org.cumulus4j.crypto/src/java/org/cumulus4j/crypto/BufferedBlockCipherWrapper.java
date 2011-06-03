@@ -8,6 +8,9 @@ import org.bouncycastle.crypto.DataLengthException;
 import org.bouncycastle.crypto.modes.CFBBlockCipher;
 import org.bouncycastle.crypto.modes.OFBBlockCipher;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 class BufferedBlockCipherWrapper
 extends AbstractCipher
 {
@@ -39,33 +42,10 @@ extends AbstractCipher
 		return delegate.getUnderlyingCipher().getBlockSize();
 	}
 
-//	@Override
-//	public int processBlock(byte[] in, int inOff, int inLen, byte[] out, int outOff)
-//	throws DataLengthException, IllegalStateException
-//	{
-//		if (inLen == in.length - inOff)
-//			return delegate.processBlock(in, inOff, out, outOff);
-//
-//		byte[] delegateIn = new byte[inLen];
-//		try {
-//			System.arraycopy(in, inOff, delegateIn, 0, inLen);
-//		} catch (IndexOutOfBoundsException x) {
-//			DataLengthException y = new DataLengthException(x.getMessage());
-//			y.initCause(x);
-//			throw y;
-//		}
-//
-//		return delegate.processBlock(delegateIn, 0, out, outOff);
-//	}
-
 	@Override
 	public void reset() {
 		delegate.reset();
 	}
-
-//	public BlockCipher getUnderlyingCipher() {
-//		return delegate.getUnderlyingCipher();
-//	}
 
 	@Override
 	public int getUpdateOutputSize(int len) {

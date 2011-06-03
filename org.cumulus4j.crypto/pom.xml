@@ -33,6 +33,7 @@
 				<configuration>
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+						<Export-Package>${project.artifactId}</Export-Package>
 <!-- We currently don't have an activator.
 						<Bundle-Activator>com.my.company.Activator</Bundle-Activator>
 -->

@@ -3,6 +3,9 @@ package org.cumulus4j.crypto.mode;
 import org.bouncycastle.crypto.BlockCipher;
 import org.bouncycastle.crypto.modes.OFBBlockCipher;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class C4jOFBBlockCipher extends OFBBlockCipher
 {
 	private static int determineBitBlockSize(BlockCipher engine, String modeName)
