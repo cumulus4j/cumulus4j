@@ -73,18 +73,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Registry for obtaining crypto objects by <code>String</code> names.
- * For example, a {@link Cipher} can be obtained via {@link #createCipher(String)}
- * with a String like "AES/CBC/PKCS5Padding".
+ * Registry for obtaining a {@link Cipher} instance by a <code>String</code> name.
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public final class CryptoRegistry
+public final class CipherRegistry
 {
-	private static final Logger logger = LoggerFactory.getLogger(CryptoRegistry.class);
-	private static CryptoRegistry sharedInstance = new CryptoRegistry();
+	private static final Logger logger = LoggerFactory.getLogger(CipherRegistry.class);
+	private static CipherRegistry sharedInstance = new CipherRegistry();
 
-	public static CryptoRegistry sharedInstance()
+	/**
+	 * Get the shared instance of this registry.
+	 * @return the shared instance.
+	 */
+	public static CipherRegistry sharedInstance()
 	{
 		return sharedInstance;
 	}
@@ -219,7 +221,7 @@ public final class CryptoRegistry
 	//////////////////// END asymmetric paddings ////////////////////
 
 
-	private CryptoRegistry() {
+	private CipherRegistry() {
 		// *** BEGIN AsymmetricBlockCipher engines ***
 		registerAsymmetricBlockCipherEngineClass("ElGamal", ElGamalEngine.class);
 		registerAsymmetricBlockCipherEngineClass("NaccacheStern", NaccacheSternEngine.class);
@@ -605,11 +607,11 @@ public final class CryptoRegistry
 	 *  <li>padding (optional)</li>
 	 * </ul>
 	 * <p>
-	 * For example: "AES/CBC/PKCS5PADDING", "Twofish/CFB/PKCS5PADDING"
+	 * For example: "AES", "AES/CBC/PKCS5Padding" or "Twofish/CFB/PKCS5PADDING"
 	 * </p>
 	 *
-	 * @param transformation the transformation.
-	 * @return
+	 * @param transformation the transformation. This is case-INsensitive. It must not be <code>null</code>.
+	 * @return a new <code>Cipher</code> instance.
 	 * @throws NoSuchAlgorithmException if there is no encryption engine or no mode registered to suit the given transformation.
 	 * @throws NoSuchPaddingException if there is no padding registered to suit the given transformation.
 	 */

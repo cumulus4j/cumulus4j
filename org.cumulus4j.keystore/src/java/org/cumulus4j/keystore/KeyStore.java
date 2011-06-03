@@ -43,7 +43,7 @@ import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.cumulus4j.crypto.Cipher;
 import org.cumulus4j.crypto.CipherOperationMode;
-import org.cumulus4j.crypto.CryptoRegistry;
+import org.cumulus4j.crypto.CipherRegistry;
 import org.cumulus4j.keystore.prop.LongProperty;
 import org.cumulus4j.keystore.prop.Property;
 import org.slf4j.Logger;
@@ -746,7 +746,7 @@ public class KeyStore
 		KeySpec spec = new PBEKeySpec(password, salt, passwordBasedIterationCount, passwordBasedKeySize);
 		SecretKey secretKey = factory.generateSecret(spec);
 
-		Cipher cipher = CryptoRegistry.sharedInstance().createCipher(algorithm);
+		Cipher cipher = CipherRegistry.sharedInstance().createCipher(algorithm);
 
 		if (iv == null) {
 			iv = new byte[cipher.getIVSize()];
@@ -786,7 +786,7 @@ public class KeyStore
 			algorithm = getEncryptionAlgorithm();
 		}
 
-		Cipher cipher = CryptoRegistry.sharedInstance().createCipher(algorithm);
+		Cipher cipher = CipherRegistry.sharedInstance().createCipher(algorithm);
 
 		if (iv == null) {
 			iv = new byte[cipher.getIVSize()];

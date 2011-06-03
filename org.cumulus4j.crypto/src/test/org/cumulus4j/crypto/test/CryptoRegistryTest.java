@@ -19,7 +19,7 @@ import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.cumulus4j.crypto.CipherOperationMode;
-import org.cumulus4j.crypto.CryptoRegistry;
+import org.cumulus4j.crypto.CipherRegistry;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,23 +149,23 @@ public class CryptoRegistryTest
 			}
 
 			try {
-				CryptoRegistry.sharedInstance().createCipher(transformation);
+				CipherRegistry.sharedInstance().createCipher(transformation);
 			} catch (Throwable t) {
 				cryptoRegistryError = t;
 			}
 
 			if (jceError == null) {
 				if (cryptoRegistryError != null) {
-					String errorMessage = "JCE successfully provided a Cipher for transformation=\"" + transformation + "\", but our CryptoRegistry failed: " + cryptoRegistryError;
+					String errorMessage = "JCE successfully provided a Cipher for transformation=\"" + transformation + "\", but our CipherRegistry failed: " + cryptoRegistryError;
 					logger.error(errorMessage, cryptoRegistryError);
 					Assert.fail(errorMessage);
 				}
 			}
 			else {
 				if (cryptoRegistryError == null)
-					logger.warn("JCE fails to provide a Cipher for transformation=\"" + transformation + "\", but our CryptoRegistry succeeded!");
+					logger.warn("JCE fails to provide a Cipher for transformation=\"" + transformation + "\", but our CipherRegistry succeeded!");
 				else if (jceError.getClass() != cryptoRegistryError.getClass())
-					Assert.fail("JCE fails to provide a Cipher for transformation=\"" + transformation + "\" with a " + jceError.getClass().getName() + ", but our CryptoRegistry failed with another exception: " + cryptoRegistryError.getClass());
+					Assert.fail("JCE fails to provide a Cipher for transformation=\"" + transformation + "\" with a " + jceError.getClass().getName() + ", but our CipherRegistry failed with another exception: " + cryptoRegistryError.getClass());
 			}
 		}
 	}
@@ -174,12 +174,12 @@ public class CryptoRegistryTest
 
 	private static String getEngineName(String transformation)
 	{
-		return CryptoRegistry.splitTransformation(transformation)[0];
+		return CipherRegistry.splitTransformation(transformation)[0];
 	}
 
 	private static String getPaddingName(String transformation)
 	{
-		return CryptoRegistry.splitTransformation(transformation)[2];
+		return CipherRegistry.splitTransformation(transformation)[2];
 	}
 
 	@Test
@@ -200,7 +200,7 @@ public class CryptoRegistryTest
 					continue;
 				}
 
-				org.cumulus4j.crypto.Cipher c4jCipher = CryptoRegistry.sharedInstance().createCipher(transformation);
+				org.cumulus4j.crypto.Cipher c4jCipher = CipherRegistry.sharedInstance().createCipher(transformation);
 				byte[] original = new byte[1024 + random.nextInt(10240)];
 				random.nextBytes(original);
 
@@ -257,7 +257,7 @@ public class CryptoRegistryTest
 						continue;
 					}
 
-					org.cumulus4j.crypto.Cipher c4jCipher = CryptoRegistry.sharedInstance().createCipher(transformation);
+					org.cumulus4j.crypto.Cipher c4jCipher = CipherRegistry.sharedInstance().createCipher(transformation);
 					byte[] original = new byte[1024 + random.nextInt(10240)];
 					random.nextBytes(original);
 
