@@ -26,6 +26,8 @@ import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.store.AbstractStoreManager;
 import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.connection.ManagedConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * TODO Support one StoreManager for persistable objects and one StoreManager for indexed data
@@ -34,6 +36,8 @@ import org.datanucleus.store.connection.ManagedConnection;
 public class Cumulus4jStoreManager
 extends AbstractStoreManager
 {
+	private static final Logger logger = LoggerFactory.getLogger(Cumulus4jStoreManager.class);
+
 	/** Extension key for marking field as not queryable */
 	public static final String CUMULUS4J_QUERYABLE = "cumulus4j-queryable";
 
@@ -59,6 +63,12 @@ extends AbstractStoreManager
 	public Cumulus4jStoreManager(ClassLoaderResolver clr, NucleusContext nucleusContext, Map<String, Object> props)
 	{
 		super("cumulus4j", clr, nucleusContext, props);
+
+		logger.info("====================== Cumulus4j ======================");
+		String bundleName = "org.cumulus4j.store";
+    String version = nucleusContext.getPluginManager().getVersionForBundle(bundleName);
+    logger.info("Bundle: " + bundleName + " - Version: " + version);
+		logger.info("=======================================================");
 
 		indexFactoryRegistry = new IndexEntryFactoryRegistry(this);
 		encryptionHandler = new EncryptionHandler();

@@ -1,10 +1,8 @@
 package org.cumulus4j.store;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
-import java.util.jar.Manifest;
 
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
@@ -20,7 +18,6 @@ import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.IndexEntryContainerSize;
 import org.cumulus4j.store.model.Sequence;
 import org.cumulus4j.store.resource.ResourceHelper;
-import org.cumulus4j.store.util.ManifestUtil;
 import org.datanucleus.PersistenceConfiguration;
 import org.datanucleus.plugin.ConfigurationElement;
 import org.datanucleus.plugin.PluginManager;
@@ -28,23 +25,23 @@ import org.datanucleus.store.StoreManager;
 import org.datanucleus.store.connection.AbstractConnectionFactory;
 import org.datanucleus.store.connection.AbstractManagedConnection;
 import org.datanucleus.store.connection.ManagedConnection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
+ * A "connection" in Cumulus4J is a PersistenceManager for the backing datastore.
+ * When the transaction in Cumulus4J is committed, the equivalent transaction is committed in the PM(s) of the 
+ * backing datastore(s).
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 {
-	private static final Logger logger = LoggerFactory.getLogger(Cumulus4jConnectionFactory.class);
-
+	// TODO Have PMF for DataEntry, and PMF for meta+index
+	/** PMF for DataEntry, ClassMeta+FieldMeta, plus index data. */
 	private PersistenceManagerFactory pmf;
 
 	private String[] propertiesToForward = {
 			"datanucleus.ConnectionDriverName",
 			"datanucleus.ConnectionURL",
 			"datanucleus.ConnectionUserName",
-
 			"datanucleus.ConnectionFactory",
 			"datanucleus.ConnectionFactoryName",
 			"datanucleus.ConnectionFactory2",
@@ -57,41 +54,8 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 		CUMULUS4J_PROPERTY_PREFIX + "javax."
 	};
 
-	private String[] getBundleNameAndVersion(Class<?> clazz)
-	{
-		String[] result = new String[2];
-
-		Manifest manifest;
-		try {
-			manifest = ManifestUtil.readManifest(clazz);
-		} catch (IOException e) {
-			logger.warn("Could not read MANIFEST.MF from JAR containing " + clazz, e);
-			return result;
-		}
-		String bundleName = manifest.getMainAttributes().getValue("Bundle-SymbolicName");
-		if (bundleName != null) {
-			// strip options after actual bundle name
-			int idx = bundleName.indexOf(';');
-			if (idx >= 0)
-				bundleName = bundleName.substring(0, idx);
-		}
-
-		String version = manifest.getMainAttributes().getValue("Bundle-Version");
-
-		result[0] = bundleName;
-		result[1] = version;
-		return result;
-	}
-
 	public Cumulus4jConnectionFactory(StoreManager storeMgr, String resourceType) {
 		super(storeMgr, resourceType);
-
-		logger.info("====================== Cumulus4j ======================");
-		{ // org.cumulus4j.store
-			String[] bundleNameAndVersion = getBundleNameAndVersion(Cumulus4jConnectionFactory.class);
-			logger.info("Bundle: " + bundleNameAndVersion[0] + " - Version: " + bundleNameAndVersion[1]);
-		}
-		logger.info("=======================================================");
 
 		Map<String, Object> cumulus4jBackendProperties = ResourceHelper.getCumulus4jBackendProperties();
 
@@ -121,6 +85,30 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 		String pw = storeMgr.getConnectionPassword();
 		if (pw != null)
 			cumulus4jBackendProperties.put("datanucleus.ConnectionPassword".toLowerCase(Locale.ENGLISH), pw);
+
+		// This block is an alternative to getting Extent of each Cumulus4j schema class
+/*		StringBuffer classNameStr = new StringBuffer();
+		classNameStr.append(ClassMeta.class.getName()).append(",");
+		classNameStr.append(DataEntry.class.getName()).append(",");
+		classNameStr.append(FieldMeta.class.getName()).append(",");
+		classNameStr.append(IndexEntryContainerSize.class.getName()).append(",");
+		classNameStr.append(Sequence.class.getName());
+		PluginManager pluginMgr = storeMgr.getNucleusContext().getPluginManager();
+		ConfigurationElement[] elems = pluginMgr.getConfigurationElementsForExtension(
+				"org.cumulus4j.store.index_mapping", null, null);
+		if (elems != null && elems.length > 0) {
+			HashSet<Class> initialisedClasses = new HashSet<Class>();
+			for (int i=0;i<elems.length;i++) {
+				String indexTypeName = elems[i].getAttribute("index-entry-type");
+				Class cls = pluginMgr.loadClass("org.cumulus4j.store.index_mapping", indexTypeName);
+				if (!initialisedClasses.contains(cls)) {
+					initialisedClasses.add(cls);
+					classNameStr.append(",").append(indexTypeName);
+				}
+			}
+		}
+		cumulus4jBackendProperties.put("datanucleus.autostartmechanism", "Classes");
+		cumulus4jBackendProperties.put("datanucleus.autostartclassnames", classNameStr.toString());*/
 
 		pmf = JDOHelper.getPersistenceManagerFactory(cumulus4jBackendProperties);
 
