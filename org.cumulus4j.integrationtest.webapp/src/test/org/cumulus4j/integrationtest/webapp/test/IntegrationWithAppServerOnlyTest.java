@@ -12,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 import org.cumulus4j.keymanager.AppServer;
 import org.cumulus4j.keymanager.AppServerManager;
 import org.cumulus4j.keymanager.Session;
+import org.cumulus4j.keystore.DateDependentKeyStrategy;
 import org.cumulus4j.keystore.KeyStore;
 import org.junit.Assert;
 import org.junit.Test;
@@ -42,6 +43,8 @@ public class IntegrationWithAppServerOnlyTest
 		try {
 			KeyStore keyStore = new KeyStore(keyStoreFile);
 			keyStore.createUser(null, null, KEY_STORE_USER, KEY_STORE_PASSWORD);
+			DateDependentKeyStrategy keyStrategy = new DateDependentKeyStrategy(keyStore);
+			keyStrategy.init(KEY_STORE_USER, KEY_STORE_PASSWORD, 3600L * 1000L, 24L * 3600L * 1000L);
 			AppServerManager appServerManager = new AppServerManager(keyStore);
 			AppServer appServer = new AppServer(appServerManager, "appServer1", new URL(URL_KEY_MANAGER_BACK_WEBAPP));
 			appServerManager.putAppServer(appServer);
