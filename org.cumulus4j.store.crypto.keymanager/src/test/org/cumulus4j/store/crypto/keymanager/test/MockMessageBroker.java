@@ -2,11 +2,13 @@ package org.cumulus4j.store.crypto.keymanager.test;
 
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
+import java.util.Date;
 import java.util.concurrent.TimeoutException;
 
 import javax.crypto.spec.SecretKeySpec;
 
 import org.cumulus4j.keymanager.back.shared.GetActiveEncryptionKeyRequest;
+import org.cumulus4j.keymanager.back.shared.GetActiveEncryptionKeyResponse;
 import org.cumulus4j.keymanager.back.shared.GetKeyRequest;
 import org.cumulus4j.keymanager.back.shared.GetKeyResponse;
 import org.cumulus4j.keymanager.back.shared.KeyEncryptionUtil;
@@ -39,7 +41,7 @@ public class MockMessageBroker extends AbstractMessageBroker
 				GetActiveEncryptionKeyRequest r = (GetActiveEncryptionKeyRequest) request;
 				SecretKeySpec key = new SecretKeySpec(keyData, "AES");
 				byte[] keyEncodedEncrypted = KeyEncryptionUtil.encryptKey(key, r.getKeyEncryptionAlgorithm(), r.getKeyEncryptionPublicKey());
-				return responseClass.cast(new GetKeyResponse(request, 123, key.getAlgorithm(), keyEncodedEncrypted));
+				return responseClass.cast(new GetActiveEncryptionKeyResponse(request, 123, key.getAlgorithm(), keyEncodedEncrypted, new Date(System.currentTimeMillis() + 3600L * 1000L)));
 			}
 			if (request instanceof GetKeyRequest) {
 				GetKeyRequest r = (GetKeyRequest) request;
