@@ -21,6 +21,7 @@ import org.cumulus4j.keystore.KeyStoreNotEmptyException;
 @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public class DateDependentKeyStrategyService extends AbstractService
 {
+	@Path("init")
 	@POST
 	public void init(DateDependentKeyStrategyInitParam param)
 	{
