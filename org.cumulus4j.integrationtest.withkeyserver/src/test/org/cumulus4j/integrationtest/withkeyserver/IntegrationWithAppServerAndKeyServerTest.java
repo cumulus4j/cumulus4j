@@ -60,6 +60,9 @@ public class IntegrationWithAppServerAndKeyServerTest
 		.put(userWithPassword);
 
 
+		// TODO init keystore with DateDependentKeyStrategy!!! There must be a REST API method for this purpose!
+
+
 		AppServer appServer = new AppServer();
 		appServer.setAppServerID("appServer1");
 		appServer.setAppServerBaseURL(new URL(URL_KEY_MANAGER_BACK_WEBAPP));
