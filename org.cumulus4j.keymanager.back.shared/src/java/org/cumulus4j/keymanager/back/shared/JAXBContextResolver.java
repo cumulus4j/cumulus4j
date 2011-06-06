@@ -25,6 +25,7 @@ public final class JAXBContextResolver implements ContextResolver<JAXBContext>
 	private static final Class<?>[] cTypes = {
 		ErrorResponse.class,
 		GetActiveEncryptionKeyRequest.class,
+		GetActiveEncryptionKeyResponse.class,
 		GetKeyRequest.class,
 		GetKeyResponse.class,
 		NullResponse.class,

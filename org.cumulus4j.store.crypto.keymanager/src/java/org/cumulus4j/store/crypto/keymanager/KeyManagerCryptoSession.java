@@ -16,6 +16,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.cumulus4j.keymanager.back.shared.GetActiveEncryptionKeyRequest;
+import org.cumulus4j.keymanager.back.shared.GetActiveEncryptionKeyResponse;
 import org.cumulus4j.keymanager.back.shared.GetKeyRequest;
 import org.cumulus4j.keymanager.back.shared.GetKeyResponse;
 import org.cumulus4j.keymanager.back.shared.KeyEncryptionUtil;
@@ -65,51 +66,56 @@ extends AbstractCryptoSession
 	 */
 	private static final String keyEncryptionAlgorithm = "RSA/ECB/OAEPWITHSHA1ANDMGF1PADDING";
 
-	private static final KeyPair keyEncryptionKeyPair;
+	private static KeyPair keyEncryptionKeyPair;
 
-	private static final Cipher keyDecrypter;
-//	private static final Cipher keyWrapper;
+	private static javax.crypto.Cipher keyDecrypter;
 
-	static {
-		try {
-			String rawAlgo = KeyEncryptionUtil.getRawEncryptionAlgorithmWithoutModeAndPadding(keyEncryptionAlgorithm);
-			KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(rawAlgo);
-			if ("RSA".equals(rawAlgo)) {
-				 RSAKeyGenParameterSpec rsaParamGenSpec = new RSAKeyGenParameterSpec(4096, RSAKeyGenParameterSpec.F4);
-				 keyPairGenerator.initialize(rsaParamGenSpec);
+	private static long keyDecrypterCreationTimestamp = Long.MIN_VALUE;
+
+	private static final long keyDecrypterLifetimeMSec = 12L * 3600L * 1000L; // TODO make configurable! - 12 hours right now
+
+	private static javax.crypto.Cipher getKeyDecrypter()
+	{
+		if (keyDecrypter == null || System.currentTimeMillis() - keyDecrypterCreationTimestamp > keyDecrypterLifetimeMSec) {
+			try {
+				String rawAlgo = KeyEncryptionUtil.getRawEncryptionAlgorithmWithoutModeAndPadding(keyEncryptionAlgorithm);
+				KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(rawAlgo);
+				if ("RSA".equals(rawAlgo)) {
+					 RSAKeyGenParameterSpec rsaParamGenSpec = new RSAKeyGenParameterSpec(4096, RSAKeyGenParameterSpec.F4);
+					 keyPairGenerator.initialize(rsaParamGenSpec);
+				}
+
+				keyEncryptionKeyPair = keyPairGenerator.genKeyPair();
+
+				keyDecrypter = javax.crypto.Cipher.getInstance(keyEncryptionAlgorithm);
+				keyDecrypter.init(javax.crypto.Cipher.DECRYPT_MODE, keyEncryptionKeyPair.getPrivate());
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
-
-			keyEncryptionKeyPair = keyPairGenerator.genKeyPair();
-
-			keyDecrypter = Cipher.getInstance(keyEncryptionAlgorithm);
-			keyDecrypter.init(Cipher.DECRYPT_MODE, keyEncryptionKeyPair.getPrivate());
-
-//			keyWrapper = Cipher.getInstance(keyEncryptionAlgorithm);
-//			keyWrapper.init(Cipher.WRAP_MODE, keyEncryptionKeyPair.getPrivate());
-		} catch (Exception e) {
-			throw new RuntimeException(e);
 		}
+		return keyDecrypter;
 	}
-
-//	public static void main(String[] args)
-//	throws Exception
-//	{
-//		Key symmetricKey = KeyGenerator.getInstance("AES").generateKey();
-//		byte[] encryptedKey = KeyEncryptionUtil.encryptKey(symmetricKey, keyEncryptionAlgorithm, keyEncryptionKeyPair.getPublic().getEncoded());
-//		byte[] decryptedKey = KeyEncryptionUtil.decryptKey(keyDecrypter, encryptedKey);
-//	}
 
 	@Override
 	public Ciphertext encrypt(Plaintext plaintext)
 	{
+		CipherCache cipherCache = ((KeyManagerCryptoManager)getCryptoManager()).getCipherCache();
+
+		javax.crypto.Cipher keyDecrypter;
+		KeyPair keyEncryptionKeyPair;
+		synchronized (KeyManagerCryptoSession.class) {
+			keyDecrypter = KeyManagerCryptoSession.getKeyDecrypter();
+			keyEncryptionKeyPair = KeyManagerCryptoSession.keyEncryptionKeyPair;
+		}
+
 		// TODO use a cache for this!!!
-		GetKeyResponse getKeyResponse;
+		GetActiveEncryptionKeyResponse getActiveEncryptionKeyResponse;
 		try {
 			GetActiveEncryptionKeyRequest getActiveEncryptionKeyRequest = new GetActiveEncryptionKeyRequest(
 					getCryptoSessionID(), keyEncryptionAlgorithm, keyEncryptionKeyPair.getPublic().getEncoded()
 			);
-			getKeyResponse = getMessageBroker().query(
-					GetKeyResponse.class,
+			getActiveEncryptionKeyResponse = getMessageBroker().query(
+					GetActiveEncryptionKeyResponse.class,
 					getActiveEncryptionKeyRequest
 			);
 		} catch (Exception e) {
@@ -119,17 +125,20 @@ extends AbstractCryptoSession
 
 		// TODO cache ciphers/keys in general!
 		try {
-			byte[] keyEncodedPlain = KeyEncryptionUtil.decryptKey(keyDecrypter, getKeyResponse.getKeyEncodedEncrypted());
+			byte[] keyEncodedPlain;
+			synchronized (keyDecrypter) {
+				keyEncodedPlain = KeyEncryptionUtil.decryptKey(keyDecrypter, getActiveEncryptionKeyResponse.getKeyEncodedEncrypted());
+			}
 
 			EncryptionAlgorithm activeEncryptionAlgorithm = DATA_ENCRYPTION_ALGORITHM;
-			SecretKeySpec key = new SecretKeySpec(keyEncodedPlain, getKeyResponse.getKeyAlgorithm());
+			SecretKeySpec key = new SecretKeySpec(keyEncodedPlain, getActiveEncryptionKeyResponse.getKeyAlgorithm());
 			Cipher encrypter = Cipher.getInstance(activeEncryptionAlgorithm.getTransformation());
 			encrypter.init(Cipher.ENCRYPT_MODE, key, NULL_IV);
 			byte[] encrypted = encrypt(encrypter, plaintext.getData());
 			encrypted[0] = (byte)activeEncryptionAlgorithm.ordinal();
 			Ciphertext ciphertext = new Ciphertext();
 			ciphertext.setData(encrypted);
-			ciphertext.setKeyID(getKeyResponse.getKeyID());
+			ciphertext.setKeyID(getActiveEncryptionKeyResponse.getKeyID());
 			return ciphertext;
 		} catch (Exception e) {
 			logger.warn("Encryption failed: " + e, e);
@@ -140,6 +149,15 @@ extends AbstractCryptoSession
 	@Override
 	public Plaintext decrypt(Ciphertext ciphertext)
 	{
+		CipherCache cipherCache = ((KeyManagerCryptoManager)getCryptoManager()).getCipherCache();
+
+		javax.crypto.Cipher keyDecrypter;
+		KeyPair keyEncryptionKeyPair;
+		synchronized (KeyManagerCryptoSession.class) {
+			keyDecrypter = KeyManagerCryptoSession.getKeyDecrypter();
+			keyEncryptionKeyPair = KeyManagerCryptoSession.keyEncryptionKeyPair;
+		}
+
 		// TODO use a cache for keys (or more precisely Cipher instances)!
 		GetKeyResponse getKeyResponse;
 		try {
@@ -156,7 +174,10 @@ extends AbstractCryptoSession
 		}
 
 		try {
-			byte[] keyEncodedPlain = KeyEncryptionUtil.decryptKey(keyDecrypter, getKeyResponse.getKeyEncodedEncrypted());
+			byte[] keyEncodedPlain;
+			synchronized (keyDecrypter) {
+				keyEncodedPlain = KeyEncryptionUtil.decryptKey(keyDecrypter, getKeyResponse.getKeyEncodedEncrypted());
+			}
 
 			SecretKeySpec key = new SecretKeySpec(keyEncodedPlain, getKeyResponse.getKeyAlgorithm());
 			int encryptionAlgoID = ciphertext.getData()[0] & 0xff;

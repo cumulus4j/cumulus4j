@@ -10,11 +10,16 @@ import org.cumulus4j.store.crypto.CryptoSession;
  * </p>
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public class KeyManagerCryptoManager extends AbstractCryptoManager {
+public class KeyManagerCryptoManager extends AbstractCryptoManager
+{
+	private CipherCache cipherCache = new CipherCache();
 
 	@Override
 	protected CryptoSession createCryptoSession() {
 		return new KeyManagerCryptoSession();
 	}
 
+	public CipherCache getCipherCache() {
+		return cipherCache;
+	}
 }

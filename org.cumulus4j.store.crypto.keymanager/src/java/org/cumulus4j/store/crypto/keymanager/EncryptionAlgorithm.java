@@ -28,40 +28,29 @@ public enum EncryptionAlgorithm
 	AES_CBC_PKCS5Padding,
 	AES_CBC_ISO10126Padding,
 
-	AES_PCBC_PKCS5Padding,
-	AES_PCBC_ISO10126Padding,
+	AES_CTR_NoPadding,
+	AES_CTS_NoPadding,
 
-//	AES_CTR_NoPadding, // not (yet?) supported, because INSECURE with our IV=0 + salt-instead approach
-//
-//	AES_CTS_NoPadding, // not (yet?) supported, because maybe insecure (???) with our IV=0 + salt-instead approach
-
-	AES_CFB_PKCS5Padding,
-	AES_CFB_ISO10126Padding,
 	AES_CFB_NoPadding,
-
-//	AES_OFB_PKCS5Padding, // not (yet?) supported, because INSECURE with our IV=0 + salt-instead approach
-//	AES_OFB_ISO10126Padding, // not (yet?) supported, because INSECURE with our IV=0 + salt-instead approach
-//	AES_OFB_NoPadding, // not (yet?) supported, because INSECURE with our IV=0 + salt-instead approach
+	AES_OFB_NoPadding,
 
 	Blowfish_CBC_PKCS5Padding,
 	Blowfish_CBC_ISO10126Padding,
 
-	Blowfish_PCBC_PKCS5Padding,
-	Blowfish_PCBC_ISO10126Padding,
+	Blowfish_CTR_NoPadding,
+	Blowfish_CTS_NoPadding,
 
-	Blowfish_CFB_PKCS5Padding,
-	Blowfish_CFB_ISO10126Padding,
 	Blowfish_CFB_NoPadding,
+	Blowfish_OFB_NoPadding,
 
 	Twofish_CBC_PKCS5Padding,
 	Twofish_CBC_ISO10126Padding,
 
-	Twofish_PCBC_PKCS5Padding,
-	Twofish_PCBC_ISO10126Padding,
+	Twofish_CTR_NoPadding,
+	Twofish_CTS_NoPadding,
 
-	Twofish_CFB_PKCS5Padding,
-	Twofish_CFB_ISO10126Padding,
 	Twofish_CFB_NoPadding,
+	Twofish_OFB_NoPadding
 	;
 
 	private EncryptionAlgorithm() {
@@ -74,10 +63,4 @@ public enum EncryptionAlgorithm
 	public final String getTransformation() {
 		return transformation;
 	}
-
-//	private boolean saltInsteadIVSupported;
-//
-//	public boolean isSaltInsteadIVSupported() {
-//		return saltInsteadIVSupported;
-//	}
 }

@@ -1,14 +1,16 @@
-package org.cumulus4j.crypto;
+package org.cumulus4j.crypto.asymmetric;
 
 import org.bouncycastle.crypto.BufferedAsymmetricBlockCipher;
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.CryptoException;
 import org.bouncycastle.crypto.DataLengthException;
+import org.cumulus4j.crypto.AbstractCipher;
+import org.cumulus4j.crypto.CipherOperationMode;
 
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-class AsymmetricBlockCipherWrapper
+public class AsymmetricBlockCipherWrapper
 extends AbstractCipher
 {
 	private BufferedAsymmetricBlockCipher delegate;

@@ -94,13 +94,76 @@ public class DateDependentKeyStrategy
 		}
 	}
 
-	public long getActiveKeyID(String authUserName, char[] authPassword)
-	throws AuthenticationException
-	{
-		return getActiveKeyID(authUserName, authPassword, null);
-	}
+//	/**
+//	 * Get the timestamp till when the active key will be valid (excluding). This
+//	 * is a convenience method delegating to {@link #getActiveKeyValidUntilExcl(String, char[], Date)}
+//	 * with the argument <code>timestamp</code> being <code>null</code>.
+//	 *
+//	 * @param authUserName the authenticated user authorizing this action.
+//	 * @param authPassword the password for authenticating the user specified by <code>authUserName</code>.
+//	 * @return the timestamp at which the current active key will stop being active.
+//	 * @throws AuthenticationException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
+//	 * is not correct for the given <code>authUserName</code>.
+//	 */
+//	public Date getActiveKeyValidUntilExcl(String authUserName, char[] authPassword) throws AuthenticationException
+//	{
+//		return getActiveKeyValidUntilExcl(authUserName, authPassword, null);
+//	}
 
-	public long getActiveKeyID(String authUserName, char[] authPassword, Date timestamp)
+//	/**
+//	 * Get the timestamp till when the active key will be valid (excluding). The active key is
+//	 * determined based on the given <code>timestamp</code> (which can be <code>null</code> to mean 'now').
+//	 *
+//	 * @param authUserName the authenticated user authorizing this action.
+//	 * @param authPassword the password for authenticating the user specified by <code>authUserName</code>.
+//	 * @param timestamp the timestamp specifying the time at which the queried key is / was / will be active.
+//	 * Can be <code>null</code>, which is interpreted as NOW.
+//	 * @return the timestamp at which the given key is valid. This is always after the given timestamp (or now, if <code>timestamp == null</code>),
+//	 * even if there is no key with this validity, because the key-store is extrapolated if necessary (in an eternal cycle).
+//	 * <p>
+//	 * For example, if the key-store was generated with daily (24 h) key-rotation and keys for the time range from
+//	 * 2011-01-01 00:00 [including] until 2011-04-01 00:00 [excluding]
+//	 * and the given timestamp is 2011-05-01 23:45, the active key will be exactly the same as it was 2011-02-01 23:45. Though
+//	 * this key originally was valid only till 2011-02-02 00:00 [excluding], the result of this method would now be 2011-05-02 00:00.
+//	 * </p>
+//	 * @throws AuthenticationException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
+//	 * is not correct for the given <code>authUserName</code>.
+//	 */
+//	public Date getActiveKeyValidUntilExcl(String authUserName, char[] authPassword, Date timestamp) throws AuthenticationException
+//	{
+//		return new Date(determineActiveKeyIDAndValidFromAndValidTo(authUserName, authPassword, timestamp)[2]);
+//	}
+
+//	/**
+//	 * Get the currently active key's ID. This
+//	 * is a convenience method delegating to {@link #getActiveKeyID(String, char[], Date)}
+//	 * with the argument <code>timestamp</code> being <code>null</code>.
+//	 *
+//	 * @param authUserName the authenticated user authorizing this action.
+//	 * @param authPassword the password for authenticating the user specified by <code>authUserName</code>.
+//	 * @return
+//	 * @throws AuthenticationException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
+//	 * is not correct for the given <code>authUserName</code>.
+//	 */
+//	public long getActiveKeyID(String authUserName, char[] authPassword)
+//	throws AuthenticationException
+//	{
+//		return getActiveKeyID(authUserName, authPassword, null);
+//	}
+
+	/**
+	 * <p>
+	 * Get the details of the key which is / was / will be active at the given <code>timestamp</code>.
+	 * </p>
+	 *
+	 * @param authUserName the authenticated user authorizing this action.
+	 * @param authPassword the password for authenticating the user specified by <code>authUserName</code>.
+	 * @param timestamp
+	 * @return
+	 * @throws AuthenticationException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
+	 * is not correct for the given <code>authUserName</code>.
+	 */
+	public ActiveKey getActiveKey(String authUserName, char[] authPassword, Date timestamp)
 	throws AuthenticationException
 	{
 		if (timestamp == null)
@@ -135,6 +198,77 @@ public class DateDependentKeyStrategy
 		if (keyID < 0)
 			throw new IllegalStateException("keyID < 0");
 
-		return keyID;
+		Long currentActiveUntilTimestamp = activeFromTimestamp2KeyIDMapProperty.getValue().tailMap(timestampMSec + 1L).firstKey();
+
+		long diff = timestamp.getTime() - timestampMSec;
+
+		return new ActiveKey(
+				keyID,
+				new Date(currentActiveFromTimestamp + diff),
+				new Date(currentActiveUntilTimestamp + diff)
+		);
+	}
+
+	/**
+	 * Descriptor of the active key.
+	 *
+	 * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+	 */
+	public static final class ActiveKey
+	{
+		private long keyID;
+		private Date activeFromIncl;
+		private Date activeToExcl;
+
+		private ActiveKey(long keyID, Date activeFromIncl, Date activeToExcl)
+		{
+			this.keyID = keyID;
+			this.activeFromIncl = activeFromIncl;
+			this.activeToExcl = activeToExcl;
+		}
+
+		/**
+		 * Get the key's identifier.
+		 * @return the key-ID.
+		 */
+		public long getKeyID() {
+			return keyID;
+		}
+		/**
+		 * <p>
+		 * Get the timestamp from which on the key is active (including).
+		 * </p>
+		 * <p>
+		 * This timestamp is extrapolated (if necessary) according to the timestamp given to
+		 * {@link DateDependentKeyStrategy#getActiveKey(String, char[], Date)}. Please see
+		 * the documentation of {@link #getActiveToExcl()} for more details about this extrapolation.
+		 * </p>
+		 * @return the timestamp from which on the key is active (including).
+		 */
+		public Date getActiveFromIncl() {
+			return activeFromIncl;
+		}
+
+		/**
+		 * <p>
+		 * Get the timestamp until which the key is active (excluding).
+		 * </p>
+		 * <p>
+		 * This is always after (never before, never equal to) the timestamp given
+		 * to {@link DateDependentKeyStrategy#getActiveKey(String, char[], Date)},
+		 * even if there is no key with this validity in the key-store, because the key-store is extrapolated if necessary
+		 * (in an eternal cycle).
+		 * </p>
+		 * <p>
+		 * For example, if the key-store was generated with daily (24 h) key-rotation and keys for the time range from
+		 * 2011-01-01 00:00 [including] until 2011-04-01 00:00 [excluding]
+		 * and the given timestamp is 2011-05-01 23:45, the active key will be exactly the same as it was 2011-02-01 23:45. Though
+		 * this key originally was valid only till 2011-02-02 00:00 [excluding], the result of this method would now be 2011-05-02 00:00.
+		 * </p>
+		 * @return the timestamp until which the key is active (excluding).
+		 */
+		public Date getActiveToExcl() {
+			return activeToExcl;
+		}
 	}
 }

@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.crypto.NoSuchPaddingException;
 
 import org.bouncycastle.crypto.AsymmetricBlockCipher;
+import org.bouncycastle.crypto.AsymmetricCipherKeyPairGenerator;
 import org.bouncycastle.crypto.BlockCipher;
 import org.bouncycastle.crypto.BufferedAsymmetricBlockCipher;
 import org.bouncycastle.crypto.BufferedBlockCipher;
@@ -67,6 +68,13 @@ import org.bouncycastle.crypto.paddings.PaddedBufferedBlockCipher;
 import org.bouncycastle.crypto.paddings.TBCPadding;
 import org.bouncycastle.crypto.paddings.X923Padding;
 import org.bouncycastle.crypto.paddings.ZeroBytePadding;
+import org.cumulus4j.crypto.asymmetric.AsymmetricBlockCipherWrapper;
+import org.cumulus4j.crypto.asymmetric.keypairgenerator.DHBasicKeyPairGeneratorFactory;
+import org.cumulus4j.crypto.asymmetric.keypairgenerator.DSAKeyPairGeneratorFactory;
+import org.cumulus4j.crypto.asymmetric.keypairgenerator.ElGamalKeyPairGeneratorFactory;
+import org.cumulus4j.crypto.asymmetric.keypairgenerator.GOST3410KeyPairGeneratorFactory;
+import org.cumulus4j.crypto.asymmetric.keypairgenerator.NaccacheSternKeyPairGeneratorFactory;
+import org.cumulus4j.crypto.asymmetric.keypairgenerator.RSAKeyPairGeneratorFactory;
 import org.cumulus4j.crypto.mode.C4jCFBBlockCipher;
 import org.cumulus4j.crypto.mode.C4jOFBBlockCipher;
 import org.slf4j.Logger;
@@ -98,62 +106,35 @@ public final class CipherRegistry
 
 	private void registerBlockCipherEngineClass(Class<? extends BlockCipher> engineClass)
 	{
-		String algorithmName;
-		try {
-			BlockCipher engine = engineClass.newInstance();
-			algorithmName = engine.getAlgorithmName();
-		} catch (InstantiationException e) {
-			throw new RuntimeException(e);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
-		_registerBlockCipherEngineClass(algorithmName, engineClass);
-	}
-	private void registerBlockCipherEngineClass(String algorithmName, Class<? extends BlockCipher> engineClass)
-	{
-		try {
-			engineClass.newInstance(); // for testing, if the default constructor can be used, only - instance is not used
-		} catch (InstantiationException e) {
-			throw new RuntimeException(e);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
-		_registerBlockCipherEngineClass(algorithmName, engineClass);
+		BlockCipher engine = newInstance(engineClass);
+		String algorithmName = engine.getAlgorithmName();
+		logger.debug("registerSymmetricEngineClass: algorithmName=\"{}\" engineClass=\"{}\"", algorithmName, engineClass.getName());
+		algorithmName2blockCipherEngineClass.put(algorithmName.toUpperCase(Locale.ENGLISH), engineClass);
 	}
 
-	private void _registerBlockCipherEngineClass(String algorithmName, Class<? extends BlockCipher> engineClass)
+	private void registerBlockCipherEngineClass(String algorithmName, Class<? extends BlockCipher> engineClass)
 	{
-			logger.debug("registerSymmetricEngineClass: algorithmName=\"{}\" engineClass=\"{}\"", algorithmName, engineClass.getName());
-			algorithmName2blockCipherEngineClass.put(algorithmName.toUpperCase(Locale.ENGLISH), engineClass);
+		newInstance(engineClass); // for testing, if the default constructor can be used, only - instance is not used
+		logger.debug("registerSymmetricEngineClass: algorithmName=\"{}\" engineClass=\"{}\"", algorithmName, engineClass.getName());
+		algorithmName2blockCipherEngineClass.put(algorithmName.toUpperCase(Locale.ENGLISH), engineClass);
 	}
 
 	private void registerAsymmetricBlockCipherEngineClass(String algorithmName, Class<? extends AsymmetricBlockCipher> engineClass)
 	{
-		try {
-			engineClass.newInstance(); // for testing, if the default constructor can be used, only - instance is not used
-			logger.debug("registerAsymmetricEngineClass: algorithmName=\"{}\" engineClass=\"{}\"", algorithmName, engineClass.getName());
-			algorithmName2asymmetricBlockCipherEngineClass.put(algorithmName.toUpperCase(Locale.ENGLISH), engineClass);
-		} catch (InstantiationException e) {
-			throw new RuntimeException(e);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
+		newInstance(engineClass); // for testing to be sure there is a default constructor and we can call it.
+		logger.debug("registerAsymmetricEngineClass: algorithmName=\"{}\" engineClass=\"{}\"", algorithmName, engineClass.getName());
+		algorithmName2asymmetricBlockCipherEngineClass.put(algorithmName.toUpperCase(Locale.ENGLISH), engineClass);
 	}
 
 	private void registerStreamCipherEngineClass(Class<? extends StreamCipher> engineClass)
 	{
-		try {
-			StreamCipher engine = engineClass.newInstance();
-			String algorithmName = engine.getAlgorithmName();
-			logger.debug("registerSymmetricEngineClass: algorithmName=\"{}\" engineClass=\"{}\"", algorithmName, engineClass.getName());
-			algorithmName2streamCipherEngineClass.put(algorithmName.toUpperCase(Locale.ENGLISH), engineClass);
-		} catch (InstantiationException e) {
-			throw new RuntimeException(e);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
+		StreamCipher engine = newInstance(engineClass); // for testing to be sure there is a default constructor and we can call it.
+		String algorithmName = engine.getAlgorithmName();
+		logger.debug("registerSymmetricEngineClass: algorithmName=\"{}\" engineClass=\"{}\"", algorithmName, engineClass.getName());
+		algorithmName2streamCipherEngineClass.put(algorithmName.toUpperCase(Locale.ENGLISH), engineClass);
 	}
 	//////////////////// END cipher engines ////////////////////
+
 
 	//////////////////// BEGIN block cipher modes ////////////////////
 	private Map<String, Class<? extends BlockCipher>> modeName2blockCipherModeClass = new HashMap<String, Class<? extends BlockCipher>>();
@@ -182,33 +163,21 @@ public final class CipherRegistry
 	private Map<String, Class<? extends BlockCipherPadding>> paddingName2blockCipherPaddingClass = new HashMap<String, Class<? extends BlockCipherPadding>>();
 	private void registerBlockCipherPadding(Class<? extends BlockCipherPadding> paddingClass)
 	{
-		String paddingName;
-		try {
-			BlockCipherPadding padding = paddingClass.newInstance();
-			paddingName = padding.getPaddingName();
-		} catch (InstantiationException e) {
-			throw new RuntimeException(e);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
+		BlockCipherPadding padding = newInstance(paddingClass);
+		String paddingName = padding.getPaddingName();
 		logger.debug("registerBlockCipherPadding: paddingName=\"{}\" paddingClass=\"{}\"", paddingName, paddingClass.getName());
 		paddingName2blockCipherPaddingClass.put(paddingName.toUpperCase(Locale.ENGLISH), paddingClass);
 		paddingName2blockCipherPaddingClass.put((paddingName + "Padding").toUpperCase(Locale.ENGLISH), paddingClass);
 	}
 	private void registerBlockCipherPadding(String paddingName, Class<? extends BlockCipherPadding> paddingClass)
 	{
-		try {
-			paddingClass.newInstance(); // for testing to be sure there is a default constructor and we can call it.
-		} catch (InstantiationException e) {
-			throw new RuntimeException(e);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
+		newInstance(paddingClass); // for testing to be sure there is a default constructor and we can call it.
 		logger.debug("registerBlockCipherPadding: paddingName=\"{}\" paddingClass=\"{}\"", paddingName, paddingClass.getName());
 		paddingName2blockCipherPaddingClass.put(paddingName.toUpperCase(Locale.ENGLISH), paddingClass);
 		paddingName2blockCipherPaddingClass.put((paddingName + "Padding").toUpperCase(Locale.ENGLISH), paddingClass);
 	}
 	//////////////////// END block cipher paddings ////////////////////
+
 
 	//////////////////// BEGIN asymmetric paddings ////////////////////
 	private Map<String, Class<? extends AsymmetricBlockCipher>> paddingName2asymmetricBlockCipherPaddingClass = new HashMap<String, Class<? extends AsymmetricBlockCipher>>();
@@ -219,6 +188,21 @@ public final class CipherRegistry
 		paddingName2asymmetricBlockCipherPaddingClass.put((paddingName + "Padding").toUpperCase(Locale.ENGLISH), paddingClass);
 	}
 	//////////////////// END asymmetric paddings ////////////////////
+
+
+	//////////////////// BEGIN asymmetric key generators ////////////////////
+	private Map<String, AsymmetricCipherKeyPairGeneratorFactory> algorithmName2asymmetricCipherKeyPairGeneratorFactory = new HashMap<String, AsymmetricCipherKeyPairGeneratorFactory>();
+	private void registerAsymmetricCipherKeyPairGeneratorFactory(AsymmetricCipherKeyPairGeneratorFactory factory)
+	{
+		if (factory == null)
+			throw new IllegalArgumentException("factory == null");
+
+		if (factory.getAlgorithmName() == null)
+			throw new IllegalArgumentException("factory.getAlgorithmName() == null");
+
+		algorithmName2asymmetricCipherKeyPairGeneratorFactory.put(factory.getAlgorithmName(), factory);
+	}
+	//////////////////// END asymmetric key generators ////////////////////
 
 
 	private CipherRegistry() {
@@ -338,6 +322,15 @@ public final class CipherRegistry
 		// Test all registered asymmetric paddings - MUST BE HERE AFTER THEIR REGISTRATION
 		testAsymmetricBlockCipherPaddings();
 		// *** END asymmetric paddings ***
+
+		// *** BEGIN asymmetric key pair generators ***
+		registerAsymmetricCipherKeyPairGeneratorFactory(new DHBasicKeyPairGeneratorFactory());
+		registerAsymmetricCipherKeyPairGeneratorFactory(new DSAKeyPairGeneratorFactory());
+		registerAsymmetricCipherKeyPairGeneratorFactory(new ElGamalKeyPairGeneratorFactory());
+		registerAsymmetricCipherKeyPairGeneratorFactory(new GOST3410KeyPairGeneratorFactory());
+		registerAsymmetricCipherKeyPairGeneratorFactory(new NaccacheSternKeyPairGeneratorFactory());
+		registerAsymmetricCipherKeyPairGeneratorFactory(new RSAKeyPairGeneratorFactory());
+		// *** END asymmetric key pair generators ***
 	}
 
 	private void testAsymmetricBlockCipherPaddings()
@@ -472,13 +465,7 @@ public final class CipherRegistry
 		if (paddingClass == null)
 			return null;
 
-		try {
-			return paddingClass.newInstance();
-		} catch (InstantiationException e) {
-			throw new RuntimeException(e);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
+		return newInstance(paddingClass);
 	}
 
 	private Cipher createCipherForBlockCipherMode(String transformation, BlockCipher modeWithEngine, String engineName, String modeName, String paddingName)
@@ -607,7 +594,18 @@ public final class CipherRegistry
 	 *  <li>padding (optional)</li>
 	 * </ul>
 	 * <p>
-	 * For example: "AES", "AES/CBC/PKCS5Padding" or "Twofish/CFB/NoPadding"
+	 * For example:
+	 * </p>
+	 * <ul>
+	 * <li>"AES"</li>
+	 * <li>"AES/CBC/PKCS5Padding"</li>
+	 * <li>"Twofish/CFB/NoPadding"</li>
+	 * <li>"RSA"</li>
+	 * <li>"RSA/ECB/OAEPWITHSHA1ANDMGF1PADDING"</li>
+	 * <li>"RSA//OAEPWITHSHA1ANDMGF1PADDING"</li>
+	 * </ul>
+	 * <p>
+	 * "ECB" and "NoPadding" are equivalent to an empty <code>String</code>.
 	 * </p>
 	 *
 	 * @param transformation the transformation. This is case-INsensitive. It must not be <code>null</code>.
@@ -646,7 +644,10 @@ public final class CipherRegistry
 	}
 
 	/**
-	 * Split the transformation-<code>String</code> into its parts.
+	 * Split the transformation-<code>String</code> into its parts. The transformation is what you would
+	 * normally pass to {@link #createCipher(String)}, i.e. a chain of operations usually starting with
+	 * an encryption algorithm and then optionally followed by a block-cipher-mode (e.g. "CBC") and a
+	 * padding (e.g. "PKCS5Padding").
 	 * @param transformation the transformation-<code>String</code>.
 	 * @return a <code>String</code>-array with exactly 3 elements. None of these is ever <code>null</code>.
 	 * If parts are missing in the transformation, the corresponding elements are an empty string.
@@ -680,5 +681,28 @@ public final class CipherRegistry
 		}
 
 		return result;
+	}
+
+	/**
+	 * Create a ready-to-use key pair generator for the given algorithm.
+	 *
+	 * @param algorithmName the name of the algorithm. This is the first element of a transformation, i.e.
+	 * you can pass a <code>transformation</code> to {@link #splitTransformation(String)} and use element 0 of its result.
+	 * @return an instance of {@link AsymmetricCipherKeyPairGenerator} that can directly be used to generate key pairs,
+	 * i.e. it is already initialised with some default values.
+	 * @throws NoSuchAlgorithmException if there is no generator available for the given <code>algorithmName</code>.
+	 */
+	public AsymmetricCipherKeyPairGenerator createKeyPairGenerator(String algorithmName)
+	throws NoSuchAlgorithmException
+	{
+		if (algorithmName == null)
+			throw new IllegalArgumentException("algorithmName == null");
+
+		AsymmetricCipherKeyPairGeneratorFactory factory = algorithmName2asymmetricCipherKeyPairGeneratorFactory.get(algorithmName);
+		if (factory == null)
+			throw new NoSuchAlgorithmException("There is no key-pair-generator-class registered for algorithmName \"" + algorithmName + "\"!");
+
+		AsymmetricCipherKeyPairGenerator generator = factory.createAsymmetricCipherKeyPairGenerator();
+		return generator;
 	}
 }
