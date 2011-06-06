@@ -99,7 +99,8 @@ extends AbstractCryptoSession
 	@Override
 	public Ciphertext encrypt(Plaintext plaintext)
 	{
-		CipherCache cipherCache = ((KeyManagerCryptoManager)getCryptoManager()).getCipherCache();
+		// TODO continue implementing & using CipherCache!
+//		CipherCache cipherCache = ((KeyManagerCryptoManager)getCryptoManager()).getCipherCache();
 
 		javax.crypto.Cipher keyDecrypter;
 		KeyPair keyEncryptionKeyPair;
@@ -149,7 +150,8 @@ extends AbstractCryptoSession
 	@Override
 	public Plaintext decrypt(Ciphertext ciphertext)
 	{
-		CipherCache cipherCache = ((KeyManagerCryptoManager)getCryptoManager()).getCipherCache();
+		// TODO continue implementing & using CipherCache!
+//		CipherCache cipherCache = ((KeyManagerCryptoManager)getCryptoManager()).getCipherCache();
 
 		javax.crypto.Cipher keyDecrypter;
 		KeyPair keyEncryptionKeyPair;
