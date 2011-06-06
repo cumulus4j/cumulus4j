@@ -607,7 +607,7 @@ public final class CipherRegistry
 	 *  <li>padding (optional)</li>
 	 * </ul>
 	 * <p>
-	 * For example: "AES", "AES/CBC/PKCS5Padding" or "Twofish/CFB/PKCS5PADDING"
+	 * For example: "AES", "AES/CBC/PKCS5Padding" or "Twofish/CFB/NoPadding"
 	 * </p>
 	 *
 	 * @param transformation the transformation. This is case-INsensitive. It must not be <code>null</code>.
