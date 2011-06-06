@@ -9,8 +9,8 @@ import java.net.URLEncoder;
 import javax.ws.rs.core.MediaType;
 
 import org.cumulus4j.keymanager.front.shared.AppServer;
+import org.cumulus4j.keymanager.front.shared.DateDependentKeyStrategyInitParam;
 import org.cumulus4j.keymanager.front.shared.OpenSessionResponse;
-import org.cumulus4j.keymanager.front.shared.UserWithPassword;
 import org.junit.Assert;
 import org.junit.Test;
 import org.nightlabs.util.IOUtil;
@@ -35,7 +35,8 @@ public class IntegrationWithAppServerAndKeyServerTest
 	private static final String URL_KEY_MANAGER_FRONT_WEBAPP = URL_KEY_SERVER + "/org.cumulus4j.keymanager.front.webapp";
 
 	private static final String URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_APP_SERVER = URL_KEY_MANAGER_FRONT_WEBAPP + "/AppServer";
-	private static final String URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_USER = URL_KEY_MANAGER_FRONT_WEBAPP + "/User";
+//	private static final String URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_USER = URL_KEY_MANAGER_FRONT_WEBAPP + "/User";
+	private static final String URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_DATE_DEPENDENT_KEY_STRATEGY = URL_KEY_MANAGER_FRONT_WEBAPP + "/DateDependentKeyStrategy";
 	private static final String URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_SESSION = URL_KEY_MANAGER_FRONT_WEBAPP + "/Session";
 
 	private static final String KEY_SERVER_USER = "devil";
@@ -51,16 +52,20 @@ public class IntegrationWithAppServerAndKeyServerTest
 		);
 
 
-		UserWithPassword userWithPassword = new UserWithPassword();
-		userWithPassword.setUserName(KEY_SERVER_USER);
-		userWithPassword.setPassword(KEY_SERVER_PASSWORD);
+//		UserWithPassword userWithPassword = new UserWithPassword();
+//		userWithPassword.setUserName(KEY_SERVER_USER);
+//		userWithPassword.setPassword(KEY_SERVER_PASSWORD);
 
-		clientForKeyServer.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_USER)
+//		clientForKeyServer.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_USER)
+//		.type(MediaType.APPLICATION_XML_TYPE)
+//		.put(userWithPassword);
+
+		DateDependentKeyStrategyInitParam ksInitParam = new DateDependentKeyStrategyInitParam();
+		ksInitParam.setKeyActivityPeriodMSec(3600L * 1000L);
+		ksInitParam.setKeyStorePeriodMSec(24L * 3600L * 1000L);
+		clientForKeyServer.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_DATE_DEPENDENT_KEY_STRATEGY + "/init")
 		.type(MediaType.APPLICATION_XML_TYPE)
-		.put(userWithPassword);
-
-
-		// TODO init keystore with DateDependentKeyStrategy!!! There must be a REST API method for this purpose!
+		.post(ksInitParam);
 
 
 		AppServer appServer = new AppServer();

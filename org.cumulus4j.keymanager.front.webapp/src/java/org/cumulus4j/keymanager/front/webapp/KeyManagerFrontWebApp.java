@@ -60,6 +60,7 @@ extends Application
 
 	private static final Class<?>[] serviceClassesArray = {
 		AppServerService.class,
+		DateDependentKeyStrategyService.class,
 		SessionService.class,
 		UserService.class
 	};
