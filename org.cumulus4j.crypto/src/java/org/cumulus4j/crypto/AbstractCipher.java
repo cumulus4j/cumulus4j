@@ -9,6 +9,21 @@ import org.bouncycastle.crypto.DataLengthException;
  */
 public abstract class AbstractCipher implements Cipher
 {
+	private String transformation;
+
+	protected AbstractCipher(String transformation)
+	{
+		if (transformation == null)
+			throw new IllegalArgumentException("transformation == null");
+
+		this.transformation = transformation;
+	}
+
+	@Override
+	public final String getTransformation() {
+		return transformation;
+	}
+
 	public byte[] doFinal(byte[] in)
 	throws DataLengthException, IllegalStateException, CryptoException
 	{

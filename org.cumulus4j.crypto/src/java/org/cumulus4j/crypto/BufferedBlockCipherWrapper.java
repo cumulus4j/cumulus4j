@@ -16,7 +16,8 @@ extends AbstractCipher
 {
 	private BufferedBlockCipher delegate;
 
-	public BufferedBlockCipherWrapper(BufferedBlockCipher delegate) {
+	public BufferedBlockCipherWrapper(String transformation, BufferedBlockCipher delegate) {
+		super(transformation);
 		this.delegate = delegate;
 	}
 
@@ -25,11 +26,6 @@ extends AbstractCipher
 	throws IllegalArgumentException
 	{
 		delegate.init(CipherOperationMode.ENCRYPT == mode, parameters);
-	}
-
-	@Override
-	public String getAlgorithmName() {
-		return delegate.getUnderlyingCipher().getAlgorithmName();
 	}
 
 	@Override

@@ -13,7 +13,6 @@ import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.security.Security;
 import java.security.spec.KeySpec;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +30,6 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.zip.CRC32;
 
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -40,7 +38,6 @@ import javax.crypto.spec.SecretKeySpec;
 import org.bouncycastle.crypto.CryptoException;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.cumulus4j.crypto.Cipher;
 import org.cumulus4j.crypto.CipherOperationMode;
 import org.cumulus4j.crypto.CipherRegistry;
@@ -338,21 +335,21 @@ public class KeyStore
 {
 	private static final Logger logger = LoggerFactory.getLogger(KeyStore.class);
 
-	private static final BouncyCastleProvider bouncyCastleProvider = new BouncyCastleProvider();
-	static {
-		Security.insertProviderAt(bouncyCastleProvider, 2);
-
-		KeyGenerator kg;
-		try {
-			kg = KeyGenerator.getInstance("AES");
-		} catch (NoSuchAlgorithmException e) {
-			logger.warn("KeyGenerator.getInstance(\"AES\") failed: " + e, e);
-			kg = null;
-		}
-
-		if (kg == null || kg.getProvider() != bouncyCastleProvider)
-			logger.warn("BouncyCastleProvider was NOT registered!!!");
-	}
+//	private static final BouncyCastleProvider bouncyCastleProvider = new BouncyCastleProvider();
+//	static {
+//		Security.insertProviderAt(bouncyCastleProvider, 2);
+//
+//		KeyGenerator kg;
+//		try {
+//			kg = KeyGenerator.getInstance("AES");
+//		} catch (NoSuchAlgorithmException e) {
+//			logger.warn("KeyGenerator.getInstance(\"AES\") failed: " + e, e);
+//			kg = null;
+//		}
+//
+//		if (kg == null || kg.getProvider() != bouncyCastleProvider)
+//			logger.warn("BouncyCastleProvider was NOT registered!!!");
+//	}
 
 	/**
 	 * <p>
@@ -505,23 +502,38 @@ public class KeyStore
 	}
 	private String encryptionAlgorithm = null;
 
-	private Map<Integer, KeyGenerator> keySize2keyGenerator = new HashMap<Integer, KeyGenerator>();
+//	private Map<Integer, KeyGenerator> keySize2keyGenerator = new HashMap<Integer, KeyGenerator>();
+//
+//	synchronized KeyGenerator getKeyGenerator(int keySize)
+//	{
+//		KeyGenerator keyGenerator = keySize2keyGenerator.get(keySize);
+//
+//		if (keyGenerator == null) {
+//			try {
+//				keyGenerator = KeyGenerator.getInstance(getBaseAlgorithm(getEncryptionAlgorithm()));
+//			} catch (NoSuchAlgorithmException e) {
+//				throw new RuntimeException(e);
+//			}
+//			keyGenerator.init(keySize);
+//			keySize2keyGenerator.put(keySize, keyGenerator);
+//		}
+//
+//		return keyGenerator;
+//	}
 
-	synchronized KeyGenerator getKeyGenerator(int keySize)
+	byte[] generateKeyByteArray(int keySize)
 	{
-		KeyGenerator keyGenerator = keySize2keyGenerator.get(keySize);
+		byte[] result = new byte[(keySize + 7) / 8];
+		secureRandom.nextBytes(result);
+		return result;
+	}
 
-		if (keyGenerator == null) {
-			try {
-				keyGenerator = KeyGenerator.getInstance(getBaseAlgorithm(getEncryptionAlgorithm()));
-			} catch (NoSuchAlgorithmException e) {
-				throw new RuntimeException(e);
-			}
-			keyGenerator.init(keySize);
-			keySize2keyGenerator.put(keySize, keyGenerator);
-		}
-
-		return keyGenerator;
+	SecretKey generateKey()
+	{
+		return new SecretKeySpec(
+				generateKeyByteArray(getKeySize()),
+				getBaseAlgorithm(getEncryptionAlgorithm())
+		);
 	}
 
 	private File keyStoreFile;
@@ -588,9 +600,6 @@ public class KeyStore
 
 	synchronized long nextKeyID(String authUserName, char[] authPassword) throws AuthenticationException
 	{
-
-//		long result = keyStoreData.nextKeyID++;
-//		return result;
 		LongProperty property = getProperty(authUserName, authPassword, LongProperty.class, KEY_STORE_PROPERTY_NAME_NEXT_KEY_ID);
 		if (property.getValue() == null)
 			property.setValue(1L);
@@ -623,6 +632,8 @@ public class KeyStore
 	synchronized MasterKey getMasterKey(String authUserName, char[] authPassword)
 	throws AuthenticationException
 	{
+//		logger.trace("getMasterKey: authUserName={} authPassword={}", authUserName, new String(authPassword));
+
 		CachedMasterKey cachedMasterKey = cache_userName2cachedMasterKey.get(authUserName);
 		MasterKey result = cachedMasterKey == null ? null : cachedMasterKey.getMasterKey();
 		if (result != null && Arrays.equals(authPassword, cachedMasterKey.getPassword())) {
@@ -818,7 +829,7 @@ public class KeyStore
 	throws AuthenticationException, IOException
 	{
 		long keyID = nextKeyID(authUserName, authPassword);
-		SecretKey key = getKeyGenerator(getKeySize()).generateKey();
+		SecretKey key = generateKey();
 		GeneratedKey generatedKey = new GeneratedKey(keyID, key);
 		_setKey(authUserName, authPassword, keyID, key);
 		storeToFile();
@@ -850,10 +861,9 @@ public class KeyStore
 			throw new IllegalArgumentException("qty < 0");
 
 		List<GeneratedKey> result = new ArrayList<GeneratedKey>(qty);
-		KeyGenerator keyGenerator = getKeyGenerator(getKeySize());
 		for (int i = 0; i < qty; ++i) {
 			long keyID = nextKeyID(authUserName, authPassword);
-			SecretKey key = keyGenerator.generateKey();
+			SecretKey key = generateKey();
 			GeneratedKey generatedKey = new GeneratedKey(keyID, key);
 			_setKey(authUserName, authPassword, keyID, key);
 			result.add(generatedKey);
@@ -896,7 +906,7 @@ public class KeyStore
 		MasterKey masterKey;
 
 		if (isEmpty()) {
-			Key key = getKeyGenerator(getKeySize()).generateKey();
+			Key key = generateKey();
 			byte[] keyBytes = key.getEncoded();
 			masterKey = new MasterKey(keyBytes, key.getAlgorithm());
 			// Unfortunately, we cannot clear the sensitive data from the key instance, because
@@ -947,7 +957,7 @@ public class KeyStore
 					keyStoreData.stringConstant(passwordBasedKeyGeneratorAlgorithm),
 					encrypted, salt,
 					keyStoreData.stringConstant(masterKey.getAlgorithm()),
-					iv, keyStoreData.stringConstant(cipher.getAlgorithmName()),
+					iv, keyStoreData.stringConstant(cipher.getTransformation()),
 					(short)hash.length, keyStoreData.stringConstant(CHECKSUM_ALGORITHM_ACTIVE)
 			);
 			keyStoreData.user2keyMap.put(userName, encryptedKey);
@@ -1225,7 +1235,7 @@ public class KeyStore
 			byte[] encrypted = cipher.doFinal(checksumAndData);
 			EncryptedKey encryptedKey = new EncryptedKey(
 					keyID, encrypted, keyStoreData.stringConstant(key.getAlgorithm()),
-					iv, keyStoreData.stringConstant(cipher.getAlgorithmName()),
+					iv, keyStoreData.stringConstant(cipher.getTransformation()),
 					(short)checksum.length, keyStoreData.stringConstant(CHECKSUM_ALGORITHM_ACTIVE)
 			);
 			keyStoreData.keyID2keyMap.put(keyID, encryptedKey);
@@ -1434,7 +1444,7 @@ public class KeyStore
 				Class<? extends Property<?>> propertyType = (Class<? extends Property<?>>) property.getClass();
 				EncryptedProperty encryptedProperty = new EncryptedProperty(
 						property.getName(), propertyType,
-						encrypted, iv, keyStoreData.stringConstant(cipher.getAlgorithmName()),
+						encrypted, iv, keyStoreData.stringConstant(cipher.getTransformation()),
 						(short)checksum.length, keyStoreData.stringConstant(CHECKSUM_ALGORITHM_ACTIVE)
 				);
 				keyStoreData.name2propertyMap.put(encryptedProperty.getName(), encryptedProperty);

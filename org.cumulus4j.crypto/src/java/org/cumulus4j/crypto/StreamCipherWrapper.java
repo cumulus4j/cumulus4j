@@ -20,7 +20,8 @@ extends AbstractCipher
 {
 	private StreamCipher delegate;
 
-	public StreamCipherWrapper(StreamCipher delegate) {
+	public StreamCipherWrapper(String transformation, StreamCipher delegate) {
+		super(transformation);
 		this.delegate = delegate;
 	}
 
@@ -29,11 +30,6 @@ extends AbstractCipher
 	throws IllegalArgumentException
 	{
 		delegate.init(CipherOperationMode.ENCRYPT == mode, parameters);
-	}
-
-	@Override
-	public String getAlgorithmName() {
-		return delegate.getAlgorithmName();
 	}
 
 	@Override

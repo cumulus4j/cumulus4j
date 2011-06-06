@@ -13,16 +13,9 @@ extends AbstractCipher
 {
 	private BufferedAsymmetricBlockCipher delegate;
 
-	private String algorithmName;
-
-	public AsymmetricBlockCipherWrapper(BufferedAsymmetricBlockCipher delegate, String algorithmName) {
+	public AsymmetricBlockCipherWrapper(String transformation, BufferedAsymmetricBlockCipher delegate) {
+		super(transformation);
 		this.delegate = delegate;
-		this.algorithmName = algorithmName;
-	}
-
-	@Override
-	public String getAlgorithmName() {
-		return algorithmName;
 	}
 
 	@Override

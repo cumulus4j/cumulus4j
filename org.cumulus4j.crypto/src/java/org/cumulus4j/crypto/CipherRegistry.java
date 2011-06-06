@@ -481,76 +481,76 @@ public final class CipherRegistry
 		}
 	}
 
-	private Cipher createCipherForBlockCipherMode(BlockCipher modeWithEngine, String engineName, String modeName, String paddingName)
+	private Cipher createCipherForBlockCipherMode(String transformation, BlockCipher modeWithEngine, String engineName, String modeName, String paddingName)
 	throws NoSuchPaddingException
 	{
 		if (paddingName.isEmpty() || "NOPADDING".equals(paddingName))
-			return new BufferedBlockCipherWrapper(new BufferedBlockCipher(modeWithEngine));
+			return new BufferedBlockCipherWrapper(transformation, new BufferedBlockCipher(modeWithEngine));
 
 		BlockCipherPadding padding = createBlockCipherPadding(paddingName);
 		if (padding == null)
 			throw new NoSuchPaddingException("There is no block-cipher-padding class registed with the name \"" + paddingName + "\"!");
 
-		return new BufferedBlockCipherWrapper(new PaddedBufferedBlockCipher(modeWithEngine, padding));
+		return new BufferedBlockCipherWrapper(transformation, new PaddedBufferedBlockCipher(modeWithEngine, padding));
 	}
 
-	private Cipher createCipherForBlockCipherMode(AEADBlockCipher modeWithEngine, String engineName, String modeName, String paddingName)
+	private Cipher createCipherForBlockCipherMode(String transformation, AEADBlockCipher modeWithEngine, String engineName, String modeName, String paddingName)
 	throws NoSuchPaddingException
 	{
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("NYI");
 	}
 
-	private Cipher createCipherForBlockCipherMode(BufferedBlockCipher modeWithEngine, String engineName, String modeName, String paddingName)
+	private Cipher createCipherForBlockCipherMode(String transformation, BufferedBlockCipher modeWithEngine, String engineName, String modeName, String paddingName)
 	throws NoSuchPaddingException
 	{
 		if (paddingName.isEmpty() || "NOPADDING".equals(paddingName))
-			return new BufferedBlockCipherWrapper(modeWithEngine);
+			return new BufferedBlockCipherWrapper(transformation, modeWithEngine);
 
 		throw new NoSuchPaddingException("The block-cipher-mode \"" + modeName + "\" does not support the padding \"" + paddingName + "\"! Padding must be \"NoPadding\" or an empty string!");
 	}
 
-	private Cipher createCipherForBlockCipherEngine(BlockCipher engine, String engineName, String modeName, String paddingName)
+	private Cipher createCipherForBlockCipherEngine(String transformation, BlockCipher engine, String engineName, String modeName, String paddingName)
 	throws NoSuchAlgorithmException, NoSuchPaddingException
 	{
 		if (modeName.isEmpty() || "ECB".equals(modeName))
-			return createCipherForBlockCipherMode(engine, engineName, modeName, paddingName);
+			return createCipherForBlockCipherMode(transformation, engine, engineName, modeName, paddingName);
 
 		{
 			BlockCipher mode = createBlockCipherMode(modeName, engine);
 			if (mode != null)
-				return createCipherForBlockCipherMode(mode, engineName, modeName, paddingName);
+				return createCipherForBlockCipherMode(transformation, mode, engineName, modeName, paddingName);
 		}
 
 		{
 			BufferedBlockCipher mode = createBufferedBlockCipherMode(modeName, engine);
 			if (mode != null)
-				return createCipherForBlockCipherMode(mode, engineName, modeName, paddingName);
+				return createCipherForBlockCipherMode(transformation, mode, engineName, modeName, paddingName);
 		}
 
 		{
 			AEADBlockCipher mode = createAEADBlockCipherMode(modeName, engine);
 			if (mode != null)
-				return createCipherForBlockCipherMode(mode, engineName, modeName, paddingName);
+				return createCipherForBlockCipherMode(transformation, mode, engineName, modeName, paddingName);
 		}
 
 		throw new NoSuchAlgorithmException("There is no block-cipher-mode-class registered with the modeName \"" + modeName + "\"!");
 	}
 
-	private Cipher createCipherForStreamCipherMode(StreamCipher modeWithEngine, String engineName, String modeName, String paddingName)
+	private Cipher createCipherForStreamCipherMode(String transformation, StreamCipher modeWithEngine, String engineName, String modeName, String paddingName)
 	throws NoSuchPaddingException
 	{
 		if (paddingName.isEmpty() || "NOPADDING".equals(paddingName))
-			return new StreamCipherWrapper(modeWithEngine);
+			return new StreamCipherWrapper(transformation, modeWithEngine);
 
 		throw new NoSuchPaddingException("The stream-cipher-mode \"" + modeName + "\" does not support the padding \"" + paddingName + "\"! Padding must be \"NoPadding\" or an empty string!");
 	}
 
-	private Cipher createCipherForStreamCipherEngine(StreamCipher engine, String engineName, String modeName, String paddingName)
+	private Cipher createCipherForStreamCipherEngine(String transformation, StreamCipher engine, String engineName, String modeName, String paddingName)
 	throws NoSuchAlgorithmException, NoSuchPaddingException
 	{
 		if (modeName.isEmpty() || "ECB".equals(modeName))
-			return createCipherForStreamCipherMode(engine, engineName, modeName, paddingName);
+			return createCipherForStreamCipherMode(transformation, engine, engineName, modeName, paddingName);
 
 		throw new NoSuchAlgorithmException("The stream-cipher does not support the mode \"" + modeName + "\"! Only \"ECB\" or an empty string are allowed as mode!");
 	}
@@ -569,7 +569,7 @@ public final class CipherRegistry
 		}
 	}
 
-	private Cipher createCipherForAsymmetricBlockCipherMode(AsymmetricBlockCipher modeWithEngine, String engineName, String modeName, String paddingName)
+	private Cipher createCipherForAsymmetricBlockCipherMode(String transformation, AsymmetricBlockCipher modeWithEngine, String engineName, String modeName, String paddingName)
 	throws NoSuchPaddingException
 	{
 		AsymmetricBlockCipher padding;
@@ -582,16 +582,16 @@ public final class CipherRegistry
 		}
 
 		return new AsymmetricBlockCipherWrapper(
-				new BufferedAsymmetricBlockCipher(padding),
-				engineName + '/' + modeName + '/' + paddingName
+				transformation,
+				new BufferedAsymmetricBlockCipher(padding)
 		);
 	}
 
-	private Cipher createCipherForAsymmetricBlockCipherEngine(AsymmetricBlockCipher engine, String engineName, String modeName, String paddingName)
+	private Cipher createCipherForAsymmetricBlockCipherEngine(String transformation, AsymmetricBlockCipher engine, String engineName, String modeName, String paddingName)
 	throws NoSuchAlgorithmException, NoSuchPaddingException
 	{
 		if (modeName.isEmpty() || "ECB".equals(modeName))
-			return createCipherForAsymmetricBlockCipherMode(engine, engineName, modeName, paddingName);
+			return createCipherForAsymmetricBlockCipherMode(transformation, engine, engineName, modeName, paddingName);
 
 		throw new NoSuchAlgorithmException("The asymmetric-block-cipher does not support the mode \"" + modeName + "\"! Only \"ECB\" or an empty string are allowed as mode!");
 	}
@@ -627,19 +627,19 @@ public final class CipherRegistry
 		{
 			BlockCipher engine = createBlockCipherEngine(engineName);
 			if (engine != null)
-				return createCipherForBlockCipherEngine(engine, engineName, modeName, paddingName);
+				return createCipherForBlockCipherEngine(transformation, engine, engineName, modeName, paddingName);
 		}
 
 		{
 			AsymmetricBlockCipher engine = createAsymmetricBlockCipherEngine(engineName);
 			if (engine != null)
-				return createCipherForAsymmetricBlockCipherEngine(engine, engineName, modeName, paddingName);
+				return createCipherForAsymmetricBlockCipherEngine(transformation, engine, engineName, modeName, paddingName);
 		}
 
 		{
 			StreamCipher engine = createStreamCipherEngine(engineName);
 			if (engine != null)
-				return createCipherForStreamCipherEngine(engine, engineName, modeName, paddingName);
+				return createCipherForStreamCipherEngine(transformation, engine, engineName, modeName, paddingName);
 		}
 
 		throw new NoSuchAlgorithmException("There is no cipher-engine-class registered with the algorithmName \"" + engineName + "\"!");

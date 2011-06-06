@@ -28,7 +28,12 @@ public interface Cipher
 	 */
 	CipherParameters getParameters();
 
-	String getAlgorithmName();
+	/**
+	 * Get the transformation that was passed to {@link CipherRegistry#createCipher(String)}
+	 * for obtaining this <code>Cipher</code>.
+	 * @return the transformation (encryption algorithm, mode and padding) of this cipher.
+	 */
+	String getTransformation();
 
 	void reset();
 
