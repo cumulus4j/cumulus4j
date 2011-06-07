@@ -16,12 +16,17 @@ import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.cumulus4j.crypto.Cipher;
 import org.cumulus4j.crypto.CipherOperationMode;
 import org.cumulus4j.crypto.CipherRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class CipherCache
 {
+	// TODO we need a mechanism removing old entries from this cache!!!
+	private static final Logger logger = LoggerFactory.getLogger(CipherCache.class);
+
 	private SecureRandom random = new SecureRandom();
 	private long activeEncryptionKeyID = -1;
 	private Date activeEncryptionKeyUntilExcl = null;
@@ -68,10 +73,14 @@ public class CipherCache
 	protected byte[] getKeyData(long keyID)
 	{
 		CipherCacheKeyEntry entry = keyID2key.get(keyID);
-		if (entry == null)
+		if (entry == null) {
+			if (logger.isTraceEnabled()) logger.trace("getKeyData: No cached key with keyID={} found.", keyID);
 			return null;
-		else
+		}
+		else {
+			if (logger.isTraceEnabled()) logger.trace("getKeyData: Found cached key with keyID={}.", keyID);
 			return entry.getKeyData();
+		}
 	}
 
 	protected CipherCacheKeyEntry setKeyData(long keyID, byte[] keyData)
@@ -122,6 +131,13 @@ public class CipherCache
 							iv = new byte[entry.getCipher().getIVSize()];
 							random.nextBytes(iv);
 						}
+
+						if (logger.isTraceEnabled())
+							logger.trace(
+									"acquireCipherEntry: Found cached Cipher@{} for opmode={}, encryptionAlgorithm={} and keyID={}. Initialising it with new IV (without key).",
+									new Object[] { System.identityHashCode(entry.getCipher()), opmode, encryptionAlgorithm, keyID }
+							);
+
 						entry.getCipher().init(
 								opmode,
 								new ParametersWithIV(null, iv) // no key, because we reuse the cipher and want to suppress expensive rekeying
@@ -154,6 +170,13 @@ public class CipherCache
 			iv = new byte[entry.getCipher().getIVSize()];
 			random.nextBytes(iv);
 		}
+
+		if (logger.isTraceEnabled())
+			logger.trace(
+					"acquireCipherEntry: Created new Cipher@{} for opmode={}, encryptionAlgorithm={} and keyID={}. Initialising it with key and IV.",
+					new Object[] { System.identityHashCode(entry.getCipher()), opmode, encryptionAlgorithm, keyID }
+			);
+
 		entry.getCipher().init(
 				opmode,
 				new ParametersWithIV(new KeyParameter(keyData), iv) // with key, because 1st time we use this cipher
@@ -165,6 +188,17 @@ public class CipherCache
 	{
 		if (cipherEntry == null)
 			return;
+
+		if (logger.isTraceEnabled())
+			logger.trace(
+					"releaseCipherEntry: Releasing Cipher@{} for opmode={}, encryptionAlgorithm={} keyID={}.",
+					new Object[] {
+							System.identityHashCode(cipherEntry.getCipher()),
+							cipherEntry.getCipher().getMode(),
+							cipherEntry.getEncryptionAlgorithm(),
+							cipherEntry.getKeyEntry().getKeyID()
+					}
+			);
 
 		Map<EncryptionAlgorithm, Map<Long, List<CipherCacheCipherEntry>>> encryptionAlgorithm2keyID2cipherEntries;
 		synchronized (opmode2encryptionAlgorithm2keyID2cipherEntries) {
@@ -203,7 +237,9 @@ public class CipherCache
 		cipherEntries.add(cipherEntry);
 	}
 
-	public void clear() {
+	public void clear()
+	{
+		logger.trace("clear: entered");
 		keyID2key.clear();
 		opmode2encryptionAlgorithm2keyID2cipherEntries.clear();
 	}

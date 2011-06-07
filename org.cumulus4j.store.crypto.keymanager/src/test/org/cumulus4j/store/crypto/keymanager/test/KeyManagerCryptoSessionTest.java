@@ -70,6 +70,22 @@ public class KeyManagerCryptoSessionTest
 		}
 
 		Ciphertext ciphertext = session.encrypt(plaintext);
+		// NOT clearing cache in order to test the cached scenario.
+		Ciphertext ciphertext1 = session.encrypt(plaintext);
+
+		// Clear cache in order to test more code (i.e. ask the MockMessageBroker with a GetKeyRequest).
+		((KeyManagerCryptoManager)session.getCryptoManager()).getCipherCache().clear();
+
+		Ciphertext ciphertext2 = session.encrypt(plaintext);
+
+		int c = countDifferentBits(ciphertext.getData(), ciphertext1.getData());
+		Assert.assertTrue("Not enough bits different between ciphertext and ciphertext1! Only " + c + " bits differ!", c > 32);
+
+		c = countDifferentBits(ciphertext.getData(), ciphertext2.getData());
+		Assert.assertTrue("Not enough bits different between ciphertext and ciphertext2! Only " + c + " bits differ!", c > 32);
+
+		c = countDifferentBits(ciphertext1.getData(), ciphertext2.getData());
+		Assert.assertTrue("Not enough bits different between ciphertext1 and ciphertext2! Only " + c + " bits differ!", c > 32);
 
 		// Clear cache in order to test more code (i.e. ask the MockMessageBroker with a GetKeyRequest).
 		((KeyManagerCryptoManager)session.getCryptoManager()).getCipherCache().clear();
@@ -77,6 +93,37 @@ public class KeyManagerCryptoSessionTest
 		Plaintext decrypted = session.decrypt(ciphertext);
 
 		Assert.assertArrayEquals(plaintext.getData(), decrypted.getData());
+
+		// NOT clearing cache in order to test the cached scenario.
+		Plaintext decrypted1 = session.decrypt(ciphertext1);
+
+		// Clear cache in order to test more code (i.e. ask the MockMessageBroker with a GetKeyRequest).
+		((KeyManagerCryptoManager)session.getCryptoManager()).getCipherCache().clear();
+		Plaintext decrypted2 = session.decrypt(ciphertext2);
+
+		c = countDifferentBits(decrypted.getData(), decrypted1.getData());
+		Assert.assertEquals("decrypted does not match decrypted1! " + c + " bits differ!", 0, c);
+
+		c = countDifferentBits(decrypted.getData(), decrypted2.getData());
+		Assert.assertEquals("decrypted does not match decrypted2! " + c + " bits differ!", 0, c);
 	}
 
+	private int countDifferentBits(byte[] b1, byte[] b2)
+	{
+		int length = b1.length < b2.length ? b1.length : b2.length;
+
+		int result = 0;
+
+		for (int i = 0; i < length; ++i) {
+			for (int bit = 0; bit < 8; ++bit) {
+				int bit1 = (b1[i] >>> bit) & 1;
+				int bit2 = (b2[i] >>> bit) & 1;
+
+				if (bit1 != bit2)
+					++result;
+			}
+		}
+
+		return result;
+	}
 }
