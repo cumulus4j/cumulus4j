@@ -3,11 +3,13 @@ package org.cumulus4j.store.crypto.keymanager;
 import java.io.IOException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.SecureRandom;
 import java.security.Security;
 import java.security.spec.RSAKeyGenParameterSpec;
 
 import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.cumulus4j.crypto.Cipher;
 import org.cumulus4j.crypto.util.ChecksumAlgorithm;
 import org.cumulus4j.crypto.util.ChecksumCalculator;
 import org.cumulus4j.keymanager.back.shared.GetActiveEncryptionKeyRequest;
@@ -75,6 +77,8 @@ extends AbstractCryptoSession
 
 	private static final long keyDecrypterLifetimeMSec = 12L * 3600L * 1000L; // TODO make configurable! - 12 hours right now
 
+	private SecureRandom secureRandom = new SecureRandom();
+
 	private static javax.crypto.Cipher getKeyDecrypter()
 	{
 		if (keyDecrypter == null || System.currentTimeMillis() - keyDecrypterCreationTimestamp > keyDecrypterLifetimeMSec) {
@@ -123,11 +127,17 @@ extends AbstractCryptoSession
 	 * 				</tr><tr>
 	 * 					<td><b>Bytes</b></td><td><b>Description</b></td>
 	 * 				</tr><tr>
-	 *					<td align="right" valign="top">1</td><td>{@link ChecksumAlgorithm#toByte()}</td>
+	 *					<td align="right" valign="top">1</td><td><i>salt0</i>: Salt for checksum algorithm</td>
 	 *				</tr><tr>
-	 *					<td align="right" valign="top">1</td><td><i>checksumLen</i>: Length of the checksum in bytes.</td>
+	 *					<td align="right" valign="top">1</td><td><i>salt1</i>: Salt for checksum length</td>
+	 * 				</tr><tr>
+	 *					<td align="right" valign="top">1</td><td>{@link ChecksumAlgorithm#toByte()} XORed with <i>salt0</i>.</td>
 	 *				</tr><tr>
-	 *					<td align="right" valign="top">checksumLen</td><td>The actual checksum.</td>
+	 *					<td align="right" valign="top">1</td><td><i>checksumLen</i>: Length of the checksum in bytes XORed with <i>salt1</i>.</td>
+	 *				</tr><tr>
+	 *					<td align="right" valign="top">checksumLen</td><td><i>salt2</i>: Salt for actual checksum.</td>
+	 *				</tr><tr>
+	 *					<td align="right" valign="top">checksumLen</td><td>The actual checksum XORed with <i>salt2</i>.</td>
 	 *				</tr><tr>
 	 *					<td align="right" valign="top">all following</td><td>The actual data.</td>
 	 * 				</tr>
@@ -182,17 +192,21 @@ extends AbstractCryptoSession
 				encrypter = cipherCache.acquireEncrypter(activeEncryptionAlgorithm, activeEncryptionKeyID, keyEncodedPlain);
 			}
 
+			Cipher cipher = encrypter.getCipher();
 			byte[] checksum = checksumCalculator.checksum(plaintext.getData(), activeChecksumAlgorithm);
-			byte[] iv = ((ParametersWithIV)encrypter.getCipher().getParameters()).getIV();
+			byte[] iv = ((ParametersWithIV)cipher.getParameters()).getIV();
 
 			int outLength = (
 					1 // encryption algorithm
 					+ 1 // iv length in bytes
 					+ iv.length
-					+ encrypter.getCipher().getOutputSize(
-							1 // checksum algorithm
+					+ cipher.getOutputSize(
+							1 // random salt to xor into checksum algorithm
+							+ 1 // random salt to xor into checksum length
+							+ 1 // checksum algorithm
 							+ 1 // checksum length in bytes
-							+ checksum.length
+							+ checksum.length // random salt to xor into checksum
+							+ checksum.length // actual checksum
 							+ plaintext.getData().length
 					)
 			);
@@ -205,11 +219,22 @@ extends AbstractCryptoSession
 			System.arraycopy(iv, 0, out, outOff, iv.length);
 			outOff += iv.length;
 
-			outOff += encrypter.getCipher().update(activeChecksumAlgorithm.toByte(), out, outOff);
-			outOff += encrypter.getCipher().update((byte)checksum.length, out, outOff);
-			outOff += encrypter.getCipher().update(checksum, 0, checksum.length, out, outOff);
-			outOff += encrypter.getCipher().update(plaintext.getData(), 0, plaintext.getData().length, out, outOff);
-			outOff += encrypter.getCipher().doFinal(out, outOff);
+			byte[] saltForChecksumMeta = new byte[2];
+			secureRandom.nextBytes(saltForChecksumMeta);
+			byte[] saltForChecksum = new byte[checksum.length];
+			secureRandom.nextBytes(saltForChecksum);
+
+			// put salt INTO checksum (MODIFY existing byte array)
+			for (int i = 0; i < checksum.length; ++i)
+				checksum[i] ^= saltForChecksum[i];
+
+			outOff += cipher.update(saltForChecksumMeta, 0, saltForChecksumMeta.length, out, outOff);
+			outOff += cipher.update((byte)(saltForChecksumMeta[0] ^ activeChecksumAlgorithm.toByte()), out, outOff);
+			outOff += cipher.update((byte)(saltForChecksumMeta[1] ^ checksum.length), out, outOff);
+			outOff += cipher.update(saltForChecksum, 0, saltForChecksum.length, out, outOff);
+			outOff += cipher.update(checksum, 0, checksum.length, out, outOff);
+			outOff += cipher.update(plaintext.getData(), 0, plaintext.getData().length, out, outOff);
+			outOff += cipher.doFinal(out, outOff);
 
 			if (outOff < outLength) {
 				logger.warn(
@@ -294,16 +319,19 @@ extends AbstractCryptoSession
 			if (logger.isDebugEnabled() && outOff != outLength)
 				logger.debug("decrypt: precalculated output-size does not match actually written output: expected={} actual={}", outLength, outOff);
 
-			ChecksumAlgorithm checksumAlgorithm = ChecksumAlgorithm.valueOf(out[0]);
-			int checksumLength = out[1] & 0xff;
+			ChecksumAlgorithm checksumAlgorithm = ChecksumAlgorithm.valueOf((byte)(out[0] ^ out[2]));
+			int checksumLength = (out[1] ^ out[3]) & 0xff;
 
-			int checksumOff = 2; // after 1 byte checksumAlgoID + 1 byte checksumLength
+			int checksumSaltOff = 4; // after 2 bytes salt + 1 byte checksumAlgoID + 1 byte checksumLength
+
+			int checksumOff = checksumSaltOff + checksumLength;
 			int dataOff = checksumOff + checksumLength;
 			byte[] newChecksum = checksumCalculator.checksum(out, dataOff, outOff - dataOff, checksumAlgorithm);
 
 			for (int i = 0; i < newChecksum.length; ++i) {
-				if (newChecksum[i] != out[checksumOff + i])
-					throw new IOException("Checksum mismatch! checksum[" + i + "] expected " + newChecksum[i] + " but was " + out[checksumOff + i]);
+				byte expected = (byte)(out[checksumOff + i] ^ out[checksumSaltOff + i]);
+				if (expected != newChecksum[i])
+					throw new IOException("Checksum mismatch! checksum[" + i + "] expected " + expected + " but was " + newChecksum[i]);
 			}
 			newChecksum = null;
 
