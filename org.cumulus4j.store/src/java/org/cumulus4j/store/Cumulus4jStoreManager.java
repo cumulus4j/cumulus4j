@@ -158,7 +158,7 @@ extends AbstractStoreManager
 
 		ClassMeta classMeta = ClassMeta.getClassMeta(pm, clazz, false);
 		boolean classExists = (classMeta != null);
-		if (classMeta == null) {
+		if (!classExists) {
 			classMeta = new ClassMeta(clazz);
 		}
 

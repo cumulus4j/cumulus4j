@@ -28,7 +28,7 @@ import org.datanucleus.store.connection.ManagedConnection;
 
 /**
  * A "connection" in Cumulus4J is a PersistenceManager for the backing datastore.
- * When the transaction in Cumulus4J is committed, the equivalent transaction is committed in the PM(s) of the 
+ * When the transaction in Cumulus4J is committed, the equivalent transaction is committed in the PM(s) of the
  * backing datastore(s).
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
@@ -125,10 +125,10 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 			ConfigurationElement[] elems = pluginMgr.getConfigurationElementsForExtension(
 					"org.cumulus4j.store.index_mapping", null, null);
 			if (elems != null && elems.length > 0) {
-				HashSet<Class> initialisedClasses = new HashSet<Class>();
+				HashSet<Class<?>> initialisedClasses = new HashSet<Class<?>>();
 				for (int i=0;i<elems.length;i++) {
 					String indexTypeName = elems[i].getAttribute("index-entry-type");
-					Class cls = pluginMgr.loadClass("org.cumulus4j.store.index_mapping", indexTypeName);
+					Class<?> cls = pluginMgr.loadClass("org.cumulus4j.store.index_mapping", indexTypeName);
 					if (!initialisedClasses.contains(cls)) {
 						initialisedClasses.add(cls);
 						pm.getExtent(cls);
@@ -195,7 +195,8 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
             this.tx = pm.currentTransaction();
         }
 
-        public void commit(Xid xid, boolean arg1) throws XAException
+        @Override
+				public void commit(Xid xid, boolean arg1) throws XAException
         {
 //        	if (this.xid == null)
 //        		throw new IllegalStateException("Transaction not active!");
@@ -207,22 +208,26 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 //            this.xid = null;
         }
 
-        public void end(Xid arg0, int arg1) throws XAException
+        @Override
+				public void end(Xid arg0, int arg1) throws XAException
         {
             //ignore
         }
 
-        public void forget(Xid arg0) throws XAException
+        @Override
+				public void forget(Xid arg0) throws XAException
         {
             //ignore
         }
 
-        public int getTransactionTimeout() throws XAException
+        @Override
+				public int getTransactionTimeout() throws XAException
         {
             return 0;
         }
 
-        public boolean isSameRM(XAResource resource) throws XAException
+        @Override
+				public boolean isSameRM(XAResource resource) throws XAException
         {
         	if ((resource instanceof Cumulus4jXAResource) && pm.equals(((Cumulus4jXAResource)resource).pm))
         		return true;
@@ -230,17 +235,20 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
         		return false;
         }
 
-        public int prepare(Xid arg0) throws XAException
+        @Override
+				public int prepare(Xid arg0) throws XAException
         {
             return 0;
         }
 
-        public Xid[] recover(int arg0) throws XAException
+        @Override
+				public Xid[] recover(int arg0) throws XAException
         {
             throw new XAException("Unsupported operation");
         }
 
-        public void rollback(Xid xid) throws XAException
+        @Override
+				public void rollback(Xid xid) throws XAException
         {
 //        	if (this.xid == null)
 //        		throw new IllegalStateException("Transaction not active!");
@@ -252,12 +260,14 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 //            this.xid = null;
         }
 
-        public boolean setTransactionTimeout(int arg0) throws XAException
+        @Override
+				public boolean setTransactionTimeout(int arg0) throws XAException
         {
             return false;
         }
 
-        public void start(Xid xid, int arg1) throws XAException
+        @Override
+				public void start(Xid xid, int arg1) throws XAException
         {
 //        	if (this.xid != null)
 //        		throw new IllegalStateException("Transaction already started! Cannot start twice!");

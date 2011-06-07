@@ -25,6 +25,7 @@ public final class ObjectContainerHelper
 
 	private ObjectContainerHelper() { }
 
+	@SuppressWarnings("unused")
 	public static Object entityToReference(ExecutionContext executionContext, PersistenceManager pm, Object entity)
 	{
 		Cumulus4jStoreManager storeManager = (Cumulus4jStoreManager) executionContext.getStoreManager();
@@ -42,6 +43,7 @@ public final class ObjectContainerHelper
 		return objectID;
 	}
 
+	@SuppressWarnings("unused")
 	public static Object referenceToEntity(ExecutionContext executionContext, PersistenceManager pm, Object reference)
 	{
 		if (reference == null)
@@ -56,6 +58,7 @@ public final class ObjectContainerHelper
 		return executionContext.findObject(reference, true, true, null);
 	}
 
+	@SuppressWarnings("unused")
 	public static Long referenceToDataEntryID(ExecutionContext executionContext, PersistenceManager pm, Object reference)
 	{
 		if (reference == null)
