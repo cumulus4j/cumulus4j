@@ -107,7 +107,7 @@ extends AbstractCryptoSession
 	 * The implementation in {@link KeyManagerCryptoManager} stores every plaintext
 	 * encoded in the following form:
 	 * </p>
-	 * <table border="1" width="100%">
+	 * <table border="1">
 	 * <tbody>
 	 * 	<tr>
 	 * 		<td><b>Bytes</b></td><td><b>Description</b></td>
@@ -117,7 +117,7 @@ extends AbstractCryptoSession
 	 * 	</tr><tr>
 	 * 		<td align="right" valign="top">1</td><td><i>ivLen</i>: Length of the IV in bytes.</td>
 	 * 	</tr><tr>
-	 * 		<td align="right" valign="top">ivLen</td><td>The actual IV (initialisation vector).</td>
+	 * 		<td align="right" valign="top"><i>ivLen</i></td><td>The actual IV (initialisation vector).</td>
 	 * 	</tr><tr>
 	 * 		<td colspan="2">
 	 * 			<table border="1" width="100%">
@@ -135,11 +135,11 @@ extends AbstractCryptoSession
 	 *				</tr><tr>
 	 *					<td align="right" valign="top">1</td><td><i>checksumLen</i>: Length of the checksum in bytes XORed with <i>salt1</i>.</td>
 	 *				</tr><tr>
-	 *					<td align="right" valign="top">checksumLen</td><td><i>salt2</i>: Salt for actual checksum.</td>
+	 *					<td align="right" valign="top"><i>checksumLen</i></td><td><i>salt2</i>: Salt for actual checksum.</td>
 	 *				</tr><tr>
-	 *					<td align="right" valign="top">checksumLen</td><td>The actual checksum XORed with <i>salt2</i>.</td>
+	 *					<td align="right" valign="top"><i>checksumLen</i></td><td>The actual checksum XORed with <i>salt2</i>.</td>
 	 *				</tr><tr>
-	 *					<td align="right" valign="top">all following</td><td>The actual data.</td>
+	 *					<td align="right" valign="top"><i>all following</i></td><td>The actual data.</td>
 	 * 				</tr>
 	 * 			</tbody>
 	 * 			</table>
