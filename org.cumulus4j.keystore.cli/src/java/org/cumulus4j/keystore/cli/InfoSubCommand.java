@@ -8,6 +8,9 @@ import java.util.SortedSet;
 import org.cumulus4j.keystore.prop.Property;
 
 /**
+ * <p>
+ * {@link SubCommand} implementation for showing various infos about a key-store.
+ * </p>
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class InfoSubCommand extends SubCommandWithKeyStoreWithAuth

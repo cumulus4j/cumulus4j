@@ -6,6 +6,12 @@ import org.cumulus4j.keystore.DateDependentKeyStrategy;
 import org.cumulus4j.keystore.KeyStore;
 import org.kohsuke.args4j.Option;
 
+/**
+ * <p>
+ * {@link SubCommand} implementation for creating & initialising a new key-store with the {@link DateDependentKeyStrategy}.
+ * </p>
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class InitDateDependentKeyStrategySubCommand
 extends SubCommandWithKeyStore
 {

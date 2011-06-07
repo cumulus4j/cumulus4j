@@ -3,6 +3,8 @@ package org.cumulus4j.keystore.cli;
 import org.kohsuke.args4j.Option;
 
 /**
+ * {@link SubCommand} implementation for creating a new user.
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class CreateUserSubCommand extends SubCommandWithKeyStoreWithAuth

@@ -5,6 +5,10 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
+ * <p>
+ * {@link SubCommand} implementation for showing the version number of the command
+ * line tool.
+ * </p>
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class VersionSubCommand

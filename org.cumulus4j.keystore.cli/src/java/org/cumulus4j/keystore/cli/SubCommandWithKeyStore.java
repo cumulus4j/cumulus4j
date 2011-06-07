@@ -7,6 +7,9 @@ import org.cumulus4j.keystore.KeyStore;
 import org.kohsuke.args4j.Option;
 
 /**
+ * <p>
+ * Abstract {@link SubCommand} implementation for being subclassed when a key-store is used.
+ * </p>
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public abstract class SubCommandWithKeyStore

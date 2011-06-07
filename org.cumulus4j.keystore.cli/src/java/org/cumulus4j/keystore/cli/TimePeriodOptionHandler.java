@@ -2,14 +2,35 @@ package org.cumulus4j.keystore.cli;
 
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.OptionDef;
 import org.kohsuke.args4j.spi.OneArgumentOptionHandler;
 import org.kohsuke.args4j.spi.Setter;
 
 /**
+ * <p>
+ * Option handler implementation to interprete a time period (e.g. "5 minutes".
+ * </p>
+ * <p>
+ * The time period is specified in the command line by writing a number
+ * directly followed (no space!) by a unit. For example 5 minutes could be
+ * written as "5min" or "300s" (300 seconds are 5 minutes).
+ * </p>
+ * <p>
+ * This handler can be chosen for every <code>long</code> property using
+ * the {@link Option} annotation like this:
+ * </p>
+ * <pre>
+ * &#64;Option(name="-myArg", handler=TimePeriodOptionHandler.class)
+ * private long myArg;
+ * </pre>
+ * <p>
+ * The <code>long</code> property will be set to the milliseconds value.
+ * For example, if the command line user passes "5min", the <code>long</code> value
+ * will be 300000 (5 min * 60 s * 1000 ms).
+ * </p>
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
- *
  */
 public class TimePeriodOptionHandler extends OneArgumentOptionHandler<Long>
 {

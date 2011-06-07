@@ -12,7 +12,13 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
 /**
+ * <p>
  * Command line tool for the key store.
+ * </p>
+ * <p>
+ * Though this is the main class of the CLI, the actual logic for all command line
+ * operations is implemented in subclasses of {@link SubCommand}.
+ * </p>
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */

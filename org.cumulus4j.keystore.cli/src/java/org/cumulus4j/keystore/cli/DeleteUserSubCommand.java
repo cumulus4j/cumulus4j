@@ -3,6 +3,8 @@ package org.cumulus4j.keystore.cli;
 import org.kohsuke.args4j.Option;
 
 /**
+ * {@link SubCommand} implementation for deleting a user.
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class DeleteUserSubCommand extends SubCommandWithKeyStoreWithAuth
