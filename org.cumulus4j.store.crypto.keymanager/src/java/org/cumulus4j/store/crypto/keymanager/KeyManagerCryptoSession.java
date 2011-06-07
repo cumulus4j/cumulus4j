@@ -110,7 +110,7 @@ extends AbstractCryptoSession
 	 * <table border="1">
 	 * <tbody>
 	 * 	<tr>
-	 * 		<td><b>Bytes</b></td><td><b>Description</b></td>
+	 * 		<td align="right" valign="top"><b>Bytes</b></td><td><b>Description</b></td>
 	 * 	</tr>
 	 * 	<tr>
 	 * 		<td align="right" valign="top">1</td><td>{@link EncryptionAlgorithm}'s ordinal value</td>
@@ -120,12 +120,12 @@ extends AbstractCryptoSession
 	 * 		<td align="right" valign="top"><i>ivLen</i></td><td>The actual IV (initialisation vector).</td>
 	 * 	</tr><tr>
 	 * 		<td colspan="2">
-	 * 			<table border="1" width="100%">
+	 * 			<table bgcolor="#F0F0F0" border="1" width="100%">
 	 * 			<tbody>
 	 * 				<tr>
-	 * 					<td colspan="2"><b>ENCRYPTED</b></td>
+	 * 					<td bgcolor="#D0D0D0" colspan="2"><b>ENCRYPTED</b></td>
 	 * 				</tr><tr>
-	 * 					<td><b>Bytes</b></td><td><b>Description</b></td>
+	 * 					<td align="right" valign="top"><b>Bytes</b></td><td><b>Description</b></td>
 	 * 				</tr><tr>
 	 *					<td align="right" valign="top">1</td><td><i>salt0</i>: Salt for checksum algorithm</td>
 	 *				</tr><tr>
