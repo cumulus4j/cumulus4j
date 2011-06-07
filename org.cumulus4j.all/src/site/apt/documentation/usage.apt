@@ -34,6 +34,9 @@ Usage
 
 * Deployment
 
+    Cumulus4J has been tested for deployment onto the following datastores : RDBMS, HBase, MongoDB, ODF, Excel.
+    This can be achieved using the relevant store plugin for DataNucleus.
+
     You find a documentation of the currently supported {{{./deployment-scenarios.html}deployment scenarios here}}.
     For details about which modules need to be deployed where, please consult the
     {{{./deployment-module-location-matrix.html}module-location-matrix}}.
