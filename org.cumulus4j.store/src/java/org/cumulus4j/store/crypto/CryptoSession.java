@@ -2,8 +2,7 @@ package org.cumulus4j.store.crypto;
 
 import java.util.Date;
 
-import javax.crypto.Cipher;
-
+import org.cumulus4j.crypto.Cipher;
 import org.datanucleus.NucleusContext;
 
 /**
