@@ -135,9 +135,7 @@ extends AbstractCryptoSession
 	 *				</tr><tr>
 	 *					<td align="right" valign="top">1</td><td><i>checksumLen</i>: Length of the checksum in bytes XORed with <i>salt1</i>.</td>
 	 *				</tr><tr>
-	 *					<td align="right" valign="top"><i>checksumLen</i></td><td><i>salt2</i>: Salt for actual checksum.</td>
-	 *				</tr><tr>
-	 *					<td align="right" valign="top"><i>checksumLen</i></td><td>The actual checksum XORed with <i>salt2</i>.</td>
+	 *					<td align="right" valign="top"><i>checksumLen</i></td><td>The actual checksum.</td>
 	 *				</tr><tr>
 	 *					<td align="right" valign="top"><i>all following</i></td><td>The actual data.</td>
 	 * 				</tr>
@@ -205,7 +203,6 @@ extends AbstractCryptoSession
 							+ 1 // random salt to xor into checksum length
 							+ 1 // checksum algorithm
 							+ 1 // checksum length in bytes
-							+ checksum.length // random salt to xor into checksum
 							+ checksum.length // actual checksum
 							+ plaintext.getData().length
 					)
@@ -221,17 +218,10 @@ extends AbstractCryptoSession
 
 			byte[] saltForChecksumMeta = new byte[2];
 			secureRandom.nextBytes(saltForChecksumMeta);
-			byte[] saltForChecksum = new byte[checksum.length];
-			secureRandom.nextBytes(saltForChecksum);
-
-			// put salt INTO checksum (MODIFY existing byte array)
-			for (int i = 0; i < checksum.length; ++i)
-				checksum[i] ^= saltForChecksum[i];
 
 			outOff += cipher.update(saltForChecksumMeta, 0, saltForChecksumMeta.length, out, outOff);
 			outOff += cipher.update((byte)(saltForChecksumMeta[0] ^ activeChecksumAlgorithm.toByte()), out, outOff);
 			outOff += cipher.update((byte)(saltForChecksumMeta[1] ^ checksum.length), out, outOff);
-			outOff += cipher.update(saltForChecksum, 0, saltForChecksum.length, out, outOff);
 			outOff += cipher.update(checksum, 0, checksum.length, out, outOff);
 			outOff += cipher.update(plaintext.getData(), 0, plaintext.getData().length, out, outOff);
 			outOff += cipher.doFinal(out, outOff);
@@ -322,14 +312,12 @@ extends AbstractCryptoSession
 			ChecksumAlgorithm checksumAlgorithm = ChecksumAlgorithm.valueOf((byte)(out[0] ^ out[2]));
 			int checksumLength = (out[1] ^ out[3]) & 0xff;
 
-			int checksumSaltOff = 4; // after 2 bytes salt + 1 byte checksumAlgoID + 1 byte checksumLength
-
-			int checksumOff = checksumSaltOff + checksumLength;
+			int checksumOff = 4; // after 2 bytes salt + 1 byte checksumAlgoID + 1 byte checksumLength
 			int dataOff = checksumOff + checksumLength;
 			byte[] newChecksum = checksumCalculator.checksum(out, dataOff, outOff - dataOff, checksumAlgorithm);
 
 			for (int i = 0; i < newChecksum.length; ++i) {
-				byte expected = (byte)(out[checksumOff + i] ^ out[checksumSaltOff + i]);
+				byte expected = out[checksumOff + i];
 				if (expected != newChecksum[i])
 					throw new IOException("Checksum mismatch! checksum[" + i + "] expected " + expected + " but was " + newChecksum[i]);
 			}
