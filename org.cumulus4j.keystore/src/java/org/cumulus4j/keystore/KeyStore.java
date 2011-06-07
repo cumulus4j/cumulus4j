@@ -75,8 +75,8 @@ import org.slf4j.LoggerFactory;
  * you change the key-size later, it will affect only those keys that are created later.
  * </p>
  * <p>
- * Note, that key sizes longer than 128
- * bit require the "Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files" to be installed!
+ * Note, that the "Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files" do not
+ * need to be installed for very strong cryptography, because we don't use the JCE (see {@link Cipher}).
  * </p>
  * <h3>File format of the key store file (version 1)</h3>
  * <p>
@@ -134,7 +134,7 @@ import org.slf4j.LoggerFactory;
  *
  * 			<tr>
  * 				<td colspan="2">
- * TODO document User-key-map!
+ * 					For every user, the master-key is stored encrypted with the user's password in this block.
  * 				</td>
  * 			</tr>
  *
@@ -215,7 +215,7 @@ import org.slf4j.LoggerFactory;
  *
  * 			<tr>
  * 				<td colspan="2">
- * TODO document Key-ID-key-map!
+ * 					This block contains the actual keys. Every key is encrypted with the master-key.
  * 				</td>
  * 			</tr>
  *
