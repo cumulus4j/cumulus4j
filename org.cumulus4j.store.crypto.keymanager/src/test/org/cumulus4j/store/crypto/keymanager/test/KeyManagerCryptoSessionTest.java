@@ -79,13 +79,13 @@ public class KeyManagerCryptoSessionTest
 		Ciphertext ciphertext2 = session.encrypt(plaintext);
 
 		int c = countDifferentBits(ciphertext.getData(), ciphertext1.getData());
-		Assert.assertTrue("Not enough bits different between ciphertext and ciphertext1! Only " + c + " bits differ!", c > 32);
+		Assert.assertTrue("Not enough bits different between ciphertext and ciphertext1! Only " + c + " bits differ!", c > 1024);
 
 		c = countDifferentBits(ciphertext.getData(), ciphertext2.getData());
-		Assert.assertTrue("Not enough bits different between ciphertext and ciphertext2! Only " + c + " bits differ!", c > 32);
+		Assert.assertTrue("Not enough bits different between ciphertext and ciphertext2! Only " + c + " bits differ!", c > 1024);
 
 		c = countDifferentBits(ciphertext1.getData(), ciphertext2.getData());
-		Assert.assertTrue("Not enough bits different between ciphertext1 and ciphertext2! Only " + c + " bits differ!", c > 32);
+		Assert.assertTrue("Not enough bits different between ciphertext1 and ciphertext2! Only " + c + " bits differ!", c > 1024);
 
 		// Clear cache in order to test more code (i.e. ask the MockMessageBroker with a GetKeyRequest).
 		((KeyManagerCryptoManager)session.getCryptoManager()).getCipherCache().clear();
