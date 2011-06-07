@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
+import org.cumulus4j.crypto.util.ChecksumAlgorithm;
+
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
@@ -14,7 +16,7 @@ abstract class AbstractEncryptedKey
 	public AbstractEncryptedKey() { }
 
 	public AbstractEncryptedKey(
-			byte[] data, String algorithm, byte[] encryptionIV, String encryptionAlgorithm, short checksumSize, String checksumAlgorithm
+			byte[] data, String algorithm, byte[] encryptionIV, String encryptionAlgorithm, short checksumSize, ChecksumAlgorithm checksumAlgorithm
 	)
 	{
 		if (data == null)
@@ -29,8 +31,8 @@ abstract class AbstractEncryptedKey
 		if (checksumSize < 1)
 			throw new IllegalArgumentException("checksumSize < 1");
 
-		if (checksumAlgorithm == null || checksumAlgorithm.isEmpty())
-			throw new IllegalArgumentException("checksumAlgorithm must not be null and not be empty!");
+		if (checksumAlgorithm == null)
+			throw new IllegalArgumentException("checksumAlgorithm must not be null!");
 
 		this.data = data;
 		this.algorithm = algorithm;
@@ -70,9 +72,9 @@ abstract class AbstractEncryptedKey
 		return checksumSize;
 	}
 
-	private String checksumAlgorithm;
+	private ChecksumAlgorithm checksumAlgorithm;
 
-	public String getChecksumAlgorithm() {
+	public ChecksumAlgorithm getChecksumAlgorithm() {
 		return checksumAlgorithm;
 	}
 
@@ -91,7 +93,8 @@ abstract class AbstractEncryptedKey
 		checksumSize = din.readShort();
 
 		idx = din.readInt();
-		checksumAlgorithm = stringConstantList.get(idx);
+		String checksumAlgorithmName = stringConstantList.get(idx);
+		checksumAlgorithm = ChecksumAlgorithm.valueOf(checksumAlgorithmName);
 	}
 
 	public void write(DataOutputStream out, Map<String, Integer> stringConstant2idMap) throws IOException
@@ -108,7 +111,10 @@ abstract class AbstractEncryptedKey
 
 		out.writeShort(checksumSize);
 
-		idx = stringConstant2idMap.get(checksumAlgorithm);
+		idx = stringConstant2idMap.get(checksumAlgorithm.name());
+		if (idx == null)
+			throw new IllegalStateException("Entry missing in stringConstant2idMap for key=\"" + checksumAlgorithm.name() + "\"!");
+
 		out.writeInt(idx);
 	}
 }

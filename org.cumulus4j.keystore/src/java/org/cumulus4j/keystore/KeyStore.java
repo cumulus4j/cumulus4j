@@ -10,8 +10,6 @@ import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.security.GeneralSecurityException;
 import java.security.Key;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 import java.util.ArrayList;
@@ -28,7 +26,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeSet;
 import java.util.UUID;
-import java.util.zip.CRC32;
 
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
@@ -41,6 +38,8 @@ import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.cumulus4j.crypto.Cipher;
 import org.cumulus4j.crypto.CipherOperationMode;
 import org.cumulus4j.crypto.CipherRegistry;
+import org.cumulus4j.crypto.util.ChecksumAlgorithm;
+import org.cumulus4j.crypto.util.ChecksumCalculator;
 import org.cumulus4j.keystore.prop.LongProperty;
 import org.cumulus4j.keystore.prop.Property;
 import org.slf4j.Logger;
@@ -619,6 +618,8 @@ public class KeyStore
 		return masterKey.getEncoded().length * 8;
 	}
 
+	private ChecksumCalculator checksumCalculator = new ChecksumCalculator();
+
 	/**
 	 * Authenticate and get the master-key. If there is a cache-entry existing, directly return this
 	 * (after comparing the password); otherwise decrypt the master-key using the given password.
@@ -661,7 +662,7 @@ public class KeyStore
 
 				byte[][] checksumAndData = splitChecksumAndData(decrypted, encryptedKey.getChecksumSize());
 				result = new MasterKey(checksumAndData[1], encryptedKey.getAlgorithm());
-				byte[] checksum = checksum(checksumAndData[1], encryptedKey.getChecksumAlgorithm());
+				byte[] checksum = checksumCalculator.checksum(checksumAndData[1], encryptedKey.getChecksumAlgorithm());
 				if (!Arrays.equals(checksumAndData[0], checksum)) {
 					result = null;
 					logger.warn(
@@ -686,48 +687,6 @@ public class KeyStore
 			throw new AuthenticationException("Unknown user \"" + authUserName + "\" or wrong password!");
 
 		cache_userName2cachedMasterKey.put(authUserName, new CachedMasterKey(authUserName, authPassword, result));
-		return result;
-	}
-
-	/**
-	 * <p>
-	 * Split the given plain (decrypted) <code>data</code> byte array into two parts. The first part
-	 * is the checksum and the second part the actual plain (decrypted) data.
-	 * </p>
-	 * <p>
-	 * The opposite of this method is {@link #catChecksumAndData(byte[], byte[])} which concats the two parts into one.
-	 * </p>
-	 *
-	 * @param checksumAndData the plain data prepended with the hash. The hash thus always comes before the actual data.
-	 * @param checksumSize the number of bytes that are the actual hash.
-	 * @return a byte-array-array with two elements. The 1st element is the byte-array containing the checksum, the 2nd element
-	 * is the byte-array containing the actual data.
-	 * @see #catChecksumAndData(byte[], byte[])
-	 */
-	private static byte[][] splitChecksumAndData(byte[] checksumAndData, short checksumSize)
-	{
-		byte[][] result = new byte[2][];
-		result[0] = new byte[checksumSize];
-		result[1] = new byte[checksumAndData.length - checksumSize];
-		System.arraycopy(checksumAndData, 0, result[0], 0, result[0].length);
-		System.arraycopy(checksumAndData, result[0].length, result[1], 0, result[1].length);
-		return result;
-	}
-
-	/**
-	 * Concat the two byte-arrays <code>hash</code> and <code>data</code> into one combined byte-array
-	 * which contains then first the hash and directly following the data.
-	 *
-	 * @param checksum the checksum.
-	 * @param data the actual data.
-	 * @return the combined hash and data.
-	 * @see #splitChecksumAndData(byte[], short)
-	 */
-	private static byte[] catChecksumAndData(byte[] checksum, byte[] data)
-	{
-		byte[] result = new byte[checksum.length + data.length];
-		System.arraycopy(checksum, 0, result, 0, checksum.length);
-		System.arraycopy(data, 0, result, checksum.length, data.length);
 		return result;
 	}
 
@@ -929,7 +888,7 @@ public class KeyStore
 	throws IOException
 	{
 		byte[] plainMasterKeyData = masterKey.getEncoded();
-		byte[] hash = checksum(plainMasterKeyData, CHECKSUM_ALGORITHM_ACTIVE);
+		byte[] hash = checksumCalculator.checksum(plainMasterKeyData, CHECKSUM_ALGORITHM_ACTIVE);
 		byte[] hashAndData = catChecksumAndData(hash, plainMasterKeyData);
 
 		byte[] salt = new byte[8]; // Are 8 bytes salt salty (i.e. secure) enough?
@@ -950,6 +909,7 @@ public class KeyStore
 
 			byte[] iv = ((ParametersWithIV)cipher.getParameters()).getIV();
 
+			keyStoreData.stringConstant(CHECKSUM_ALGORITHM_ACTIVE.name());
 			EncryptedMasterKey encryptedKey = new EncryptedMasterKey(
 					userName,
 					passwordBasedKeySize,
@@ -958,7 +918,7 @@ public class KeyStore
 					encrypted, salt,
 					keyStoreData.stringConstant(masterKey.getAlgorithm()),
 					iv, keyStoreData.stringConstant(cipher.getTransformation()),
-					(short)hash.length, keyStoreData.stringConstant(CHECKSUM_ALGORITHM_ACTIVE)
+					(short)hash.length, CHECKSUM_ALGORITHM_ACTIVE
 			);
 			keyStoreData.user2keyMap.put(userName, encryptedKey);
 			usersCache = null;
@@ -971,71 +931,12 @@ public class KeyStore
 		storeToFile();
 	}
 
-	private static final String CHECKSUM_ALGORITHM_XOR8 = "XOR8";
-	private static final String CHECKSUM_ALGORITHM_SHA1 = "SHA1";
-	private static final String CHECKSUM_ALGORITHM_MD5 = "MD5";
-	private static final String CHECKSUM_ALGORITHM_CRC32 = "CRC32";
-
 	/**
 	 * The one that is used for new entries.
 	 */
-	private static final String CHECKSUM_ALGORITHM_ACTIVE = CHECKSUM_ALGORITHM_CRC32;
+	private static final ChecksumAlgorithm CHECKSUM_ALGORITHM_ACTIVE = ChecksumAlgorithm.CRC32;
 
-	private MessageDigest checksum_md_sha1; // the checksum(...) method is called only within synchronized blocks - we can thus reuse the MessageDigest.
-	private MessageDigest checksum_md_md5;
-	private CRC32 checksum_crc32; // the checksum(...) method is called only within synchronized blocks - we can thus reuse the CRC32.
 
-	private synchronized byte[] checksum(byte[] data, String algorithm)
-	{
-		if (CHECKSUM_ALGORITHM_CRC32.equals(algorithm)) {
-			if (checksum_crc32 == null)
-				checksum_crc32 = new CRC32();
-			else
-				checksum_crc32.reset();
-
-			checksum_crc32.update(data);
-			long crc32Value = checksum_crc32.getValue();
-			byte[] result = new byte[4]; // CRC 32 has only 32 bits (= 4 bytes), hence the name
-			for (int i = 0; i < result.length; ++i)
-				result[i] = (byte)(crc32Value >>> (i * 8));
-
-			return result;
-		}
-		else if (CHECKSUM_ALGORITHM_SHA1.equals(algorithm)) {
-			if (checksum_md_sha1 == null) {
-				try {
-					checksum_md_sha1 = MessageDigest.getInstance("SHA1");
-				} catch (NoSuchAlgorithmException e) {
-					throw new RuntimeException(e);
-				}
-			}
-			checksum_md_sha1.update(data);
-			return checksum_md_sha1.digest();
-		}
-		else if (CHECKSUM_ALGORITHM_MD5.equals(algorithm)) {
-			if (checksum_md_md5 == null) {
-				try {
-					checksum_md_md5 = MessageDigest.getInstance("MD5");
-				} catch (NoSuchAlgorithmException e) {
-					throw new RuntimeException(e);
-				}
-			}
-			checksum_md_md5.update(data);
-			return checksum_md_md5.digest();
-		}
-		else if (CHECKSUM_ALGORITHM_XOR8.equals(algorithm)) {
-			byte[] hash = new byte[8];
-			int hi = 0;
-			for (int i = 0; i < data.length; ++i) {
-				hash[hi] ^= data[i];
-				if (++hi >= hash.length)
-					hi = 0;
-			}
-			return hash;
-		}
-		else
-			throw new UnsupportedOperationException("Unsupported hash algorithm: " + algorithm);
-	}
 
 	synchronized void storeToFile() throws IOException
 	{
@@ -1200,7 +1101,7 @@ public class KeyStore
 			byte[] decrypted = cipher.doFinal(encryptedKey.getData());
 			byte[][] checksumAndData = splitChecksumAndData(decrypted, encryptedKey.getChecksumSize());
 
-			byte[] checksum = checksum(checksumAndData[1], encryptedKey.getChecksumAlgorithm());
+			byte[] checksum = checksumCalculator.checksum(checksumAndData[1], encryptedKey.getChecksumAlgorithm());
 			if (!Arrays.equals(checksumAndData[0], checksum))
 				throw new IllegalStateException("Checksum mismatch!!! This means, the decryption key was wrong!");
 
@@ -1226,17 +1127,18 @@ public class KeyStore
 		MasterKey masterKey = getMasterKey(authUserName, authPassword);
 
 		byte[] plainKeyData = key.getEncoded();
-		byte[] checksum = checksum(plainKeyData, CHECKSUM_ALGORITHM_ACTIVE);
+		byte[] checksum = checksumCalculator.checksum(plainKeyData, CHECKSUM_ALGORITHM_ACTIVE);
 		byte[] checksumAndData = catChecksumAndData(checksum, plainKeyData);
 
 		try {
 			Cipher cipher = getCipherForMasterKey(masterKey, null, null, CipherOperationMode.ENCRYPT);
 			byte[] iv = ((ParametersWithIV)cipher.getParameters()).getIV();
 			byte[] encrypted = cipher.doFinal(checksumAndData);
+			keyStoreData.stringConstant(CHECKSUM_ALGORITHM_ACTIVE.name());
 			EncryptedKey encryptedKey = new EncryptedKey(
 					keyID, encrypted, keyStoreData.stringConstant(key.getAlgorithm()),
 					iv, keyStoreData.stringConstant(cipher.getTransformation()),
-					(short)checksum.length, keyStoreData.stringConstant(CHECKSUM_ALGORITHM_ACTIVE)
+					(short)checksum.length, CHECKSUM_ALGORITHM_ACTIVE
 			);
 			keyStoreData.keyID2keyMap.put(keyID, encryptedKey);
 		} catch (CryptoException e) {
@@ -1314,7 +1216,7 @@ public class KeyStore
 				byte[] decrypted = cipher.doFinal(encryptedProperty.getData());
 				byte[][] checksumAndData = splitChecksumAndData(decrypted, encryptedProperty.getChecksumSize());
 
-				byte[] checksum = checksum(checksumAndData[1], encryptedProperty.getChecksumAlgorithm());
+				byte[] checksum = checksumCalculator.checksum(checksumAndData[1], encryptedProperty.getChecksumAlgorithm());
 				if (!Arrays.equals(checksumAndData[0], checksum))
 					throw new IllegalStateException("Checksum mismatch!!! This means, the decryption key was wrong!");
 
@@ -1432,7 +1334,7 @@ public class KeyStore
 			_removeProperty(authUserName, authPassword, property.getName());
 		}
 		else {
-			byte[] checksum = checksum(plainValueEncoded, CHECKSUM_ALGORITHM_ACTIVE);
+			byte[] checksum = checksumCalculator.checksum(plainValueEncoded, CHECKSUM_ALGORITHM_ACTIVE);
 			byte[] checksumAndData = catChecksumAndData(checksum, plainValueEncoded);
 
 			try {
@@ -1442,10 +1344,11 @@ public class KeyStore
 
 				@SuppressWarnings("unchecked")
 				Class<? extends Property<?>> propertyType = (Class<? extends Property<?>>) property.getClass();
+				keyStoreData.stringConstant(CHECKSUM_ALGORITHM_ACTIVE.name());
 				EncryptedProperty encryptedProperty = new EncryptedProperty(
 						property.getName(), propertyType,
 						encrypted, iv, keyStoreData.stringConstant(cipher.getTransformation()),
-						(short)checksum.length, keyStoreData.stringConstant(CHECKSUM_ALGORITHM_ACTIVE)
+						(short)checksum.length, CHECKSUM_ALGORITHM_ACTIVE
 				);
 				keyStoreData.name2propertyMap.put(encryptedProperty.getName(), encryptedProperty);
 			} catch (CryptoException e) {
@@ -1492,4 +1395,45 @@ public class KeyStore
 		super.finalize();
 	}
 
+	/**
+	 * <p>
+	 * Split the given plain (decrypted) <code>data</code> byte array into two parts. The first part
+	 * is the checksum and the second part the actual plain (decrypted) data.
+	 * </p>
+	 * <p>
+	 * The opposite of this method is {@link #catChecksumAndData(byte[], byte[])} which concats the two parts into one.
+	 * </p>
+	 *
+	 * @param checksumAndData the plain data prepended with the hash. The hash thus always comes before the actual data.
+	 * @param checksumSize the number of bytes that are the actual hash.
+	 * @return a byte-array-array with two elements. The 1st element is the byte-array containing the checksum, the 2nd element
+	 * is the byte-array containing the actual data.
+	 * @see #catChecksumAndData(byte[], byte[])
+	 */
+	private static byte[][] splitChecksumAndData(byte[] checksumAndData, short checksumSize)
+	{
+		byte[][] result = new byte[2][];
+		result[0] = new byte[checksumSize];
+		result[1] = new byte[checksumAndData.length - checksumSize];
+		System.arraycopy(checksumAndData, 0, result[0], 0, result[0].length);
+		System.arraycopy(checksumAndData, result[0].length, result[1], 0, result[1].length);
+		return result;
+	}
+
+	/**
+	 * Concat the two byte-arrays <code>hash</code> and <code>data</code> into one combined byte-array
+	 * which contains then first the hash and directly following the data.
+	 *
+	 * @param checksum the checksum.
+	 * @param data the actual data.
+	 * @return the combined hash and data.
+	 * @see #splitChecksumAndData(byte[], short)
+	 */
+	private static byte[] catChecksumAndData(byte[] checksum, byte[] data)
+	{
+		byte[] result = new byte[checksum.length + data.length];
+		System.arraycopy(checksum, 0, result, 0, checksum.length);
+		System.arraycopy(data, 0, result, checksum.length, data.length);
+		return result;
+	}
 }

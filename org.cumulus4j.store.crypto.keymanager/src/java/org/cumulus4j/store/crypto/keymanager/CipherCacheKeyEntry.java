@@ -3,6 +3,9 @@ package org.cumulus4j.store.crypto.keymanager;
 import java.util.Arrays;
 import java.util.Date;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 class CipherCacheKeyEntry
 {
 	public CipherCacheKeyEntry(long keyID, byte[] keyData)
@@ -32,9 +35,6 @@ class CipherCacheKeyEntry
 
 	public Date getLastUse() {
 		return lastUse;
-	}
-	public void updateLastUse() {
-		lastUse = new Date();
 	}
 
 	@Override

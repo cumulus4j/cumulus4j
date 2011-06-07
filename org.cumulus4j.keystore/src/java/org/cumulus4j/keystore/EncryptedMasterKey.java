@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
+import org.cumulus4j.crypto.util.ChecksumAlgorithm;
+
 class EncryptedMasterKey
 extends AbstractEncryptedKey
 {
@@ -41,7 +43,7 @@ extends AbstractEncryptedKey
 
 	public EncryptedMasterKey(
 			String userName, int passwordBasedKeySize, int passwordBasedInterationCount, String passwordBasedKeyGeneratorAlgorithm,
-			byte[] data, byte[] salt, String algorithm, byte[] encryptionIV, String encryptionAlgorithm, short checksumSize, String checksumAlgorithm
+			byte[] data, byte[] salt, String algorithm, byte[] encryptionIV, String encryptionAlgorithm, short checksumSize, ChecksumAlgorithm checksumAlgorithm
 	) {
 		super(data, algorithm, encryptionIV, encryptionAlgorithm, checksumSize, checksumAlgorithm);
 

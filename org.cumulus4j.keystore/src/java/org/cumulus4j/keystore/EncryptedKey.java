@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
+import org.cumulus4j.crypto.util.ChecksumAlgorithm;
+
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
@@ -16,7 +18,7 @@ extends AbstractEncryptedKey
 
 	public EncryptedKey(
 			long keyID,
-			byte[] data, String algorithm, byte[] encryptionIV, String encryptionAlgorithm, short checksumSize, String checksumAlgorithm
+			byte[] data, String algorithm, byte[] encryptionIV, String encryptionAlgorithm, short checksumSize, ChecksumAlgorithm checksumAlgorithm
 	)
 	{
 		super(data, algorithm, encryptionIV, encryptionAlgorithm, checksumSize, checksumAlgorithm);

@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.cumulus4j.store.crypto.Ciphertext;
 import org.cumulus4j.store.crypto.Plaintext;
+import org.cumulus4j.store.crypto.keymanager.KeyManagerCryptoManager;
 import org.cumulus4j.store.crypto.keymanager.KeyManagerCryptoSession;
 import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBrokerRegistry;
 import org.junit.Assert;
@@ -27,8 +28,11 @@ public class KeyManagerCryptoSessionTest
 	@Before
 	public void before()
 	{
-		session = new KeyManagerCryptoSession();
-		session.setCryptoSessionID(UUID.randomUUID().toString());
+		KeyManagerCryptoManager cryptoManager = new KeyManagerCryptoManager();
+//		session = new KeyManagerCryptoSession();
+		session = (KeyManagerCryptoSession) cryptoManager.getCryptoSession(UUID.randomUUID().toString());
+//		session.setCryptoManager(cryptoManager);
+//		session.setCryptoSessionID(UUID.randomUUID().toString());
 	}
 
 	private KeyManagerCryptoSession session;
@@ -56,7 +60,7 @@ public class KeyManagerCryptoSessionTest
 	}
 
 	@Test
-	public void encryptDecrypt_aes_cbc_pkcs5padding()
+	public void encryptDecryptWithRandomData()
 	{
 		Plaintext plaintext = new Plaintext();
 		{
@@ -66,6 +70,10 @@ public class KeyManagerCryptoSessionTest
 		}
 
 		Ciphertext ciphertext = session.encrypt(plaintext);
+
+		// Clear cache in order to test more code (i.e. ask the MockMessageBroker with a GetKeyRequest).
+		((KeyManagerCryptoManager)session.getCryptoManager()).getCipherCache().clear();
+
 		Plaintext decrypted = session.decrypt(ciphertext);
 
 		Assert.assertArrayEquals(plaintext.getData(), decrypted.getData());

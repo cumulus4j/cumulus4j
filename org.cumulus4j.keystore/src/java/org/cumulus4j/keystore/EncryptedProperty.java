@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
+import org.cumulus4j.crypto.util.ChecksumAlgorithm;
 import org.cumulus4j.keystore.prop.Property;
 
 /**
@@ -16,7 +17,7 @@ class EncryptedProperty
 	public EncryptedProperty(
 			String name, Class<? extends Property<?>> type,
 					byte[] data, byte[] encryptionIV, String encryptionAlgorithm,
-					short checksumSize, String checksumAlgorithm
+					short checksumSize, ChecksumAlgorithm checksumAlgorithm
 	)
 	{
 		if (name == null)
@@ -76,7 +77,8 @@ class EncryptedProperty
 		checksumSize = din.readShort();
 
 		idx = din.readInt();
-		checksumAlgorithm = stringConstantList.get(idx);
+		String checksumAlgorithmName = stringConstantList.get(idx);
+		checksumAlgorithm = ChecksumAlgorithm.valueOf(checksumAlgorithmName);
 	}
 
 	public void write(DataOutputStream dout, Map<String, Integer> stringConstant2idMap) throws IOException
@@ -100,7 +102,10 @@ class EncryptedProperty
 
 		dout.writeShort(checksumSize);
 
-		idx = stringConstant2idMap.get(checksumAlgorithm);
+		idx = stringConstant2idMap.get(checksumAlgorithm.name());
+		if (idx == null)
+			throw new IllegalStateException("Entry missing in stringConstant2idMap for key=\"" + checksumAlgorithm.name() + "\"!");
+
 		dout.writeInt(idx);
 	}
 
@@ -140,9 +145,9 @@ class EncryptedProperty
 		return checksumSize;
 	}
 
-	private String checksumAlgorithm;
+	private ChecksumAlgorithm checksumAlgorithm;
 
-	public String getChecksumAlgorithm() {
+	public ChecksumAlgorithm getChecksumAlgorithm() {
 		return checksumAlgorithm;
 	}
 
