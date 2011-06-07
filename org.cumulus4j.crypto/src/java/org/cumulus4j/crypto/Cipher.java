@@ -3,8 +3,36 @@ package org.cumulus4j.crypto;
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.CryptoException;
 import org.bouncycastle.crypto.DataLengthException;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /**
+ * <p>
+ * A cipher encrypts or decrypts data.
+ * </p>
+ * <p>
+ * This interface defines the algorithm-independent API contract to allow
+ * for encrypting and decrypting data. It has been introduced in analogy
+ * to {@link javax.crypto.Cipher} and with easy migration from JCE
+ * to this API in mind.
+ * </p>
+ * <p>
+ * <b>Important: <code>Cipher</code>s are not thread-safe!</b>
+ * </p>
+ * <p>
+ * Use {@link CipherRegistry#createCipher(String)} to obtain a <code>Cipher</code> instance.
+ * </p>
+ * <p>
+ * This own API is used instead of the JCE, because of the following reasons:
+ * </p>
+ * <ul>
+ *  <li>The JCE has a key length constraint (maximum 128 bit) that requires manual modifications of
+ * the Java runtime environment (installing some files that are not included in the operating system's
+ * package management).</li>
+ * 	<li>The {@link BouncyCastleProvider} was not correctly registered in the JCE when using One-JAR to
+ * package e.g. the <code>org.cumulus4j.keystore.cli</code>. Probably because the signatures where not
+ * found when looking for the MANIFEST.MF (probably the wrong MANIFEST.MF was picked by the class loader).
+ * 	</li>
+ * </ul>
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public interface Cipher
