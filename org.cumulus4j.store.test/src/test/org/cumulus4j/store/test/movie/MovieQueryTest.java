@@ -113,11 +113,11 @@ extends AbstractJDOTransactionalTest
 			String[] directedByNames = safeTrim(fields.length <= ++fieldNo ? null : fields[fieldNo].split(","));
 			String[] producedByNames = safeTrim(fields.length <= ++fieldNo ? null : fields[fieldNo].split(","));
 			String tagline = safeTrim(fields.length <= ++fieldNo ? null : fields[fieldNo]);
-			String initialReleaseDate = safeTrim(fields.length <= ++fieldNo ? null : fields[fieldNo]);
+			/*String initialReleaseDate =*/ safeTrim(fields.length <= ++fieldNo ? null : fields[fieldNo]);
 			String ratingName = safeTrim(fields.length <= ++fieldNo ? null : fields[fieldNo]);
-			String estimatedBudget = safeTrim(fields.length <= ++fieldNo ? null : fields[fieldNo]);
-			String sequel = safeTrim(fields.length <= ++fieldNo ? null : fields[fieldNo]);
-			String prequel = safeTrim(fields.length <= ++fieldNo ? null : fields[fieldNo]);
+			/*String estimatedBudget =*/ safeTrim(fields.length <= ++fieldNo ? null : fields[fieldNo]);
+			/*String sequel =*/ safeTrim(fields.length <= ++fieldNo ? null : fields[fieldNo]);
+			/*String prequel =*/ safeTrim(fields.length <= ++fieldNo ? null : fields[fieldNo]);
 
 			Movie movie = (Movie) queryMovieByName.execute(movieName);
 			if (movie == null) {
