@@ -23,9 +23,9 @@ public final class KeyEncryptionUtil
 
 	private KeyEncryptionUtil() { }
 
-	public static byte[] encryptKey(Cipher encrypter, byte[] keyEncodedPlain) throws GeneralSecurityException
+	public static byte[] encryptKey(byte[] key, Cipher encrypter) throws GeneralSecurityException
 	{
-		int resultSize = encrypter.getOutputSize(4 /* checksum-length with CRC32 */ + keyEncodedPlain.length);
+		int resultSize = encrypter.getOutputSize(4 /* checksum-length with CRC32 */ + key.length);
 
 		ByteBuffer resultBuf = ByteBuffer.allocate(resultSize);
 
@@ -33,14 +33,14 @@ public final class KeyEncryptionUtil
 		// It always starts with the algo-identifier, followed by the checksum itself.
 		byte[] checksum = new byte[4]; // CRC32 has 32 bit, i.e. 4 bytes
 		CRC32 crc32 = new CRC32();
-		crc32.update(keyEncodedPlain);
+		crc32.update(key);
 		long crc32Value = crc32.getValue();
 		for (int i = 0; i < checksum.length; ++i)
 			checksum[i] = (byte)(crc32Value >>> (i * 8));
 
 		encrypter.update(ByteBuffer.wrap(checksum), resultBuf);
 
-		encrypter.doFinal(ByteBuffer.wrap(keyEncodedPlain), resultBuf);
+		encrypter.doFinal(ByteBuffer.wrap(key), resultBuf);
 		if (resultBuf.hasArray()) {
 			if (resultBuf.array().length == resultBuf.position())
 				return resultBuf.array();
@@ -56,9 +56,8 @@ public final class KeyEncryptionUtil
 		return result;
 	}
 
-	public static byte[] encryptKey(Key key, String keyEncryptionAlgorithm, byte[] keyEncryptionPublicKey) throws GeneralSecurityException
+	public static byte[] encryptKey(byte[] key, String keyEncryptionAlgorithm, byte[] keyEncryptionPublicKey) throws GeneralSecurityException
 	{
-		byte[] keyEncodedPlain = key.getEncoded();
 		Cipher keyEncrypter = Cipher.getInstance(keyEncryptionAlgorithm);
 //		Key publicKey = keyEncrypter.unwrap(
 //				keyEncryptionPublicKey,
@@ -68,7 +67,7 @@ public final class KeyEncryptionUtil
 		X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyEncryptionPublicKey);
 		Key publicKey = KeyFactory.getInstance(getRawEncryptionAlgorithmWithoutModeAndPadding(keyEncryptionAlgorithm)).generatePublic(keySpec);
 		keyEncrypter.init(Cipher.ENCRYPT_MODE, publicKey);
-		byte[] keyEncodedEncrypted = KeyEncryptionUtil.encryptKey(keyEncrypter, keyEncodedPlain);
+		byte[] keyEncodedEncrypted = KeyEncryptionUtil.encryptKey(key, keyEncrypter);
 		return keyEncodedEncrypted;
 	}
 

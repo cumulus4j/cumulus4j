@@ -1,7 +1,6 @@
 package org.cumulus4j.keystore.test;
 
 import java.io.File;
-import java.security.Key;
 
 import org.cumulus4j.keystore.AuthenticationException;
 import org.cumulus4j.keystore.CannotDeleteLastUserException;
@@ -141,10 +140,10 @@ public class KeyStoreUserTest
 		keyStore.changeUserPassword(authUserName, oldPassword, authUserName, newPassword);
 
 		// validate, that the new password can really be used.
-		Key key = keyStore.getKey(authUserName, newPassword, generatedKey.getKeyID());
+		byte[] key = keyStore.getKey(authUserName, newPassword, generatedKey.getKeyID());
 
 		// check, if it is really the same.
-		Assert.assertArrayEquals(generatedKey.getKey().getEncoded(), key.getEncoded());
+		Assert.assertArrayEquals(generatedKey.getKey(), key);
 
 		// validate, that the old password cannot be used anymore
 		boolean loginExceptionThrown = false;

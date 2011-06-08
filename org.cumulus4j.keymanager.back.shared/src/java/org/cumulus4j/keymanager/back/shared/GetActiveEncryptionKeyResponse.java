@@ -16,9 +16,9 @@ public class GetActiveEncryptionKeyResponse extends GetKeyResponse
 
 	public GetActiveEncryptionKeyResponse() { }
 
-	public GetActiveEncryptionKeyResponse(Request request, long keyID, String keyAlgorithm, byte[] keyEncodedEncrypted, Date activeUntilExcl)
+	public GetActiveEncryptionKeyResponse(Request request, long keyID, byte[] keyEncodedEncrypted, Date activeUntilExcl)
 	{
-		super(request, keyID, keyAlgorithm, keyEncodedEncrypted);
+		super(request, keyID, keyEncodedEncrypted);
 		this.activeUntilExcl = activeUntilExcl;
 	}
 

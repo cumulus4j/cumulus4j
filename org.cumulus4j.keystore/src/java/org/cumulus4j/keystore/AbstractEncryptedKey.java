@@ -16,14 +16,11 @@ abstract class AbstractEncryptedKey
 	public AbstractEncryptedKey() { }
 
 	public AbstractEncryptedKey(
-			byte[] data, String algorithm, byte[] encryptionIV, String encryptionAlgorithm, short checksumSize, ChecksumAlgorithm checksumAlgorithm
+			byte[] data, byte[] encryptionIV, String encryptionAlgorithm, short checksumSize, ChecksumAlgorithm checksumAlgorithm
 	)
 	{
 		if (data == null)
 			throw new IllegalArgumentException("data must not be null!");
-
-		if (algorithm == null)
-			throw new IllegalArgumentException("algorithm must not be null!");
 
 		if (encryptionAlgorithm == null)
 			throw new IllegalArgumentException("encryptionAlgorithm must not be null!");
@@ -35,7 +32,6 @@ abstract class AbstractEncryptedKey
 			throw new IllegalArgumentException("checksumAlgorithm must not be null!");
 
 		this.data = data;
-		this.algorithm = algorithm;
 		this.encryptionIV = encryptionIV;
 		this.encryptionAlgorithm = encryptionAlgorithm;
 		this.checksumSize = checksumSize;
@@ -46,12 +42,6 @@ abstract class AbstractEncryptedKey
 
 	public byte[] getData() {
 		return data;
-	}
-
-	private String algorithm;
-
-	public String getAlgorithm() {
-		return algorithm;
 	}
 
 	byte[] encryptionIV;
@@ -82,8 +72,8 @@ abstract class AbstractEncryptedKey
 	{
 		data = KeyStoreUtil.readByteArrayWithLengthHeader(din);
 
-		int algorithmIdx = din.readInt();
-		algorithm = stringConstantList.get(algorithmIdx);
+//		int algorithmIdx = din.readInt();
+//		algorithm = stringConstantList.get(algorithmIdx);
 
 		encryptionIV = KeyStoreUtil.readByteArrayWithLengthHeader(din);
 
@@ -101,8 +91,9 @@ abstract class AbstractEncryptedKey
 	{
 		KeyStoreUtil.writeByteArrayWithLengthHeader(out, data);
 
-		Integer idx = stringConstant2idMap.get(algorithm);
-		out.writeInt(idx);
+		Integer idx;
+//		Integer idx = stringConstant2idMap.get(algorithm);
+//		out.writeInt(idx);
 
 		KeyStoreUtil.writeByteArrayWithLengthHeader(out, encryptionIV);
 

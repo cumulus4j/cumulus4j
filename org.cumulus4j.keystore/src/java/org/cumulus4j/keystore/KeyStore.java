@@ -30,7 +30,6 @@ import java.util.UUID;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.SecretKeySpec;
 
 import org.bouncycastle.crypto.CryptoException;
 import org.bouncycastle.crypto.params.KeyParameter;
@@ -64,9 +63,9 @@ import org.slf4j.LoggerFactory;
  * </p>
  * <p>
  * By default, a <code>KeyStore</code> {@link #generateKey(String, char[]) generates keys} with a size
- * of 128 bit. This can be controlled, however, by specifying the system property
- * {@value #SYSTEM_PROPERTY_KEY_SIZE} (e.g. passing the argument "-Dcumulus4j.KeyStore.keySize=256"
- * to the <code>java</code> command line will switch to 256-bit-keys).
+ * of 256 bit. This can be controlled, however, by specifying the system property
+ * {@value #SYSTEM_PROPERTY_KEY_SIZE} (e.g. passing the argument "-Dcumulus4j.KeyStore.keySize=128"
+ * to the <code>java</code> command line will switch to 128-bit-keys).
  * </p>
  * <p>
  * <b>Important:</b> As the master key is generated when the first
@@ -175,9 +174,11 @@ import org.slf4j.LoggerFactory;
  * 					<td align="right" valign="top"><i>len3</i></td><td valign="top">byte[]: The actual key's data (encrypted, written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
  * 				</tr>
  *
+ *				<!-- Not existing anymore.
  * 				<tr>
  * 					<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the encryption algorithm this key will be used for (see {@link Key#getAlgorithm()}, index in the list of 'Block A').</td>
  * 				</tr>
+ * 				-->
  *
  * 				<tr>
  * 					<td align="right" valign="top">2</td><td valign="top">short <i>len4</i>: IV: Number of bytes to follow (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
@@ -236,9 +237,11 @@ import org.slf4j.LoggerFactory;
  * 					<td align="right" valign="top"><i>len3</i></td><td valign="top">byte[]: The actual key's data (encrypted, written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
  * 				</tr>
  *
+ *				<!-- Not existing anymore.
  * 				<tr>
  * 					<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the encryption algorithm this key will be used for (see {@link Key#getAlgorithm()}, index in the list of 'Block A').</td>
  * 				</tr>
+ * 				-->
  *
  * 				<tr>
  * 					<td align="right" valign="top">2</td><td valign="top">short <i>len4</i>: IV: Number of bytes to follow (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
@@ -502,38 +505,20 @@ public class KeyStore
 	}
 	private String encryptionAlgorithm = null;
 
-//	private Map<Integer, KeyGenerator> keySize2keyGenerator = new HashMap<Integer, KeyGenerator>();
-//
-//	synchronized KeyGenerator getKeyGenerator(int keySize)
-//	{
-//		KeyGenerator keyGenerator = keySize2keyGenerator.get(keySize);
-//
-//		if (keyGenerator == null) {
-//			try {
-//				keyGenerator = KeyGenerator.getInstance(getBaseAlgorithm(getEncryptionAlgorithm()));
-//			} catch (NoSuchAlgorithmException e) {
-//				throw new RuntimeException(e);
-//			}
-//			keyGenerator.init(keySize);
-//			keySize2keyGenerator.put(keySize, keyGenerator);
-//		}
-//
-//		return keyGenerator;
-//	}
-
-	byte[] generateKeyByteArray(int keySize)
+	byte[] generateKey(int keySize)
 	{
 		byte[] result = new byte[(keySize + 7) / 8];
 		secureRandom.nextBytes(result);
 		return result;
 	}
 
-	SecretKey generateKey()
+	byte[] generateKey()
 	{
-		return new SecretKeySpec(
-				generateKeyByteArray(getKeySize()),
-				getBaseAlgorithm(getEncryptionAlgorithm())
-		);
+		return generateKey(getKeySize());
+//		return new SecretKeySpec(
+//				generateKey(getKeySize()),
+//				getBaseAlgorithm(getEncryptionAlgorithm())
+//		);
 	}
 
 	private File keyStoreFile;
@@ -662,7 +647,7 @@ public class KeyStore
 //				result = new MasterKey(new SecretKeySpec(decrypted, encryptedKey.getAlgorithm()));
 
 				byte[][] checksumAndData = splitChecksumAndData(decrypted, encryptedKey.getChecksumSize());
-				result = new MasterKey(checksumAndData[1], encryptedKey.getAlgorithm());
+				result = new MasterKey(checksumAndData[1]);
 				byte[] checksum = checksumCalculator.checksum(checksumAndData[1], encryptedKey.getChecksumAlgorithm());
 				if (!Arrays.equals(checksumAndData[0], checksum)) {
 					result = null;
@@ -729,15 +714,14 @@ public class KeyStore
 		return cipher;
 	}
 
-
-	private String getBaseAlgorithm(String algorithm)
-	{
-		int slashIdx = algorithm.indexOf('/');
-		if (slashIdx < 0)
-			return algorithm;
-
-		return algorithm.substring(0, slashIdx);
-	}
+//	private String getBaseAlgorithm(String algorithm)
+//	{
+//		int slashIdx = algorithm.indexOf('/');
+//		if (slashIdx < 0)
+//			return algorithm;
+//
+//		return algorithm.substring(0, slashIdx);
+//	}
 
 	private Cipher getCipherForMasterKey(MasterKey masterKey, byte[] iv, String algorithm, CipherOperationMode opmode) throws GeneralSecurityException
 	{
@@ -789,7 +773,7 @@ public class KeyStore
 	throws AuthenticationException, IOException
 	{
 		long keyID = nextKeyID(authUserName, authPassword);
-		SecretKey key = generateKey();
+		byte[] key = generateKey();
 		GeneratedKey generatedKey = new GeneratedKey(keyID, key);
 		_setKey(authUserName, authPassword, keyID, key);
 		storeToFile();
@@ -823,7 +807,7 @@ public class KeyStore
 		List<GeneratedKey> result = new ArrayList<GeneratedKey>(qty);
 		for (int i = 0; i < qty; ++i) {
 			long keyID = nextKeyID(authUserName, authPassword);
-			SecretKey key = generateKey();
+			byte[] key = generateKey();
 			GeneratedKey generatedKey = new GeneratedKey(keyID, key);
 			_setKey(authUserName, authPassword, keyID, key);
 			result.add(generatedKey);
@@ -866,15 +850,14 @@ public class KeyStore
 		MasterKey masterKey;
 
 		if (isEmpty()) {
-			Key key = generateKey();
-			byte[] keyBytes = key.getEncoded();
-			masterKey = new MasterKey(keyBytes, key.getAlgorithm());
+			byte[] key = generateKey();
+			masterKey = new MasterKey(key);
 			// Unfortunately, we cannot clear the sensitive data from the key instance, because
 			// there is no nice way to do this (we could only do very ugly reflection-based stuff).
 			// But fortunately, this happens only the very first time a new, empty KeyStore is created.
 			// With an existing KeyStore we won't come here and our MasterKey can [and will] be cleared.
 			// Marco :-)
-			logger.info("createUser: Created master-key with a size of {} bits. This key will not be modified for this key-store anymore.", keyBytes.length * 8);
+			logger.info("createUser: Created master-key with a size of {} bits. This key will not be modified for this key-store anymore.", key.length * 8);
 		}
 		else
 			masterKey = getMasterKey(authUserName, authPassword);
@@ -917,9 +900,9 @@ public class KeyStore
 					passwordBasedInterationCount,
 					keyStoreData.stringConstant(passwordBasedKeyGeneratorAlgorithm),
 					encrypted, salt,
-					keyStoreData.stringConstant(masterKey.getAlgorithm()),
-					iv, keyStoreData.stringConstant(cipher.getTransformation()),
-					(short)hash.length, CHECKSUM_ALGORITHM_ACTIVE
+					iv,
+					keyStoreData.stringConstant(cipher.getTransformation()), (short)hash.length,
+					CHECKSUM_ALGORITHM_ACTIVE
 			);
 			keyStoreData.user2keyMap.put(userName, encryptedKey);
 			usersCache = null;
@@ -1084,7 +1067,7 @@ public class KeyStore
 	 * authentication process occurs before any lookup and therefore a {@link KeyNotFoundException} indicates a correct authentication
 	 * (otherwise the {@link AuthenticationException} would have been thrown before).
 	 */
-	public synchronized Key getKey(String authUserName, char[] authPassword, long keyID)
+	public synchronized byte[] getKey(String authUserName, char[] authPassword, long keyID)
 	throws AuthenticationException, KeyNotFoundException
 	{
 		MasterKey masterKey = getMasterKey(authUserName, authPassword);
@@ -1106,7 +1089,7 @@ public class KeyStore
 			if (!Arrays.equals(checksumAndData[0], checksum))
 				throw new IllegalStateException("Checksum mismatch!!! This means, the decryption key was wrong!");
 
-			return new SecretKeySpec(checksumAndData[1], encryptedKey.getAlgorithm());
+			return checksumAndData[1];
 		} catch (CryptoException e) {
 			throw new RuntimeException(e);
 		} catch (GeneralSecurityException e) {
@@ -1122,12 +1105,12 @@ public class KeyStore
 		return result;
 	}
 
-	private void _setKey(String authUserName, char[] authPassword, long keyID, Key key)
+	private void _setKey(String authUserName, char[] authPassword, long keyID, byte[] key)
 	throws AuthenticationException
 	{
 		MasterKey masterKey = getMasterKey(authUserName, authPassword);
 
-		byte[] plainKeyData = key.getEncoded();
+		byte[] plainKeyData = key;
 		byte[] checksum = checksumCalculator.checksum(plainKeyData, CHECKSUM_ALGORITHM_ACTIVE);
 		byte[] checksumAndData = catChecksumAndData(checksum, plainKeyData);
 
@@ -1137,9 +1120,9 @@ public class KeyStore
 			byte[] encrypted = cipher.doFinal(checksumAndData);
 			keyStoreData.stringConstant(CHECKSUM_ALGORITHM_ACTIVE.name());
 			EncryptedKey encryptedKey = new EncryptedKey(
-					keyID, encrypted, keyStoreData.stringConstant(key.getAlgorithm()),
-					iv, keyStoreData.stringConstant(cipher.getTransformation()),
-					(short)checksum.length, CHECKSUM_ALGORITHM_ACTIVE
+					keyID, encrypted, iv,
+					keyStoreData.stringConstant(cipher.getTransformation()), (short)checksum.length,
+					CHECKSUM_ALGORITHM_ACTIVE
 			);
 			keyStoreData.keyID2keyMap.put(keyID, encryptedKey);
 		} catch (CryptoException e) {

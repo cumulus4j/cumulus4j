@@ -1,6 +1,5 @@
 package org.cumulus4j.keystore;
 
-import java.security.Key;
 
 /**
  * Container holding a {@link #getKeyID() keyID} and a {@link #getKey() key}.
@@ -10,7 +9,7 @@ import java.security.Key;
 public class GeneratedKey
 {
 	private long keyID;
-	private Key key;
+	private byte[] key;
 
 	/**
 	 * Constructor for instantiating a <code>GeneratedKey</code> with a <code>keyID</code> and the actual <code>key</code>.
@@ -18,7 +17,7 @@ public class GeneratedKey
 	 * @param keyID the identifier of the key.
 	 * @param key the actual key.
 	 */
-	public GeneratedKey(long keyID, Key key) {
+	public GeneratedKey(long keyID, byte[] key) {
 		this.keyID = keyID;
 		this.key = key;
 	}
@@ -37,7 +36,7 @@ public class GeneratedKey
 	 *
 	 * @return the key.
 	 */
-	public Key getKey() {
+	public byte[] getKey() {
 		return key;
 	}
 }

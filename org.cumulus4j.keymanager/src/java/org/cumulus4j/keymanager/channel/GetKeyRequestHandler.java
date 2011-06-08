@@ -1,7 +1,6 @@
 package org.cumulus4j.keymanager.channel;
 
 import java.security.GeneralSecurityException;
-import java.security.Key;
 import java.util.Date;
 
 import org.cumulus4j.keymanager.Session;
@@ -45,9 +44,9 @@ public class GetKeyRequestHandler extends AbstractRequestHandler<GetKeyRequest>
 		if (session.getExpiry().before(new Date()))
 			throw new IllegalStateException("The session for cryptoSessionID=" + request.getCryptoSessionID() + " is already expired!");
 
-		Key key = sessionManager.getKeyStore().getKey(session.getUserName(), session.getPassword(), request.getKeyID());
+		byte[] key = sessionManager.getKeyStore().getKey(session.getUserName(), session.getPassword(), request.getKeyID());
 		byte[] keyEncodedEncrypted = KeyEncryptionUtil.encryptKey(key, request.getKeyEncryptionTransformation(), request.getKeyEncryptionPublicKey());
-		return new GetKeyResponse(request, request.getKeyID(), key.getAlgorithm(), keyEncodedEncrypted);
+		return new GetKeyResponse(request, request.getKeyID(), keyEncodedEncrypted);
 	}
 
 }

@@ -1,9 +1,6 @@
 package org.cumulus4j.keystore;
 
-import java.security.spec.KeySpec;
 import java.util.Arrays;
-
-import javax.crypto.SecretKey;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,25 +9,19 @@ import org.slf4j.LoggerFactory;
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 class MasterKey
-implements SecretKey, KeySpec
 {
 	private static final long serialVersionUID = 1L;
 
 	private static final Logger logger = LoggerFactory.getLogger(MasterKey.class);
 
 	private byte[] keyData;
-	private String algorithm;
 
-	public MasterKey(byte[] keyData, String algorithm)
+	public MasterKey(byte[] keyData)
 	{
 		if (keyData == null)
 			throw new IllegalArgumentException("keyData == null");
 
-		if (algorithm == null)
-			throw new IllegalArgumentException("algorithm == null");
-
 		this.keyData = keyData;
-		this.algorithm = algorithm;
 	}
 
 	public void clear()
@@ -54,12 +45,12 @@ implements SecretKey, KeySpec
 		super.finalize();
 	}
 
-	@Override
-	public String getAlgorithm() {
-		return algorithm;
-	}
+//	@Override
+//	public String getAlgorithm() {
+//		return algorithm;
+//	}
 
-	@Override
+//	@Override
 	public byte[] getEncoded()
 	{
 		// SecretKeySpec returns a copy of the byte array here and we do the same. I just created & read
@@ -72,8 +63,8 @@ implements SecretKey, KeySpec
 		return result;
 	}
 
-	@Override
-	public String getFormat() {
-		return "RAW";
-	}
+//	@Override
+//	public String getFormat() {
+//		return "RAW";
+//	}
 }

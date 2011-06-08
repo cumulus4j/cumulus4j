@@ -5,8 +5,6 @@ import java.security.SecureRandom;
 import java.util.Date;
 import java.util.concurrent.TimeoutException;
 
-import javax.crypto.spec.SecretKeySpec;
-
 import org.cumulus4j.keymanager.back.shared.GetActiveEncryptionKeyRequest;
 import org.cumulus4j.keymanager.back.shared.GetActiveEncryptionKeyResponse;
 import org.cumulus4j.keymanager.back.shared.GetKeyRequest;
@@ -27,9 +25,9 @@ public class MockMessageBroker extends AbstractMessageBroker
 		MessageBrokerRegistry.sharedInstance().setActiveMessageBroker(new MockMessageBroker());
 	}
 
-	private static byte[] keyData = new byte[128 / 8]; // testing with 128 bits is sufficient
+	private static byte[] key = new byte[128 / 8]; // testing with 128 bits is sufficient
 	static {
-		new SecureRandom().nextBytes(keyData);
+		new SecureRandom().nextBytes(key);
 	}
 
 	@Override
@@ -39,15 +37,13 @@ public class MockMessageBroker extends AbstractMessageBroker
 		try {
 			if (request instanceof GetActiveEncryptionKeyRequest) {
 				GetActiveEncryptionKeyRequest r = (GetActiveEncryptionKeyRequest) request;
-				SecretKeySpec key = new SecretKeySpec(keyData, "AES");
 				byte[] keyEncodedEncrypted = KeyEncryptionUtil.encryptKey(key, r.getKeyEncryptionTransformation(), r.getKeyEncryptionPublicKey());
-				return responseClass.cast(new GetActiveEncryptionKeyResponse(request, 123, key.getAlgorithm(), keyEncodedEncrypted, new Date(System.currentTimeMillis() + 3600L * 1000L)));
+				return responseClass.cast(new GetActiveEncryptionKeyResponse(request, 123, keyEncodedEncrypted, new Date(System.currentTimeMillis() + 3600L * 1000L)));
 			}
 			if (request instanceof GetKeyRequest) {
 				GetKeyRequest r = (GetKeyRequest) request;
-				SecretKeySpec key = new SecretKeySpec(keyData, "AES");
 				byte[] keyEncodedEncrypted = KeyEncryptionUtil.encryptKey(key, r.getKeyEncryptionTransformation(), r.getKeyEncryptionPublicKey());
-				return responseClass.cast(new GetKeyResponse(request, r.getKeyID(), key.getAlgorithm(), keyEncodedEncrypted));
+				return responseClass.cast(new GetKeyResponse(request, r.getKeyID(), keyEncodedEncrypted));
 			}
 		} catch (GeneralSecurityException x) {
 			throw new RuntimeException(x);

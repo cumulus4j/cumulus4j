@@ -11,22 +11,17 @@ public class GetKeyResponse extends Response
 	private static final long serialVersionUID = 1L;
 
 	private long keyID;
-	private String keyAlgorithm;
 	private byte[] keyEncodedEncrypted;
 
 	public GetKeyResponse() { }
 
-	public GetKeyResponse(Request request, long keyID, String keyAlgorithm, byte[] keyEncodedEncrypted) {
+	public GetKeyResponse(Request request, long keyID, byte[] keyEncodedEncrypted) {
 		super(request);
-
-		if (keyAlgorithm == null)
-			throw new IllegalArgumentException("keyAlgorithm == null");
 
 		if (keyEncodedEncrypted == null)
 			throw new IllegalArgumentException("keyEncodedEncrypted == null");
 
 		this.keyID = keyID;
-		this.keyAlgorithm = keyAlgorithm;
 		this.keyEncodedEncrypted = keyEncodedEncrypted;
 	}
 
@@ -35,13 +30,6 @@ public class GetKeyResponse extends Response
 	}
 	public void setKeyID(long keyID) {
 		this.keyID = keyID;
-	}
-
-	public String getKeyAlgorithm() {
-		return keyAlgorithm;
-	}
-	public void setKeyAlgorithm(String keyAlgorithm) {
-		this.keyAlgorithm = keyAlgorithm;
 	}
 
 	public byte[] getKeyEncodedEncrypted() {

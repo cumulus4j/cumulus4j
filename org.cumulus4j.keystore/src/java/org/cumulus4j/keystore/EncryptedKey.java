@@ -18,10 +18,10 @@ extends AbstractEncryptedKey
 
 	public EncryptedKey(
 			long keyID,
-			byte[] data, String algorithm, byte[] encryptionIV, String encryptionAlgorithm, short checksumSize, ChecksumAlgorithm checksumAlgorithm
+			byte[] data, byte[] encryptionIV, String encryptionAlgorithm, short checksumSize, ChecksumAlgorithm checksumAlgorithm
 	)
 	{
-		super(data, algorithm, encryptionIV, encryptionAlgorithm, checksumSize, checksumAlgorithm);
+		super(data, encryptionIV, encryptionAlgorithm, checksumSize, checksumAlgorithm);
 		this.keyID = keyID;
 	}
 

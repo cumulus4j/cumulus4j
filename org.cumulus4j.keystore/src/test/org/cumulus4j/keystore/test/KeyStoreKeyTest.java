@@ -1,7 +1,6 @@
 package org.cumulus4j.keystore.test;
 
 import java.io.File;
-import java.security.Key;
 import java.util.List;
 
 import org.cumulus4j.keystore.AuthenticationException;
@@ -91,11 +90,11 @@ public class KeyStoreKeyTest
 		keyStore = null;
 		keyStore = new KeyStore(keyStoreFile);
 
-		Key key = keyStore.getKey(USER, PASSWORD, generatedKey.getKeyID());
+		byte[] key = keyStore.getKey(USER, PASSWORD, generatedKey.getKeyID());
 
-		Assert.assertArrayEquals("key.encoded not equal", generatedKey.getKey().getEncoded(), key.getEncoded());
-		Assert.assertEquals("key.algorithm not equal", generatedKey.getKey().getAlgorithm(), key.getAlgorithm());
-		Assert.assertEquals("key.format not equal", generatedKey.getKey().getFormat(), key.getFormat());
+		Assert.assertArrayEquals("key.encoded not equal", generatedKey.getKey(), key);
+//		Assert.assertEquals("key.algorithm not equal", generatedKey.getKey().getAlgorithm(), key.getAlgorithm());
+//		Assert.assertEquals("key.format not equal", generatedKey.getKey().getFormat(), key.getFormat());
 	}
 
 	@Test

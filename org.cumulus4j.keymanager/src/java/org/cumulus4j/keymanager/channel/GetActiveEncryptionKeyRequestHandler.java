@@ -2,7 +2,6 @@ package org.cumulus4j.keymanager.channel;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.security.Key;
 import java.util.Date;
 
 import org.cumulus4j.keymanager.Session;
@@ -59,11 +58,11 @@ public class GetActiveEncryptionKeyRequestHandler extends AbstractRequestHandler
 			currentActiveKey = newActiveKey;
 		}
 
-		Key key = sessionManager.getKeyStore().getKey(session.getUserName(), session.getPassword(), currentActiveKey.getKeyID());
+		byte[] key = sessionManager.getKeyStore().getKey(session.getUserName(), session.getPassword(), currentActiveKey.getKeyID());
 		byte[] keyEncodedEncrypted = KeyEncryptionUtil.encryptKey(key, request.getKeyEncryptionTransformation(), request.getKeyEncryptionPublicKey());
 		return new GetActiveEncryptionKeyResponse(
 				request,
-				currentActiveKey.getKeyID(), key.getAlgorithm(), keyEncodedEncrypted, currentActiveKey.getActiveToExcl()
+				currentActiveKey.getKeyID(), keyEncodedEncrypted, currentActiveKey.getActiveToExcl()
 		);
 	}
 

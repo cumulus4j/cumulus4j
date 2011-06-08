@@ -43,9 +43,9 @@ extends AbstractEncryptedKey
 
 	public EncryptedMasterKey(
 			String userName, int passwordBasedKeySize, int passwordBasedInterationCount, String passwordBasedKeyGeneratorAlgorithm,
-			byte[] data, byte[] salt, String algorithm, byte[] encryptionIV, String encryptionAlgorithm, short checksumSize, ChecksumAlgorithm checksumAlgorithm
+			byte[] data, byte[] salt, byte[] encryptionIV, String encryptionAlgorithm, short checksumSize, ChecksumAlgorithm checksumAlgorithm
 	) {
-		super(data, algorithm, encryptionIV, encryptionAlgorithm, checksumSize, checksumAlgorithm);
+		super(data, encryptionIV, encryptionAlgorithm, checksumSize, checksumAlgorithm);
 
 		if (userName == null)
 			throw new IllegalArgumentException("userName == null");
