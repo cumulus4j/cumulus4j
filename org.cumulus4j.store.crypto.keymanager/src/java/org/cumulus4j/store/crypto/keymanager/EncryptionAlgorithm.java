@@ -24,7 +24,9 @@ package org.cumulus4j.store.crypto.keymanager;
  */
 public enum EncryptionAlgorithm
 {
-	// TODO shall we support all of them or restrict to optimal solutions? e.g. CFB only with NoPadding?!
+	// Question: Shall we support all of them or restrict to optimal solutions? e.g. CFB only with NoPadding?!
+	// Answer: We only support what makes sense, because to support all would blow the the byte, already now.
+	// We thus slowly add new elements, if really necessary (e.g. if someone asks in the forum).
 	AES_CBC_PKCS5Padding,
 	AES_CBC_ISO10126Padding,
 
@@ -53,7 +55,7 @@ public enum EncryptionAlgorithm
 	Twofish_OFB_NoPadding
 	;
 
-	private EncryptionAlgorithm() {
+	{
 		if (ordinal() > 127)
 			throw new IllegalStateException("The encryption-algorithm is encoded in the first byte of the ciphertext-byte-array. Thus more than 255 values are not possible and we currently reserve the highest bit for later extensions.");
 	}
@@ -63,4 +65,32 @@ public enum EncryptionAlgorithm
 	public final String getTransformation() {
 		return transformation;
 	}
+
+	/**
+	 * Get the <code>EncryptionAlgorithm</code> identified by its {@link Enum#ordinal() ordinal value}
+	 * encoded in a byte. This method handles the given byte as if it was UNSIGNED, i.e. there is a limit
+	 * of 256 values for this enum.
+	 * @param b the byte the <code>EncryptionAlgorithm</code>'s {@link Enum#ordinal() ordinal value}.
+	 * @return the <code>EncryptionAlgorithm</code> identified by the given {@link Enum#ordinal() ordinal value}.
+	 * @see #toByte()
+	 */
+	public static EncryptionAlgorithm valueOf(byte b)
+	{
+		int encryptionAlgoID = b & 0xff; // the '& 0xff' is necessary to use the whole UNSIGNED range of a byte, i.e. 0...255.
+		if (encryptionAlgoID > EncryptionAlgorithm.values().length - 1)
+			throw new IllegalArgumentException("encryptionAlgoID == " + encryptionAlgoID + " (byte value " + b + ") is unknown!");
+
+		return EncryptionAlgorithm.values()[encryptionAlgoID];
+	}
+
+	/**
+	 * Get the {@link Enum#ordinal() ordinal value} as a byte.
+	 * @return {@link Enum#ordinal() ordinal value} as a byte.
+	 * @see #valueOf(byte)
+	 */
+	public byte toByte()
+	{
+		return (byte)ordinal();
+	}
+
 }

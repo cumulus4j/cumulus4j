@@ -44,6 +44,7 @@ public enum ChecksumAlgorithm
 	 * of 256 values for this enum.
 	 * @param b the byte the <code>ChecksumAlgorithm</code>'s {@link Enum#ordinal() ordinal value}.
 	 * @return the <code>ChecksumAlgorithm</code> identified by the given {@link Enum#ordinal() ordinal value}.
+	 * @see #toByte()
 	 */
 	public static ChecksumAlgorithm valueOf(byte b)
 	{
@@ -54,6 +55,11 @@ public enum ChecksumAlgorithm
 		return ChecksumAlgorithm.values()[checksumAlgoID];
 	}
 
+	/**
+	 * Get the {@link Enum#ordinal() ordinal value} as a byte.
+	 * @return {@link Enum#ordinal() ordinal value} as a byte.
+	 * @see #valueOf(byte)
+	 */
 	public byte toByte()
 	{
 		return (byte)ordinal();

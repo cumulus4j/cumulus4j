@@ -68,36 +68,6 @@ extends AbstractCryptoSession
 
 	private SecureRandom secureRandom = new SecureRandom();
 
-//	private static KeyPair keyEncryptionKeyPair;
-//
-//	private static javax.crypto.Cipher keyDecrypter;
-//
-//	private static long keyDecrypterCreationTimestamp = Long.MIN_VALUE;
-//
-//	private static final long keyDecrypterLifetimeMSec = 12L * 3600L * 1000L; // TODO make configurable! - 12 hours right now
-//
-//	private static javax.crypto.Cipher getKeyDecrypter()
-//	{
-//		if (keyDecrypter == null || System.currentTimeMillis() - keyDecrypterCreationTimestamp > keyDecrypterLifetimeMSec) {
-//			try {
-//				String rawAlgo = KeyEncryptionUtil.getRawEncryptionAlgorithmWithoutModeAndPadding(keyEncryptionAlgorithm);
-//				KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(rawAlgo);
-//				if ("RSA".equals(rawAlgo)) {
-//					 RSAKeyGenParameterSpec rsaParamGenSpec = new RSAKeyGenParameterSpec(4096, RSAKeyGenParameterSpec.F4);
-//					 keyPairGenerator.initialize(rsaParamGenSpec);
-//				}
-//
-//				keyEncryptionKeyPair = keyPairGenerator.genKeyPair();
-//
-//				keyDecrypter = javax.crypto.Cipher.getInstance(keyEncryptionAlgorithm);
-//				keyDecrypter.init(javax.crypto.Cipher.DECRYPT_MODE, keyEncryptionKeyPair.getPrivate());
-//			} catch (Exception e) {
-//				throw new RuntimeException(e);
-//			}
-//		}
-//		return keyDecrypter;
-//	}
-
 	/**
 	 * {@inheritDoc}
 	 * <p>
@@ -158,12 +128,6 @@ extends AbstractCryptoSession
 				encrypter = cipherCache.acquireEncrypter(activeEncryptionAlgorithm, activeEncryptionKeyID);
 
 			if (encrypter == null) {
-//				javax.crypto.Cipher keyDecrypter;
-//				KeyPair keyEncryptionKeyPair;
-//				synchronized (KeyManagerCryptoSession.class) {
-//					keyDecrypter = KeyManagerCryptoSession.getKeyDecrypter();
-//					keyEncryptionKeyPair = KeyManagerCryptoSession.keyEncryptionKeyPair;
-//				}
 				keyDecryptor = cipherCache.acquireKeyDecryptor(keyEncryptionTransformation);
 
 				GetActiveEncryptionKeyResponse getActiveEncryptionKeyResponse;
@@ -198,8 +162,8 @@ extends AbstractCryptoSession
 					+ cipher.getOutputSize(
 							1 // random salt to xor into checksum algorithm
 							+ 1 // random salt to xor into checksum length
-							+ 1 // checksum algorithm
-							+ 1 // checksum length in bytes
+							+ 1 // checksum algorithm (xored with salt)
+							+ 1 // checksum length in bytes (xored with salt)
 							+ checksum.length // actual checksum
 							+ plaintext.getData().length
 					)
@@ -207,7 +171,7 @@ extends AbstractCryptoSession
 
 			byte[] out = new byte[outLength];
 			int outOff = 0;
-			out[outOff++] = (byte)activeEncryptionAlgorithm.ordinal();
+			out[outOff++] = activeEncryptionAlgorithm.toByte();
 			out[outOff++] = (byte)iv.length;
 
 			System.arraycopy(iv, 0, out, outOff, iv.length);
@@ -259,8 +223,7 @@ extends AbstractCryptoSession
 		try {
 			long keyID = ciphertext.getKeyID();
 			int inOff = 0;
-			int encryptionAlgoID = ciphertext.getData()[inOff++] & 0xff;
-			EncryptionAlgorithm encryptionAlgorithm = EncryptionAlgorithm.values()[encryptionAlgoID];
+			EncryptionAlgorithm encryptionAlgorithm = EncryptionAlgorithm.valueOf(ciphertext.getData()[inOff++]);
 
 			int ivLength = ciphertext.getData()[inOff++] & 0xff;
 			byte[] iv = new byte[ivLength];
@@ -269,12 +232,6 @@ extends AbstractCryptoSession
 
 			decrypter = cipherCache.acquireDecrypter(encryptionAlgorithm, keyID, iv);
 			if (decrypter == null) {
-//				javax.crypto.Cipher keyDecrypter;
-//				KeyPair keyEncryptionKeyPair;
-//				synchronized (KeyManagerCryptoSession.class) {
-//					keyDecrypter = KeyManagerCryptoSession.getKeyDecrypter();
-//					keyEncryptionKeyPair = KeyManagerCryptoSession.keyEncryptionKeyPair;
-//				}
 				keyDecryptor = cipherCache.acquireKeyDecryptor(keyEncryptionTransformation);
 
 				GetKeyResponse getKeyResponse;
