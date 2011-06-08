@@ -360,12 +360,12 @@ public class KeyStore
 	 * master key used to protect the file managed by the <code>KeyStore</code>.
 	 * </p>
 	 * <p>
-	 * By default (if the system property {@value #SYSTEM_PROPERTY_KEY_SIZE} is not specified), keys will have a size of 128 bit.
+	 * By default (if the system property {@value #SYSTEM_PROPERTY_KEY_SIZE} is not specified), keys will have a size of 256 bit.
 	 * </p>
 	 * <p>
-	 * Note, that specifying the system property does currently not change any old keys - only new keys are generated
-	 * with the currently active key size. Therefore, if you want to ensure that the internal master key is 256 bit long,
-	 * you have to make sure that the proper key size is specified when the first
+	 * Note, that specifying the system property does not change any old keys - only new keys are generated
+	 * with the currently active key size. Therefore, if you want to ensure that the internal master key is
+	 * only 128 bit long, you have to make sure that the proper key size is specified when the first
 	 * {@link #createUser(String, char[], String, char[]) user is created}!
 	 * </p>
 	 */
@@ -379,8 +379,8 @@ public class KeyStore
 	 * </p>
 	 * <p>
 	 * By default (if the system property {@value #SYSTEM_PROPERTY_ENCRYPTION_ALGORITHM} is not specified),
-	 * "AES/CFB/NoPadding" is used. For example, to switch to "AES/CBC/PKCS5Padding", you'd have
-	 * to specify the command line argument "-Dcumulus4j.KeyStore.encryptionAlgorithm=AES/CBC/PKCS5Padding".
+	 * "Twofish/CBC/PKCS5Padding" is used. For example, to switch to "AES/CFB/NoPadding", you'd have
+	 * to specify the command line argument "-Dcumulus4j.KeyStore.encryptionAlgorithm=AES/CFB/NoPadding".
 	 * </p>
 	 * <p>
 	 * See <a href="http://download.java.net/jdk7/docs/technotes/guides/security/SunProviders.html#SunJCEProvider">this document</a>
