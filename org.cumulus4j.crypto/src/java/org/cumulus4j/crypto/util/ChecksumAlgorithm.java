@@ -18,30 +18,43 @@ import java.util.zip.CRC32;
 public enum ChecksumAlgorithm
 {
 	/**
-	 * Do not use a checksum. <b>This is not recommended!</b> It neither detects accidental
-	 * data corruption nor intentional alteration of data.
-	 * @deprecated Not recommended because not secure.
+	 * <p>
+	 * Do not use any checksum.
+	 * </p>
+	 * <p>
+	 * <b>This is not recommended in most situations!</b> It neither detects accidental
+	 * data corruption nor intentional alteration of data nor whether the correct key+IV
+	 * was used at all. Only use it in combination with a cipher transformation
+	 * that is known to already include a
+	 * <a href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a>!
+	 * Better don't use it at all, if you're unsure!
+	 * </p>
 	 */
 	NONE,
 
 	/**
 	 * Store a {@link CRC32}-checksum (encrypted) together with the data and
-	 * verify this checksum after decrypting the data. <b>This is not recommended!</b> Even
-	 * though it detects accidental data corruption, it does not detect intentional alteration
-	 * of data.
+	 * verify this checksum after decrypting the data.
+	 * <p>
+	 * <b>This is not recommended!</b> Even
+	 * though it detects accidental data corruption as well as whether the correct key+IV was used,
+	 * it does not detect intentional alteration of data.
+	 * </p>
 	 * <p>
 	 * See <a href="http://en.wikipedia.org/wiki/CRC32">CRC32</a>
 	 * and <a href="http://en.wikipedia.org/wiki/Message_authentication_code">Message authentication code</a> in Wikipedia.
 	 * </p>
-	 * @deprecated Not recommended because not secure.
 	 */
 	CRC32,
 
 	/**
-	 * Store an <a href="http://en.wikipedia.org/wiki/MD5">MD5</a> hash (encrypted) together with the data
-	 * and verify this checksum after decrypting the data. <b>This is not recommended!</b> Even
-	 * though it is more secure than {@link #NONE} and {@link #CRC32}, MD5 is known to have many vulnerabilities.
-	 * @deprecated Not recommended because not secure.
+	 * Store a <a href="http://en.wikipedia.org/wiki/MD5">MD5</a> hash (encrypted) together with the data
+	 * and verify this checksum after decrypting the data.
+	 * <p>
+	 * <b>This is not recommended!</b> Even
+	 * though it is far more secure than {@link #NONE} and {@link #CRC32}, MD5 is known to have many
+	 * vulnerabilities.
+	 * </p>
 	 */
 	MD5,
 

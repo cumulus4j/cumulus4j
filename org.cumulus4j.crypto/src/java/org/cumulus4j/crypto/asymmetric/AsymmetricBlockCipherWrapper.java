@@ -69,7 +69,7 @@ extends AbstractCipher
 	throws DataLengthException, IllegalStateException, CryptoException
 	{
 		byte[] encrypted = delegate.doFinal();
-		System.arraycopy(encrypted, 0, out, 0, encrypted.length);
+		System.arraycopy(encrypted, 0, out, outOff, encrypted.length);
 		return encrypted.length;
 	}
 

@@ -34,7 +34,7 @@ public final class KeyEncryptionUtil
 				+ encrypter.getOutputSize(checksum.length + key.length)
 		);
 
-		byte[] out = new byte[2 + resultSize];
+		byte[] out = new byte[resultSize];
 
 		if (checksum.length > 255)
 			throw new IllegalStateException("Checksum length too long!");
@@ -79,13 +79,14 @@ public final class KeyEncryptionUtil
 		int outOff = 0;
 		outOff += decrypter.update(keyEncodedEncrypted, encryptedOff, keyEncodedEncrypted.length - encryptedOff, out, outOff);
 		outOff += decrypter.doFinal(out, outOff);
+		int outDataLength = outOff;
 
 		outOff = 0;
 		byte[] checksum = new byte[checksumLength];
 		System.arraycopy(out, outOff, checksum, 0, checksum.length);
 		outOff += checksum.length;
 
-		byte[] result = new byte[out.length - outOff];
+		byte[] result = new byte[outDataLength - outOff];
 		System.arraycopy(out, outOff, result, 0, result.length);
 
 		// And finally calculate a new checksum and verify if it matches the one we read above.
