@@ -22,7 +22,7 @@ extends AbstractAsymmetricCipherKeyPairGeneratorFactory
 	@Override
 	public AsymmetricCipherKeyPairGenerator createAsymmetricCipherKeyPairGenerator() {
 		RSAKeyPairGenerator generator = new RSAKeyPairGenerator();
-		generator.init(new RSAKeyGenerationParameters(defaultPublicExponent, random, 1024, defaultTests));
+		generator.init(new RSAKeyGenerationParameters(defaultPublicExponent, random, 4096, defaultTests));
 		return generator;
 	}
 }
