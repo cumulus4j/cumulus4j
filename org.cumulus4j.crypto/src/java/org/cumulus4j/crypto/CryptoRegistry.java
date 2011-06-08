@@ -331,7 +331,7 @@ public final class CryptoRegistry
 		// *** BEGIN asymmetric paddings ***
 		registerAsymmetricBlockCipherPadding("ISO9796-1", ISO9796d1Encoding.class);
 		registerAsymmetricBlockCipherPadding("OAEP", OAEPEncoding.class);
-		registerAsymmetricBlockCipherPadding("OAEPWITHSHA1ANDMGF1PADDING", OAEPEncoding.class); // JCE name for compatibility.
+		registerAsymmetricBlockCipherPadding("OAEPWITHSHA1ANDMGF1", OAEPEncoding.class); // JCE name for compatibility.
 		registerAsymmetricBlockCipherPadding("PKCS1", PKCS1Encoding.class);
 
 
