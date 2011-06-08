@@ -442,7 +442,7 @@ public class KeyStore
 	/**
 	 * Gets the key-size that is currently configured. Therefore, this method checks, if the
 	 * system property {@value #SYSTEM_PROPERTY_KEY_SIZE} has been specified, and if so returns its value.
-	 * If not, it falls back to 128.
+	 * If not, it falls back to 256.
 	 *
 	 * @return the current key-size.
 	 */
@@ -454,7 +454,7 @@ public class KeyStore
 			String keySizePropName = SYSTEM_PROPERTY_KEY_SIZE;
 			String keySizePropValue = System.getProperty(keySizePropName);
 			if (keySizePropValue == null || keySizePropValue.trim().isEmpty()) {
-				ks = 128; // default value, if the property was not defined.
+				ks = 256; // default value, if the property was not defined.
 				logger.info("getKeySize: System property '{}' is not set. Using default key size ({} bit).", keySizePropName, ks);
 			}
 			else {
@@ -486,8 +486,9 @@ public class KeyStore
 			String encryptionAlgorithmPropName = SYSTEM_PROPERTY_ENCRYPTION_ALGORITHM;
 			String encryptionAlgorithmPropValue = System.getProperty(encryptionAlgorithmPropName);
 			if (encryptionAlgorithmPropValue == null || encryptionAlgorithmPropValue.trim().isEmpty()) {
+				ea = "Twofish/CBC/PKCS5Padding"; // default value, if the property was not defined.
 //				ea = "AES/CBC/PKCS5Padding"; // default value, if the property was not defined.
-				ea = "AES/CFB/NoPadding"; // default value, if the property was not defined.
+//				ea = "AES/CFB/NoPadding"; // default value, if the property was not defined.
 				logger.info("getEncryptionAlgorithm: System property '{}' is not set. Using default algorithm '{}'.", encryptionAlgorithmPropName, ea);
 			}
 			else {

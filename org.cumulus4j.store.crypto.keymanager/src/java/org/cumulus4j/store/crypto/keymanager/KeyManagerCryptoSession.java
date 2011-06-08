@@ -45,7 +45,7 @@ extends AbstractCryptoSession
 		return _activeChecksumAlgorithm;
 	}
 
-	private static final EncryptionAlgorithm _activeEncryptionAlgorithm = EncryptionAlgorithm.AES_CBC_PKCS5Padding; // TODO this should be configurable!
+	private static final EncryptionAlgorithm _activeEncryptionAlgorithm = EncryptionAlgorithm.Twofish_CBC_PKCS5Padding; // TODO this should be configurable!
 	private EncryptionAlgorithm getActiveEncryptionAlgorithm()
 	{
 		return _activeEncryptionAlgorithm;
