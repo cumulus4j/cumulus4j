@@ -10,11 +10,11 @@ Usage
 * Schema
 
     Whilst a users model of their classes implies a traditional datastore schema, with Cumulus4J, to achieve
-    high secure data, we utilise our own data schema. We have three parts to the schema
-    
+    highly secure data, we utilise our own data schema. We have three parts to the schema
+
     * Data
     
-    The raw data representing the users objects is stored encrypted in a DATA_ENTRY table (or equivalent for
+    The raw data representing the users objects is stored encrypted in a DataEntry table (or equivalent for
     non-RDBMS datastores). Something like this
 
 +------------------------------------------+    
@@ -64,38 +64,61 @@ CREATE TABLE "fieldmeta"
 +------------------------------------------+
 CREATE TABLE "indexentrycontainersize"
 (
-"indexentryid" BIGINT NOT NULL,
-"indexkey" BIGINT,
-"fieldmeta_fieldid_oid" BIGINT NOT NULL,
-"indexvalue" LONG VARCHAR FOR BIT DATA,
-"keyid" BIGINT NOT NULL,
-"version" BIGINT NOT NULL
+	"indexentryid" BIGINT NOT NULL,
+	"indexkey" BIGINT,
+	"fieldmeta_fieldid_oid" BIGINT NOT NULL,
+	"indexvalue" LONG VARCHAR FOR BIT DATA,
+	"keyid" BIGINT NOT NULL,
+	"version" BIGINT NOT NULL
 )
+
 CREATE TABLE "indexentrydouble"
 (
-"indexentryid" BIGINT NOT NULL,
-"indexkey" DOUBLE,
-"fieldmeta_fieldid_oid" BIGINT NOT NULL,
-"indexvalue" LONG VARCHAR FOR BIT DATA,
-"keyid" BIGINT NOT NULL,
-"version" BIGINT NOT NULL
+	"indexentryid" BIGINT NOT NULL,
+	"indexkey" DOUBLE,
+	"fieldmeta_fieldid_oid" BIGINT NOT NULL,
+	"indexvalue" LONG VARCHAR FOR BIT DATA,
+	"keyid" BIGINT NOT NULL,
+	"version" BIGINT NOT NULL
 )
+
 CREATE TABLE "indexentrylong"
 (
-"indexentryid" BIGINT NOT NULL,
-"indexkey" BIGINT,
-"fieldmeta_fieldid_oid" BIGINT NOT NULL,
-"indexvalue" LONG VARCHAR FOR BIT DATA,
-"keyid" BIGINT NOT NULL,
-"version" BIGINT NOT NULL
+	"indexentryid" BIGINT NOT NULL,
+	"indexkey" BIGINT,
+	"fieldmeta_fieldid_oid" BIGINT NOT NULL,
+	"indexvalue" LONG VARCHAR FOR BIT DATA,
+	"keyid" BIGINT NOT NULL,
+	"version" BIGINT NOT NULL
 )
+
 CREATE TABLE "indexentrydate"
 (
-"indexentryid" BIGINT NOT NULL,
-"indexkey" TIMESTAMP,
-"fieldmeta_fieldid_oid" BIGINT NOT NULL,
-"indexvalue" LONG VARCHAR FOR BIT DATA,
-"keyid" BIGINT NOT NULL,
-"version" BIGINT NOT NULL
+	"indexentryid" BIGINT NOT NULL,
+	"indexkey" TIMESTAMP,
+	"fieldmeta_fieldid_oid" BIGINT NOT NULL,
+	"indexvalue" LONG VARCHAR FOR BIT DATA,
+	"keyid" BIGINT NOT NULL,
+	"version" BIGINT NOT NULL
+)
+
+CREATE TABLE "indexentrystringlong"
+(
+    "indexentryid" BIGINT NOT NULL,
+    "indexkey" CLOB(2147483647),
+    "fieldmeta_fieldid_oid" BIGINT NOT NULL,
+    "indexvalue" LONG VARCHAR FOR BIT DATA,
+    "keyid" BIGINT NOT NULL,
+    "version" BIGINT NOT NULL
+)
+
+CREATE TABLE "indexentrystringshort"
+(
+    "indexentryid" BIGINT NOT NULL,
+    "indexkey" VARCHAR(255),
+    "fieldmeta_fieldid_oid" BIGINT NOT NULL,
+    "indexvalue" LONG VARCHAR FOR BIT DATA,
+    "keyid" BIGINT NOT NULL,
+    "version" BIGINT NOT NULL
 )
 +------------------------------------------+
