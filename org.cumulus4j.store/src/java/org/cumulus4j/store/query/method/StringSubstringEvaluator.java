@@ -102,13 +102,8 @@ public class StringSubstringEvaluator extends AbstractMethodEvaluator {
 				ExpressionHelper.getOperatorAsJDOQLSymbol(invokeExprEval.getParent().getExpression().getOperator(), negate) + 
 				" :compareToArgument"
 		);
-		Map<String, Object> params = new HashMap<String, Object>(invokeArg2 != null ? 4 : 3);
+		Map<String, Object> params = new HashMap<String, Object>(2);
 		params.put("fieldMeta", fieldMeta);
-		params.put("pos1", invokeArg1);
-		if (invokeArg2 != null)
-		{
-			params.put("pos2", invokeArg2);
-		}
 		params.put("compareToArgument", compareToArgument);
 
 		@SuppressWarnings("unchecked")
