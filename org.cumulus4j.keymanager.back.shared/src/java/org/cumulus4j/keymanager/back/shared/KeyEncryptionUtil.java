@@ -27,8 +27,6 @@ public final class KeyEncryptionUtil
 
 	public static byte[] encryptKey(byte[] key, Cipher encrypter) throws CryptoException
 	{
-		// Now we add the check-sum.
-		// It always starts with the algo-identifier, followed by the checksum itself.
 		byte[] checksum = checksumCalculator.checksum(key, checksumAlgorithm);
 
 		int resultSize = (
