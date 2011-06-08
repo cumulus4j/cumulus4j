@@ -1,6 +1,5 @@
 package org.cumulus4j.store.crypto.keymanager.test;
 
-import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.util.Date;
 import java.util.concurrent.TimeoutException;
@@ -45,7 +44,9 @@ public class MockMessageBroker extends AbstractMessageBroker
 				byte[] keyEncodedEncrypted = KeyEncryptionUtil.encryptKey(key, r.getKeyEncryptionTransformation(), r.getKeyEncryptionPublicKey());
 				return responseClass.cast(new GetKeyResponse(request, r.getKeyID(), keyEncodedEncrypted));
 			}
-		} catch (GeneralSecurityException x) {
+		} catch (RuntimeException x) {
+			throw x;
+		} catch (Exception x) {
 			throw new RuntimeException(x);
 		}
 		throw new UnsupportedOperationException("NYI");

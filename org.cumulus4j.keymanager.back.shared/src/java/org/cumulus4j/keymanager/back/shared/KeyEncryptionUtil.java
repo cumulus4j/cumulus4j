@@ -1,16 +1,14 @@
 package org.cumulus4j.keymanager.back.shared;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
-import java.security.Key;
-import java.security.KeyFactory;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.zip.CRC32;
 
-import javax.crypto.Cipher;
-
+import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.CryptoException;
+import org.cumulus4j.crypto.Cipher;
+import org.cumulus4j.crypto.CipherOperationMode;
+import org.cumulus4j.crypto.CryptoRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,11 +21,11 @@ public final class KeyEncryptionUtil
 
 	private KeyEncryptionUtil() { }
 
-	public static byte[] encryptKey(byte[] key, Cipher encrypter) throws GeneralSecurityException
+	public static byte[] encryptKey(byte[] key, Cipher encrypter) throws CryptoException
 	{
 		int resultSize = encrypter.getOutputSize(4 /* checksum-length with CRC32 */ + key.length);
 
-		ByteBuffer resultBuf = ByteBuffer.allocate(resultSize);
+		byte[] out = new byte[resultSize];
 
 		// Now we add the check-sum.
 		// It always starts with the algo-identifier, followed by the checksum itself.
@@ -38,40 +36,32 @@ public final class KeyEncryptionUtil
 		for (int i = 0; i < checksum.length; ++i)
 			checksum[i] = (byte)(crc32Value >>> (i * 8));
 
-		encrypter.update(ByteBuffer.wrap(checksum), resultBuf);
+		int outOff = 0;
+		outOff += encrypter.update(checksum, 0, checksum.length, out, outOff);
+		outOff += encrypter.update(key,      0,      key.length, out, outOff);
+		outOff += encrypter.doFinal(out, outOff);
 
-		encrypter.doFinal(ByteBuffer.wrap(key), resultBuf);
-		if (resultBuf.hasArray()) {
-			if (resultBuf.array().length == resultBuf.position())
-				return resultBuf.array();
-			else
-				logger.warn("Backing array cannot be directly used, because its size ({}) does not match the required size ({})!", resultBuf.array().length, resultBuf.position());
-		}
-		else
-			logger.warn("Backing array cannot be directly used, because there is no backing array!");
+		if (out.length == outOff)
+			return out;
 
-		byte[] result = new byte[resultBuf.position()];
-		resultBuf.rewind();
-		resultBuf.get(result);
+		logger.warn("Precalculated size ({}) does not match the actually written size ({})! Truncating byte array.", out.length, outOff);
+
+		byte[] result = new byte[outOff];
+		System.arraycopy(out, 0, result, 0, result.length);
 		return result;
 	}
 
-	public static byte[] encryptKey(byte[] key, String keyEncryptionAlgorithm, byte[] keyEncryptionPublicKey) throws GeneralSecurityException
+	public static byte[] encryptKey(byte[] key, String keyEncryptionTransformation, byte[] keyEncryptionPublicKey)
+	throws GeneralSecurityException, IOException, CryptoException
 	{
-		Cipher keyEncrypter = Cipher.getInstance(keyEncryptionAlgorithm);
-//		Key publicKey = keyEncrypter.unwrap(
-//				keyEncryptionPublicKey,
-//				KeyEncryptionUtil.getRawEncryptionAlgorithmWithoutModeAndPadding(keyEncryptionAlgorithm),
-//				Cipher.PUBLIC_KEY
-//		);
-		X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyEncryptionPublicKey);
-		Key publicKey = KeyFactory.getInstance(getRawEncryptionAlgorithmWithoutModeAndPadding(keyEncryptionAlgorithm)).generatePublic(keySpec);
-		keyEncrypter.init(Cipher.ENCRYPT_MODE, publicKey);
+		Cipher keyEncrypter = CryptoRegistry.sharedInstance().createCipher(keyEncryptionTransformation);
+		CipherParameters publicKey = CryptoRegistry.sharedInstance().decodePublicKey(keyEncryptionPublicKey);
+		keyEncrypter.init(CipherOperationMode.ENCRYPT, publicKey);
 		byte[] keyEncodedEncrypted = KeyEncryptionUtil.encryptKey(key, keyEncrypter);
 		return keyEncodedEncrypted;
 	}
 
-	public static byte[] decryptKey(org.cumulus4j.crypto.Cipher decrypter, byte[] keyEncodedEncrypted) throws CryptoException, IOException
+	public static byte[] decryptKey(Cipher decrypter, byte[] keyEncodedEncrypted) throws CryptoException, IOException
 	{
 		byte[] rawDecrypted = decrypter.doFinal(keyEncodedEncrypted);
 

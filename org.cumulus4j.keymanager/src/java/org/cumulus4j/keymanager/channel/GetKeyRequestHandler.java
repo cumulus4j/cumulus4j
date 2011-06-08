@@ -1,8 +1,10 @@
 package org.cumulus4j.keymanager.channel;
 
+import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Date;
 
+import org.bouncycastle.crypto.CryptoException;
 import org.cumulus4j.keymanager.Session;
 import org.cumulus4j.keymanager.SessionManager;
 import org.cumulus4j.keymanager.back.shared.GetKeyRequest;
@@ -29,7 +31,8 @@ public class GetKeyRequestHandler extends AbstractRequestHandler<GetKeyRequest>
 {
 
 	@Override
-	public Response handle(GetKeyRequest request) throws AuthenticationException, KeyNotFoundException, GeneralSecurityException
+	public Response handle(GetKeyRequest request)
+	throws AuthenticationException, KeyNotFoundException, GeneralSecurityException, IOException, CryptoException
 	{
 		SessionManager sessionManager = getKeyManagerChannelManager().getSessionManager();
 		Session session = sessionManager.getSessionForCryptoSessionID(request.getCryptoSessionID());
