@@ -32,6 +32,12 @@ Usage
 	@Extension(key="cumulus4j-queryable", value="false")
 
 
+* Datastore Schema
+
+    Cumulus4J has its own datastore schema in order to provide secure data. You can find documentation of
+    the current schema definition {{{./schema.html}here}}.
+
+
 * Deployment
 
     Cumulus4J has been tested for deployment onto the following datastores : RDBMS, HBase, MongoDB, ODF, Excel.

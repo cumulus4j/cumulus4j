@@ -1,0 +1,95 @@
+	---
+	Schema
+	---
+	Andy Jefferson
+	---
+	2011-06-08
+
+Usage
+
+* Schema
+
+    Whilst a users model of their classes implies a traditional datastore schema, with Cumulus4J, to achieve
+    high secure data, we utilise our own data schema. We have three parts to the schema
+    
+    * Data
+    
+    The raw data representing the users objects is stored encrypted in a DATA_ENTRY table (or equivalent for
+    non-RDBMS datastores). Something like this
+    
+<<<CREATE TABLE "dataentry" 
+(
+    "dataentryid" BIGINT NOT NULL,
+    "classmeta_classid_oid" BIGINT NOT NULL,
+    "keyid" BIGINT NOT NULL,
+    "objectid" VARCHAR(255) NOT NULL,
+    "value" LONG VARCHAR FOR BIT DATA,
+    "version" BIGINT NOT NULL
+)>>>
+
+    * Class Structure Information
+    
+    Each class being persisted has to be recorded the first time it is encountered. Cumulus4J stores the
+    class information and field/property information. Something like this
+    
+<<<CREATE TABLE "classmeta"
+(
+    "classid" BIGINT NOT NULL,
+    "packagename" VARCHAR(255) NOT NULL,
+    "simpleclassname" VARCHAR(255) NOT NULL,
+    "superclassmeta_classid_oid" BIGINT,
+    "version" BIGINT NOT NULL
+)
+
+CREATE TABLE "fieldmeta"
+(
+    "fieldid" BIGINT NOT NULL,
+    "classmeta_classid_oid" BIGINT,
+    "fieldname" VARCHAR(255) NOT NULL,
+    "ownerfieldmeta_fieldid_oid" BIGINT,
+    "role" VARCHAR(255) NOT NULL,
+    "version" BIGINT NOT NULL
+)>>>
+
+	* Index Information
+	
+	To provide in-datastore querying for the contents of fields, Cumulus4J has to store an amount of index
+	information. A table exists for the type of data being stored, linking to the records possessing this
+	value for the specified field. The schema is like this
+	
+<<<CREATE TABLE "indexentrycontainersize"
+(
+"indexentryid" BIGINT NOT NULL,
+"indexkey" BIGINT,
+"fieldmeta_fieldid_oid" BIGINT NOT NULL,
+"indexvalue" LONG VARCHAR FOR BIT DATA,
+"keyid" BIGINT NOT NULL,
+"version" BIGINT NOT NULL
+)
+CREATE TABLE "indexentrydouble"
+(
+"indexentryid" BIGINT NOT NULL,
+"indexkey" DOUBLE,
+"fieldmeta_fieldid_oid" BIGINT NOT NULL,
+"indexvalue" LONG VARCHAR FOR BIT DATA,
+"keyid" BIGINT NOT NULL,
+"version" BIGINT NOT NULL
+)
+CREATE TABLE "indexentrylong"
+(
+"indexentryid" BIGINT NOT NULL,
+"indexkey" BIGINT,
+"fieldmeta_fieldid_oid" BIGINT NOT NULL,
+"indexvalue" LONG VARCHAR FOR BIT DATA,
+"keyid" BIGINT NOT NULL,
+"version" BIGINT NOT NULL
+)
+CREATE TABLE "indexentrydate"
+(
+"indexentryid" BIGINT NOT NULL,
+"indexkey" TIMESTAMP,
+"fieldmeta_fieldid_oid" BIGINT NOT NULL,
+"indexvalue" LONG VARCHAR FOR BIT DATA,
+"keyid" BIGINT NOT NULL,
+"version" BIGINT NOT NULL
+)>>>
