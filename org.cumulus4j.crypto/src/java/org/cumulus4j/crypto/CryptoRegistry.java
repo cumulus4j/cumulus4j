@@ -4,9 +4,14 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.crypto.NoSuchPaddingException;
 
@@ -500,8 +505,10 @@ public final class CryptoRegistry
 	private Cipher createCipherForBlockCipherMode(String transformation, AEADBlockCipher modeWithEngine, String engineName, String modeName, String paddingName)
 	throws NoSuchPaddingException
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("NYI");
+		if (paddingName.isEmpty() || "NOPADDING".equals(paddingName))
+			return new AEADBlockCipherWrapper(transformation, modeWithEngine);
+
+		throw new NoSuchPaddingException("The AEAD-mode \"" + modeName + "\" does not support the padding \"" + paddingName + "\"! Padding must be \"NoPadding\" or an empty string!");
 	}
 
 	private Cipher createCipherForBlockCipherMode(String transformation, BufferedBlockCipher modeWithEngine, String engineName, String modeName, String paddingName)
@@ -597,6 +604,281 @@ public final class CryptoRegistry
 			return createCipherForAsymmetricBlockCipherMode(transformation, engine, engineName, modeName, paddingName);
 
 		throw new NoSuchAlgorithmException("The asymmetric-block-cipher does not support the mode \"" + modeName + "\"! Only \"ECB\" or an empty string are allowed as mode!");
+	}
+
+	/**
+	 * Get all supported cipher engines.
+	 *
+	 * @param cipherEngineType the type of the cipher engine or <code>null</code> to list all.
+	 * @return all supported cipher engines.
+	 */
+	public Set<String> getSupportedCipherEngines(CipherEngineType cipherEngineType)
+	{
+		SortedSet<String> result = new TreeSet<String>();
+
+		if (cipherEngineType == null || cipherEngineType == CipherEngineType.symmetricBlock)
+			result.addAll(algorithmName2blockCipherEngineClass.keySet());
+
+		if (cipherEngineType == null || cipherEngineType == CipherEngineType.symmetricStream)
+			result.addAll(algorithmName2streamCipherEngineClass.keySet());
+
+		if (cipherEngineType == null || cipherEngineType == CipherEngineType.asymmetricBlock)
+			result.addAll(algorithmName2asymmetricBlockCipherEngineClass.keySet());
+
+		return Collections.unmodifiableSortedSet(result);
+	}
+
+	public Set<String> getSupportedCipherModes(String cipherEngine)
+	{
+		if (cipherEngine != null)
+			cipherEngine = cipherEngine.toUpperCase(Locale.ENGLISH);
+
+		SortedSet<String> result = new TreeSet<String>();
+
+		if (cipherEngine == null || algorithmName2blockCipherEngineClass.containsKey(cipherEngine)) {
+			// Engine is a block cipher => return all modes
+			result.add(""); result.add("ECB"); // both are synonymous
+			result.addAll(modeName2aeadBlockCipherModeClass.keySet());
+			result.addAll(modeName2blockCipherModeClass.keySet());
+			result.addAll(modeName2bufferedBlockCipherModeClass.keySet());
+		}
+
+		if (cipherEngine == null || algorithmName2streamCipherEngineClass.containsKey(cipherEngine)) {
+			// Engine is a stream cipher => no modes supported besides ECB (either named "ECB" or empty String).
+			result.add(""); result.add("ECB"); // both are synonymous
+		}
+
+		if (cipherEngine == null || algorithmName2asymmetricBlockCipherEngineClass.containsKey(cipherEngine)) {
+			// Engine is an asymmetric cipher => no modes supported besides ECB (either named "ECB" or empty String).
+			result.add(""); result.add("ECB"); // both are synonymous
+		}
+
+		Set<String> blackListedModes = blackListedCipherEngine2Modes.get(cipherEngine);
+		if (blackListedModes != null)
+			result.removeAll(blackListedModes);
+
+		return Collections.unmodifiableSortedSet(result);
+	}
+
+	private Map<String, Set<String>> blackListedCipherEngine2Modes = new HashMap<String, Set<String>>();
+	{
+		// Created this by trial and error. Needs to be updated, if the CipherTest fails.
+		{
+			Set<String> modes = new HashSet<String>();
+			blackListedCipherEngine2Modes.put("AES.FAST", modes);
+			modes.add("GOFB");
+		}
+
+		{
+			Set<String> modes = new HashSet<String>();
+			blackListedCipherEngine2Modes.put("AES.LIGHT", modes);
+			modes.add("GOFB");
+		}
+
+		{
+			Set<String> modes = new HashSet<String>();
+			blackListedCipherEngine2Modes.put("AES", modes);
+			modes.add("GOFB");
+		}
+
+		{
+			Set<String> modes = new HashSet<String>();
+			blackListedCipherEngine2Modes.put("BLOWFISH", modes);
+			modes.add("CCM");
+			modes.add("GCM");
+		}
+
+		{
+			Set<String> modes = new HashSet<String>();
+			blackListedCipherEngine2Modes.put("CAMELLIA.LIGHT", modes);
+			modes.add("GOFB");
+		}
+
+		{
+			Set<String> modes = new HashSet<String>();
+			blackListedCipherEngine2Modes.put("CAMELLIA", modes);
+			modes.add("GOFB");
+		}
+
+		{
+			Set<String> modes = new HashSet<String>();
+			blackListedCipherEngine2Modes.put("CAST5", modes);
+			modes.add("CCM");
+			modes.add("GCM");
+		}
+
+		{
+			Set<String> modes = new HashSet<String>();
+			blackListedCipherEngine2Modes.put("CAST6", modes);
+			modes.add("GOFB");
+		}
+
+		{
+			Set<String> modes = new HashSet<String>();
+			blackListedCipherEngine2Modes.put("DES", modes);
+			modes.add("CCM");
+			modes.add("GCM");
+		}
+
+		{
+			Set<String> modes = new HashSet<String>();
+			blackListedCipherEngine2Modes.put("DESEDE", modes);
+			modes.add("CCM");
+			modes.add("GCM");
+		}
+
+		{
+			Set<String> modes = new HashSet<String>();
+			blackListedCipherEngine2Modes.put("GOST28147", modes);
+			modes.add("CCM");
+			modes.add("GCM");
+		}
+
+		{
+			Set<String> modes = new HashSet<String>();
+			blackListedCipherEngine2Modes.put("NOEKEON", modes);
+			modes.add("GOFB");
+		}
+
+		{
+			Set<String> modes = new HashSet<String>();
+			blackListedCipherEngine2Modes.put("NULL", modes);
+			modes.add("CCM");
+			modes.add("GCM");
+			modes.add("EAX");
+			modes.add("GOFB");
+		}
+
+		{
+			Set<String> modes = new HashSet<String>();
+			blackListedCipherEngine2Modes.put("RC2", modes);
+			modes.add("CCM");
+			modes.add("GCM");
+		}
+
+		{
+			Set<String> modes = new HashSet<String>();
+			blackListedCipherEngine2Modes.put("RC5-32", modes);
+			modes.add("CCM");
+			modes.add("GCM");
+		}
+
+		{
+			Set<String> modes = new HashSet<String>();
+			blackListedCipherEngine2Modes.put("RC5-64", modes);
+			modes.add("GOFB");
+		}
+
+		{
+			Set<String> modes = new HashSet<String>();
+			blackListedCipherEngine2Modes.put("RC6", modes);
+			modes.add("GOFB");
+		}
+
+		{
+			Set<String> modes = new HashSet<String>();
+			blackListedCipherEngine2Modes.put("RIJNDAEL", modes);
+			modes.add("GOFB");
+		}
+
+		{
+			Set<String> modes = new HashSet<String>();
+			blackListedCipherEngine2Modes.put("SEED", modes);
+			modes.add("GOFB");
+		}
+
+		{
+			Set<String> modes = new HashSet<String>();
+			blackListedCipherEngine2Modes.put("SERPENT", modes);
+			modes.add("GOFB");
+		}
+
+		{
+			Set<String> modes = new HashSet<String>();
+			blackListedCipherEngine2Modes.put("SKIPJACK", modes);
+			modes.add("CCM");
+			modes.add("GCM");
+		}
+
+		{
+			Set<String> modes = new HashSet<String>();
+			blackListedCipherEngine2Modes.put("TEA", modes);
+			modes.add("CCM");
+			modes.add("GCM");
+		}
+
+		{
+			Set<String> modes = new HashSet<String>();
+			blackListedCipherEngine2Modes.put("TWOFISH", modes);
+			modes.add("GOFB");
+		}
+
+		{
+			Set<String> modes = new HashSet<String>();
+			blackListedCipherEngine2Modes.put("XTEA", modes);
+			modes.add("CCM");
+			modes.add("GCM");
+		}
+	}
+
+	public Set<String> getSupportedCipherPaddings(String cipherEngine, String cipherMode)
+	{
+		if (cipherEngine != null)
+			cipherEngine = cipherEngine.toUpperCase(Locale.ENGLISH);
+
+		if (cipherMode != null)
+			cipherMode = cipherMode.toUpperCase(Locale.ENGLISH);
+
+		SortedSet<String> result = new TreeSet<String>();
+
+		if (cipherEngine == null || algorithmName2blockCipherEngineClass.containsKey(cipherEngine)) {
+			// Engine is a block cipher
+			result.add(""); result.add("NOPADDING"); // both are synonymous
+
+			if (cipherMode == null || modeName2blockCipherModeClass.containsKey(cipherMode))
+				result.addAll(paddingName2blockCipherPaddingClass.keySet());
+		}
+
+		if (cipherEngine == null || algorithmName2streamCipherEngineClass.containsKey(cipherEngine)) {
+			// Engine is a stream cipher
+			result.add(""); result.add("NOPADDING"); // both are synonymous
+		}
+
+		if (cipherEngine == null || algorithmName2asymmetricBlockCipherEngineClass.containsKey(cipherEngine)) {
+			// Engine is an asymmetric block cipher
+			result.add(""); result.add("NOPADDING"); // both are synonymous
+			result.addAll(paddingName2asymmetricBlockCipherPaddingClass.keySet());
+		}
+
+		return Collections.unmodifiableSortedSet(result);
+	}
+
+	/**
+	 * <p>
+	 * Get all supported cipher transformations.
+	 * </p>
+	 * <p>
+	 * Every element of the resulting <code>Set</code> can be passed to {@link #createCipher(String)} and will
+	 * return a usable {@link Cipher} instance. However, not everything that is supported makes sense! It might
+	 * not even be secure in certain situations! This is just a listing of what you theoretically could pass to
+	 * {@link #createCipher(String)}.
+	 * </p>
+	 *
+	 * @param cipherEngineType the type of the cipher engine or <code>null</code> to list all.
+	 * @return all supported cipher transformations.
+	 */
+	public Set<String> getSupportedCipherTransformations(CipherEngineType cipherEngineType)
+	{
+		SortedSet<String> result = new TreeSet<String>();
+
+		for (String cipherEngine : getSupportedCipherEngines(cipherEngineType)) {
+			for (String cipherMode : getSupportedCipherModes(cipherEngine)) {
+				for (String cipherPadding : getSupportedCipherPaddings(cipherEngine, cipherMode))
+					result.add(cipherEngine + '/' + cipherMode + '/' + cipherPadding);
+			}
+		}
+
+		return Collections.unmodifiableSortedSet(result);
 	}
 
 	/**

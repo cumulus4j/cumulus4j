@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -168,6 +169,22 @@ public class CipherTest
 					Assert.fail("JCE fails to provide a Cipher for transformation=\"" + transformation + "\" with a " + jceError.getClass().getName() + ", but our CryptoRegistry failed with another exception: " + cryptoRegistryError.getClass());
 			}
 		}
+	}
+
+	@Test
+	public void testLookupAllSupportedCiphers()
+	throws Exception
+	{
+		long start = System.currentTimeMillis();
+		Set<String> transformations = CryptoRegistry.sharedInstance().getSupportedCipherTransformations(null);
+		for (String transformation : transformations) {
+			logger.info("testLookupAllSupportedCiphers: Creating cipher for transformation \"{}\".", transformation);
+			CryptoRegistry.sharedInstance().createCipher(transformation);
+		}
+		logger.info(
+				"testLookupAllSupportedCiphers: Successfully created {} ciphers in {} msec.",
+				transformations.size(), System.currentTimeMillis() - start
+		);
 	}
 
 	private SecureRandom random = new SecureRandom();

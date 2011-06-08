@@ -373,7 +373,7 @@ public class KeyStore
 
 	/**
 	 * <p>
-	 * System property to control the encryption algorithm that is used to encrypt data. Whenever a new user is
+	 * System property to control the encryption algorithm that is used to encrypt data within the key-store. Whenever a new user is
 	 * created or a new key is generated, data has to be encrypted (note that the encryption does not happen directly
 	 * before data is written to the file, but already most data in memory is encrypted!).
 	 * </p>
