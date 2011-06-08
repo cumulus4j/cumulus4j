@@ -918,9 +918,7 @@ public class KeyStore
 	/**
 	 * The one that is used for new entries.
 	 */
-	private static final ChecksumAlgorithm CHECKSUM_ALGORITHM_ACTIVE = ChecksumAlgorithm.CRC32;
-
-
+	private static final ChecksumAlgorithm CHECKSUM_ALGORITHM_ACTIVE = ChecksumAlgorithm.SHA1;
 
 	synchronized void storeToFile() throws IOException
 	{

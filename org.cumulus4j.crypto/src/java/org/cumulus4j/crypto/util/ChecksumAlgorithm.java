@@ -18,18 +18,37 @@ import java.util.zip.CRC32;
 public enum ChecksumAlgorithm
 {
 	/**
-	 * Do not use a checksum. <b>This is not recommended!</b>
+	 * Do not use a checksum. <b>This is not recommended!</b> It neither detects accidental
+	 * data corruption nor intentional alteration of data.
+	 * @deprecated Not recommended because not secure.
 	 */
 	NONE,
 
 	/**
 	 * Store a {@link CRC32}-checksum (encrypted) together with the data and
-	 * verify this checksum after decrypting the data.
+	 * verify this checksum after decrypting the data. <b>This is not recommended!</b> Even
+	 * though it detects accidental data corruption, it does not detect intentional alteration
+	 * of data.
+	 * <p>
+	 * See <a href="http://en.wikipedia.org/wiki/CRC32">CRC32</a>
+	 * and <a href="http://en.wikipedia.org/wiki/Message_authentication_code">Message authentication code</a> in Wikipedia.
+	 * </p>
+	 * @deprecated Not recommended because not secure.
 	 */
 	CRC32,
 
+	/**
+	 * Store an <a href="http://en.wikipedia.org/wiki/MD5">MD5</a> hash (encrypted) together with the data
+	 * and verify this checksum after decrypting the data. <b>This is not recommended!</b> Even
+	 * though it is more secure than {@link #NONE} and {@link #CRC32}, MD5 is known to have many vulnerabilities.
+	 * @deprecated Not recommended because not secure.
+	 */
 	MD5,
 
+	/**
+	 * Store an <a href="http://en.wikipedia.org/wiki/SHA1">SHA1</a> hash (encrypted) together with the data
+	 * and verify this checksum after decrypting the data.
+	 */
 	SHA1
 	;
 

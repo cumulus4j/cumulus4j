@@ -39,7 +39,7 @@ extends AbstractCryptoSession
 		Security.insertProviderAt(bouncyCastleProvider, 2);
 	}
 
-	private static final ChecksumAlgorithm _activeChecksumAlgorithm = ChecksumAlgorithm.CRC32;
+	private static final ChecksumAlgorithm _activeChecksumAlgorithm = ChecksumAlgorithm.SHA1;
 	private ChecksumAlgorithm getActiveChecksumAlgorithm()
 	{
 		return _activeChecksumAlgorithm;
@@ -269,6 +269,9 @@ extends AbstractCryptoSession
 			int checksumOff = 4; // after 2 bytes salt + 1 byte checksumAlgoID + 1 byte checksumLength
 			int dataOff = checksumOff + checksumLength;
 			byte[] newChecksum = checksumCalculator.checksum(out, dataOff, outOff - dataOff, checksumAlgorithm);
+
+			if (newChecksum.length != checksumLength)
+				throw new IOException("Checksums have different length! Expected checksum has " + checksumLength + " bytes and newly calculated checksum has " + newChecksum.length + " bytes!");
 
 			for (int i = 0; i < newChecksum.length; ++i) {
 				byte expected = out[checksumOff + i];
