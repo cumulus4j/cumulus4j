@@ -60,7 +60,7 @@ public class GetActiveEncryptionKeyRequestHandler extends AbstractRequestHandler
 		}
 
 		Key key = sessionManager.getKeyStore().getKey(session.getUserName(), session.getPassword(), currentActiveKey.getKeyID());
-		byte[] keyEncodedEncrypted = KeyEncryptionUtil.encryptKey(key, request.getKeyEncryptionAlgorithm(), request.getKeyEncryptionPublicKey());
+		byte[] keyEncodedEncrypted = KeyEncryptionUtil.encryptKey(key, request.getKeyEncryptionTransformation(), request.getKeyEncryptionPublicKey());
 		return new GetActiveEncryptionKeyResponse(
 				request,
 				currentActiveKey.getKeyID(), key.getAlgorithm(), keyEncodedEncrypted, currentActiveKey.getActiveToExcl()

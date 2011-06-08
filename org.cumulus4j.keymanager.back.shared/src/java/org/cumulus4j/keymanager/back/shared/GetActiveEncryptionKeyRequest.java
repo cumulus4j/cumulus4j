@@ -10,7 +10,7 @@ public class GetActiveEncryptionKeyRequest extends Request
 {
 	private static final long serialVersionUID = 1L;
 
-	private String keyEncryptionAlgorithm;
+	private String keyEncryptionTransformation;
 
 	private byte[] keyEncryptionPublicKey;
 
@@ -18,15 +18,15 @@ public class GetActiveEncryptionKeyRequest extends Request
 
 	public GetActiveEncryptionKeyRequest(String cryptoSessionID, String keyEncryptionAlgorithm, byte[] keyEncryptionPublicKey) {
 		super(cryptoSessionID);
-		this.keyEncryptionAlgorithm = keyEncryptionAlgorithm;
+		this.keyEncryptionTransformation = keyEncryptionAlgorithm;
 		this.keyEncryptionPublicKey = keyEncryptionPublicKey;
 	}
 
-	public String getKeyEncryptionAlgorithm() {
-		return keyEncryptionAlgorithm;
+	public String getKeyEncryptionTransformation() {
+		return keyEncryptionTransformation;
 	}
-	public void setKeyEncryptionAlgorithm(String keyEncryptionAlgorithm) {
-		this.keyEncryptionAlgorithm = keyEncryptionAlgorithm;
+	public void setKeyEncryptionTransformation(String keyEncryptionAlgorithm) {
+		this.keyEncryptionTransformation = keyEncryptionAlgorithm;
 	}
 
 	public byte[] getKeyEncryptionPublicKey() {

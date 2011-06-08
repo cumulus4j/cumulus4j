@@ -37,7 +37,7 @@ import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.cumulus4j.crypto.Cipher;
 import org.cumulus4j.crypto.CipherOperationMode;
-import org.cumulus4j.crypto.CipherRegistry;
+import org.cumulus4j.crypto.CryptoRegistry;
 import org.cumulus4j.crypto.util.ChecksumAlgorithm;
 import org.cumulus4j.crypto.util.ChecksumCalculator;
 import org.cumulus4j.keystore.prop.LongProperty;
@@ -716,7 +716,7 @@ public class KeyStore
 		KeySpec spec = new PBEKeySpec(password, salt, passwordBasedIterationCount, passwordBasedKeySize);
 		SecretKey secretKey = factory.generateSecret(spec);
 
-		Cipher cipher = CipherRegistry.sharedInstance().createCipher(algorithm);
+		Cipher cipher = CryptoRegistry.sharedInstance().createCipher(algorithm);
 
 		if (iv == null) {
 			iv = new byte[cipher.getIVSize()];
@@ -756,7 +756,7 @@ public class KeyStore
 			algorithm = getEncryptionAlgorithm();
 		}
 
-		Cipher cipher = CipherRegistry.sharedInstance().createCipher(algorithm);
+		Cipher cipher = CryptoRegistry.sharedInstance().createCipher(algorithm);
 
 		if (iv == null) {
 			iv = new byte[cipher.getIVSize()];

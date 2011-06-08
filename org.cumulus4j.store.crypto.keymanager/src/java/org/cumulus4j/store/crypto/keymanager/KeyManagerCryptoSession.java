@@ -1,11 +1,8 @@
 package org.cumulus4j.store.crypto.keymanager;
 
 import java.io.IOException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.SecureRandom;
 import java.security.Security;
-import java.security.spec.RSAKeyGenParameterSpec;
 
 import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -67,39 +64,39 @@ extends AbstractCryptoSession
 	 * Alternatively, we could use "EC": http://en.wikipedia.org/wiki/Elliptic_curve_cryptography
 	 * </p>
 	 */
-	private static final String keyEncryptionAlgorithm = "RSA/ECB/OAEPWITHSHA1ANDMGF1PADDING";
-
-	private static KeyPair keyEncryptionKeyPair;
-
-	private static javax.crypto.Cipher keyDecrypter;
-
-	private static long keyDecrypterCreationTimestamp = Long.MIN_VALUE;
-
-	private static final long keyDecrypterLifetimeMSec = 12L * 3600L * 1000L; // TODO make configurable! - 12 hours right now
+	private static final String keyEncryptionTransformation = "RSA/ECB/OAEPWITHSHA1ANDMGF1PADDING";
 
 	private SecureRandom secureRandom = new SecureRandom();
 
-	private static javax.crypto.Cipher getKeyDecrypter()
-	{
-		if (keyDecrypter == null || System.currentTimeMillis() - keyDecrypterCreationTimestamp > keyDecrypterLifetimeMSec) {
-			try {
-				String rawAlgo = KeyEncryptionUtil.getRawEncryptionAlgorithmWithoutModeAndPadding(keyEncryptionAlgorithm);
-				KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(rawAlgo);
-				if ("RSA".equals(rawAlgo)) {
-					 RSAKeyGenParameterSpec rsaParamGenSpec = new RSAKeyGenParameterSpec(4096, RSAKeyGenParameterSpec.F4);
-					 keyPairGenerator.initialize(rsaParamGenSpec);
-				}
-
-				keyEncryptionKeyPair = keyPairGenerator.genKeyPair();
-
-				keyDecrypter = javax.crypto.Cipher.getInstance(keyEncryptionAlgorithm);
-				keyDecrypter.init(javax.crypto.Cipher.DECRYPT_MODE, keyEncryptionKeyPair.getPrivate());
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		}
-		return keyDecrypter;
-	}
+//	private static KeyPair keyEncryptionKeyPair;
+//
+//	private static javax.crypto.Cipher keyDecrypter;
+//
+//	private static long keyDecrypterCreationTimestamp = Long.MIN_VALUE;
+//
+//	private static final long keyDecrypterLifetimeMSec = 12L * 3600L * 1000L; // TODO make configurable! - 12 hours right now
+//
+//	private static javax.crypto.Cipher getKeyDecrypter()
+//	{
+//		if (keyDecrypter == null || System.currentTimeMillis() - keyDecrypterCreationTimestamp > keyDecrypterLifetimeMSec) {
+//			try {
+//				String rawAlgo = KeyEncryptionUtil.getRawEncryptionAlgorithmWithoutModeAndPadding(keyEncryptionAlgorithm);
+//				KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(rawAlgo);
+//				if ("RSA".equals(rawAlgo)) {
+//					 RSAKeyGenParameterSpec rsaParamGenSpec = new RSAKeyGenParameterSpec(4096, RSAKeyGenParameterSpec.F4);
+//					 keyPairGenerator.initialize(rsaParamGenSpec);
+//				}
+//
+//				keyEncryptionKeyPair = keyPairGenerator.genKeyPair();
+//
+//				keyDecrypter = javax.crypto.Cipher.getInstance(keyEncryptionAlgorithm);
+//				keyDecrypter.init(javax.crypto.Cipher.DECRYPT_MODE, keyEncryptionKeyPair.getPrivate());
+//			} catch (Exception e) {
+//				throw new RuntimeException(e);
+//			}
+//		}
+//		return keyDecrypter;
+//	}
 
 	/**
 	 * {@inheritDoc}
@@ -153,6 +150,7 @@ extends AbstractCryptoSession
 		ChecksumAlgorithm activeChecksumAlgorithm = getActiveChecksumAlgorithm();
 		CipherCache cipherCache = ((KeyManagerCryptoManager)getCryptoManager()).getCipherCache();
 
+		CipherCacheKeyDecrypterEntry keyDecryptor = null;
 		CipherCacheCipherEntry encrypter = null;
 		try {
 			long activeEncryptionKeyID = cipherCache.getActiveEncryptionKeyID();
@@ -160,17 +158,18 @@ extends AbstractCryptoSession
 				encrypter = cipherCache.acquireEncrypter(activeEncryptionAlgorithm, activeEncryptionKeyID);
 
 			if (encrypter == null) {
-				javax.crypto.Cipher keyDecrypter;
-				KeyPair keyEncryptionKeyPair;
-				synchronized (KeyManagerCryptoSession.class) {
-					keyDecrypter = KeyManagerCryptoSession.getKeyDecrypter();
-					keyEncryptionKeyPair = KeyManagerCryptoSession.keyEncryptionKeyPair;
-				}
+//				javax.crypto.Cipher keyDecrypter;
+//				KeyPair keyEncryptionKeyPair;
+//				synchronized (KeyManagerCryptoSession.class) {
+//					keyDecrypter = KeyManagerCryptoSession.getKeyDecrypter();
+//					keyEncryptionKeyPair = KeyManagerCryptoSession.keyEncryptionKeyPair;
+//				}
+				keyDecryptor = cipherCache.acquireKeyDecryptor(keyEncryptionTransformation);
 
 				GetActiveEncryptionKeyResponse getActiveEncryptionKeyResponse;
 				try {
 					GetActiveEncryptionKeyRequest getActiveEncryptionKeyRequest = new GetActiveEncryptionKeyRequest(
-							getCryptoSessionID(), keyEncryptionAlgorithm, keyEncryptionKeyPair.getPublic().getEncoded()
+							getCryptoSessionID(), keyEncryptionTransformation, keyDecryptor.getKeyEncryptionKey().getEncodedPublicKey()
 					);
 					getActiveEncryptionKeyResponse = getMessageBroker().query(
 							GetActiveEncryptionKeyResponse.class,
@@ -181,10 +180,8 @@ extends AbstractCryptoSession
 					throw new RuntimeException(e);
 				}
 
-				byte[] keyEncodedPlain;
-				synchronized (keyDecrypter) {
-					keyEncodedPlain = KeyEncryptionUtil.decryptKey(keyDecrypter, getActiveEncryptionKeyResponse.getKeyEncodedEncrypted());
-				}
+				byte[] keyEncodedPlain = KeyEncryptionUtil.decryptKey(keyDecryptor.getKeyDecryptor(), getActiveEncryptionKeyResponse.getKeyEncodedEncrypted());
+
 				activeEncryptionKeyID = getActiveEncryptionKeyResponse.getKeyID();
 				cipherCache.setActiveEncryptionKeyID(activeEncryptionKeyID, getActiveEncryptionKeyResponse.getActiveUntilExcl());
 				encrypter = cipherCache.acquireEncrypter(activeEncryptionAlgorithm, activeEncryptionKeyID, keyEncodedPlain);
@@ -247,6 +244,7 @@ extends AbstractCryptoSession
 			logger.error("encrypt: " + e, e);
 			throw new RuntimeException(e);
 		} finally {
+			cipherCache.releaseKeyDecryptor(keyDecryptor);
 			cipherCache.releaseCipherEntry(encrypter);
 		}
 	}
@@ -256,6 +254,7 @@ extends AbstractCryptoSession
 	{
 		CipherCache cipherCache = ((KeyManagerCryptoManager)getCryptoManager()).getCipherCache();
 
+		CipherCacheKeyDecrypterEntry keyDecryptor = null;
 		CipherCacheCipherEntry decrypter = null;
 		try {
 			long keyID = ciphertext.getKeyID();
@@ -270,18 +269,19 @@ extends AbstractCryptoSession
 
 			decrypter = cipherCache.acquireDecrypter(encryptionAlgorithm, keyID, iv);
 			if (decrypter == null) {
-				javax.crypto.Cipher keyDecrypter;
-				KeyPair keyEncryptionKeyPair;
-				synchronized (KeyManagerCryptoSession.class) {
-					keyDecrypter = KeyManagerCryptoSession.getKeyDecrypter();
-					keyEncryptionKeyPair = KeyManagerCryptoSession.keyEncryptionKeyPair;
-				}
+//				javax.crypto.Cipher keyDecrypter;
+//				KeyPair keyEncryptionKeyPair;
+//				synchronized (KeyManagerCryptoSession.class) {
+//					keyDecrypter = KeyManagerCryptoSession.getKeyDecrypter();
+//					keyEncryptionKeyPair = KeyManagerCryptoSession.keyEncryptionKeyPair;
+//				}
+				keyDecryptor = cipherCache.acquireKeyDecryptor(keyEncryptionTransformation);
 
 				GetKeyResponse getKeyResponse;
 				try {
 					GetKeyRequest getKeyRequest = new GetKeyRequest(
 							getCryptoSessionID(), ciphertext.getKeyID(),
-							keyEncryptionAlgorithm, keyEncryptionKeyPair.getPublic().getEncoded()
+							keyEncryptionTransformation, keyDecryptor.getKeyEncryptionKey().getEncodedPublicKey()
 					);
 					getKeyResponse = getMessageBroker().query(
 							GetKeyResponse.class, getKeyRequest
@@ -291,10 +291,7 @@ extends AbstractCryptoSession
 					throw new RuntimeException(e);
 				}
 
-				byte[] keyEncodedPlain;
-				synchronized (keyDecrypter) {
-					keyEncodedPlain = KeyEncryptionUtil.decryptKey(keyDecrypter, getKeyResponse.getKeyEncodedEncrypted());
-				}
+				byte[] keyEncodedPlain = KeyEncryptionUtil.decryptKey(keyDecryptor.getKeyDecryptor(), getKeyResponse.getKeyEncodedEncrypted());
 
 				decrypter = cipherCache.acquireDecrypter(encryptionAlgorithm, keyID, keyEncodedPlain, iv);
 			}
@@ -335,6 +332,7 @@ extends AbstractCryptoSession
 			logger.error("decrypt: " + e, e);
 			throw new RuntimeException(e);
 		} finally {
+			cipherCache.releaseKeyDecryptor(keyDecryptor);
 			cipherCache.releaseCipherEntry(decrypter);
 		}
 	}

@@ -19,7 +19,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
  * <b>Important: <code>Cipher</code>s are not thread-safe!</b>
  * </p>
  * <p>
- * Use {@link CipherRegistry#createCipher(String)} to obtain a <code>Cipher</code> instance.
+ * Use {@link CryptoRegistry#createCipher(String)} to obtain a <code>Cipher</code> instance.
  * </p>
  * <p>
  * This own API is used instead of the JCE, because of the following reasons:
@@ -57,7 +57,7 @@ public interface Cipher
 	CipherParameters getParameters();
 
 	/**
-	 * Get the transformation that was passed to {@link CipherRegistry#createCipher(String)}
+	 * Get the transformation that was passed to {@link CryptoRegistry#createCipher(String)}
 	 * for obtaining this <code>Cipher</code>.
 	 * @return the transformation (encryption algorithm, mode and padding) of this cipher.
 	 */

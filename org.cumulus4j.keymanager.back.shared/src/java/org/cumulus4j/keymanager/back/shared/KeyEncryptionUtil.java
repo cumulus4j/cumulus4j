@@ -10,6 +10,7 @@ import java.util.zip.CRC32;
 
 import javax.crypto.Cipher;
 
+import org.bouncycastle.crypto.CryptoException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,8 +25,6 @@ public final class KeyEncryptionUtil
 
 	public static byte[] encryptKey(Cipher encrypter, byte[] keyEncodedPlain) throws GeneralSecurityException
 	{
-//		return encrypter.doFinal(keyEncodedPlain);
-
 		int resultSize = encrypter.getOutputSize(4 /* checksum-length with CRC32 */ + keyEncodedPlain.length);
 
 		ByteBuffer resultBuf = ByteBuffer.allocate(resultSize);
@@ -73,27 +72,17 @@ public final class KeyEncryptionUtil
 		return keyEncodedEncrypted;
 	}
 
-	public static byte[] decryptKey(Cipher decrypter, byte[] keyEncodedEncrypted) throws GeneralSecurityException, IOException
+	public static byte[] decryptKey(org.cumulus4j.crypto.Cipher decrypter, byte[] keyEncodedEncrypted) throws CryptoException, IOException
 	{
-//		return decrypter.doFinal(keyEncodedEncrypted);
+		byte[] rawDecrypted = decrypter.doFinal(keyEncodedEncrypted);
 
-		// Performance tests in CryptoAlgoBenchmark show that ByteBuffer is as fast as System.arraycopy(...) after
-		// the JVM had time for hotspot-compilation (only at the beginning there are slight performance differences).
-		// Hence we use the nicer API. Marco :-)
-		ByteBuffer inputBuf = ByteBuffer.wrap(keyEncodedEncrypted);
-
-		int rawPlainSize = decrypter.getOutputSize(keyEncodedEncrypted.length);
-		ByteBuffer rawBuf = ByteBuffer.allocate(rawPlainSize);
-
-		int bytesDecryptedCount = decrypter.doFinal(inputBuf, rawBuf);
-
-		rawBuf.rewind();
-
+		int off = 0;
 		byte[] checksum = new byte[4]; // CRC32 has 32 bit, i.e. 4 bytes
-		rawBuf.get(checksum);
+		System.arraycopy(rawDecrypted, off, checksum, 0, checksum.length);
+		off += checksum.length;
 
-		byte[] result = new byte[bytesDecryptedCount - rawBuf.position()];
-		rawBuf.get(result);
+		byte[] result = new byte[rawDecrypted.length - checksum.length];
+		System.arraycopy(rawDecrypted, off, result, 0, result.length);
 
 		// And finally calculate a new checksum and verify if it matches the one we read above.
 		CRC32 crc32 = new CRC32();

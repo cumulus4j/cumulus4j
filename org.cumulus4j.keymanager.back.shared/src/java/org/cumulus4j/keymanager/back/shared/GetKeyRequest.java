@@ -12,7 +12,7 @@ public class GetKeyRequest extends Request
 
 	private long keyID;
 
-	private String keyEncryptionAlgorithm;
+	private String keyEncryptionTransformation;
 
 	private byte[] keyEncryptionPublicKey;
 
@@ -21,7 +21,7 @@ public class GetKeyRequest extends Request
 	public GetKeyRequest(String cryptoSessionID, long keyID, String keyEncryptionAlgorithm, byte[] keyEncryptionPublicKey) {
 		super(cryptoSessionID);
 		this.keyID = keyID;
-		this.keyEncryptionAlgorithm = keyEncryptionAlgorithm;
+		this.keyEncryptionTransformation = keyEncryptionAlgorithm;
 		this.keyEncryptionPublicKey = keyEncryptionPublicKey;
 	}
 
@@ -32,11 +32,11 @@ public class GetKeyRequest extends Request
 		this.keyID = keyID;
 	}
 
-	public String getKeyEncryptionAlgorithm() {
-		return keyEncryptionAlgorithm;
+	public String getKeyEncryptionTransformation() {
+		return keyEncryptionTransformation;
 	}
-	public void setKeyEncryptionAlgorithm(String keyEncryptionAlgorithm) {
-		this.keyEncryptionAlgorithm = keyEncryptionAlgorithm;
+	public void setKeyEncryptionTransformation(String keyEncryptionAlgorithm) {
+		this.keyEncryptionTransformation = keyEncryptionAlgorithm;
 	}
 
 	public byte[] getKeyEncryptionPublicKey() {

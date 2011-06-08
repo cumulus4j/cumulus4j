@@ -40,13 +40,13 @@ public class MockMessageBroker extends AbstractMessageBroker
 			if (request instanceof GetActiveEncryptionKeyRequest) {
 				GetActiveEncryptionKeyRequest r = (GetActiveEncryptionKeyRequest) request;
 				SecretKeySpec key = new SecretKeySpec(keyData, "AES");
-				byte[] keyEncodedEncrypted = KeyEncryptionUtil.encryptKey(key, r.getKeyEncryptionAlgorithm(), r.getKeyEncryptionPublicKey());
+				byte[] keyEncodedEncrypted = KeyEncryptionUtil.encryptKey(key, r.getKeyEncryptionTransformation(), r.getKeyEncryptionPublicKey());
 				return responseClass.cast(new GetActiveEncryptionKeyResponse(request, 123, key.getAlgorithm(), keyEncodedEncrypted, new Date(System.currentTimeMillis() + 3600L * 1000L)));
 			}
 			if (request instanceof GetKeyRequest) {
 				GetKeyRequest r = (GetKeyRequest) request;
 				SecretKeySpec key = new SecretKeySpec(keyData, "AES");
-				byte[] keyEncodedEncrypted = KeyEncryptionUtil.encryptKey(key, r.getKeyEncryptionAlgorithm(), r.getKeyEncryptionPublicKey());
+				byte[] keyEncodedEncrypted = KeyEncryptionUtil.encryptKey(key, r.getKeyEncryptionTransformation(), r.getKeyEncryptionPublicKey());
 				return responseClass.cast(new GetKeyResponse(request, r.getKeyID(), key.getAlgorithm(), keyEncodedEncrypted));
 			}
 		} catch (GeneralSecurityException x) {

@@ -1,5 +1,6 @@
 package org.cumulus4j.crypto;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -9,11 +10,19 @@ import java.util.Map;
 
 import javax.crypto.NoSuchPaddingException;
 
+import org.bouncycastle.asn1.DERNull;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.asn1.pkcs.RSAPrivateKeyStructure;
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.asn1.x509.RSAPublicKeyStructure;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.crypto.AsymmetricBlockCipher;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPairGenerator;
 import org.bouncycastle.crypto.BlockCipher;
 import org.bouncycastle.crypto.BufferedAsymmetricBlockCipher;
 import org.bouncycastle.crypto.BufferedBlockCipher;
+import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.StreamCipher;
 import org.bouncycastle.crypto.encodings.ISO9796d1Encoding;
 import org.bouncycastle.crypto.encodings.OAEPEncoding;
@@ -68,6 +77,11 @@ import org.bouncycastle.crypto.paddings.PaddedBufferedBlockCipher;
 import org.bouncycastle.crypto.paddings.TBCPadding;
 import org.bouncycastle.crypto.paddings.X923Padding;
 import org.bouncycastle.crypto.paddings.ZeroBytePadding;
+import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
+import org.bouncycastle.crypto.params.RSAKeyParameters;
+import org.bouncycastle.crypto.params.RSAPrivateCrtKeyParameters;
+import org.bouncycastle.crypto.util.PrivateKeyFactory;
+import org.bouncycastle.crypto.util.PublicKeyFactory;
 import org.cumulus4j.crypto.asymmetric.AsymmetricBlockCipherWrapper;
 import org.cumulus4j.crypto.asymmetric.keypairgenerator.DHBasicKeyPairGeneratorFactory;
 import org.cumulus4j.crypto.asymmetric.keypairgenerator.DSAKeyPairGeneratorFactory;
@@ -85,16 +99,16 @@ import org.slf4j.LoggerFactory;
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public final class CipherRegistry
+public final class CryptoRegistry
 {
-	private static final Logger logger = LoggerFactory.getLogger(CipherRegistry.class);
-	private static CipherRegistry sharedInstance = new CipherRegistry();
+	private static final Logger logger = LoggerFactory.getLogger(CryptoRegistry.class);
+	private static CryptoRegistry sharedInstance = new CryptoRegistry();
 
 	/**
 	 * Get the shared instance of this registry.
 	 * @return the shared instance.
 	 */
-	public static CipherRegistry sharedInstance()
+	public static CryptoRegistry sharedInstance()
 	{
 		return sharedInstance;
 	}
@@ -205,7 +219,7 @@ public final class CipherRegistry
 	//////////////////// END asymmetric key generators ////////////////////
 
 
-	private CipherRegistry() {
+	private CryptoRegistry() {
 		// *** BEGIN AsymmetricBlockCipher engines ***
 		registerAsymmetricBlockCipherEngineClass("ElGamal", ElGamalEngine.class);
 		registerAsymmetricBlockCipherEngineClass("NaccacheStern", NaccacheSternEngine.class);
@@ -317,7 +331,9 @@ public final class CipherRegistry
 		// *** BEGIN asymmetric paddings ***
 		registerAsymmetricBlockCipherPadding("ISO9796-1", ISO9796d1Encoding.class);
 		registerAsymmetricBlockCipherPadding("OAEP", OAEPEncoding.class);
+		registerAsymmetricBlockCipherPadding("OAEPWITHSHA1ANDMGF1PADDING", OAEPEncoding.class); // JCE name for compatibility.
 		registerAsymmetricBlockCipherPadding("PKCS1", PKCS1Encoding.class);
+
 
 		// Test all registered asymmetric paddings - MUST BE HERE AFTER THEIR REGISTRATION
 		testAsymmetricBlockCipherPaddings();
@@ -704,5 +720,58 @@ public final class CipherRegistry
 
 		AsymmetricCipherKeyPairGenerator generator = factory.createAsymmetricCipherKeyPairGenerator();
 		return generator;
+	}
+
+	public CipherParameters decodePublicKey(byte[] publicKeyData) throws IOException
+	{
+		AsymmetricKeyParameter asymmetricKeyParameter = PublicKeyFactory.createKey(publicKeyData);
+		return asymmetricKeyParameter;
+	}
+
+	public byte[] encodePublicKey(CipherParameters publicKey)
+	{
+		if (publicKey == null)
+			throw new IllegalArgumentException("publicKey == null");
+
+		// TODO use a class-based map or similar registry!
+		if (publicKey instanceof RSAKeyParameters) {
+			RSAKeyParameters rsaPublicKey = (RSAKeyParameters) publicKey;
+
+			SubjectPublicKeyInfo info = new SubjectPublicKeyInfo(
+					new AlgorithmIdentifier(PKCSObjectIdentifiers.rsaEncryption, new DERNull()),
+					new RSAPublicKeyStructure(rsaPublicKey.getModulus(), rsaPublicKey.getExponent()).getDERObject()
+			);
+      return info.getDEREncoded();
+		}
+
+		throw new UnsupportedOperationException("publicKey.class=\"" + publicKey.getClass().getName() + "\" not yet supported!");
+	}
+
+	public CipherParameters decodePrivateKey(byte[] privateKeyData) throws IOException
+	{
+		AsymmetricKeyParameter asymmetricKeyParameter = PrivateKeyFactory.createKey(privateKeyData);
+		return asymmetricKeyParameter;
+	}
+
+	public byte[] encodePrivateKey(CipherParameters privateKey)
+	{
+		if (privateKey == null)
+			throw new IllegalArgumentException("privateKey == null");
+
+		// TODO use a class-based map or similar registry!
+		if (privateKey instanceof RSAPrivateCrtKeyParameters) {
+			RSAPrivateCrtKeyParameters rsaPrivateKey = (RSAPrivateCrtKeyParameters) privateKey;
+
+			PrivateKeyInfo info = new PrivateKeyInfo(
+					new AlgorithmIdentifier(PKCSObjectIdentifiers.rsaEncryption, new DERNull()),
+					new RSAPrivateKeyStructure(
+							rsaPrivateKey.getModulus(), rsaPrivateKey.getPublicExponent(), rsaPrivateKey.getExponent(),
+							rsaPrivateKey.getP(), rsaPrivateKey.getQ(), rsaPrivateKey.getDP(),
+							rsaPrivateKey.getDQ(), rsaPrivateKey.getQInv()).getDERObject()
+			);
+      return info.getDEREncoded();
+		}
+
+		throw new UnsupportedOperationException("privateKey.class=\"" + privateKey.getClass().getName() + "\" not yet supported!");
 	}
 }
