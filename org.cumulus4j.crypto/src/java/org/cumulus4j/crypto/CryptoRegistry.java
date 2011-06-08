@@ -100,7 +100,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Registry for obtaining a {@link Cipher} instance by a <code>String</code> name.
+ * <p>
+ * Entry to the unified crypto API.
+ * </p>
+ * <p>
+ * This registry can be used for various cryptography-related tasks. For example to {@link #createCipher(String) create a cipher}
+ * or to {@link #createKeyPairGenerator(String) create a key-pair-generator}.
+ * </p>
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
@@ -982,9 +988,9 @@ public final class CryptoRegistry
 	}
 
 	/**
-	 * Create a ready-to-use key pair generator for the given algorithm.
+	 * Create a ready-to-use key pair generator for the given <b>asymmetric</b> encryption algorithm.
 	 *
-	 * @param algorithmName the name of the algorithm. This is the first element of a transformation, i.e.
+	 * @param algorithmName the name of the <b>asymmetric</b> encryption algorithm. This is the first element of a transformation, i.e.
 	 * you can pass a <code>transformation</code> to {@link #splitTransformation(String)} and use element 0 of its result.
 	 * @return an instance of {@link AsymmetricCipherKeyPairGenerator} that can directly be used to generate key pairs,
 	 * i.e. it is already initialised with some default values.
