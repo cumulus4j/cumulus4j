@@ -155,6 +155,7 @@ extends AbstractCryptoSession
 			byte[] checksum = checksumCalculator.checksum(plaintext.getData(), activeChecksumAlgorithm);
 			byte[] iv = ((ParametersWithIV)cipher.getParameters()).getIV();
 
+			// TODO move checksum-meta OUT of encrypted part and remove salt. It brings IMHO no additional security and only costs time. Marco :-)
 			int outLength = (
 					1 // encryption algorithm
 					+ 1 // iv length in bytes
