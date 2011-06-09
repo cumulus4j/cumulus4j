@@ -82,9 +82,13 @@ extends AbstractCryptoSession
 	 * 	<tr>
 	 * 		<td align="right" valign="top">1</td><td>{@link EncryptionAlgorithm}'s ordinal value</td>
 	 * 	</tr><tr>
-	 * 		<td align="right" valign="top">1</td><td><i>ivLen</i>: Length of the IV in bytes.</td>
+	 * 		<td align="right" valign="top">1</td><td><i>ivLen</i>: Length of the IV in bytes</td>
 	 * 	</tr><tr>
 	 * 		<td align="right" valign="top"><i>ivLen</i></td><td>The actual IV (initialisation vector).</td>
+	 * 	</tr><tr>
+	 *		<td align="right" valign="top">1</td><td>{@link ChecksumAlgorithm#toByte()}</td>
+	 *	</tr><tr>
+	 *		<td align="right" valign="top">1</td><td><i>checksumLen</i>: Length of the checksum in bytes</td>
 	 * 	</tr><tr>
 	 * 		<td colspan="2">
 	 * 			<table bgcolor="#F0F0F0" border="1" width="100%">
@@ -93,18 +97,10 @@ extends AbstractCryptoSession
 	 * 					<td bgcolor="#D0D0D0" colspan="2"><b>ENCRYPTED</b></td>
 	 * 				</tr><tr>
 	 * 					<td align="right" valign="top"><b>Bytes</b></td><td><b>Description</b></td>
-	 * 				</tr><tr>
-	 *					<td align="right" valign="top">1</td><td><i>salt0</i>: Salt for checksum algorithm</td>
 	 *				</tr><tr>
-	 *					<td align="right" valign="top">1</td><td><i>salt1</i>: Salt for checksum length</td>
-	 * 				</tr><tr>
-	 *					<td align="right" valign="top">1</td><td>{@link ChecksumAlgorithm#toByte()} XORed with <i>salt0</i>.</td>
+	 *					<td align="right" valign="top"><i>checksumLen</i></td><td>Actual checksum</td>
 	 *				</tr><tr>
-	 *					<td align="right" valign="top">1</td><td><i>checksumLen</i>: Length of the checksum in bytes XORed with <i>salt1</i>.</td>
-	 *				</tr><tr>
-	 *					<td align="right" valign="top"><i>checksumLen</i></td><td>The actual checksum.</td>
-	 *				</tr><tr>
-	 *					<td align="right" valign="top"><i>all following</i></td><td>The actual data.</td>
+	 *					<td align="right" valign="top"><i>all following</i></td><td>Actual data</td>
 	 * 				</tr>
 	 * 			</tbody>
 	 * 			</table>
@@ -155,35 +151,37 @@ extends AbstractCryptoSession
 			byte[] checksum = checksumCalculator.checksum(plaintext.getData(), activeChecksumAlgorithm);
 			byte[] iv = ((ParametersWithIV)cipher.getParameters()).getIV();
 
-			// TODO move checksum-meta OUT of encrypted part and remove salt. It brings IMHO no additional security and only costs time. Marco :-)
+			if (checksum.length > 255)
+				throw new IllegalStateException("checksum.length > 255");
+
 			int outLength = (
-					1 // encryption algorithm
-					+ 1 // iv length in bytes
-					+ iv.length
+					1 // version
+					+ 1 // encryption algorithm
+					+ 1 // IV length in bytes
+					+ iv.length // actual IV
+					+ 1 // checksum algorithm
+					+ 1 // checksum length in bytes
 					+ cipher.getOutputSize(
-							1 // random salt to xor into checksum algorithm
-							+ 1 // random salt to xor into checksum length
-							+ 1 // checksum algorithm (xored with salt)
-							+ 1 // checksum length in bytes (xored with salt)
-							+ checksum.length // actual checksum
-							+ plaintext.getData().length
+							checksum.length // actual checksum
+							+ plaintext.getData().length // actual plaintext
 					)
 			);
 
 			byte[] out = new byte[outLength];
 			int outOff = 0;
+			out[outOff++] = 1; // version 1
 			out[outOff++] = activeEncryptionAlgorithm.toByte();
+
+			// IV length
 			out[outOff++] = (byte)iv.length;
 
+			// actual IV
 			System.arraycopy(iv, 0, out, outOff, iv.length);
 			outOff += iv.length;
 
-			byte[] saltForChecksumMeta = new byte[2];
-			secureRandom.nextBytes(saltForChecksumMeta);
+			out[outOff++] = activeChecksumAlgorithm.toByte();
+			out[outOff++] = (byte)checksum.length;
 
-			outOff += cipher.update(saltForChecksumMeta, 0, saltForChecksumMeta.length, out, outOff);
-			outOff += cipher.update((byte)(saltForChecksumMeta[0] ^ activeChecksumAlgorithm.toByte()), out, outOff);
-			outOff += cipher.update((byte)(saltForChecksumMeta[1] ^ checksum.length), out, outOff);
 			outOff += cipher.update(checksum, 0, checksum.length, out, outOff);
 			outOff += cipher.update(plaintext.getData(), 0, plaintext.getData().length, out, outOff);
 			outOff += cipher.doFinal(out, outOff);
@@ -224,12 +222,20 @@ extends AbstractCryptoSession
 		try {
 			long keyID = ciphertext.getKeyID();
 			int inOff = 0;
-			EncryptionAlgorithm encryptionAlgorithm = EncryptionAlgorithm.valueOf(ciphertext.getData()[inOff++]);
+			byte[] in = ciphertext.getData();
+			int version = in[inOff++] & 0xff;
+			if (version != 1)
+				throw new IllegalArgumentException("Ciphertext is of version " + version + " which is not supported!");
 
-			int ivLength = ciphertext.getData()[inOff++] & 0xff;
+			EncryptionAlgorithm encryptionAlgorithm = EncryptionAlgorithm.valueOf(in[inOff++]);
+
+			int ivLength = in[inOff++] & 0xff;
 			byte[] iv = new byte[ivLength];
-			System.arraycopy(ciphertext.getData(), inOff, iv, 0, iv.length);
+			System.arraycopy(in, inOff, iv, 0, iv.length);
 			inOff += iv.length;
+
+			ChecksumAlgorithm checksumAlgorithm = ChecksumAlgorithm.valueOf(in[inOff++]);
+			int checksumLength = (in[inOff++]) & 0xff;
 
 			decrypter = cipherCache.acquireDecrypter(encryptionAlgorithm, keyID, iv);
 			if (decrypter == null) {
@@ -254,22 +260,20 @@ extends AbstractCryptoSession
 				decrypter = cipherCache.acquireDecrypter(encryptionAlgorithm, keyID, keyEncodedPlain, iv);
 			}
 
-			int inLength = ciphertext.getData().length - inOff;
-			int outLength = decrypter.getCipher().getOutputSize(inLength);
+			int inCryptLength = in.length - inOff;
+			int outLength = decrypter.getCipher().getOutputSize(inCryptLength);
 			byte[] out = new byte[outLength];
 			int outOff = 0;
-			outOff += decrypter.getCipher().update(ciphertext.getData(), inOff, inLength, out, 0);
+			outOff += decrypter.getCipher().update(in, inOff, inCryptLength, out, 0);
 			outOff += decrypter.getCipher().doFinal(out, outOff);
 
 			if (logger.isDebugEnabled() && outOff != outLength)
 				logger.debug("decrypt: precalculated output-size does not match actually written output: expected={} actual={}", outLength, outOff);
 
-			ChecksumAlgorithm checksumAlgorithm = ChecksumAlgorithm.valueOf((byte)(out[0] ^ out[2]));
-			int checksumLength = (out[1] ^ out[3]) & 0xff;
-
-			int checksumOff = 4; // after 2 bytes salt + 1 byte checksumAlgoID + 1 byte checksumLength
+			int checksumOff = 0;
 			int dataOff = checksumOff + checksumLength;
-			byte[] newChecksum = checksumCalculator.checksum(out, dataOff, outOff - dataOff, checksumAlgorithm);
+			int dataLength = outOff - dataOff;
+			byte[] newChecksum = checksumCalculator.checksum(out, dataOff, dataLength, checksumAlgorithm);
 
 			if (newChecksum.length != checksumLength)
 				throw new IOException("Checksums have different length! Expected checksum has " + checksumLength + " bytes and newly calculated checksum has " + newChecksum.length + " bytes!");
@@ -281,7 +285,7 @@ extends AbstractCryptoSession
 			}
 			newChecksum = null;
 
-			byte[] decrypted = new byte[outOff - dataOff];
+			byte[] decrypted = new byte[dataLength];
 			System.arraycopy(out, dataOff, decrypted, 0, decrypted.length);
 			Plaintext plaintext = new Plaintext();
 			plaintext.setData(decrypted);
