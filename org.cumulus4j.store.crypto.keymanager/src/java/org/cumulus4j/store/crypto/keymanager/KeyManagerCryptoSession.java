@@ -75,15 +75,14 @@ extends AbstractCryptoSession
 	 * <tbody>
 	 * 	<tr>
 	 * 		<td align="right" valign="top"><b>Bytes</b></td><td><b>Description</b></td>
-	 * 	</tr>
-	 * 	<tr>
+	 * 	</tr><tr>
 	 * 		<td align="right" valign="top">1</td><td>Version number</td>
 	 * 	</tr><tr>
 	 * 		<td align="right" valign="top">1</td><td>{@link EncryptionAlgorithm}'s ordinal value</td>
 	 * 	</tr><tr>
 	 * 		<td align="right" valign="top">1</td><td><i>ivLen</i>: Length of the IV in bytes</td>
 	 * 	</tr><tr>
-	 * 		<td align="right" valign="top"><i>ivLen</i></td><td>The actual IV (initialisation vector).</td>
+	 * 		<td align="right" valign="top"><i>ivLen</i></td><td>Actual IV (initialisation vector).</td>
 	 * 	</tr><tr>
 	 *		<td align="right" valign="top">1</td><td>{@link ChecksumAlgorithm#toByte()}</td>
 	 *	</tr><tr>
