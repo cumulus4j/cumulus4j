@@ -1,7 +1,6 @@
 package org.cumulus4j.store.crypto.keymanager;
 
 import java.io.IOException;
-import java.security.SecureRandom;
 import java.security.Security;
 
 import org.bouncycastle.crypto.params.ParametersWithIV;
@@ -66,8 +65,6 @@ extends AbstractCryptoSession
 	 */
 	private static final String keyEncryptionTransformation = "RSA/ECB/OAEPWITHSHA1ANDMGF1PADDING";
 
-	private SecureRandom secureRandom = new SecureRandom();
-
 	/**
 	 * {@inheritDoc}
 	 * <p>
@@ -80,6 +77,8 @@ extends AbstractCryptoSession
 	 * 		<td align="right" valign="top"><b>Bytes</b></td><td><b>Description</b></td>
 	 * 	</tr>
 	 * 	<tr>
+	 * 		<td align="right" valign="top">1</td><td>Version number</td>
+	 * 	</tr><tr>
 	 * 		<td align="right" valign="top">1</td><td>{@link EncryptionAlgorithm}'s ordinal value</td>
 	 * 	</tr><tr>
 	 * 		<td align="right" valign="top">1</td><td><i>ivLen</i>: Length of the IV in bytes</td>
