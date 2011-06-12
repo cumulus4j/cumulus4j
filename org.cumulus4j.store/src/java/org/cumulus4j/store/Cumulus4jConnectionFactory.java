@@ -1,5 +1,6 @@
 package org.cumulus4j.store;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
@@ -25,6 +26,8 @@ import org.datanucleus.store.StoreManager;
 import org.datanucleus.store.connection.AbstractConnectionFactory;
 import org.datanucleus.store.connection.AbstractManagedConnection;
 import org.datanucleus.store.connection.ManagedConnection;
+import org.datanucleus.util.NucleusLogger;
+import org.datanucleus.util.StringUtils;
 
 /**
  * A "connection" in Cumulus4J is a PersistenceManager for the backing datastore.
@@ -34,9 +37,11 @@ import org.datanucleus.store.connection.ManagedConnection;
  */
 public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 {
-	// TODO Have PMF for DataEntry, and PMF for meta+index
-	/** PMF for DataEntry, ClassMeta+FieldMeta, plus index data. */
+	/** PMF for DataEntry, ClassMeta+FieldMeta, and optionally index data (if not using pmfIndex). */
 	private PersistenceManagerFactory pmf;
+
+	/** Optional PMF for index data. */
+	private PersistenceManagerFactory pmfIndex;
 
 	private String[] propertiesToForward = {
 			"datanucleus.ConnectionDriverName",
@@ -49,15 +54,23 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 	};
 
 	private static final String CUMULUS4J_PROPERTY_PREFIX = "cumulus4j.";
+	private static final String CUMULUS4J_INDEX_PROPERTY_PREFIX = "cumulus4j.index.";
+
 	private static final String[] CUMULUS4J_FORWARD_PROPERTY_PREFIXES = {
 		CUMULUS4J_PROPERTY_PREFIX + "datanucleus.",
 		CUMULUS4J_PROPERTY_PREFIX + "javax."
 	};
 
+	private static final String[] CUMULUS4J_INDEX_FORWARD_PROPERTY_PREFIXES = {
+		CUMULUS4J_INDEX_PROPERTY_PREFIX + "datanucleus.",
+		CUMULUS4J_INDEX_PROPERTY_PREFIX + "javax."
+	};
+
 	public Cumulus4jConnectionFactory(StoreManager storeMgr, String resourceType) {
 		super(storeMgr, resourceType);
 
-		Map<String, Object> cumulus4jBackendProperties = ResourceHelper.getCumulus4jBackendProperties();
+		Map<String, Object> backendProperties = ResourceHelper.getCumulus4jBackendProperties();
+		Map<String, Object> backendIndexProperties = null;
 
 		PersistenceConfiguration persistenceConfiguration = storeMgr.getNucleusContext().getPersistenceConfiguration();
 
@@ -65,7 +78,7 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 		for (String propKey : propertiesToForward) {
 			Object propValue = persistenceConfiguration.getProperty(propKey);
 			if (propValue != null)
-				cumulus4jBackendProperties.put(propKey.toLowerCase(Locale.ENGLISH), propValue);
+				backendProperties.put(propKey.toLowerCase(Locale.ENGLISH), propValue);
 		}
 
 		// Copy the properties that are prefixed with "cumulus4j." and thus forwarded.
@@ -76,15 +89,30 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 			for (String prefix : CUMULUS4J_FORWARD_PROPERTY_PREFIXES) {
 				if (me.getKey().startsWith(prefix)) {
 					String propKey = me.getKey().substring(CUMULUS4J_PROPERTY_PREFIX.length());
-					cumulus4jBackendProperties.put(propKey.toLowerCase(Locale.ENGLISH), me.getValue());
+					backendProperties.put(propKey.toLowerCase(Locale.ENGLISH), me.getValue());
+				}
+			}
+
+			for (String prefix : CUMULUS4J_INDEX_FORWARD_PROPERTY_PREFIXES) {
+				if (me.getKey().startsWith(prefix)) {
+					String propKey = me.getKey().substring(CUMULUS4J_INDEX_PROPERTY_PREFIX.length());
+					if (backendIndexProperties == null) {
+						backendIndexProperties = new HashMap(backendProperties);
+					}
+					backendIndexProperties.put(propKey.toLowerCase(Locale.ENGLISH), me.getValue());
 				}
 			}
 		}
 
 		// The password might be encrypted, but the getConnectionPassword(...) method decrypts it.
 		String pw = storeMgr.getConnectionPassword();
-		if (pw != null)
-			cumulus4jBackendProperties.put("datanucleus.ConnectionPassword".toLowerCase(Locale.ENGLISH), pw);
+		if (pw != null) {
+			backendProperties.put("datanucleus.ConnectionPassword".toLowerCase(Locale.ENGLISH), pw);
+		}
+
+		if (backendIndexProperties != null) {
+			// TODO Implement generation of PMF for index data
+		}
 
 		// This block is an alternative to getting Extent of each Cumulus4j schema class
 /*		StringBuffer classNameStr = new StringBuffer();
@@ -110,33 +138,68 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 		cumulus4jBackendProperties.put("datanucleus.autostartmechanism", "Classes");
 		cumulus4jBackendProperties.put("datanucleus.autostartclassnames", classNameStr.toString());*/
 
-		pmf = JDOHelper.getPersistenceManagerFactory(cumulus4jBackendProperties);
+		pmf = JDOHelper.getPersistenceManagerFactory(backendProperties);
 
 		// initialise meta-data (which partially tests it)
 		PersistenceManager pm = pmf.getPersistenceManager();
 		try {
 			pm.getExtent(ClassMeta.class);
-			pm.getExtent(DataEntry.class);
 			pm.getExtent(FieldMeta.class);
-			pm.getExtent(IndexEntryContainerSize.class);
+			pm.getExtent(DataEntry.class);
 			pm.getExtent(Sequence.class);
 
-			PluginManager pluginMgr = storeMgr.getNucleusContext().getPluginManager();
-			ConfigurationElement[] elems = pluginMgr.getConfigurationElementsForExtension(
-					"org.cumulus4j.store.index_mapping", null, null);
-			if (elems != null && elems.length > 0) {
-				HashSet<Class<?>> initialisedClasses = new HashSet<Class<?>>();
-				for (int i=0;i<elems.length;i++) {
-					String indexTypeName = elems[i].getAttribute("index-entry-type");
-					Class<?> cls = pluginMgr.loadClass("org.cumulus4j.store.index_mapping", indexTypeName);
-					if (!initialisedClasses.contains(cls)) {
-						initialisedClasses.add(cls);
-						pm.getExtent(cls);
+			if (backendIndexProperties == null) {
+				// Index data
+				pm.getExtent(IndexEntryContainerSize.class);
+
+				PluginManager pluginMgr = storeMgr.getNucleusContext().getPluginManager();
+				ConfigurationElement[] elems = pluginMgr.getConfigurationElementsForExtension(
+						"org.cumulus4j.store.index_mapping", null, null);
+				if (elems != null && elems.length > 0) {
+					HashSet<Class<?>> initialisedClasses = new HashSet<Class<?>>();
+					for (int i=0;i<elems.length;i++) {
+						String indexTypeName = elems[i].getAttribute("index-entry-type");
+						Class<?> cls = pluginMgr.loadClass("org.cumulus4j.store.index_mapping", indexTypeName);
+						if (!initialisedClasses.contains(cls)) {
+							initialisedClasses.add(cls);
+							pm.getExtent(cls);
+						}
 					}
 				}
 			}
 		} finally {
 			pm.close();
+		}
+
+		if (backendIndexProperties != null) {
+			NucleusLogger.GENERAL.debug(">> Properties for INDEX PMF="+StringUtils.mapToString(backendIndexProperties));
+			pmfIndex = JDOHelper.getPersistenceManagerFactory(backendIndexProperties);
+
+			PersistenceManager pmIndex = pmfIndex.getPersistenceManager();
+			try {
+				pmIndex.getExtent(ClassMeta.class);
+				pmIndex.getExtent(FieldMeta.class);
+
+				// Index data
+				pm.getExtent(IndexEntryContainerSize.class);
+
+				PluginManager pluginMgr = storeMgr.getNucleusContext().getPluginManager();
+				ConfigurationElement[] elems = pluginMgr.getConfigurationElementsForExtension(
+						"org.cumulus4j.store.index_mapping", null, null);
+				if (elems != null && elems.length > 0) {
+					HashSet<Class<?>> initialisedClasses = new HashSet<Class<?>>();
+					for (int i=0;i<elems.length;i++) {
+						String indexTypeName = elems[i].getAttribute("index-entry-type");
+						Class<?> cls = pluginMgr.loadClass("org.cumulus4j.store.index_mapping", indexTypeName);
+						if (!initialisedClasses.contains(cls)) {
+							initialisedClasses.add(cls);
+							pm.getExtent(cls);
+						}
+					}
+				}
+			} finally {
+				pmIndex.close();
+			}
 		}
 	}
 
@@ -154,6 +217,7 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 		@SuppressWarnings({"unchecked","unused"})
 		private Map options;
 
+		// TODO Have pm for index data (optional)
 		private PersistenceManager pm;
 
 		@Override
