@@ -41,38 +41,47 @@
 
 	<developers>
 		<developer>
-			<name>Marco หงุ่ยตระกูล-Schulze</name>
-<!--
-			<email>marco[at]nightlabs[dot]de</email>
--->
-			<organization>NightLabs</organization>
-			<organizationUrl>http://nightlabs.com</organizationUrl>
-			<roles>
-				<role>Architect</role>
-				<role>Developer</role>
-			</roles>
-		</developer>
-		<developer>
+			<id>abieber</id>
 			<name>Alexander Bieber</name>
 <!--
 			<email>bieber[at]nightlabs[dot]de</email>
 -->
 			<organization>NightLabs</organization>
 			<organizationUrl>http://nightlabs.com</organizationUrl>
+<!--
 			<roles>
 				<role>Developer</role>
 			</roles>
+-->
 		</developer>
 		<developer>
+			<id>ajefferson</id>
 			<name>Andy Jefferson</name>
 <!--
 			<email>andy[at]datanucleus[dot]org</email>
 -->
 			<organization>DataNucleus</organization>
-			<organizationUrl>http://www.datanucleus.org</organizationUrl>
+			<organizationUrl>http://datanucleus.org</organizationUrl>
+<!--
 			<roles>
 				<role>Developer</role>
 			</roles>
+-->
+		</developer>
+		<developer>
+			<id>mschulze</id>
+			<name>Marco หงุ่ยตระกูล-Schulze</name>
+<!--
+			<email>marco[at]nightlabs[dot]de</email>
+-->
+			<organization>NightLabs</organization>
+			<organizationUrl>http://nightlabs.com</organizationUrl>
+<!--
+			<roles>
+				<role>Architect</role>
+				<role>Developer</role>
+			</roles>
+-->
 		</developer>
 	</developers>
 
@@ -84,9 +93,11 @@
 -->
 			<organization>Lock Box Labs</organization>
 			<organizationUrl>http://lockboxlabs.com</organizationUrl>
+<!--
 			<roles>
 				<role>Security consultant</role>
 			</roles>
+-->
 		</contributor>
 	</contributors>
 
