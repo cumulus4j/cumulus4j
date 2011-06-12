@@ -45,8 +45,8 @@
 <!--
 			<email>marco[at]nightlabs[dot]de</email>
 -->
-			<organization>NightLabs</organization>
-			<organizationUrl>http://nightlabs.com</organizationUrl>
+			<organization><![CDATA[<a href="http://www.nightlabs.com">NightLabs</a>]]></organization>
+<!--		<organizationUrl>http://nightlabs.com</organizationUrl> -->
 			<roles>
 				<role>Architect</role>
 				<role>Developer</role>
@@ -57,8 +57,8 @@
 <!--
 			<email>bieber[at]nightlabs[dot]de</email>
 -->
-			<organization>NightLabs</organization>
-			<organizationUrl>http://nightlabs.com</organizationUrl>
+			<organization><![CDATA[<a href="http://www.nightlabs.com">NightLabs</a>]]></organization>
+<!--		<organizationUrl>http://nightlabs.com</organizationUrl> -->
 			<roles>
 				<role>Developer</role>
 			</roles>
@@ -68,8 +68,8 @@
 <!--
 			<email>andy[at]datanucleus[dot]org</email>
 -->
-			<organization>DataNucleus</organization>
-			<organizationUrl>http://www.datanucleus.org</organizationUrl>
+			<organization><![CDATA[<a href="http://www.datanucleus.org"></a>DataNucleus</a>]]></organization>
+<!--		<organizationUrl>http://www.datanucleus.org</organizationUrl> -->
 			<roles>
 				<role>Developer</role>
 			</roles>
@@ -82,8 +82,8 @@
 <!--
 			<email>dgh[at]lockboxlabs[dot]com</email>
 -->
-			<organization>Lock Box Labs</organization>
-			<organizationUrl>http://lockboxlabs.com</organizationUrl>
+			<organization><![CDATA[<a href="http://www.lockboxlabs.com"></a>Lock Box Labs</a>]]></organization>
+<!--			<organizationUrl>http://lockboxlabs.com</organizationUrl> -->
 			<roles>
 				<role>Security consultant</role>
 			</roles>
