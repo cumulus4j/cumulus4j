@@ -45,20 +45,42 @@
 			<email>marco[at]nightlabs[dot]de</email>
 			<organization>NightLabs</organization>
 			<organizationUrl>http://www.nightlabs.com</organizationUrl>
+			<roles>
+				<role>Architect</role>
+				<role>Developer</role>
+			</roles>
 		</developer>
 		<developer>
 			<name>Alexander Bieber</name>
 			<email>bieber[at]nightlabs[dot]de</email>
 			<organization>NightLabs</organization>
 			<organizationUrl>http://www.nightlabs.com</organizationUrl>
+			<roles>
+				<role>Developer</role>
+			</roles>
 		</developer>
 		<developer>
 			<name>Andy Jefferson</name>
 			<email>andy[at]datanucleus[dot]org</email>
 			<organization>DataNucleus</organization>
 			<organizationUrl>http://www.datanucleus.org</organizationUrl>
+			<roles>
+				<role>Developer</role>
+			</roles>
 		</developer>
 	</developers>
+
+	<contributors>
+		<contributor>
+			<name>David Hook</name>
+			<email>dgh[at]lockboxlabs[dot]com</email>
+			<organization>Lock Box Labs</organization>
+			<organizationUrl>http://www.lockboxlabs.com</organizationUrl>
+			<roles>
+				<role>Security consultant</role>
+			</roles>
+		</contributor>
+	</contributors>
 
 	<repositories>
 		<repository>
