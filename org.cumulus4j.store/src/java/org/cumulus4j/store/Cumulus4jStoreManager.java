@@ -104,21 +104,21 @@ public class Cumulus4jStoreManager extends AbstractStoreManager
 	 * Get the persistent meta-data of a certain class. This persistent meta-data is primarily used for efficient
 	 * mapping using long-identifiers instead of fully qualified class names.
 	 *
-	 * @param executionContext
+	 * @param ec
 	 * @param clazz the {@link Class} for which to query the meta-data.
 	 * @return the meta-data. Never returns <code>null</code>.
 	 */
-	public ClassMeta getClassMeta(ExecutionContext executionContext, Class<?> clazz)
+	public ClassMeta getClassMeta(ExecutionContext ec, Class<?> clazz)
 	{
 		ClassMeta result = class2classMeta.get(clazz);
 		if (result != null)
 			return result;
 
-		ManagedConnection mconn = this.getConnection(executionContext);
+		ManagedConnection mconn = this.getConnection(ec);
 		try {
 			PersistenceManager pm = (PersistenceManager) mconn.getConnection();
 			pm.getFetchPlan().setGroup(FetchPlan.ALL);
-			result = registerClass(executionContext, pm, clazz);
+			result = registerClass(ec, pm, null, clazz); // TODO Pass in pmIndex if defined
 
 			// We set the fetch-plan again, just in case registerClass modified it.
 			pm.getFetchPlan().setGroup(FetchPlan.ALL);
@@ -167,13 +167,14 @@ public class Cumulus4jStoreManager extends AbstractStoreManager
 		return result;
 	}
 
-	private ClassMeta registerClass(ExecutionContext executionContext, PersistenceManager pm, Class<?> clazz)
+	private ClassMeta registerClass(ExecutionContext executionContext, PersistenceManager pmData, PersistenceManager pmIndex, Class<?> clazz)
 	{
 		AbstractClassMetaData dnClassMetaData = getMetaDataManager().getMetaDataForClass(clazz, executionContext.getClassLoaderResolver());
 		if (dnClassMetaData == null)
 			throw new IllegalArgumentException("The class " + clazz.getName() + " does not have persistence-meta-data! Is it persistence-capable? Is it enhanced?");
 
-		ClassMeta classMeta = ClassMeta.getClassMeta(pm, clazz, false);
+		ClassMeta classMeta = ClassMeta.getClassMeta(pmData, clazz, false);
+		// TODO Do same for pmIndex
 		boolean classExists = (classMeta != null);
 		if (!classExists) {
 			classMeta = new ClassMeta(clazz);
@@ -181,7 +182,8 @@ public class Cumulus4jStoreManager extends AbstractStoreManager
 
 		Class<?> superclass = clazz.getSuperclass();
 		if (superclass != null && getMetaDataManager().hasMetaDataForClass(superclass.getName())) {
-			ClassMeta superClassMeta = registerClass(executionContext, pm, superclass);
+			ClassMeta superClassMeta = registerClass(executionContext, pmData, pmIndex, superclass);
+			// TODO Do same for pmIndex
 			classMeta.setSuperClassMeta(superClassMeta);
 		}
 
@@ -255,9 +257,11 @@ public class Cumulus4jStoreManager extends AbstractStoreManager
 
 		if (!classExists) {
 		    // Persist the new class and its fields in one call, minimising updates
-		    pm.makePersistent(classMeta);
+		    pmData.makePersistent(classMeta);
+				// TODO Do same for pmIndex
 		}
-		pm.flush(); // Get exceptions as soon as possible by forcing a flush already here.
+		pmData.flush(); // Get exceptions as soon as possible by forcing a flush here
+		// TODO Do same for pmIndex
 
 		return classMeta;
 	}
@@ -277,46 +281,46 @@ public class Cumulus4jStoreManager extends AbstractStoreManager
 	@Override
 	public String getClassNameForObjectID(Object id, ClassLoaderResolver clr, ExecutionContext ec)
 	{
-		if (id == null)
+		if (id == null) {
 			return null;
+		}
 
 		String className = objectID2className.get(id);
-		if (className != null)
+		if (className != null) {
 			return className;
+		}
 
-		if (id instanceof SCOID)
-		{
+		if (id instanceof SCOID) {
 			// Object is a SCOID
 			className = ((SCOID) id).getSCOClass();
 		}
-		else if (id instanceof OID)
-		{
+		else if (id instanceof OID) {
 			// Object is an OID
 			className = ((OID)id).getPcClass();
 		}
-		else if (getApiAdapter().isSingleFieldIdentity(id))
-		{
+		else if (getApiAdapter().isSingleFieldIdentity(id)) {
 			// Using SingleFieldIdentity so can assume that object is of the target class
 			className = getApiAdapter().getTargetClassNameForSingleFieldIdentity(id);
 		}
-		else
-		{
+		else {
 			// Application identity with user PK class, so find all using this PK
 			Collection<AbstractClassMetaData> cmds = getMetaDataManager().getClassMetaDataWithApplicationId(id.getClass().getName());
 			if (cmds != null) {
-				if (cmds.size() == 1)
+				if (cmds.size() == 1) {
 					className = cmds.iterator().next().getFullClassName();
+				}
 				else {
 					ManagedConnection mconn = this.getConnection(ec);
 					try {
-						PersistenceManager pm = (PersistenceManager) mconn.getConnection();
+						PersistenceManager pmData = (PersistenceManager) mconn.getConnection();
 						String objectIDString = id.toString();
 						for (AbstractClassMetaData cmd : cmds) {
 							Class<?> clazz = clr.classForName(cmd.getFullClassName());
 							ClassMeta classMeta = getClassMeta(ec, clazz);
-							DataEntry dataEntry = DataEntry.getDataEntry(pm, classMeta, objectIDString);
-							if (dataEntry != null)
+							DataEntry dataEntry = DataEntry.getDataEntry(pmData, classMeta, objectIDString);
+							if (dataEntry != null) {
 								className = cmd.getFullClassName();
+							}
 						}
 					} finally {
 						mconn.release();
@@ -325,8 +329,9 @@ public class Cumulus4jStoreManager extends AbstractStoreManager
 			}
 		}
 
-		if (className != null)
+		if (className != null) {
 			objectID2className.put(id, className);
+		}
 
 		return className;
 	}

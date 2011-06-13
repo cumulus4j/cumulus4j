@@ -263,97 +263,96 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 		}
 	}
 
-	class Cumulus4jXAResource implements XAResource
-    {
-        private PersistenceManager pm;
-        private Transaction tx;
-//        private Xid xid;
+	class Cumulus4jXAResource implements XAResource {
+		private PersistenceManager pm;
+		private Transaction tx;
+		//        private Xid xid;
 
-        Cumulus4jXAResource(PersistenceManager pm)
-        {
-            this.pm = pm;
-            this.tx = pm.currentTransaction();
-        }
+		Cumulus4jXAResource(PersistenceManager pm)
+		{
+			this.pm = pm;
+			this.tx = pm.currentTransaction();
+		}
 
-        @Override
-				public void commit(Xid xid, boolean arg1) throws XAException
-        {
-//        	if (this.xid == null)
-//        		throw new IllegalStateException("Transaction not active!");
-//
-//        	if (!this.xid.equals(xid))
-//        		throw new IllegalStateException("Transaction mismatch! this.xid=" + this.xid + " otherXid=" + xid);
+		@Override
+		public void commit(Xid xid, boolean arg1) throws XAException
+		{
+			//        	if (this.xid == null)
+			//        		throw new IllegalStateException("Transaction not active!");
+			//
+			//        	if (!this.xid.equals(xid))
+			//        		throw new IllegalStateException("Transaction mismatch! this.xid=" + this.xid + " otherXid=" + xid);
 
-            tx.commit();
-//            this.xid = null;
-        }
+			tx.commit();
+			//            this.xid = null;
+		}
 
-        @Override
-				public void end(Xid arg0, int arg1) throws XAException
-        {
-            //ignore
-        }
+		@Override
+		public void end(Xid arg0, int arg1) throws XAException
+		{
+			//ignore
+		}
 
-        @Override
-				public void forget(Xid arg0) throws XAException
-        {
-            //ignore
-        }
+		@Override
+		public void forget(Xid arg0) throws XAException
+		{
+			//ignore
+		}
 
-        @Override
-				public int getTransactionTimeout() throws XAException
-        {
-            return 0;
-        }
+		@Override
+		public int getTransactionTimeout() throws XAException
+		{
+			return 0;
+		}
 
-        @Override
-				public boolean isSameRM(XAResource resource) throws XAException
-        {
-        	if ((resource instanceof Cumulus4jXAResource) && pm.equals(((Cumulus4jXAResource)resource).pm))
-        		return true;
-        	else
-        		return false;
-        }
+		@Override
+		public boolean isSameRM(XAResource resource) throws XAException
+		{
+			if ((resource instanceof Cumulus4jXAResource) && pm.equals(((Cumulus4jXAResource)resource).pm))
+				return true;
+			else
+				return false;
+		}
 
-        @Override
-				public int prepare(Xid arg0) throws XAException
-        {
-            return 0;
-        }
+		@Override
+		public int prepare(Xid arg0) throws XAException
+		{
+			return 0;
+		}
 
-        @Override
-				public Xid[] recover(int arg0) throws XAException
-        {
-            throw new XAException("Unsupported operation");
-        }
+		@Override
+		public Xid[] recover(int arg0) throws XAException
+		{
+			throw new XAException("Unsupported operation");
+		}
 
-        @Override
-				public void rollback(Xid xid) throws XAException
-        {
-//        	if (this.xid == null)
-//        		throw new IllegalStateException("Transaction not active!");
-//
-//        	if (!this.xid.equals(xid))
-//        		throw new IllegalStateException("Transaction mismatch! this.xid=" + this.xid + " otherXid=" + xid);
+		@Override
+		public void rollback(Xid xid) throws XAException
+		{
+			//        	if (this.xid == null)
+			//        		throw new IllegalStateException("Transaction not active!");
+			//
+			//        	if (!this.xid.equals(xid))
+			//        		throw new IllegalStateException("Transaction mismatch! this.xid=" + this.xid + " otherXid=" + xid);
 
-            tx.rollback();
-//            this.xid = null;
-        }
+			tx.rollback();
+			//            this.xid = null;
+		}
 
-        @Override
-				public boolean setTransactionTimeout(int arg0) throws XAException
-        {
-            return false;
-        }
+		@Override
+		public boolean setTransactionTimeout(int arg0) throws XAException
+		{
+			return false;
+		}
 
-        @Override
-				public void start(Xid xid, int arg1) throws XAException
-        {
-//        	if (this.xid != null)
-//        		throw new IllegalStateException("Transaction already started! Cannot start twice!");
+		@Override
+		public void start(Xid xid, int arg1) throws XAException
+		{
+			//        	if (this.xid != null)
+			//        		throw new IllegalStateException("Transaction already started! Cannot start twice!");
 
-        	tx.begin();
-//        	this.xid = xid;
-        }
-    }
+			tx.begin();
+			//        	this.xid = xid;
+		}
+	}
 }
