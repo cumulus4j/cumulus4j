@@ -81,6 +81,7 @@ public abstract class QueryEvaluator
 
 	private Cumulus4jStoreManager storeManager;
 
+	// TODO Have pm for data, and optional pm for index
 	private PersistenceManager pm;
 
 	private EncryptionHandler encryptionHandler;

@@ -99,16 +99,16 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		}
 
 		if (leftEvaluated && !rightEvaluated) {
-			rightResult = QueryHelper.getAllDataEntryIdsForCandidate(getPersistenceManagerForData(), getQueryEvaluator().getExecutionContext(),
-					getQueryEvaluator().getQuery().getCandidateClass(), getQueryEvaluator().getQuery().isSubclasses());
+			rightResult = QueryHelper.getAllDataEntryIdsForCandidate(getQueryEvaluator().getPersistenceManagerForData(), 
+					getQueryEvaluator().getExecutionContext(), getQueryEvaluator().getQuery().getCandidateClass(), getQueryEvaluator().getQuery().isSubclasses());
 		}
 		else if (!leftEvaluated && rightEvaluated) {
-			leftResult = QueryHelper.getAllDataEntryIdsForCandidate(getPersistenceManagerForData(), getQueryEvaluator().getExecutionContext(),
-					getQueryEvaluator().getQuery().getCandidateClass(), getQueryEvaluator().getQuery().isSubclasses());
+			leftResult = QueryHelper.getAllDataEntryIdsForCandidate(getQueryEvaluator().getPersistenceManagerForData(), 
+					getQueryEvaluator().getExecutionContext(), getQueryEvaluator().getQuery().getCandidateClass(), getQueryEvaluator().getQuery().isSubclasses());
 		}
 		else if (!leftEvaluated && !rightEvaluated) {
-			leftResult = QueryHelper.getAllDataEntryIdsForCandidate(getPersistenceManagerForData(), getQueryEvaluator().getExecutionContext(),
-					getQueryEvaluator().getQuery().getCandidateClass(), getQueryEvaluator().getQuery().isSubclasses());
+			leftResult = QueryHelper.getAllDataEntryIdsForCandidate(getQueryEvaluator().getPersistenceManagerForData(), 
+					getQueryEvaluator().getExecutionContext(), getQueryEvaluator().getQuery().getCandidateClass(), getQueryEvaluator().getQuery().isSubclasses());
 		}
 
 		if (leftResult != null && rightResult != null) {

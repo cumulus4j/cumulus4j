@@ -7,8 +7,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.jdo.PersistenceManager;
-
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.DataEntry;
 import org.cumulus4j.store.model.FieldMeta;
@@ -128,13 +126,13 @@ public class ExpressionHelper
 	private static abstract class AbstractContainsResolver extends PrimaryExpressionResolver
 	{
 		protected FieldMetaRole role;
-		protected PersistenceManager pm;
 		protected boolean negate;
 
 		protected Set<Long> negateIfNecessary(FieldMeta fieldMeta, Set<Long> positiveResult)
 		{
-			if (!negate)
+			if (!negate) {
 				return positiveResult;
+			}
 
 			Class<?> candidateClass = executionContext.getClassLoaderResolver().classForName(fieldMeta.getClassMeta().getClassName());
 			Set<ClassMeta> candidateClassMetas = QueryHelper.getCandidateClassMetas(queryEvaluator.getStoreManager(), 
@@ -156,7 +154,6 @@ public class ExpressionHelper
 		{
 			super(queryEvaluator, primaryExpression);
 			this.role = role;
-			this.pm = queryEvaluator.getPersistenceManagerForData();
 			this.negate = negate;
 
 			if (role != FieldMetaRole.collectionElement && role != FieldMetaRole.mapKey && role != FieldMetaRole.mapValue)
@@ -187,11 +184,10 @@ public class ExpressionHelper
 					throw new IllegalStateException("Unknown role: " + role);
 			}
 
-			return _queryEnd(pm, fieldMeta, mmd, subFieldMeta, argumentIsPersistent, argumentType);
+			return _queryEnd(fieldMeta, mmd, subFieldMeta, argumentIsPersistent, argumentType);
 		}
 
-		protected abstract Set<Long> _queryEnd(
-				PersistenceManager pm, FieldMeta fieldMeta, AbstractMemberMetaData mmd, FieldMeta subFieldMeta, boolean argumentIsPersistent, Class<?> argumentType
+		protected abstract Set<Long> _queryEnd(FieldMeta fieldMeta, AbstractMemberMetaData mmd, FieldMeta subFieldMeta, boolean argumentIsPersistent, Class<?> argumentType
 		);
 	}
 
@@ -220,11 +216,8 @@ public class ExpressionHelper
 		}
 
 		@Override
-		public Set<Long> _queryEnd(
-				PersistenceManager pm, FieldMeta fieldMeta,
-				AbstractMemberMetaData mmd, FieldMeta subFieldMeta,
-				boolean argumentIsPersistent, Class<?> argumentType
-		)
+		public Set<Long> _queryEnd(FieldMeta fieldMeta, AbstractMemberMetaData mmd, FieldMeta subFieldMeta,
+				boolean argumentIsPersistent, Class<?> argumentType)
 		{
 			if (argumentIsPersistent || subFieldMeta.getMappedByFieldMeta(executionContext) != null) {
 				AbstractExpressionEvaluator<?> eval = queryEvaluator.getExpressionEvaluator();
@@ -238,7 +231,7 @@ public class ExpressionHelper
 				Set<Long> result = new HashSet<Long>();
 				if (mmd.getMappedBy() != null) {
 					for (Long valueDataEntryID : valueDataEntryIDs) {
-						DataEntry valueDataEntry = DataEntry.getDataEntry(pm, valueDataEntryID);
+						DataEntry valueDataEntry = DataEntry.getDataEntry(queryEvaluator.getPersistenceManagerForData(), valueDataEntryID);
 						ObjectContainer constantObjectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(executionContext, valueDataEntry);
 						Object value = constantObjectContainer.getValue(
 								fieldMeta.getMappedByFieldMeta(executionContext).getFieldID()
@@ -250,7 +243,8 @@ public class ExpressionHelper
 				}
 				else {
 					for (Long valueDataEntryID : valueDataEntryIDs) {
-						IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, subFieldMeta, valueDataEntryID);
+						IndexEntry indexEntry = 
+							IndexEntryObjectRelationHelper.getIndexEntry(queryEvaluator.getPersistenceManagerForIndex(), subFieldMeta, valueDataEntryID);
 						if (indexEntry != null) {
 							IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(executionContext, indexEntry);
 							result.addAll(indexValue.getDataEntryIDs());
@@ -290,11 +284,8 @@ public class ExpressionHelper
 		private static Set<Long> emptyDataEntryIDs = Collections.emptySet();
 
 		@Override
-		public Set<Long> _queryEnd(
-				PersistenceManager pm, FieldMeta fieldMeta,
-				AbstractMemberMetaData mmd, FieldMeta subFieldMeta,
-				boolean argumentIsPersistent, Class<?> argumentType
-		)
+		public Set<Long> _queryEnd(FieldMeta fieldMeta, AbstractMemberMetaData mmd, FieldMeta subFieldMeta,
+				boolean argumentIsPersistent, Class<?> argumentType)
 		{
 			if (constant != null && !argumentType.isInstance(constant)) {
 				logger.debug(
@@ -315,7 +306,8 @@ public class ExpressionHelper
 						throw new IllegalStateException("The ApiAdapter returned null as object-ID for: " + constant);
 
 					if (mmd.getMappedBy() != null) {
-						DataEntry constantDataEntry = DataEntry.getDataEntry(pm, constantClassMeta, constantID.toString());
+						DataEntry constantDataEntry = DataEntry.getDataEntry(queryEvaluator.getPersistenceManagerForData(), 
+								constantClassMeta, constantID.toString());
 						ObjectContainer constantObjectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(executionContext, constantDataEntry);
 						Object value = constantObjectContainer.getValue(
 								fieldMeta.getMappedByFieldMeta(executionContext).getFieldID()
@@ -328,9 +320,11 @@ public class ExpressionHelper
 							return negateIfNecessary(fieldMeta, Collections.singleton(mappedByDataEntryID));
 					}
 
-					constantDataEntryID = DataEntry.getDataEntryID(pm, constantClassMeta, constantID.toString());
+					constantDataEntryID = DataEntry.getDataEntryID(queryEvaluator.getPersistenceManagerForData(), constantClassMeta, 
+							constantID.toString());
 				}
-				IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, subFieldMeta, constantDataEntryID);
+				IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(queryEvaluator.getPersistenceManagerForIndex(), 
+						subFieldMeta, constantDataEntryID);
 				if (indexEntry == null)
 					return negateIfNecessary(fieldMeta, emptyDataEntryIDs);
 
@@ -339,15 +333,17 @@ public class ExpressionHelper
 			}
 			else if (subFieldMeta.getMappedByFieldMeta(executionContext) != null) {
 				FieldMeta oppositeFieldMeta = subFieldMeta.getMappedByFieldMeta(executionContext);
-				IndexEntryFactory indexEntryFactory = queryEvaluator.getStoreManager().getIndexFactoryRegistry().getIndexEntryFactory(executionContext, oppositeFieldMeta, true);
-				IndexEntry indexEntry = indexEntryFactory == null ? null : indexEntryFactory.getIndexEntry(pm, oppositeFieldMeta, constant);
+				IndexEntryFactory indexEntryFactory = 
+					queryEvaluator.getStoreManager().getIndexFactoryRegistry().getIndexEntryFactory(executionContext, oppositeFieldMeta, true);
+				IndexEntry indexEntry = indexEntryFactory == null ? null : 
+					indexEntryFactory.getIndexEntry(queryEvaluator.getPersistenceManagerForIndex(), oppositeFieldMeta, constant);
 				if (indexEntry == null)
 					return negateIfNecessary(fieldMeta, emptyDataEntryIDs);
 
 				IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(executionContext, indexEntry);
 				Set<Long> result = new HashSet<Long>(indexValue.getDataEntryIDs().size());
 				for (Long elementDataEntryID : indexValue.getDataEntryIDs()) {
-					DataEntry elementDataEntry = DataEntry.getDataEntry(pm, elementDataEntryID);
+					DataEntry elementDataEntry = DataEntry.getDataEntry(queryEvaluator.getPersistenceManagerForData(), elementDataEntryID);
 					ObjectContainer elementObjectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(executionContext, elementDataEntry);
 					Object value = elementObjectContainer.getValue(
 							fieldMeta.getMappedByFieldMeta(executionContext).getFieldID()
@@ -361,7 +357,8 @@ public class ExpressionHelper
 			}
 			else {
 				IndexEntryFactory indexEntryFactory = queryEvaluator.getStoreManager().getIndexFactoryRegistry().getIndexEntryFactory(executionContext, subFieldMeta, true);
-				IndexEntry indexEntry = indexEntryFactory == null ? null : indexEntryFactory.getIndexEntry(pm, subFieldMeta, constant);
+				IndexEntry indexEntry = indexEntryFactory == null ? null : 
+					indexEntryFactory.getIndexEntry(queryEvaluator.getPersistenceManagerForIndex(), subFieldMeta, constant);
 				if (indexEntry == null)
 					return negateIfNecessary(fieldMeta, emptyDataEntryIDs);
 

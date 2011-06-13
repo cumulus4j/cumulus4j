@@ -23,14 +23,14 @@ public class QueryHelper {
 
 	/**
 	 * Access the data entry ids for a candidate.
-	 * @param pm PersistenceManager for the backend data
+	 * @param pmData PersistenceManager for the backend data
 	 * @param ec ExecutionContext
 	 * @param candidateCls Candidate class
 	 * @param subclasses Whether to include subclasses
 	 * @return The data entry ids
 	 */
-	public static Set<Long> getAllDataEntryIdsForCandidate(PersistenceManager pm, ExecutionContext ec, Class candidateCls, boolean subclasses) {
-		javax.jdo.Query q = pm.newQuery(DataEntry.class);
+	public static Set<Long> getAllDataEntryIdsForCandidate(PersistenceManager pmData, ExecutionContext ec, Class candidateCls, boolean subclasses) {
+		javax.jdo.Query q = pmData.newQuery(DataEntry.class);
 		q.setResult("this.dataEntryID");
 
 		Object queryParam;
@@ -57,15 +57,15 @@ public class QueryHelper {
 
 	/**
 	 * Convenience method to return the persistent objects for the classes with the provided ClassMetas.
-	 * @param pm PersistenceManager for the backend data
+	 * @param pmData PersistenceManager for the backend data
 	 * @param ec ExecutionContext
 	 * @param candidateClassMetas The class metas defining the required classes
 	 * @return The persistent objects
 	 */
-	public static List<Object> getAllPersistentObjectsForCandidateClasses(PersistenceManager pm, ExecutionContext ec, 
+	public static List<Object> getAllPersistentObjectsForCandidateClasses(PersistenceManager pmData, ExecutionContext ec, 
 			Set<ClassMeta> candidateClassMetas)
 	{
-		javax.jdo.Query q = pm.newQuery(DataEntry.class);
+		javax.jdo.Query q = pmData.newQuery(DataEntry.class);
 		q.setResult("this.classMeta, this.objectID");
 
 		Object queryParam;

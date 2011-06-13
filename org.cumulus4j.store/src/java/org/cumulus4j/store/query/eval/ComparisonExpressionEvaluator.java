@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 
 import org.cumulus4j.store.model.ClassMeta;
@@ -129,7 +128,6 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 	private Set<Long> queryCompareConcreteValue(FieldMeta fieldMeta, Object value, boolean negate)
 	{
-		PersistenceManager pm = getPersistenceManagerForData();
 		ExecutionContext executionContext = getQueryEvaluator().getExecutionContext();
 		AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(executionContext);
 		int relationType = mmd.getRelationType(executionContext.getClassLoaderResolver());
@@ -158,7 +156,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 				if (valueID == null)
 					throw new IllegalStateException("The ApiAdapter returned null as object-ID for: " + value);
 
-				valueDataEntryID = DataEntry.getDataEntryID(pm, valueClassMeta, valueID.toString());
+				valueDataEntryID = DataEntry.getDataEntryID(getQueryEvaluator().getPersistenceManagerForData(), valueClassMeta, valueID.toString());
 			}
 			queryParam = valueDataEntryID;
 		}
@@ -170,7 +168,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 			return Collections.emptySet();
 		}
 
-		Query q = pm.newQuery(indexEntryFactory.getIndexEntryClass());
+		Query q = getQueryEvaluator().getPersistenceManagerForIndex().newQuery(indexEntryFactory.getIndexEntryClass());
 		q.setFilter(
 				"this.fieldMeta == :fieldMeta && " +
 				"this.indexKey " + getOperatorAsJDOQLSymbol(negate) + " :value"
@@ -194,7 +192,6 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		if (Expression.OP_EQ != op && Expression.OP_NOTEQ != op)
 			throw new UnsupportedOperationException("The operation \"" + getOperatorAsJDOQLSymbol(false) + "\" is not supported for object relations!");
 
-		PersistenceManager pm = getPersistenceManagerForData();
 		ExecutionContext executionContext = getQueryEvaluator().getExecutionContext();
 		Object valueID = executionContext.getApiAdapter().getIdForObject(value);
 		if (valueID == null)
@@ -204,10 +201,10 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 			// TODO IMHO this is incomplete - the sub-classes are probably missing. But before changing anything here,
 			// we should design a test-case first and check if my assumption is correct.
 			// Marco :-)
-			return DataEntry.getDataEntryIDsNegated(pm, classMeta, valueID.toString());
+			return DataEntry.getDataEntryIDsNegated(getQueryEvaluator().getPersistenceManagerForData(), classMeta, valueID.toString());
 		}
 		else {
-			Long dataEntryID = DataEntry.getDataEntryID(pm, classMeta, valueID.toString());
+			Long dataEntryID = DataEntry.getDataEntryID(getQueryEvaluator().getPersistenceManagerForData(), classMeta, valueID.toString());
 			return Collections.singleton(dataEntryID);
 		}
 	}
