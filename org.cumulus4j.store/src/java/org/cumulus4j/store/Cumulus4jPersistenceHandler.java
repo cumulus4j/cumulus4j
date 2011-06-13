@@ -57,22 +57,22 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		// Check if read-only so update not permitted
 		storeManager.assertReadOnlyForUpdateOfObject(op);
 
-		ExecutionContext executionContext = op.getExecutionContext();
-		ManagedConnection mconn = storeManager.getConnection(executionContext);
+		ExecutionContext ec = op.getExecutionContext();
+		ManagedConnection mconn = storeManager.getConnection(ec);
 		try {
 			PersistenceManager pm = (PersistenceManager) mconn.getConnection();
 			Object object = op.getObject();
 			Object objectID = op.getExternalObjectId();
 			String objectIDString = objectID.toString();
-			ClassMeta classMeta = storeManager.getClassMeta(executionContext, object.getClass());
+			ClassMeta classMeta = storeManager.getClassMeta(ec, object.getClass());
 			DataEntry dataEntry = DataEntry.getDataEntry(pm, classMeta, objectIDString);
 			//			if (dataEntry == null)
 			//				throw new NucleusObjectNotFoundException("Object does not exist in datastore: class=" + classMeta.getClassName() + " oid=" + objectIDString);
 
 			if (dataEntry != null) {
 				// decrypt object-container in order to identify index entries for deletion
-				ObjectContainer objectContainer = encryptionHandler.decryptDataEntry(executionContext, dataEntry);
-				AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), executionContext.getClassLoaderResolver());
+				ObjectContainer objectContainer = encryptionHandler.decryptDataEntry(ec, dataEntry);
+				AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), ec.getClassLoaderResolver());
 
 				for (Map.Entry<Long, ?> me : objectContainer.getFieldID2value().entrySet()) {
 					long fieldID = me.getKey();
@@ -87,7 +87,8 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 					if (!fieldMeta.getFieldName().equals(dnMemberMetaData.getName()))
 						throw new IllegalStateException("Meta data inconsistency!!! class == \"" + classMeta.getClassName() + "\" fieldMeta.dataNucleusAbsoluteFieldNumber == " + fieldMeta.getDataNucleusAbsoluteFieldNumber() + " fieldMeta.fieldName == \"" + fieldMeta.getFieldName() + "\" != dnMemberMetaData.name == \"" + dnMemberMetaData.getName() + "\"");
 
-					removeIndexEntry.perform(executionContext, pm, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, fieldValue);
+					// TODO Use pmIndex
+					removeIndexEntry.perform(ec, pm, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, fieldValue);
 				}
 				pm.deletePersistent(dataEntry);
 			}
@@ -100,15 +101,15 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 	@Override
 	public void fetchObject(ObjectProvider op, int[] fieldNumbers)
 	{
-		ExecutionContext executionContext = op.getExecutionContext();
-		ManagedConnection mconn = storeManager.getConnection(executionContext);
+		ExecutionContext ec = op.getExecutionContext();
+		ManagedConnection mconn = storeManager.getConnection(ec);
 		try {
 			PersistenceManager pm = (PersistenceManager) mconn.getConnection();
 			Object object = op.getObject();
 			Object objectID = op.getExternalObjectId();
 			String objectIDString = objectID.toString();
-			ClassMeta classMeta = storeManager.getClassMeta(executionContext, object.getClass());
-			AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), executionContext.getClassLoaderResolver());
+			ClassMeta classMeta = storeManager.getClassMeta(ec, object.getClass());
+			AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), ec.getClassLoaderResolver());
 
 			// TODO Mabe we should load ALL *SIMPLE* fields, because the decryption happens on a per-row-level and thus
 			// loading only some fields makes no sense performance-wise. However, maybe DataNucleus already optimizes
@@ -121,9 +122,10 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			if (dataEntry == null)
 				throw new NucleusObjectNotFoundException("Object does not exist in datastore: class=" + classMeta.getClassName() + " oid=" + objectIDString);
 
-			ObjectContainer objectContainer = encryptionHandler.decryptDataEntry(executionContext, dataEntry);
+			ObjectContainer objectContainer = encryptionHandler.decryptDataEntry(ec, dataEntry);
 
-			op.replaceFields(fieldNumbers, new FetchFieldManager(op, pm, classMeta, dnClassMetaData, objectContainer));
+			// TODO Pass in pmIndex to FetchFieldManager
+			op.replaceFields(fieldNumbers, new FetchFieldManager(op, pm, pm, classMeta, dnClassMetaData, objectContainer));
 			if (op.getVersion() == null) // null-check prevents overwriting in case this method is called multiple times (for different field-numbers) - TODO necessary?
 				op.setVersion(objectContainer.getVersion());
 		} finally {
@@ -132,7 +134,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 	}
 
 	@Override
-	public Object findObject(ExecutionContext ectx, Object id) {
+	public Object findObject(ExecutionContext ec, Object id) {
 		// Since we don't manage the memory instantiation of objects this just returns null.
 		return null;
 	}
@@ -143,15 +145,15 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		// Check if read-only so update not permitted
 		storeManager.assertReadOnlyForUpdateOfObject(op);
 
-		ExecutionContext executionContext = op.getExecutionContext();
-		ManagedConnection mconn = storeManager.getConnection(executionContext);
+		ExecutionContext ec = op.getExecutionContext();
+		ManagedConnection mconn = storeManager.getConnection(ec);
 		try {
 			PersistenceManager pm = (PersistenceManager) mconn.getConnection();
 			Object object = op.getObject();
 			Object objectID = op.getExternalObjectId();
-			ClassMeta classMeta = storeManager.getClassMeta(executionContext, object.getClass());
+			ClassMeta classMeta = storeManager.getClassMeta(ec, object.getClass());
 
-			AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), executionContext.getClassLoaderResolver());
+			AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), ec.getClassLoaderResolver());
 
 			int[] allFieldNumbers = dnClassMetaData.getAllMemberPositions();
 			ObjectContainer objectContainer = new ObjectContainer();
@@ -170,7 +172,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			objectContainer.setVersion(op.getTransactionalVersion());
 
 			// persist data
-			encryptionHandler.encryptDataEntry(executionContext, dataEntry, objectContainer);
+			encryptionHandler.encryptDataEntry(ec, dataEntry, objectContainer);
 
 			// persist index
 			for (Map.Entry<Long, ?> me : objectContainer.getFieldID2value().entrySet()) {
@@ -186,7 +188,8 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 				if (!fieldMeta.getFieldName().equals(dnMemberMetaData.getName()))
 					throw new IllegalStateException("Meta data inconsistency!!! class == \"" + classMeta.getClassName() + "\" fieldMeta.dataNucleusAbsoluteFieldNumber == " + fieldMeta.getDataNucleusAbsoluteFieldNumber() + " fieldMeta.fieldName == \"" + fieldMeta.getFieldName() + "\" != dnMemberMetaData.name == \"" + dnMemberMetaData.getName() + "\"");
 
-				addIndexEntry.perform(executionContext, pm, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, fieldValue);
+				// TODO Use pmIndex
+				addIndexEntry.perform(ec, pm, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, fieldValue);
 			}
 		} finally {
 			mconn.release();
@@ -198,13 +201,13 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 	{
 		ManagedConnection mconn = storeManager.getConnection(op.getExecutionContext());
 		try {
-			PersistenceManager pm = (PersistenceManager) mconn.getConnection();
+			PersistenceManager pmData = (PersistenceManager) mconn.getConnection();
 
 			ClassMeta classMeta = storeManager.getClassMeta(op.getExecutionContext(), op.getObject().getClass());
 			Object objectID = op.getExternalObjectId();
 			String objectIDString = objectID.toString();
 
-			DataEntry dataEntry = DataEntry.getDataEntry(pm, classMeta, objectIDString);
+			DataEntry dataEntry = DataEntry.getDataEntry(pmData, classMeta, objectIDString);
 			if (dataEntry == null)
 				throw new NucleusObjectNotFoundException("Object does not exist in datastore: class=" + classMeta.getClassName() + " oid=" + objectIDString);
 		} finally {
@@ -218,15 +221,15 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		// Check if read-only so update not permitted
 		storeManager.assertReadOnlyForUpdateOfObject(op);
 
-		ExecutionContext executionContext = op.getExecutionContext();
-		ManagedConnection mconn = storeManager.getConnection(executionContext);
+		ExecutionContext ec = op.getExecutionContext();
+		ManagedConnection mconn = storeManager.getConnection(ec);
 		try {
 			PersistenceManager pm = (PersistenceManager) mconn.getConnection();
 			Object object = op.getObject();
 			Object objectID = op.getExternalObjectId();
 			String objectIDString = objectID.toString();
-			ClassMeta classMeta = storeManager.getClassMeta(executionContext, object.getClass());
-			AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), executionContext.getClassLoaderResolver());
+			ClassMeta classMeta = storeManager.getClassMeta(ec, object.getClass());
+			AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), ec.getClassLoaderResolver());
 
 			DataEntry dataEntry = DataEntry.getDataEntry(pm, classMeta, objectIDString);
 			if (dataEntry == null)
@@ -234,7 +237,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 
 			long dataEntryID = dataEntry.getDataEntryID();
 
-			ObjectContainer objectContainerOld = encryptionHandler.decryptDataEntry(executionContext, dataEntry);
+			ObjectContainer objectContainerOld = encryptionHandler.decryptDataEntry(ec, dataEntry);
 			ObjectContainer objectContainerNew = objectContainerOld.clone();
 
 			// This performs reachability on this input object so that all related objects are persisted
@@ -242,7 +245,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			objectContainerNew.setVersion(op.getTransactionalVersion());
 
 			// update persistent data
-			encryptionHandler.encryptDataEntry(executionContext, dataEntry, objectContainerNew);
+			encryptionHandler.encryptDataEntry(ec, dataEntry, objectContainerNew);
 
 			// update persistent index
 			for (int fieldNumber : fieldNumbers) {
@@ -261,8 +264,9 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 				Object fieldValueNew = objectContainerNew.getValue(fieldMeta.getFieldID());
 
 				if (!fieldsEqual(fieldValueOld, fieldValueNew)) {
-					removeIndexEntry.perform(executionContext, pm, dataEntryID, fieldMeta, dnMemberMetaData, fieldValueOld);
-					addIndexEntry.perform(executionContext, pm, dataEntryID, fieldMeta, dnMemberMetaData, fieldValueNew);
+					// TODO Use pmIndex
+					removeIndexEntry.perform(ec, pm, dataEntryID, fieldMeta, dnMemberMetaData, fieldValueOld);
+					addIndexEntry.perform(ec, pm, dataEntryID, fieldMeta, dnMemberMetaData, fieldValueNew);
 				}
 			}
 		} finally {

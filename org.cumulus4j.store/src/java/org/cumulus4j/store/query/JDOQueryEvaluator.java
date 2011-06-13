@@ -16,14 +16,10 @@ import org.datanucleus.store.query.Query;
  */
 public class JDOQueryEvaluator extends QueryEvaluator {
 
-	public JDOQueryEvaluator(
-			Query query,
-			QueryCompilation compilation, Map<String, Object> parameterValues,
-			ClassLoaderResolver clr,
-			PersistenceManager pm
-	)
+	public JDOQueryEvaluator(Query query, QueryCompilation compilation, Map<String, Object> parameterValues,
+			ClassLoaderResolver clr, PersistenceManager pmData, PersistenceManager pmIndex)
 	{
-		super("JDOQL", query, compilation, parameterValues, clr, pm);
+		super("JDOQL", query, compilation, parameterValues, clr, pmData, pmIndex);
 	}
 
 	@Override
@@ -31,9 +27,8 @@ public class JDOQueryEvaluator extends QueryEvaluator {
 			Query subquery, QueryCompilation compilation, Object outerCandidate
 	)
 	{
-		JDOQueryEvaluator evaluator = new JDOQueryEvaluator(
-				getQuery(), compilation, getParameterValues(), getClassLoaderResolver(), getPersistenceManagerForData()
-		);
+		JDOQueryEvaluator evaluator = new JDOQueryEvaluator(getQuery(), compilation, getParameterValues(), 
+				getClassLoaderResolver(), getPersistenceManagerForData(), getPersistenceManagerForIndex());
 		return evaluator.execute();
 	}
 }

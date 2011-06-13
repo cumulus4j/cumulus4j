@@ -26,40 +26,40 @@ public final class ObjectContainerHelper
 	private ObjectContainerHelper() { }
 
 	@SuppressWarnings("unused")
-	public static Object entityToReference(ExecutionContext executionContext, PersistenceManager pm, Object entity)
+	public static Object entityToReference(ExecutionContext ec, PersistenceManager pmData, Object entity)
 	{
-		Cumulus4jStoreManager storeManager = (Cumulus4jStoreManager) executionContext.getStoreManager();
-		Object objectID = executionContext.getApiAdapter().getIdForObject(entity);
+		Cumulus4jStoreManager storeManager = (Cumulus4jStoreManager) ec.getStoreManager();
+		Object objectID = ec.getApiAdapter().getIdForObject(entity);
 		if (objectID == null)
 			throw new IllegalStateException("executionContext.getApiAdapter().getIdForObject(entity) returned null for " + entity);
 
 		storeManager.setClassNameForObjectID(objectID, entity.getClass().getName());
 
 		if (USE_DATA_ENTRY_ID) {
-			ClassMeta classMeta = storeManager.getClassMeta(executionContext, entity.getClass());
-			return DataEntry.getDataEntryID(pm, classMeta, objectID.toString());
+			ClassMeta classMeta = storeManager.getClassMeta(ec, entity.getClass());
+			return DataEntry.getDataEntryID(pmData, classMeta, objectID.toString());
 		}
 
 		return objectID;
 	}
 
 	@SuppressWarnings("unused")
-	public static Object referenceToEntity(ExecutionContext executionContext, PersistenceManager pm, Object reference)
+	public static Object referenceToEntity(ExecutionContext ec, PersistenceManager pmData, Object reference)
 	{
 		if (reference == null)
 			return null;
 
 		if (USE_DATA_ENTRY_ID) {
-			DataEntry dataEntry = DataEntry.getDataEntry(pm, ((Long)reference).longValue());
-			AbstractClassMetaData cmd = dataEntry.getClassMeta().getDataNucleusClassMetaData(executionContext);
-			return IdentityUtils.getObjectFromIdString(dataEntry.getObjectID(), cmd, executionContext, true);
+			DataEntry dataEntry = DataEntry.getDataEntry(pmData, ((Long)reference).longValue());
+			AbstractClassMetaData cmd = dataEntry.getClassMeta().getDataNucleusClassMetaData(ec);
+			return IdentityUtils.getObjectFromIdString(dataEntry.getObjectID(), cmd, ec, true);
 		}
 
-		return executionContext.findObject(reference, true, true, null);
+		return ec.findObject(reference, true, true, null);
 	}
 
 	@SuppressWarnings("unused")
-	public static Long referenceToDataEntryID(ExecutionContext executionContext, PersistenceManager pm, Object reference)
+	public static Long referenceToDataEntryID(ExecutionContext ec, PersistenceManager pmData, Object reference)
 	{
 		if (reference == null)
 			return null;
@@ -67,10 +67,10 @@ public final class ObjectContainerHelper
 		if (USE_DATA_ENTRY_ID)
 			return (Long)reference;
 
-		Cumulus4jStoreManager storeManager = (Cumulus4jStoreManager) executionContext.getStoreManager();
-		String clazzName = storeManager.getClassNameForObjectID(reference, executionContext.getClassLoaderResolver(), executionContext);
-		Class<?> clazz = executionContext.getClassLoaderResolver().classForName(clazzName);
-		ClassMeta classMeta = storeManager.getClassMeta(executionContext, clazz);
-		return DataEntry.getDataEntryID(pm, classMeta, reference.toString());
+		Cumulus4jStoreManager storeManager = (Cumulus4jStoreManager) ec.getStoreManager();
+		String clazzName = storeManager.getClassNameForObjectID(reference, ec.getClassLoaderResolver(), ec);
+		Class<?> clazz = ec.getClassLoaderResolver().classForName(clazzName);
+		ClassMeta classMeta = storeManager.getClassMeta(ec, clazz);
+		return DataEntry.getDataEntryID(pmData, classMeta, reference.toString());
 	}
 }

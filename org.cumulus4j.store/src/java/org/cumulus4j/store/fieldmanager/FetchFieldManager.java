@@ -36,23 +36,26 @@ import org.datanucleus.store.types.sco.SCOUtils;
 public class FetchFieldManager extends AbstractFieldManager
 {
 	private ObjectProvider op;
-	private PersistenceManager pm;
-	private ExecutionContext executionContext;
+	private PersistenceManager pmData;
+	private PersistenceManager pmIndex;
+	private ExecutionContext ec;
 	private ClassMeta classMeta;
 	private AbstractClassMetaData dnClassMetaData;
 	private ObjectContainer objectContainer;
 
 	public FetchFieldManager(
 			ObjectProvider op,
-			PersistenceManager pm,
+			PersistenceManager pmData,
+			PersistenceManager pmIndex,
 			ClassMeta classMeta,
 			AbstractClassMetaData dnClassMetaData,
 			ObjectContainer objectContainer
 	)
 	{
 		this.op = op;
-		this.pm = pm;
-		this.executionContext = op.getExecutionContext();
+		this.pmData = pmData;
+		this.pmIndex = pmIndex;
+		this.ec = op.getExecutionContext();
 		this.classMeta = classMeta;
 		this.dnClassMetaData = dnClassMetaData;
 		this.objectContainer = objectContainer;
@@ -60,7 +63,7 @@ public class FetchFieldManager extends AbstractFieldManager
 
 	protected EncryptionHandler getEncryptionHandler()
 	{
-		return ((Cumulus4jStoreManager) executionContext.getStoreManager()).getEncryptionHandler();
+		return ((Cumulus4jStoreManager) ec.getStoreManager()).getEncryptionHandler();
 	}
 
 	private long getFieldID(int fieldNumber)
@@ -133,7 +136,7 @@ public class FetchFieldManager extends AbstractFieldManager
 	protected long getThisDataEntryID()
 	{
 		if (thisDataEntryID < 0)
-			thisDataEntryID = DataEntry.getDataEntryID(pm, classMeta, op.getObjectId().toString());
+			thisDataEntryID = DataEntry.getDataEntryID(pmData, classMeta, op.getObjectId().toString());
 
 		return thisDataEntryID;
 	}
@@ -148,16 +151,16 @@ public class FetchFieldManager extends AbstractFieldManager
 
 		Set<Long> mappedByDataEntryIDs = null;
 		if (mmd.getMappedBy() != null) {
-			IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pm, fieldMeta.getMappedByFieldMeta(executionContext), getThisDataEntryID());
+			IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pmIndex, fieldMeta.getMappedByFieldMeta(ec), getThisDataEntryID());
 			if (indexEntry == null)
 				mappedByDataEntryIDs = Collections.emptySet();
 			else {
-				IndexValue indexValue = getEncryptionHandler().decryptIndexEntry(executionContext, indexEntry);
+				IndexValue indexValue = getEncryptionHandler().decryptIndexEntry(ec, indexEntry);
 				mappedByDataEntryIDs = indexValue.getDataEntryIDs();
 			}
 		}
 
-		int relationType = mmd.getRelationType(executionContext.getClassLoaderResolver());
+		int relationType = mmd.getRelationType(ec.getClassLoaderResolver());
 
 		if (relationType == Relation.NONE)
 		{
@@ -205,7 +208,7 @@ public class FetchFieldManager extends AbstractFieldManager
 			}
 
 			Object valueID = objectContainer.getValue(fieldMeta.getFieldID());
-			return ObjectContainerHelper.referenceToEntity(executionContext, pm, valueID);
+			return ObjectContainerHelper.referenceToEntity(ec, pmData, valueID);
 		}
 		else if (Relation.isRelationMultiValued(relationType))
 		{
@@ -233,7 +236,7 @@ public class FetchFieldManager extends AbstractFieldManager
 					Object ids = objectContainer.getValue(fieldMeta.getFieldID());
 					for (int idx = 0; idx < Array.getLength(ids); ++idx) {
 						Object id = Array.get(ids, idx);
-						Object element = ObjectContainerHelper.referenceToEntity(executionContext, pm, id);
+						Object element = ObjectContainerHelper.referenceToEntity(ec, pmData, id);
 						collection.add(element);
 					}
 				}
@@ -256,12 +259,12 @@ public class FetchFieldManager extends AbstractFieldManager
 				boolean valueIsPersistent = mmd.getMap().valueIsPersistent();
 
 				if (mmd.getMappedBy() != null) {
-					FieldMeta oppositeFieldMetaKey = fieldMeta.getSubFieldMeta(FieldMetaRole.mapKey).getMappedByFieldMeta(executionContext);
-					FieldMeta oppositeFieldMetaValue = fieldMeta.getSubFieldMeta(FieldMetaRole.mapValue).getMappedByFieldMeta(executionContext);
+					FieldMeta oppositeFieldMetaKey = fieldMeta.getSubFieldMeta(FieldMetaRole.mapKey).getMappedByFieldMeta(ec);
+					FieldMeta oppositeFieldMetaValue = fieldMeta.getSubFieldMeta(FieldMetaRole.mapValue).getMappedByFieldMeta(ec);
 
 					for (Long mappedByDataEntryID : mappedByDataEntryIDs) {
 						Object element = getObjectFromDataEntryID(mappedByDataEntryID);
-						ObjectProvider elementOP = executionContext.findObjectProvider(element);
+						ObjectProvider elementOP = ec.findObjectProvider(element);
 						if (elementOP == null)
 							throw new IllegalStateException("executionContext.findObjectProvider(element) returned null for " + element);
 
@@ -287,10 +290,10 @@ public class FetchFieldManager extends AbstractFieldManager
 						Object v = me.getValue();
 
 						if (keyIsPersistent)
-							k = ObjectContainerHelper.referenceToEntity(executionContext, pm, k);
+							k = ObjectContainerHelper.referenceToEntity(ec, pmData, k);
 
 						if (valueIsPersistent)
-							v = ObjectContainerHelper.referenceToEntity(executionContext, pm, v);
+							v = ObjectContainerHelper.referenceToEntity(ec, pmData, v);
 
 						map.put(k, v);
 					}
@@ -300,7 +303,7 @@ public class FetchFieldManager extends AbstractFieldManager
 			}
 			else if (mmd.hasArray())
 			{
-				Class<?> elementType = executionContext.getClassLoaderResolver().classForName(mmd.getArray().getElementType());
+				Class<?> elementType = ec.getClassLoaderResolver().classForName(mmd.getArray().getElementType());
 
 				Object array;
 				if (mmd.getMappedBy() != null) {
@@ -319,7 +322,7 @@ public class FetchFieldManager extends AbstractFieldManager
 					array = Array.newInstance(elementType, arrayLength);
 					for (int i = 0; i < arrayLength; ++i) {
 						Object id = Array.get(ids, i);
-						Object element = ObjectContainerHelper.referenceToEntity(executionContext, pm, id);
+						Object element = ObjectContainerHelper.referenceToEntity(ec, pmData, id);
 						Array.set(array, i, element);
 					}
 				}
@@ -334,9 +337,9 @@ public class FetchFieldManager extends AbstractFieldManager
 
 	private Object getObjectFromDataEntryID(long dataEntryID)
 	{
-		String idStr = DataEntry.getDataEntry(pm, dataEntryID).getObjectID();
+		String idStr = DataEntry.getDataEntry(pmData, dataEntryID).getObjectID();
 		return IdentityUtils.getObjectFromIdString(
-				idStr, classMeta.getDataNucleusClassMetaData(executionContext), executionContext, true
+				idStr, classMeta.getDataNucleusClassMetaData(ec), ec, true
 		);
 	}
 }

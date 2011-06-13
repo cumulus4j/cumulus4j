@@ -33,8 +33,7 @@ import org.slf4j.LoggerFactory;
  * TODO Support one StoreManager for persistable objects and one StoreManager for indexed data
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public class Cumulus4jStoreManager
-extends AbstractStoreManager
+public class Cumulus4jStoreManager extends AbstractStoreManager
 {
 	private static final Logger logger = LoggerFactory.getLogger(Cumulus4jStoreManager.class);
 

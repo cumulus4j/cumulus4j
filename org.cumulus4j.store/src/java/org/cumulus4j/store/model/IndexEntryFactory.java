@@ -15,21 +15,21 @@ public abstract class IndexEntryFactory
 	/**
 	 * Get an {@link IndexEntry} for the specified unique key fields or <code>null</code>, if no such instance
 	 * exists.
-	 * @param pm the backend-<code>PersistenceManager</code>. Must not be <code>null</code>.
+	 * @param pmIndex the backend-<code>PersistenceManager</code>. Must not be <code>null</code>.
 	 * @param fieldMeta the meta-data of the field to query. Must not be <code>null</code>.
 	 * @param indexKey the indexed value to search for. Might be <code>null</code> (<code>null</code> can be indexed).
 	 * @return the matching {@link IndexEntry} or <code>null</code>.
 	 */
-	public IndexEntry getIndexEntry(PersistenceManager pm, FieldMeta fieldMeta, Object indexKey)
+	public IndexEntry getIndexEntry(PersistenceManager pmIndex, FieldMeta fieldMeta, Object indexKey)
 	{
-		if (pm == null)
+		if (pmIndex == null)
 			throw new IllegalArgumentException("pm == null");
 
 		if (fieldMeta == null)
 			throw new IllegalArgumentException("fieldMeta == null");
 
 		Class<? extends IndexEntry> indexEntryClass = getIndexEntryClass();
-		javax.jdo.Query q = pm.newQuery(indexEntryClass);
+		javax.jdo.Query q = pmIndex.newQuery(indexEntryClass);
 		q.setUnique(true);
 		q.setFilter(
 				"this.fieldMeta == :fieldMeta && " +
@@ -44,14 +44,14 @@ public abstract class IndexEntryFactory
 	/**
 	 * Get an existing {@link IndexEntry} just like {@link #getIndexEntry(PersistenceManager, FieldMeta, Object)}
 	 * or create one, if it does not yet exist.
-	 * @param pm the backend-<code>PersistenceManager</code>. Must not be <code>null</code>.
+	 * @param pmIndex the backend-<code>PersistenceManager</code>. Must not be <code>null</code>.
 	 * @param fieldMeta the meta-data of the field to query. Must not be <code>null</code>.
 	 * @param indexKey the indexed value to search for. Might be <code>null</code> (<code>null</code> can be indexed).
 	 * @return the matching {@link IndexEntry} (never <code>null</code>).
 	 */
-	public IndexEntry createIndexEntry(PersistenceManager pm, FieldMeta fieldMeta, Object indexKey)
+	public IndexEntry createIndexEntry(PersistenceManager pmIndex, FieldMeta fieldMeta, Object indexKey)
 	{
-		IndexEntry result = getIndexEntry(pm, fieldMeta, indexKey);
+		IndexEntry result = getIndexEntry(pmIndex, fieldMeta, indexKey);
 		if (result == null) {
 			try {
 				result = getIndexEntryClass().newInstance();

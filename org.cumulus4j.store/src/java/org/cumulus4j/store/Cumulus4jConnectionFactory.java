@@ -110,10 +110,6 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 			backendProperties.put("datanucleus.ConnectionPassword".toLowerCase(Locale.ENGLISH), pw);
 		}
 
-		if (backendIndexProperties != null) {
-			// TODO Implement generation of PMF for index data
-		}
-
 		// This block is an alternative to getting Extent of each Cumulus4j schema class
 /*		StringBuffer classNameStr = new StringBuffer();
 		classNameStr.append(ClassMeta.class.getName()).append(",");
@@ -138,6 +134,7 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 		cumulus4jBackendProperties.put("datanucleus.autostartmechanism", "Classes");
 		cumulus4jBackendProperties.put("datanucleus.autostartclassnames", classNameStr.toString());*/
 
+		// PMF for data (and optionally index)
 		pmf = JDOHelper.getPersistenceManagerFactory(backendProperties);
 
 		// initialise meta-data (which partially tests it)
@@ -172,6 +169,7 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 		}
 
 		if (backendIndexProperties != null) {
+			// PMF for index data
 			NucleusLogger.GENERAL.debug(">> Properties for INDEX PMF="+StringUtils.mapToString(backendIndexProperties));
 			pmfIndex = JDOHelper.getPersistenceManagerFactory(backendIndexProperties);
 

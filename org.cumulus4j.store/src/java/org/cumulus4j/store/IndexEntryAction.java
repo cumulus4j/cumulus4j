@@ -34,17 +34,15 @@ abstract class IndexEntryAction
 	}
 
 	protected abstract IndexEntry getIndexEntry(
-			IndexEntryFactory indexEntryFactory, PersistenceManager pm, FieldMeta fieldMeta, Object fieldValue
+			IndexEntryFactory indexEntryFactory, PersistenceManager pmIndex, FieldMeta fieldMeta, Object fieldValue
 	);
 
-	protected abstract IndexEntry getIndexEntryForObjectRelation(PersistenceManager pm, FieldMeta fieldMeta, Long otherDataEntryID);
+	protected abstract IndexEntry getIndexEntryForObjectRelation(PersistenceManager pmIndex, FieldMeta fieldMeta, Long otherDataEntryID);
 
-	protected abstract void _perform(ExecutionContext executionContext, PersistenceManager pm, IndexEntry indexEntry, long dataEntryID);
+	protected abstract void _perform(ExecutionContext executionContext, PersistenceManager pmIndex, IndexEntry indexEntry, long dataEntryID);
 
-	public void perform(
-			ExecutionContext executionContext, PersistenceManager pm, long dataEntryID,
-			FieldMeta fieldMeta, AbstractMemberMetaData dnMemberMetaData,
-			Object fieldValue
+	public void perform(ExecutionContext ec, PersistenceManager pmIndex, long dataEntryID,
+			FieldMeta fieldMeta, AbstractMemberMetaData dnMemberMetaData, Object fieldValue
 	)
 	{
 		boolean hasQueryable = dnMemberMetaData.hasExtension(Cumulus4jStoreManager.CUMULUS4J_QUERYABLE);
@@ -56,7 +54,7 @@ abstract class IndexEntryAction
 			}
 		}
 
-		int relationType = dnMemberMetaData.getRelationType(executionContext.getClassLoaderResolver());
+		int relationType = dnMemberMetaData.getRelationType(ec.getClassLoaderResolver());
 		if (Relation.NONE == relationType) {
 			// The field contains no other persistent entity. It might contain a collection/array/map, though.
 
@@ -68,52 +66,52 @@ abstract class IndexEntryAction
 					role = FieldMetaRole.arrayElement;
 
 				FieldMeta subFieldMeta = fieldMeta.getSubFieldMeta(role);
-				IndexEntryFactory indexEntryFactory = indexEntryFactoryRegistry.getIndexEntryFactory(executionContext, subFieldMeta, false);
+				IndexEntryFactory indexEntryFactory = indexEntryFactoryRegistry.getIndexEntryFactory(ec, subFieldMeta, false);
 				for (int idx = 0; idx < Array.getLength(fieldValue); ++idx) {
 					Object element = Array.get(fieldValue, idx);
-					IndexEntry indexEntry = getIndexEntry(indexEntryFactory, pm, subFieldMeta, element);
-					_perform(executionContext, pm, indexEntry, dataEntryID);
+					IndexEntry indexEntry = getIndexEntry(indexEntryFactory, pmIndex, subFieldMeta, element);
+					_perform(ec, pmIndex, indexEntry, dataEntryID);
 				}
 
 				// Add entry for the collection/array size
 				int containerSize = Array.getLength(fieldValue);
 				IndexEntry sizeIdxEntry = 
-					indexEntryFactoryRegistry.getIndexEntryFactoryForContainerSize().createIndexEntry(pm, fieldMeta, new Long(containerSize));
-				_perform(executionContext, pm, sizeIdxEntry, dataEntryID);
+					indexEntryFactoryRegistry.getIndexEntryFactoryForContainerSize().createIndexEntry(pmIndex, fieldMeta, new Long(containerSize));
+				_perform(ec, pmIndex, sizeIdxEntry, dataEntryID);
 			}
 			else if (dnMemberMetaData.hasMap()) {
 				Map<?,?> fieldValueMap = (Map<?,?>) fieldValue;
 
 				FieldMeta subFieldMetaKey = fieldMeta.getSubFieldMeta(FieldMetaRole.mapKey);
 				FieldMeta subFieldMetaValue = fieldMeta.getSubFieldMeta(FieldMetaRole.mapValue);
-				IndexEntryFactory indexEntryFactoryKey = indexEntryFactoryRegistry.getIndexEntryFactory(executionContext, subFieldMetaKey, false);
-				IndexEntryFactory indexEntryFactoryValue = indexEntryFactoryRegistry.getIndexEntryFactory(executionContext, subFieldMetaValue, false);
+				IndexEntryFactory indexEntryFactoryKey = indexEntryFactoryRegistry.getIndexEntryFactory(ec, subFieldMetaKey, false);
+				IndexEntryFactory indexEntryFactoryValue = indexEntryFactoryRegistry.getIndexEntryFactory(ec, subFieldMetaValue, false);
 
 				for (Map.Entry<?, ?> me : fieldValueMap.entrySet()) {
-					IndexEntry indexEntryKey = getIndexEntry(indexEntryFactoryKey, pm, subFieldMetaKey, me.getKey());
-					_perform(executionContext, pm, indexEntryKey, dataEntryID);
+					IndexEntry indexEntryKey = getIndexEntry(indexEntryFactoryKey, pmIndex, subFieldMetaKey, me.getKey());
+					_perform(ec, pmIndex, indexEntryKey, dataEntryID);
 
-					IndexEntry indexEntryValue = getIndexEntry(indexEntryFactoryValue, pm, subFieldMetaValue, me.getValue());
-					_perform(executionContext, pm, indexEntryValue, dataEntryID);
+					IndexEntry indexEntryValue = getIndexEntry(indexEntryFactoryValue, pmIndex, subFieldMetaValue, me.getValue());
+					_perform(ec, pmIndex, indexEntryValue, dataEntryID);
 				}
 
 				// Add entry for the map size
 				int containerSize = (fieldValueMap != null ? fieldValueMap.size() : 0);
 				IndexEntry sizeIdxEntry = 
-					indexEntryFactoryRegistry.getIndexEntryFactoryForContainerSize().createIndexEntry(pm, fieldMeta, new Long(containerSize));
-				_perform(executionContext, pm, sizeIdxEntry, dataEntryID);
+					indexEntryFactoryRegistry.getIndexEntryFactoryForContainerSize().createIndexEntry(pmIndex, fieldMeta, new Long(containerSize));
+				_perform(ec, pmIndex, sizeIdxEntry, dataEntryID);
 			}
 			else {
-				IndexEntryFactory indexEntryFactory = indexEntryFactoryRegistry.getIndexEntryFactory(executionContext, fieldMeta, false);
-				IndexEntry indexEntry = getIndexEntry(indexEntryFactory, pm, fieldMeta, fieldValue);
-				_perform(executionContext, pm, indexEntry, dataEntryID);
+				IndexEntryFactory indexEntryFactory = indexEntryFactoryRegistry.getIndexEntryFactory(ec, fieldMeta, false);
+				IndexEntry indexEntry = getIndexEntry(indexEntryFactory, pmIndex, fieldMeta, fieldValue);
+				_perform(ec, pmIndex, indexEntry, dataEntryID);
 			}
 		}
 		else if (Relation.isRelationSingleValued(relationType)) {
 			// 1-1-relationship to another persistence-capable object.
-			Long otherDataEntryID = ObjectContainerHelper.referenceToDataEntryID(executionContext, pm, fieldValue);
-			IndexEntry indexEntry = getIndexEntryForObjectRelation(pm, fieldMeta, otherDataEntryID);
-			_perform(executionContext, pm, indexEntry, dataEntryID);
+			Long otherDataEntryID = ObjectContainerHelper.referenceToDataEntryID(ec, pmIndex, fieldValue);
+			IndexEntry indexEntry = getIndexEntryForObjectRelation(pmIndex, fieldMeta, otherDataEntryID);
+			_perform(ec, pmIndex, indexEntry, dataEntryID);
 		}
 		else if (Relation.isRelationMultiValued(relationType)) {
 			// map, collection, array
@@ -126,36 +124,36 @@ abstract class IndexEntryAction
 
 				FieldMeta subFieldMetaKey = fieldMeta.getSubFieldMeta(FieldMetaRole.mapKey);
 				FieldMeta subFieldMetaValue = fieldMeta.getSubFieldMeta(FieldMetaRole.mapValue);
-				IndexEntryFactory indexEntryFactoryKey = indexEntryFactoryRegistry.getIndexEntryFactory(executionContext, subFieldMetaKey, false);
-				IndexEntryFactory indexEntryFactoryValue = indexEntryFactoryRegistry.getIndexEntryFactory(executionContext, subFieldMetaValue, false);
+				IndexEntryFactory indexEntryFactoryKey = indexEntryFactoryRegistry.getIndexEntryFactory(ec, subFieldMetaKey, false);
+				IndexEntryFactory indexEntryFactoryValue = indexEntryFactoryRegistry.getIndexEntryFactory(ec, subFieldMetaValue, false);
 
 				for (Map.Entry<?, ?> me : fieldValueMap.entrySet()) {
 					if (keyIsPersistent) {
-						Long otherDataEntryID = ObjectContainerHelper.referenceToDataEntryID(executionContext, pm, me.getKey());
-						IndexEntry indexEntry = getIndexEntryForObjectRelation(pm, subFieldMetaKey, otherDataEntryID);
-						_perform(executionContext, pm, indexEntry, dataEntryID);
+						Long otherDataEntryID = ObjectContainerHelper.referenceToDataEntryID(ec, pmIndex, me.getKey());
+						IndexEntry indexEntry = getIndexEntryForObjectRelation(pmIndex, subFieldMetaKey, otherDataEntryID);
+						_perform(ec, pmIndex, indexEntry, dataEntryID);
 					}
 					else {
-						IndexEntry indexEntry = getIndexEntry(indexEntryFactoryKey, pm, subFieldMetaKey, me.getKey());
-						_perform(executionContext, pm, indexEntry, dataEntryID);
+						IndexEntry indexEntry = getIndexEntry(indexEntryFactoryKey, pmIndex, subFieldMetaKey, me.getKey());
+						_perform(ec, pmIndex, indexEntry, dataEntryID);
 					}
 
 					if (valueIsPersistent) {
-						Long otherDataEntryID = ObjectContainerHelper.referenceToDataEntryID(executionContext, pm, me.getValue());
-						IndexEntry indexEntry = getIndexEntryForObjectRelation(pm, subFieldMetaValue, otherDataEntryID);
-						_perform(executionContext, pm, indexEntry, dataEntryID);
+						Long otherDataEntryID = ObjectContainerHelper.referenceToDataEntryID(ec, pmIndex, me.getValue());
+						IndexEntry indexEntry = getIndexEntryForObjectRelation(pmIndex, subFieldMetaValue, otherDataEntryID);
+						_perform(ec, pmIndex, indexEntry, dataEntryID);
 					}
 					else {
-						IndexEntry indexEntry = getIndexEntry(indexEntryFactoryValue, pm, subFieldMetaValue, me.getValue());
-						_perform(executionContext, pm, indexEntry, dataEntryID);
+						IndexEntry indexEntry = getIndexEntry(indexEntryFactoryValue, pmIndex, subFieldMetaValue, me.getValue());
+						_perform(ec, pmIndex, indexEntry, dataEntryID);
 					}
 				}
 
 				// Add entry for the map size
 				int containerSize = (fieldValueMap != null ? fieldValueMap.size() : 0);
 				IndexEntry sizeIdxEntry = 
-					indexEntryFactoryRegistry.getIndexEntryFactoryForContainerSize().createIndexEntry(pm, fieldMeta, new Long(containerSize));
-				_perform(executionContext, pm, sizeIdxEntry, dataEntryID);
+					indexEntryFactoryRegistry.getIndexEntryFactoryForContainerSize().createIndexEntry(pmIndex, fieldMeta, new Long(containerSize));
+				_perform(ec, pmIndex, sizeIdxEntry, dataEntryID);
 			}
 			else if (dnMemberMetaData.hasCollection() || dnMemberMetaData.hasArray()) {
 				FieldMetaRole role;
@@ -167,16 +165,16 @@ abstract class IndexEntryAction
 				FieldMeta subFieldMeta = fieldMeta.getSubFieldMeta(role);
 				Object[] fieldValueArray = (Object[]) fieldValue;
 				for (Object element : fieldValueArray) {
-					Long otherDataEntryID = ObjectContainerHelper.referenceToDataEntryID(executionContext, pm, element);
-					IndexEntry indexEntry = getIndexEntryForObjectRelation(pm, subFieldMeta, otherDataEntryID);
-					_perform(executionContext, pm, indexEntry, dataEntryID);
+					Long otherDataEntryID = ObjectContainerHelper.referenceToDataEntryID(ec, pmIndex, element);
+					IndexEntry indexEntry = getIndexEntryForObjectRelation(pmIndex, subFieldMeta, otherDataEntryID);
+					_perform(ec, pmIndex, indexEntry, dataEntryID);
 				}
 
 				// Add entry for the collection/array size
 				int containerSize = (fieldValueArray != null ? fieldValueArray.length : 0);
 				IndexEntry sizeIdxEntry = 
-					indexEntryFactoryRegistry.getIndexEntryFactoryForContainerSize().createIndexEntry(pm, fieldMeta, new Long(containerSize));
-				_perform(executionContext, pm, sizeIdxEntry, dataEntryID);
+					indexEntryFactoryRegistry.getIndexEntryFactoryForContainerSize().createIndexEntry(pmIndex, fieldMeta, new Long(containerSize));
+				_perform(ec, pmIndex, sizeIdxEntry, dataEntryID);
 			}
 		}
 	}
@@ -188,26 +186,26 @@ abstract class IndexEntryAction
 		}
 
 		@Override
-		public IndexEntry getIndexEntry(IndexEntryFactory indexEntryFactory, PersistenceManager pm, FieldMeta fieldMeta, Object fieldValue)
+		public IndexEntry getIndexEntry(IndexEntryFactory indexEntryFactory, PersistenceManager pmIndex, FieldMeta fieldMeta, Object fieldValue)
 		{
-			return indexEntryFactory == null ? null : indexEntryFactory.createIndexEntry(pm, fieldMeta, fieldValue);
+			return indexEntryFactory == null ? null : indexEntryFactory.createIndexEntry(pmIndex, fieldMeta, fieldValue);
 		}
 
 		@Override
-		public IndexEntry getIndexEntryForObjectRelation(PersistenceManager pm, FieldMeta fieldMeta, Long otherDataEntryID) {
-			return IndexEntryObjectRelationHelper.createIndexEntry(pm, fieldMeta, otherDataEntryID);
+		public IndexEntry getIndexEntryForObjectRelation(PersistenceManager pmIndex, FieldMeta fieldMeta, Long otherDataEntryID) {
+			return IndexEntryObjectRelationHelper.createIndexEntry(pmIndex, fieldMeta, otherDataEntryID);
 		}
 
 		@Override
-		protected void _perform(ExecutionContext executionContext, PersistenceManager pm, IndexEntry indexEntry, long dataEntryID)
+		protected void _perform(ExecutionContext ec, PersistenceManager pmIndex, IndexEntry indexEntry, long dataEntryID)
 		{
 			if (indexEntry == null)
 				return;
 
-			IndexValue indexValue = encryptionHandler.decryptIndexEntry(executionContext, indexEntry);
+			IndexValue indexValue = encryptionHandler.decryptIndexEntry(ec, indexEntry);
 			indexValue.addDataEntryID(dataEntryID);
-			encryptionHandler.encryptIndexEntry(executionContext, indexEntry, indexValue);
-			pm.makePersistent(indexEntry); // We do not persist directly when creating anymore, thus we must persist here. This is a no-op, if it's already persistent.
+			encryptionHandler.encryptIndexEntry(ec, indexEntry, indexValue);
+			pmIndex.makePersistent(indexEntry); // We do not persist directly when creating anymore, thus we must persist here. This is a no-op if it's already persistent.
 		}
 	}
 
@@ -218,29 +216,28 @@ abstract class IndexEntryAction
 		}
 
 		@Override
-		public IndexEntry getIndexEntry(IndexEntryFactory indexEntryFactory, PersistenceManager pm, FieldMeta fieldMeta, Object fieldValue)
+		public IndexEntry getIndexEntry(IndexEntryFactory indexEntryFactory, PersistenceManager pmIndex, FieldMeta fieldMeta, Object fieldValue)
 		{
-			return indexEntryFactory == null ? null : indexEntryFactory.getIndexEntry(pm, fieldMeta, fieldValue);
+			return indexEntryFactory == null ? null : indexEntryFactory.getIndexEntry(pmIndex, fieldMeta, fieldValue);
 		}
 
 		@Override
-		protected IndexEntry getIndexEntryForObjectRelation(PersistenceManager pm, FieldMeta fieldMeta, Long otherDataEntryID) {
-			return IndexEntryObjectRelationHelper.getIndexEntry(pm, fieldMeta, otherDataEntryID);
+		protected IndexEntry getIndexEntryForObjectRelation(PersistenceManager pmIndex, FieldMeta fieldMeta, Long otherDataEntryID) {
+			return IndexEntryObjectRelationHelper.getIndexEntry(pmIndex, fieldMeta, otherDataEntryID);
 		}
 
 		@Override
-		protected void _perform(ExecutionContext executionContext, PersistenceManager pm, IndexEntry indexEntry, long dataEntryID)
+		protected void _perform(ExecutionContext ec, PersistenceManager pmIndex, IndexEntry indexEntry, long dataEntryID)
 		{
 			if (indexEntry == null)
 				return;
 
-			IndexValue indexValue = encryptionHandler.decryptIndexEntry(executionContext, indexEntry);
+			IndexValue indexValue = encryptionHandler.decryptIndexEntry(ec, indexEntry);
 			indexValue.removeDataEntryID(dataEntryID);
 			if (indexValue.isDataEntryIDsEmpty())
-				pm.deletePersistent(indexEntry);
+				pmIndex.deletePersistent(indexEntry);
 			else
-				encryptionHandler.encryptIndexEntry(executionContext, indexEntry, indexValue);
+				encryptionHandler.encryptIndexEntry(ec, indexEntry, indexValue);
 		}
 	}
-
 }

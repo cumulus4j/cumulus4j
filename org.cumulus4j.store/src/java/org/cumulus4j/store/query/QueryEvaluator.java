@@ -81,8 +81,11 @@ public abstract class QueryEvaluator
 
 	private Cumulus4jStoreManager storeManager;
 
-	// TODO Have pm for data, and optional pm for index
+	/** PM for data. */
 	private PersistenceManager pm;
+
+	/** PM for index. */
+	private PersistenceManager pmIndex;
 
 	private EncryptionHandler encryptionHandler;
 
@@ -92,9 +95,8 @@ public abstract class QueryEvaluator
 	 * @param pm our <b>backend</b>-<code>PersistenceManager</code>.
 	 */
 	public QueryEvaluator(
-			String language, Query query, QueryCompilation compilation, Map<String, Object> parameterValues, ClassLoaderResolver clr,
-			PersistenceManager pm
-	)
+			String language, Query query, QueryCompilation compilation, Map<String, Object> parameterValues, 
+			ClassLoaderResolver clr, PersistenceManager pm, PersistenceManager pmIndex)
 	{
 		this.language = language;
 		this.query = query;
@@ -104,6 +106,7 @@ public abstract class QueryEvaluator
 		this.ec = query.getExecutionContext();
 		this.storeManager = (Cumulus4jStoreManager) query.getStoreManager();
 		this.pm = pm;
+		this.pmIndex = pmIndex;
 		this.encryptionHandler = storeManager.getEncryptionHandler();
 
 		this.candidateAlias = (compilation.getCandidateAlias() != null ? compilation.getCandidateAlias() : this.candidateAlias);
@@ -168,8 +171,7 @@ public abstract class QueryEvaluator
 	}
 
 	public PersistenceManager getPersistenceManagerForIndex() {
-		// TODO Optionally allow separate PM
-		return pm;
+		return pmIndex;
 	}
 
 	public EncryptionHandler getEncryptionHandler() {

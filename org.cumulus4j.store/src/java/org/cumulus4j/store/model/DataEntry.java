@@ -50,15 +50,15 @@ implements StoreCallback
 	/**
 	 * Get the <code>DataEntry</code> identified by the specified {@link #getDataEntryID() dataEntryID} or
 	 * <code>null</code> if no such instance exists.
-	 * @param pm the backend-<code>PersistenceManager</code>. Must not be <code>null</code>.
+	 * @param pmData the backend-<code>PersistenceManager</code>. Must not be <code>null</code>.
 	 * @param dataEntryID the <code>DataEntry</code>'s {@link #getDataEntryID() identifier}.
 	 * @return the <code>DataEntry</code> matching the given <code>dataEntryID</code> or <code>null</code>, if no such instance exists.
 	 */
-	public static DataEntry getDataEntry(PersistenceManager pm, long dataEntryID)
+	public static DataEntry getDataEntry(PersistenceManager pmData, long dataEntryID)
 	{
 		DataEntry dataEntry;
 		try {
-			dataEntry = (DataEntry) pm.getObjectById(new LongIdentity(DataEntry.class, dataEntryID));
+			dataEntry = (DataEntry) pmData.getObjectById(new LongIdentity(DataEntry.class, dataEntryID));
 		} catch (JDOObjectNotFoundException x) {
 			dataEntry = null;
 		}
@@ -68,16 +68,16 @@ implements StoreCallback
 	/**
 	 * Get the <code>DataEntry</code> identified by the given type and JDO/JPA-object-ID.
 	 *
-	 * @param pm the backend-<code>PersistenceManager</code>. Must not be <code>null</code>.
+	 * @param pmData the backend-<code>PersistenceManager</code>. Must not be <code>null</code>.
 	 * @param classMeta reference to the searched <code>DataEntry</code>'s {@link #getClassMeta() classMeta} (which must match
 	 * the searched instance's concrete type - <b>not</b> the root-type of the inheritance tree!).
 	 * @param objectID the <code>String</code>-representation of the JDO/JPA-object-ID.
 	 * @return the <code>DataEntry</code> matching the given combination of <code>classMeta</code> and <code>objectID</code>;
 	 * or <code>null</code>, if no such instance exists.
 	 */
-	public static DataEntry getDataEntry(PersistenceManager pm, ClassMeta classMeta, String objectID)
+	public static DataEntry getDataEntry(PersistenceManager pmData, ClassMeta classMeta, String objectID)
 	{
-		javax.jdo.Query q = pm.newNamedQuery(DataEntry.class, "getDataEntryByClassMetaAndObjectID");
+		javax.jdo.Query q = pmData.newNamedQuery(DataEntry.class, "getDataEntryByClassMetaAndObjectID");
 		return (DataEntry) q.execute(classMeta, objectID);
 		// UNIQUE query does not need to be closed, because there is no result list lingering.
 	}
@@ -99,7 +99,7 @@ implements StoreCallback
 	 * but faster, because it does not query unnecessary data from the underlying database.
 	 * </p>
 	 *
-	 * @param pm the backend-<code>PersistenceManager</code>. Must not be <code>null</code>.
+	 * @param pmData the backend-<code>PersistenceManager</code>. Must not be <code>null</code>.
 	 * @param classMeta reference to the searched <code>DataEntry</code>'s {@link #getClassMeta() classMeta} (which must match
 	 * the searched instance's concrete type - <b>not</b> the root-type of the inheritance tree!).
 	 * @param objectID the <code>String</code>-representation of the JDO/JPA-object-ID.
@@ -107,9 +107,9 @@ implements StoreCallback
 	 * given combination of <code>classMeta</code> and <code>objectID</code>;
 	 * or <code>null</code>, if no such instance exists.
 	 */
-	public static Long getDataEntryID(PersistenceManager pm, ClassMeta classMeta, String objectID)
+	public static Long getDataEntryID(PersistenceManager pmData, ClassMeta classMeta, String objectID)
 	{
-		javax.jdo.Query q = pm.newNamedQuery(DataEntry.class, "getDataEntryIDByClassMetaAndObjectID");
+		javax.jdo.Query q = pmData.newNamedQuery(DataEntry.class, "getDataEntryIDByClassMetaAndObjectID");
 		return (Long) q.execute(classMeta, objectID);
 		// UNIQUE query does not need to be closed, because there is no result list lingering.
 	}
@@ -123,7 +123,7 @@ implements StoreCallback
 	 * This method is thus the negation of {@link #getDataEntryID(PersistenceManager, ClassMeta, String)}.
 	 * </p>
 	 *
-	 * @param pm the backend-<code>PersistenceManager</code>. Must not be <code>null</code>.
+	 * @param pmData the backend-<code>PersistenceManager</code>. Must not be <code>null</code>.
 	 * @param classMeta reference to the searched <code>DataEntry</code>'s {@link #getClassMeta() classMeta} (which must match
 	 * the searched instance's concrete type - <b>not</b> the root-type of the inheritance tree!).
 	 * @param notThisObjectID the <code>String</code>-representation of the JDO/JPA-object-ID, which should be
@@ -131,9 +131,9 @@ implements StoreCallback
 	 * @return the {@link #getDataEntryID() dataEntryID}s of those <code>DataEntry</code>s which match the given
 	 * <code>classMeta</code> but have an object-ID different from the one specified as <code>notThisObjectID</code>.
 	 */
-	public static Set<Long> getDataEntryIDsNegated(PersistenceManager pm, ClassMeta classMeta, String notThisObjectID)
+	public static Set<Long> getDataEntryIDsNegated(PersistenceManager pmData, ClassMeta classMeta, String notThisObjectID)
 	{
-		javax.jdo.Query q = pm.newNamedQuery(DataEntry.class, "getDataEntryIDsByClassMetaAndObjectIDNegated");
+		javax.jdo.Query q = pmData.newNamedQuery(DataEntry.class, "getDataEntryIDsByClassMetaAndObjectIDNegated");
 		@SuppressWarnings("unchecked")
 		Collection<Long> dataEntryIDsColl = (Collection<Long>) q.execute(classMeta, notThisObjectID);
 		Set<Long> dataEntryIDsSet = new HashSet<Long>(dataEntryIDsColl);

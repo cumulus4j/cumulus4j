@@ -48,7 +48,6 @@ public class JDOQLQuery extends AbstractJDOQLQuery
 			PersistenceManager pm = (PersistenceManager) mconn.getConnection();
 
       boolean inMemory = evaluateInMemory();
-
 			boolean inMemory_applyFilter = true;
       List<Object> candidates = null;
 			if (this.candidateCollection != null) {
@@ -79,7 +78,8 @@ public class JDOQLQuery extends AbstractJDOQLQuery
 						// Apply filter in datastore
 						@SuppressWarnings("unchecked")
 						Map<String, Object> parameterValues = parameters;
-						JDOQueryEvaluator queryEvaluator = new JDOQueryEvaluator(this, compilation, parameterValues, clr, pm);
+						// TODO Pass in PM for index if different
+						JDOQueryEvaluator queryEvaluator = new JDOQueryEvaluator(this, compilation, parameterValues, clr, pm, pm);
 						candidates = queryEvaluator.execute();
 						if (queryEvaluator.isComplete()) {
 							inMemory_applyFilter = false;
@@ -101,9 +101,7 @@ public class JDOQLQuery extends AbstractJDOQLQuery
 			}
 
 			// Evaluate any remaining query components in-memory
-			JavaQueryEvaluator evaluator = new JDOQLEvaluator(
-					this, candidates, compilation, parameters, ec.getClassLoaderResolver()
-			);
+			JavaQueryEvaluator evaluator = new JDOQLEvaluator(this, candidates, compilation, parameters, ec.getClassLoaderResolver());
 			return evaluator.execute(inMemory_applyFilter, true, true, true, true);
 		} finally {
 			mconn.release();
