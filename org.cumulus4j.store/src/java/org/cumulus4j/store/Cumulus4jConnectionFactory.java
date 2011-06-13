@@ -26,7 +26,6 @@ import java.util.Map;
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
-import javax.jdo.Transaction;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
@@ -225,6 +224,37 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 		return new Cumulus4jManagedConnection(poolKey, transactionOptions);
 	}
 
+	public class PersistenceManagerConnection {
+		/** PM for data (never null). */
+		private PersistenceManager pmData;
+		/** PM for indexes, could be null in which case use pmData */
+		private PersistenceManager pmIndex;
+
+		public PersistenceManagerConnection(PersistenceManager pmData, PersistenceManager pmIndex) {
+			this.pmData = pmData;
+			this.pmIndex = pmIndex;
+		}
+
+		/**
+		 * Accessor for the PM to use for data.
+		 * @return The PM to use for data
+		 */
+		public PersistenceManager getDataPM() {
+			return pmData;
+		}
+
+		/**
+		 * Accessor for the PM to use for indexes.
+		 * @return The PM to use for indexes
+		 */
+		public PersistenceManager getIndexPM() {
+			if (pmIndex != null) {
+				return pmIndex;
+			}
+			return pmData;
+		}
+	}
+
 	private class Cumulus4jManagedConnection extends AbstractManagedConnection
 	{
 		@SuppressWarnings("unused")
@@ -233,12 +263,11 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 		@SuppressWarnings({"unchecked","unused"})
 		private Map options;
 
-		// TODO Have pm for index data (optional)
-		private PersistenceManager pm;
+		PersistenceManagerConnection pmConnection;
 
 		@Override
 		public XAResource getXAResource() {
-			return new Cumulus4jXAResource((PersistenceManager)getConnection());
+			return new Cumulus4jXAResource((PersistenceManagerConnection)getConnection());
 		}
 
 		public Cumulus4jManagedConnection(Object poolKey, @SuppressWarnings("unchecked") Map options) {
@@ -248,111 +277,113 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 
 		@Override
 		public void close() {
-			if (pm != null) {
-				pm.close();
+			if (pmConnection != null) {
+				pmConnection.pmData.close();
+				if (pmConnection.pmIndex != null) {
+					pmConnection.pmIndex.close();
+				}
+				pmConnection = null;
 			}
-			pm = null;
 		}
 
 		@Override
 		public Object getConnection() {
-			if (pm == null) {
-				this.pm = pmf.getPersistenceManager();
+			if (pmConnection == null) {
+				this.pmConnection = new PersistenceManagerConnection(pmf.getPersistenceManager(), 
+						pmfIndex != null ? pmfIndex.getPersistenceManager() : null);
 			}
-			return pm;
+			return pmConnection;
 		}
 	}
 
 	class Cumulus4jXAResource implements XAResource {
-		private PersistenceManager pm;
-		private Transaction tx;
+		private PersistenceManagerConnection pmConnection;
 		//        private Xid xid;
 
-		Cumulus4jXAResource(PersistenceManager pm)
-		{
-			this.pm = pm;
-			this.tx = pm.currentTransaction();
+		Cumulus4jXAResource(PersistenceManagerConnection pmConn) {
+			this.pmConnection = pmConn;
 		}
 
 		@Override
-		public void commit(Xid xid, boolean arg1) throws XAException
-		{
+		public void start(Xid xid, int arg1) throws XAException {
+			//        	if (this.xid != null)
+			//        		throw new IllegalStateException("Transaction already started! Cannot start twice!");
+
+			pmConnection.pmData.currentTransaction().begin();
+			if (pmConnection.pmIndex != null) {
+				pmConnection.pmIndex.currentTransaction().begin();
+			}
+			//        	this.xid = xid;
+		}
+
+		@Override
+		public void commit(Xid xid, boolean arg1) throws XAException {
 			//        	if (this.xid == null)
 			//        		throw new IllegalStateException("Transaction not active!");
 			//
 			//        	if (!this.xid.equals(xid))
 			//        		throw new IllegalStateException("Transaction mismatch! this.xid=" + this.xid + " otherXid=" + xid);
 
-			tx.commit();
+			pmConnection.pmData.currentTransaction().commit();
+			if (pmConnection.pmIndex != null) {
+				pmConnection.pmIndex.currentTransaction().commit();
+			}
+
 			//            this.xid = null;
 		}
 
 		@Override
-		public void end(Xid arg0, int arg1) throws XAException
-		{
+		public void rollback(Xid xid) throws XAException {
+			//        	if (this.xid == null)
+			//        		throw new IllegalStateException("Transaction not active!");
+			//
+			//        	if (!this.xid.equals(xid))
+			//        		throw new IllegalStateException("Transaction mismatch! this.xid=" + this.xid + " otherXid=" + xid);
+
+			pmConnection.pmData.currentTransaction().rollback();
+			if (pmConnection.pmIndex != null) {
+				pmConnection.pmIndex.currentTransaction().rollback();
+			}
+
+			//            this.xid = null;
+		}
+
+		@Override
+		public void end(Xid arg0, int arg1) throws XAException {
 			//ignore
 		}
 
 		@Override
-		public void forget(Xid arg0) throws XAException
-		{
+		public void forget(Xid arg0) throws XAException {
 			//ignore
 		}
 
 		@Override
-		public int getTransactionTimeout() throws XAException
-		{
+		public int getTransactionTimeout() throws XAException {
 			return 0;
 		}
 
 		@Override
-		public boolean isSameRM(XAResource resource) throws XAException
-		{
-			if ((resource instanceof Cumulus4jXAResource) && pm.equals(((Cumulus4jXAResource)resource).pm))
+		public boolean isSameRM(XAResource resource) throws XAException {
+			if ((resource instanceof Cumulus4jXAResource) && pmConnection.equals(((Cumulus4jXAResource)resource).pmConnection))
 				return true;
 			else
 				return false;
 		}
 
 		@Override
-		public int prepare(Xid arg0) throws XAException
-		{
+		public int prepare(Xid arg0) throws XAException {
 			return 0;
 		}
 
 		@Override
-		public Xid[] recover(int arg0) throws XAException
-		{
+		public Xid[] recover(int arg0) throws XAException {
 			throw new XAException("Unsupported operation");
 		}
 
 		@Override
-		public void rollback(Xid xid) throws XAException
-		{
-			//        	if (this.xid == null)
-			//        		throw new IllegalStateException("Transaction not active!");
-			//
-			//        	if (!this.xid.equals(xid))
-			//        		throw new IllegalStateException("Transaction mismatch! this.xid=" + this.xid + " otherXid=" + xid);
-
-			tx.rollback();
-			//            this.xid = null;
-		}
-
-		@Override
-		public boolean setTransactionTimeout(int arg0) throws XAException
-		{
+		public boolean setTransactionTimeout(int arg0) throws XAException {
 			return false;
-		}
-
-		@Override
-		public void start(Xid xid, int arg1) throws XAException
-		{
-			//        	if (this.xid != null)
-			//        		throw new IllegalStateException("Transaction already started! Cannot start twice!");
-
-			tx.begin();
-			//        	this.xid = xid;
 		}
 	}
 }

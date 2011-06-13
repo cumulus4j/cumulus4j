@@ -28,6 +28,7 @@ import java.util.Set;
 import javax.jdo.PersistenceManager;
 
 import org.cumulus4j.store.Cumulus4jStoreManager;
+import org.cumulus4j.store.Cumulus4jConnectionFactory.PersistenceManagerConnection;
 import org.cumulus4j.store.model.ClassMeta;
 import org.datanucleus.query.evaluator.JPQLEvaluator;
 import org.datanucleus.query.evaluator.JavaQueryEvaluator;
@@ -61,7 +62,9 @@ public class JPQLQuery extends AbstractJPQLQuery {
 	protected Object performExecute(Map parameters) {
 		ManagedConnection mconn = ec.getStoreManager().getConnection(ec);
 		try {
-			PersistenceManager pm = (PersistenceManager) mconn.getConnection();
+			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
+			PersistenceManager pmData = pmConn.getDataPM();
+			PersistenceManager pmIndex = pmConn.getIndexPM();
 
 			boolean inMemory = evaluateInMemory();
 			boolean inMemory_applyFilter = true;
@@ -85,7 +88,7 @@ public class JPQLQuery extends AbstractJPQLQuery {
 					// Retrieve all candidates and perform all evaluation in-memory
 					Set<ClassMeta> classMetas = QueryHelper.getCandidateClassMetas((Cumulus4jStoreManager) ec.getStoreManager(), 
 							ec, candidateClass, subclasses);
-					candidates = QueryHelper.getAllPersistentObjectsForCandidateClasses(pm, ec, classMetas);
+					candidates = QueryHelper.getAllPersistentObjectsForCandidateClasses(pmData, ec, classMetas);
 				}
 				else {
 					try
@@ -94,7 +97,7 @@ public class JPQLQuery extends AbstractJPQLQuery {
 						@SuppressWarnings("unchecked")
 						Map<String, Object> parameterValues = parameters;
 						// TODO Pass in PM for index if different
-						JDOQueryEvaluator queryEvaluator = new JDOQueryEvaluator(this, compilation, parameterValues, clr, pm, pm);
+						JDOQueryEvaluator queryEvaluator = new JDOQueryEvaluator(this, compilation, parameterValues, clr, pmData, pmIndex);
 						candidates = queryEvaluator.execute();
 						if (queryEvaluator.isComplete()) {
 							inMemory_applyFilter = false;
@@ -110,7 +113,7 @@ public class JPQLQuery extends AbstractJPQLQuery {
 						NucleusLogger.QUERY.info("Query filter is not totally evaluatable in-datastore using Cumulus4j currently, so evaluating in-memory : "+uoe.getMessage());
 						Set<ClassMeta> classMetas = QueryHelper.getCandidateClassMetas((Cumulus4jStoreManager) ec.getStoreManager(), 
 								ec, candidateClass, subclasses);
-						candidates = QueryHelper.getAllPersistentObjectsForCandidateClasses(pm, ec, classMetas);
+						candidates = QueryHelper.getAllPersistentObjectsForCandidateClasses(pmData, ec, classMetas);
 					}
 				}
 			}

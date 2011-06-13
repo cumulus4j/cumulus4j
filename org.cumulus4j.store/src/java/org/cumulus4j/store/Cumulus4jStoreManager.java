@@ -30,6 +30,7 @@ import java.util.WeakHashMap;
 import javax.jdo.FetchPlan;
 import javax.jdo.PersistenceManager;
 
+import org.cumulus4j.store.Cumulus4jConnectionFactory.PersistenceManagerConnection;
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.DataEntry;
 import org.cumulus4j.store.model.FieldMeta;
@@ -116,7 +117,8 @@ public class Cumulus4jStoreManager extends AbstractStoreManager
 
 		ManagedConnection mconn = this.getConnection(ec);
 		try {
-			PersistenceManager pm = (PersistenceManager) mconn.getConnection();
+			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
+			PersistenceManager pm = pmConn.getDataPM();
 			pm.getFetchPlan().setGroup(FetchPlan.ALL);
 			result = registerClass(ec, pm, null, clazz); // TODO Pass in pmIndex if defined
 
@@ -312,7 +314,8 @@ public class Cumulus4jStoreManager extends AbstractStoreManager
 				else {
 					ManagedConnection mconn = this.getConnection(ec);
 					try {
-						PersistenceManager pmData = (PersistenceManager) mconn.getConnection();
+						PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
+						PersistenceManager pmData = pmConn.getDataPM();
 						String objectIDString = id.toString();
 						for (AbstractClassMetaData cmd : cmds) {
 							Class<?> clazz = clr.classForName(cmd.getFullClassName());

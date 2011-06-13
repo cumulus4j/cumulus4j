@@ -22,6 +22,7 @@ import java.util.Properties;
 
 import javax.jdo.PersistenceManager;
 
+import org.cumulus4j.store.Cumulus4jConnectionFactory.PersistenceManagerConnection;
 import org.cumulus4j.store.model.Sequence;
 import org.datanucleus.store.connection.ManagedConnection;
 import org.datanucleus.store.valuegenerator.AbstractDatastoreGenerator;
@@ -35,22 +36,19 @@ public class Cumulus4jIncrementGenerator extends AbstractDatastoreGenerator
 		super(name, props);
 		allocationSize = 5;
 
-        // TODO Check these names and what we want to use for Cumulus4j (classname or fieldname)
-        if (properties.getProperty("sequence-name") != null)
-        {
-            // Specified sequence-name so use that
-            sequenceName = properties.getProperty("sequence-name");
-        }
-        else if (properties.getProperty("field-name") != null)
-        {
-            // Use field name as the sequence name so we have one sequence per field on the class
-            sequenceName = properties.getProperty("field-name");
-        }
-        else
-        {
-            // Use actual class name as the sequence name so we have one sequence per class
-            sequenceName = properties.getProperty("class-name");
-        }
+		// TODO Check these names and what we want to use for Cumulus4j (classname or fieldname)
+		if (properties.getProperty("sequence-name") != null) {
+			// Specified sequence-name so use that
+			sequenceName = properties.getProperty("sequence-name");
+		}
+		else if (properties.getProperty("field-name") != null) {
+			// Use field name as the sequence name so we have one sequence per field on the class
+			sequenceName = properties.getProperty("field-name");
+		}
+		else {
+			// Use actual class name as the sequence name so we have one sequence per class
+			sequenceName = properties.getProperty("class-name");
+		}
 	}
 
 	@Override
@@ -61,7 +59,8 @@ public class Cumulus4jIncrementGenerator extends AbstractDatastoreGenerator
 		Long[] values = new Long[(int)size];
 		ManagedConnection mconn = connectionProvider.retrieveConnection();
 		try {
-			PersistenceManager pm = (PersistenceManager) mconn.getConnection();
+			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
+			PersistenceManager pm = pmConn.getDataPM();
 			pm.currentTransaction().setSerializeRead(true);
 			try {
 				Sequence sequence = Sequence.createSequence(pm, sequenceName);

@@ -23,6 +23,7 @@ import java.util.Map;
 
 import javax.jdo.PersistenceManager;
 
+import org.cumulus4j.store.Cumulus4jConnectionFactory.PersistenceManagerConnection;
 import org.cumulus4j.store.fieldmanager.FetchFieldManager;
 import org.cumulus4j.store.fieldmanager.StoreFieldManager;
 import org.cumulus4j.store.model.ClassMeta;
@@ -78,12 +79,15 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		ExecutionContext ec = op.getExecutionContext();
 		ManagedConnection mconn = storeManager.getConnection(ec);
 		try {
-			PersistenceManager pm = (PersistenceManager) mconn.getConnection();
+			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
+			PersistenceManager pmData = pmConn.getDataPM();
+			PersistenceManager pmIndex = pmConn.getIndexPM();
+
 			Object object = op.getObject();
 			Object objectID = op.getExternalObjectId();
 			String objectIDString = objectID.toString();
 			ClassMeta classMeta = storeManager.getClassMeta(ec, object.getClass());
-			DataEntry dataEntry = DataEntry.getDataEntry(pm, classMeta, objectIDString);
+			DataEntry dataEntry = DataEntry.getDataEntry(pmData, classMeta, objectIDString);
 			//			if (dataEntry == null)
 			//				throw new NucleusObjectNotFoundException("Object does not exist in datastore: class=" + classMeta.getClassName() + " oid=" + objectIDString);
 
@@ -105,10 +109,9 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 					if (!fieldMeta.getFieldName().equals(dnMemberMetaData.getName()))
 						throw new IllegalStateException("Meta data inconsistency!!! class == \"" + classMeta.getClassName() + "\" fieldMeta.dataNucleusAbsoluteFieldNumber == " + fieldMeta.getDataNucleusAbsoluteFieldNumber() + " fieldMeta.fieldName == \"" + fieldMeta.getFieldName() + "\" != dnMemberMetaData.name == \"" + dnMemberMetaData.getName() + "\"");
 
-					// TODO Use pmIndex
-					removeIndexEntry.perform(ec, pm, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, fieldValue);
+					removeIndexEntry.perform(ec, pmIndex, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, fieldValue);
 				}
-				pm.deletePersistent(dataEntry);
+				pmData.deletePersistent(dataEntry);
 			}
 
 		} finally {
@@ -122,7 +125,10 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		ExecutionContext ec = op.getExecutionContext();
 		ManagedConnection mconn = storeManager.getConnection(ec);
 		try {
-			PersistenceManager pm = (PersistenceManager) mconn.getConnection();
+			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
+			PersistenceManager pmData = pmConn.getDataPM();
+			PersistenceManager pmIndex = pmConn.getIndexPM();
+
 			Object object = op.getObject();
 			Object objectID = op.getExternalObjectId();
 			String objectIDString = objectID.toString();
@@ -136,14 +142,13 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			// called in normal operation.
 			// Marco.
 
-			DataEntry dataEntry = DataEntry.getDataEntry(pm, classMeta, objectIDString);
+			DataEntry dataEntry = DataEntry.getDataEntry(pmData, classMeta, objectIDString);
 			if (dataEntry == null)
 				throw new NucleusObjectNotFoundException("Object does not exist in datastore: class=" + classMeta.getClassName() + " oid=" + objectIDString);
 
 			ObjectContainer objectContainer = encryptionHandler.decryptDataEntry(ec, dataEntry);
 
-			// TODO Pass in pmIndex to FetchFieldManager
-			op.replaceFields(fieldNumbers, new FetchFieldManager(op, pm, pm, classMeta, dnClassMetaData, objectContainer));
+			op.replaceFields(fieldNumbers, new FetchFieldManager(op, pmData, pmIndex, classMeta, dnClassMetaData, objectContainer));
 			if (op.getVersion() == null) // null-check prevents overwriting in case this method is called multiple times (for different field-numbers) - TODO necessary?
 				op.setVersion(objectContainer.getVersion());
 		} finally {
@@ -166,7 +171,10 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		ExecutionContext ec = op.getExecutionContext();
 		ManagedConnection mconn = storeManager.getConnection(ec);
 		try {
-			PersistenceManager pm = (PersistenceManager) mconn.getConnection();
+			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
+			PersistenceManager pmData = pmConn.getDataPM();
+			PersistenceManager pmIndex = pmConn.getIndexPM();
+
 			Object object = op.getObject();
 			Object objectID = op.getExternalObjectId();
 			ClassMeta classMeta = storeManager.getClassMeta(ec, object.getClass());
@@ -183,10 +191,10 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			//   things faster, it seems not to have a performance benefit here. But we should still look at this
 			//   again later.
 			// Marco.
-			DataEntry dataEntry = pm.makePersistent(new DataEntry(classMeta, objectID.toString()));
+			DataEntry dataEntry = pmData.makePersistent(new DataEntry(classMeta, objectID.toString()));
 
 			// This performs reachability on this input object so that all related objects are persisted
-			op.provideFields(allFieldNumbers, new StoreFieldManager(op, pm, classMeta, dnClassMetaData, objectContainer));
+			op.provideFields(allFieldNumbers, new StoreFieldManager(op, pmData, classMeta, dnClassMetaData, objectContainer));
 			objectContainer.setVersion(op.getTransactionalVersion());
 
 			// persist data
@@ -206,8 +214,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 				if (!fieldMeta.getFieldName().equals(dnMemberMetaData.getName()))
 					throw new IllegalStateException("Meta data inconsistency!!! class == \"" + classMeta.getClassName() + "\" fieldMeta.dataNucleusAbsoluteFieldNumber == " + fieldMeta.getDataNucleusAbsoluteFieldNumber() + " fieldMeta.fieldName == \"" + fieldMeta.getFieldName() + "\" != dnMemberMetaData.name == \"" + dnMemberMetaData.getName() + "\"");
 
-				// TODO Use pmIndex
-				addIndexEntry.perform(ec, pm, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, fieldValue);
+				addIndexEntry.perform(ec, pmIndex, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, fieldValue);
 			}
 		} finally {
 			mconn.release();
@@ -219,7 +226,8 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 	{
 		ManagedConnection mconn = storeManager.getConnection(op.getExecutionContext());
 		try {
-			PersistenceManager pmData = (PersistenceManager) mconn.getConnection();
+			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
+			PersistenceManager pmData = pmConn.getDataPM();
 
 			ClassMeta classMeta = storeManager.getClassMeta(op.getExecutionContext(), op.getObject().getClass());
 			Object objectID = op.getExternalObjectId();
@@ -242,14 +250,17 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		ExecutionContext ec = op.getExecutionContext();
 		ManagedConnection mconn = storeManager.getConnection(ec);
 		try {
-			PersistenceManager pm = (PersistenceManager) mconn.getConnection();
+			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
+			PersistenceManager pmData = pmConn.getDataPM();
+			PersistenceManager pmIndex = pmConn.getIndexPM();
+
 			Object object = op.getObject();
 			Object objectID = op.getExternalObjectId();
 			String objectIDString = objectID.toString();
 			ClassMeta classMeta = storeManager.getClassMeta(ec, object.getClass());
 			AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), ec.getClassLoaderResolver());
 
-			DataEntry dataEntry = DataEntry.getDataEntry(pm, classMeta, objectIDString);
+			DataEntry dataEntry = DataEntry.getDataEntry(pmData, classMeta, objectIDString);
 			if (dataEntry == null)
 				throw new NucleusObjectNotFoundException("Object does not exist in datastore: class=" + classMeta.getClassName() + " oid=" + objectIDString);
 
@@ -259,7 +270,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			ObjectContainer objectContainerNew = objectContainerOld.clone();
 
 			// This performs reachability on this input object so that all related objects are persisted
-			op.provideFields(fieldNumbers, new StoreFieldManager(op, pm, classMeta, dnClassMetaData, objectContainerNew));
+			op.provideFields(fieldNumbers, new StoreFieldManager(op, pmData, classMeta, dnClassMetaData, objectContainerNew));
 			objectContainerNew.setVersion(op.getTransactionalVersion());
 
 			// update persistent data
@@ -282,9 +293,8 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 				Object fieldValueNew = objectContainerNew.getValue(fieldMeta.getFieldID());
 
 				if (!fieldsEqual(fieldValueOld, fieldValueNew)) {
-					// TODO Use pmIndex
-					removeIndexEntry.perform(ec, pm, dataEntryID, fieldMeta, dnMemberMetaData, fieldValueOld);
-					addIndexEntry.perform(ec, pm, dataEntryID, fieldMeta, dnMemberMetaData, fieldValueNew);
+					removeIndexEntry.perform(ec, pmIndex, dataEntryID, fieldMeta, dnMemberMetaData, fieldValueOld);
+					addIndexEntry.perform(ec, pmIndex, dataEntryID, fieldMeta, dnMemberMetaData, fieldValueNew);
 				}
 			}
 		} finally {
