@@ -29,8 +29,16 @@ extends AbstractAsymmetricCipherKeyPairGeneratorFactory
 	}
 
 	@Override
-	public AsymmetricCipherKeyPairGenerator createAsymmetricCipherKeyPairGenerator() {
+	public AsymmetricCipherKeyPairGenerator createAsymmetricCipherKeyPairGenerator(boolean initWithDefaults)
+	{
 		DHBasicKeyPairGenerator generator = new DHBasicKeyPairGenerator();
+
+		// TODO implement meaningful and secure defaults!
+		if (initWithDefaults)
+			throw new UnsupportedOperationException("NYI: initWithDefaults");
+//		if (initWithDefaults)
+//			generator.init(new DHKeyGenerationParameters(new SecureRandom(), new DHParameters(p, g, q)));
+
 		return generator;
 	}
 }

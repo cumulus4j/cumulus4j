@@ -24,9 +24,10 @@ public interface AsymmetricCipherKeyPairGeneratorFactory
 {
 	/**
 	 * Create and initialize a new instance of {@link AsymmetricCipherKeyPairGenerator}.
+	 * @param initWithDefaults TODO
 	 * @return a new ready-to-use instance of {@link AsymmetricCipherKeyPairGenerator}.
 	 */
-	AsymmetricCipherKeyPairGenerator createAsymmetricCipherKeyPairGenerator();
+	AsymmetricCipherKeyPairGenerator createAsymmetricCipherKeyPairGenerator(boolean initWithDefaults);
 
 	String getAlgorithmName();
 

@@ -16,28 +16,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.cumulus4j.crypto;
+package org.cumulus4j.crypto.symmetric;
 
 import org.bouncycastle.crypto.BlockCipher;
+import org.bouncycastle.crypto.BufferedBlockCipher;
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.CryptoException;
 import org.bouncycastle.crypto.DataLengthException;
-import org.bouncycastle.crypto.modes.AEADBlockCipher;
 import org.bouncycastle.crypto.modes.CFBBlockCipher;
 import org.bouncycastle.crypto.modes.OFBBlockCipher;
+import org.cumulus4j.crypto.AbstractCipher;
+import org.cumulus4j.crypto.CipherOperationMode;
 
-public class AEADBlockCipherWrapper extends AbstractCipher
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
+public class BufferedBlockCipherImpl
+extends AbstractCipher
 {
-	private AEADBlockCipher delegate;
+	private BufferedBlockCipher delegate;
 
-	public AEADBlockCipherWrapper(String transformation, AEADBlockCipher delegate) {
+	public BufferedBlockCipherImpl(String transformation, BufferedBlockCipher delegate) {
 		super(transformation);
 		this.delegate = delegate;
 	}
 
 	@Override
-	public void reset() {
-		delegate.reset();
+	public void _init(CipherOperationMode mode, CipherParameters parameters)
+	throws IllegalArgumentException
+	{
+		delegate.init(CipherOperationMode.ENCRYPT == mode, parameters);
 	}
 
 	@Override
@@ -51,8 +59,13 @@ public class AEADBlockCipherWrapper extends AbstractCipher
 	}
 
 	@Override
-	public int getUpdateOutputSize(int length) {
-		return delegate.getUpdateOutputSize(length);
+	public void reset() {
+		delegate.reset();
+	}
+
+	@Override
+	public int getUpdateOutputSize(int len) {
+		return delegate.getUpdateOutputSize(len);
 	}
 
 	@Override
@@ -68,10 +81,10 @@ public class AEADBlockCipherWrapper extends AbstractCipher
 	}
 
 	@Override
-	public int update(byte[] in, int inOff, int inLen, byte[] out, int outOff)
+	public int update(byte[] in, int inOff, int len, byte[] out, int outOff)
 	throws DataLengthException, IllegalStateException, CryptoException
 	{
-		return delegate.processBytes(in, inOff, inLen, out, outOff);
+		return delegate.processBytes(in, inOff, len, out, outOff);
 	}
 
 	@Override
@@ -95,11 +108,21 @@ public class AEADBlockCipherWrapper extends AbstractCipher
 		return underlyingCipher.getBlockSize();
 	}
 
-	@Override
-	protected void _init(CipherOperationMode mode, CipherParameters parameters)
-	throws IllegalArgumentException
-	{
-		delegate.init(CipherOperationMode.ENCRYPT == mode, parameters);
-	}
-
+//	@Override
+//	public AsymmetricCipherKeyPairGenerator createKeyPairGenerator(boolean initWithDefaults)
+//	throws UnsupportedOperationException
+//	{
+//		throw new UnsupportedOperationException("This is a SYMMETRIC cipher! Cannot get an appropriate key pair generator!");
+//	}
+//
+//	@Override
+//	public SecretKeyGenerator createSecretKeyGenerator(boolean initWithDefaults)
+//	{
+//		String algorithmName = CryptoRegistry.splitTransformation(getTransformation())[0];
+//		try {
+//			return CryptoRegistry.sharedInstance().createSecretKeyGenerator(algorithmName, initWithDefaults);
+//		} catch (NoSuchAlgorithmException e) {
+//			throw new RuntimeException(e); // We should be able to provide an SecretKeyGenerator for every Cipher => RuntimeException
+//		}
+//	}
 }

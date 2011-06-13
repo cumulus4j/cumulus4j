@@ -28,12 +28,12 @@ import org.cumulus4j.crypto.CipherOperationMode;
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public class AsymmetricBlockCipherWrapper
+public class AsymmetricBlockCipherImpl
 extends AbstractCipher
 {
 	private BufferedAsymmetricBlockCipher delegate;
 
-	public AsymmetricBlockCipherWrapper(String transformation, BufferedAsymmetricBlockCipher delegate) {
+	public AsymmetricBlockCipherImpl(String transformation, BufferedAsymmetricBlockCipher delegate) {
 		super(transformation);
 		this.delegate = delegate;
 	}
@@ -43,10 +43,12 @@ extends AbstractCipher
 		delegate.init(CipherOperationMode.ENCRYPT == mode, parameters);
 	}
 
+	@Override
 	public int getInputBlockSize() {
 		return delegate.getInputBlockSize();
 	}
 
+	@Override
 	public int getOutputBlockSize() {
 		return delegate.getOutputBlockSize();
 	}
@@ -95,4 +97,22 @@ extends AbstractCipher
 	public int getIVSize() {
 		return 0;
 	}
+
+//	@Override
+//	public AsymmetricCipherKeyPairGenerator createKeyPairGenerator(boolean initWithDefaults)
+//	{
+//		String algorithmName = CryptoRegistry.splitTransformation(getTransformation())[0];
+//		try {
+//			return CryptoRegistry.sharedInstance().createKeyPairGenerator(algorithmName, initWithDefaults);
+//		} catch (NoSuchAlgorithmException e) {
+//			throw new RuntimeException(e); // We should be able to provide an Asymmetric...KeyPairGenerator for every Cipher => RuntimeException
+//		}
+//	}
+//
+//	@Override
+//	public SecretKeyGenerator createSecretKeyGenerator(boolean initWithDefaults)
+//	throws UnsupportedOperationException
+//	{
+//		throw new UnsupportedOperationException("This is an ASYMMETRIC cipher! Cannot get an appropriate secret key generator.");
+//	}
 }

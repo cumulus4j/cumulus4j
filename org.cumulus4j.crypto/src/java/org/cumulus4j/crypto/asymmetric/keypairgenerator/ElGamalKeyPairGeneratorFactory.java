@@ -29,8 +29,13 @@ extends AbstractAsymmetricCipherKeyPairGeneratorFactory
 	}
 
 	@Override
-	public AsymmetricCipherKeyPairGenerator createAsymmetricCipherKeyPairGenerator() {
+	public AsymmetricCipherKeyPairGenerator createAsymmetricCipherKeyPairGenerator(boolean initWithDefaults) {
 		ElGamalKeyPairGenerator generator = new ElGamalKeyPairGenerator();
+
+		// TODO implement meaningful and secure defaults!
+		if (initWithDefaults)
+			throw new UnsupportedOperationException("NYI: initWithDefaults");
+
 		return generator;
 	}
 }

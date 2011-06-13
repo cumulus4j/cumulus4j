@@ -29,8 +29,13 @@ extends AbstractAsymmetricCipherKeyPairGeneratorFactory
 	}
 
 	@Override
-	public AsymmetricCipherKeyPairGenerator createAsymmetricCipherKeyPairGenerator() {
+	public AsymmetricCipherKeyPairGenerator createAsymmetricCipherKeyPairGenerator(boolean initWithDefaults) {
 		DSAKeyPairGenerator generator = new DSAKeyPairGenerator();
+
+		// TODO implement meaningful and secure defaults!
+		if (initWithDefaults)
+			throw new UnsupportedOperationException("NYI: initWithDefaults");
+
 		return generator;
 	}
 }

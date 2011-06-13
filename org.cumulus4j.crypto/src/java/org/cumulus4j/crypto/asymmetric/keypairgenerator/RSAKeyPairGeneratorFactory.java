@@ -35,12 +35,20 @@ extends AbstractAsymmetricCipherKeyPairGeneratorFactory
 	private static final BigInteger defaultPublicExponent = BigInteger.valueOf(0x10001);
 	private static final int defaultTests = 12;
 
-	private SecureRandom random = new SecureRandom();
+	private SecureRandom random;
 
 	@Override
-	public AsymmetricCipherKeyPairGenerator createAsymmetricCipherKeyPairGenerator() {
+	public AsymmetricCipherKeyPairGenerator createAsymmetricCipherKeyPairGenerator(boolean initWithDefaults)
+	{
 		RSAKeyPairGenerator generator = new RSAKeyPairGenerator();
-		generator.init(new RSAKeyGenerationParameters(defaultPublicExponent, random, 4096, defaultTests));
+
+		if (initWithDefaults) {
+			if (random == null)
+				random = new SecureRandom();
+
+			generator.init(new RSAKeyGenerationParameters(defaultPublicExponent, random, 4096, defaultTests));
+		}
+
 		return generator;
 	}
 }

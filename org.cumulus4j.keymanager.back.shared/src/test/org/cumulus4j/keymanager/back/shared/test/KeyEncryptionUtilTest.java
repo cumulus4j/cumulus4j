@@ -38,7 +38,7 @@ public class KeyEncryptionUtilTest
 			key[i] = (byte)(50 + i);
 
 		String transformation = "RSA/ECB/OAEPWITHSHA1ANDMGF1PADDING";
-		AsymmetricCipherKeyPairGenerator keyPairGenerator = CryptoRegistry.sharedInstance().createKeyPairGenerator(CryptoRegistry.splitTransformation(transformation)[0]);
+		AsymmetricCipherKeyPairGenerator keyPairGenerator = CryptoRegistry.sharedInstance().createKeyPairGenerator(CryptoRegistry.splitTransformation(transformation)[0], true);
 		AsymmetricCipherKeyPair keyPair = keyPairGenerator.generateKeyPair();
 
 		byte[] publicKey = CryptoRegistry.sharedInstance().encodePublicKey(keyPair.getPublic());

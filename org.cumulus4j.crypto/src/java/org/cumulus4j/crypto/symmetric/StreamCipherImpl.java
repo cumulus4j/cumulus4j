@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.cumulus4j.crypto;
+package org.cumulus4j.crypto.symmetric;
 
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.CryptoException;
@@ -29,16 +29,18 @@ import org.bouncycastle.crypto.engines.HC256Engine;
 import org.bouncycastle.crypto.engines.ISAACEngine;
 import org.bouncycastle.crypto.engines.RC4Engine;
 import org.bouncycastle.crypto.engines.Salsa20Engine;
+import org.cumulus4j.crypto.AbstractCipher;
+import org.cumulus4j.crypto.CipherOperationMode;
 
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-class StreamCipherWrapper
+public class StreamCipherImpl
 extends AbstractCipher
 {
 	private StreamCipher delegate;
 
-	public StreamCipherWrapper(String transformation, StreamCipher delegate) {
+	public StreamCipherImpl(String transformation, StreamCipher delegate) {
 		super(transformation);
 		this.delegate = delegate;
 	}
@@ -123,4 +125,22 @@ extends AbstractCipher
 		}
 		return ivSize;
 	}
+
+//	@Override
+//	public AsymmetricCipherKeyPairGenerator createKeyPairGenerator(boolean initWithDefaults)
+//	throws UnsupportedOperationException
+//	{
+//		throw new UnsupportedOperationException("This is a SYMMETRIC cipher! Cannot get an appropriate key pair generator!");
+//	}
+//
+//	@Override
+//	public SecretKeyGenerator createSecretKeyGenerator(boolean initWithDefaults)
+//	{
+//		String algorithmName = CryptoRegistry.splitTransformation(getTransformation())[0];
+//		try {
+//			return CryptoRegistry.sharedInstance().createSecretKeyGenerator(algorithmName, initWithDefaults);
+//		} catch (NoSuchAlgorithmException e) {
+//			throw new RuntimeException(e); // We should be able to provide an SecretKeyGenerator for every Cipher => RuntimeException
+//		}
+//	}
 }

@@ -105,7 +105,7 @@ import org.bouncycastle.crypto.params.RSAKeyParameters;
 import org.bouncycastle.crypto.params.RSAPrivateCrtKeyParameters;
 import org.bouncycastle.crypto.util.PrivateKeyFactory;
 import org.bouncycastle.crypto.util.PublicKeyFactory;
-import org.cumulus4j.crypto.asymmetric.AsymmetricBlockCipherWrapper;
+import org.cumulus4j.crypto.asymmetric.AsymmetricBlockCipherImpl;
 import org.cumulus4j.crypto.asymmetric.keypairgenerator.DHBasicKeyPairGeneratorFactory;
 import org.cumulus4j.crypto.asymmetric.keypairgenerator.DSAKeyPairGeneratorFactory;
 import org.cumulus4j.crypto.asymmetric.keypairgenerator.ElGamalKeyPairGeneratorFactory;
@@ -114,6 +114,10 @@ import org.cumulus4j.crypto.asymmetric.keypairgenerator.NaccacheSternKeyPairGene
 import org.cumulus4j.crypto.asymmetric.keypairgenerator.RSAKeyPairGeneratorFactory;
 import org.cumulus4j.crypto.mode.C4jCFBBlockCipher;
 import org.cumulus4j.crypto.mode.C4jOFBBlockCipher;
+import org.cumulus4j.crypto.symmetric.AEADBlockCipherImpl;
+import org.cumulus4j.crypto.symmetric.BufferedBlockCipherImpl;
+import org.cumulus4j.crypto.symmetric.SecretKeyGeneratorImpl;
+import org.cumulus4j.crypto.symmetric.StreamCipherImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,7 +127,7 @@ import org.slf4j.LoggerFactory;
  * </p>
  * <p>
  * This registry can be used for various cryptography-related tasks. For example to {@link #createCipher(String) create a cipher}
- * or to {@link #createKeyPairGenerator(String) create a key-pair-generator}.
+ * or to {@link #createKeyPairGenerator(String, boolean) create a key-pair-generator}.
  * </p>
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
@@ -517,20 +521,20 @@ public final class CryptoRegistry
 	throws NoSuchPaddingException
 	{
 		if (paddingName.isEmpty() || "NOPADDING".equals(paddingName))
-			return new BufferedBlockCipherWrapper(transformation, new BufferedBlockCipher(modeWithEngine));
+			return new BufferedBlockCipherImpl(transformation, new BufferedBlockCipher(modeWithEngine));
 
 		BlockCipherPadding padding = createBlockCipherPadding(paddingName);
 		if (padding == null)
 			throw new NoSuchPaddingException("There is no block-cipher-padding class registed with the name \"" + paddingName + "\"!");
 
-		return new BufferedBlockCipherWrapper(transformation, new PaddedBufferedBlockCipher(modeWithEngine, padding));
+		return new BufferedBlockCipherImpl(transformation, new PaddedBufferedBlockCipher(modeWithEngine, padding));
 	}
 
 	private Cipher createCipherForBlockCipherMode(String transformation, AEADBlockCipher modeWithEngine, String engineName, String modeName, String paddingName)
 	throws NoSuchPaddingException
 	{
 		if (paddingName.isEmpty() || "NOPADDING".equals(paddingName))
-			return new AEADBlockCipherWrapper(transformation, modeWithEngine);
+			return new AEADBlockCipherImpl(transformation, modeWithEngine);
 
 		throw new NoSuchPaddingException("The AEAD-mode \"" + modeName + "\" does not support the padding \"" + paddingName + "\"! Padding must be \"NoPadding\" or an empty string!");
 	}
@@ -539,7 +543,7 @@ public final class CryptoRegistry
 	throws NoSuchPaddingException
 	{
 		if (paddingName.isEmpty() || "NOPADDING".equals(paddingName))
-			return new BufferedBlockCipherWrapper(transformation, modeWithEngine);
+			return new BufferedBlockCipherImpl(transformation, modeWithEngine);
 
 		throw new NoSuchPaddingException("The block-cipher-mode \"" + modeName + "\" does not support the padding \"" + paddingName + "\"! Padding must be \"NoPadding\" or an empty string!");
 	}
@@ -575,7 +579,7 @@ public final class CryptoRegistry
 	throws NoSuchPaddingException
 	{
 		if (paddingName.isEmpty() || "NOPADDING".equals(paddingName))
-			return new StreamCipherWrapper(transformation, modeWithEngine);
+			return new StreamCipherImpl(transformation, modeWithEngine);
 
 		throw new NoSuchPaddingException("The stream-cipher-mode \"" + modeName + "\" does not support the padding \"" + paddingName + "\"! Padding must be \"NoPadding\" or an empty string!");
 	}
@@ -615,7 +619,7 @@ public final class CryptoRegistry
 				throw new NoSuchPaddingException("There is no asymmetric-block-cipher-padding registered with name \"" + paddingName + "\"!");
 		}
 
-		return new AsymmetricBlockCipherWrapper(
+		return new AsymmetricBlockCipherImpl(
 				transformation,
 				new BufferedAsymmetricBlockCipher(padding)
 		);
@@ -1005,16 +1009,28 @@ public final class CryptoRegistry
 		return result;
 	}
 
+	public SecretKeyGenerator createSecretKeyGenerator(String algorithmName, boolean initWithDefaults)
+	throws NoSuchAlgorithmException
+	{
+		SecretKeyGeneratorImpl secretKeyGeneratorImpl = new SecretKeyGeneratorImpl();
+
+		if (initWithDefaults)
+			secretKeyGeneratorImpl.init(null);
+
+		return secretKeyGeneratorImpl;
+	}
+
 	/**
 	 * Create a ready-to-use key pair generator for the given <b>asymmetric</b> encryption algorithm.
 	 *
 	 * @param algorithmName the name of the <b>asymmetric</b> encryption algorithm. This is the first element of a transformation, i.e.
 	 * you can pass a <code>transformation</code> to {@link #splitTransformation(String)} and use element 0 of its result.
+	 * @param initWithDefaults TODO
 	 * @return an instance of {@link AsymmetricCipherKeyPairGenerator} that can directly be used to generate key pairs,
 	 * i.e. it is already initialised with some default values.
 	 * @throws NoSuchAlgorithmException if there is no generator available for the given <code>algorithmName</code>.
 	 */
-	public AsymmetricCipherKeyPairGenerator createKeyPairGenerator(String algorithmName)
+	public AsymmetricCipherKeyPairGenerator createKeyPairGenerator(String algorithmName, boolean initWithDefaults)
 	throws NoSuchAlgorithmException
 	{
 		if (algorithmName == null)
@@ -1024,7 +1040,7 @@ public final class CryptoRegistry
 		if (factory == null)
 			throw new NoSuchAlgorithmException("There is no key-pair-generator-class registered for algorithmName \"" + algorithmName + "\"!");
 
-		AsymmetricCipherKeyPairGenerator generator = factory.createAsymmetricCipherKeyPairGenerator();
+		AsymmetricCipherKeyPairGenerator generator = factory.createAsymmetricCipherKeyPairGenerator(initWithDefaults);
 		return generator;
 	}
 

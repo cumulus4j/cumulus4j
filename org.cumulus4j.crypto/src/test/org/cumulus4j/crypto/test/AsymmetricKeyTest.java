@@ -37,7 +37,7 @@ public class AsymmetricKeyTest
 	public void encodeDecodeRSA()
 	throws Exception
 	{
-		AsymmetricCipherKeyPairGenerator keyPairGenerator = CryptoRegistry.sharedInstance().createKeyPairGenerator("RSA");
+		AsymmetricCipherKeyPairGenerator keyPairGenerator = CryptoRegistry.sharedInstance().createKeyPairGenerator("RSA", true);
 		AsymmetricCipherKeyPair keyPair = keyPairGenerator.generateKeyPair();
 
 		byte[] encodedPrivateKey = CryptoRegistry.sharedInstance().encodePrivateKey(keyPair.getPrivate());

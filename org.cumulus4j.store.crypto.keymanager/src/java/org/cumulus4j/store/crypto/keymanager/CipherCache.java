@@ -290,7 +290,7 @@ public class CipherCache
 
 			AsymmetricCipherKeyPairGenerator keyPairGenerator;
 			try {
-				keyPairGenerator = CryptoRegistry.sharedInstance().createKeyPairGenerator(engineAlgorithmName);
+				keyPairGenerator = CryptoRegistry.sharedInstance().createKeyPairGenerator(engineAlgorithmName, true);
 			} catch (NoSuchAlgorithmException e) {
 				throw new RuntimeException(e);
 			} catch (IllegalArgumentException e) {
@@ -372,7 +372,7 @@ public class CipherCache
 	{
 		String algorithmName = CryptoRegistry.splitTransformation(keyEncryptionTransformation)[0];
 		try {
-			return CryptoRegistry.sharedInstance().createKeyPairGenerator(algorithmName);
+			return CryptoRegistry.sharedInstance().createKeyPairGenerator(algorithmName, true);
 		} catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException(e);
 		}

@@ -127,4 +127,23 @@ public interface Cipher
 	 * @return the required size of the IV.
 	 */
 	int getIVSize();
+
+//	/**
+//	 * Get a ready-to-use <code>SecretKeyGenerator</code>.
+//	 * @param initWithDefaults TODO
+//	 * @return a <code>SecretKeyGenerator</code> appropriate for this Cipher and ready to be used.
+//	 * @throws UnsupportedOperationException
+//	 */
+//	SecretKeyGenerator createSecretKeyGenerator(boolean initWithDefaults)
+//	throws UnsupportedOperationException;
+//
+//	/**
+//	 * Get a ready-to-use <code>AsymmetricCipherKeyPairGenerator</code>.
+//	 * @param initWithDefaults TODO
+//	 * @return an <code>AsymmetricCipherKeyPairGenerator</code> appropriate for this <code>Cipher</code> and ready to be used.
+//	 * @throws UnsupportedOperationException if this <code>Cipher</code> does not implement asymmetric encryption.
+//	 * @see #createSecretKeyGenerator(boolean)
+//	 */
+//	AsymmetricCipherKeyPairGenerator createKeyPairGenerator(boolean initWithDefaults)
+//	throws UnsupportedOperationException;
 }
