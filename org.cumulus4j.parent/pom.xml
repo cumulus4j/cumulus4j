@@ -231,6 +231,17 @@
 				<enabled>true</enabled>
 			</releases>
 		</pluginRepository>
+
+		<pluginRepository>
+			<id>mc-repo.googlecode.com</id>
+			<url>http://mc-repo.googlecode.com/svn/maven2/releases</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</pluginRepository>
 	</pluginRepositories>
 
 	<dependencyManagement>
@@ -438,6 +449,11 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
+					<groupId>com.mycila.maven-license-plugin</groupId>
+        			<artifactId>maven-license-plugin</artifactId>
+				</plugin>
+			
+				<plugin>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>2.3.2</version>
 					<configuration>
@@ -627,6 +643,14 @@
 		</pluginManagement>
 
 		<plugins>
+			<plugin>
+				<groupId>com.mycila.maven-license-plugin</groupId>
+				<artifactId>maven-license-plugin</artifactId>
+				<configuration>
+					<header>${basedir}/../org.cumulus4j.parent/src/etc/header.txt</header>
+				</configuration>
+			</plugin>
+
 			<plugin>
 				<artifactId>maven-source-plugin</artifactId>
 				<executions>
