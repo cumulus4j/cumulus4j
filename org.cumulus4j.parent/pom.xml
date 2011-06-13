@@ -648,6 +648,22 @@
 				<artifactId>maven-license-plugin</artifactId>
 				<configuration>
 					<header>${basedir}/../org.cumulus4j.parent/src/etc/header.txt</header>
+					<mapping>
+						<!-- We do NOT want a javadoc comment, because it IS NOT javadoc
+						and causes collisions with the javadoc, e.g. in package-info.java files.
+						Hence we change the mapping for java files to the normal comment. -->
+						<java>SLASHSTAR_STYLE</java>
+					</mapping>
+					<excludes>
+						<!-- We exclude all web-site files, because 1st it does not work for
+						*.apt.vm files properly anyway (it uses the mapping for .vm - not for .apt.vm)
+						and 2nd we don't essentially need to add a header there - it unnecessarily
+						bloats the files. -->
+						<exclude>**/*.apt</exclude>
+						<exclude>**/*.apt.vm</exclude>
+						<!-- Don't want to bloat properties files. -->
+						<exclude>**/*.properties</exclude>
+					</excludes>
 				</configuration>
 			</plugin>
 
