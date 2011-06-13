@@ -87,7 +87,7 @@ public class StringToUpperCaseEvaluator extends AbstractMethodEvaluator {
 				executionContext, fieldMeta, true
 		);
 
-		Query q = queryEval.getPersistenceManager().newQuery(indexEntryFactory.getIndexEntryClass());
+		Query q = queryEval.getPersistenceManagerForIndex().newQuery(indexEntryFactory.getIndexEntryClass());
 		q.setFilter(
 				"this.fieldMeta == :fieldMeta && " +
 				"this.indexKey.toUpperCase() " + 

@@ -92,7 +92,7 @@ public class StringIndexOfEvaluator extends AbstractMethodEvaluator {
 				executionContext, fieldMeta, true
 		);
 
-		Query q = queryEval.getPersistenceManager().newQuery(indexEntryFactory.getIndexEntryClass());
+		Query q = queryEval.getPersistenceManagerForIndex().newQuery(indexEntryFactory.getIndexEntryClass());
 		q.setFilter(
 				"this.fieldMeta == :fieldMeta && " +
 				(invokeArg2 != null ?

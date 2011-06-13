@@ -109,7 +109,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 		if (!leftEvaluated && !rightEvaluated) {
 			// Neither side evaluated so return all data entry ids
-			leftResult = QueryHelper.getAllDataEntryIdsForCandidate(getPersistenceManager(), getQueryEvaluator().getExecutionContext(),
+			leftResult = QueryHelper.getAllDataEntryIdsForCandidate(getPersistenceManagerForData(), getQueryEvaluator().getExecutionContext(),
 					getQueryEvaluator().getQuery().getCandidateClass(), getQueryEvaluator().getQuery().isSubclasses());
 		}
 

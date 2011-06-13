@@ -76,9 +76,8 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 		return expression;
 	}
 
-	public PersistenceManager getPersistenceManager()
-	{
-		return getQueryEvaluator().getPersistenceManager();
+	public PersistenceManager getPersistenceManagerForData() {
+		return getQueryEvaluator().getPersistenceManagerForData();
 	}
 
 	private AbstractExpressionEvaluator<? extends Expression> left;
@@ -339,7 +338,7 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 
 		List<Object> resultList = new ArrayList<Object>(dataEntryIDs.size());
 
-		PersistenceManager pm = getPersistenceManager();
+		PersistenceManager pm = getPersistenceManagerForData();
 		for (Long dataEntryID : dataEntryIDs) {
 			LongIdentity id = new LongIdentity(DataEntry.class, dataEntryID);
 			DataEntry dataEntry = (DataEntry) pm.getObjectById(id);

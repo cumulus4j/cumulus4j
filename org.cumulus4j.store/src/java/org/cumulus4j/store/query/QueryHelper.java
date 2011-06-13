@@ -21,6 +21,14 @@ import org.datanucleus.store.ExecutionContext;
  */
 public class QueryHelper {
 
+	/**
+	 * Access the data entry ids for a candidate.
+	 * @param pm PersistenceManager for the backend data
+	 * @param ec ExecutionContext
+	 * @param candidateCls Candidate class
+	 * @param subclasses Whether to include subclasses
+	 * @return The data entry ids
+	 */
 	public static Set<Long> getAllDataEntryIdsForCandidate(PersistenceManager pm, ExecutionContext ec, Class candidateCls, boolean subclasses) {
 		javax.jdo.Query q = pm.newQuery(DataEntry.class);
 		q.setResult("this.dataEntryID");
@@ -49,7 +57,7 @@ public class QueryHelper {
 
 	/**
 	 * Convenience method to return the persistent objects for the classes with the provided ClassMetas.
-	 * @param pm PersistenceManager for the underlying StoreManager
+	 * @param pm PersistenceManager for the backend data
 	 * @param ec ExecutionContext
 	 * @param candidateClassMetas The class metas defining the required classes
 	 * @return The persistent objects

@@ -99,15 +99,15 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		}
 
 		if (leftEvaluated && !rightEvaluated) {
-			rightResult = QueryHelper.getAllDataEntryIdsForCandidate(getPersistenceManager(), getQueryEvaluator().getExecutionContext(),
+			rightResult = QueryHelper.getAllDataEntryIdsForCandidate(getPersistenceManagerForData(), getQueryEvaluator().getExecutionContext(),
 					getQueryEvaluator().getQuery().getCandidateClass(), getQueryEvaluator().getQuery().isSubclasses());
 		}
 		else if (!leftEvaluated && rightEvaluated) {
-			leftResult = QueryHelper.getAllDataEntryIdsForCandidate(getPersistenceManager(), getQueryEvaluator().getExecutionContext(),
+			leftResult = QueryHelper.getAllDataEntryIdsForCandidate(getPersistenceManagerForData(), getQueryEvaluator().getExecutionContext(),
 					getQueryEvaluator().getQuery().getCandidateClass(), getQueryEvaluator().getQuery().isSubclasses());
 		}
 		else if (!leftEvaluated && !rightEvaluated) {
-			leftResult = QueryHelper.getAllDataEntryIdsForCandidate(getPersistenceManager(), getQueryEvaluator().getExecutionContext(),
+			leftResult = QueryHelper.getAllDataEntryIdsForCandidate(getPersistenceManagerForData(), getQueryEvaluator().getExecutionContext(),
 					getQueryEvaluator().getQuery().getCandidateClass(), getQueryEvaluator().getQuery().isSubclasses());
 		}
 

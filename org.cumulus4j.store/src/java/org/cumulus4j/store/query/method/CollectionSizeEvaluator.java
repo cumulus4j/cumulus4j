@@ -65,7 +65,7 @@ public class CollectionSizeEvaluator extends AbstractMethodEvaluator {
 		ExecutionContext executionContext = queryEval.getExecutionContext();
 		IndexEntryFactory indexEntryFactory = queryEval.getStoreManager().getIndexFactoryRegistry().getIndexEntryFactoryForContainerSize();
 
-		Query q = queryEval.getPersistenceManager().newQuery(indexEntryFactory.getIndexEntryClass());
+		Query q = queryEval.getPersistenceManagerForIndex().newQuery(indexEntryFactory.getIndexEntryClass());
 		q.setFilter(
 				"this.fieldMeta == :fieldMeta && this.indexKey " +
 				ExpressionHelper.getOperatorAsJDOQLSymbol(invokeExprEval.getParent().getExpression().getOperator(), negate) + 

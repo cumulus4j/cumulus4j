@@ -54,7 +54,7 @@ public class MapIsEmptyEvaluator extends AbstractMethodEvaluator {
 		ExecutionContext executionContext = queryEval.getExecutionContext();
 		IndexEntryFactory indexEntryFactory = queryEval.getStoreManager().getIndexFactoryRegistry().getIndexEntryFactoryForContainerSize();
 
-		Query q = queryEval.getPersistenceManager().newQuery(indexEntryFactory.getIndexEntryClass());
+		Query q = queryEval.getPersistenceManagerForIndex().newQuery(indexEntryFactory.getIndexEntryClass());
 		q.setFilter(
 				"this.fieldMeta == :fieldMeta && " +
 				(negate ? "this.indexKey != 0" : "this.indexKey == 0")

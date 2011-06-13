@@ -156,7 +156,7 @@ public class ExpressionHelper
 		{
 			super(queryEvaluator, primaryExpression);
 			this.role = role;
-			this.pm = queryEvaluator.getPersistenceManager();
+			this.pm = queryEvaluator.getPersistenceManagerForData();
 			this.negate = negate;
 
 			if (role != FieldMetaRole.collectionElement && role != FieldMetaRole.mapKey && role != FieldMetaRole.mapValue)

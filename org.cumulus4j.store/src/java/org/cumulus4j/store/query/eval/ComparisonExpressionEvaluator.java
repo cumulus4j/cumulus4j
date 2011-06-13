@@ -129,7 +129,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 	private Set<Long> queryCompareConcreteValue(FieldMeta fieldMeta, Object value, boolean negate)
 	{
-		PersistenceManager pm = getPersistenceManager();
+		PersistenceManager pm = getPersistenceManagerForData();
 		ExecutionContext executionContext = getQueryEvaluator().getExecutionContext();
 		AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(executionContext);
 		int relationType = mmd.getRelationType(executionContext.getClassLoaderResolver());
@@ -194,7 +194,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		if (Expression.OP_EQ != op && Expression.OP_NOTEQ != op)
 			throw new UnsupportedOperationException("The operation \"" + getOperatorAsJDOQLSymbol(false) + "\" is not supported for object relations!");
 
-		PersistenceManager pm = getPersistenceManager();
+		PersistenceManager pm = getPersistenceManagerForData();
 		ExecutionContext executionContext = getQueryEvaluator().getExecutionContext();
 		Object valueID = executionContext.getApiAdapter().getIdForObject(value);
 		if (valueID == null)

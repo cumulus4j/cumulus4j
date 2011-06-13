@@ -102,7 +102,7 @@ public class CollectionContainsEvaluator extends AbstractMethodEvaluator
 					executionContext, fieldMeta, true
 			);
 
-			Query q = queryEvaluator.getPersistenceManager().newQuery(indexEntryFactory.getIndexEntryClass());
+			Query q = queryEvaluator.getPersistenceManagerForIndex().newQuery(indexEntryFactory.getIndexEntryClass());
 			StringBuilder str = new StringBuilder();
 			str.append("this.fieldMeta == :fieldMeta");
 			if (!invokeCollection.isEmpty()) {

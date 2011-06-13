@@ -162,7 +162,12 @@ public abstract class QueryEvaluator
 		return storeManager;
 	}
 
-	public PersistenceManager getPersistenceManager() {
+	public PersistenceManager getPersistenceManagerForData() {
+		return pm;
+	}
+
+	public PersistenceManager getPersistenceManagerForIndex() {
+		// TODO Optionally allow separate PM
 		return pm;
 	}
 
