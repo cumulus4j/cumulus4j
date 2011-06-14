@@ -394,6 +394,9 @@ import org.slf4j.LoggerFactory;
  *
  *			<!-- END written by {@link AbstractEncryptedData#write(DataOutputStream, Map)} -->
  *
+ * 			<tr>
+ * 				<td align="right" valign="top">20</td><td valign="top">SHA1 checksum over the complete file except for the header "Cumulus4jKeyStore", i.e. from the file version at byte offset 17 (including) till here (excluding).</td>
+ * 			</tr>
  *			</tbody>
  * 		</table>
  * 		</td>
