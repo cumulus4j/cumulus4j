@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 /**
  * <p>
  * Crypto API for <a href="http://www.cumulus4j.org">Cumulus4j</a> (key management + en-/decryption).

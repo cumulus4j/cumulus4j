@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 /**
  * Data model classes used to store data and meta-data in the backend. Some of the classes in this package are
  * persistent and some are non-persistent. The persistent classes are managed by a

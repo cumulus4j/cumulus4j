@@ -451,6 +451,7 @@
 				<plugin>
 					<groupId>com.mycila.maven-license-plugin</groupId>
         			<artifactId>maven-license-plugin</artifactId>
+        			<version>1.9.0</version>
 				</plugin>
 			
 				<plugin>
@@ -648,6 +649,7 @@
 				<artifactId>maven-license-plugin</artifactId>
 				<configuration>
 					<header>${basedir}/../org.cumulus4j.parent/src/etc/header.txt</header>
+					<strictCheck>false</strictCheck>
 					<mapping>
 						<!-- We do NOT want a javadoc comment, because it IS NOT javadoc
 						and causes collisions with the javadoc, e.g. in package-info.java files.

@@ -17,7 +17,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 --%>
-
 <html>
 <body>
 <h2>Hello World!</h2>

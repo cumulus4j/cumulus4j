@@ -4,22 +4,22 @@
         <wb-resource deploy-path="/" source-path="/src/webapp"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/java"/>
         <wb-resource deploy-path="/" source-path="/src/main/webapp"/>
-        <dependent-module archiveName="org.cumulus4j.keymanager-1.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keymanager/org.cumulus4j.keymanager">
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keymanager/org.cumulus4j.keymanager">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="org.cumulus4j.keymanager.api-1.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keymanager.api/org.cumulus4j.keymanager.api">
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keymanager.api/org.cumulus4j.keymanager.api">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="org.cumulus4j.keymanager.back.shared-1.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keymanager.back.shared/org.cumulus4j.keymanager.back.shared">
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keymanager.back.shared/org.cumulus4j.keymanager.back.shared">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="org.cumulus4j.crypto-1.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.crypto/org.cumulus4j.crypto">
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.crypto/org.cumulus4j.crypto">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="org.cumulus4j.keystore-1.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keystore/org.cumulus4j.keystore">
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keystore/org.cumulus4j.keystore">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="org.cumulus4j.keymanager.front.shared-1.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keymanager.front.shared/org.cumulus4j.keymanager.front.shared">
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keymanager.front.shared/org.cumulus4j.keymanager.front.shared">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <property name="java-output-path" value="/org.cumulus4j.keymanager.front.webapp/target/classes"/>

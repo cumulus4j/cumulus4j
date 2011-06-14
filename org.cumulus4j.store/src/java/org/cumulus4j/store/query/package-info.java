@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 /**
  * <p>
  * Query implementation for JDO and JPA. The classes in this package use DataNucleus' extension-points to

@@ -18,7 +18,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-
 <?eclipse version="3.4"?>
 <plugin>
  <extension
