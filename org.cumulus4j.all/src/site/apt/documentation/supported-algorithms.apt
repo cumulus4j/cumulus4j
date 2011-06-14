@@ -1,0 +1,28 @@
+	---
+	Supported algorithms
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-14
+
+Supported algorithms
+
+* Symmetric encryption
+
+** Block cipher
+
+
+** Stream cipher
+
+
+* Asymmetric encryption
+
+	At the moment, RSA is the only supported asymmetric encryption algorithm. This will likely change soon.
+
+* Block cipher operation modes
+
+	When using a block cipher, an
+
+* MAC
+
+	TODO document this!
