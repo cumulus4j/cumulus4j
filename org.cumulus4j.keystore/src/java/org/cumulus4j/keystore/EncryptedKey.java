@@ -23,22 +23,26 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
-import org.cumulus4j.crypto.util.ChecksumAlgorithm;
-
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 class EncryptedKey
-extends AbstractEncryptedKey
+extends AbstractEncryptedData
 {
 	private long keyID;
 
 	public EncryptedKey(
 			long keyID,
-			byte[] data, byte[] encryptionIV, String encryptionAlgorithm, short checksumSize, ChecksumAlgorithm checksumAlgorithm
+			String encryptionAlgorithm, byte[] encryptionIV,
+			String macAlgorithm, short macKeySize, short macIVSize, short macSize,
+			byte[] data
 	)
 	{
-		super(data, encryptionIV, encryptionAlgorithm, checksumSize, checksumAlgorithm);
+		super(
+				encryptionAlgorithm, encryptionIV,
+				macAlgorithm, macKeySize, macIVSize, macSize,
+				data
+		);
 		this.keyID = keyID;
 	}
 

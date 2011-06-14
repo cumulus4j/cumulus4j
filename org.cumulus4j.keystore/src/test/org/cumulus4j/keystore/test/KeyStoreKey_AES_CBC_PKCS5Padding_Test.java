@@ -28,11 +28,13 @@ extends KeyStoreKeyTest
 	public static void beforeClass()
 	{
 		System.setProperty(KeyStore.SYSTEM_PROPERTY_ENCRYPTION_ALGORITHM, "AES/CBC/PKCS5Padding");
+		System.setProperty(KeyStore.SYSTEM_PROPERTY_MAC_ALGORITHM, "HMACSHA1");
 	}
 
 	@AfterClass
 	public static void afterClass()
 	{
 		System.clearProperty(KeyStore.SYSTEM_PROPERTY_ENCRYPTION_ALGORITHM);
+		System.clearProperty(KeyStore.SYSTEM_PROPERTY_MAC_ALGORITHM);
 	}
 }

@@ -38,85 +38,132 @@ public class KeyStoreCompatibilityTest
 	protected static final String USER = KeyStoreKeyTest.USER;
 	protected static final char[] PASSWORD = KeyStoreKeyTest.PASSWORD;
 
+	private String[] ALGORITHMS = {
+			"default",
+			"AES/CFB/NoPadding:128:HMAC/SHA1",
+			"AES/CBC/PKCS5Padding:128:HMAC/SHA1",
+			"AES/CFB/NoPadding:256:HMAC/SHA1",
+			"AES/CBC/PKCS5Padding:256:HMAC/SHA1",
+			"Twofish/CFB/NoPadding:128:HMAC/SHA1",
+			"Twofish/CBC/PKCS5Padding:128:HMAC/SHA1",
+			"Twofish/CFB/NoPadding:256:HMAC/SHA1",
+			"Twofish/CBC/PKCS5Padding:256:HMAC/SHA1"
+	};
+
 	@Test
-	public void createNewReferenceKeyStore()
+	public void createNewReferenceKeyStores()
 	throws Exception
 	{
-		File keyStoreFile = File.createTempFile("new-reference-", ".keystore");
-		KeyStore keyStore = new KeyStore(keyStoreFile);
+		File newReferenceKeyStoreDir = IOUtil.createUniqueIncrementalFolder(IOUtil.getTempDir(), "new-reference-key-store.");
 
-		keyStore.createUser(null, null, USER, PASSWORD);
-		keyStore.createUser(USER, PASSWORD, "eddie", "da-pass".toCharArray());
-		keyStore.createUser(USER, PASSWORD, "berny", "mai sikret".toCharArray());
+		for (String algorithm : ALGORITHMS) {
+			String algoFileNameInfix = algorithm.replace('/', '-').replace(':', '.');
 
-		// We populate the key store with all things that are supported.
-		// This should be kept complete when adding new Property implementations!
-		keyStore.generateKey(USER, PASSWORD);
-		keyStore.generateKey(USER, PASSWORD);
-		keyStore.generateKeys(USER, PASSWORD, 1000);
+			if (!"default".equals(algorithm)) {
+				String[] algoParts = algorithm.split(":");
+				System.setProperty(KeyStore.SYSTEM_PROPERTY_ENCRYPTION_ALGORITHM, algoParts[0]);
+				System.setProperty(KeyStore.SYSTEM_PROPERTY_KEY_SIZE, algoParts[1]);
+				System.setProperty(KeyStore.SYSTEM_PROPERTY_MAC_ALGORITHM, algoParts[2]);
+			}
+			try {
+				File keyStoreFile = new File(newReferenceKeyStoreDir, "reference." + algoFileNameInfix + ".keystore");
+				KeyStore keyStore = new KeyStore(keyStoreFile);
 
-		{
-			LongProperty p = keyStore.getProperty(USER, PASSWORD, LongProperty.class, "long1");
-			p.setValue(12345L);
-			keyStore.setProperty(USER, PASSWORD, p);
-		}
+				keyStore.createUser(null, null, USER, PASSWORD);
+				keyStore.createUser(USER, PASSWORD, "eddie", "da-pass".toCharArray());
+				keyStore.createUser(USER, PASSWORD, "berny", "mai sikret".toCharArray());
 
-		{
-			LongProperty p = keyStore.getProperty(USER, PASSWORD, LongProperty.class, "long2");
-			p.setValue(-5557347874L);
-			keyStore.setProperty(USER, PASSWORD, p);
-		}
+				// We populate the key store with all things that are supported.
+				// This should be kept complete when adding new Property implementations!
+				keyStore.generateKey(USER, PASSWORD);
+				keyStore.generateKey(USER, PASSWORD);
+				keyStore.generateKeys(USER, PASSWORD, 1000);
 
-		{
-			StringProperty p = keyStore.getProperty(USER, PASSWORD, StringProperty.class, "string1");
-			p.setValue(
-					"Freude, schöner Götterfunken,\n" +
-					"Tochter aus Elysium,\n" +
-					"Wir betreten feuertrunken,\n" +
-					"Himmlische, dein Heiligthum.\n"
-			);
-			keyStore.setProperty(USER, PASSWORD, p);
-		}
+				{
+					LongProperty p = keyStore.getProperty(USER, PASSWORD, LongProperty.class, "long1");
+					p.setValue(12345L);
+					keyStore.setProperty(USER, PASSWORD, p);
+				}
 
-		{
-			StringProperty p = keyStore.getProperty(USER, PASSWORD, StringProperty.class, "string2");
-			p.setValue(
-					"Freude, schöner Götterfunken,\n" +
-					"Tochter aus Elysium,\n" +
-					"Wir betreten feuertrunken,\n" +
-					"Himmlische, dein Heiligthum.\n"
-			);
-			keyStore.setProperty(USER, PASSWORD, p);
-		}
+				{
+					LongProperty p = keyStore.getProperty(USER, PASSWORD, LongProperty.class, "long2");
+					p.setValue(-5557347874L);
+					keyStore.setProperty(USER, PASSWORD, p);
+				}
 
-		{
-			String propertyName = "Long2LongSortedMapProperty1";
-			Long2LongSortedMapProperty property = keyStore.getProperty(USER, PASSWORD, Long2LongSortedMapProperty.class, propertyName);
-			property.getValue().put(System.currentTimeMillis(), 1L);
-			Long exampleMapKey = System.currentTimeMillis() + 24 * 3600 * 1000;
-			Long exampleMapValue = 113344L;
-			property.getValue().put(exampleMapKey, exampleMapValue);
-			property.getValue().put(System.currentTimeMillis() + 2 * 24 * 3600 * 1000, 375438972L);
-			keyStore.setProperty(USER, PASSWORD, property);
+				{
+					StringProperty p = keyStore.getProperty(USER, PASSWORD, StringProperty.class, "string1");
+					p.setValue(
+							"Freude, schöner Götterfunken,\n" +
+							"Tochter aus Elysium,\n" +
+							"Wir betreten feuertrunken,\n" +
+							"Himmlische, dein Heiligthum.\n"
+					);
+					keyStore.setProperty(USER, PASSWORD, p);
+				}
+
+				{
+					StringProperty p = keyStore.getProperty(USER, PASSWORD, StringProperty.class, "string2");
+					p.setValue(
+							"Freude, schöner Götterfunken,\n" +
+							"Tochter aus Elysium,\n" +
+							"Wir betreten feuertrunken,\n" +
+							"Himmlische, dein Heiligthum.\n"
+					);
+					keyStore.setProperty(USER, PASSWORD, p);
+				}
+
+				{
+					String propertyName = "Long2LongSortedMapProperty1";
+					Long2LongSortedMapProperty property = keyStore.getProperty(USER, PASSWORD, Long2LongSortedMapProperty.class, propertyName);
+					property.getValue().put(System.currentTimeMillis(), 1L);
+					Long exampleMapKey = System.currentTimeMillis() + 24 * 3600 * 1000;
+					Long exampleMapValue = 113344L;
+					property.getValue().put(exampleMapKey, exampleMapValue);
+					property.getValue().put(System.currentTimeMillis() + 2 * 24 * 3600 * 1000, 375438972L);
+					keyStore.setProperty(USER, PASSWORD, property);
+				}
+			} finally {
+				System.clearProperty(KeyStore.SYSTEM_PROPERTY_ENCRYPTION_ALGORITHM);
+				System.clearProperty(KeyStore.SYSTEM_PROPERTY_KEY_SIZE);
+				System.clearProperty(KeyStore.SYSTEM_PROPERTY_MAC_ALGORITHM);
+			}
 		}
 	}
 
 	@Test
-	public void openReferenceKeyStore()
+	public void openReferenceKeyStores()
 	throws Exception
 	{
-		File keyStoreFile = File.createTempFile("current-reference-", ".keystore");
-		IOUtil.copyResource(ResourceHelper.class, "current-reference.keystore", keyStoreFile);
-		// The KeyStore reads the data immediately after creating a new instance.
-		KeyStore keyStore = new KeyStore(keyStoreFile);
+		for (String algorithm : ALGORITHMS) {
+			String algoFileNameInfix = algorithm.replace('/', '-').replace(':', '.');
 
-		// But nevertheless, we access a key in order to make sure, it's really loaded correctly.
-		byte[] key = keyStore.getKey(USER, PASSWORD, 1);
-		Assert.assertNotNull("key must not be null!", key);
+			if (!"default".equals(algorithm)) {
+				String[] algoParts = algorithm.split(":");
+				System.setProperty(KeyStore.SYSTEM_PROPERTY_ENCRYPTION_ALGORITHM, algoParts[0]);
+				System.setProperty(KeyStore.SYSTEM_PROPERTY_KEY_SIZE, algoParts[1]);
+				System.setProperty(KeyStore.SYSTEM_PROPERTY_MAC_ALGORITHM, algoParts[2]);
+			}
+			try {
+				File keyStoreFile = File.createTempFile("reference." + algoFileNameInfix + '.', ".keystore");
+				IOUtil.copyResource(ResourceHelper.class, "reference." + algoFileNameInfix + ".keystore", keyStoreFile);
+				// The KeyStore reads the data immediately after creating a new instance.
+				KeyStore keyStore = new KeyStore(keyStoreFile);
 
-		logger.info("openReferenceKeystore: Reference-KeyStore was successfully opened.");
-		keyStore.generateKey(USER, PASSWORD);
-		logger.info("openReferenceKeystore: New key was successfully generated.");
+				// But nevertheless, we access a key in order to make sure, it's really loaded correctly.
+				byte[] key = keyStore.getKey(USER, PASSWORD, 1);
+				Assert.assertNotNull("key must not be null!", key);
+
+				logger.info("openReferenceKeystore: Reference-KeyStore was successfully opened.");
+				keyStore.generateKey(USER, PASSWORD);
+				logger.info("openReferenceKeystore: New key was successfully generated.");
+				keyStoreFile.delete();
+			} finally {
+				System.clearProperty(KeyStore.SYSTEM_PROPERTY_ENCRYPTION_ALGORITHM);
+				System.clearProperty(KeyStore.SYSTEM_PROPERTY_KEY_SIZE);
+				System.clearProperty(KeyStore.SYSTEM_PROPERTY_MAC_ALGORITHM);
+			}
+		}
 	}
 
 }

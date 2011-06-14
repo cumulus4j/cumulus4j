@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.security.GeneralSecurityException;
-import java.security.Key;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 import java.util.ArrayList;
@@ -182,40 +181,56 @@ import org.slf4j.LoggerFactory;
  * 				<td align="right" valign="top"><i>len2</i></td><td valign="top">byte[]: Salt to be used when generating the password-based key (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
  * 			</tr>
  *
- *			<!-- BEGIN written by {@link AbstractEncryptedKey#write(DataOutputStream, Map)} -->
- *
+ *			<!-- BEGIN written by {@link AbstractEncryptedData#write(DataOutputStream, Map)} -->
  * 				<tr>
- * 					<td align="right" valign="top">2</td><td valign="top">short <i>len3</i>: Data: Number of bytes to follow (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
- * 				</tr>
- * 				<tr>
- * 					<td align="right" valign="top"><i>len3</i></td><td valign="top">byte[]: The actual key's data (encrypted, written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
- * 				</tr>
- *
- *				<!-- Not existing anymore.
- * 				<tr>
- * 					<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the encryption algorithm this key will be used for (see {@link Key#getAlgorithm()}, index in the list of 'Block A').</td>
- * 				</tr>
- * 				-->
- *
- * 				<tr>
- * 					<td align="right" valign="top">2</td><td valign="top">short <i>len4</i>: IV: Number of bytes to follow (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
- * 				</tr>
- * 				<tr>
- * 					<td align="right" valign="top"><i>len4</i></td><td valign="top">byte[]: The actual IV (initialisation vector) used to encrypt the key's data (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
+ * 					<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the encryption algorithm used to encrypt this record's data (index in the list of 'Block A').</td>
  * 				</tr>
  *
  * 				<tr>
- * 					<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the encryption algorithm used to encrypt the key's data (index in the list of 'Block A').</td>
+ * 					<td align="right" valign="top">4</td><td valign="top">int <i>lenIV</i>: IV: Number of bytes to follow (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
+ * 				</tr>
+ * 				<tr>
+ * 					<td align="right" valign="top"><i>lenIV</i></td><td valign="top">byte[]: The actual IV (initialisation vector) used to encrypt the key's data (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
  * 				</tr>
  *
  * 				<tr>
- * 					<td align="right" valign="top">2</td><td valign="top">short: Checksum size, i.e. how many bytes inside the encrypted key's data are the checksum (at the beginning).</td>
- * 				</tr>
- * 				<tr>
- * 					<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the checksum algorithm used when encrypting the key's data (index in the list of 'Block A').</td>
+ * 					<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the MAC algorithm used to authenticate this record's data (index in the list of 'Block A').</td>
  * 				</tr>
  *
- *			<!-- END written by {@link AbstractEncryptedKey#write(DataOutputStream, Map)} -->
+ * 				<tr>
+ * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMacKey</i>: MAC key: Number of bytes in the MAC's key.</td>
+ * 				</tr>
+ * 				<tr>
+ * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMacIV</i>: MAC IV: Number of bytes in the MAC's IV.</td>
+ * 				</tr>
+ * 				<tr>
+ * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMac</i>: MAC: Number of bytes in the MAC.</td>
+ * 				</tr>
+ *
+ *				<tr>
+ *					<td colspan="2">
+ * 						<table bgcolor="#E0E0E0" border="1" width="100%">
+ * 							<tbody>
+ * 								<tr><td bgcolor="#C0C0C0" colspan="2"><b>ENCRYPTED</b></td></tr>
+ * 								<tr>
+ * 									<td align="right" valign="top"><i>lenMacKey</i></td><td valign="top">MAC key: The actual MAC's key (random).</td>
+ * 								</tr>
+ * 								<tr>
+ * 									<td align="right" valign="top"><i>lenMacIV</i></td><td valign="top">MAC IV: The actual MAC's IV (random).</td>
+ * 								</tr>
+ * 								<tr>
+ * 									<td align="right" valign="top"><i>all until MAC</i></td><td valign="top">The actual data (payload).</td>
+ * 								</tr>
+ * 								<tr>
+ * 									<td align="right" valign="top"><i>lenMac</i></td><td valign="top">MAC: The actual MAC.</td>
+ * 								</tr>
+ * 							</tbody>
+ * 						</table>
+ * 					</td>
+ *				</tr>
+ *
+ *			<!-- END written by {@link AbstractEncryptedData#write(DataOutputStream, Map)} -->
+ *
  *			</tbody>
  * 		</table>
  * 		</td>
@@ -245,40 +260,56 @@ import org.slf4j.LoggerFactory;
  * 				<td align="right" valign="top">8</td><td valign="top">long: Key identifier.</td>
  * 			</tr>
  *
- *			<!-- BEGIN written by {@link AbstractEncryptedKey#write(DataOutputStream, Map)} -->
- *
+ *			<!-- BEGIN written by {@link AbstractEncryptedData#write(DataOutputStream, Map)} -->
  * 				<tr>
- * 					<td align="right" valign="top">2</td><td valign="top">short <i>len3</i>: Data: Number of bytes to follow (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
- * 				</tr>
- * 				<tr>
- * 					<td align="right" valign="top"><i>len3</i></td><td valign="top">byte[]: The actual key's data (encrypted, written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
- * 				</tr>
- *
- *				<!-- Not existing anymore.
- * 				<tr>
- * 					<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the encryption algorithm this key will be used for (see {@link Key#getAlgorithm()}, index in the list of 'Block A').</td>
- * 				</tr>
- * 				-->
- *
- * 				<tr>
- * 					<td align="right" valign="top">2</td><td valign="top">short <i>len4</i>: IV: Number of bytes to follow (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
- * 				</tr>
- * 				<tr>
- * 					<td align="right" valign="top"><i>len4</i></td><td valign="top">byte[]: The actual IV (initialisation vector) used to encrypt the key's data (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
+ * 					<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the encryption algorithm used to encrypt this record's data (index in the list of 'Block A').</td>
  * 				</tr>
  *
  * 				<tr>
- * 					<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the encryption algorithm used to encrypt the key's data (index in the list of 'Block A').</td>
+ * 					<td align="right" valign="top">4</td><td valign="top">int <i>lenIV</i>: IV: Number of bytes to follow (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
+ * 				</tr>
+ * 				<tr>
+ * 					<td align="right" valign="top"><i>lenIV</i></td><td valign="top">byte[]: The actual IV (initialisation vector) used to encrypt the key's data (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
  * 				</tr>
  *
  * 				<tr>
- * 					<td align="right" valign="top">2</td><td valign="top">short: Checksum size, i.e. how many bytes inside the encrypted key's data are the checksum (at the beginning).</td>
- * 				</tr>
- * 				<tr>
- * 					<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the checksum algorithm used when encrypting the key's data (index in the list of 'Block A').</td>
+ * 					<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the MAC algorithm used to authenticate this record's data (index in the list of 'Block A').</td>
  * 				</tr>
  *
- *			<!-- END written by {@link AbstractEncryptedKey#write(DataOutputStream, Map)} -->
+ * 				<tr>
+ * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMacKey</i>: MAC key: Number of bytes in the MAC's key.</td>
+ * 				</tr>
+ * 				<tr>
+ * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMacIV</i>: MAC IV: Number of bytes in the MAC's IV.</td>
+ * 				</tr>
+ * 				<tr>
+ * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMac</i>: MAC: Number of bytes in the MAC.</td>
+ * 				</tr>
+ *
+ *				<tr>
+ *					<td colspan="2">
+ * 						<table bgcolor="#E0E0E0" border="1" width="100%">
+ * 							<tbody>
+ * 								<tr><td bgcolor="#C0C0C0" colspan="2"><b>ENCRYPTED</b></td></tr>
+ * 								<tr>
+ * 									<td align="right" valign="top"><i>lenMacKey</i></td><td valign="top">MAC key: The actual MAC's key (random).</td>
+ * 								</tr>
+ * 								<tr>
+ * 									<td align="right" valign="top"><i>lenMacIV</i></td><td valign="top">MAC IV: The actual MAC's IV (random).</td>
+ * 								</tr>
+ * 								<tr>
+ * 									<td align="right" valign="top"><i>all until MAC</i></td><td valign="top">The actual data (payload).</td>
+ * 								</tr>
+ * 								<tr>
+ * 									<td align="right" valign="top"><i>lenMac</i></td><td valign="top">MAC: The actual MAC.</td>
+ * 								</tr>
+ * 							</tbody>
+ * 						</table>
+ * 					</td>
+ *				</tr>
+ *
+ *			<!-- END written by {@link AbstractEncryptedData#write(DataOutputStream, Map)} -->
+ *
  *			</tbody>
  * 		</table>
  * 		</td>
@@ -313,32 +344,56 @@ import org.slf4j.LoggerFactory;
  * 				<td align="right" valign="top">4</td><td valign="top">int: Reference to the fully qualified class name of the {@link Property} (index in the list of 'Block A').</td>
  * 			</tr>
  *
- * 			<tr>
- * 				<td align="right" valign="top">2</td><td valign="top">short <i>len4</i>: Data: Number of bytes to follow (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
- * 			</tr>
- * 			<tr>
- * 				<td align="right" valign="top"><i>len4</i></td><td valign="top">byte[]: The actual encrypted data of the property (obtained from {@link Property#getValueEncoded()}, then encrypted, finally written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
- * 			</tr>
+ *			<!-- BEGIN written by {@link AbstractEncryptedData#write(DataOutputStream, Map)} -->
+ * 				<tr>
+ * 					<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the encryption algorithm used to encrypt this record's data (index in the list of 'Block A').</td>
+ * 				</tr>
  *
- * 			<tr>
- * 				<td align="right" valign="top">2</td><td valign="top">short <i>len4</i>: IV: Number of bytes to follow (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
- * 			</tr>
- * 			<tr>
- * 				<td align="right" valign="top"><i>len4</i></td><td valign="top">byte[]: The actual IV (initialisation vector) used to encrypt the property's data (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
- * 			</tr>
+ * 				<tr>
+ * 					<td align="right" valign="top">4</td><td valign="top">int <i>lenIV</i>: IV: Number of bytes to follow (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
+ * 				</tr>
+ * 				<tr>
+ * 					<td align="right" valign="top"><i>lenIV</i></td><td valign="top">byte[]: The actual IV (initialisation vector) used to encrypt the key's data (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
+ * 				</tr>
  *
- * 			<tr>
- * 				<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the encryption algorithm used to encrypt the property's data (index in the list of 'Block A').</td>
- * 			</tr>
+ * 				<tr>
+ * 					<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the MAC algorithm used to authenticate this record's data (index in the list of 'Block A').</td>
+ * 				</tr>
  *
- * 			<tr>
- * 				<td align="right" valign="top">2</td><td valign="top">short: Checksum size, i.e. how many bytes inside the encrypted property's data are the checksum (at the beginning).</td>
- * 			</tr>
- * 			<tr>
- * 				<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the checksum algorithm used when encrypting the property's data (index in the list of 'Block A').</td>
- * 			</tr>
+ * 				<tr>
+ * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMacKey</i>: MAC key: Number of bytes in the MAC's key.</td>
+ * 				</tr>
+ * 				<tr>
+ * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMacIV</i>: MAC IV: Number of bytes in the MAC's IV.</td>
+ * 				</tr>
+ * 				<tr>
+ * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMac</i>: MAC: Number of bytes in the MAC.</td>
+ * 				</tr>
  *
- *			<!-- END written by {@link AbstractEncryptedKey#write(DataOutputStream, Map)} -->
+ *				<tr>
+ *					<td colspan="2">
+ * 						<table bgcolor="#E0E0E0" border="1" width="100%">
+ * 							<tbody>
+ * 								<tr><td bgcolor="#C0C0C0" colspan="2"><b>ENCRYPTED</b></td></tr>
+ * 								<tr>
+ * 									<td align="right" valign="top"><i>lenMacKey</i></td><td valign="top">MAC key: The actual MAC's key (random).</td>
+ * 								</tr>
+ * 								<tr>
+ * 									<td align="right" valign="top"><i>lenMacIV</i></td><td valign="top">MAC IV: The actual MAC's IV (random).</td>
+ * 								</tr>
+ * 								<tr>
+ * 									<td align="right" valign="top"><i>all until MAC</i></td><td valign="top">The actual data (payload).</td>
+ * 								</tr>
+ * 								<tr>
+ * 									<td align="right" valign="top"><i>lenMac</i></td><td valign="top">MAC: The actual MAC.</td>
+ * 								</tr>
+ * 							</tbody>
+ * 						</table>
+ * 					</td>
+ *				</tr>
+ *
+ *			<!-- END written by {@link AbstractEncryptedData#write(DataOutputStream, Map)} -->
+ *
  *			</tbody>
  * 		</table>
  * 		</td>
@@ -352,7 +407,7 @@ import org.slf4j.LoggerFactory;
  */
 public class KeyStore
 {
-	private static final Logger logger = LoggerFactory.getLogger(KeyStore.class);
+	static final Logger logger = LoggerFactory.getLogger(KeyStore.class);
 
 //	private static final BouncyCastleProvider bouncyCastleProvider = new BouncyCastleProvider();
 //	static {
@@ -396,15 +451,69 @@ public class KeyStore
 	 * </p>
 	 * <p>
 	 * By default (if the system property {@value #SYSTEM_PROPERTY_ENCRYPTION_ALGORITHM} is not specified),
-	 * "Twofish/CBC/PKCS5Padding" is used. For example, to switch to "AES/CFB/NoPadding", you'd have
+	 * "Twofish/GCM/NoPadding" is used. For example, to switch to "AES/CFB/NoPadding", you'd have
 	 * to specify the command line argument "-Dcumulus4j.KeyStore.encryptionAlgorithm=AES/CFB/NoPadding".
 	 * </p>
 	 * <p>
-	 * See <a href="http://download.java.net/jdk7/docs/technotes/guides/security/SunProviders.html#SunJCEProvider">this document</a>
+	 * See <a href="http://cumulus4j.org/documentation/supported-algorithms.html">this document</a>
 	 * for further information about what values are supported.
+	 * </p>
+	 * <p>
+	 * <b>Important:</b> The default MAC algorithm is "NONE", which is a very bad choice for most encryption algorithms!
+	 * Therefore, you must change the MAC algorithm via the system property {@value #SYSTEM_PROPERTY_MAC_ALGORITHM}
+	 * if you change the encryption algorithm!
 	 * </p>
 	 */
 	public static final String SYSTEM_PROPERTY_ENCRYPTION_ALGORITHM = "cumulus4j.KeyStore" + ".encryptionAlgorithm";
+
+	/**
+	 * <p>
+	 * System property to control the <a href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a>
+	 * algorithm that is used to protect the data within the key-store against manipulation.
+	 * </p>
+	 * <p>
+	 * Whenever data is encrypted, this MAC algorithm is used to calculate a MAC over the original plain-text-data.
+	 * The MAC is then stored together with the plain-text-data within the encrypted area.
+	 * When data is decrypted, the MAC is calculated again over the decrypted plain-text-data and compared to the
+	 * original MAC in order to make sure (1) that data was correctly decrypted [i.e. the password provided by the user
+	 * is correct] and (2) that the data in the key-store was not manipulated by an attacker.
+	 * </p>
+	 * <p>
+	 * The MAC algorithm used during encryption is stored in the encryption-record's meta-data in order
+	 * to use the correct algorithm during decryption, no matter what current MAC algorithm is configured.
+	 * Therefore, you can safely change this setting at any time - it will affect future encryption
+	 * operations, only.
+	 * </p>
+	 * <p>
+	 * Some block cipher modes (e.g. <a href="http://en.wikipedia.org/wiki/Galois/Counter_Mode">GCM</a>) already include authentication
+	 * and therefore no MAC is necessary. In this case, you can specify the MAC algorithm {@value #MAC_ALGORITHM_NONE}.
+	 * </p>
+	 * <p>
+	 * <b>Important:</b> If you specify the MAC algorithm "NONE" and use an encryption algorithm without
+	 * authentication, the key store will not be able to detect a wrong password and instead return
+	 * corrupt data!!! Be VERY careful with the MAC algorithm "NONE"!!!
+	 * </p>
+	 * <p>
+	 * The default value (used when this system property is not specified) is "NONE", because the default
+	 * encryption algorithm is "Twofish/GCM/NoPadding", which (due to "GCM") does not require an additional
+	 * MAC.
+	 * </p>
+	 */
+	public static final String SYSTEM_PROPERTY_MAC_ALGORITHM = "cumulus4j.KeyStore" + ".macAlgorithm";
+
+	/**
+	 * <p>
+	 * Constant for deactivating the <a href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a>.
+	 * </p>
+	 * <p>
+	 * <b>Important: Deactivating the MAC is dangerous!</b> Choose this value only, if you are absolutely
+	 * sure that your {@link #SYSTEM_PROPERTY_ENCRYPTION_ALGORITHM encryption algorithm} already
+	 * provides authentication - like <a href="http://en.wikipedia.org/wiki/Galois/Counter_Mode">GCM</a>
+	 * does for example.
+	 * </p>
+	 * @see #SYSTEM_PROPERTY_MAC_ALGORITHM
+	 */
+	public static final String MAC_ALGORITHM_NONE = "NONE";
 
 	private static final String KEY_STORE_PROPERTY_NAME_NEXT_KEY_ID = "nextKeyID";
 
@@ -506,7 +615,8 @@ public class KeyStore
 			String encryptionAlgorithmPropName = SYSTEM_PROPERTY_ENCRYPTION_ALGORITHM;
 			String encryptionAlgorithmPropValue = System.getProperty(encryptionAlgorithmPropName);
 			if (encryptionAlgorithmPropValue == null || encryptionAlgorithmPropValue.trim().isEmpty()) {
-				ea = "Twofish/CBC/PKCS5Padding"; // default value, if the property was not defined.
+				ea = "Twofish/GCM/NoPadding"; // default value, if the property was not defined.
+//				ea = "Twofish/CBC/PKCS5Padding"; // default value, if the property was not defined.
 //				ea = "AES/CBC/PKCS5Padding"; // default value, if the property was not defined.
 //				ea = "AES/CFB/NoPadding"; // default value, if the property was not defined.
 				logger.info("getEncryptionAlgorithm: System property '{}' is not set. Using default algorithm '{}'.", encryptionAlgorithmPropName, ea);
@@ -521,6 +631,30 @@ public class KeyStore
 		return ea;
 	}
 	private String encryptionAlgorithm = null;
+
+
+	String getMacAlgorithm()
+	{
+		String ma = macAlgorithm;
+
+		if (ma == null) {
+			String macAlgorithmPropName = SYSTEM_PROPERTY_MAC_ALGORITHM;
+			String macAlgorithmPropValue = System.getProperty(macAlgorithmPropName);
+			if (macAlgorithmPropValue == null || macAlgorithmPropValue.trim().isEmpty()) {
+				ma = MAC_ALGORITHM_NONE; // default value, if the property was not defined.
+				logger.info("getMacAlgorithm: System property '{}' is not set. Using default MAC algorithm '{}'.", macAlgorithmPropName, ma);
+			}
+			else {
+				ma = macAlgorithmPropValue.trim();
+				logger.info("getMacAlgorithm: System property '{}' is set to '{}'. Using this MAC algorithm.", macAlgorithmPropName, ma);
+			}
+			macAlgorithm = ma;
+		}
+
+		return ma;
+	}
+	private String macAlgorithm = null;
+
 
 	byte[] generateKey(int keySize)
 	{
@@ -644,13 +778,14 @@ public class KeyStore
 			cachedMasterKey.updateLastUse();
 			return result;
 		}
+		result = null;
 
 		EncryptedMasterKey encryptedKey = keyStoreData.user2keyMap.get(authUserName);
 		if (encryptedKey == null)
 			logger.warn("getMasterKey: Unknown userName: {}", authUserName); // NOT throw exception here to not disclose the true reason of the AuthenticationException - see below
 		else {
+			PlaintextDataAndMac plaintextDataAndMac;
 			try {
-				// TODO we have to pass the key size here - and thus store it in the EncryptedKey.
 				Cipher cipher = getCipherForUserPassword(
 						authPassword,
 						encryptedKey.getPasswordBasedKeySize(),
@@ -660,22 +795,21 @@ public class KeyStore
 						encryptedKey.getEncryptionIV(), encryptedKey.getEncryptionAlgorithm(),
 						CipherOperationMode.DECRYPT
 				);
-				byte[] decrypted = cipher.doFinal(encryptedKey.getData());
-//				result = new MasterKey(new SecretKeySpec(decrypted, encryptedKey.getAlgorithm()));
+				byte[] decrypted = cipher.doFinal(encryptedKey.getEncryptedData());
 
-				byte[][] checksumAndData = splitChecksumAndData(decrypted, encryptedKey.getChecksumSize());
-				result = new MasterKey(checksumAndData[1]);
-				byte[] checksum = checksumCalculator.checksum(checksumAndData[1], encryptedKey.getChecksumAlgorithm());
-				if (!Arrays.equals(checksumAndData[0], checksum)) {
-					result = null;
-					logger.warn(
-							"getMasterKey: Wrong password for user \"{}\"! checksumAlgorithm={} expectedChecksum={} calculatedChecksum={}",
-							new Object[] { authUserName, encryptedKey.getChecksumAlgorithm(), KeyStoreUtil.encodeHexStr(checksumAndData[0]), KeyStoreUtil.encodeHexStr(checksum) }
-					);
-				}
+				plaintextDataAndMac = new PlaintextDataAndMac(decrypted, encryptedKey);
 			} catch (CryptoException x) {
 				logger.warn("getMasterKey: Caught CryptoException indicating a wrong password for user \"{}\"!", authUserName);
-				result = null;
+				plaintextDataAndMac = null;
+			} catch (GeneralSecurityException x) {
+				throw new RuntimeException(x);
+			}
+
+			try {
+				if (plaintextDataAndMac != null && plaintextDataAndMac.verifyMAC())
+					result = new MasterKey(plaintextDataAndMac.getData());
+				else
+					logger.warn("getMasterKey: Wrong password for user \"{}\"! MAC verification failed.", authUserName);
 			} catch (GeneralSecurityException x) {
 				throw new RuntimeException(x);
 			}
@@ -889,37 +1023,40 @@ public class KeyStore
 	throws IOException
 	{
 		byte[] plainMasterKeyData = masterKey.getEncoded();
-		byte[] hash = checksumCalculator.checksum(plainMasterKeyData, CHECKSUM_ALGORITHM_ACTIVE);
-		byte[] hashAndData = catChecksumAndData(hash, plainMasterKeyData);
 
 		byte[] salt = new byte[8]; // Are 8 bytes salt salty (i.e. secure) enough?
 		secureRandom.nextBytes(salt);
 		try {
 			int passwordBasedKeySize = getKeySize();
-			int passwordBasedInterationCount = 1024; // TODO make configurable!
+			int passwordBasedIterationCount = 1024; // TODO make configurable!
 			String passwordBasedKeyGeneratorAlgorithm = "PBKDF2WithHmacSHA1"; // TODO make configurable
 
 			Cipher cipher = getCipherForUserPassword(
 					password,
 					passwordBasedKeySize,
-					passwordBasedInterationCount,
+					passwordBasedIterationCount,
 					passwordBasedKeyGeneratorAlgorithm,
 					salt, null, null, CipherOperationMode.ENCRYPT
 			);
-			byte[] encrypted = cipher.doFinal(hashAndData);
+
+			PlaintextDataAndMac plaintextDataAndMac = new PlaintextDataAndMac(plainMasterKeyData, getMacAlgorithm());
+			byte[] encrypted = cipher.doFinal(plaintextDataAndMac.toByteArray());
 
 			byte[] iv = ((ParametersWithIV)cipher.getParameters()).getIV();
 
-			keyStoreData.stringConstant(CHECKSUM_ALGORITHM_ACTIVE.name());
 			EncryptedMasterKey encryptedKey = new EncryptedMasterKey(
 					userName,
 					passwordBasedKeySize,
-					passwordBasedInterationCount,
+					passwordBasedIterationCount,
 					keyStoreData.stringConstant(passwordBasedKeyGeneratorAlgorithm),
-					encrypted, salt,
+					salt,
+					keyStoreData.stringConstant(cipher.getTransformation()),
 					iv,
-					keyStoreData.stringConstant(cipher.getTransformation()), (short)hash.length,
-					CHECKSUM_ALGORITHM_ACTIVE
+					keyStoreData.stringConstant(plaintextDataAndMac.getMacAlgorithm()),
+					(short)plaintextDataAndMac.getMacKey().length,
+					(short)plaintextDataAndMac.getMacIV().length,
+					(short)plaintextDataAndMac.getMac().length,
+					encrypted
 			);
 			keyStoreData.user2keyMap.put(userName, encryptedKey);
 			usersCache = null;
@@ -1097,14 +1234,13 @@ public class KeyStore
 					encryptedKey.getEncryptionAlgorithm(),
 					CipherOperationMode.DECRYPT
 			);
-			byte[] decrypted = cipher.doFinal(encryptedKey.getData());
-			byte[][] checksumAndData = splitChecksumAndData(decrypted, encryptedKey.getChecksumSize());
+			byte[] decrypted = cipher.doFinal(encryptedKey.getEncryptedData());
 
-			byte[] checksum = checksumCalculator.checksum(checksumAndData[1], encryptedKey.getChecksumAlgorithm());
-			if (!Arrays.equals(checksumAndData[0], checksum))
-				throw new IllegalStateException("Checksum mismatch!!! This means, the decryption key was wrong!");
+			PlaintextDataAndMac plaintextDataAndMac = new PlaintextDataAndMac(decrypted, encryptedKey);
+			if (!plaintextDataAndMac.verifyMAC())
+				throw new IllegalStateException("MAC mismatch!!! This means, the decryption key was wrong!");
 
-			return checksumAndData[1];
+			return plaintextDataAndMac.getData();
 		} catch (CryptoException e) {
 			throw new RuntimeException(e);
 		} catch (GeneralSecurityException e) {
@@ -1125,19 +1261,22 @@ public class KeyStore
 	{
 		MasterKey masterKey = getMasterKey(authUserName, authPassword);
 
-		byte[] plainKeyData = key;
-		byte[] checksum = checksumCalculator.checksum(plainKeyData, CHECKSUM_ALGORITHM_ACTIVE);
-		byte[] checksumAndData = catChecksumAndData(checksum, plainKeyData);
-
 		try {
+			PlaintextDataAndMac plaintextDataAndMac = new PlaintextDataAndMac(key, getMacAlgorithm());
+
 			Cipher cipher = getCipherForMasterKey(masterKey, null, null, CipherOperationMode.ENCRYPT);
 			byte[] iv = ((ParametersWithIV)cipher.getParameters()).getIV();
-			byte[] encrypted = cipher.doFinal(checksumAndData);
-			keyStoreData.stringConstant(CHECKSUM_ALGORITHM_ACTIVE.name());
+			byte[] encrypted = cipher.doFinal(plaintextDataAndMac.toByteArray());
+
 			EncryptedKey encryptedKey = new EncryptedKey(
-					keyID, encrypted, iv,
-					keyStoreData.stringConstant(cipher.getTransformation()), (short)checksum.length,
-					CHECKSUM_ALGORITHM_ACTIVE
+					keyID,
+					keyStoreData.stringConstant(cipher.getTransformation()),
+					iv,
+					plaintextDataAndMac.getMacAlgorithm(),
+					(short)plaintextDataAndMac.getMacKey().length,
+					(short)plaintextDataAndMac.getMacIV().length,
+					(short)plaintextDataAndMac.getMac().length,
+					encrypted
 			);
 			keyStoreData.keyID2keyMap.put(keyID, encryptedKey);
 		} catch (CryptoException e) {
@@ -1212,14 +1351,13 @@ public class KeyStore
 						encryptedProperty.getEncryptionAlgorithm(),
 						CipherOperationMode.DECRYPT
 				);
-				byte[] decrypted = cipher.doFinal(encryptedProperty.getData());
-				byte[][] checksumAndData = splitChecksumAndData(decrypted, encryptedProperty.getChecksumSize());
+				byte[] decrypted = cipher.doFinal(encryptedProperty.getEncryptedData());
 
-				byte[] checksum = checksumCalculator.checksum(checksumAndData[1], encryptedProperty.getChecksumAlgorithm());
-				if (!Arrays.equals(checksumAndData[0], checksum))
-					throw new IllegalStateException("Checksum mismatch!!! This means, the decryption key was wrong!");
+				PlaintextDataAndMac plaintextDataAndMac = new PlaintextDataAndMac(decrypted, encryptedProperty);
+				if (!plaintextDataAndMac.verifyMAC())
+					throw new IllegalStateException("MAC mismatch!!! This means, the decryption key was wrong!");
 
-				result.setValueEncoded(checksumAndData[1]);
+				result.setValueEncoded(plaintextDataAndMac.getData());
 			} catch (CryptoException e) {
 				throw new RuntimeException(e);
 			} catch (GeneralSecurityException e) {
@@ -1333,12 +1471,11 @@ public class KeyStore
 			_removeProperty(authUserName, authPassword, property.getName());
 		}
 		else {
-			byte[] checksum = checksumCalculator.checksum(plainValueEncoded, CHECKSUM_ALGORITHM_ACTIVE);
-			byte[] checksumAndData = catChecksumAndData(checksum, plainValueEncoded);
-
 			try {
+				PlaintextDataAndMac plaintextDataAndMac = new PlaintextDataAndMac(plainValueEncoded, getMacAlgorithm());
+
 				Cipher cipher = getCipherForMasterKey(masterKey, null, null, CipherOperationMode.ENCRYPT);
-				byte[] encrypted = cipher.doFinal(checksumAndData);
+				byte[] encrypted = cipher.doFinal(plaintextDataAndMac.toByteArray());
 				byte[] iv = ((ParametersWithIV)cipher.getParameters()).getIV();
 
 				@SuppressWarnings("unchecked")
@@ -1346,8 +1483,13 @@ public class KeyStore
 				keyStoreData.stringConstant(CHECKSUM_ALGORITHM_ACTIVE.name());
 				EncryptedProperty encryptedProperty = new EncryptedProperty(
 						property.getName(), propertyType,
-						encrypted, iv, keyStoreData.stringConstant(cipher.getTransformation()),
-						(short)checksum.length, CHECKSUM_ALGORITHM_ACTIVE
+						keyStoreData.stringConstant(cipher.getTransformation()),
+						iv,
+						plaintextDataAndMac.getMacAlgorithm(),
+						(short)plaintextDataAndMac.getMacKey().length,
+						(short)plaintextDataAndMac.getMacIV().length,
+						(short)plaintextDataAndMac.getMac().length,
+						encrypted
 				);
 				keyStoreData.name2propertyMap.put(encryptedProperty.getName(), encryptedProperty);
 			} catch (CryptoException e) {
@@ -1392,47 +1534,5 @@ public class KeyStore
 	protected void finalize() throws Throwable {
 		clearCache(null);
 		super.finalize();
-	}
-
-	/**
-	 * <p>
-	 * Split the given plain (decrypted) <code>data</code> byte array into two parts. The first part
-	 * is the checksum and the second part the actual plain (decrypted) data.
-	 * </p>
-	 * <p>
-	 * The opposite of this method is {@link #catChecksumAndData(byte[], byte[])} which concats the two parts into one.
-	 * </p>
-	 *
-	 * @param checksumAndData the plain data prepended with the hash. The hash thus always comes before the actual data.
-	 * @param checksumSize the number of bytes that are the actual hash.
-	 * @return a byte-array-array with two elements. The 1st element is the byte-array containing the checksum, the 2nd element
-	 * is the byte-array containing the actual data.
-	 * @see #catChecksumAndData(byte[], byte[])
-	 */
-	private static byte[][] splitChecksumAndData(byte[] checksumAndData, short checksumSize)
-	{
-		byte[][] result = new byte[2][];
-		result[0] = new byte[checksumSize];
-		result[1] = new byte[checksumAndData.length - checksumSize];
-		System.arraycopy(checksumAndData, 0, result[0], 0, result[0].length);
-		System.arraycopy(checksumAndData, result[0].length, result[1], 0, result[1].length);
-		return result;
-	}
-
-	/**
-	 * Concat the two byte-arrays <code>hash</code> and <code>data</code> into one combined byte-array
-	 * which contains then first the hash and directly following the data.
-	 *
-	 * @param checksum the checksum.
-	 * @param data the actual data.
-	 * @return the combined hash and data.
-	 * @see #splitChecksumAndData(byte[], short)
-	 */
-	private static byte[] catChecksumAndData(byte[] checksum, byte[] data)
-	{
-		byte[] result = new byte[checksum.length + data.length];
-		System.arraycopy(checksum, 0, result, 0, checksum.length);
-		System.arraycopy(data, 0, result, checksum.length, data.length);
-		return result;
 	}
 }

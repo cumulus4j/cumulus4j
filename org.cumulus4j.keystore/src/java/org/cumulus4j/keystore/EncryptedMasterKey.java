@@ -23,10 +23,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
-import org.cumulus4j.crypto.util.ChecksumAlgorithm;
-
 class EncryptedMasterKey
-extends AbstractEncryptedKey
+extends AbstractEncryptedData
 {
 	private String userName;
 
@@ -59,10 +57,17 @@ extends AbstractEncryptedKey
 	}
 
 	public EncryptedMasterKey(
-			String userName, int passwordBasedKeySize, int passwordBasedInterationCount, String passwordBasedKeyGeneratorAlgorithm,
-			byte[] data, byte[] salt, byte[] encryptionIV, String encryptionAlgorithm, short checksumSize, ChecksumAlgorithm checksumAlgorithm
+			String userName, int passwordBasedKeySize, int passwordBasedIterationCount, String passwordBasedKeyGeneratorAlgorithm,
+			byte[] salt,
+			String encryptionAlgorithm, byte[] encryptionIV,
+			String macAlgorithm, short macKeySize, short macIVSize, short macSize,
+			byte[] data
 	) {
-		super(data, encryptionIV, encryptionAlgorithm, checksumSize, checksumAlgorithm);
+		super(
+				encryptionAlgorithm, encryptionIV,
+				macAlgorithm, macKeySize, macIVSize, macSize,
+				data
+		);
 
 		if (userName == null)
 			throw new IllegalArgumentException("userName == null");
@@ -72,7 +77,7 @@ extends AbstractEncryptedKey
 
 		this.userName = userName;
 		this.passwordBasedKeySize = passwordBasedKeySize;
-		this.passwordBasedIterationCount = passwordBasedInterationCount;
+		this.passwordBasedIterationCount = passwordBasedIterationCount;
 		this.passwordBasedKeyGeneratorAlgorithm = passwordBasedKeyGeneratorAlgorithm;
 		this.salt = salt;
 	}
