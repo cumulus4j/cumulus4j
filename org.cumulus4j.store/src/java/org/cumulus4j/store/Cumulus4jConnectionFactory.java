@@ -235,6 +235,10 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 			this.pmIndex = pmIndex;
 		}
 
+		public boolean indexHasOwnPM() {
+			return pmIndex != null;
+		}
+
 		/**
 		 * Accessor for the PM to use for data.
 		 * @return The PM to use for data

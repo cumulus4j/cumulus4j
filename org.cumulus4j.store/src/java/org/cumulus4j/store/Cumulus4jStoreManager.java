@@ -120,7 +120,8 @@ public class Cumulus4jStoreManager extends AbstractStoreManager
 			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
 			PersistenceManager pm = pmConn.getDataPM();
 			pm.getFetchPlan().setGroup(FetchPlan.ALL);
-			result = registerClass(ec, pm, null, clazz); // TODO Pass in pmIndex if defined
+
+			result = registerClass(ec, pm, pmConn.indexHasOwnPM() ? pmConn.getIndexPM() : null, clazz);
 
 			// We set the fetch-plan again, just in case registerClass modified it.
 			pm.getFetchPlan().setGroup(FetchPlan.ALL);
@@ -169,14 +170,22 @@ public class Cumulus4jStoreManager extends AbstractStoreManager
 		return result;
 	}
 
-	private ClassMeta registerClass(ExecutionContext executionContext, PersistenceManager pmData, PersistenceManager pmIndex, Class<?> clazz)
+	private ClassMeta registerClass(ExecutionContext ec, PersistenceManager pmData, PersistenceManager pmIndex, Class<?> clazz)
 	{
-		AbstractClassMetaData dnClassMetaData = getMetaDataManager().getMetaDataForClass(clazz, executionContext.getClassLoaderResolver());
+		ClassMeta cm = registerClassWithPM(ec, pmData, clazz);
+		if (pmIndex != null) {
+			registerClassWithPM(ec, pmIndex, clazz);
+		}
+		return cm;
+	}
+
+	private ClassMeta registerClassWithPM(ExecutionContext ec, PersistenceManager pm, Class<?> clazz)
+	{
+		AbstractClassMetaData dnClassMetaData = getMetaDataManager().getMetaDataForClass(clazz, ec.getClassLoaderResolver());
 		if (dnClassMetaData == null)
 			throw new IllegalArgumentException("The class " + clazz.getName() + " does not have persistence-meta-data! Is it persistence-capable? Is it enhanced?");
 
-		ClassMeta classMeta = ClassMeta.getClassMeta(pmData, clazz, false);
-		// TODO Do same for pmIndex
+		ClassMeta classMeta = ClassMeta.getClassMeta(pm, clazz, false);
 		boolean classExists = (classMeta != null);
 		if (!classExists) {
 			classMeta = new ClassMeta(clazz);
@@ -184,8 +193,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager
 
 		Class<?> superclass = clazz.getSuperclass();
 		if (superclass != null && getMetaDataManager().hasMetaDataForClass(superclass.getName())) {
-			ClassMeta superClassMeta = registerClass(executionContext, pmData, pmIndex, superclass);
-			// TODO Do same for pmIndex
+			ClassMeta superClassMeta = registerClassWithPM(ec, pm, superclass);
 			classMeta.setSuperClassMeta(superClassMeta);
 		}
 
@@ -259,11 +267,9 @@ public class Cumulus4jStoreManager extends AbstractStoreManager
 
 		if (!classExists) {
 		    // Persist the new class and its fields in one call, minimising updates
-		    pmData.makePersistent(classMeta);
-				// TODO Do same for pmIndex
+		    pm.makePersistent(classMeta);
 		}
-		pmData.flush(); // Get exceptions as soon as possible by forcing a flush here
-		// TODO Do same for pmIndex
+		pm.flush(); // Get exceptions as soon as possible by forcing a flush here
 
 		return classMeta;
 	}
