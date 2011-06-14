@@ -112,6 +112,7 @@ import org.cumulus4j.crypto.asymmetric.keypairgenerator.ElGamalKeyPairGeneratorF
 import org.cumulus4j.crypto.asymmetric.keypairgenerator.GOST3410KeyPairGeneratorFactory;
 import org.cumulus4j.crypto.asymmetric.keypairgenerator.NaccacheSternKeyPairGeneratorFactory;
 import org.cumulus4j.crypto.asymmetric.keypairgenerator.RSAKeyPairGeneratorFactory;
+import org.cumulus4j.crypto.mac.AbstractMacCalculatorFactory;
 import org.cumulus4j.crypto.mode.C4jCFBBlockCipher;
 import org.cumulus4j.crypto.mode.C4jOFBBlockCipher;
 import org.cumulus4j.crypto.symmetric.AEADBlockCipherImpl;
@@ -1095,5 +1096,34 @@ public final class CryptoRegistry
 		}
 
 		throw new UnsupportedOperationException("privateKey.class=\"" + privateKey.getClass().getName() + "\" not yet supported!");
+	}
+
+	private Map<String, MacCalculatorFactory> macName2macCalculatorFactory = new HashMap<String, MacCalculatorFactory>();
+
+	private void registerMacCalculatorFactory(String macName, MacCalculatorFactory factory)
+	{
+		if (macName != null)
+			factory.setAlgorithmName(macName);
+
+		macName2macCalculatorFactory.put(factory.getAlgorithmName(), factory);
+	}
+	{
+		registerMacCalculatorFactory("DES", new AbstractMacCalculatorFactory.DES());
+		registerMacCalculatorFactory("DESCFB8", new AbstractMacCalculatorFactory.DESCFB8());
+	}
+
+	public MacCalculator createMacCalculator(String algorithmName, boolean initWithDefaults)
+	throws NoSuchAlgorithmException
+	{
+		MacCalculatorFactory factory = macName2macCalculatorFactory.get(algorithmName.toUpperCase(Locale.ENGLISH));
+		if (factory == null)
+			throw new NoSuchAlgorithmException("There is no MAC calculator registered for algorithmName=\"" + algorithmName.toUpperCase(Locale.ENGLISH) + "\"!");
+
+		return factory.createMacCalculator(initWithDefaults);
+	}
+
+	public Set<String> getSupportedMacAlgorithms()
+	{
+		return Collections.unmodifiableSet(macName2macCalculatorFactory.keySet());
 	}
 }

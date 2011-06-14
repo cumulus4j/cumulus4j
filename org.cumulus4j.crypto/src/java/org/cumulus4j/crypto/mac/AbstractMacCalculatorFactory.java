@@ -2,6 +2,8 @@ package org.cumulus4j.crypto.mac;
 
 import java.security.SecureRandom;
 
+import org.bouncycastle.crypto.BlockCipher;
+import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.MD2Digest;
 import org.bouncycastle.crypto.digests.MD4Digest;
 import org.bouncycastle.crypto.digests.MD5Digest;
@@ -51,16 +53,18 @@ implements MacCalculatorFactory
 
 		if (initWithDefaults) {
 			SecureRandom random = new SecureRandom();
-			byte[] key = new byte[macCalculator.getMacSize()];
+			byte[] key = new byte[macCalculator.getKeySize()];
 			random.nextBytes(key);
 			if (isIVSupported()) {
-				byte[] iv = new byte[macCalculator.getMacSize()];
+				byte[] iv = new byte[macCalculator.getIVSize()];
 				random.nextBytes(iv);
 				macCalculator.init(new ParametersWithIV(new KeyParameter(key), iv));
 			}
 			else
 				macCalculator.init(new KeyParameter(key));
 		}
+
+		macCalculator.setAlgorithmName(getAlgorithmName());
 
 		return macCalculator;
 	}
@@ -72,7 +76,8 @@ implements MacCalculatorFactory
 	{
 		@Override
 		public MacCalculator _createMacCalculator() {
-			return new MacCalculatorImpl(new CBCBlockCipherMac(new DESEngine()));
+			BlockCipher cipher = new DESEngine();
+			return new MacCalculatorImpl(new CBCBlockCipherMac(cipher), cipher.getBlockSize());
 		}
 	}
 
@@ -81,7 +86,8 @@ implements MacCalculatorFactory
 	{
 		@Override
 		public MacCalculator _createMacCalculator() {
-			return new MacCalculatorImpl(new CBCBlockCipherMac(new RC2Engine()));
+			BlockCipher cipher = new RC2Engine();
+			return new MacCalculatorImpl(new CBCBlockCipherMac(cipher), cipher.getBlockSize());
 		}
 	}
 
@@ -90,7 +96,7 @@ implements MacCalculatorFactory
 	{
 		@Override
 		public MacCalculator _createMacCalculator() {
-			return new MacCalculatorImpl(new GOST28147Mac());
+			return new MacCalculatorImpl(new GOST28147Mac(), 4);
 		}
 	}
 
@@ -99,7 +105,8 @@ implements MacCalculatorFactory
 	{
 		@Override
 		public MacCalculator _createMacCalculator() {
-			return new MacCalculatorImpl(new CFBBlockCipherMac(new DESEngine()));
+			BlockCipher cipher = new DESEngine();
+			return new MacCalculatorImpl(new CFBBlockCipherMac(cipher), cipher.getBlockSize());
 		}
 	}
 
@@ -108,7 +115,8 @@ implements MacCalculatorFactory
 	{
 		@Override
 		public MacCalculator _createMacCalculator() {
-			return new MacCalculatorImpl(new CFBBlockCipherMac(new RC2Engine()));
+			BlockCipher cipher = new RC2Engine();
+			return new MacCalculatorImpl(new CFBBlockCipherMac(cipher), cipher.getBlockSize());
 		}
 	}
 
@@ -117,7 +125,8 @@ implements MacCalculatorFactory
 	{
 		@Override
 		public MacCalculator _createMacCalculator() {
-			return new MacCalculatorImpl(new ISO9797Alg3Mac(new DESEngine(), new ISO7816d4Padding()));
+			BlockCipher cipher = new DESEngine();
+			return new MacCalculatorImpl(new ISO9797Alg3Mac(cipher, new ISO7816d4Padding()), cipher.getBlockSize());
 		}
 	}
 
@@ -126,7 +135,8 @@ implements MacCalculatorFactory
 	{
 		@Override
 		public MacCalculator _createMacCalculator() {
-			return new MacCalculatorImpl(new ISO9797Alg3Mac(new DESEngine()));
+			BlockCipher cipher = new DESEngine();
+			return new MacCalculatorImpl(new ISO9797Alg3Mac(cipher), cipher.getBlockSize());
 		}
 	}
 
@@ -135,7 +145,8 @@ implements MacCalculatorFactory
 	{
 		@Override
 		public MacCalculator _createMacCalculator() {
-			return new MacCalculatorImpl(new HMac(new MD2Digest()));
+			Digest digest = new MD2Digest();
+			return new MacCalculatorImpl(new HMac(digest), digest.getDigestSize());
 		}
 	}
 
@@ -144,7 +155,8 @@ implements MacCalculatorFactory
 	{
 		@Override
 		public MacCalculator _createMacCalculator() {
-			return new MacCalculatorImpl(new HMac(new MD4Digest()));
+			Digest digest = new MD4Digest();
+			return new MacCalculatorImpl(new HMac(digest), digest.getDigestSize());
 		}
 	}
 
@@ -153,7 +165,8 @@ implements MacCalculatorFactory
 	{
 		@Override
 		public MacCalculator _createMacCalculator() {
-			return new MacCalculatorImpl(new HMac(new MD5Digest()));
+			MD5Digest digest = new MD5Digest();
+			return new MacCalculatorImpl(new HMac(digest), digest.getDigestSize());
 		}
 	}
 
@@ -162,7 +175,8 @@ implements MacCalculatorFactory
 	{
 		@Override
 		public MacCalculator _createMacCalculator() {
-			return new MacCalculatorImpl(new HMac(new SHA1Digest()));
+			SHA1Digest digest = new SHA1Digest();
+			return new MacCalculatorImpl(new HMac(digest), digest.getDigestSize());
 		}
 	}
 
@@ -171,7 +185,8 @@ implements MacCalculatorFactory
 	{
 		@Override
 		public MacCalculator _createMacCalculator() {
-			return new MacCalculatorImpl(new HMac(new SHA224Digest()));
+			SHA224Digest digest = new SHA224Digest();
+			return new MacCalculatorImpl(new HMac(digest), digest.getDigestSize());
 		}
 	}
 
@@ -180,7 +195,8 @@ implements MacCalculatorFactory
 	{
 		@Override
 		public MacCalculator _createMacCalculator() {
-			return new MacCalculatorImpl(new HMac(new SHA256Digest()));
+			SHA256Digest digest = new SHA256Digest();
+			return new MacCalculatorImpl(new HMac(digest), digest.getDigestSize());
 		}
 	}
 
@@ -189,7 +205,8 @@ implements MacCalculatorFactory
 	{
 		@Override
 		public MacCalculator _createMacCalculator() {
-			return new MacCalculatorImpl(new HMac(new SHA384Digest()));
+			SHA384Digest digest = new SHA384Digest();
+			return new MacCalculatorImpl(new HMac(digest), digest.getDigestSize());
 		}
 	}
 
@@ -202,7 +219,8 @@ implements MacCalculatorFactory
 	{
 		@Override
 		public MacCalculator _createMacCalculator() {
-			return new MacCalculatorImpl(new OldHMac(new SHA384Digest()));
+			SHA384Digest digest = new SHA384Digest();
+			return new MacCalculatorImpl(new OldHMac(digest), digest.getDigestSize());
 		}
 	}
 
@@ -211,7 +229,8 @@ implements MacCalculatorFactory
 	{
 		@Override
 		public MacCalculator _createMacCalculator() {
-			return new MacCalculatorImpl(new HMac(new SHA512Digest()));
+			SHA512Digest digest = new SHA512Digest();
+			return new MacCalculatorImpl(new HMac(digest), digest.getDigestSize());
 		}
 	}
 
@@ -224,7 +243,8 @@ implements MacCalculatorFactory
 	{
 		@Override
 		public MacCalculator _createMacCalculator() {
-			return new MacCalculatorImpl(new OldHMac(new SHA512Digest()));
+			SHA512Digest digest = new SHA512Digest();
+			return new MacCalculatorImpl(new OldHMac(digest), digest.getDigestSize());
 		}
 	}
 
@@ -233,7 +253,8 @@ implements MacCalculatorFactory
 	{
 		@Override
 		public MacCalculator _createMacCalculator() {
-			return new MacCalculatorImpl(new HMac(new RIPEMD128Digest()));
+			RIPEMD128Digest digest = new RIPEMD128Digest();
+			return new MacCalculatorImpl(new HMac(digest), digest.getDigestSize());
 		}
 	}
 
@@ -242,7 +263,8 @@ implements MacCalculatorFactory
 	{
 		@Override
 		public MacCalculator _createMacCalculator() {
-			return new MacCalculatorImpl(new HMac(new RIPEMD160Digest()));
+			RIPEMD160Digest digest = new RIPEMD160Digest();
+			return new MacCalculatorImpl(new HMac(digest), digest.getDigestSize());
 		}
 	}
 
@@ -251,7 +273,8 @@ implements MacCalculatorFactory
 	{
 		@Override
 		public MacCalculator _createMacCalculator() {
-			return new MacCalculatorImpl(new HMac(new TigerDigest()));
+			TigerDigest digest = new TigerDigest();
+			return new MacCalculatorImpl(new HMac(digest), digest.getDigestSize());
 		}
 	}
 

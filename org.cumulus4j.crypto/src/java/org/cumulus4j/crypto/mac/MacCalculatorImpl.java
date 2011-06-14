@@ -10,19 +10,59 @@ implements MacCalculator
 {
 	private Mac macEngine;
 
-	public MacCalculatorImpl(Mac macEngine)
+	private int keySize;
+	private int ivSize;
+
+	public MacCalculatorImpl(Mac macEngine, int keyAndIVSize)
+	{
+		this(macEngine, keyAndIVSize, keyAndIVSize);
+	}
+
+	public MacCalculatorImpl(Mac macEngine, int keySize, int ivSize)
 	{
 		if (macEngine == null)
 			throw new IllegalArgumentException("macEngine == null");
+
+		this.macEngine = macEngine;
+		this.keySize = keySize;
+		this.ivSize = ivSize;
 	}
+
+	private CipherParameters parameters;
 
 	@Override
 	public void init(CipherParameters params) throws IllegalArgumentException {
 		macEngine.init(params);
+		this.parameters = params;
+	}
+
+	@Override
+	public CipherParameters getParameters() {
+		return parameters;
+	}
+
+	@Override
+	public int getKeySize() {
+		return keySize;
+	}
+
+	@Override
+	public int getIVSize() {
+		return ivSize;
+	}
+
+	private String algorithmName;
+
+	@Override
+	public void setAlgorithmName(String algorithmName) {
+		this.algorithmName = algorithmName;
 	}
 
 	@Override
 	public String getAlgorithmName() {
+		if (algorithmName != null)
+			return algorithmName;
+
 		return macEngine.getAlgorithmName();
 	}
 
