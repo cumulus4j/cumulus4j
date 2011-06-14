@@ -30,11 +30,6 @@ implements MacCalculator
 	private int keySize;
 	private int ivSize;
 
-	public MacCalculatorImpl(Mac macEngine, int keyAndIVSize)
-	{
-		this(macEngine, keyAndIVSize, keyAndIVSize);
-	}
-
 	public MacCalculatorImpl(Mac macEngine, int keySize, int ivSize)
 	{
 		if (macEngine == null)
