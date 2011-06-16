@@ -323,12 +323,6 @@ public class MockExecutionContext implements ExecutionContext {
 	}
 
 	@Override
-	public ObjectProvider newObjectProvider(Object arg0, Object arg1) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public ObjectProvider newObjectProviderForEmbedded(
 			AbstractMemberMetaData arg0, AbstractClassMetaData arg1,
 			ObjectProvider arg2, int arg3) {
