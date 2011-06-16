@@ -255,7 +255,7 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 				PersistenceManager dataPM = pmConnection.getDataPM();
 				PersistenceManager indexPM = pmConnection.getIndexPM();
 				dataPM.close();
-				if (indexPM != null && indexPM != dataPM) {
+				if (pmConnection.indexHasOwnPM()) {
 					indexPM.close();
 				}
 				pmConnection = null;
@@ -288,7 +288,7 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 			PersistenceManager dataPM = pmConnection.getDataPM();
 			PersistenceManager indexPM = pmConnection.getIndexPM();
 			dataPM.currentTransaction().begin();
-			if (indexPM != null && indexPM != dataPM) {
+			if (pmConnection.indexHasOwnPM()) {
 				indexPM.currentTransaction().begin();
 			}
 			//        	this.xid = xid;
@@ -305,7 +305,7 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 			PersistenceManager dataPM = pmConnection.getDataPM();
 			PersistenceManager indexPM = pmConnection.getIndexPM();
 			dataPM.currentTransaction().commit();
-			if (indexPM != null && indexPM != dataPM) {
+			if (pmConnection.indexHasOwnPM()) {
 				indexPM.currentTransaction().commit();
 			}
 
@@ -323,7 +323,7 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 			PersistenceManager dataPM = pmConnection.getDataPM();
 			PersistenceManager indexPM = pmConnection.getIndexPM();
 			dataPM.currentTransaction().rollback();
-			if (indexPM != null && indexPM != dataPM) {
+			if (pmConnection.indexHasOwnPM()) {
 				indexPM.currentTransaction().rollback();
 			}
 
