@@ -151,6 +151,12 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 		cumulus4jBackendProperties.put("datanucleus.autostartclassnames", classNameStr.toString());*/
 
 		// PMF for data (and optionally index)
+		if (backendIndexProperties == null) {
+			NucleusLogger.GENERAL.debug("Creating PMF for Data+Index with the following properties : "+StringUtils.mapToString(backendProperties));
+		}
+		else {
+			NucleusLogger.GENERAL.debug("Creating PMF for Data with the following properties : "+StringUtils.mapToString(backendProperties));
+		}
 		pmf = JDOHelper.getPersistenceManagerFactory(backendProperties);
 
 		// initialise meta-data (which partially tests it)
@@ -186,7 +192,7 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 
 		if (backendIndexProperties != null) {
 			// PMF for index data
-			NucleusLogger.GENERAL.debug(">> Properties for INDEX PMF="+StringUtils.mapToString(backendIndexProperties));
+			NucleusLogger.GENERAL.debug("Creating PMF for Index data with the following properties : "+StringUtils.mapToString(backendIndexProperties));
 			pmfIndex = JDOHelper.getPersistenceManagerFactory(backendIndexProperties);
 
 			PersistenceManager pmIndex = pmfIndex.getPersistenceManager();
@@ -195,7 +201,7 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 				pmIndex.getExtent(FieldMeta.class);
 
 				// Index data
-				pm.getExtent(IndexEntryContainerSize.class);
+				pmIndex.getExtent(IndexEntryContainerSize.class);
 
 				PluginManager pluginMgr = storeMgr.getNucleusContext().getPluginManager();
 				ConfigurationElement[] elems = pluginMgr.getConfigurationElementsForExtension(
@@ -207,7 +213,7 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 						Class<?> cls = pluginMgr.loadClass("org.cumulus4j.store.index_mapping", indexTypeName);
 						if (!initialisedClasses.contains(cls)) {
 							initialisedClasses.add(cls);
-							pm.getExtent(cls);
+							pmIndex.getExtent(cls);
 						}
 					}
 				}
