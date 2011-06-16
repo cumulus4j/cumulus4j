@@ -192,7 +192,7 @@ import org.slf4j.LoggerFactory;
  * 				</tr>
  *
  * 				<tr>
- * 					<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the MAC algorithm used to authenticate this record's data (index in the list of 'Block A').</td>
+ * 					<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the <a href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a> algorithm used to authenticate this record's data (index in the list of 'Block A').</td>
  * 				</tr>
  *
  * 				<tr>

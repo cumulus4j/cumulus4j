@@ -90,7 +90,7 @@ extends AbstractCryptoSession
 	/**
 	 * {@inheritDoc}
 	 * <p>
-	 * The implementation in {@link KeyManagerCryptoManager} stores every plaintext
+	 * The implementation in {@link KeyManagerCryptoSession} stores every plaintext
 	 * encoded in the following form:
 	 * </p>
 	 * <table border="1">
@@ -104,9 +104,9 @@ extends AbstractCryptoSession
 	 * 	</tr><tr>
 	 * 		<td align="right" valign="top">1</td><td><i>ivLen</i>: Length of the IV in bytes</td>
 	 * 	</tr><tr>
-	 * 		<td align="right" valign="top"><i>ivLen</i></td><td>Actual IV (initialisation vector).</td>
+	 * 		<td align="right" valign="top"><i>ivLen</i></td><td>Actual IV (random initialisation vector).</td>
 	 * 	</tr><tr>
-	 *		<td align="right" valign="top">1</td><td><i>macKeyLen</i>: MAC's key length in bytes</td>
+	 *		<td align="right" valign="top">1</td><td><i>macKeyLen</i>: <a href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a>'s key length in bytes</td>
 	 * 	</tr><tr>
 	 *		<td align="right" valign="top">1</td><td><i>macIVLen</i>: MAC's IV length in bytes</td>
 	 *	</tr><tr>
@@ -120,9 +120,9 @@ extends AbstractCryptoSession
 	 * 				</tr><tr>
 	 * 					<td align="right" valign="top"><b>Bytes</b></td><td><b>Description</b></td>
 	 *				</tr><tr>
-	 *					<td align="right" valign="top"><i>macKeyLen</i></td><td>MAC's key</td>
+	 *					<td align="right" valign="top"><i>macKeyLen</i></td><td>MAC's key (random)</td>
 	 *				</tr><tr>
-	 *					<td align="right" valign="top"><i>macIVLen</i></td><td>MAC's IV</td>
+	 *					<td align="right" valign="top"><i>macIVLen</i></td><td>MAC's IV (random)</td>
 	 *				</tr><tr>
 	 *					<td align="right" valign="top"><i>all until MAC</i></td><td>Actual data</td>
 	 * 				</tr><tr>
