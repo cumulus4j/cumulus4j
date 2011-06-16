@@ -9,7 +9,14 @@ public class PersistenceManagerConnection
 	/** PM for indexes, could be null in which case use pmData */
 	private PersistenceManager pmIndex;
 
-	public PersistenceManagerConnection(PersistenceManager pmData, PersistenceManager pmIndex) {
+	public PersistenceManagerConnection(PersistenceManager pmData, PersistenceManager pmIndex)
+	{
+		if (pmData == null)
+			throw new IllegalArgumentException("pmData == null");
+
+		if (pmIndex == pmData)
+			throw new IllegalArgumentException("pmIndex == pmData :: If there is no pmIndex, it should be null and not the same as pmData!");
+
 		this.pmData = pmData;
 		this.pmIndex = pmIndex;
 	}

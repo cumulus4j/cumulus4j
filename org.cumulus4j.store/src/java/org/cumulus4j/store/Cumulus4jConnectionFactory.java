@@ -252,9 +252,11 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 		@Override
 		public void close() {
 			if (pmConnection != null) {
-				pmConnection.getDataPM().close();
-				if (pmConnection.getIndexPM() != null) {
-					pmConnection.getIndexPM().close();
+				PersistenceManager dataPM = pmConnection.getDataPM();
+				PersistenceManager indexPM = pmConnection.getIndexPM();
+				dataPM.close();
+				if (indexPM != null && indexPM != dataPM) {
+					indexPM.close();
 				}
 				pmConnection = null;
 			}
@@ -283,9 +285,11 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 			//        	if (this.xid != null)
 			//        		throw new IllegalStateException("Transaction already started! Cannot start twice!");
 
-			pmConnection.getDataPM().currentTransaction().begin();
-			if (pmConnection.getIndexPM() != null) {
-				pmConnection.getIndexPM().currentTransaction().begin();
+			PersistenceManager dataPM = pmConnection.getDataPM();
+			PersistenceManager indexPM = pmConnection.getIndexPM();
+			dataPM.currentTransaction().begin();
+			if (indexPM != null && indexPM != dataPM) {
+				indexPM.currentTransaction().begin();
 			}
 			//        	this.xid = xid;
 		}
@@ -298,9 +302,11 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 			//        	if (!this.xid.equals(xid))
 			//        		throw new IllegalStateException("Transaction mismatch! this.xid=" + this.xid + " otherXid=" + xid);
 
-			pmConnection.getDataPM().currentTransaction().commit();
-			if (pmConnection.getIndexPM() != null) {
-				pmConnection.getIndexPM().currentTransaction().commit();
+			PersistenceManager dataPM = pmConnection.getDataPM();
+			PersistenceManager indexPM = pmConnection.getIndexPM();
+			dataPM.currentTransaction().commit();
+			if (indexPM != null && indexPM != dataPM) {
+				indexPM.currentTransaction().commit();
 			}
 
 			//            this.xid = null;
@@ -314,9 +320,11 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 			//        	if (!this.xid.equals(xid))
 			//        		throw new IllegalStateException("Transaction mismatch! this.xid=" + this.xid + " otherXid=" + xid);
 
-			pmConnection.getDataPM().currentTransaction().rollback();
-			if (pmConnection.getIndexPM() != null) {
-				pmConnection.getIndexPM().currentTransaction().rollback();
+			PersistenceManager dataPM = pmConnection.getDataPM();
+			PersistenceManager indexPM = pmConnection.getIndexPM();
+			dataPM.currentTransaction().rollback();
+			if (indexPM != null && indexPM != dataPM) {
+				indexPM.currentTransaction().rollback();
 			}
 
 			//            this.xid = null;

@@ -23,6 +23,8 @@ import java.lang.reflect.Proxy;
 import java.security.SecureRandom;
 import java.util.UUID;
 
+import javax.jdo.PersistenceManager;
+
 import org.cumulus4j.store.EncryptionCoordinateSetManager;
 import org.cumulus4j.store.PersistenceManagerConnection;
 import org.cumulus4j.store.crypto.Ciphertext;
@@ -70,7 +72,21 @@ public class KeyManagerCryptoSessionTest
 					}
 				}
 		);
-		PersistenceManagerConnection persistenceManagerConnection = new PersistenceManagerConnection(null, null);
+
+		PersistenceManager pm = (PersistenceManager) Proxy.newProxyInstance(
+				this.getClass().getClassLoader(),
+				new Class[] { PersistenceManager.class },
+				new InvocationHandler() {
+					@Override
+					public Object invoke(Object proxy, Method method, Object[] args)
+					throws Throwable
+					{
+						return null;
+					}
+				}
+		);
+
+		PersistenceManagerConnection persistenceManagerConnection = new PersistenceManagerConnection(pm, null);
 		cryptoContext = new CryptoContext(
 				new EncryptionCoordinateSetManager(),
 				executionContext, persistenceManagerConnection
