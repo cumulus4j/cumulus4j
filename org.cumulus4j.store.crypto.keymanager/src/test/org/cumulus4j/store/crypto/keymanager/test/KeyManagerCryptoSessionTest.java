@@ -17,6 +17,9 @@
  */
 package org.cumulus4j.store.crypto.keymanager.test;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.security.SecureRandom;
 import java.util.UUID;
 
@@ -28,6 +31,7 @@ import org.cumulus4j.store.crypto.Plaintext;
 import org.cumulus4j.store.crypto.keymanager.KeyManagerCryptoManager;
 import org.cumulus4j.store.crypto.keymanager.KeyManagerCryptoSession;
 import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBrokerRegistry;
+import org.datanucleus.store.ExecutionContext;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -54,10 +58,22 @@ public class KeyManagerCryptoSessionTest
 //		session.setCryptoManager(cryptoManager);
 //		session.setCryptoSessionID(UUID.randomUUID().toString());
 
+		ExecutionContext executionContext = (ExecutionContext) Proxy.newProxyInstance(
+				this.getClass().getClassLoader(),
+				new Class[] { ExecutionContext.class },
+				new InvocationHandler() {
+					@Override
+					public Object invoke(Object proxy, Method method, Object[] args)
+					throws Throwable
+					{
+						return null;
+					}
+				}
+		);
 		PersistenceManagerConnection persistenceManagerConnection = new PersistenceManagerConnection(null, null);
 		cryptoContext = new CryptoContext(
 				new EncryptionCoordinateSetManager(),
-				new MockExecutionContext(), persistenceManagerConnection
+				executionContext, persistenceManagerConnection
 		);
 	}
 
