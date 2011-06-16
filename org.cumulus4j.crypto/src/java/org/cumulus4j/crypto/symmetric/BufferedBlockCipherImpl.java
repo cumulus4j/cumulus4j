@@ -17,15 +17,20 @@
  */
 package org.cumulus4j.crypto.symmetric;
 
+import javax.swing.text.StyledEditorKit.UnderlineAction;
+
 import org.bouncycastle.crypto.BlockCipher;
 import org.bouncycastle.crypto.BufferedBlockCipher;
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.CryptoException;
 import org.bouncycastle.crypto.DataLengthException;
+import org.bouncycastle.crypto.modes.CBCBlockCipher;
 import org.bouncycastle.crypto.modes.CFBBlockCipher;
+import org.bouncycastle.crypto.modes.CTSBlockCipher;
 import org.bouncycastle.crypto.modes.OFBBlockCipher;
 import org.cumulus4j.crypto.AbstractCipher;
 import org.cumulus4j.crypto.CipherOperationMode;
+import org.cumulus4j.crypto.CryptoRegistry;
 
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
@@ -49,12 +54,14 @@ extends AbstractCipher
 
 	@Override
 	public int getInputBlockSize() {
-		return delegate.getUnderlyingCipher().getBlockSize();
+		return delegate.getBlockSize();
+//		return delegate.getUnderlyingCipher().getBlockSize();
 	}
 
 	@Override
 	public int getOutputBlockSize() {
-		return delegate.getUnderlyingCipher().getBlockSize();
+		return delegate.getBlockSize();
+//		return delegate.getUnderlyingCipher().getBlockSize();
 	}
 
 	@Override
@@ -93,18 +100,36 @@ extends AbstractCipher
 		return delegate.doFinal(out, outOff);
 	}
 
+	private int ivSize = -1;
+
 	@Override
 	public int getIVSize()
 	{
-		BlockCipher underlyingCipher = delegate.getUnderlyingCipher();
+		if (ivSize < 0) {
+			String mode = CryptoRegistry.splitTransformation(getTransformation())[1];
+			if ("".equals(mode) || "ECB".equals(mode))
+				ivSize = 0; // No block cipher mode (i.e. ECB) => no IV.
+			else {
+				if (delegate instanceof CTSBlockCipher) {
+					CTSBlockCipher cts = (CTSBlockCipher) delegate;
+					if (cts.getUnderlyingCipher() instanceof CBCBlockCipher)
+						ivSize = cts.getUnderlyingCipher().getBlockSize();
+					else
+						ivSize = 0;
+				}
+				else {
+					BlockCipher underlyingCipher = delegate.getUnderlyingCipher();
 
-		if (underlyingCipher instanceof CFBBlockCipher)
-			return ((CFBBlockCipher)underlyingCipher).getUnderlyingCipher().getBlockSize();
-
-		if (underlyingCipher instanceof OFBBlockCipher)
-			return ((OFBBlockCipher)underlyingCipher).getUnderlyingCipher().getBlockSize();
-
-		return underlyingCipher.getBlockSize();
+					if (underlyingCipher instanceof CFBBlockCipher)
+						ivSize = ((CFBBlockCipher)underlyingCipher).getUnderlyingCipher().getBlockSize();
+					else if (underlyingCipher instanceof OFBBlockCipher)
+						ivSize = ((OFBBlockCipher)underlyingCipher).getUnderlyingCipher().getBlockSize();
+					else
+						ivSize = underlyingCipher.getBlockSize();
+				}
+			}
+		}
+		return ivSize;
 	}
 
 //	@Override

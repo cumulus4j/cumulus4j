@@ -27,11 +27,11 @@ import org.cumulus4j.crypto.Cipher;
 public class CipherCacheCipherEntry
 {
 	private CipherCacheKeyEntry keyEntry;
-	private EncryptionAlgorithm encryptionAlgorithm;
+	private String encryptionAlgorithm;
 	private Cipher cipher;
 	private Date lastUse = new Date();
 
-	public CipherCacheCipherEntry(CipherCacheKeyEntry keyEntry, EncryptionAlgorithm encryptionAlgorithm, Cipher cipher)
+	public CipherCacheCipherEntry(CipherCacheKeyEntry keyEntry, String encryptionAlgorithm, Cipher cipher)
 	{
 		if (keyEntry == null)
 			throw new IllegalArgumentException("keyEntry == null");
@@ -56,7 +56,7 @@ public class CipherCacheCipherEntry
 		return keyEntry;
 	}
 
-	public EncryptionAlgorithm getEncryptionAlgorithm() {
+	public String getEncryptionAlgorithm() {
 		return encryptionAlgorithm;
 	}
 

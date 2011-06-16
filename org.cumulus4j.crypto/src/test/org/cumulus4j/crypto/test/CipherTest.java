@@ -22,22 +22,26 @@ import java.security.SecureRandom;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import junit.framework.Assert;
-
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.cumulus4j.crypto.CipherEngineType;
 import org.cumulus4j.crypto.CipherOperationMode;
 import org.cumulus4j.crypto.CryptoRegistry;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -320,9 +324,182 @@ public class CipherTest
 		}
 	}
 
-	@Test
-	public void testSymmetricDecryptionCompatibilityWithJCE()
-	{
+	private Map<Integer, byte[]> blockSize2Plaintext = new HashMap<Integer, byte[]>();
 
+	private byte[] getPlaintext(int blockSize)
+	{
+		byte[] plaintext = blockSize2Plaintext.get(blockSize);
+		if (plaintext == null) {
+
+			if (blockSize < 0)
+				plaintext = new byte[10240 + random.nextInt(10241)];
+			else
+				plaintext = new byte[blockSize];
+
+			random.nextBytes(plaintext);
+			blockSize2Plaintext.put(blockSize, plaintext);
+		}
+		return plaintext;
 	}
+
+	@Test
+	public void testNullAsKeyParameter()
+	throws Exception
+	{
+		Set<String> transformations = new TreeSet<String>();
+//		transformations.add("AES.FAST/CTS/");
+		transformations.addAll(CryptoRegistry.sharedInstance().getSupportedCipherTransformations(CipherEngineType.symmetricBlock));
+		transformations.addAll(CryptoRegistry.sharedInstance().getSupportedCipherTransformations(CipherEngineType.symmetricStream));
+
+		byte[] key = new byte[128 / 8];
+		random.nextBytes(key);
+		KeyParameter keyParameter = new KeyParameter(key);
+
+		Map<String, Throwable> transformation2throwable = new TreeMap<String, Throwable>();
+
+		for (String transformation : transformations) {
+			logger.info("transformation={}", transformation);
+			try {
+				org.cumulus4j.crypto.Cipher encrypter = CryptoRegistry.sharedInstance().createCipher(transformation);
+				org.cumulus4j.crypto.Cipher decrypter = CryptoRegistry.sharedInstance().createCipher(transformation);
+
+				byte[] plaintext = getPlaintext(encrypter.getInputBlockSize());
+				if (plaintext.length < 1)
+					throw new IllegalStateException("plaintext.length < 1");
+
+				if (encrypter.getIVSize() > 0) {
+					byte[] iv = new byte[encrypter.getIVSize()];
+					random.nextBytes(iv);
+					encrypter.init(CipherOperationMode.ENCRYPT, new ParametersWithIV(keyParameter, iv));
+					decrypter.init(CipherOperationMode.DECRYPT, new ParametersWithIV(keyParameter, iv));
+				}
+				else {
+					encrypter.init(CipherOperationMode.ENCRYPT, keyParameter);
+					decrypter.init(CipherOperationMode.DECRYPT, keyParameter);
+				}
+
+				if (encrypter.getIVSize() <= 0)
+					logger.info("testNullAsKeyParameter: Transformation \"{}\" does not support IV => Skipping.", transformation);
+				else {
+					byte[] iv = new byte[encrypter.getIVSize()];
+					random.nextBytes(iv);
+
+					try {
+						encrypter.init(CipherOperationMode.ENCRYPT, new ParametersWithIV(null, iv));
+						decrypter.init(CipherOperationMode.DECRYPT, new ParametersWithIV(null, iv));
+					} catch (Exception x) {
+						transformation2throwable.put(transformation, x);
+					}
+				}
+			} catch (Exception x) {
+//				throw new RuntimeException("Test failed for transformation \"" + transformation + "\": " + x, x);
+				logger.error("transformation \"" + transformation + "\": " + x);
+			}
+		}
+
+		if (!transformation2throwable.isEmpty()) {
+			logger.error(">>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+			for (Map.Entry<String, Throwable> me : transformation2throwable.entrySet()) {
+				String transformation = me.getKey();
+				logger.error("transformation \"" + transformation + "\": " + me.getValue());
+			}
+			logger.error("<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+		}
+	}
+
+//	@Test
+//	public void testAllCiphersEncryptionAndDecryption()
+//	throws Exception
+//	{
+//		final boolean passNullAsKeyParameter = false;
+//
+//		Set<String> transformations = new TreeSet<String>();
+//		transformations.add("AES.FAST/CFB136/");
+////		transformations.addAll(CryptoRegistry.sharedInstance().getSupportedCipherTransformations(CipherEngineType.symmetricBlock));
+////		transformations.addAll(CryptoRegistry.sharedInstance().getSupportedCipherTransformations(CipherEngineType.symmetricStream));
+//
+//		byte[] key = new byte[128 / 8];
+//		random.nextBytes(key);
+//		KeyParameter keyParameter = new KeyParameter(key);
+//
+//		for (String transformation : transformations) {
+//			logger.info("transformation={}", transformation);
+//			try {
+//				org.cumulus4j.crypto.Cipher encrypter = CryptoRegistry.sharedInstance().createCipher(transformation);
+//				org.cumulus4j.crypto.Cipher decrypter = CryptoRegistry.sharedInstance().createCipher(transformation);
+//
+//				byte[] plaintext = getPlaintext(encrypter.getInputBlockSize());
+//				if (plaintext.length < 1)
+//					throw new IllegalStateException("plaintext.length < 1");
+//
+//				if (encrypter.getIVSize() > 0) {
+//					byte[] iv = new byte[encrypter.getIVSize()];
+//					random.nextBytes(iv);
+//					encrypter.init(CipherOperationMode.ENCRYPT, new ParametersWithIV(keyParameter, iv));
+//					decrypter.init(CipherOperationMode.DECRYPT, new ParametersWithIV(keyParameter, iv));
+//				}
+//				else {
+//					encrypter.init(CipherOperationMode.ENCRYPT, keyParameter);
+//					decrypter.init(CipherOperationMode.DECRYPT, keyParameter);
+//				}
+//
+//				byte[] ciphertext1 = encrypter.doFinal(plaintext);
+//				byte[] decrypted1 = decrypter.doFinal(ciphertext1);
+//
+//				Assert.assertArrayEquals(plaintext, decrypted1);
+//
+//				byte[] ciphertext1a = encrypter.doFinal(plaintext);
+//				if (!Arrays.equals(ciphertext1, ciphertext1a))
+//					logger.info("testNullAsKeyParameter: Transformation \"{}\" caused a 2nd encryption (with same key + IV) to produce a different ciphertext.", transformation);
+//
+//				byte[] decrypted1a = decrypter.doFinal(ciphertext1a);
+//
+//				Assert.assertArrayEquals(plaintext, decrypted1a);
+//
+//				if (encrypter.getIVSize() <= 0)
+//					logger.info("testNullAsKeyParameter: Transformation \"{}\" does not support IV => Skipping.", transformation);
+//				else {
+//					byte[] iv = new byte[encrypter.getIVSize()];
+//					random.nextBytes(iv);
+//
+//					if (passNullAsKeyParameter)
+//						encrypter.init(CipherOperationMode.ENCRYPT, new ParametersWithIV(null, iv));
+//					else
+//						encrypter.init(CipherOperationMode.ENCRYPT, new ParametersWithIV(keyParameter, iv));
+//
+//					byte[] ciphertext2 = encrypter.doFinal(plaintext);
+//
+//					Assert.assertFalse(
+//							"Transformation \"" + transformation + "\": Even though the IVs are different, the ciphertexts are the same!",
+//							Arrays.equals(ciphertext1, ciphertext2)
+//					);
+//
+//					try {
+//						byte[] decrypted2 = decrypter.doFinal(ciphertext1);
+//
+//						if (Arrays.equals(plaintext, decrypted2))
+//							logger.info("testNullAsKeyParameter: Decrypting with transformation \"{}\" and wrong IV worked without exception and decrypted correctly.", transformation);
+//						else
+//							logger.info("testNullAsKeyParameter: Decrypting with transformation \"{}\" and wrong IV worked without exception but decrypted incorrectly.", transformation);
+//
+////						Assert.assertFalse(
+////								"Transformation \"" + transformation + "\": Even though the IVs are different, the ciphertext was successfully decrypted!",
+////								Arrays.equals(plaintext, decrypted2)
+////						);
+//					} catch (CryptoException x) {
+//						logger.info("testNullAsKeyParameter: Decrypting with transformation \"{}\" and wrong IV caused a CryptoException.", transformation);
+//					}
+//
+//					if (passNullAsKeyParameter)
+//						decrypter.init(CipherOperationMode.DECRYPT, new ParametersWithIV(null, iv));
+//					else
+//						decrypter.init(CipherOperationMode.DECRYPT, new ParametersWithIV(keyParameter, iv));
+//
+//				}
+//
+//			} catch (Exception x) {
+//				throw new RuntimeException("Test failed for transformation \"" + transformation + "\": " + x, x);
+//			}
+//		}
+//	}
 }

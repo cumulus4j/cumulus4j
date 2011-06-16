@@ -90,7 +90,7 @@ import org.slf4j.LoggerFactory;
  * you change the key-size later, it will affect only those keys that are created later.
  * </p>
  * <p>
- * Note, that the "Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files" do not
+ * Note, that the "Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files" does not
  * need to be installed for very strong cryptography, because we don't use the JCE (see {@link Cipher}).
  * </p>
  * <h3>File format of the key store file (version 1)</h3>

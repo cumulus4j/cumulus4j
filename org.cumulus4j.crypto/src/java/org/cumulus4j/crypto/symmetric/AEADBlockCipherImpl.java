@@ -22,6 +22,7 @@ import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.CryptoException;
 import org.bouncycastle.crypto.DataLengthException;
 import org.bouncycastle.crypto.modes.AEADBlockCipher;
+import org.bouncycastle.crypto.modes.CCMBlockCipher;
 import org.bouncycastle.crypto.modes.CFBBlockCipher;
 import org.bouncycastle.crypto.modes.OFBBlockCipher;
 import org.cumulus4j.crypto.AbstractCipher;
@@ -82,18 +83,29 @@ public class AEADBlockCipherImpl extends AbstractCipher
 		return delegate.doFinal(out, outOff);
 	}
 
+	private int ivSize = -1;
+
 	@Override
 	public int getIVSize()
 	{
-		BlockCipher underlyingCipher = delegate.getUnderlyingCipher();
+		int ivSize = this.ivSize;
+		if (ivSize < 0) {
+			BlockCipher underlyingCipher = delegate.getUnderlyingCipher();
 
-		if (underlyingCipher instanceof CFBBlockCipher)
-			return ((CFBBlockCipher)underlyingCipher).getUnderlyingCipher().getBlockSize();
+			if (underlyingCipher instanceof CFBBlockCipher)
+				ivSize = ((CFBBlockCipher)underlyingCipher).getUnderlyingCipher().getBlockSize();
+			else if (underlyingCipher instanceof OFBBlockCipher)
+				ivSize = ((OFBBlockCipher)underlyingCipher).getUnderlyingCipher().getBlockSize();
+			else
+				ivSize = underlyingCipher.getBlockSize();
 
-		if (underlyingCipher instanceof OFBBlockCipher)
-			return ((OFBBlockCipher)underlyingCipher).getUnderlyingCipher().getBlockSize();
+			if (delegate instanceof CCMBlockCipher)
+				--ivSize;
 
-		return underlyingCipher.getBlockSize();
+			this.ivSize = ivSize;
+		}
+
+		return ivSize;
 	}
 
 	@Override

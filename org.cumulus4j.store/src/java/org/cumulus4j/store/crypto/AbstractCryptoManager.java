@@ -19,10 +19,12 @@ package org.cumulus4j.store.crypto;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.datanucleus.NucleusContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +42,8 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractCryptoManager implements CryptoManager
 {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractCryptoManager.class);
+
+	private CryptoManagerRegistry cryptoManagerRegistry;
 
 	private String cryptoManagerID;
 
@@ -124,6 +128,16 @@ public abstract class AbstractCryptoManager implements CryptoManager
 	}
 
 	@Override
+	public CryptoManagerRegistry getCryptoManagerRegistry() {
+		return cryptoManagerRegistry;
+	}
+
+	@Override
+	public void setCryptoManagerRegistry(CryptoManagerRegistry cryptoManagerRegistry) {
+		this.cryptoManagerRegistry = cryptoManagerRegistry;
+	}
+
+	@Override
 	public String getCryptoManagerID() {
 		return cryptoManagerID;
 	}
@@ -203,4 +217,63 @@ public abstract class AbstractCryptoManager implements CryptoManager
 			id2session.remove(cryptoSession.getCryptoSessionID());
 		}
 	}
+
+	@Override
+	public String getEncryptionAlgorithm()
+	{
+		String ea = encryptionAlgorithm;
+
+		if (ea == null) {
+			NucleusContext nucleusContext = getCryptoManagerRegistry().getNucleusContext();
+			if (nucleusContext == null)
+				throw new IllegalStateException("NucleusContext already garbage-collected!");
+
+			String encryptionAlgorithmPropName = PROPERTY_ENCRYPTION_ALGORITHM;
+			String encryptionAlgorithmPropValue = (String) nucleusContext.getPersistenceConfiguration().getProperty(encryptionAlgorithmPropName);
+			if (encryptionAlgorithmPropValue == null || encryptionAlgorithmPropValue.trim().isEmpty()) {
+				ea = "Twofish/GCM/NoPadding"; // default value, if the property was not defined.
+//				ea = "Twofish/CBC/PKCS5Padding"; // default value, if the property was not defined.
+//				ea = "AES/CBC/PKCS5Padding"; // default value, if the property was not defined.
+//				ea = "AES/CFB/NoPadding"; // default value, if the property was not defined.
+				logger.info("getEncryptionAlgorithm: Property '{}' is not set. Using default algorithm '{}'.", encryptionAlgorithmPropName, ea);
+			}
+			else {
+				ea = encryptionAlgorithmPropValue.trim();
+				logger.info("getEncryptionAlgorithm: Property '{}' is set to '{}'. Using this encryption algorithm.", encryptionAlgorithmPropName, ea);
+			}
+			ea = ea.toUpperCase(Locale.ENGLISH);
+			encryptionAlgorithm = ea;
+		}
+
+		return ea;
+	}
+	private String encryptionAlgorithm = null;
+
+	@Override
+	public String getMacAlgorithm()
+	{
+		String ma = macAlgorithm;
+
+		if (ma == null) {
+			NucleusContext nucleusContext = getCryptoManagerRegistry().getNucleusContext();
+			if (nucleusContext == null)
+				throw new IllegalStateException("NucleusContext already garbage-collected!");
+
+			String macAlgorithmPropName = PROPERTY_MAC_ALGORITHM;
+			String macAlgorithmPropValue = (String) nucleusContext.getPersistenceConfiguration().getProperty(macAlgorithmPropName);
+			if (macAlgorithmPropValue == null || macAlgorithmPropValue.trim().isEmpty()) {
+				ma = MAC_ALGORITHM_NONE; // default value, if the property was not defined.
+				logger.info("getMacAlgorithm: Property '{}' is not set. Using default MAC algorithm '{}'.", macAlgorithmPropName, ma);
+			}
+			else {
+				ma = macAlgorithmPropValue.trim();
+				logger.info("getMacAlgorithm: Property '{}' is set to '{}'. Using this MAC algorithm.", macAlgorithmPropName, ma);
+			}
+			ma = ma.toUpperCase(Locale.ENGLISH);
+			macAlgorithm = ma;
+		}
+
+		return ma;
+	}
+	private String macAlgorithm = null;
 }

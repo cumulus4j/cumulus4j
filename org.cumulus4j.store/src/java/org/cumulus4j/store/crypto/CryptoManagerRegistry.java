@@ -17,6 +17,7 @@
  */
 package org.cumulus4j.store.crypto;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -70,7 +71,7 @@ public class CryptoManagerRegistry
 		}
 	}
 
-	private NucleusContext nucleusContext;
+	private WeakReference<NucleusContext> nucleusContextRef;
 
 	private Map<String, CryptoManager> id2keyManager = new HashMap<String, CryptoManager>();
 
@@ -79,7 +80,7 @@ public class CryptoManagerRegistry
 		if (nucleusContext == null)
 			throw new IllegalArgumentException("nucleusContext == null");
 
-		this.nucleusContext = nucleusContext;
+		this.nucleusContextRef = new WeakReference<NucleusContext>(nucleusContext);
 	}
 
 	/**
@@ -113,11 +114,35 @@ public class CryptoManagerRegistry
 		}
 	}
 
+	/**
+	 * <p>
+	 * Get the {@link NucleusContext} for which this <code>CryptoManagerRegistry</code>
+	 * has been created.
+	 * </p>
+	 * <p>
+	 * This method returns <code>null</code>, if the
+	 * <code>NucleusContext</code> has already been garbage-collected (the reference
+	 * is kept as a {@link WeakReference}).
+	 * </p>
+	 * <p>
+	 * <b>Important:</b> Hold the result of this method only in a stack variable (i.e. scope = method)
+	 * or a {@link WeakReference}! Otherwise you run the risk of a memory leak!!!
+	 * </p>
+	 * @return the {@link NucleusContext} or <code>null</code>, if it was already garbage-collected.
+	 * It is never <code>null</code> as long as the <code>NucleusContext</code> is still valid
+	 * (i.e. not garbage-collected).
+	 */
+	public NucleusContext getNucleusContext() {
+		return nucleusContextRef.get();
+	}
+
 	private CryptoManager createCryptoManager(String cryptoManagerID)
 	throws UnknownCryptoManagerIDException
 	{
 		CryptoManager cryptoManager;
 		try {
+			NucleusContext nucleusContext = getNucleusContext();
+
 			cryptoManager = (CryptoManager) nucleusContext.getPluginManager().createExecutableExtension(
 					"org.cumulus4j.store.cryptoManager",
 					"cryptoManagerID", cryptoManagerID,
@@ -132,6 +157,7 @@ public class CryptoManagerRegistry
 		if (cryptoManager == null)
 			throw new UnknownCryptoManagerIDException(cryptoManagerID);
 
+		cryptoManager.setCryptoManagerRegistry(this);
 		cryptoManager.setCryptoManagerID(cryptoManagerID);
 
 		return cryptoManager;

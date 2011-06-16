@@ -84,20 +84,33 @@ implements MacCalculator
 	}
 
 	@Override
-	public void update(byte in) throws IllegalStateException {
+	public void update(byte in)
+	throws IllegalStateException
+	{
 		macEngine.update(in);
 	}
 
 	@Override
-	public void update(byte[] in, int inOff, int len) throws DataLengthException,
-			IllegalStateException {
+	public void update(byte[] in, int inOff, int len)
+	throws DataLengthException, IllegalStateException
+	{
 		macEngine.update(in, inOff, len);
 	}
 
 	@Override
-	public int doFinal(byte[] out, int outOff) throws DataLengthException,
-			IllegalStateException {
+	public int doFinal(byte[] out, int outOff)
+	throws DataLengthException, IllegalStateException
+	{
 		return macEngine.doFinal(out, outOff);
+	}
+
+	@Override
+	public byte[] doFinal(byte[] in) throws IllegalStateException
+	{
+		byte[] mac = new byte[getMacSize()];
+		update(in, 0, in.length);
+		doFinal(mac, 0);
+		return mac;
 	}
 
 	@Override

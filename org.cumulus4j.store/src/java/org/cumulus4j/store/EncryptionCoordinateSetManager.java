@@ -10,15 +10,15 @@ import org.cumulus4j.store.model.EncryptionCoordinateSet;
 
 public class EncryptionCoordinateSetManager
 {
-	private Map<Integer, EncryptionCoordinateSet> encryptionCoordinateSetID2EncryptionCoordinateSet = new HashMap<Integer, EncryptionCoordinateSet>();
+	protected Map<Integer, EncryptionCoordinateSet> encryptionCoordinateSetID2EncryptionCoordinateSet = new HashMap<Integer, EncryptionCoordinateSet>();
 
-	private Map<String, EncryptionCoordinateSet> encryptionCoordinateString2EncryptionCoordinateSet = new HashMap<String, EncryptionCoordinateSet>();
+	protected Map<String, EncryptionCoordinateSet> encryptionCoordinateString2EncryptionCoordinateSet = new HashMap<String, EncryptionCoordinateSet>();
 
-	private static String getEncryptionCoordinateString(String cipherTransformation, String macAlgorithm)
+	protected static String getEncryptionCoordinateString(String cipherTransformation, String macAlgorithm)
 	{
 		return cipherTransformation + "::" + macAlgorithm;
 	}
-	private static String getEncryptionCoordinateString(EncryptionCoordinateSet encryptionCoordinateSet)
+	protected static String getEncryptionCoordinateString(EncryptionCoordinateSet encryptionCoordinateSet)
 	{
 		return getEncryptionCoordinateString(encryptionCoordinateSet.getCipherTransformation(), encryptionCoordinateSet.getMacAlgorithm());
 	}
@@ -46,7 +46,7 @@ public class EncryptionCoordinateSetManager
 		return encryptionCoordinateSet;
 	}
 
-	private EncryptionCoordinateSet createOrGetEncryptionCoordinateSet(boolean create, PersistenceManagerConnection persistenceManagerConnection, String cipherTransformation, String macAlgorithm)
+	protected EncryptionCoordinateSet _createOrGetEncryptionCoordinateSet(boolean create, PersistenceManagerConnection persistenceManagerConnection, String cipherTransformation, String macAlgorithm)
 	{
 		String encryptionCoordinateString = getEncryptionCoordinateString(cipherTransformation, macAlgorithm);
 		EncryptionCoordinateSet encryptionCoordinateSet = encryptionCoordinateString2EncryptionCoordinateSet.get(encryptionCoordinateString);
@@ -75,11 +75,11 @@ public class EncryptionCoordinateSetManager
 
 	public synchronized EncryptionCoordinateSet getEncryptionCoordinateSet(PersistenceManagerConnection persistenceManagerConnection, String cipherTransformation, String macAlgorithm)
 	{
-		return createOrGetEncryptionCoordinateSet(false, persistenceManagerConnection, cipherTransformation, macAlgorithm);
+		return _createOrGetEncryptionCoordinateSet(false, persistenceManagerConnection, cipherTransformation, macAlgorithm);
 	}
 
 	public synchronized EncryptionCoordinateSet createEncryptionCoordinateSet(PersistenceManagerConnection persistenceManagerConnection, String cipherTransformation, String macAlgorithm)
 	{
-		return createOrGetEncryptionCoordinateSet(true, persistenceManagerConnection, cipherTransformation, macAlgorithm);
+		return _createOrGetEncryptionCoordinateSet(true, persistenceManagerConnection, cipherTransformation, macAlgorithm);
 	}
 }

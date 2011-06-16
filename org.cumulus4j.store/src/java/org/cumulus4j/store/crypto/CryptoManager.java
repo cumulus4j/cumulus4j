@@ -64,6 +64,113 @@ public interface CryptoManager
 
 	/**
 	 * <p>
+	 * Property to control the encryption algorithm that is used to encrypt data within the datastore. Both
+	 * data and index are encrypted using this algorithm.
+	 * </p>
+	 * <p>
+	 * By default (if the property {@value #PROPERTY_ENCRYPTION_ALGORITHM} is not specified),
+	 * "Twofish/GCM/NoPadding" is used. For example, to switch to "AES/CFB/NoPadding", you'd have
+	 * to specify "cumulus4j.encryptionAlgorithm=AES/CFB/NoPadding" in the persistence-unit/persistence-properties-file.
+	 * </p>
+	 * <p>
+	 * See <a href="http://cumulus4j.org/documentation/supported-algorithms.html">this document</a>
+	 * for further information about what values are supported.
+	 * </p>
+	 * <p>
+	 * The encryption algorithm used during encryption is stored in the encryption-record's meta-data in order
+	 * to use the correct algorithm during decryption, no matter what current encryption algorithm is configured.
+	 * Therefore, you can safely change this setting at any time - it will affect future encryption
+	 * operations, only.
+	 * </p>
+	 * <p>
+	 * <b>Important:</b> The default MAC algorithm is "NONE", which is a very bad choice for most encryption algorithms!
+	 * Therefore, you must change the MAC algorithm via the property {@value #PROPERTY_MAC_ALGORITHM}
+	 * if you change the encryption algorithm!
+	 * </p>
+	 * <p>
+	 * The property can be set in the persistence-unit/persistence-properties-file for the
+	 * <code>PersistenceManagerFactory</code>/<code>EntityManagerFactory</code>.
+	 * </p>
+	 * @see #getEncryptionAlgorithm()
+	 */
+	static final String PROPERTY_ENCRYPTION_ALGORITHM = "cumulus4j.encryptionAlgorithm";
+
+	/**
+	 * <p>
+	 * Property to control the <a href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a>
+	 * algorithm that is used to protect the data within the key-store against manipulation.
+	 * </p>
+	 * <p>
+	 * Whenever data is encrypted, this MAC algorithm is used to calculate a MAC over the original plain-text-data.
+	 * The MAC is then stored together with the plain-text-data within the encrypted area.
+	 * When data is decrypted, the MAC is calculated again over the decrypted plain-text-data and compared to the
+	 * original MAC in order to make sure (1) that data was correctly decrypted [i.e. the key is correct] and
+	 * (2) that the data in the datastore was not manipulated by an attacker.
+	 * </p>
+	 * <p>
+	 * The MAC algorithm used during encryption is stored in the encryption-record's meta-data in order
+	 * to use the correct algorithm during decryption, no matter what current MAC algorithm is configured.
+	 * Therefore, you can safely change this setting at any time - it will affect future encryption
+	 * operations, only.
+	 * </p>
+	 * <p>
+	 * Some block cipher modes (e.g. <a href="http://en.wikipedia.org/wiki/Galois/Counter_Mode">GCM</a>) already include authentication
+	 * and therefore no MAC is necessary. In this case, you can specify the MAC algorithm {@value #MAC_ALGORITHM_NONE}.
+	 * </p>
+	 * <p>
+	 * <b>Important:</b> If you specify the MAC algorithm "NONE" and use an encryption algorithm without
+	 * authentication, the key store will not be able to detect a wrong password and instead return
+	 * corrupt data!!! Be VERY careful with the MAC algorithm "NONE"!!!
+	 * </p>
+	 * <p>
+	 * The default value (used when this system property is not specified) is "NONE", because the default
+	 * encryption algorithm is "Twofish/GCM/NoPadding", which (due to "GCM") does not require an additional
+	 * MAC.
+	 * </p>
+	 * <p>
+	 * The property can be set in the persistence-unit/persistence-properties-file for the
+	 * <code>PersistenceManagerFactory</code>/<code>EntityManagerFactory</code>.
+	 * </p>
+	 * @see #getMacAlgorithm()
+	 */
+	static final String PROPERTY_MAC_ALGORITHM = "cumulus4j.macAlgorithm";
+
+	/**
+	 * <p>
+	 * Constant for deactivating the <a href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a>.
+	 * </p>
+	 * <p>
+	 * <b>Important: Deactivating the MAC is dangerous!</b> Choose this value only, if you are absolutely
+	 * sure that your {@link #PROPERTY_ENCRYPTION_ALGORITHM encryption algorithm} already
+	 * provides authentication - like <a href="http://en.wikipedia.org/wiki/Galois/Counter_Mode">GCM</a>
+	 * does for example.
+	 * </p>
+	 * @see #PROPERTY_MAC_ALGORITHM
+	 */
+	static final String MAC_ALGORITHM_NONE = "NONE";
+
+	/**
+	 * Get the registry which manages this {@link CryptoManager}.
+	 * This method should normally never return <code>null</code>, because
+	 * the registry is {@link #setCryptoManagerRegistry(CryptoManagerRegistry) set} immediately
+	 * after instantiation.
+	 * @return the registry holding this {@link CryptoManager}.
+	 * @see #setCryptoManagerRegistry(CryptoManagerRegistry)
+	 */
+	CryptoManagerRegistry getCryptoManagerRegistry();
+
+	/**
+	 * Set the registry which manages this {@link CryptoManager}.
+	 * This method is called by the {@link CryptoManagerRegistry} whenever
+	 * it creates a new instance of <code>CryptoManager</code>.
+	 *
+	 * @param cryptoManagerRegistry
+	 * @see #getCryptoManagerRegistry()
+	 */
+	void setCryptoManagerRegistry(CryptoManagerRegistry cryptoManagerRegistry);
+
+	/**
+	 * <p>
 	 * Set the <code>cryptoManagerID</code> of this instance.
 	 * </p>
 	 * <p>
@@ -142,5 +249,21 @@ public interface CryptoManager
 	 * @param cryptoSession the session that is currently closed.
 	 */
 	void onCloseCryptoSession(CryptoSession cryptoSession);
+
+	/**
+	 * Get the value of the property {@value #PROPERTY_ENCRYPTION_ALGORITHM}.
+	 * This property can be configured in the persistence-unit/persistence-properties-file.
+	 * @return the currently configured encryption algorithm.
+	 * @see #PROPERTY_ENCRYPTION_ALGORITHM
+	 */
+	String getEncryptionAlgorithm();
+
+	/**
+	 * Get the value of the property {@value #PROPERTY_MAC_ALGORITHM}.
+	 * This property can be configured in the persistence-unit/persistence-properties-file.
+	 * @return the currently configured MAC algorithm.
+	 * @see #PROPERTY_MAC_ALGORITHM
+	 */
+	String getMacAlgorithm();
 
 }

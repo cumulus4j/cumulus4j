@@ -53,8 +53,8 @@ public class CipherCache
 
 	private Map<Long, CipherCacheKeyEntry> keyID2key = Collections.synchronizedMap(new HashMap<Long, CipherCacheKeyEntry>());
 
-	private Map<CipherOperationMode, Map<EncryptionAlgorithm, Map<Long, List<CipherCacheCipherEntry>>>> opmode2encryptionAlgorithm2keyID2cipherEntries = Collections.synchronizedMap(
-		new HashMap<CipherOperationMode, Map<EncryptionAlgorithm,Map<Long,List<CipherCacheCipherEntry>>>>()
+	private Map<CipherOperationMode, Map<String, Map<Long, List<CipherCacheCipherEntry>>>> opmode2encryptionAlgorithm2keyID2cipherEntries = Collections.synchronizedMap(
+		new HashMap<CipherOperationMode, Map<String,Map<Long,List<CipherCacheCipherEntry>>>>()
 	);
 
 	public long getActiveEncryptionKeyID()
@@ -109,31 +109,31 @@ public class CipherCache
 		return entry;
 	}
 
-	public CipherCacheCipherEntry acquireDecrypter(EncryptionAlgorithm encryptionAlgorithm, long keyID, byte[] iv)
+	public CipherCacheCipherEntry acquireDecrypter(String encryptionAlgorithm, long keyID, byte[] iv)
 	{
 		return acquireDecrypter(encryptionAlgorithm, keyID, null, iv);
 	}
 
-	public CipherCacheCipherEntry acquireDecrypter(EncryptionAlgorithm encryptionAlgorithm, long keyID, byte[] keyData, byte[] iv)
+	public CipherCacheCipherEntry acquireDecrypter(String encryptionAlgorithm, long keyID, byte[] keyData, byte[] iv)
 	{
 		return acquireCipherEntry(CipherOperationMode.DECRYPT, encryptionAlgorithm, keyID, keyData, iv);
 	}
 
-	public CipherCacheCipherEntry acquireEncrypter(EncryptionAlgorithm encryptionAlgorithm, long keyID)
+	public CipherCacheCipherEntry acquireEncrypter(String encryptionAlgorithm, long keyID)
 	{
 		return acquireEncrypter(encryptionAlgorithm, keyID, null);
 	}
 
-	public CipherCacheCipherEntry acquireEncrypter(EncryptionAlgorithm encryptionAlgorithm, long keyID, byte[] keyData)
+	public CipherCacheCipherEntry acquireEncrypter(String encryptionAlgorithm, long keyID, byte[] keyData)
 	{
 		return acquireCipherEntry(CipherOperationMode.ENCRYPT, encryptionAlgorithm, keyID, keyData, null);
 	}
 
 	private CipherCacheCipherEntry acquireCipherEntry(
-			CipherOperationMode opmode, EncryptionAlgorithm encryptionAlgorithm, long keyID, byte[] keyData, byte[] iv
+			CipherOperationMode opmode, String encryptionAlgorithm, long keyID, byte[] keyData, byte[] iv
 	)
 	{
-		Map<EncryptionAlgorithm, Map<Long, List<CipherCacheCipherEntry>>> encryptionAlgorithm2keyID2encrypters =
+		Map<String, Map<Long, List<CipherCacheCipherEntry>>> encryptionAlgorithm2keyID2encrypters =
 			opmode2encryptionAlgorithm2keyID2cipherEntries.get(opmode);
 
 		if (encryptionAlgorithm2keyID2encrypters != null) {
@@ -175,7 +175,7 @@ public class CipherCache
 
 		Cipher cipher;
 		try {
-			cipher = CryptoRegistry.sharedInstance().createCipher(encryptionAlgorithm.getTransformation());
+			cipher = CryptoRegistry.sharedInstance().createCipher(encryptionAlgorithm);
 		} catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException(e);
 		} catch (NoSuchPaddingException e) {
@@ -219,14 +219,14 @@ public class CipherCache
 					}
 			);
 
-		Map<EncryptionAlgorithm, Map<Long, List<CipherCacheCipherEntry>>> encryptionAlgorithm2keyID2cipherEntries;
+		Map<String, Map<Long, List<CipherCacheCipherEntry>>> encryptionAlgorithm2keyID2cipherEntries;
 		synchronized (opmode2encryptionAlgorithm2keyID2cipherEntries) {
 			encryptionAlgorithm2keyID2cipherEntries =
 				opmode2encryptionAlgorithm2keyID2cipherEntries.get(cipherEntry.getCipher().getMode());
 
 			if (encryptionAlgorithm2keyID2cipherEntries == null) {
 				encryptionAlgorithm2keyID2cipherEntries = Collections.synchronizedMap(
-						new HashMap<EncryptionAlgorithm, Map<Long,List<CipherCacheCipherEntry>>>()
+						new HashMap<String, Map<Long,List<CipherCacheCipherEntry>>>()
 				);
 
 				opmode2encryptionAlgorithm2keyID2cipherEntries.put(
@@ -376,4 +376,22 @@ public class CipherCache
 			throw new RuntimeException(e);
 		}
 	}
+
+//	public CipherCacheMacCalculatorEntry acquireCacheMacCalculatorEntry(String macAlgorithm)
+//	{
+//		return acquireCacheMacCalculatorEntry(macAlgorithm, null, null);
+//	}
+//
+//	public CipherCacheMacCalculatorEntry acquireCacheMacCalculatorEntry(String macAlgorithm, byte[] key, byte[] iv)
+//	{
+//		// We currently do not cache these at all, because 1st their creation is fast (very fast compared to the actual
+//		// MAC computation) and 2nd we don't use a MAC by default anyway (but use GCM by default).
+//		// We only drag the calls over this class so that we can easily add caching,
+//		// if we ever optimise this. Marco :-)
+//		try {
+//			MacCalculator macCalculator = CryptoRegistry.sharedInstance().createMacCalculator(macAlgorithm, key == null);
+//		} catch (NoSuchAlgorithmException e) {
+//			throw new RuntimeException(e);
+//		}
+//	}
 }

@@ -155,21 +155,21 @@ public final class CryptoRegistry
 	{
 		BlockCipher engine = newInstance(engineClass);
 		String algorithmName = engine.getAlgorithmName();
-		logger.debug("registerSymmetricEngineClass: algorithmName=\"{}\" engineClass=\"{}\"", algorithmName, engineClass.getName());
+		logger.trace("registerSymmetricEngineClass: algorithmName=\"{}\" engineClass=\"{}\"", algorithmName, engineClass.getName());
 		algorithmName2blockCipherEngineClass.put(algorithmName.toUpperCase(Locale.ENGLISH), engineClass);
 	}
 
 	private void registerBlockCipherEngineClass(String algorithmName, Class<? extends BlockCipher> engineClass)
 	{
 		newInstance(engineClass); // for testing, if the default constructor can be used, only - instance is not used
-		logger.debug("registerSymmetricEngineClass: algorithmName=\"{}\" engineClass=\"{}\"", algorithmName, engineClass.getName());
+		logger.trace("registerSymmetricEngineClass: algorithmName=\"{}\" engineClass=\"{}\"", algorithmName, engineClass.getName());
 		algorithmName2blockCipherEngineClass.put(algorithmName.toUpperCase(Locale.ENGLISH), engineClass);
 	}
 
 	private void registerAsymmetricBlockCipherEngineClass(String algorithmName, Class<? extends AsymmetricBlockCipher> engineClass)
 	{
 		newInstance(engineClass); // for testing to be sure there is a default constructor and we can call it.
-		logger.debug("registerAsymmetricEngineClass: algorithmName=\"{}\" engineClass=\"{}\"", algorithmName, engineClass.getName());
+		logger.trace("registerAsymmetricEngineClass: algorithmName=\"{}\" engineClass=\"{}\"", algorithmName, engineClass.getName());
 		algorithmName2asymmetricBlockCipherEngineClass.put(algorithmName.toUpperCase(Locale.ENGLISH), engineClass);
 	}
 
@@ -177,7 +177,7 @@ public final class CryptoRegistry
 	{
 		StreamCipher engine = newInstance(engineClass); // for testing to be sure there is a default constructor and we can call it.
 		String algorithmName = engine.getAlgorithmName();
-		logger.debug("registerSymmetricEngineClass: algorithmName=\"{}\" engineClass=\"{}\"", algorithmName, engineClass.getName());
+		logger.trace("registerSymmetricEngineClass: algorithmName=\"{}\" engineClass=\"{}\"", algorithmName, engineClass.getName());
 		algorithmName2streamCipherEngineClass.put(algorithmName.toUpperCase(Locale.ENGLISH), engineClass);
 	}
 	//////////////////// END cipher engines ////////////////////
@@ -190,17 +190,17 @@ public final class CryptoRegistry
 
 	private void registerBlockCipherMode(String modeName, Class<? extends BlockCipher> modeClass)
 	{
-		logger.debug("registerBlockCipherMode: modeName=\"{}\" modeClass=\"{}\"", modeName, modeClass.getName());
+		logger.trace("registerBlockCipherMode: modeName=\"{}\" modeClass=\"{}\"", modeName, modeClass.getName());
 		modeName2blockCipherModeClass.put(modeName.toUpperCase(Locale.ENGLISH), modeClass);
 	}
 	private void registerBufferedBlockCipherMode(String modeName, Class<? extends BufferedBlockCipher> modeClass)
 	{
-		logger.debug("registerBufferedBlockCipherMode: modeName=\"{}\" modeClass=\"{}\"", modeName, modeClass.getName());
+		logger.trace("registerBufferedBlockCipherMode: modeName=\"{}\" modeClass=\"{}\"", modeName, modeClass.getName());
 		modeName2bufferedBlockCipherModeClass.put(modeName.toUpperCase(Locale.ENGLISH), modeClass);
 	}
 	private void registerAEADBlockCipherMode(String modeName, Class<? extends AEADBlockCipher> modeClass)
 	{
-		logger.debug("registerAEADBlockCipherMode: modeName=\"{}\" modeClass=\"{}\"", modeName, modeClass.getName());
+		logger.trace("registerAEADBlockCipherMode: modeName=\"{}\" modeClass=\"{}\"", modeName, modeClass.getName());
 		modeName2aeadBlockCipherModeClass.put(modeName.toUpperCase(Locale.ENGLISH), modeClass);
 	}
 	//////////////////// END block cipher modes ////////////////////
@@ -219,7 +219,7 @@ public final class CryptoRegistry
 	private void registerBlockCipherPadding(String paddingName, Class<? extends BlockCipherPadding> paddingClass)
 	{
 		newInstance(paddingClass); // for testing to be sure there is a default constructor and we can call it.
-		logger.debug("registerBlockCipherPadding: paddingName=\"{}\" paddingClass=\"{}\"", paddingName, paddingClass.getName());
+		logger.trace("registerBlockCipherPadding: paddingName=\"{}\" paddingClass=\"{}\"", paddingName, paddingClass.getName());
 		paddingName2blockCipherPaddingClass.put(paddingName.toUpperCase(Locale.ENGLISH), paddingClass);
 		paddingName2blockCipherPaddingClass.put((paddingName + "Padding").toUpperCase(Locale.ENGLISH), paddingClass);
 	}
@@ -230,7 +230,7 @@ public final class CryptoRegistry
 	private Map<String, Class<? extends AsymmetricBlockCipher>> paddingName2asymmetricBlockCipherPaddingClass = new HashMap<String, Class<? extends AsymmetricBlockCipher>>();
 	private void registerAsymmetricBlockCipherPadding(String paddingName, Class<? extends AsymmetricBlockCipher> paddingClass)
 	{
-		logger.debug("registerAsymmetricBlockCipherPadding: paddingName=\"{}\" paddingClass=\"{}\"", paddingName, paddingClass.getName());
+		logger.trace("registerAsymmetricBlockCipherPadding: paddingName=\"{}\" paddingClass=\"{}\"", paddingName, paddingClass.getName());
 		paddingName2asymmetricBlockCipherPaddingClass.put(paddingName.toUpperCase(Locale.ENGLISH), paddingClass);
 		paddingName2asymmetricBlockCipherPaddingClass.put((paddingName + "Padding").toUpperCase(Locale.ENGLISH), paddingClass);
 	}
@@ -247,6 +247,7 @@ public final class CryptoRegistry
 		if (factory.getAlgorithmName() == null)
 			throw new IllegalArgumentException("factory.getAlgorithmName() == null");
 
+		logger.trace("registerAsymmetricCipherKeyPairGeneratorFactory: algorithmName=\"{}\" factoryClass=\"{}\"", factory.getAlgorithmName(), factory.getClass().getName());
 		algorithmName2asymmetricCipherKeyPairGeneratorFactory.put(factory.getAlgorithmName(), factory);
 	}
 	//////////////////// END asymmetric key generators ////////////////////
@@ -1108,6 +1109,7 @@ public final class CryptoRegistry
 		if (macName != null)
 			factory.setAlgorithmName(macName);
 
+		logger.trace("registerMacCalculatorFactory: algorithmName=\"{}\" factoryClass=\"{}\"", factory.getAlgorithmName(), factory.getClass().getName());
 		macName2macCalculatorFactory.put(factory.getAlgorithmName(), factory);
 	}
 

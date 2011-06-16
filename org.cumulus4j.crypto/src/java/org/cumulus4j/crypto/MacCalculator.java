@@ -23,7 +23,6 @@ import org.bouncycastle.crypto.Mac;
 public interface MacCalculator
 extends Mac
 {
-
 	void setAlgorithmName(String algorithmName);
 
 	CipherParameters getParameters();
@@ -40,4 +39,12 @@ extends Mac
 	 */
 	int getIVSize();
 
+	/**
+	 * Convenience method to process the complete input byte array at once.
+	 * @param in the input to calculate a MAC for.
+	 * @return the MAC.
+	 * @throws IllegalStateException if the <code>MacCalculator</code> isn't initialised.
+	 */
+	byte[] doFinal(byte[] in)
+	throws IllegalStateException;
 }

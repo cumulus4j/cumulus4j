@@ -19,10 +19,13 @@ package org.cumulus4j.store.crypto.keymanager;
 
 import java.io.IOException;
 
+import org.bouncycastle.crypto.CipherParameters;
+import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.cumulus4j.crypto.Cipher;
+import org.cumulus4j.crypto.CryptoRegistry;
+import org.cumulus4j.crypto.MacCalculator;
 import org.cumulus4j.crypto.util.ChecksumAlgorithm;
-import org.cumulus4j.crypto.util.ChecksumCalculator;
 import org.cumulus4j.keymanager.back.shared.GetActiveEncryptionKeyRequest;
 import org.cumulus4j.keymanager.back.shared.GetActiveEncryptionKeyResponse;
 import org.cumulus4j.keymanager.back.shared.GetKeyRequest;
@@ -31,9 +34,11 @@ import org.cumulus4j.keymanager.back.shared.KeyEncryptionUtil;
 import org.cumulus4j.store.crypto.AbstractCryptoSession;
 import org.cumulus4j.store.crypto.Ciphertext;
 import org.cumulus4j.store.crypto.CryptoContext;
+import org.cumulus4j.store.crypto.CryptoManager;
 import org.cumulus4j.store.crypto.Plaintext;
 import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBroker;
 import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBrokerRegistry;
+import org.cumulus4j.store.model.EncryptionCoordinateSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,17 +59,17 @@ extends AbstractCryptoSession
 //		Security.insertProviderAt(bouncyCastleProvider, 2);
 //	}
 
-	private static final ChecksumAlgorithm _activeChecksumAlgorithm = ChecksumAlgorithm.SHA1;
-	private ChecksumAlgorithm getActiveChecksumAlgorithm()
-	{
-		return _activeChecksumAlgorithm;
-	}
-
-	private static final EncryptionAlgorithm _activeEncryptionAlgorithm = EncryptionAlgorithm.Twofish_CBC_PKCS5Padding; // TODO this should be configurable!
-	private EncryptionAlgorithm getActiveEncryptionAlgorithm()
-	{
-		return _activeEncryptionAlgorithm;
-	}
+//	private static final ChecksumAlgorithm _activeChecksumAlgorithm = ChecksumAlgorithm.SHA1;
+//	private ChecksumAlgorithm getActiveChecksumAlgorithm()
+//	{
+//		return _activeChecksumAlgorithm;
+//	}
+//
+//	private static final EncryptionAlgorithm _activeEncryptionAlgorithm = EncryptionAlgorithm.Twofish_CBC_PKCS5Padding; // TODO this should be configurable!
+//	private EncryptionAlgorithm getActiveEncryptionAlgorithm()
+//	{
+//		return _activeEncryptionAlgorithm;
+//	}
 
 	private MessageBroker getMessageBroker() {
 		return MessageBrokerRegistry.sharedInstance().getActiveMessageBroker();
@@ -80,6 +85,8 @@ extends AbstractCryptoSession
 	 * </p>
 	 */
 	private static final String keyEncryptionTransformation = "RSA/ECB/OAEPWITHSHA1ANDMGF1PADDING";
+
+	private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
 	/**
 	 * {@inheritDoc}
@@ -126,8 +133,19 @@ extends AbstractCryptoSession
 	@Override
 	public Ciphertext encrypt(CryptoContext cryptoContext, Plaintext plaintext)
 	{
-		EncryptionAlgorithm activeEncryptionAlgorithm = getActiveEncryptionAlgorithm();
-		ChecksumAlgorithm activeChecksumAlgorithm = getActiveChecksumAlgorithm();
+		EncryptionCoordinateSet encryptionCoordinateSet = cryptoContext.getEncryptionCoordinateSetManager().createEncryptionCoordinateSet(
+				cryptoContext.getPersistenceManagerConnection(),
+				getCryptoManager().getEncryptionAlgorithm(),
+				getCryptoManager().getMacAlgorithm()
+		);
+		String activeEncryptionAlgorithm = encryptionCoordinateSet.getCipherTransformation();
+
+		if (encryptionCoordinateSet.getEncryptionCoordinateSetID() < 0)
+			throw new IllegalStateException("The encryptionCoordinateSetID is out of range! It must be >= 0!!!");
+
+		if (encryptionCoordinateSet.getEncryptionCoordinateSetID() > (2 * Short.MAX_VALUE))
+			throw new IllegalStateException("The encryptionCoordinateSetID is out of range! The maximum is " + (2 * Short.MAX_VALUE) + ", because the value is encoded as UNsigned 2-byte-number! This means, you changed the encryption algorithm or the MAC algorithm too often. Switch back to settings you already used before!");
+
 		CipherCache cipherCache = ((KeyManagerCryptoManager)getCryptoManager()).getCipherCache();
 
 		CipherCacheKeyDecrypterEntry keyDecryptor = null;
@@ -162,29 +180,64 @@ extends AbstractCryptoSession
 			}
 
 			Cipher cipher = encrypter.getCipher();
-			byte[] checksum = checksumCalculator.checksum(plaintext.getData(), activeChecksumAlgorithm);
+
+			byte[] mac = EMPTY_BYTE_ARRAY;
+			byte[] macKey = EMPTY_BYTE_ARRAY;
+			byte[] macIV = EMPTY_BYTE_ARRAY;
+
+			if (!CryptoManager.MAC_ALGORITHM_NONE.equals(encryptionCoordinateSet.getMacAlgorithm())) {
+				MacCalculator macCalculator = CryptoRegistry.sharedInstance().createMacCalculator(encryptionCoordinateSet.getMacAlgorithm(), true);
+				mac = macCalculator.doFinal(plaintext.getData());
+
+				if (macCalculator.getParameters() instanceof ParametersWithIV) {
+					ParametersWithIV pwiv = (ParametersWithIV) macCalculator.getParameters();
+					macIV = pwiv.getIV();
+					macKey = ((KeyParameter)pwiv.getParameters()).getKey();
+				}
+				else if (macCalculator.getParameters() instanceof KeyParameter) {
+					macKey = ((KeyParameter)macCalculator.getParameters()).getKey();
+				}
+				else
+					throw new IllegalStateException("macCalculator.getParameters() returned an instance of an unknown type: " + (macCalculator.getParameters() == null ? null : macCalculator.getParameters().getClass().getName()));
+			}
+
 			byte[] iv = ((ParametersWithIV)cipher.getParameters()).getIV();
 
-			if (checksum.length > 255)
-				throw new IllegalStateException("checksum.length > 255");
+			if (iv.length > 255)
+				throw new IllegalStateException("IV too long! Cannot encode length in 1 byte!");
+
+			if (macKey.length > 255)
+				throw new IllegalStateException("macKey too long! Cannot encode length in 1 byte!");
+
+			if (macIV.length > 255)
+				throw new IllegalStateException("macKey too long! Cannot encode length in 1 byte!");
+
+			if (mac.length > 255)
+				throw new IllegalStateException("mac too long! Cannot encode length in 1 byte!");
 
 			int outLength = (
 					1 // version
-					+ 1 // encryption algorithm
+					+ 2 // encryptionCoordinateSetID
 					+ 1 // IV length in bytes
 					+ iv.length // actual IV
-					+ 1 // checksum algorithm
-					+ 1 // checksum length in bytes
+					+ 1 // macKeyLength in bytes
+					+ 1 // macIVLength in bytes
+					+ 1 // MAC length in bytes
 					+ cipher.getOutputSize(
-							checksum.length // actual checksum
+							macKey.length // actual MAC key
+							+ macIV.length // actual MAC IV
 							+ plaintext.getData().length // actual plaintext
+							+ mac.length // actual MAC
 					)
 			);
 
 			byte[] out = new byte[outLength];
 			int outOff = 0;
 			out[outOff++] = 1; // version 1
-			out[outOff++] = activeEncryptionAlgorithm.toByte();
+
+			// encryptionCoordinateSetID as UNsigned short
+			out[outOff++] = (byte)(encryptionCoordinateSet.getEncryptionCoordinateSetID() >>> 8);
+			out[outOff++] = (byte)encryptionCoordinateSet.getEncryptionCoordinateSetID();
 
 			// IV length
 			out[outOff++] = (byte)iv.length;
@@ -193,11 +246,14 @@ extends AbstractCryptoSession
 			System.arraycopy(iv, 0, out, outOff, iv.length);
 			outOff += iv.length;
 
-			out[outOff++] = activeChecksumAlgorithm.toByte();
-			out[outOff++] = (byte)checksum.length;
+			out[outOff++] = (byte)macKey.length;
+			out[outOff++] = (byte)macIV.length;
+			out[outOff++] = (byte)mac.length;
 
-			outOff += cipher.update(checksum, 0, checksum.length, out, outOff);
+			outOff += cipher.update(macKey, 0, macKey.length, out, outOff);
+			outOff += cipher.update(macIV, 0, macIV.length, out, outOff);
 			outOff += cipher.update(plaintext.getData(), 0, plaintext.getData().length, out, outOff);
+			outOff += cipher.update(mac, 0, mac.length, out, outOff);
 			outOff += cipher.doFinal(out, outOff);
 
 			if (outOff < outLength) {
@@ -241,17 +297,25 @@ extends AbstractCryptoSession
 			if (version != 1)
 				throw new IllegalArgumentException("Ciphertext is of version " + version + " which is not supported!");
 
-			EncryptionAlgorithm encryptionAlgorithm = EncryptionAlgorithm.valueOf(in[inOff++]);
+			int encryptionCoordinateSetID = (in[inOff++] << 8) & 0xffff;
+			encryptionCoordinateSetID += in[inOff++] & 0xff;
+
+			EncryptionCoordinateSet encryptionCoordinateSet = cryptoContext.getEncryptionCoordinateSetManager().getEncryptionCoordinateSet(
+					cryptoContext.getPersistenceManagerConnection(), encryptionCoordinateSetID
+			);
+			if (encryptionCoordinateSet == null)
+				throw new IllegalStateException("There is no EncryptionCoordinateSet with encryptionCoordinateSetID=" + encryptionCoordinateSetID + "!");
 
 			int ivLength = in[inOff++] & 0xff;
 			byte[] iv = new byte[ivLength];
 			System.arraycopy(in, inOff, iv, 0, iv.length);
 			inOff += iv.length;
 
-			ChecksumAlgorithm checksumAlgorithm = ChecksumAlgorithm.valueOf(in[inOff++]);
-			int checksumLength = (in[inOff++]) & 0xff;
+			int macKeyLength = in[inOff++] & 0xff;
+			int macIVLength = in[inOff++] & 0xff;
+			int macLength = in[inOff++] & 0xff;
 
-			decrypter = cipherCache.acquireDecrypter(encryptionAlgorithm, keyID, iv);
+			decrypter = cipherCache.acquireDecrypter(encryptionCoordinateSet.getCipherTransformation(), keyID, iv);
 			if (decrypter == null) {
 				keyDecryptor = cipherCache.acquireKeyDecryptor(keyEncryptionTransformation);
 
@@ -271,7 +335,7 @@ extends AbstractCryptoSession
 
 				byte[] keyEncodedPlain = KeyEncryptionUtil.decryptKey(keyDecryptor.getKeyDecryptor(), getKeyResponse.getKeyEncodedEncrypted());
 
-				decrypter = cipherCache.acquireDecrypter(encryptionAlgorithm, keyID, keyEncodedPlain, iv);
+				decrypter = cipherCache.acquireDecrypter(encryptionCoordinateSet.getCipherTransformation(), keyID, keyEncodedPlain, iv);
 			}
 
 			int inCryptLength = in.length - inOff;
@@ -284,20 +348,42 @@ extends AbstractCryptoSession
 			if (logger.isDebugEnabled() && outOff != outLength)
 				logger.debug("decrypt: precalculated output-size does not match actually written output: expected={} actual={}", outLength, outOff);
 
-			int checksumOff = 0;
-			int dataOff = checksumOff + checksumLength;
-			int dataLength = outOff - dataOff;
-			byte[] newChecksum = checksumCalculator.checksum(out, dataOff, dataLength, checksumAlgorithm);
+			int dataOff = 0;
+			MacCalculator macCalculator = null;
+			if (!CryptoManager.MAC_ALGORITHM_NONE.equals(encryptionCoordinateSet.getMacAlgorithm())) {
+				macCalculator = CryptoRegistry.sharedInstance().createMacCalculator(encryptionCoordinateSet.getMacAlgorithm(), false);
 
-			if (newChecksum.length != checksumLength)
-				throw new IOException("Checksums have different length! Expected checksum has " + checksumLength + " bytes and newly calculated checksum has " + newChecksum.length + " bytes!");
+				CipherParameters macKeyParam = new KeyParameter(out, 0, macKeyLength);
+				dataOff += macKeyLength;
 
-			for (int i = 0; i < newChecksum.length; ++i) {
-				byte expected = out[checksumOff + i];
-				if (expected != newChecksum[i])
-					throw new IOException("Checksum mismatch! checksum[" + i + "] expected " + expected + " but was " + newChecksum[i]);
+				CipherParameters macParams;
+				if (macIVLength == 0)
+					macParams = macKeyParam;
+				else {
+					macParams = new ParametersWithIV(macKeyParam, out, dataOff, macIVLength);
+					dataOff += macIVLength;
+				}
+
+				macCalculator.init(macParams);
 			}
-			newChecksum = null;
+
+			int dataLength = outOff - dataOff - macLength;
+			int macOff = dataOff + dataLength;
+
+			if (macCalculator != null) {
+				byte[] newMac = new byte[macCalculator.getMacSize()];
+				macCalculator.update(out, dataOff, dataLength);
+				macCalculator.doFinal(newMac, 0);
+
+				if (newMac.length != macLength)
+					throw new IOException("MACs have different length! Expected MAC has " + macLength + " bytes and newly calculated MAC has " + newMac.length + " bytes!");
+
+				for (int i = 0; i < macLength; ++i) {
+					byte expected = out[macOff + i];
+					if (expected != newMac[i])
+						throw new IOException("MAC mismatch! mac[" + i + "] was expected to be " + expected + " but was " + newMac[i]);
+				}
+			}
 
 			byte[] decrypted = new byte[dataLength];
 			System.arraycopy(out, dataOff, decrypted, 0, decrypted.length);
@@ -315,8 +401,6 @@ extends AbstractCryptoSession
 			cipherCache.releaseCipherEntry(decrypter);
 		}
 	}
-
-	private ChecksumCalculator checksumCalculator = new ChecksumCalculator();
 
 	@Override
 	public void close() {

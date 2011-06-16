@@ -17,29 +17,43 @@
  */
 package org.cumulus4j.store.crypto.keymanager.test;
 
+import java.io.File;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.security.SecureRandom;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
+import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
+import javax.jdo.PersistenceManagerFactory;
 
+import org.cumulus4j.keymanager.back.shared.IdentifierUtil;
 import org.cumulus4j.store.EncryptionCoordinateSetManager;
 import org.cumulus4j.store.PersistenceManagerConnection;
 import org.cumulus4j.store.crypto.Ciphertext;
 import org.cumulus4j.store.crypto.CryptoContext;
+import org.cumulus4j.store.crypto.CryptoManager;
+import org.cumulus4j.store.crypto.CryptoManagerRegistry;
 import org.cumulus4j.store.crypto.Plaintext;
 import org.cumulus4j.store.crypto.keymanager.KeyManagerCryptoManager;
 import org.cumulus4j.store.crypto.keymanager.KeyManagerCryptoSession;
 import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBrokerRegistry;
+import org.datanucleus.NucleusContext;
+import org.datanucleus.api.jdo.JDOPersistenceManagerFactory;
 import org.datanucleus.store.ExecutionContext;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.nightlabs.util.IOUtil;
 
-public class KeyManagerCryptoSessionTest
+public abstract class AbstractKeyManagerCryptoSessionTest
 {
 	private static SecureRandom random = new SecureRandom();
 
@@ -51,11 +65,44 @@ public class KeyManagerCryptoSessionTest
 			Assert.fail("Setting MockMessageBroker failed!");
 	}
 
+	private PersistenceManagerFactory pmf;
+
+	private File tmpDir;
+	{
+		File f = new File(System.getProperty("java.io.tmpdir"));
+		tmpDir = new File(f, IdentifierUtil.createRandomID(8));
+	}
+
+	protected abstract String getEncryptionAlgorithm();
+
+	protected abstract String getMacAlgorithm();
+
 	@Before
 	public void before()
 	{
+		tmpDir.mkdir();
+
+		Map<String, Object> pmfProps = new HashMap<String, Object>();
+		pmfProps.put("javax.jdo.PersistenceManagerFactoryClass", "org.datanucleus.api.jdo.JDOPersistenceManagerFactory");
+		pmfProps.put("javax.jdo.option.ConnectionDriverName", "org.apache.derby.jdbc.EmbeddedDriver");
+		pmfProps.put("javax.jdo.option.ConnectionURL", "jdbc:derby:" + tmpDir.getAbsolutePath() + "/derby/cumulus4j;create=true");
+		pmfProps.put("javax.jdo.option.ConnectionUserName", "root");
+		pmfProps.put("datanucleus.autoCreateTables", "true");
+
+		if (getEncryptionAlgorithm() != null)
+			pmfProps.put(CryptoManager.PROPERTY_ENCRYPTION_ALGORITHM, getEncryptionAlgorithm());
+
+		if (getMacAlgorithm() != null)
+			pmfProps.put(CryptoManager.PROPERTY_MAC_ALGORITHM, getMacAlgorithm());
+
+		pmf = JDOHelper.getPersistenceManagerFactory(pmfProps);
+
+		JDOPersistenceManagerFactory dnpmf = (JDOPersistenceManagerFactory) pmf;
+		NucleusContext nucleusContext = dnpmf.getNucleusContext();
+
+		CryptoManagerRegistry cryptoManagerRegistry = CryptoManagerRegistry.sharedInstance(nucleusContext);
 		KeyManagerCryptoManager cryptoManager = new KeyManagerCryptoManager();
-//		session = new KeyManagerCryptoSession();
+		cryptoManager.setCryptoManagerRegistry(cryptoManagerRegistry);
 		session = (KeyManagerCryptoSession) cryptoManager.getCryptoSession(UUID.randomUUID().toString());
 //		session.setCryptoManager(cryptoManager);
 //		session.setCryptoSessionID(UUID.randomUUID().toString());
@@ -73,18 +120,7 @@ public class KeyManagerCryptoSessionTest
 				}
 		);
 
-		PersistenceManager pm = (PersistenceManager) Proxy.newProxyInstance(
-				this.getClass().getClassLoader(),
-				new Class[] { PersistenceManager.class },
-				new InvocationHandler() {
-					@Override
-					public Object invoke(Object proxy, Method method, Object[] args)
-					throws Throwable
-					{
-						return null;
-					}
-				}
-		);
+		PersistenceManager pm = pmf.getPersistenceManager();
 
 		PersistenceManagerConnection persistenceManagerConnection = new PersistenceManagerConnection(pm, null);
 		cryptoContext = new CryptoContext(
@@ -92,6 +128,27 @@ public class KeyManagerCryptoSessionTest
 				executionContext, persistenceManagerConnection
 		);
 	}
+
+	@After
+	public void after()
+	{
+		if (pmf != null)
+			pmf.close();
+		pmf = null;
+
+		try {
+			DriverManager.getConnection("jdbc:derby:;shutdown=true");
+		} catch (SQLException x) {
+			// ignore, because this is to be expected according to http://db.apache.org/derby/docs/dev/devguide/tdevdvlp40464.html
+			doNothing(); // Remove warning from PMD report: http://cumulus4j.org/pmd.html
+		}
+
+		if (tmpDir != null)
+			IOUtil.deleteDirectoryRecursively(tmpDir);
+		tmpDir = null;
+	}
+
+	private static final void doNothing() { }
 
 	private CryptoContext cryptoContext;
 	private KeyManagerCryptoSession session;
