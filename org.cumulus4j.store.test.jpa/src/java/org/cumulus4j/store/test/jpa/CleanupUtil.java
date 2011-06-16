@@ -26,6 +26,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -55,25 +57,110 @@ public class CleanupUtil
 {
 	private static final Logger logger = LoggerFactory.getLogger(CleanupUtil.class);
 
+	private static String[] datastoreProps = {
+			"datanucleus.ConnectionDriverName",
+			"datanucleus.ConnectionURL",
+			"datanucleus.ConnectionUserName",
+			"datanucleus.ConnectionPassword",
+			"datanucleus.ConnectionFactory",
+			"datanucleus.ConnectionFactoryName",
+			"datanucleus.ConnectionFactory2",
+			"datanucleus.ConnectionFactory2Name",
+			"datanucleus.Catalog",
+			"datanucleus.Schema",
+			"javax.jdo.option.ConnectionDriverName",
+			"javax.jdo.option.ConnectionURL",
+			"javax.jdo.option.ConnectionUserName",
+			"javax.jdo.option.ConnectionPassword",
+			"javax.jdo.option.ConnectionFactory",
+			"javax.jdo.option.ConnectionFactoryName",
+			"javax.jdo.option.ConnectionFactory2",
+			"javax.jdo.option.ConnectionFactory2Name",
+			"javax.jdo.option.Mapping",
+			"javax.jdo.mapping.Catalog",
+			"javax.jdo.mapping.Schema"
+	};
+
 	public static void dropAllTables() throws Exception {
 		Properties properties = TestUtil.loadProperties("cumulus4j-test-datanucleus.properties");
-		String connectionURL = properties.getProperty("javax.jdo.option.ConnectionURL");
+
+		// Extract properties for the two possible datastores
+		Properties dataPmfProps = new Properties();
+		Properties indexPmfProps = new Properties();
+		Iterator<Map.Entry<Object, Object>> iter = properties.entrySet().iterator();
+		while (iter.hasNext()) {
+			Map.Entry entry = iter.next();
+			String key = (String) entry.getKey();
+			if (key.startsWith("cumulus4j.index.")) {
+				indexPmfProps.put(key.substring(16), entry.getValue());
+			}
+			else {
+				for (int i=0;i<datastoreProps.length;i++) {
+					if (key.equalsIgnoreCase(datastoreProps[i])) {
+						dataPmfProps.put(key, entry.getValue());
+					}
+				}
+			}
+		}
+
+		logger.debug("Deleting all tables from Data backend store");
+		String connectionURL = dataPmfProps.getProperty("javax.jdo.option.ConnectionURL");
 		if (connectionURL == null) {
-			logger.warn("dropAllTables: Property 'javax.jdo.option.ConnectionURL' is not set! Skipping!");
+			connectionURL = dataPmfProps.getProperty("datanucleus.ConnectionURL");
+		}
+		if (connectionURL == null) {
+			logger.warn("dropAllTables: 'ConnectionURL' property is not set! Skipping!");
 			return;
 		}
-		else if (!connectionURL.startsWith("jdbc:")) {
-			properties.remove("datanucleus.storeManagerType");
-			JDOPersistenceManagerFactory pmf = (JDOPersistenceManagerFactory)JDOHelper.getPersistenceManagerFactory(properties);
-			StoreManager storeMgr = pmf.getNucleusContext().getStoreManager();
-			if (storeMgr instanceof SchemaAwareStoreManager) {
-				// Use SchemaTool to delete the schema
-				SchemaAwareStoreManager schemaMgr = (SchemaAwareStoreManager) storeMgr;
-				Set<String> schemaClassNames = new HashSet<String>();
-				schemaClassNames.add(ClassMeta.class.getName());
-				schemaClassNames.add(FieldMeta.class.getName());
+
+		if (connectionURL.startsWith("jdbc:")) {
+			cleanoutRDBMS(connectionURL, dataPmfProps);
+		}
+		else {
+			cleanoutDatastore(dataPmfProps, true, indexPmfProps.size() == 0);
+		}
+
+		if (indexPmfProps.size() > 0) {
+			// Clean out Index datastore
+			logger.debug("Deleting all tables from Index backend store");
+			connectionURL = indexPmfProps.getProperty("javax.jdo.option.ConnectionURL");
+			if (connectionURL == null) {
+				connectionURL = indexPmfProps.getProperty("datanucleus.ConnectionURL");
+			}
+			if (connectionURL == null) {
+				logger.warn("dropAllTables: 'ConnectionURL' property is not set for index datastore! Skipping!");
+				return;
+			}
+
+			if (connectionURL.startsWith("jdbc:")) {
+				cleanoutRDBMS(connectionURL, indexPmfProps);
+			}
+			else {
+				cleanoutDatastore(dataPmfProps, false, true);
+			}
+		}
+	}
+
+	/**
+	 * Convenience method to clean out a datastore
+	 * @param props Properties defining the datastore catalog/schema location
+	 */
+	private static void cleanoutDatastore(Properties props, boolean includeData, boolean includeIndex) {
+		JDOPersistenceManagerFactory pmf = (JDOPersistenceManagerFactory)JDOHelper.getPersistenceManagerFactory(props);
+		StoreManager storeMgr = pmf.getNucleusContext().getStoreManager();
+		if (storeMgr instanceof SchemaAwareStoreManager) {
+			// Use SchemaTool to delete the schema
+			SchemaAwareStoreManager schemaMgr = (SchemaAwareStoreManager) storeMgr;
+			Set<String> schemaClassNames = new HashSet<String>();
+			schemaClassNames.add(ClassMeta.class.getName());
+			schemaClassNames.add(FieldMeta.class.getName());
+
+			if (includeData) {
 				schemaClassNames.add(DataEntry.class.getName());
 				schemaClassNames.add(Sequence.class.getName());
+			}
+
+			if (includeIndex) {
 				schemaClassNames.add(IndexEntryContainerSize.class.getName());
 
 				PluginManager pluginMgr = pmf.getNucleusContext().getPluginManager();
@@ -87,24 +174,31 @@ public class CleanupUtil
 						}
 					}
 				}
+			}
 
-				logger.info("dropAllTables : running SchemaTool to delete Cumulus4J schema");
-				schemaMgr.deleteSchema(schemaClassNames, null);
-				logger.info("dropAllTables : SchemaTool deletion of Cumulus4J schema complete");
-			}
-			else {
-				logger.info("dropAllTables: Not RDBMS nor Schema-Aware datastore so skipping");
-			}
-			return;
+			logger.info("dropAllTables : running SchemaTool to delete Cumulus4J schema");
+			schemaMgr.deleteSchema(schemaClassNames, null);
+			logger.info("dropAllTables : SchemaTool deletion of Cumulus4J schema complete");
 		}
+		else {
+			logger.info("dropAllTables: Not RDBMS nor Schema-Aware datastore so skipping");
+		}
+		pmf.close();
+	}
 
-		logger.debug("Deleting all tables");
-		String connectionDriverName = properties.getProperty("javax.jdo.option.ConnectionDriverName");
+	private static void cleanoutRDBMS(String connectionURL, Properties props)
+	throws Exception {
+		// Load JDBC driver
+		String connectionDriverName = props.getProperty("javax.jdo.option.ConnectionDriverName");
 		if (connectionDriverName == null) {
-			logger.warn("dropAllTables: Property 'javax.jdo.option.ConnectionDriverName' is not set! Skipping!");
+			connectionDriverName = props.getProperty("datanucleus.ConnectionDriverName");
+		}
+		if (connectionDriverName == null) {
+			logger.warn("dropAllTables: 'ConnectionDriverName' property is not set! Skipping!");
 			return;
 		}
 		Class.forName(connectionDriverName);
+
 		if ("org.apache.derby.jdbc.EmbeddedDriver".equals(connectionDriverName)) {
 			// First shut down derby, in case it is open
 			try {
@@ -125,43 +219,48 @@ public class CleanupUtil
 
 			if (!deleteDirectoryRecursively(new File(path)))
 				throw new IllegalStateException("Deleting Derby database \"" + path + "\" failed!");
-
 			return;
 		}
-
-		java.sql.Connection con = DriverManager.getConnection(
-				connectionURL,
-				properties.getProperty("javax.jdo.option.ConnectionUserName"),
-				properties.getProperty("javax.jdo.option.ConnectionPassword")
-		);
-		try {
-			for (int i = 0; i < 10; ++i) {
-				for (String tableName : getTables(con)) {
-					Statement delStmt = con.createStatement();
-					try {
-						logger.debug("Deleting table " + tableName);
-						delStmt.execute("drop table " + tableName);
-					} catch (Throwable t) {
-						logger.warn("Could not drop table " + tableName + ": " + t);
-					} finally {
-						delStmt.close();
+		else {
+			// Drop all tables from the RDBMS schema
+			String connectionUsername = props.getProperty("javax.jdo.option.ConnectionUserName");
+			if (connectionUsername == null) {
+				connectionUsername = props.getProperty("datanucleus.ConnectionUserName");
+			}
+			String connectionPassword = props.getProperty("javax.jdo.option.ConnectionPassword");
+			if (connectionPassword == null) {
+				connectionPassword = props.getProperty("datanucleus.ConnectionPassword");
+			}
+			java.sql.Connection con = DriverManager.getConnection(connectionURL, connectionUsername, connectionPassword);
+			try {
+				for (int i = 0; i < 10; ++i) {
+					for (String tableName : getTables(con)) {
+						Statement delStmt = con.createStatement();
+						try {
+							logger.debug("Deleting table " + tableName);
+							delStmt.execute("drop table " + tableName);
+						} catch (Throwable t) {
+							logger.warn("Could not drop table " + tableName + ": " + t);
+						} finally {
+							delStmt.close();
+						}
 					}
 				}
-			}
 
-			Collection<String> tables = getTables(con);
-			if (!tables.isEmpty()) {
-				StringBuilder sb = new StringBuilder();
-				for (String tableName : tables) {
-					if (sb.length() > 0)
-						sb.append(',');
+				Collection<String> tables = getTables(con);
+				if (!tables.isEmpty()) {
+					StringBuilder sb = new StringBuilder();
+					for (String tableName : tables) {
+						if (sb.length() > 0)
+							sb.append(',');
 
-					sb.append(tableName);
+						sb.append(tableName);
+					}
+					throw new IllegalStateException("Not all tables have been dropped! Still there: " + sb);
 				}
-				throw new IllegalStateException("Not all tables have been dropped! Still there: " + sb);
+			} finally {
+				con.close();
 			}
-		} finally {
-			con.close();
 		}
 	}
 
