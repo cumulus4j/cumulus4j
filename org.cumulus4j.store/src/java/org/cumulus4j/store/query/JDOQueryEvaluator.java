@@ -20,8 +20,7 @@ package org.cumulus4j.store.query;
 import java.util.Collection;
 import java.util.Map;
 
-import javax.jdo.PersistenceManager;
-
+import org.cumulus4j.store.PersistenceManagerConnection;
 import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.query.compiler.QueryCompilation;
 import org.datanucleus.store.query.Query;
@@ -34,9 +33,9 @@ import org.datanucleus.store.query.Query;
 public class JDOQueryEvaluator extends QueryEvaluator {
 
 	public JDOQueryEvaluator(Query query, QueryCompilation compilation, Map<String, Object> parameterValues,
-			ClassLoaderResolver clr, PersistenceManager pmData, PersistenceManager pmIndex)
+			ClassLoaderResolver clr, PersistenceManagerConnection pmConn)
 	{
-		super("JDOQL", query, compilation, parameterValues, clr, pmData, pmIndex);
+		super("JDOQL", query, compilation, parameterValues, clr, pmConn);
 	}
 
 	@Override
@@ -44,8 +43,8 @@ public class JDOQueryEvaluator extends QueryEvaluator {
 			Query subquery, QueryCompilation compilation, Object outerCandidate
 	)
 	{
-		JDOQueryEvaluator evaluator = new JDOQueryEvaluator(getQuery(), compilation, getParameterValues(), 
-				getClassLoaderResolver(), getPersistenceManagerForData(), getPersistenceManagerForIndex());
+		JDOQueryEvaluator evaluator = new JDOQueryEvaluator(getQuery(), compilation, getParameterValues(),
+				getClassLoaderResolver(), getPersistenceManagerConnection());
 		return evaluator.execute();
 	}
 }

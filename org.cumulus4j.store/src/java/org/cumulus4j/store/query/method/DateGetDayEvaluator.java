@@ -25,6 +25,7 @@ import java.util.Set;
 
 import javax.jdo.Query;
 
+import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.IndexEntry;
 import org.cumulus4j.store.model.IndexEntryFactory;
@@ -59,18 +60,18 @@ public class DateGetDayEvaluator extends AbstractMethodEvaluator {
 			InvokeExpressionEvaluator invokeExprEval, Expression invokedExpr,
 			ResultDescriptor resultDesc) {
 		if (invokeExprEval.getExpression().getArguments().size() != 0)
-			throw new IllegalStateException("Date.getDay(...) expects no arguments, but there are " + 
+			throw new IllegalStateException("Date.getDay(...) expects no arguments, but there are " +
 					invokeExprEval.getExpression().getArguments().size());
 
 		if (invokedExpr instanceof PrimaryExpression) {
-			return new MethodResolver(invokeExprEval, queryEval, (PrimaryExpression) invokedExpr, 
+			return new MethodResolver(invokeExprEval, queryEval, (PrimaryExpression) invokedExpr,
 					compareToArgument, resultDesc.isNegated()).query();
 		}
 		else {
 			if (!invokeExprEval.getLeft().getResultSymbols().contains(resultDesc.getSymbol()))
 				return null;
 
-			return queryEvaluate(invokeExprEval, queryEval, resultDesc.getFieldMeta(), 
+			return queryEvaluate(invokeExprEval, queryEval, resultDesc.getFieldMeta(),
 					compareToArgument, resultDesc.isNegated());
 		}
 	}
@@ -82,6 +83,7 @@ public class DateGetDayEvaluator extends AbstractMethodEvaluator {
 			Object compareToArgument, // the yyy in 'getDay() >= yyy'
 			boolean negate
 	) {
+		CryptoContext cryptoContext = queryEval.getCryptoContext();
 		ExecutionContext executionContext = queryEval.getExecutionContext();
 		IndexEntryFactory indexEntryFactory = queryEval.getStoreManager().getIndexFactoryRegistry().getIndexEntryFactory(
 				executionContext, fieldMeta, true
@@ -90,7 +92,7 @@ public class DateGetDayEvaluator extends AbstractMethodEvaluator {
 		Query q = queryEval.getPersistenceManagerForIndex().newQuery(indexEntryFactory.getIndexEntryClass());
 		q.setFilter(
 				"this.fieldMeta == :fieldMeta && this.indexKey.getDay() " +
-				ExpressionHelper.getOperatorAsJDOQLSymbol(invokeExprEval.getParent().getExpression().getOperator(), negate) + 
+				ExpressionHelper.getOperatorAsJDOQLSymbol(invokeExprEval.getParent().getExpression().getOperator(), negate) +
 				" :compareToArgument"
 		);
 		Map<String, Object> params = new HashMap<String, Object>(2);
@@ -102,7 +104,7 @@ public class DateGetDayEvaluator extends AbstractMethodEvaluator {
 
 		Set<Long> result = new HashSet<Long>();
 		for (IndexEntry indexEntry : indexEntries) {
-			IndexValue indexValue = queryEval.getEncryptionHandler().decryptIndexEntry(executionContext, indexEntry);
+			IndexValue indexValue = queryEval.getEncryptionHandler().decryptIndexEntry(cryptoContext, indexEntry);
 			result.addAll(indexValue.getDataEntryIDs());
 		}
 		q.closeAll();

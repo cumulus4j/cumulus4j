@@ -26,6 +26,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.cumulus4j.store.crypto.AbstractCryptoManager;
 import org.cumulus4j.store.crypto.AbstractCryptoSession;
 import org.cumulus4j.store.crypto.Ciphertext;
+import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.crypto.CryptoSession;
 import org.cumulus4j.store.crypto.Plaintext;
 
@@ -67,7 +68,7 @@ public class DummyCryptoManager extends AbstractCryptoManager
 		}
 
 		@Override
-		public Ciphertext encrypt(Plaintext plaintext)
+		public Ciphertext encrypt(CryptoContext cryptoContext, Plaintext plaintext)
 		{
 			// First get the required resources (that are cleared in close()).
 			Cipher c = encrypter;
@@ -95,7 +96,7 @@ public class DummyCryptoManager extends AbstractCryptoManager
 		}
 
 		@Override
-		public Plaintext decrypt(Ciphertext ciphertext)
+		public Plaintext decrypt(CryptoContext cryptoContext, Ciphertext ciphertext)
 		{
 			if (ciphertext.getKeyID() != 12345)
 				throw new IllegalArgumentException("No key with this keyID: " + ciphertext.getKeyID());

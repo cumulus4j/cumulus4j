@@ -25,6 +25,7 @@ import java.util.Set;
 
 import javax.jdo.Query;
 
+import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.IndexEntry;
 import org.cumulus4j.store.model.IndexEntryFactory;
@@ -73,6 +74,7 @@ public class StringMatchesEvaluator extends AbstractMethodEvaluator
 			Object invokeArgument, // the xxx in 'matches(xxx)'
 			boolean negate
 	) {
+		CryptoContext cryptoContext = queryEval.getCryptoContext();
 		ExecutionContext executionContext = queryEval.getExecutionContext();
 		IndexEntryFactory indexEntryFactory = queryEval.getStoreManager().getIndexFactoryRegistry().getIndexEntryFactory(
 				executionContext, fieldMeta, true
@@ -92,7 +94,7 @@ public class StringMatchesEvaluator extends AbstractMethodEvaluator
 
 		Set<Long> result = new HashSet<Long>();
 		for (IndexEntry indexEntry : indexEntries) {
-			IndexValue indexValue = queryEval.getEncryptionHandler().decryptIndexEntry(executionContext, indexEntry);
+			IndexValue indexValue = queryEval.getEncryptionHandler().decryptIndexEntry(cryptoContext, indexEntry);
 			result.addAll(indexValue.getDataEntryIDs());
 		}
 		q.closeAll();

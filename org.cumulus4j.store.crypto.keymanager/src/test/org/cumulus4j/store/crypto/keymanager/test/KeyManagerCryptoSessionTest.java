@@ -20,7 +20,10 @@ package org.cumulus4j.store.crypto.keymanager.test;
 import java.security.SecureRandom;
 import java.util.UUID;
 
+import org.cumulus4j.store.EncryptionCoordinateSetManager;
+import org.cumulus4j.store.PersistenceManagerConnection;
 import org.cumulus4j.store.crypto.Ciphertext;
+import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.crypto.Plaintext;
 import org.cumulus4j.store.crypto.keymanager.KeyManagerCryptoManager;
 import org.cumulus4j.store.crypto.keymanager.KeyManagerCryptoSession;
@@ -50,8 +53,15 @@ public class KeyManagerCryptoSessionTest
 		session = (KeyManagerCryptoSession) cryptoManager.getCryptoSession(UUID.randomUUID().toString());
 //		session.setCryptoManager(cryptoManager);
 //		session.setCryptoSessionID(UUID.randomUUID().toString());
+
+		PersistenceManagerConnection persistenceManagerConnection = new PersistenceManagerConnection(null, null);
+		cryptoContext = new CryptoContext(
+				new EncryptionCoordinateSetManager(),
+				new MockExecutionContext(), persistenceManagerConnection
+		);
 	}
 
+	private CryptoContext cryptoContext;
 	private KeyManagerCryptoSession session;
 
 	@Test
@@ -70,8 +80,8 @@ public class KeyManagerCryptoSessionTest
 			plaintext.setData(data);
 		}
 
-		Ciphertext ciphertext = session.encrypt(plaintext);
-		Plaintext decrypted = session.decrypt(ciphertext);
+		Ciphertext ciphertext = session.encrypt(cryptoContext, plaintext);
+		Plaintext decrypted = session.decrypt(cryptoContext, ciphertext);
 
 		Assert.assertArrayEquals(plaintext.getData(), decrypted.getData());
 	}
@@ -86,14 +96,14 @@ public class KeyManagerCryptoSessionTest
 			plaintext.setData(data);
 		}
 
-		Ciphertext ciphertext = session.encrypt(plaintext);
+		Ciphertext ciphertext = session.encrypt(cryptoContext, plaintext);
 		// NOT clearing cache in order to test the cached scenario.
-		Ciphertext ciphertext1 = session.encrypt(plaintext);
+		Ciphertext ciphertext1 = session.encrypt(cryptoContext, plaintext);
 
 		// Clear cache in order to test more code (i.e. ask the MockMessageBroker with a GetKeyRequest).
 		((KeyManagerCryptoManager)session.getCryptoManager()).getCipherCache().clear();
 
-		Ciphertext ciphertext2 = session.encrypt(plaintext);
+		Ciphertext ciphertext2 = session.encrypt(cryptoContext, plaintext);
 
 		int c = countDifferentBits(ciphertext.getData(), ciphertext1.getData());
 		Assert.assertTrue("Not enough bits different between ciphertext and ciphertext1! Only " + c + " bits differ!", c > 1024);
@@ -107,16 +117,16 @@ public class KeyManagerCryptoSessionTest
 		// Clear cache in order to test more code (i.e. ask the MockMessageBroker with a GetKeyRequest).
 		((KeyManagerCryptoManager)session.getCryptoManager()).getCipherCache().clear();
 
-		Plaintext decrypted = session.decrypt(ciphertext);
+		Plaintext decrypted = session.decrypt(cryptoContext, ciphertext);
 
 		Assert.assertArrayEquals(plaintext.getData(), decrypted.getData());
 
 		// NOT clearing cache in order to test the cached scenario.
-		Plaintext decrypted1 = session.decrypt(ciphertext1);
+		Plaintext decrypted1 = session.decrypt(cryptoContext, ciphertext1);
 
 		// Clear cache in order to test more code (i.e. ask the MockMessageBroker with a GetKeyRequest).
 		((KeyManagerCryptoManager)session.getCryptoManager()).getCipherCache().clear();
-		Plaintext decrypted2 = session.decrypt(ciphertext2);
+		Plaintext decrypted2 = session.decrypt(cryptoContext, ciphertext2);
 
 		c = countDifferentBits(decrypted.getData(), decrypted1.getData());
 		Assert.assertEquals("decrypted does not match decrypted1! " + c + " bits differ!", 0, c);

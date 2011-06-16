@@ -223,41 +223,6 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 		return new Cumulus4jManagedConnection(poolKey, transactionOptions);
 	}
 
-	public class PersistenceManagerConnection {
-		/** PM for data (never null). */
-		private PersistenceManager pmData;
-		/** PM for indexes, could be null in which case use pmData */
-		private PersistenceManager pmIndex;
-
-		public PersistenceManagerConnection(PersistenceManager pmData, PersistenceManager pmIndex) {
-			this.pmData = pmData;
-			this.pmIndex = pmIndex;
-		}
-
-		public boolean indexHasOwnPM() {
-			return pmIndex != null;
-		}
-
-		/**
-		 * Accessor for the PM to use for data.
-		 * @return The PM to use for data
-		 */
-		public PersistenceManager getDataPM() {
-			return pmData;
-		}
-
-		/**
-		 * Accessor for the PM to use for indexes.
-		 * @return The PM to use for indexes
-		 */
-		public PersistenceManager getIndexPM() {
-			if (pmIndex != null) {
-				return pmIndex;
-			}
-			return pmData;
-		}
-	}
-
 	private class Cumulus4jManagedConnection extends AbstractManagedConnection
 	{
 		@SuppressWarnings("unused")
@@ -281,9 +246,9 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 		@Override
 		public void close() {
 			if (pmConnection != null) {
-				pmConnection.pmData.close();
-				if (pmConnection.pmIndex != null) {
-					pmConnection.pmIndex.close();
+				pmConnection.getDataPM().close();
+				if (pmConnection.getIndexPM() != null) {
+					pmConnection.getIndexPM().close();
 				}
 				pmConnection = null;
 			}
@@ -292,7 +257,7 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 		@Override
 		public Object getConnection() {
 			if (pmConnection == null) {
-				this.pmConnection = new PersistenceManagerConnection(pmf.getPersistenceManager(), 
+				this.pmConnection = new PersistenceManagerConnection(pmf.getPersistenceManager(),
 						pmfIndex != null ? pmfIndex.getPersistenceManager() : null);
 			}
 			return pmConnection;
@@ -312,9 +277,9 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 			//        	if (this.xid != null)
 			//        		throw new IllegalStateException("Transaction already started! Cannot start twice!");
 
-			pmConnection.pmData.currentTransaction().begin();
-			if (pmConnection.pmIndex != null) {
-				pmConnection.pmIndex.currentTransaction().begin();
+			pmConnection.getDataPM().currentTransaction().begin();
+			if (pmConnection.getIndexPM() != null) {
+				pmConnection.getIndexPM().currentTransaction().begin();
 			}
 			//        	this.xid = xid;
 		}
@@ -327,9 +292,9 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 			//        	if (!this.xid.equals(xid))
 			//        		throw new IllegalStateException("Transaction mismatch! this.xid=" + this.xid + " otherXid=" + xid);
 
-			pmConnection.pmData.currentTransaction().commit();
-			if (pmConnection.pmIndex != null) {
-				pmConnection.pmIndex.currentTransaction().commit();
+			pmConnection.getDataPM().currentTransaction().commit();
+			if (pmConnection.getIndexPM() != null) {
+				pmConnection.getIndexPM().currentTransaction().commit();
 			}
 
 			//            this.xid = null;
@@ -343,9 +308,9 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 			//        	if (!this.xid.equals(xid))
 			//        		throw new IllegalStateException("Transaction mismatch! this.xid=" + this.xid + " otherXid=" + xid);
 
-			pmConnection.pmData.currentTransaction().rollback();
-			if (pmConnection.pmIndex != null) {
-				pmConnection.pmIndex.currentTransaction().rollback();
+			pmConnection.getDataPM().currentTransaction().rollback();
+			if (pmConnection.getIndexPM() != null) {
+				pmConnection.getIndexPM().currentTransaction().rollback();
 			}
 
 			//            this.xid = null;

@@ -24,6 +24,7 @@ import java.util.Set;
 
 import javax.jdo.Query;
 
+import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.DataEntry;
 import org.cumulus4j.store.model.FieldMeta;
@@ -145,6 +146,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 	private Set<Long> queryCompareConcreteValue(FieldMeta fieldMeta, Object value, boolean negate)
 	{
+		CryptoContext cryptoContext = getQueryEvaluator().getCryptoContext();
 		ExecutionContext executionContext = getQueryEvaluator().getExecutionContext();
 		AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(executionContext);
 		int relationType = mmd.getRelationType(executionContext.getClassLoaderResolver());
@@ -196,7 +198,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 		Set<Long> result = new HashSet<Long>();
 		for (IndexEntry indexEntry : indexEntries) {
-			IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(executionContext, indexEntry);
+			IndexValue indexValue = getQueryEvaluator().getEncryptionHandler().decryptIndexEntry(cryptoContext, indexEntry);
 			result.addAll(indexValue.getDataEntryIDs());
 		}
 		q.closeAll();

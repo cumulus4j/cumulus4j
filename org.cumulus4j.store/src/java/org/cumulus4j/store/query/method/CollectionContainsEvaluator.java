@@ -25,6 +25,7 @@ import java.util.Set;
 
 import javax.jdo.Query;
 
+import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.FieldMetaRole;
 import org.cumulus4j.store.model.IndexEntry;
@@ -52,11 +53,11 @@ public class CollectionContainsEvaluator extends AbstractMethodEvaluator
 	 * @see org.cumulus4j.store.query.method.MethodEvaluator#evaluate(org.cumulus4j.store.query.QueryEvaluator, org.datanucleus.query.expression.InvokeExpression, org.datanucleus.query.expression.Expression, org.cumulus4j.store.query.eval.ResultDescriptor)
 	 */
 	@Override
-	public Set<Long> evaluate(QueryEvaluator queryEval, InvokeExpressionEvaluator invokeExprEval, 
+	public Set<Long> evaluate(QueryEvaluator queryEval, InvokeExpressionEvaluator invokeExprEval,
 			Expression invokedExpr, ResultDescriptor resultDesc) {
 
 		if (invokeExprEval.getExpression().getArguments().size() != 1)
-			throw new IllegalStateException("contains(...) expects exactly one argument, but there are " + 
+			throw new IllegalStateException("contains(...) expects exactly one argument, but there are " +
 					invokeExprEval.getExpression().getArguments().size());
 
 		if (invokedExpr instanceof PrimaryExpression) {
@@ -114,6 +115,7 @@ public class CollectionContainsEvaluator extends AbstractMethodEvaluator
 
 		@Override
 		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
+			CryptoContext cryptoContext = queryEvaluator.getCryptoContext();
 			ExecutionContext executionContext = queryEvaluator.getExecutionContext();
 			IndexEntryFactory indexEntryFactory = queryEvaluator.getStoreManager().getIndexFactoryRegistry().getIndexEntryFactory(
 					executionContext, fieldMeta, true
@@ -141,7 +143,7 @@ public class CollectionContainsEvaluator extends AbstractMethodEvaluator
 
 			Set<Long> result = new HashSet<Long>();
 			for (IndexEntry indexEntry : indexEntries) {
-				IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(executionContext, indexEntry);
+				IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(cryptoContext, indexEntry);
 				result.addAll(indexValue.getDataEntryIDs());
 			}
 			q.closeAll();

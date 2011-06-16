@@ -41,12 +41,12 @@ import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.plugin.ConfigurationElement;
 import org.datanucleus.query.QueryUtils;
 import org.datanucleus.query.expression.Expression;
+import org.datanucleus.query.expression.Expression.Operator;
 import org.datanucleus.query.expression.InvokeExpression;
 import org.datanucleus.query.expression.Literal;
 import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.query.expression.VariableExpression;
-import org.datanucleus.query.expression.Expression.Operator;
 import org.datanucleus.store.StoreManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +76,7 @@ public class ExpressionHelper
 			return evaluatorByMethod.get(key);
 		}
 
-		ConfigurationElement elem = 
+		ConfigurationElement elem =
 			storeMgr.getNucleusContext().getPluginManager().getConfigurationElementForExtension(
 					"org.cumulus4j.store.query_method", new String[]{"class", "method"}, new String[]{clsName, method});
 		if (elem == null) {
@@ -152,7 +152,7 @@ public class ExpressionHelper
 			}
 
 			Class<?> candidateClass = executionContext.getClassLoaderResolver().classForName(fieldMeta.getClassMeta().getClassName());
-			Set<ClassMeta> candidateClassMetas = QueryHelper.getCandidateClassMetas(queryEvaluator.getStoreManager(), 
+			Set<ClassMeta> candidateClassMetas = QueryHelper.getCandidateClassMetas(queryEvaluator.getStoreManager(),
 					executionContext, candidateClass, true);
 			Set<Long> allDataEntryIDs = queryEvaluator.getAllDataEntryIDsForCandidateClasses(candidateClassMetas);
 
@@ -249,7 +249,7 @@ public class ExpressionHelper
 				if (mmd.getMappedBy() != null) {
 					for (Long valueDataEntryID : valueDataEntryIDs) {
 						DataEntry valueDataEntry = DataEntry.getDataEntry(queryEvaluator.getPersistenceManagerForData(), valueDataEntryID);
-						ObjectContainer constantObjectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(executionContext, valueDataEntry);
+						ObjectContainer constantObjectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(cryptoContext, valueDataEntry);
 						Object value = constantObjectContainer.getValue(
 								fieldMeta.getMappedByFieldMeta(executionContext).getFieldID()
 						);
@@ -260,10 +260,10 @@ public class ExpressionHelper
 				}
 				else {
 					for (Long valueDataEntryID : valueDataEntryIDs) {
-						IndexEntry indexEntry = 
+						IndexEntry indexEntry =
 							IndexEntryObjectRelationHelper.getIndexEntry(queryEvaluator.getPersistenceManagerForIndex(), subFieldMeta, valueDataEntryID);
 						if (indexEntry != null) {
-							IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(executionContext, indexEntry);
+							IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(cryptoContext, indexEntry);
 							result.addAll(indexValue.getDataEntryIDs());
 						}
 					}
@@ -323,9 +323,9 @@ public class ExpressionHelper
 						throw new IllegalStateException("The ApiAdapter returned null as object-ID for: " + constant);
 
 					if (mmd.getMappedBy() != null) {
-						DataEntry constantDataEntry = DataEntry.getDataEntry(queryEvaluator.getPersistenceManagerForData(), 
+						DataEntry constantDataEntry = DataEntry.getDataEntry(queryEvaluator.getPersistenceManagerForData(),
 								constantClassMeta, constantID.toString());
-						ObjectContainer constantObjectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(executionContext, constantDataEntry);
+						ObjectContainer constantObjectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(cryptoContext, constantDataEntry);
 						Object value = constantObjectContainer.getValue(
 								fieldMeta.getMappedByFieldMeta(executionContext).getFieldID()
 						);
@@ -337,31 +337,31 @@ public class ExpressionHelper
 							return negateIfNecessary(fieldMeta, Collections.singleton(mappedByDataEntryID));
 					}
 
-					constantDataEntryID = DataEntry.getDataEntryID(queryEvaluator.getPersistenceManagerForData(), constantClassMeta, 
+					constantDataEntryID = DataEntry.getDataEntryID(queryEvaluator.getPersistenceManagerForData(), constantClassMeta,
 							constantID.toString());
 				}
-				IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(queryEvaluator.getPersistenceManagerForIndex(), 
+				IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(queryEvaluator.getPersistenceManagerForIndex(),
 						subFieldMeta, constantDataEntryID);
 				if (indexEntry == null)
 					return negateIfNecessary(fieldMeta, emptyDataEntryIDs);
 
-				IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(executionContext, indexEntry);
+				IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(cryptoContext, indexEntry);
 				return negateIfNecessary(fieldMeta, indexValue.getDataEntryIDs());
 			}
 			else if (subFieldMeta.getMappedByFieldMeta(executionContext) != null) {
 				FieldMeta oppositeFieldMeta = subFieldMeta.getMappedByFieldMeta(executionContext);
-				IndexEntryFactory indexEntryFactory = 
+				IndexEntryFactory indexEntryFactory =
 					queryEvaluator.getStoreManager().getIndexFactoryRegistry().getIndexEntryFactory(executionContext, oppositeFieldMeta, true);
-				IndexEntry indexEntry = indexEntryFactory == null ? null : 
+				IndexEntry indexEntry = indexEntryFactory == null ? null :
 					indexEntryFactory.getIndexEntry(queryEvaluator.getPersistenceManagerForIndex(), oppositeFieldMeta, constant);
 				if (indexEntry == null)
 					return negateIfNecessary(fieldMeta, emptyDataEntryIDs);
 
-				IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(executionContext, indexEntry);
+				IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(cryptoContext, indexEntry);
 				Set<Long> result = new HashSet<Long>(indexValue.getDataEntryIDs().size());
 				for (Long elementDataEntryID : indexValue.getDataEntryIDs()) {
 					DataEntry elementDataEntry = DataEntry.getDataEntry(queryEvaluator.getPersistenceManagerForData(), elementDataEntryID);
-					ObjectContainer elementObjectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(executionContext, elementDataEntry);
+					ObjectContainer elementObjectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(cryptoContext, elementDataEntry);
 					Object value = elementObjectContainer.getValue(
 							fieldMeta.getMappedByFieldMeta(executionContext).getFieldID()
 					);
@@ -374,12 +374,12 @@ public class ExpressionHelper
 			}
 			else {
 				IndexEntryFactory indexEntryFactory = queryEvaluator.getStoreManager().getIndexFactoryRegistry().getIndexEntryFactory(executionContext, subFieldMeta, true);
-				IndexEntry indexEntry = indexEntryFactory == null ? null : 
+				IndexEntry indexEntry = indexEntryFactory == null ? null :
 					indexEntryFactory.getIndexEntry(queryEvaluator.getPersistenceManagerForIndex(), subFieldMeta, constant);
 				if (indexEntry == null)
 					return negateIfNecessary(fieldMeta, emptyDataEntryIDs);
 
-				IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(executionContext, indexEntry);
+				IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(cryptoContext, indexEntry);
 				return negateIfNecessary(fieldMeta, indexValue.getDataEntryIDs());
 			}
 		}

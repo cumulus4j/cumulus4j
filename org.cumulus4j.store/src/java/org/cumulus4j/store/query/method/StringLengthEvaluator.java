@@ -25,6 +25,7 @@ import java.util.Set;
 
 import javax.jdo.Query;
 
+import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.IndexEntry;
 import org.cumulus4j.store.model.IndexEntryFactory;
@@ -82,6 +83,7 @@ public class StringLengthEvaluator extends AbstractMethodEvaluator {
 			Object compareToArgument, // the yyy in 'length() >= yyy'
 			boolean negate
 	) {
+		CryptoContext cryptoContext = queryEval.getCryptoContext();
 		ExecutionContext executionContext = queryEval.getExecutionContext();
 		IndexEntryFactory indexEntryFactory = queryEval.getStoreManager().getIndexFactoryRegistry().getIndexEntryFactory(
 				executionContext, fieldMeta, true
@@ -90,8 +92,8 @@ public class StringLengthEvaluator extends AbstractMethodEvaluator {
 		Query q = queryEval.getPersistenceManagerForIndex().newQuery(indexEntryFactory.getIndexEntryClass());
 		q.setFilter(
 				"this.fieldMeta == :fieldMeta && " +
-				"this.indexKey.length() " + 
-				ExpressionHelper.getOperatorAsJDOQLSymbol(invokeExprEval.getParent().getExpression().getOperator(), negate) + 
+				"this.indexKey.length() " +
+				ExpressionHelper.getOperatorAsJDOQLSymbol(invokeExprEval.getParent().getExpression().getOperator(), negate) +
 				" :compareToArgument"
 		);
 		Map<String, Object> params = new HashMap<String, Object>(2);
@@ -103,7 +105,7 @@ public class StringLengthEvaluator extends AbstractMethodEvaluator {
 
 		Set<Long> result = new HashSet<Long>();
 		for (IndexEntry indexEntry : indexEntries) {
-			IndexValue indexValue = queryEval.getEncryptionHandler().decryptIndexEntry(executionContext, indexEntry);
+			IndexValue indexValue = queryEval.getEncryptionHandler().decryptIndexEntry(cryptoContext, indexEntry);
 			result.addAll(indexValue.getDataEntryIDs());
 		}
 		q.closeAll();

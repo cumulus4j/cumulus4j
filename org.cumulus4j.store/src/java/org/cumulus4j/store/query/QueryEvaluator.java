@@ -31,6 +31,8 @@ import javax.jdo.PersistenceManager;
 
 import org.cumulus4j.store.Cumulus4jStoreManager;
 import org.cumulus4j.store.EncryptionHandler;
+import org.cumulus4j.store.PersistenceManagerConnection;
+import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.DataEntry;
 import org.cumulus4j.store.query.eval.AbstractExpressionEvaluator;
@@ -98,11 +100,9 @@ public abstract class QueryEvaluator
 
 	private Cumulus4jStoreManager storeManager;
 
-	/** PM for data. */
-	private PersistenceManager pm;
+	private CryptoContext cryptoContext;
 
-	/** PM for index. */
-	private PersistenceManager pmIndex;
+	private PersistenceManagerConnection pmConn;
 
 	private EncryptionHandler encryptionHandler;
 
@@ -112,8 +112,8 @@ public abstract class QueryEvaluator
 	 * @param pm our <b>backend</b>-<code>PersistenceManager</code>.
 	 */
 	public QueryEvaluator(
-			String language, Query query, QueryCompilation compilation, Map<String, Object> parameterValues, 
-			ClassLoaderResolver clr, PersistenceManager pm, PersistenceManager pmIndex)
+			String language, Query query, QueryCompilation compilation, Map<String, Object> parameterValues,
+			ClassLoaderResolver clr, PersistenceManagerConnection pmConn)
 	{
 		this.language = language;
 		this.query = query;
@@ -122,8 +122,8 @@ public abstract class QueryEvaluator
 		this.clr = clr;
 		this.ec = query.getExecutionContext();
 		this.storeManager = (Cumulus4jStoreManager) query.getStoreManager();
-		this.pm = pm;
-		this.pmIndex = pmIndex;
+		this.pmConn = pmConn;
+		this.cryptoContext = new CryptoContext(storeManager.getEncryptionCoordinateSetManager(), ec, pmConn);
 		this.encryptionHandler = storeManager.getEncryptionHandler();
 
 		this.candidateAlias = (compilation.getCandidateAlias() != null ? compilation.getCandidateAlias() : this.candidateAlias);
@@ -183,12 +183,16 @@ public abstract class QueryEvaluator
 		return storeManager;
 	}
 
+	public PersistenceManagerConnection getPersistenceManagerConnection() {
+		return pmConn;
+	}
+
 	public PersistenceManager getPersistenceManagerForData() {
-		return pm;
+		return pmConn.getDataPM();
 	}
 
 	public PersistenceManager getPersistenceManagerForIndex() {
-		return pmIndex;
+		return pmConn.getIndexPM();
 	}
 
 	public EncryptionHandler getEncryptionHandler() {
@@ -327,7 +331,7 @@ public abstract class QueryEvaluator
 
 		if (compilation.getExprFilter() == null) {
 			// No filter - we want all that match the candidate classes.
-			return QueryHelper.getAllPersistentObjectsForCandidateClasses(pm, ec, candidateClassMetas);
+			return QueryHelper.getAllPersistentObjectsForCandidateClasses(getPersistenceManagerForData(), ec, candidateClassMetas);
 		}
 		else {
 			expressionEvaluator = createExpressionEvaluatorTree(compilation.getExprFilter());
@@ -427,7 +431,7 @@ public abstract class QueryEvaluator
 
 	public Set<Long> getAllDataEntryIDsForCandidateClasses(Set<ClassMeta> candidateClassMetas)
 	{
-		javax.jdo.Query q = pm.newQuery(DataEntry.class);
+		javax.jdo.Query q = getPersistenceManagerForData().newQuery(DataEntry.class);
 		q.setResult("this.dataEntryID");
 
 		Object queryParam;
@@ -445,5 +449,9 @@ public abstract class QueryEvaluator
 		Set<Long> result = new HashSet<Long>(allDataEntryIDs);
 		q.closeAll();
 		return result;
+	}
+
+	public CryptoContext getCryptoContext() {
+		return cryptoContext;
 	}
 }

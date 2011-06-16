@@ -27,7 +27,7 @@ import java.util.Set;
 import javax.jdo.PersistenceManager;
 
 import org.cumulus4j.store.Cumulus4jStoreManager;
-import org.cumulus4j.store.Cumulus4jConnectionFactory.PersistenceManagerConnection;
+import org.cumulus4j.store.PersistenceManagerConnection;
 import org.cumulus4j.store.model.ClassMeta;
 import org.datanucleus.query.evaluator.JPQLEvaluator;
 import org.datanucleus.query.evaluator.JavaQueryEvaluator;
@@ -85,7 +85,7 @@ public class JPQLQuery extends AbstractJPQLQuery {
 
 				if (inMemory) {
 					// Retrieve all candidates and perform all evaluation in-memory
-					Set<ClassMeta> classMetas = QueryHelper.getCandidateClassMetas((Cumulus4jStoreManager) ec.getStoreManager(), 
+					Set<ClassMeta> classMetas = QueryHelper.getCandidateClassMetas((Cumulus4jStoreManager) ec.getStoreManager(),
 							ec, candidateClass, subclasses);
 					candidates = QueryHelper.getAllPersistentObjectsForCandidateClasses(pmData, ec, classMetas);
 				}
@@ -96,7 +96,7 @@ public class JPQLQuery extends AbstractJPQLQuery {
 						@SuppressWarnings("unchecked")
 						Map<String, Object> parameterValues = parameters;
 						// TODO Pass in PM for index if different
-						JDOQueryEvaluator queryEvaluator = new JDOQueryEvaluator(this, compilation, parameterValues, clr, pmData, pmIndex);
+						JDOQueryEvaluator queryEvaluator = new JDOQueryEvaluator(this, compilation, parameterValues, clr, pmConn);
 						candidates = queryEvaluator.execute();
 						if (queryEvaluator.isComplete()) {
 							inMemory_applyFilter = false;
@@ -110,7 +110,7 @@ public class JPQLQuery extends AbstractJPQLQuery {
 						// Some part of the filter is not yet supported, so fallback to in-memory evaluation
 						// Retrieve all candidates and perform all evaluation in-memory
 						NucleusLogger.QUERY.info("Query filter is not totally evaluatable in-datastore using Cumulus4j currently, so evaluating in-memory : "+uoe.getMessage());
-						Set<ClassMeta> classMetas = QueryHelper.getCandidateClassMetas((Cumulus4jStoreManager) ec.getStoreManager(), 
+						Set<ClassMeta> classMetas = QueryHelper.getCandidateClassMetas((Cumulus4jStoreManager) ec.getStoreManager(),
 								ec, candidateClass, subclasses);
 						candidates = QueryHelper.getAllPersistentObjectsForCandidateClasses(pmData, ec, classMetas);
 					}

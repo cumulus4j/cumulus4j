@@ -29,6 +29,7 @@ import javax.jdo.PersistenceManager;
 import org.cumulus4j.store.Cumulus4jStoreManager;
 import org.cumulus4j.store.EncryptionHandler;
 import org.cumulus4j.store.ObjectContainerHelper;
+import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.DataEntry;
 import org.cumulus4j.store.model.FieldMeta;
@@ -53,6 +54,7 @@ import org.datanucleus.store.types.sco.SCOUtils;
 public class FetchFieldManager extends AbstractFieldManager
 {
 	private ObjectProvider op;
+	private CryptoContext cryptoContext;
 	private PersistenceManager pmData;
 	private PersistenceManager pmIndex;
 	private ExecutionContext ec;
@@ -62,16 +64,16 @@ public class FetchFieldManager extends AbstractFieldManager
 
 	public FetchFieldManager(
 			ObjectProvider op,
-			PersistenceManager pmData,
-			PersistenceManager pmIndex,
+			CryptoContext cryptoContext,
 			ClassMeta classMeta,
 			AbstractClassMetaData dnClassMetaData,
 			ObjectContainer objectContainer
 	)
 	{
 		this.op = op;
-		this.pmData = pmData;
-		this.pmIndex = pmIndex;
+		this.cryptoContext = cryptoContext;
+		this.pmData = cryptoContext.getPersistenceManagerForData();
+		this.pmIndex = cryptoContext.getPersistenceManagerForIndex();
 		this.ec = op.getExecutionContext();
 		this.classMeta = classMeta;
 		this.dnClassMetaData = dnClassMetaData;
@@ -172,7 +174,7 @@ public class FetchFieldManager extends AbstractFieldManager
 			if (indexEntry == null)
 				mappedByDataEntryIDs = Collections.emptySet();
 			else {
-				IndexValue indexValue = getEncryptionHandler().decryptIndexEntry(ec, indexEntry);
+				IndexValue indexValue = getEncryptionHandler().decryptIndexEntry(cryptoContext, indexEntry);
 				mappedByDataEntryIDs = indexValue.getDataEntryIDs();
 			}
 		}

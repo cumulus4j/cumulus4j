@@ -21,7 +21,6 @@ import java.util.Properties;
 
 import javax.jdo.PersistenceManager;
 
-import org.cumulus4j.store.Cumulus4jConnectionFactory.PersistenceManagerConnection;
 import org.cumulus4j.store.model.Sequence;
 import org.datanucleus.store.connection.ManagedConnection;
 import org.datanucleus.store.valuegenerator.AbstractDatastoreGenerator;

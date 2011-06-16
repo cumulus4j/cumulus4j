@@ -25,6 +25,7 @@ import java.util.Set;
 
 import javax.jdo.Query;
 
+import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.IndexEntry;
 import org.cumulus4j.store.model.IndexEntryFactory;
@@ -35,7 +36,6 @@ import org.cumulus4j.store.query.eval.PrimaryExpressionResolver;
 import org.cumulus4j.store.query.eval.ResultDescriptor;
 import org.datanucleus.query.expression.Expression;
 import org.datanucleus.query.expression.PrimaryExpression;
-import org.datanucleus.store.ExecutionContext;
 
 /**
  * Evaluator for <pre>Map.isEmpty()</pre>
@@ -50,7 +50,7 @@ public class MapIsEmptyEvaluator extends AbstractMethodEvaluator {
 			InvokeExpressionEvaluator invokeExprEval, Expression invokedExpr,
 			ResultDescriptor resultDesc) {
 		if (invokeExprEval.getExpression().getArguments().size() != 0)
-			throw new IllegalStateException("isEmpty(...) expects no argument, but there are " + 
+			throw new IllegalStateException("isEmpty(...) expects no argument, but there are " +
 					invokeExprEval.getExpression().getArguments().size());
 
 		if (invokedExpr instanceof PrimaryExpression) {
@@ -68,7 +68,7 @@ public class MapIsEmptyEvaluator extends AbstractMethodEvaluator {
 			FieldMeta fieldMeta,
 			boolean negate
 	) {
-		ExecutionContext executionContext = queryEval.getExecutionContext();
+		CryptoContext cryptoContext = queryEval.getCryptoContext();
 		IndexEntryFactory indexEntryFactory = queryEval.getStoreManager().getIndexFactoryRegistry().getIndexEntryFactoryForContainerSize();
 
 		Query q = queryEval.getPersistenceManagerForIndex().newQuery(indexEntryFactory.getIndexEntryClass());
@@ -84,7 +84,7 @@ public class MapIsEmptyEvaluator extends AbstractMethodEvaluator {
 
 		Set<Long> result = new HashSet<Long>();
 		for (IndexEntry indexEntry : indexEntries) {
-			IndexValue indexValue = queryEval.getEncryptionHandler().decryptIndexEntry(executionContext, indexEntry);
+			IndexValue indexValue = queryEval.getEncryptionHandler().decryptIndexEntry(cryptoContext, indexEntry);
 			result.addAll(indexValue.getDataEntryIDs());
 		}
 		q.closeAll();

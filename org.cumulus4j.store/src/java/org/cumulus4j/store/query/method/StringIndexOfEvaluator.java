@@ -25,6 +25,7 @@ import java.util.Set;
 
 import javax.jdo.Query;
 
+import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.IndexEntry;
 import org.cumulus4j.store.model.IndexEntryFactory;
@@ -59,7 +60,7 @@ public class StringIndexOfEvaluator extends AbstractMethodEvaluator {
 			InvokeExpressionEvaluator invokeExprEval, Expression invokedExpr,
 			ResultDescriptor resultDesc) {
 		if (invokeExprEval.getExpression().getArguments().size() < 1 || invokeExprEval.getExpression().getArguments().size() > 2)
-			throw new IllegalStateException("String.indexOf(...) expects 1 or 2 arguments, but there are " + 
+			throw new IllegalStateException("String.indexOf(...) expects 1 or 2 arguments, but there are " +
 					invokeExprEval.getExpression().getArguments().size());
 
 		// Evaluate the invoke argument
@@ -73,7 +74,7 @@ public class StringIndexOfEvaluator extends AbstractMethodEvaluator {
 			if (!invokeExprEval.getLeft().getResultSymbols().contains(resultDesc.getSymbol()))
 				return null;
 
-			return queryEvaluate(invokeExprEval, queryEval, resultDesc.getFieldMeta(), invokeArgs[0], 
+			return queryEvaluate(invokeExprEval, queryEval, resultDesc.getFieldMeta(), invokeArgs[0],
 					(invokeArgs.length > 1 ? invokeArgs[1] : null), compareToArgument, resultDesc.isNegated());
 		}
 	}
@@ -87,6 +88,7 @@ public class StringIndexOfEvaluator extends AbstractMethodEvaluator {
 			Object compareToArgument, // the yyy in 'indexOf(xxx) >= yyy'
 			boolean negate
 	) {
+		CryptoContext cryptoContext = queryEval.getCryptoContext();
 		ExecutionContext executionContext = queryEval.getExecutionContext();
 		IndexEntryFactory indexEntryFactory = queryEval.getStoreManager().getIndexFactoryRegistry().getIndexEntryFactory(
 				executionContext, fieldMeta, true
@@ -97,7 +99,7 @@ public class StringIndexOfEvaluator extends AbstractMethodEvaluator {
 				"this.fieldMeta == :fieldMeta && " +
 				(invokeArg2 != null ?
 						"this.indexKey.indexOf(:invokeArg,:invokeFrom) " : "this.indexKey.indexOf(:invokeArg) ") +
-				ExpressionHelper.getOperatorAsJDOQLSymbol(invokeExprEval.getParent().getExpression().getOperator(), negate) + 
+				ExpressionHelper.getOperatorAsJDOQLSymbol(invokeExprEval.getParent().getExpression().getOperator(), negate) +
 				" :compareToArgument"
 		);
 		Map<String, Object> params = new HashMap<String, Object>(3);
@@ -114,7 +116,7 @@ public class StringIndexOfEvaluator extends AbstractMethodEvaluator {
 
 		Set<Long> result = new HashSet<Long>();
 		for (IndexEntry indexEntry : indexEntries) {
-			IndexValue indexValue = queryEval.getEncryptionHandler().decryptIndexEntry(executionContext, indexEntry);
+			IndexValue indexValue = queryEval.getEncryptionHandler().decryptIndexEntry(cryptoContext, indexEntry);
 			result.addAll(indexValue.getDataEntryIDs());
 		}
 		q.closeAll();

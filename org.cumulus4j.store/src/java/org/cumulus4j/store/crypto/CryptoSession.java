@@ -148,11 +148,12 @@ public interface CryptoSession
 	 * <p>
 	 * This method is thread-safe. Thus, implementors should keep in mind that {@link Cipher} is not thread-safe!
 	 * </p>
-	 *
+	 * @param cryptoContext context used to encrypt or decrypt data.
 	 * @param plaintext the unencrypted information (aka <a href="http://en.wikipedia.org/wiki/Plaintext">plaintext</a>) to be encrypted.
+	 *
 	 * @return the encrypted information (aka <a href="http://en.wikipedia.org/wiki/Ciphertext">ciphertext</a>).
 	 */
-	Ciphertext encrypt(Plaintext plaintext);
+	Ciphertext encrypt(CryptoContext cryptoContext, Plaintext plaintext);
 
 	/**
 	 * <p>
@@ -161,17 +162,18 @@ public interface CryptoSession
 	 * <p>
 	 * This method is thread-safe. Thus, implementors should keep in mind that {@link Cipher} is not thread-safe!
 	 * </p>
-	 *
+	 * @param cryptoContext context used to encrypt or decrypt data.
 	 * @param ciphertext the encrypted information (aka <a href="http://en.wikipedia.org/wiki/Ciphertext">ciphertext</a>) to be decrypted.
+	 *
 	 * @return the unencrypted information (aka <a href="http://en.wikipedia.org/wiki/Plaintext">plaintext</a>).
 	 */
-	Plaintext decrypt(Ciphertext ciphertext);
+	Plaintext decrypt(CryptoContext cryptoContext, Ciphertext ciphertext);
 
 	/**
 	 * <p>Close the session.</p>
 	 * <p>
 	 * After closing, the <code>CryptoSession</code> cannot be used for encryption/decryption anymore, i.e.
-	 * {@link #encrypt(Plaintext)} and {@link #decrypt(Ciphertext)} very likely throw an exception. The other
+	 * {@link #encrypt(CryptoContext, Plaintext)} and {@link #decrypt(CryptoContext, Ciphertext)} very likely throw an exception. The other
 	 * methods might still work.
 	 * </p>
 	 * <p>

@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.cumulus4j.store.Cumulus4jStoreManager;
 import org.cumulus4j.store.ObjectContainerHelper;
+import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.DataEntry;
 import org.cumulus4j.store.model.FieldMeta;
@@ -63,6 +64,7 @@ public abstract class PrimaryExpressionResolver
 
 	protected QueryEvaluator queryEvaluator;
 	protected PrimaryExpression primaryExpression;
+	protected CryptoContext cryptoContext;
 	protected ExecutionContext executionContext;
 
 	public PrimaryExpressionResolver(QueryEvaluator queryEvaluator, PrimaryExpression primaryExpression) {
@@ -74,6 +76,7 @@ public abstract class PrimaryExpressionResolver
 
 		this.queryEvaluator = queryEvaluator;
 		this.primaryExpression = primaryExpression;
+		this.cryptoContext = queryEvaluator.getCryptoContext();
 		this.executionContext = queryEvaluator.getExecutionContext();
 	}
 
@@ -136,7 +139,9 @@ public abstract class PrimaryExpressionResolver
 							queryEvaluator.getPersistenceManagerForData(), fieldMetaForNextTuple, dataEntryIDForNextTuple
 					);
 					if (indexEntry != null) {
-						IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(executionContext, indexEntry);
+						IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(
+								cryptoContext, indexEntry
+						);
 						result.addAll(indexValue.getDataEntryIDs());
 					}
 				}
@@ -147,7 +152,7 @@ public abstract class PrimaryExpressionResolver
 					if (dataEntry == null)
 						logger.warn("queryMiddle: There is no DataEntry with dataEntryID=" + dataEntryIDForNextTuple + "! " + fieldMetaForNextTuple);
 					else {
-						ObjectContainer objectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(executionContext, dataEntry);
+						ObjectContainer objectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(cryptoContext, dataEntry);
 						Object value = objectContainer.getValue(fieldMetaForNextTuple.getMappedByFieldMeta(executionContext).getFieldID());
 						if (value != null)
 							result.add(ObjectContainerHelper.referenceToDataEntryID(executionContext, queryEvaluator.getPersistenceManagerForData(), value));

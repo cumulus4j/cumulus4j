@@ -18,10 +18,8 @@
 package org.cumulus4j.store.crypto.keymanager;
 
 import java.io.IOException;
-import java.security.Security;
 
 import org.bouncycastle.crypto.params.ParametersWithIV;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.cumulus4j.crypto.Cipher;
 import org.cumulus4j.crypto.util.ChecksumAlgorithm;
 import org.cumulus4j.crypto.util.ChecksumCalculator;
@@ -32,6 +30,7 @@ import org.cumulus4j.keymanager.back.shared.GetKeyResponse;
 import org.cumulus4j.keymanager.back.shared.KeyEncryptionUtil;
 import org.cumulus4j.store.crypto.AbstractCryptoSession;
 import org.cumulus4j.store.crypto.Ciphertext;
+import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.crypto.Plaintext;
 import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBroker;
 import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBrokerRegistry;
@@ -50,10 +49,10 @@ extends AbstractCryptoSession
 {
 	private static final Logger logger = LoggerFactory.getLogger(KeyManagerCryptoSession.class);
 
-	private static final BouncyCastleProvider bouncyCastleProvider = new BouncyCastleProvider();
-	static {
-		Security.insertProviderAt(bouncyCastleProvider, 2);
-	}
+//	private static final BouncyCastleProvider bouncyCastleProvider = new BouncyCastleProvider();
+//	static {
+//		Security.insertProviderAt(bouncyCastleProvider, 2);
+//	}
 
 	private static final ChecksumAlgorithm _activeChecksumAlgorithm = ChecksumAlgorithm.SHA1;
 	private ChecksumAlgorithm getActiveChecksumAlgorithm()
@@ -95,7 +94,7 @@ extends AbstractCryptoSession
 	 * 	</tr><tr>
 	 * 		<td align="right" valign="top">1</td><td>Version number</td>
 	 * 	</tr><tr>
-	 * 		<td align="right" valign="top">1</td><td>{@link EncryptionAlgorithm}'s ordinal value</td>
+	 * 		<td align="right" valign="top">1</td><td>{@link EncryptionCoordinateSet}'s ordinal value</td>
 	 * 	</tr><tr>
 	 * 		<td align="right" valign="top">1</td><td><i>ivLen</i>: Length of the IV in bytes</td>
 	 * 	</tr><tr>
@@ -125,7 +124,7 @@ extends AbstractCryptoSession
 	 * </table>
 	 */
 	@Override
-	public Ciphertext encrypt(Plaintext plaintext)
+	public Ciphertext encrypt(CryptoContext cryptoContext, Plaintext plaintext)
 	{
 		EncryptionAlgorithm activeEncryptionAlgorithm = getActiveEncryptionAlgorithm();
 		ChecksumAlgorithm activeChecksumAlgorithm = getActiveChecksumAlgorithm();
@@ -228,7 +227,7 @@ extends AbstractCryptoSession
 	}
 
 	@Override
-	public Plaintext decrypt(Ciphertext ciphertext)
+	public Plaintext decrypt(CryptoContext cryptoContext, Ciphertext ciphertext)
 	{
 		CipherCache cipherCache = ((KeyManagerCryptoManager)getCryptoManager()).getCipherCache();
 

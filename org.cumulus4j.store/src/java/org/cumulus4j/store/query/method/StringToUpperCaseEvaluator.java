@@ -25,6 +25,7 @@ import java.util.Set;
 
 import javax.jdo.Query;
 
+import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.IndexEntry;
 import org.cumulus4j.store.model.IndexEntryFactory;
@@ -59,7 +60,7 @@ public class StringToUpperCaseEvaluator extends AbstractMethodEvaluator {
 			InvokeExpressionEvaluator invokeExprEval, Expression invokedExpr,
 			ResultDescriptor resultDesc) {
 		if (invokeExprEval.getExpression().getArguments().size() != 0)
-			throw new IllegalStateException("String.toUpperCase(...) expects exactly no arguments, but there are " + 
+			throw new IllegalStateException("String.toUpperCase(...) expects exactly no arguments, but there are " +
 					invokeExprEval.getExpression().getArguments().size());
 
 		if (invokedExpr instanceof PrimaryExpression) {
@@ -82,6 +83,7 @@ public class StringToUpperCaseEvaluator extends AbstractMethodEvaluator {
 			Object compareToArgument, // the yyy in 'toUpperCase() >= yyy'
 			boolean negate
 	) {
+		CryptoContext cryptoContext = queryEval.getCryptoContext();
 		ExecutionContext executionContext = queryEval.getExecutionContext();
 		IndexEntryFactory indexEntryFactory = queryEval.getStoreManager().getIndexFactoryRegistry().getIndexEntryFactory(
 				executionContext, fieldMeta, true
@@ -90,8 +92,8 @@ public class StringToUpperCaseEvaluator extends AbstractMethodEvaluator {
 		Query q = queryEval.getPersistenceManagerForIndex().newQuery(indexEntryFactory.getIndexEntryClass());
 		q.setFilter(
 				"this.fieldMeta == :fieldMeta && " +
-				"this.indexKey.toUpperCase() " + 
-				ExpressionHelper.getOperatorAsJDOQLSymbol(invokeExprEval.getParent().getExpression().getOperator(), negate) + 
+				"this.indexKey.toUpperCase() " +
+				ExpressionHelper.getOperatorAsJDOQLSymbol(invokeExprEval.getParent().getExpression().getOperator(), negate) +
 				" :compareToArgument"
 		);
 		Map<String, Object> params = new HashMap<String, Object>(2);
@@ -103,7 +105,7 @@ public class StringToUpperCaseEvaluator extends AbstractMethodEvaluator {
 
 		Set<Long> result = new HashSet<Long>();
 		for (IndexEntry indexEntry : indexEntries) {
-			IndexValue indexValue = queryEval.getEncryptionHandler().decryptIndexEntry(executionContext, indexEntry);
+			IndexValue indexValue = queryEval.getEncryptionHandler().decryptIndexEntry(cryptoContext, indexEntry);
 			result.addAll(indexValue.getDataEntryIDs());
 		}
 		q.closeAll();

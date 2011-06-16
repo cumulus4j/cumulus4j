@@ -29,7 +29,6 @@ import java.util.WeakHashMap;
 import javax.jdo.FetchPlan;
 import javax.jdo.PersistenceManager;
 
-import org.cumulus4j.store.Cumulus4jConnectionFactory.PersistenceManagerConnection;
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.DataEntry;
 import org.cumulus4j.store.model.FieldMeta;
@@ -74,6 +73,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager
 	private Map<Class<?>, Set<Class<?>>> class2subclasses = Collections.synchronizedMap(new HashMap<Class<?>, Set<Class<?>>>());
 
 	private EncryptionHandler encryptionHandler;
+	private EncryptionCoordinateSetManager encryptionCoordinateSetManager;
 
 	private IndexEntryFactoryRegistry indexFactoryRegistry;
 
@@ -89,11 +89,16 @@ public class Cumulus4jStoreManager extends AbstractStoreManager
 
 		indexFactoryRegistry = new IndexEntryFactoryRegistry(this);
 		encryptionHandler = new EncryptionHandler();
+		encryptionCoordinateSetManager = new EncryptionCoordinateSetManager();
 		persistenceHandler = new Cumulus4jPersistenceHandler(this);
 	}
 
 	public EncryptionHandler getEncryptionHandler() {
 		return encryptionHandler;
+	}
+
+	public EncryptionCoordinateSetManager getEncryptionCoordinateSetManager() {
+		return encryptionCoordinateSetManager;
 	}
 
 	public IndexEntryFactoryRegistry getIndexFactoryRegistry() {
