@@ -19,14 +19,16 @@ package org.cumulus4j.keymanager.back.shared;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.security.NoSuchAlgorithmException;
 
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.CryptoException;
+import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.cumulus4j.crypto.Cipher;
 import org.cumulus4j.crypto.CipherOperationMode;
 import org.cumulus4j.crypto.CryptoRegistry;
-import org.cumulus4j.crypto.util.ChecksumAlgorithm;
-import org.cumulus4j.crypto.util.ChecksumCalculator;
+import org.cumulus4j.crypto.MacCalculator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,29 +41,56 @@ public final class KeyEncryptionUtil
 
 	private KeyEncryptionUtil() { }
 
-	private static final ChecksumAlgorithm checksumAlgorithm = ChecksumAlgorithm.SHA1;
-	private static final ChecksumCalculator checksumCalculator = new ChecksumCalculator();
+	private static final String MAC_ALGORITHM = "HMAC-SHA1";
 
-	public static byte[] encryptKey(byte[] key, Cipher encrypter) throws CryptoException
+	private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
+
+	public static byte[] encryptKey(byte[] key, Cipher encrypter) throws CryptoException, NoSuchAlgorithmException
 	{
-		byte[] checksum = checksumCalculator.checksum(key, checksumAlgorithm);
+		byte[] mac = EMPTY_BYTE_ARRAY;
+		byte[] macKey = EMPTY_BYTE_ARRAY;
+		byte[] macIV = EMPTY_BYTE_ARRAY;
+
+		MacCalculator macCalculator = CryptoRegistry.sharedInstance().createMacCalculator(MAC_ALGORITHM, true);
+		mac = macCalculator.doFinal(key);
+		if (macCalculator.getParameters() instanceof ParametersWithIV) {
+			ParametersWithIV pwiv = (ParametersWithIV) macCalculator.getParameters();
+			macIV = pwiv.getIV();
+			macKey = ((KeyParameter)pwiv.getParameters()).getKey();
+		}
+		else if (macCalculator.getParameters() instanceof KeyParameter) {
+			macKey = ((KeyParameter)macCalculator.getParameters()).getKey();
+		}
+		else
+			throw new IllegalStateException("macCalculator.getParameters() returned an instance of an unknown type: " + (macCalculator.getParameters() == null ? null : macCalculator.getParameters().getClass().getName()));
 
 		int resultSize = (
-				2 // checksum identifier + checksum length NOT encrypted
-				+ encrypter.getOutputSize(checksum.length + key.length)
+				1 // version
+				+ 3 // macKeySize, macIVSize, macSize
+				+ encrypter.getOutputSize(macKey.length + macIV.length + key.length + mac.length)
 		);
 
 		byte[] out = new byte[resultSize];
 
-		if (checksum.length > 255)
-			throw new IllegalStateException("Checksum length too long!");
+		if (macKey.length > 255)
+			throw new IllegalStateException("MAC key length too long!");
+
+		if (macIV.length > 255)
+			throw new IllegalStateException("MAC IV length too long!");
+
+		if (mac.length > 255)
+			throw new IllegalStateException("MAC length too long!");
 
 		int outOff = 0;
-		out[outOff++] = checksumAlgorithm.toByte();
-		out[outOff++] = (byte)checksum.length;
+		out[outOff++] = (byte)1; // version
+		out[outOff++] = (byte)macKey.length;
+		out[outOff++] = (byte)macIV.length;
+		out[outOff++] = (byte)mac.length;
 
-		outOff += encrypter.update(checksum, 0, checksum.length, out, outOff);
-		outOff += encrypter.update(key,      0,      key.length, out, outOff);
+		outOff += encrypter.update(macKey, 0, macKey.length, out, outOff);
+		outOff += encrypter.update(macIV,  0,  macIV.length, out, outOff);
+		outOff += encrypter.update(key,    0,    key.length, out, outOff);
+		outOff += encrypter.update(mac,    0,    mac.length, out, outOff);
 		outOff += encrypter.doFinal(out, outOff);
 
 		if (out.length == outOff)
@@ -84,11 +113,16 @@ public final class KeyEncryptionUtil
 		return keyEncodedEncrypted;
 	}
 
-	public static byte[] decryptKey(Cipher decrypter, byte[] keyEncodedEncrypted) throws CryptoException, IOException
+	public static byte[] decryptKey(Cipher decrypter, byte[] keyEncodedEncrypted) throws CryptoException, IOException, NoSuchAlgorithmException
 	{
 		int encryptedOff = 0;
-		ChecksumAlgorithm checksumAlgorithm = ChecksumAlgorithm.valueOf(keyEncodedEncrypted[encryptedOff++]);
-		int checksumLength = keyEncodedEncrypted[encryptedOff++] & 0xff;
+		int version = keyEncodedEncrypted[encryptedOff++] & 0xff;
+		if (version != 1)
+			throw new IllegalArgumentException("keyEncodedEncrypted is of version " + version + " which is not supported!");
+
+		int macKeyLength = keyEncodedEncrypted[encryptedOff++] & 0xff;
+		int macIVLength = keyEncodedEncrypted[encryptedOff++] & 0xff;
+		int macLength = keyEncodedEncrypted[encryptedOff++] & 0xff;
 
 		int outputSize = decrypter.getOutputSize(keyEncodedEncrypted.length - encryptedOff);
 		byte[] out = new byte[outputSize];
@@ -96,51 +130,44 @@ public final class KeyEncryptionUtil
 		int outOff = 0;
 		outOff += decrypter.update(keyEncodedEncrypted, encryptedOff, keyEncodedEncrypted.length - encryptedOff, out, outOff);
 		outOff += decrypter.doFinal(out, outOff);
-		int outDataLength = outOff;
 
-		outOff = 0;
-		byte[] checksum = new byte[checksumLength];
-		System.arraycopy(out, outOff, checksum, 0, checksum.length);
-		outOff += checksum.length;
+		int dataOff = 0;
+		MacCalculator macCalculator = CryptoRegistry.sharedInstance().createMacCalculator(MAC_ALGORITHM, false);
 
-		byte[] result = new byte[outDataLength - outOff];
-		System.arraycopy(out, outOff, result, 0, result.length);
+		CipherParameters macKeyParam = new KeyParameter(out, 0, macKeyLength);
+		dataOff += macKeyLength;
 
-		// And finally calculate a new checksum and verify if it matches the one we read above.
-		byte[] newChecksum = checksumCalculator.checksum(result, checksumAlgorithm);
-		if (newChecksum.length != checksumLength)
-			throw new IOException("Checksums have different length! Expected checksum has " + checksumLength + " bytes and newly calculated checksum has " + newChecksum.length + " bytes!");
-
-		for (int i = 0; i < checksum.length; ++i) {
-			if (checksum[i] != newChecksum[i])
-				throw new IOException("Checksum mismatch!");
+		CipherParameters macParams;
+		if (macIVLength == 0)
+			macParams = macKeyParam;
+		else {
+			macParams = new ParametersWithIV(macKeyParam, out, dataOff, macIVLength);
+			dataOff += macIVLength;
 		}
 
-		return result;
-	}
+		macCalculator.init(macParams);
 
-//	/**
-//	 * Get the first part of the full algorithm-descriptor.
-//	 * <p>
-//	 * When working with a {@link Cipher},
-//	 * an algorithm is usually described together with a mode (e.g. ECB, CBC, CFB) and a padding
-//	 * like in the examples "AES/CBC/PKCS5Padding" or "RSA/ECB/OAEPWITHSHA1ANDMGF1PADDING". However,
-//	 * it is often necessary to extract only the first part (e.g. "AES" or "RSA") from it.
-//	 * </p>
-//	 * <p>
-//	 * This method checks the given <code>fullAlgorithm</code> whether it contains a slash ("/"). If not,
-//	 * the argument is returned as is. Otherwise, the part before the first slash is returned.
-//	 * </p>
-//	 *
-//	 * @param fullAlgorithm the algorithm together with mode and padding (where mode and padding are optional).
-//	 * @return the algorithm without mode and padding.
-//	 */
-//	public static String getRawEncryptionAlgorithmWithoutModeAndPadding(String fullAlgorithm)
-//	{
-//		int slashIdx = fullAlgorithm.indexOf('/');
-//		if (slashIdx < 0)
-//			return fullAlgorithm;
-//
-//		return fullAlgorithm.substring(0, slashIdx);
-//	}
+		int dataLength = outOff - dataOff - macLength;
+		int macOff = dataOff + dataLength;
+
+		if (macCalculator != null) {
+			byte[] newMac = new byte[macCalculator.getMacSize()];
+			macCalculator.update(out, dataOff, dataLength);
+			macCalculator.doFinal(newMac, 0);
+
+			if (newMac.length != macLength)
+				throw new IOException("MACs have different length! Expected MAC has " + macLength + " bytes and newly calculated MAC has " + newMac.length + " bytes!");
+
+			for (int i = 0; i < macLength; ++i) {
+				byte expected = out[macOff + i];
+				if (expected != newMac[i])
+					throw new IOException("MAC mismatch! mac[" + i + "] was expected to be " + expected + " but was " + newMac[i]);
+			}
+		}
+
+		byte[] decrypted = new byte[dataLength];
+		System.arraycopy(out, dataOff, decrypted, 0, decrypted.length);
+
+		return decrypted;
+	}
 }

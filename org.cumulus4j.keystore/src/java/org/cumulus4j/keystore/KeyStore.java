@@ -53,8 +53,6 @@ import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.cumulus4j.crypto.Cipher;
 import org.cumulus4j.crypto.CipherOperationMode;
 import org.cumulus4j.crypto.CryptoRegistry;
-import org.cumulus4j.crypto.util.ChecksumAlgorithm;
-import org.cumulus4j.crypto.util.ChecksumCalculator;
 import org.cumulus4j.keystore.prop.LongProperty;
 import org.cumulus4j.keystore.prop.Property;
 import org.slf4j.Logger;
@@ -758,8 +756,6 @@ public class KeyStore
 		return masterKey.getEncoded().length * 8;
 	}
 
-	private ChecksumCalculator checksumCalculator = new ChecksumCalculator();
-
 	/**
 	 * Authenticate and get the master-key. If there is a cache-entry existing, directly return this
 	 * (after comparing the password); otherwise decrypt the master-key using the given password.
@@ -1071,11 +1067,6 @@ public class KeyStore
 
 		storeToFile();
 	}
-
-	/**
-	 * The one that is used for new entries.
-	 */
-	private static final ChecksumAlgorithm CHECKSUM_ALGORITHM_ACTIVE = ChecksumAlgorithm.SHA1;
 
 	synchronized void storeToFile() throws IOException
 	{
@@ -1483,7 +1474,6 @@ public class KeyStore
 
 				@SuppressWarnings("unchecked")
 				Class<? extends Property<?>> propertyType = (Class<? extends Property<?>>) property.getClass();
-				keyStoreData.stringConstant(CHECKSUM_ALGORITHM_ACTIVE.name());
 				EncryptedProperty encryptedProperty = new EncryptedProperty(
 						property.getName(), propertyType,
 						keyStoreData.stringConstant(cipher.getTransformation()),

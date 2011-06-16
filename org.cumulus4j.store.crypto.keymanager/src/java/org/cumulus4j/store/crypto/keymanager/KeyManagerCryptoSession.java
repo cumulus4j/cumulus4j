@@ -25,7 +25,6 @@ import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.cumulus4j.crypto.Cipher;
 import org.cumulus4j.crypto.CryptoRegistry;
 import org.cumulus4j.crypto.MacCalculator;
-import org.cumulus4j.crypto.util.ChecksumAlgorithm;
 import org.cumulus4j.keymanager.back.shared.GetActiveEncryptionKeyRequest;
 import org.cumulus4j.keymanager.back.shared.GetActiveEncryptionKeyResponse;
 import org.cumulus4j.keymanager.back.shared.GetKeyRequest;
@@ -101,15 +100,17 @@ extends AbstractCryptoSession
 	 * 	</tr><tr>
 	 * 		<td align="right" valign="top">1</td><td>Version number</td>
 	 * 	</tr><tr>
-	 * 		<td align="right" valign="top">1</td><td>{@link EncryptionCoordinateSet}'s ordinal value</td>
+	 * 		<td align="right" valign="top">2</td><td>{@link EncryptionCoordinateSet#getEncryptionCoordinateSetID()} (only 2 bytes, thus limiting to 65K possible values)</td>
 	 * 	</tr><tr>
 	 * 		<td align="right" valign="top">1</td><td><i>ivLen</i>: Length of the IV in bytes</td>
 	 * 	</tr><tr>
 	 * 		<td align="right" valign="top"><i>ivLen</i></td><td>Actual IV (initialisation vector).</td>
 	 * 	</tr><tr>
-	 *		<td align="right" valign="top">1</td><td>{@link ChecksumAlgorithm#toByte()}</td>
+	 *		<td align="right" valign="top">1</td><td><i>macKeyLen</i>: MAC's key length in bytes</td>
+	 * 	</tr><tr>
+	 *		<td align="right" valign="top">1</td><td><i>macIVLen</i>: MAC's IV length in bytes</td>
 	 *	</tr><tr>
-	 *		<td align="right" valign="top">1</td><td><i>checksumLen</i>: Length of the checksum in bytes</td>
+	 *		<td align="right" valign="top">1</td><td><i>macLen</i>: Actual MAC's length in bytes</td>
 	 * 	</tr><tr>
 	 * 		<td colspan="2">
 	 * 			<table bgcolor="#F0F0F0" border="1" width="100%">
@@ -119,10 +120,14 @@ extends AbstractCryptoSession
 	 * 				</tr><tr>
 	 * 					<td align="right" valign="top"><b>Bytes</b></td><td><b>Description</b></td>
 	 *				</tr><tr>
-	 *					<td align="right" valign="top"><i>checksumLen</i></td><td>Actual checksum</td>
+	 *					<td align="right" valign="top"><i>macKeyLen</i></td><td>MAC's key</td>
 	 *				</tr><tr>
-	 *					<td align="right" valign="top"><i>all following</i></td><td>Actual data</td>
-	 * 				</tr>
+	 *					<td align="right" valign="top"><i>macIVLen</i></td><td>MAC's IV</td>
+	 *				</tr><tr>
+	 *					<td align="right" valign="top"><i>all until MAC</i></td><td>Actual data</td>
+	 * 				</tr><tr>
+	 *					<td align="right" valign="top"><i>macLen</i></td><td>Actual MAC</td>
+	 *				</tr>
 	 * 			</tbody>
 	 * 			</table>
 	 * 		</td>
