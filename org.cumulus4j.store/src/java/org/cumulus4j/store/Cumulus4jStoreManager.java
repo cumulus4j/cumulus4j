@@ -121,23 +121,33 @@ public class Cumulus4jStoreManager extends AbstractStoreManager
 	public ClassMeta getClassMeta(ExecutionContext ec, Class<?> clazz)
 	{
 		ClassMeta result = class2classMeta.get(clazz);
-		if (result != null)
+		if (result != null) {
 			return result;
+		}
 
 		ManagedConnection mconn = this.getConnection(ec);
 		try {
 			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
 			PersistenceManager pm = pmConn.getDataPM();
-			pm.getFetchPlan().setGroup(FetchPlan.ALL);
 
-			result = registerClass(ec, pm, pmConn.indexHasOwnPM() ? pmConn.getIndexPM() : null, clazz);
+			synchronized (this) { // Synchronise in case we have data and index backends
+				// Register the class
+				pm.getFetchPlan().setGroup(FetchPlan.ALL);
+				result = registerClass(ec, pm, clazz);
 
-			// We set the fetch-plan again, just in case registerClass modified it.
-			pm.getFetchPlan().setGroup(FetchPlan.ALL);
-			pm.getFetchPlan().setMaxFetchDepth(-1);
+				// Detach the class in order to cache only detached objects. Make sure fetch-plan detaches all
+				pm.getFetchPlan().setGroup(FetchPlan.ALL);
+				pm.getFetchPlan().setMaxFetchDepth(-1);
+				result = pm.detachCopy(result);
 
-			// Detach in order to cache only detached objects.
-			result = pm.detachCopy(result);
+				PersistenceManager pmIndex = pmConn.getIndexPM();
+				if (pmIndex != null) {
+					// Replicate ClassMeta+FieldMeta to Index datastore
+					pmIndex.getFetchPlan().setGroup(FetchPlan.ALL);
+					pmIndex.getFetchPlan().setMaxFetchDepth(-1);
+					pmIndex.makePersistent(result);
+				}
+			}
 
 			class2classMeta.put(clazz, result);
 
@@ -179,16 +189,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager
 		return result;
 	}
 
-	private ClassMeta registerClass(ExecutionContext ec, PersistenceManager pmData, PersistenceManager pmIndex, Class<?> clazz)
-	{
-		ClassMeta cm = registerClassWithPM(ec, pmData, clazz);
-		if (pmIndex != null) {
-			registerClassWithPM(ec, pmIndex, clazz);
-		}
-		return cm;
-	}
-
-	private ClassMeta registerClassWithPM(ExecutionContext ec, PersistenceManager pm, Class<?> clazz)
+	private ClassMeta registerClass(ExecutionContext ec, PersistenceManager pm, Class<?> clazz)
 	{
 		AbstractClassMetaData dnClassMetaData = getMetaDataManager().getMetaDataForClass(clazz, ec.getClassLoaderResolver());
 		if (dnClassMetaData == null)
@@ -202,7 +203,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager
 
 		Class<?> superclass = clazz.getSuperclass();
 		if (superclass != null && getMetaDataManager().hasMetaDataForClass(superclass.getName())) {
-			ClassMeta superClassMeta = registerClassWithPM(ec, pm, superclass);
+			ClassMeta superClassMeta = registerClass(ec, pm, superclass);
 			classMeta.setSuperClassMeta(superClassMeta);
 		}
 
