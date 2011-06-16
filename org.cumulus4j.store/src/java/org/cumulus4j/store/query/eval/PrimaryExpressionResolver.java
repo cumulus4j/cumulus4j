@@ -136,7 +136,7 @@ public abstract class PrimaryExpressionResolver
 			if (fieldMetaForNextTuple.getDataNucleusMemberMetaData(executionContext).getMappedBy() == null) {
 				for (Long dataEntryIDForNextTuple : dataEntryIDsForNextTuple) {
 					IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(
-							queryEvaluator.getPersistenceManagerForData(), fieldMetaForNextTuple, dataEntryIDForNextTuple
+							queryEvaluator.getPersistenceManagerForIndex(), fieldMetaForNextTuple, dataEntryIDForNextTuple
 					);
 					if (indexEntry != null) {
 						IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(
