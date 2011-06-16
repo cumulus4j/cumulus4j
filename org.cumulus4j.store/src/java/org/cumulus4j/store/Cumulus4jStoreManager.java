@@ -47,7 +47,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * TODO Support one StoreManager for persistable objects and one StoreManager for indexed data
+ * Store Manager for Cumulus4J operation.
+ * This StoreManager handles a backend StoreManager for the persistence to the chosen datastore, and optionally
+ * a second backend StoreManager for the persistence of index data to the chosen index datastore.
+ * The user will persist objects of their own classes, and these will be translated into the persistence of
+ * DataEntry, ClassMeta, FieldMeta for the data, as well as various IndexXXX types.
+ * 
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class Cumulus4jStoreManager extends AbstractStoreManager
