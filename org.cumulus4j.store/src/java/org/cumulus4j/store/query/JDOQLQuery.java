@@ -65,7 +65,6 @@ public class JDOQLQuery extends AbstractJDOQLQuery
 		try {
 			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
 			PersistenceManager pmData = pmConn.getDataPM();
-			PersistenceManager pmIndex = pmConn.getIndexPM();
 
       boolean inMemory = evaluateInMemory();
 			boolean inMemory_applyFilter = true;

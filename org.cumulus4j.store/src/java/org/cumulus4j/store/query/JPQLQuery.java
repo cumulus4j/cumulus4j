@@ -63,7 +63,6 @@ public class JPQLQuery extends AbstractJPQLQuery {
 		try {
 			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
 			PersistenceManager pmData = pmConn.getDataPM();
-			PersistenceManager pmIndex = pmConn.getIndexPM();
 
 			boolean inMemory = evaluateInMemory();
 			boolean inMemory_applyFilter = true;
@@ -95,7 +94,6 @@ public class JPQLQuery extends AbstractJPQLQuery {
 						// Apply filter in datastore
 						@SuppressWarnings("unchecked")
 						Map<String, Object> parameterValues = parameters;
-						// TODO Pass in PM for index if different
 						JDOQueryEvaluator queryEvaluator = new JDOQueryEvaluator(this, compilation, parameterValues, clr, pmConn);
 						candidates = queryEvaluator.execute();
 						if (queryEvaluator.isComplete()) {

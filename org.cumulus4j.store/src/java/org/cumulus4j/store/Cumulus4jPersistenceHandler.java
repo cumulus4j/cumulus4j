@@ -128,7 +128,6 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		try {
 			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
 			PersistenceManager pmData = pmConn.getDataPM();
-			PersistenceManager pmIndex = pmConn.getIndexPM();
 			CryptoContext cryptoContext = new CryptoContext(encryptionCoordinateSetManager, ec, pmConn);
 
 			Object object = op.getObject();
@@ -175,7 +174,6 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		try {
 			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
 			PersistenceManager pmData = pmConn.getDataPM();
-			PersistenceManager pmIndex = pmConn.getIndexPM();
 			CryptoContext cryptoContext = new CryptoContext(encryptionCoordinateSetManager, ec, pmConn);
 
 			Object object = op.getObject();
@@ -255,7 +253,6 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		try {
 			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
 			PersistenceManager pmData = pmConn.getDataPM();
-			PersistenceManager pmIndex = pmConn.getIndexPM();
 			CryptoContext cryptoContext = new CryptoContext(encryptionCoordinateSetManager, ec, pmConn);
 
 			Object object = op.getObject();
