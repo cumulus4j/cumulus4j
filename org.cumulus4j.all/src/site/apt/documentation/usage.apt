@@ -71,12 +71,18 @@ cumulus4j.index.javax.jdo.option.ConnectionPassword=
 +------------------------------------------+
 	so now we're storing the index information in a MySQL datastore.
 
+	Furthermore, you can optionally change the {{{./supported-algorithms.html}encryption and MAC algorithm}}
+	by specifying the following properties:
+
++------------------------------------------+
+cumulus4j.encryptionAlgorithm=AES/CBC/PKCS5
+cumulus4j.macAlgorithm=HMAC-SHA1
++------------------------------------------+
 
 * Datastore Schema
 
 	Cumulus4J has its own datastore schema in order to provide secure data. You can find documentation of
 	the current schema definition {{{./schema.html}here}}.
-
 
 * Deployment
 

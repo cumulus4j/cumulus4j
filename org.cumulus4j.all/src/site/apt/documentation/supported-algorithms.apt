@@ -7,17 +7,161 @@
 
 Supported algorithms
 
+	Cumulus4j uses very fast and highly secure algorithms by default. Thus, it is recommended
+	that you just use the default settings. However, depending on your hardware or your
+	personal taste, you might prefer a different configuration.
+
+	For example, the default is to use <<<TWOFISH>>> with 256 bit key size. 256 bit key size
+	is close to paranoia and you might choose to use only 128 bit instead in order to gain performance.
+
+	With 256 bit keys, <<<TWOFISH>>> is more secure than <<<AES>>>. Furthermore, on ordinary hardware,
+	Twofish is faster. However, on some CPUs or with 128 bit key size, AES might be slightly faster
+	while providing the same level of security.
+
+	In the following, you'll find a list of all supported possibilities. However:
+
+	<<Important: Changing the encryption settings can cause Cumulus4j to not work at all
+	or - even worse - it might break security!!! Only change the defaults, if you really know
+	what you are doing!>>
+	
+	If you are unsure, stick with the "Recommended choices"!
+
 * Symmetric encryption
+
+	{{{http://en.wikipedia.org/wiki/Symmetric_encryption}Symmetric encryption}} is used to encrypt the data
+	in your database. Since it requires secret keys, Cumulus4j provides a key store, which also uses symmetric
+	encryption to protect your keys (in case you loose your key store - e.g. on a USB thumb drive - or someone
+	steals it).
+
+** Recommended choices
+
+	While there are many algorithms for encryption, block-mode, padding and MAC available to choose from, not
+	all combinations of them work with Cumulus4j. Some others work, but make no sense; e.g. to combine an
+	authenticating block-mode with a MAC means to have 2 (redundant!) message authentications which only slows
+	down the system unnecessarily.
+
+	Therefore, we provide a small choice here that might be suitable for you and preferred over the default
+	settings:
+
+*-------------------+-----------------+----------------+------------+
+| <<Encryption>>    | <<Mode>>        | <<Padding>>    | <<MAC>>    |
+*-------------------+-----------------+----------------+------------+
+| AES               | GCM             | NoPadding      | None       |
+*-------------------+-----------------+----------------+------------+
+| AES               | CFB             | NoPadding      | HMAC-SHA1  |
+*-------------------+-----------------+----------------+------------+
+| AES               | CBC             | PKCS5          | HMAC-SHA1  |
+*-------------------+-----------------+----------------+------------+
+| Twofish           | GCM             | NoPadding      | None       |
+*-------------------+-----------------+----------------+------------+
+| Twofish           | CFB             | NoPadding      | HMAC-SHA1  |
+*-------------------+-----------------+----------------+------------+
+| Twofish           | CBC             | PKCS5          | HMAC-SHA1  |
+*-------------------+-----------------+----------------+------------+
+
+	You configure the first three of them usually in a concatenated string like "AES/GCM/NoPadding".
+	The MAC is usually configured separately.
 
 ** Block cipher
 
+	{{{http://en.wikipedia.org/wiki/Block_cipher}Block ciphers}} are the most widely used encryption algorithms.
+
+	* <<<AES>>>
+	
+		* <<<AES.FAST>>> (same as <<<AES>>>, but implementation with higher memory consumption and being faster)
+	
+		* <<<AES.LIGHT>>> (same as <<<AES>>>, but implementation with lower memory consumption and being slower)
+
+	* <<<BLOWFISH>>>
+
+	* <<<CAMELLIA>>>
+	
+		* <<<CAMELLIA.LIGHT>>> (same as <<<CAMELLIA>>>, but implementation with lower memory consumption and being slower)
+	
+	* <<<CAST5>>>
+	
+	* <<<CAST6>>>
+	
+	* <<<DES>>>
+	
+	* <<<DESEDE>>>
+	
+	* <<<GOST28147>>>
+	
+	* <<<NOEKEON>>>
+	
+	* <<<NULL>>>
+	
+	* <<<RC2>>>
+	
+	* <<<RC5-32>>>
+	
+	* <<<RC5-64>>>
+	
+	* <<<RC6>>>
+	
+	* <<<RIJNDAEL>>>
+	
+	* <<<SEED>>>
+	
+	* <<<SERPENT>>>
+	
+	* <<<SKIPJACK>>>
+	
+	* <<<TEA>>>
+	
+	* <<<TWOFISH>>>
+	
+	* <<<XTEA>>>
 
 ** Stream cipher
 
+	* <<<GRAIN-128>>>
+	
+	* <<<GRAIN-V1>>>
+	
+	* <<<HC-128>>>
+	
+	* <<<HC-256>>>
+	
+	* <<<ISAAC>>>
+	
+	* <<<RC4>>>
+	
+	* <<<SALSA20>>>
 
 * Asymmetric encryption
 
-	At the moment, RSA is the only supported asymmetric encryption algorithm. This will likely change soon.
+	{{{http://en.wikipedia.org/wiki/Asymmetric_encryption}Asymmetric encryption}} is used
+	to protect the key exchange (of the keys that are used in the symmetric encryption).
+
+	The key store is located on the client or on a separate key server
+	(see {{{./deployment-scenarios.html}Deployment scenarios}}, but the keys are needed
+	on the application server in order to encrypt/decrypt the actual data. That
+	means key transfers are necessary.
+	
+	In order to get the keys from the key store to the application server, usually an
+	HTTPS connection protects the data on their way through the open internet. However,
+	in order to get the keys from one application server node to another node (in the typical
+	cluster/cloud environment), the keys might be temporarily stored in a database. To protect
+	the keys in these situations, asymmetric encryption is used.
+
+	Every application server node generates a public/private-key-pair. Whenever it requires
+	a key, it sends its public key together with the key-request to the key-manager. The
+	key is then encrypted with the public key and sent back. Only the original app-server-node
+	can decrypt the key. An administrator who dumps the medium used for node-to-node-communication
+	cannot make use of what he'll find there.
+
+	<<<RSA/ECB/OAEPWITHSHA1ANDMGF1PADDING>>> is used by default. At the moment, there is no configuration
+	possibility for this, yet. This will likely change soon.
+
+** Engine
+
+	* <<<ELGAMAL>>>
+
+	* <<<NACCACHESTERN>>>
+
+	* <<<RSA>>>
 
 * Block cipher operation modes
 
@@ -26,3 +170,4 @@ Supported algorithms
 * MAC
 
 	TODO document this!
+
