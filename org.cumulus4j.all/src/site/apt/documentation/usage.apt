@@ -60,6 +60,18 @@ javax.jdo.option.ConnectionPassword=
 	simply add them to your persistence properties, prefixing them with <<cumulus4j.>> and they will be passed to
 	the backend datastore without the prefix.
 
+	As an extension to this you can separate the "data" from the "index" information. You do this by specifying
+	a separate backend datastore for the index information. Like this
+
++------------------------------------------+
+cumulus4j.index.javax.jdo.option.ConnectionDriverName=com.mysql.jdbc.Driver
+cumulus4j.index.javax.jdo.option.ConnectionURL=jdbc:mysql://127.0.0.1/cumulus4j
+cumulus4j.index.javax.jdo.option.ConnectionUserName=mysql
+cumulus4j.index.javax.jdo.option.ConnectionPassword=
++------------------------------------------+
+	so now we're storing the index information in a MySQL datastore.
+
+
 * Datastore Schema
 
 	Cumulus4J has its own datastore schema in order to provide secure data. You can find documentation of
