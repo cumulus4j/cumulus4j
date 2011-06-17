@@ -112,7 +112,7 @@ abstract class AbstractEncryptedData
 		if (encryptionAlgorithm == null)
 			throw new IllegalStateException("encryptionAlgorithm == null, because stringConstantList.get(idx) returned null for idx=" + idx);
 
-		encryptionIV = KeyStoreUtil.readByteArrayWithLengthHeader(din);
+		encryptionIV = KeyStoreUtil.readByteArrayWithShortLengthHeader(din);
 
 		idx = din.readInt();
 		macAlgorithm = stringConstantList.get(idx);
@@ -123,7 +123,7 @@ abstract class AbstractEncryptedData
 		macIVSize = din.readShort();
 		macSize = din.readShort();
 
-		encryptedData = KeyStoreUtil.readByteArrayWithLengthHeader(din);
+		encryptedData = KeyStoreUtil.readByteArrayWithShortLengthHeader(din);
 	}
 
 	public void write(DataOutputStream out, Map<String, Integer> stringConstant2idMap) throws IOException
@@ -135,7 +135,7 @@ abstract class AbstractEncryptedData
 			throw new IllegalStateException("stringConstant2idMap.get(...) returned null for encryptionAlgorithm=\"" + encryptionAlgorithm + "\"!");
 		out.writeInt(idx);
 
-		KeyStoreUtil.writeByteArrayWithLengthHeader(out, encryptionIV);
+		KeyStoreUtil.writeByteArrayWithShortLengthHeader(out, encryptionIV);
 
 
 		idx = stringConstant2idMap.get(macAlgorithm);
@@ -147,6 +147,6 @@ abstract class AbstractEncryptedData
 		out.writeShort(macIVSize);
 		out.writeShort(macSize);
 
-		KeyStoreUtil.writeByteArrayWithLengthHeader(out, encryptedData);
+		KeyStoreUtil.writeByteArrayWithShortLengthHeader(out, encryptedData);
 	}
 }

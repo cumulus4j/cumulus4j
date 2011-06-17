@@ -163,7 +163,7 @@ import org.slf4j.LoggerFactory;
  * 			</tr>
  *
  * 			<tr>
- * 				<td align="right" valign="top">4</td><td valign="top">int: Key size for the password-based key.</td>
+ * 				<td align="right" valign="top">4</td><td valign="top">int: Key size for the password-based key (in bits! i.e. usually 128 or 256).</td>
  * 			</tr>
  * 			<tr>
  * 				<td align="right" valign="top">4</td><td valign="top">int: Iteration count for the password-based key.</td>
@@ -173,10 +173,10 @@ import org.slf4j.LoggerFactory;
  * 			</tr>
  *
  * 			<tr>
- * 				<td align="right" valign="top">2</td><td valign="top">short <i>len2</i>: Salt: Number of bytes to follow (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
+ * 				<td align="right" valign="top">2</td><td valign="top">UNSIGNED short <i>len2</i>: Salt: Number of bytes to follow (written by {@link KeyStoreUtil#writeByteArrayWithShortLengthHeader(DataOutputStream, byte[])}).</td>
  * 			</tr>
  * 			<tr>
- * 				<td align="right" valign="top"><i>len2</i></td><td valign="top">byte[]: Salt to be used when generating the password-based key (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
+ * 				<td align="right" valign="top"><i>len2</i></td><td valign="top">byte[]: Salt to be used when generating the password-based key (written by {@link KeyStoreUtil#writeByteArrayWithShortLengthHeader(DataOutputStream, byte[])}).</td>
  * 			</tr>
  *
  *			<!-- BEGIN written by {@link AbstractEncryptedData#write(DataOutputStream, Map)} -->
@@ -185,10 +185,10 @@ import org.slf4j.LoggerFactory;
  * 				</tr>
  *
  * 				<tr>
- * 					<td align="right" valign="top">4</td><td valign="top">int <i>lenIV</i>: IV: Number of bytes to follow (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
+ * 					<td align="right" valign="top">2</td><td valign="top">UNSIGNED short <i>lenIV</i>: IV: Number of bytes to follow (written by {@link KeyStoreUtil#writeByteArrayWithShortLengthHeader(DataOutputStream, byte[])}).</td>
  * 				</tr>
  * 				<tr>
- * 					<td align="right" valign="top"><i>lenIV</i></td><td valign="top">byte[]: The actual IV (initialisation vector) used to encrypt the key's data (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
+ * 					<td align="right" valign="top"><i>lenIV</i></td><td valign="top">byte[]: The actual IV (initialisation vector) used to encrypt the key's data (written by {@link KeyStoreUtil#writeByteArrayWithShortLengthHeader(DataOutputStream, byte[])}).</td>
  * 				</tr>
  *
  * 				<tr>
@@ -264,10 +264,10 @@ import org.slf4j.LoggerFactory;
  * 				</tr>
  *
  * 				<tr>
- * 					<td align="right" valign="top">4</td><td valign="top">int <i>lenIV</i>: IV: Number of bytes to follow (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
+ * 					<td align="right" valign="top">2</td><td valign="top">UNSIGNED short <i>lenIV</i>: IV: Number of bytes to follow (written by {@link KeyStoreUtil#writeByteArrayWithShortLengthHeader(DataOutputStream, byte[])}).</td>
  * 				</tr>
  * 				<tr>
- * 					<td align="right" valign="top"><i>lenIV</i></td><td valign="top">byte[]: The actual IV (initialisation vector) used to encrypt the key's data (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
+ * 					<td align="right" valign="top"><i>lenIV</i></td><td valign="top">byte[]: The actual IV (initialisation vector) used to encrypt the key's data (written by {@link KeyStoreUtil#writeByteArrayWithShortLengthHeader(DataOutputStream, byte[])}).</td>
  * 				</tr>
  *
  * 				<tr>
@@ -348,10 +348,10 @@ import org.slf4j.LoggerFactory;
  * 				</tr>
  *
  * 				<tr>
- * 					<td align="right" valign="top">4</td><td valign="top">int <i>lenIV</i>: IV: Number of bytes to follow (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
+ * 					<td align="right" valign="top">2</td><td valign="top">UNSIGNED short <i>lenIV</i>: IV: Number of bytes to follow (written by {@link KeyStoreUtil#writeByteArrayWithShortLengthHeader(DataOutputStream, byte[])}).</td>
  * 				</tr>
  * 				<tr>
- * 					<td align="right" valign="top"><i>lenIV</i></td><td valign="top">byte[]: The actual IV (initialisation vector) used to encrypt the key's data (written by {@link KeyStoreUtil#writeByteArrayWithLengthHeader(DataOutputStream, byte[])}).</td>
+ * 					<td align="right" valign="top"><i>lenIV</i></td><td valign="top">byte[]: The actual IV (initialisation vector) used to encrypt the key's data (written by {@link KeyStoreUtil#writeByteArrayWithShortLengthHeader(DataOutputStream, byte[])}).</td>
  * 				</tr>
  *
  * 				<tr>

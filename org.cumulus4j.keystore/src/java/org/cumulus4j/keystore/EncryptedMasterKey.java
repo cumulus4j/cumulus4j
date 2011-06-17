@@ -93,7 +93,7 @@ extends AbstractEncryptedData
 		if (passwordBasedKeyGeneratorAlgorithm == null)
 			throw new IllegalStateException("stringConstantList.get(idx) returned null for idx=" + idx);
 
-		salt = KeyStoreUtil.readByteArrayWithLengthHeader(in);
+		salt = KeyStoreUtil.readByteArrayWithShortLengthHeader(in);
 		read(in, stringConstantList);
 	}
 
@@ -112,7 +112,7 @@ extends AbstractEncryptedData
 
 		out.writeInt(idx);
 
-		KeyStoreUtil.writeByteArrayWithLengthHeader(out, salt);
+		KeyStoreUtil.writeByteArrayWithShortLengthHeader(out, salt);
 		super.write(out, stringConstant2idMap);
 	}
 }
