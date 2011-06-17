@@ -12,7 +12,7 @@ Usage
 	Whilst a users model of their classes implies a traditional datastore schema, with Cumulus4J, to achieve
 	highly secure data, we utilise our own data schema. We have three parts to the schema
 
-    * Data
+	* Data
     
 	The raw data representing the users objects is stored encrypted in a DataEntry table (or equivalent for
 	non-RDBMS datastores). Something like this
