@@ -21,9 +21,8 @@ Workspace-Setup Cumulus4j-DataNucleus-Plug-in
 
 		* {{{http://www.eclipse.org/downloads/}Download}}
 
-		* Either the "Eclipse IDE for Java EE Developers" or the "Eclipse for RCP and RAP Developers" or any
-		other that supports development of Eclipse plug-ins (since DataNucleus uses the Eclipse plug-in mechanism)
-	
+		* You need the "Eclipse IDE for Java EE Developers".
+
 	* {{{http://m2eclipse.sonatype.org/}m2eclipse}}
 
 		* Update site for core: {{http://m2eclipse.sonatype.org/sites/m2e}}

@@ -73,56 +73,16 @@ Herunterladen
 
 ** Abhängigkeiten
 
-	Cumulus4j besteht aus mehreren Modulen.
+	Cumulus4j besteht aus mehreren {{{../modules.html}Modulen}}. Deren Maven-Koordinaten finden Sie jeweils
+	in der Dokumentation der einzelnen Module.
 
-*** org.cumulus4j.annotation
-
-	Wie der Name schon sagt, sind dies die Cumulus4j-Annotationen. Um Ihre Applikation zu kompilieren, müssen
-	Sie diese Abhängigkeit in Ihre <<<pom.xml>>> einfügen:
-
-+------------------------------------------+
-<dependencies>
-	...
-	<dependency>
-		<groupId>org.cumulus4j</groupId>
-		<artifactId>org.cumulus4j.annotation</artifactId>
-		<version>${cumulus4jStableVersion}</version>
-	</dependency>
-	...
-</dependencies>
-+------------------------------------------+
-
-	Um jedoch eine lauffähige Applikation zusammenzustellen, benötigen Sie zusätzlich auch noch
-	das Modul <<<org.cumulus4j.store>>> (siehe unten).
-
-*** org.cumulus4j.store
-
-	<<<org.cumulus4j.store>>> enthält die Implementation von Cumulus4j und wird benötigt, um es auch tatsächlich
-	zu benutzen. Da es sich hierbei um ein DataNucleus-Plugin handelt, welches keinerlei API-Klassen enthält,
-	müssen Sie eine Abhängigkeit darauf nur deklarieren, um Ihre Applikation zusammenzustellen.
-
-	Bitte beachten Sie, daß Sie dann auch alle notwendigen DataNucleus-Module mit einpacken müssen. Welche genau
-	dies sind, hängt von Ihrer Situation ab (z.B. der gewünschten Datenbank und auch der API [JDO oder JPA] gegen
-	die Sie Ihre Applikation geschrieben haben).
-
-	Führen Sie Ihrer <<<pom.xml>>> die folgende Abhängigkeit hinzu, um <<<org.cumulus4j.store>>> in Ihren
-	Build-Prozeß einzubinden:
-
-+------------------------------------------+
-<dependencies>
-	...
-	<dependency>
-		<groupId>org.cumulus4j</groupId>
-		<artifactId>org.cumulus4j.store</artifactId>
-		<version>${cumulus4jStableVersion}</version>
-	</dependency>
-	...
-</dependencies>
-+------------------------------------------+  
-
-	Wohlgemerkt ist <<<org.cumulus4j.store>>> abhängig von <<<org.cumulus4j.annotation>>>, so daß Sie nicht erneut
-	eine Abhängigkeit auf <<<org.cumulus4j.annotation>>> deklarieren müssen. Allerdings sollten Sie in Ihrer Applikation
-	keinesfalls Klassen aus dem Modul <<<org.cumulus4j.store>>> referenzieren!
+	Bitte beachten Sie, daß Sie zusätzlich auch alle benötigten
+	{{{http://www.datanucleus.org/plugins/core/index.html}DataNucleus-Module}} mit in Ihre Applikation
+	hinein packen müssen. Welche das genau sind, hängt von Ihrer konkreten Situation ab (z.B. dem
+	{{{http://www.datanucleus.org/products/accessplatform_3_0/datastores.html}Datenbank-System}}, das Sie
+	benutzen möchten, sowie der
+	{{{http://www.datanucleus.org/products/accessplatform_3_0/api.html}API}} [JDO oder JPA] gegen die Sie
+	Ihre Anwendung geschrieben haben).
 
 * {Quelltext}
 
