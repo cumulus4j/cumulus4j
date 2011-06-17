@@ -175,8 +175,25 @@ public final class CryptoRegistry
 
 	private void registerStreamCipherEngineClass(Class<? extends StreamCipher> engineClass)
 	{
-		StreamCipher engine = newInstance(engineClass); // for testing to be sure there is a default constructor and we can call it.
+		StreamCipher engine = newInstance(engineClass);
 		String algorithmName = engine.getAlgorithmName();
+		_registerStreamCipherEngineClass(algorithmName, engineClass);
+	}
+
+	private void registerStreamCipherEngineClass(String algorithmName, Class<? extends StreamCipher> engineClass)
+	{
+		newInstance(engineClass); // for testing to be sure there is a default constructor and we can call it.
+		_registerStreamCipherEngineClass(algorithmName, engineClass);
+	}
+
+	private void _registerStreamCipherEngineClass(String algorithmName, Class<? extends StreamCipher> engineClass)
+	{
+		if (algorithmName == null)
+			throw new IllegalArgumentException("algorithmName == null");
+
+		if (engineClass == null)
+			throw new IllegalArgumentException("engineClass == null");
+
 		logger.trace("registerSymmetricEngineClass: algorithmName=\"{}\" engineClass=\"{}\"", algorithmName, engineClass.getName());
 		algorithmName2streamCipherEngineClass.put(algorithmName.toUpperCase(Locale.ENGLISH), engineClass);
 	}
@@ -302,7 +319,7 @@ public final class CryptoRegistry
 
 		// *** BEGIN StreamCipher engines ***
 		registerStreamCipherEngineClass(Grain128Engine.class);
-		registerStreamCipherEngineClass(Grainv1Engine.class);
+		registerStreamCipherEngineClass("GRAIN-V1", Grainv1Engine.class);
 		registerStreamCipherEngineClass(HC128Engine.class);
 		registerStreamCipherEngineClass(HC256Engine.class);
 		registerStreamCipherEngineClass(ISAACEngine.class);
@@ -850,7 +867,17 @@ public final class CryptoRegistry
 		}
 	}
 
+	public Set<String> getSupportedCipherPaddings(CipherEngineType cipherEngineType)
+	{
+		return getSupportedCipherPaddings(cipherEngineType, null, null);
+	}
+
 	public Set<String> getSupportedCipherPaddings(String cipherEngine, String cipherMode)
+	{
+		return getSupportedCipherPaddings(null, cipherEngine, cipherMode);
+	}
+
+	private Set<String> getSupportedCipherPaddings(CipherEngineType cipherEngineType, String cipherEngine, String cipherMode)
 	{
 		if (cipherEngine != null)
 			cipherEngine = cipherEngine.toUpperCase(Locale.ENGLISH);
@@ -860,7 +887,9 @@ public final class CryptoRegistry
 
 		SortedSet<String> result = new TreeSet<String>();
 
-		if (cipherEngine == null || algorithmName2blockCipherEngineClass.containsKey(cipherEngine)) {
+		if ((cipherEngineType == null || cipherEngineType == CipherEngineType.symmetricBlock) &&
+				(cipherEngine == null || algorithmName2blockCipherEngineClass.containsKey(cipherEngine)))
+		{
 			// Engine is a block cipher
 			result.add(""); result.add("NOPADDING"); // both are synonymous
 
@@ -868,12 +897,16 @@ public final class CryptoRegistry
 				result.addAll(paddingName2blockCipherPaddingClass.keySet());
 		}
 
-		if (cipherEngine == null || algorithmName2streamCipherEngineClass.containsKey(cipherEngine)) {
+		if ((cipherEngineType == null || cipherEngineType == CipherEngineType.symmetricStream) &&
+				(cipherEngine == null || algorithmName2streamCipherEngineClass.containsKey(cipherEngine)))
+		{
 			// Engine is a stream cipher
 			result.add(""); result.add("NOPADDING"); // both are synonymous
 		}
 
-		if (cipherEngine == null || algorithmName2asymmetricBlockCipherEngineClass.containsKey(cipherEngine)) {
+		if ((cipherEngineType == null || cipherEngineType == CipherEngineType.asymmetricBlock) &&
+				(cipherEngine == null || algorithmName2asymmetricBlockCipherEngineClass.containsKey(cipherEngine)))
+		{
 			// Engine is an asymmetric block cipher
 			result.add(""); result.add("NOPADDING"); // both are synonymous
 			result.addAll(paddingName2asymmetricBlockCipherPaddingClass.keySet());
