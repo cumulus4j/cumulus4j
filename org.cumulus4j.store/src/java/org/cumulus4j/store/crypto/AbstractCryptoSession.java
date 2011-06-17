@@ -77,6 +77,7 @@ public abstract class AbstractCryptoSession implements CryptoSession
 			throw new IllegalStateException("this.cryptoSessionID already assigned! Cannot modify!");
 
 		this.cryptoSessionID = cryptoSessionID;
+		logger.trace("setCryptoSessionID: cryptoSessionID={}", cryptoSessionID);
 	}
 
 	@Override
@@ -125,6 +126,7 @@ public abstract class AbstractCryptoSession implements CryptoSession
 	 */
 	@Override
 	public void close() {
+		logger.trace("close: cryptoSessionID={}", cryptoSessionID);
 		closed = true;
 		cryptoManager.onCloseCryptoSession(this);
 	}

@@ -2,12 +2,12 @@ package org.cumulus4j.store.crypto.keymanager.test;
 
 import org.cumulus4j.store.crypto.CryptoManager;
 
-public class TestKeyManagerCryptoSession_Twofish_GCM_NoPadding_NONE
+public class TestKeyManagerCryptoSession_AES_GCM_NoPadding_NONE
 extends AbstractKeyManagerCryptoSessionTest
 {
 	@Override
 	protected String getEncryptionAlgorithm() {
-		return "Twofish/GCM/NoPadding";
+		return "AES/GCM/NoPadding";
 	}
 
 	@Override

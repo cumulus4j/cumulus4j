@@ -231,9 +231,8 @@ public abstract class AbstractCryptoManager implements CryptoManager
 			String encryptionAlgorithmPropName = PROPERTY_ENCRYPTION_ALGORITHM;
 			String encryptionAlgorithmPropValue = (String) nucleusContext.getPersistenceConfiguration().getProperty(encryptionAlgorithmPropName);
 			if (encryptionAlgorithmPropValue == null || encryptionAlgorithmPropValue.trim().isEmpty()) {
-				// TODO switch to "Twofish/GCM/NoPadding" as soon as the NPE when re-initing a Cipher with null-KeyParameter is fixed.
-//				ea = "Twofish/GCM/NoPadding"; // default value, if the property was not defined.
-				ea = "Twofish/CBC/PKCS5Padding"; // default value, if the property was not defined.
+				ea = "Twofish/GCM/NoPadding"; // default value, if the property was not defined.
+//				ea = "Twofish/CBC/PKCS5Padding"; // default value, if the property was not defined.
 //				ea = "AES/CBC/PKCS5Padding"; // default value, if the property was not defined.
 //				ea = "AES/CFB/NoPadding"; // default value, if the property was not defined.
 				logger.info("getEncryptionAlgorithm: Property '{}' is not set. Using default algorithm '{}'.", encryptionAlgorithmPropName, ea);
@@ -263,9 +262,8 @@ public abstract class AbstractCryptoManager implements CryptoManager
 			String macAlgorithmPropName = PROPERTY_MAC_ALGORITHM;
 			String macAlgorithmPropValue = (String) nucleusContext.getPersistenceConfiguration().getProperty(macAlgorithmPropName);
 			if (macAlgorithmPropValue == null || macAlgorithmPropValue.trim().isEmpty()) {
-				// TODO switch to NONE as soon as we switched to "Twofish/GCM/NoPadding" above.
-//				ma = MAC_ALGORITHM_NONE; // default value, if the property was not defined.
-				ma = "HMAC-SHA1";
+				ma = MAC_ALGORITHM_NONE; // default value, if the property was not defined.
+//				ma = "HMAC-SHA1";
 				logger.info("getMacAlgorithm: Property '{}' is not set. Using default MAC algorithm '{}'.", macAlgorithmPropName, ma);
 			}
 			else {

@@ -70,7 +70,7 @@ public abstract class AbstractKeyManagerCryptoSessionTest
 	private File tmpDir;
 	{
 		File f = new File(System.getProperty("java.io.tmpdir"));
-		tmpDir = new File(f, IdentifierUtil.createRandomID(8));
+		tmpDir = new File(f, "cumulus4j-test." + IdentifierUtil.createRandomID(8));
 	}
 
 	protected abstract String getEncryptionAlgorithm();
