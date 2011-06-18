@@ -49,6 +49,8 @@ import org.datanucleus.store.fieldmanager.AbstractFieldManager;
 import org.datanucleus.store.types.sco.SCOUtils;
 
 /**
+ * Manager for the process of fetching a user object from the datastore, handling the translation from the
+ * DataEntry object into the users own object.
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class FetchFieldManager extends AbstractFieldManager

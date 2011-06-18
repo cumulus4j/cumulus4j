@@ -38,9 +38,9 @@ import org.datanucleus.store.ObjectProvider;
 import org.datanucleus.store.connection.ManagedConnection;
 
 /**
- * TODO Support one StoreManager for persistable data and one for indexed data. With this you could
- * just hand off all persistable data to storeManager1.persistenceHandler, and hand off all indexed data
- * to storeManager2.persistenceHandler
+ * Handler for all persistence calls from the StoreManager, communicating with the backend datastore(s).
+ * Manages all inserts/updates/deletes/fetches/locates of the users own objects and translates them
+ * into inserts/updates/deletes/fetches/locates of Cumulus4J model objects. 
  */
 public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 {

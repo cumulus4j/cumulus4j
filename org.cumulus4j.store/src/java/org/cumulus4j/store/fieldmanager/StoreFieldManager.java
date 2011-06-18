@@ -39,6 +39,8 @@ import org.datanucleus.store.types.sco.SCO;
 import org.datanucleus.store.types.sco.SCOUtils;
 
 /**
+ * Manager for the process of persisting a user object into the datastore, handling the translation from the
+ * users own object into the DataEntry object.
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class StoreFieldManager extends AbstractFieldManager
