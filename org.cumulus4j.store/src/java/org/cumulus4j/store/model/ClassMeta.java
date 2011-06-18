@@ -169,7 +169,7 @@ public class ClassMeta
 	 * Get all {@link FieldMeta} instances known to this instance. This is the meta-data for all fields
 	 * <b>directly declared</b> in the class referenced by this <code>ClassMeta</code> <b>not
 	 * including super-classes</b>.
-	 * @return
+	 * @return Collection of FieldMeta objects for this class
 	 */
 	public Collection<FieldMeta> getFieldMetas() {
 		return fieldName2fieldMeta.values();

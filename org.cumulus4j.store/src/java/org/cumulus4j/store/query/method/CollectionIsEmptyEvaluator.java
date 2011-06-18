@@ -38,7 +38,7 @@ import org.datanucleus.query.expression.Expression;
 import org.datanucleus.query.expression.PrimaryExpression;
 
 /**
- * Evaluator for <pre>Collection.isEmpty()</pre>
+ * Evaluator for "Collection.isEmpty()".
  */
 public class CollectionIsEmptyEvaluator extends AbstractMethodEvaluator {
 

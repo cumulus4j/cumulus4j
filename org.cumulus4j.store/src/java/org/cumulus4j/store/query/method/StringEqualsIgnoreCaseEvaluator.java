@@ -40,7 +40,7 @@ import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.store.ExecutionContext;
 
 /**
- * Evaluator for <pre>{String}.equalsIgnoreCase(arg)</pre>.
+ * Evaluator for "{String}.equalsIgnoreCase(arg)".
  */
 public class StringEqualsIgnoreCaseEvaluator extends AbstractMethodEvaluator
 {

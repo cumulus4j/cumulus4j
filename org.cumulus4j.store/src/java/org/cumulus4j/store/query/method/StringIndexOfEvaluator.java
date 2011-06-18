@@ -40,7 +40,7 @@ import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.store.ExecutionContext;
 
 /**
- * Evaluator for <pre>String.indexOf(str [,from]) {oper} {compareTo}</pre>
+ * Evaluator for "String.indexOf(str [,from]) {oper} {compareTo}".
  */
 public class StringIndexOfEvaluator extends AbstractMethodEvaluator {
 

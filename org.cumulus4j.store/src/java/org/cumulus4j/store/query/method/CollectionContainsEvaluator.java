@@ -45,7 +45,7 @@ import org.datanucleus.query.expression.VariableExpression;
 import org.datanucleus.store.ExecutionContext;
 
 /**
- * Evaluator for <pre>Collection.contains(element)</pre>
+ * Evaluator for "Collection.contains(element)".
  */
 public class CollectionContainsEvaluator extends AbstractMethodEvaluator
 {

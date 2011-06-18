@@ -39,7 +39,7 @@ import org.datanucleus.query.expression.Expression;
 import org.datanucleus.query.expression.PrimaryExpression;
 
 /**
- * Evaluator for <pre>Collection.size() {oper} {comparisonArg}</pre>
+ * Evaluator for "Collection.size() {oper} {comparisonArg}".
  */
 public class CollectionSizeEvaluator extends AbstractMethodEvaluator {
 

@@ -40,7 +40,7 @@ import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.store.ExecutionContext;
 
 /**
- * Evaluator for <pre>{String}.equals(arg)</pre>.
+ * Evaluator for "{String}.equals(arg)".
  */
 public class StringEqualsEvaluator extends AbstractMethodEvaluator
 {

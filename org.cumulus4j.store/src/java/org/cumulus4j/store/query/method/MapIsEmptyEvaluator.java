@@ -38,7 +38,7 @@ import org.datanucleus.query.expression.Expression;
 import org.datanucleus.query.expression.PrimaryExpression;
 
 /**
- * Evaluator for <pre>Map.isEmpty()</pre>
+ * Evaluator for "Map.isEmpty()".
  */
 public class MapIsEmptyEvaluator extends AbstractMethodEvaluator {
 

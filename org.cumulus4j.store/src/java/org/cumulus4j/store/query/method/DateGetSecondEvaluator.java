@@ -40,7 +40,7 @@ import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.store.ExecutionContext;
 
 /**
- * Evaluator for <pre>Date.getSecond() {oper} {compareTo}</pre>
+ * Evaluator for "Date.getSecond() {oper} {compareTo}".
  */
 public class DateGetSecondEvaluator extends AbstractMethodEvaluator {
 

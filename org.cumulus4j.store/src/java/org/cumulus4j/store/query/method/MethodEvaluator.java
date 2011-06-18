@@ -26,7 +26,7 @@ import org.cumulus4j.store.query.eval.ResultDescriptor;
 import org.datanucleus.query.expression.Expression;
 
 /**
- * Evaluator for a method.
+ * Interface for the evaluator for a method.
  */
 public interface MethodEvaluator
 {

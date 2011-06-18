@@ -40,7 +40,7 @@ import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.store.ExecutionContext;
 
 /**
- * Evaluator for <pre>{String}.endsWith(arg)</pre>.
+ * Evaluator for "{String}.endsWith(arg)".
  */
 public class StringEndsWithEvaluator extends AbstractMethodEvaluator
 {

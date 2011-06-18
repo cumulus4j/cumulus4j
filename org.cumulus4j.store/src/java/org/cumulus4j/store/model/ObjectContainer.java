@@ -88,9 +88,6 @@ implements Serializable, Cloneable
 	/**
 	 * Set a value.
 	 * @param fieldID the field's persistent ID, i.e. a reference to {@link FieldMeta#getFieldID() FieldMeta.fieldID}.
-	 * @!param valueTypeClassID either <code>null</code> or a reference to the {@link ClassMeta#getClassID() ClassMeta.classID}
-	 * of the original value's concrete type (this must be either the declared type or a subclass). Original value means, if it
-	 * is a persistable object, the type of the persistable object itself and not the type of its object-ID.
 	 * @param value either the raw value or the object-ID of a persistable object. Persistable objects are never stored
 	 * directly in an <code>ObjectContainer</code>.
 	 */

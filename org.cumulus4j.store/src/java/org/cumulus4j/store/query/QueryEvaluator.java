@@ -109,7 +109,11 @@ public abstract class QueryEvaluator
 	private boolean complete = true;
 
 	/**
-	 * @param pm our <b>backend</b>-<code>PersistenceManager</code>.
+	 * @param language Query language (JDOQL, JPQL, etc)
+	 * @param compilation generic compilation
+	 * @param parameterValues Input values for the params
+	 * @param clr ClassLoader resolver
+	 * @param pmConn our <b>backend</b>-<code>PersistenceManager</code> connection(s).
 	 */
 	public QueryEvaluator(
 			String language, Query query, QueryCompilation compilation, Map<String, Object> parameterValues,

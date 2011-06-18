@@ -40,7 +40,7 @@ import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.store.ExecutionContext;
 
 /**
- * Evaluator for <pre>Date.getMonth() {oper} {compareTo}</pre>
+ * Evaluator for "Date.getMonth() {oper} {compareTo}".
  */
 public class DateGetMonthEvaluator extends AbstractMethodEvaluator {
 

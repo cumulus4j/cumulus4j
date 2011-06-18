@@ -40,7 +40,7 @@ import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.store.ExecutionContext;
 
 /**
- * Evaluator for <pre>String.toUpperCase() {oper} {compareTo}</pre>
+ * Evaluator for "String.toUpperCase() {oper} {compareTo}".
  */
 public class StringToUpperCaseEvaluator extends AbstractMethodEvaluator {
 

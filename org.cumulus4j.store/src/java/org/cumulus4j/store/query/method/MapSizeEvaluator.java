@@ -39,7 +39,7 @@ import org.datanucleus.query.expression.Expression;
 import org.datanucleus.query.expression.PrimaryExpression;
 
 /**
- * Evaluator for <pre>Map.size() {oper} {comparisonArg}</pre>
+ * Evaluator for "Map.size() {oper} {comparisonArg}".
  */
 public class MapSizeEvaluator extends AbstractMethodEvaluator {
 

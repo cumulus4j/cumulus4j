@@ -40,7 +40,7 @@ import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.store.ExecutionContext;
 
 /**
- * Evaluator for <pre>String.substring(pos1 [, pos2]) {oper} {compareTo}</pre>
+ * Evaluator for "String.substring(pos1 [, pos2]) {oper} {compareTo}".
  */
 public class StringSubstringEvaluator extends AbstractMethodEvaluator {
 

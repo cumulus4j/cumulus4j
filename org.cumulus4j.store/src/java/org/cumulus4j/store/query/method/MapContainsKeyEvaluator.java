@@ -32,7 +32,7 @@ import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.query.expression.VariableExpression;
 
 /**
- * Evaluator for <pre>Map.containsKey(key)</pre>
+ * Evaluator for "Map.containsKey(key)".
  */
 public class MapContainsKeyEvaluator extends AbstractMethodEvaluator
 {

@@ -40,7 +40,7 @@ import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.store.ExecutionContext;
 
 /**
- * Evaluator for <pre>String.length(str) {oper} {compareTo}</pre>.
+ * Evaluator for "String.length(str) {oper} {compareTo}".
  */
 public class StringLengthEvaluator extends AbstractMethodEvaluator {
 
