@@ -59,7 +59,7 @@ Supported algorithms
 | Twofish           | CBC             | PKCS5          | HMAC-SHA1  |
 *-------------------+-----------------+----------------+------------+
 
-	"Encryption", "Mode" and "Padding" are usually concatenated to string like "AES/GCM/NoPadding".
+	"Encryption", "Mode" and "Padding" are usually concatenated to a string like "AES/GCM/NoPadding".
 	The MAC is usually configured separately.
 	
 	In {{{persistence-api.html}Persistence API}}, it is documented, how you configure this for the
