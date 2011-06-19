@@ -10,26 +10,29 @@ Usage
 * Persistence Mapping
 
 	You define the persistence mapping for your model classes in the normal way for JDO/JPA, using annotations or XML.
+	For details about this, please consult DataNucleus' documentation
+	about {{{http://www.datanucleus.org/products/accessplatform_3_0/jdo/mapping.html}JDO Mapping}}
+	or {{{http://www.datanucleus.org/products/accessplatform_3_0/jpa/mapping.html}JPA Mapping}}.
 	All standard annotations/XML applies here, with no exceptions.
+
 	One difference between normal JDO/JPA persistence and Cumulus4j persistence is that if you want to query
 	a field of one of your model classes in the datastore then it needs "indexing". This is not indexing in the 
 	relational database	sense, but instead indexing of the encrypted field value so that it doesn't need loading into 
 	memory to determine if it passes a particular query constraint. By default all persistent fields are "indexed". 
 	Obviously this has an impact on performance, so you can specify particular fields to be not indexed. 
-	You do this as follows
+	You do this as follows:
 
-	[[1]] JDO : Standard Annotations
+	[[1]] JDO: Standard Annotations
 	
 	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
 	
-	[[2]] JDO/JPA : Cumulus4j Annotations
+	[[2]] JDO/JPA: Cumulus4j Annotations
 	
 	@NotQueryable
 	
-	[[3]] JPA : DataNucleus Annotations
+	[[3]] JPA: DataNucleus Annotations
 	
-	@Extension(key="cumulus4j-queryable", value="false")
-
+	@Extension(key="cumulus4j-queryable", value="false") 
 
 * Persistence API
 
@@ -37,56 +40,20 @@ Usage
 	utilising Cumulus4j to encrypt their data. Above you defined the mapping of your classes, and now you choose the 
 	API you prefer to handle the persistence process.
 
-	In terms of persistence properties (for <persistence.xml>, <jdoconfig.xml> etc) you define your persistence properties
-	as normal, but need to specify to use Cumulus4j. For example
-
-+------------------------------------------+
-javax.jdo.PersistenceManagerFactoryClass= org.datanucleus.api.jdo.JDOPersistenceManagerFactory
-
-datanucleus.storeManagerType=cumulus4j
-datanucleus.persistenceByReachabilityAtCommit=false
-datanucleus.manageRelationships=false
-datanucleus.manageRelationshipsChecks=false
-datanucleus.plugin.allowUserBundles=true
-
-javax.jdo.option.ConnectionDriverName=org.apache.derby.jdbc.EmbeddedDriver
-javax.jdo.option.ConnectionURL=jdbc:derby:${java.io.tmpdir}/derby/cumulus4j;create=true
-javax.jdo.option.ConnectionUserName=root
-javax.jdo.option.ConnectionPassword=
-+------------------------------------------+
-
-	So here we specify Cumulus4J to use an embedded Apache Derby database. Internally this will start a PMF/EMF
-	for the backend (Derby) datastore. If you want to control further the properties used for the backend datastore
-	simply add them to your persistence properties, prefixing them with <<cumulus4j.>> and they will be passed to
-	the backend datastore without the prefix.
-
-	As an extension to this you can separate the "data" from the "index" information. You do this by specifying
-	a separate backend datastore for the index information. Like this
-
-+------------------------------------------+
-cumulus4j.index.javax.jdo.option.ConnectionDriverName=com.mysql.jdbc.Driver
-cumulus4j.index.javax.jdo.option.ConnectionURL=jdbc:mysql://127.0.0.1/cumulus4j
-cumulus4j.index.javax.jdo.option.ConnectionUserName=mysql
-cumulus4j.index.javax.jdo.option.ConnectionPassword=
-+------------------------------------------+
-	so now we're storing the index information in a MySQL datastore.
-
-	Furthermore, you can optionally change the {{{./supported-algorithms.html}encryption and MAC algorithm}}
-	by specifying the following properties:
-
-+------------------------------------------+
-cumulus4j.encryptionAlgorithm=AES/CBC/PKCS5
-cumulus4j.macAlgorithm=HMAC-SHA1
-+------------------------------------------+
+	{{{./persistence-api.html}Read more about the Persistence API.}}
 
 * Datastore Schema
 
-	Cumulus4J has its own datastore schema in order to provide secure data. You can find documentation of
+	Cumulus4j has its own datastore schema in order to provide secure data. You can find documentation of
 	the current schema definition {{{./schema.html}here}}.
+
+* Key store
+
+	Cumulus4j stores all keys used to encrypt your database in a well-protected {{{key-store.html}key store}}.
 
 * Deployment
 
-    Cumulus4J has been tested for deployment onto the following datastores : RDBMS, HBase, MongoDB, ODF, Excel.
+    Cumulus4j has been tested for deployment onto the following datastores : RDBMS, HBase, MongoDB, ODF, Excel.
     This can be achieved using the relevant store plugin for DataNucleus.
 
     You find a documentation of the currently supported {{{./deployment-scenarios.html}deployment scenarios here}}.

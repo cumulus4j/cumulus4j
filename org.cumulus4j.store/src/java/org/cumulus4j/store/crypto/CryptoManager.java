@@ -17,6 +17,7 @@
  */
 package org.cumulus4j.store.crypto;
 
+import org.cumulus4j.store.model.EncryptionCoordinateSet;
 import org.datanucleus.NucleusContext;
 
 /**
@@ -147,7 +148,7 @@ public interface CryptoManager
 	 * </p>
 	 * @see #PROPERTY_MAC_ALGORITHM
 	 */
-	static final String MAC_ALGORITHM_NONE = "NONE";
+	static final String MAC_ALGORITHM_NONE = EncryptionCoordinateSet.MAC_ALGORITHM_NONE;
 
 	/**
 	 * Get the registry which manages this {@link CryptoManager}.

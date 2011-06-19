@@ -31,8 +31,18 @@ import javax.transaction.xa.Xid;
 
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.DataEntry;
+import org.cumulus4j.store.model.EncryptionCoordinateSet;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.IndexEntryContainerSize;
+import org.cumulus4j.store.model.IndexEntryCurrency;
+import org.cumulus4j.store.model.IndexEntryDate;
+import org.cumulus4j.store.model.IndexEntryDouble;
+import org.cumulus4j.store.model.IndexEntryLong;
+import org.cumulus4j.store.model.IndexEntryStringLong;
+import org.cumulus4j.store.model.IndexEntryStringShort;
+import org.cumulus4j.store.model.IndexEntryURI;
+import org.cumulus4j.store.model.IndexEntryURL;
+import org.cumulus4j.store.model.IndexEntryUUID;
 import org.cumulus4j.store.model.Sequence;
 import org.cumulus4j.store.resource.ResourceHelper;
 import org.datanucleus.PersistenceConfiguration;
@@ -113,7 +123,7 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 				if (me.getKey().startsWith(prefix)) {
 					String propKey = me.getKey().substring(CUMULUS4J_INDEX_PROPERTY_PREFIX.length());
 					if (backendIndexProperties == null) {
-						backendIndexProperties = new HashMap(backendProperties);
+						backendIndexProperties = new HashMap<String, Object>(backendProperties);
 					}
 					backendIndexProperties.put(propKey.toLowerCase(Locale.ENGLISH), me.getValue());
 				}
@@ -162,14 +172,23 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 		// initialise meta-data (which partially tests it)
 		PersistenceManager pm = pmf.getPersistenceManager();
 		try {
+			// Class structure meta-data
 			pm.getExtent(ClassMeta.class);
 			pm.getExtent(FieldMeta.class);
+
+			// Data
 			pm.getExtent(DataEntry.class);
+
+			// Sequence for ID generation
 			pm.getExtent(Sequence.class);
 
+			// Mapping for encryption settings (encryption algorithm, mode, padding, MAC, etc.
+			// are mapped to a number which reduces the size of each record)
+			pm.getExtent(EncryptionCoordinateSet.class);
+
 			if (backendIndexProperties == null) {
-				// Index data
-				pm.getExtent(IndexEntryContainerSize.class);
+				// Index
+				initialiseIndexMetaData(pm);
 
 				PluginManager pluginMgr = storeMgr.getNucleusContext().getPluginManager();
 				ConfigurationElement[] elems = pluginMgr.getConfigurationElementsForExtension(
@@ -197,11 +216,12 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 
 			PersistenceManager pmIndex = pmfIndex.getPersistenceManager();
 			try {
+				// Class structure meta-data
 				pmIndex.getExtent(ClassMeta.class);
 				pmIndex.getExtent(FieldMeta.class);
 
-				// Index data
-				pmIndex.getExtent(IndexEntryContainerSize.class);
+				// Index
+				initialiseIndexMetaData(pmIndex);
 
 				PluginManager pluginMgr = storeMgr.getNucleusContext().getPluginManager();
 				ConfigurationElement[] elems = pluginMgr.getConfigurationElementsForExtension(
@@ -221,6 +241,24 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 				pmIndex.close();
 			}
 		}
+	}
+
+	private static void initialiseIndexMetaData(PersistenceManager pm)
+	{
+		// While it is not necessary to initialise the meta-data now (can be done lazily,
+		// when the index is used), it is still better as it prevents delays when the
+		// data is persisted.
+
+		pm.getExtent(IndexEntryContainerSize.class);
+		pm.getExtent(IndexEntryCurrency.class);
+		pm.getExtent(IndexEntryDate.class);
+		pm.getExtent(IndexEntryDouble.class);
+		pm.getExtent(IndexEntryLong.class);
+		pm.getExtent(IndexEntryStringLong.class);
+		pm.getExtent(IndexEntryStringShort.class);
+		pm.getExtent(IndexEntryURI.class);
+		pm.getExtent(IndexEntryURL.class);
+		pm.getExtent(IndexEntryUUID.class);
 	}
 
 	@Override

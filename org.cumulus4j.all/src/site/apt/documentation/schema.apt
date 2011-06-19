@@ -5,14 +5,12 @@
 	---
 	2011-06-08
 
-Usage
-
-* Schema
+Schema
 
 	Whilst a users model of their classes implies a traditional datastore schema, with Cumulus4J, to achieve
 	highly secure data, we utilise our own data schema. We have three parts to the schema
 
-	* Data
+* Data
     
 	The raw data representing the users objects is stored encrypted in a DataEntry table (or equivalent for
 	non-RDBMS datastores). Something like this
@@ -29,7 +27,7 @@ CREATE TABLE "dataentry"
 )
 +------------------------------------------+
 
-	* Class Structure Information
+* Class structure information
 
 	Each class being persisted has to be recorded the first time it is encountered. Cumulus4J stores the
 	class information and field/property information. Something like this
@@ -55,7 +53,7 @@ CREATE TABLE "fieldmeta"
 )
 +------------------------------------------+
 
-	* Index Information
+* Index information
 	
 	To provide in-datastore querying for the contents of fields, Cumulus4J has to store an amount of index
 	information. A table exists for the type of data being stored, linking to the records possessing this

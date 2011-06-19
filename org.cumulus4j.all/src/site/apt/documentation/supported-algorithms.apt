@@ -59,24 +59,29 @@ Supported algorithms
 | Twofish           | CBC             | PKCS5          | HMAC-SHA1  |
 *-------------------+-----------------+----------------+------------+
 
-	You configure the first three of them usually in a concatenated string like "AES/GCM/NoPadding".
+	"Encryption", "Mode" and "Padding" are usually concatenated to string like "AES/GCM/NoPadding".
 	The MAC is usually configured separately.
+	
+	In {{{persistence-api.html}Persistence API}}, it is documented, how you configure this for the
+	actual datastore and in {{{key-store.html}Key store}} you'll see how you can apply different
+	encryption/MAC settings to the key store.
 
-** Block cipher
+** Block cipher engines
 
 	{{{http://en.wikipedia.org/wiki/Block_cipher}Block ciphers}} are the most widely used encryption algorithms.
+	They combine very high security with good performance.
 
 	* <<<AES>>>
 	
-		* <<<AES.FAST>>> (same as <<<AES>>>, but implementation with higher memory consumption and being faster)
+	* <<<AES.FAST>>> (same as <<<AES>>>, but implementation with higher memory consumption and being faster)
 	
-		* <<<AES.LIGHT>>> (same as <<<AES>>>, but implementation with lower memory consumption and being slower)
+	* <<<AES.LIGHT>>> (same as <<<AES>>>, but implementation with lower memory consumption and being slower)
 
 	* <<<BLOWFISH>>>
 
 	* <<<CAMELLIA>>>
 	
-		* <<<CAMELLIA.LIGHT>>> (same as <<<CAMELLIA>>>, but implementation with lower memory consumption and being slower)
+	* <<<CAMELLIA.LIGHT>>> (same as <<<CAMELLIA>>>, but implementation with lower memory consumption and being slower)
 	
 	* <<<CAST5>>>
 	
@@ -113,8 +118,18 @@ Supported algorithms
 	* <<<TWOFISH>>>
 	
 	* <<<XTEA>>>
+	
+	[]
 
-** Stream cipher
+** Stream cipher engines
+
+	{{{http://en.wikipedia.org/wiki/Stream_cipher}Stream ciphers}} can be used instead of block ciphers. They are
+	usually faster, but more susceptible to serious security problems if used incorrectly. However, we believe
+	that Cumulus4j uses them correctly - e.g. by using long IVs - and you might give them a try, if high performance
+	is essential to you (if you do benchmarks, please send them to us!).
+	
+	The main reason why we do not recommend them (yet), is that we cannot thoroughly test and investigate the
+	multitude of supported algorithms. If you're willing to help us, please do! Here's what is supported at the moment:
 
 	* <<<GRAIN-128>>>
 	
@@ -129,19 +144,21 @@ Supported algorithms
 	* <<<RC4>>>
 	
 	* <<<SALSA20>>>
+	
+	[]
 
 * Asymmetric encryption
 
 	{{{http://en.wikipedia.org/wiki/Asymmetric_encryption}Asymmetric encryption}} is used
 	to protect the key exchange (of the keys that are used in the symmetric encryption).
 
-	The key store is located on the client or on a separate key server
+	The {{{./key-store.html}key store}} is located on the client or on a separate key server
 	(see {{{./deployment-scenarios.html}Deployment scenarios}}, but the keys are needed
 	on the application server in order to encrypt/decrypt the actual data. That
 	means key transfers are necessary.
 	
 	In order to get the keys from the key store to the application server, usually an
-	HTTPS connection protects the data on their way through the open internet. However,
+	HTTPS connection protects them on their way through the open internet. However,
 	in order to get the keys from one application server node to another node (in the typical
 	cluster/cloud environment), the keys might be temporarily stored in a database. To protect
 	the keys in these situations, asymmetric encryption is used.
@@ -153,21 +170,157 @@ Supported algorithms
 	cannot make use of what he'll find there.
 
 	<<<RSA/ECB/OAEPWITHSHA1ANDMGF1PADDING>>> is used by default. At the moment, there is no configuration
-	possibility for this, yet. This will likely change soon.
+	setting to change this this, yet. However, this will likely change soon.
 
-** Engine
+** Asymmetric engines
+
+	The following engines are available:
 
 	* <<<ELGAMAL>>>
 
 	* <<<NACCACHESTERN>>>
 
 	* <<<RSA>>>
+	
+	[]
 
-* Block cipher operation modes
+* {{Block cipher operation mode}}s
 
-	When using a block cipher, an
+	Block ciphers work - as the name implies - on a block of data (usually 64 or 128 bit). But usually there
+	is more data to encrypt than just one block. That's why the block cipher engine is always combined with a
+	{{{http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation}mode of operation}}. The mode implements
+	a secure way to encrypt (or decrypt) more than just one block.
+	
+	Cumulus4j supports the following modes:
+	
+	* <<<ECB>>> (do NOT use this - it is extremely insecure!)
+	
+	* <<<CBC>>>
+	
+	* <<<CBC-CTS>>>
+
+		* {{{http://en.wikipedia.org/wiki/Ciphertext_stealing#CBC_ciphertext_stealing}Wikipedia: CBC ciphertext stealing}}
+
+	* <<<CCM>>>
+	
+	* <<<CFB>>>
+	
+	* <<<CFB8>>>, <<<CFB16>>>, <<<CFB24>>> ... <<<CFB256>>>
+	
+	* <<<CTS>>> (do NOT use this - use <<<CBC-CTS>>> instead!)
+	
+	* <<<EAX>>>
+	
+	* <<<ECB>>>
+	
+	* <<<GCM>>>
+	
+	* <<<GOFB>>>
+	
+	* <<<OFB>>>
+	
+	* <<<OFB8>>>, <<<OFB16>>>, <<<OFB24>>> ... <<<OFB256>>>
+	
+	* <<<SIC>>>
+	
+	[]
+
+* Padding
+
+** Symmetric
+
+	* <<<NOPADDING>>>
+
+	* <<<ISO10126>>>
+
+	* <<<ISO10126-2>>>
+
+	* <<<ISO7816-4>>>
+
+	* <<<PKCS5>>>
+
+	* <<<PKCS7>>>
+
+	* <<<TBC>>>
+
+	* <<<X9.23>>>
+
+	* <<<ZEROBYTE>>>
+	
+	[]
+	
+** Asymmetric
+
+	* <<<NOPADDING>>>
+
+	* <<<ISO9796-1>>>
+
+	* <<<OAEP>>>
+
+	* <<<OAEPWITHSHA1ANDMGF1>>>
+
+	* <<<PKCS1>>>
+	
+	[]
 
 * MAC
 
-	TODO document this!
+	A {{{http://en.wikipedia.org/wiki/Message_authentication_code}Message authentication code}} (or MAC) is used to
+	detect data manipulation or corruption.
+
+	* <<<NONE>>>
+	
+		* Means to NOT use a MAC at all. This is only recommended, if your {{{Block cipher operation mode}}}
+		already contains authentication (like e.g. <<<GCM>>> does). Otherwise, it is highly recommended to use a
+		MAC.
+	
+	* <<<DES>>>
+	
+	* <<<DES/CFB8>>>
+	
+	* <<<DES64>>>
+	
+	* <<<DESWITHISO9797>>>
+	
+	* <<<GOST28147>>>
+	
+	* <<<HMAC-MD2>>>
+	
+	* <<<HMAC-MD4>>>
+	
+	* <<<HMAC-MD5>>>
+	
+	* <<<HMAC-RIPEMD128>>>
+	
+	* <<<HMAC-RIPEMD160>>>
+	
+	* <<<HMAC-SHA1>>>
+	
+	* <<<HMAC-SHA224>>>
+	
+	* <<<HMAC-SHA256>>>
+	
+	* <<<HMAC-SHA384>>>
+	
+	* <<<HMAC-SHA512>>>
+	
+	* <<<HMAC-TIGER>>>
+	
+	* <<<ISO9797ALG3>>>
+	
+	* <<<ISO9797ALG3WITHISO7816-4PADDING>>>
+	
+	* <<<OLDHMACSHA384>>>
+	
+	* <<<OLDHMACSHA512>>>
+	
+	* <<<RC2>>>
+	
+	* <<<RC2/CFB8>>>
+	
+	[]
+	
+* TODO
+	
+	Continue to document this!
 

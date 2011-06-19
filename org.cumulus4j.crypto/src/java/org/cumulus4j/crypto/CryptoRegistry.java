@@ -112,6 +112,7 @@ import org.cumulus4j.crypto.asymmetric.keypairgenerator.GOST3410KeyPairGenerator
 import org.cumulus4j.crypto.asymmetric.keypairgenerator.NaccacheSternKeyPairGeneratorFactory;
 import org.cumulus4j.crypto.asymmetric.keypairgenerator.RSAKeyPairGeneratorFactory;
 import org.cumulus4j.crypto.mac.AbstractMacCalculatorFactory;
+import org.cumulus4j.crypto.mode.C4jCBCCTSBlockCipher;
 import org.cumulus4j.crypto.mode.C4jCFBBlockCipher;
 import org.cumulus4j.crypto.mode.C4jOFBBlockCipher;
 import org.cumulus4j.crypto.symmetric.AEADBlockCipherImpl;
@@ -351,6 +352,8 @@ public final class CryptoRegistry
 			registerBlockCipherMode("CFB" + (i * 8), C4jCFBBlockCipher.class);
 
 		registerBufferedBlockCipherMode("CTS", CTSBlockCipher.class);
+		registerBufferedBlockCipherMode("CBC-CTS", C4jCBCCTSBlockCipher.class);
+
 		registerAEADBlockCipherMode("EAX", EAXBlockCipher.class);
 		registerAEADBlockCipherMode("GCM", GCMBlockCipher.class);
 		registerBlockCipherMode("GOFB", GOFBBlockCipher.class);

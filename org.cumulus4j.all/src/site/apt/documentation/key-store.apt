@@ -1,0 +1,58 @@
+	---
+	Key store
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-19
+
+Key store
+
+	Your data in the encrypted database is only as secure as your keys. Someone getting your keys can access
+	all your data. Therefore your keys require protection.
+	
+	First of all, the keys are always stored far away from your database, i.e. never at the cloud service provider.
+	Where exactly you keep your keys is your decision. Cumulus4j provides various possibilities:
+	
+	* You can keep your keys on your client computer(s).
+	
+	* You can store them on a USB thumb drive, which you connect to your classic key ring.
+	
+	* You can use a key server to manage your keys. This key server could be run in your office or somewhere
+	in the internet; though the hoster of your key-server should be someone who has no relationship
+	to your cloud service provider, of course.
+	
+	[]
+	
+	Take a look at the {{{./deployment-scenarios.html}Deployment scenarios}} to get a better understanding of
+	this.
+
+* Protection by encryption
+
+	The keys in your key store are encrypted and thus protected even if you loose your classic key ring with
+	your key store being on a USB thumb drive. Only those people having a user-name and password to your key
+	store can access your keys.
+	
+	By default, the key store uses very strong encryption: {{{http://en.wikipedia.org/wiki/Twofish}Twofish}}
+	with 256 bit keys and {{{http://en.wikipedia.org/wiki/Galois/Counter_Mode}GCM}} to protect it against
+	data manipulation or corruption.
+	
+	Note: You need a backup, as GCM does only detect manipulation/corruption and is not able to magically
+	repair it! But you need a backup, anyway, because you might loose your key store due to a broken hard disk,
+	a lost thumb drive or other reasons.
+
+* Key size
+
+	By default, keys have a length of 256 bit.
+
+	Important: The key store determines, which key size is used to encrypt your database!
+
+* Date-dependent key strategy
+
+	Keys are rotated from time to time. By default, one key is valid for one day, but you can choose otherwise
+	if you want to.
+	
+	TODO document this!
+
+* Initialisation
+
+	TODO document CLI!

@@ -1,0 +1,55 @@
+	---
+	Persistence API
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-19
+
+Persistence API
+
+	Anyone familiar with either of the two standardised Java persistence APIs (JDO, JPA) should have no problem
+	utilising Cumulus4j to encrypt their data. Please consult DataNucleus' documentation about the
+	{{{http://www.datanucleus.org/products/accessplatform_3_0/jdo/api.html}JDO API}} or the
+	{{{http://www.datanucleus.org/products/accessplatform_3_0/jpa/api.html}JPA API}} for details.
+
+	In terms of persistence properties (for <persistence.xml>, <jdoconfig.xml> etc) you define your persistence properties
+	as normal, but need to specify to use Cumulus4j. For example
+
++------------------------------------------+
+javax.jdo.PersistenceManagerFactoryClass= org.datanucleus.api.jdo.JDOPersistenceManagerFactory
+
+datanucleus.storeManagerType=cumulus4j
+datanucleus.persistenceByReachabilityAtCommit=false
+datanucleus.manageRelationships=false
+datanucleus.manageRelationshipsChecks=false
+datanucleus.plugin.allowUserBundles=true
+
+javax.jdo.option.ConnectionDriverName=org.apache.derby.jdbc.EmbeddedDriver
+javax.jdo.option.ConnectionURL=jdbc:derby:${java.io.tmpdir}/derby/cumulus4j;create=true
+javax.jdo.option.ConnectionUserName=root
+javax.jdo.option.ConnectionPassword=
++------------------------------------------+
+
+	So here we specify Cumulus4J to use an embedded Apache Derby database. Internally this will start a PMF/EMF
+	for the backend (Derby) datastore. If you want to control further the properties used for the backend datastore
+	simply add them to your persistence properties, prefixing them with <<cumulus4j.>> and they will be passed to
+	the backend datastore without the prefix.
+
+	As an extension to this you can separate the "data" from the "index" information. You do this by specifying
+	a separate backend datastore for the index information. Like this
+
++------------------------------------------+
+cumulus4j.index.javax.jdo.option.ConnectionDriverName=com.mysql.jdbc.Driver
+cumulus4j.index.javax.jdo.option.ConnectionURL=jdbc:mysql://127.0.0.1/cumulus4j
+cumulus4j.index.javax.jdo.option.ConnectionUserName=mysql
+cumulus4j.index.javax.jdo.option.ConnectionPassword=
++------------------------------------------+
+	so now we're storing the index information in a MySQL datastore.
+
+	Furthermore, you can optionally change the {{{./supported-algorithms.html}encryption and MAC algorithm}}
+	by specifying the following properties:
+
++------------------------------------------+
+cumulus4j.encryptionAlgorithm=AES/CBC/PKCS5
+cumulus4j.macAlgorithm=HMAC-SHA1
++------------------------------------------+

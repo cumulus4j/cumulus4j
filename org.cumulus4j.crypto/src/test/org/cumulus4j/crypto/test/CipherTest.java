@@ -414,7 +414,9 @@ public class CipherTest
 //		final boolean passNullAsKeyParameter = false;
 //
 //		Set<String> transformations = new TreeSet<String>();
-//		transformations.add("AES.FAST/CFB136/");
+////		transformations.add("AES.FAST/CFB136/");
+//		transformations.add("AES.FAST/CTS/");
+//		transformations.add("AES.FAST/CBC-CTS/");
 ////		transformations.addAll(CryptoRegistry.sharedInstance().getSupportedCipherTransformations(CipherEngineType.symmetricBlock));
 ////		transformations.addAll(CryptoRegistry.sharedInstance().getSupportedCipherTransformations(CipherEngineType.symmetricStream));
 //
@@ -428,7 +430,8 @@ public class CipherTest
 //				org.cumulus4j.crypto.Cipher encrypter = CryptoRegistry.sharedInstance().createCipher(transformation);
 //				org.cumulus4j.crypto.Cipher decrypter = CryptoRegistry.sharedInstance().createCipher(transformation);
 //
-//				byte[] plaintext = getPlaintext(encrypter.getInputBlockSize());
+//				byte[] plaintext = getPlaintext(-1);
+////				byte[] plaintext = getPlaintext(encrypter.getInputBlockSize());
 //				if (plaintext.length < 1)
 //					throw new IllegalStateException("plaintext.length < 1");
 //
