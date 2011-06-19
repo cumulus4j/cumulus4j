@@ -71,23 +71,45 @@ Supported algorithms
 	{{{http://en.wikipedia.org/wiki/Block_cipher}Block ciphers}} are the most widely used encryption algorithms.
 	They combine very high security with good performance.
 
+	* <<<NULL>>>
+	
+		* Means NO encryption at all. You should never use this except for testing/debugging!
+
 	* <<<AES>>>
 	
-	* <<<AES.FAST>>> (same as <<<AES>>>, but implementation with higher memory consumption and being faster)
+		* {{{http://en.wikipedia.org/wiki/Advanced_Encryption_Standard}Wikipedia: Advanced Encryption Standard}}
 	
-	* <<<AES.LIGHT>>> (same as <<<AES>>>, but implementation with lower memory consumption and being slower)
+	* <<<AES.FAST>>>
+	 
+		* This is the same algorithm as <<<AES>>>, but an implementation with higher memory consumption and being faster.
+	
+	* <<<AES.LIGHT>>> 
+	
+		* This is the same algorithm as <<<AES>>>, but an implementation with lower memory consumption and being slower.
 
 	* <<<BLOWFISH>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Blowfish_%28cipher%29}Wikipedia: Blowfish (cipher)}}
 
 	* <<<CAMELLIA>>>
 	
-	* <<<CAMELLIA.LIGHT>>> (same as <<<CAMELLIA>>>, but implementation with lower memory consumption and being slower)
+		* {{{http://en.wikipedia.org/wiki/Camellia_%28cipher%29}Wikipedia: Camellia (cipher)}}
+	
+	* <<<CAMELLIA.LIGHT>>>
+	
+		* This is the same algorithm as <<<CAMELLIA>>>, but an implementation with lower memory consumption and being slower.
 	
 	* <<<CAST5>>>
+
+		* {{{http://en.wikipedia.org/wiki/CAST-128}Wikipedia: CAST-128}}
 	
 	* <<<CAST6>>>
+
+		* {{{http://en.wikipedia.org/wiki/CAST-256}Wikipedia: CAST-256}}
 	
 	* <<<DES>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Data_Encryption_Standard}Wikipedia: Data Encryption Standard}}
 	
 	* <<<DESEDE>>>
 	
@@ -95,29 +117,47 @@ Supported algorithms
 	
 	* <<<NOEKEON>>>
 	
-	* <<<NULL>>>
-	
+		* {{{http://en.wikipedia.org/wiki/NOEKEON}Wikipedia: NOEKEON}}
+		
 	* <<<RC2>>>
 	
+		* {{{http://en.wikipedia.org/wiki/RC2}Wikipedia: RC2}}
+	
 	* <<<RC5-32>>>
+	
+		* {{{http://en.wikipedia.org/wiki/RC5}Wikipedia: RC5}}
 	
 	* <<<RC5-64>>>
 	
 	* <<<RC6>>>
 	
+		* {{{http://en.wikipedia.org/wiki/RC6}Wikipedia: RC6}}
+	
 	* <<<RIJNDAEL>>>
 	
 	* <<<SEED>>>
 	
+		* {{{http://en.wikipedia.org/wiki/SEED}Wikipedia: SEED}}
+	
 	* <<<SERPENT>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Serpent_%28cipher%29}Wikipedia: Serpent (cipher)}}
 	
 	* <<<SKIPJACK>>>
 	
+		* {{{http://en.wikipedia.org/wiki/Skipjack_%28cipher%29}Wikipedia: Skipjack (cipher)}}
+	
 	* <<<TEA>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Tiny_Encryption_Algorithm}Wikipedia: Tiny Encryption Algorithm}}
 	
 	* <<<TWOFISH>>>
 	
+		* {{{http://en.wikipedia.org/wiki/Twofish}Wikipedia: Twofish}}
+	
 	* <<<XTEA>>>
+	
+		* {{{http://en.wikipedia.org/wiki/XTEA}Wikipedia: XTEA}}
 	
 	[]
 
@@ -193,9 +233,15 @@ Supported algorithms
 	
 	Cumulus4j supports the following modes:
 	
-	* <<<ECB>>> (do NOT use this - it is extremely insecure!)
+	* <<<ECB>>>
+	
+		* Do NOT use this!!! It is extremely insecure!!!
+	
+		* {{{http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Electronic_codebook_.28ECB.29}Wikipedia}}
 	
 	* <<<CBC>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29}Wikipedia}}
 	
 	* <<<CBC-CTS>>>
 
@@ -203,21 +249,29 @@ Supported algorithms
 
 	* <<<CCM>>>
 	
+		* {{{http://en.wikipedia.org/wiki/CCM_mode}Wikipedia: CCM mode}}
+	
 	* <<<CFB>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher_feedback_.28CFB.29}Wikipedia}}
 	
 	* <<<CFB8>>>, <<<CFB16>>>, <<<CFB24>>> ... <<<CFB256>>>
 	
 	* <<<CTS>>> (do NOT use this - use <<<CBC-CTS>>> instead!)
-	
+
 	* <<<EAX>>>
 	
-	* <<<ECB>>>
+		* {{{http://en.wikipedia.org/wiki/EAX_mode}Wikipedia: EAX mode}}
 	
 	* <<<GCM>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Galois/Counter_Mode}Wikipedia: Galois/Counter Mode}}
 	
 	* <<<GOFB>>>
 	
 	* <<<OFB>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Output_feedback}Wikipedia: Output feedback}}
 	
 	* <<<OFB8>>>, <<<OFB16>>>, <<<OFB24>>> ... <<<OFB256>>>
 	
