@@ -62,8 +62,8 @@ Supported algorithms
 	"Encryption", "Mode" and "Padding" are usually concatenated to a string like "AES/GCM/NoPadding".
 	The MAC is usually configured separately.
 	
-	In {{{persistence-api.html}Persistence API}}, it is documented, how you configure this for the
-	actual datastore and in {{{key-store.html}Key store}} you'll see how you can apply different
+	In {{{./persistence-api.html}Persistence API}}, it is documented, how you configure this for the
+	actual datastore and in {{{./key-store.html}Key store}} you'll see how you can apply different
 	encryption/MAC settings to the key store.
 
 ** Block cipher engines
