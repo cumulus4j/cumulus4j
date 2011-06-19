@@ -83,7 +83,7 @@ extends AbstractCryptoSession
 	 * Alternatively, we could use "EC": http://en.wikipedia.org/wiki/Elliptic_curve_cryptography
 	 * </p>
 	 */
-	private static final String keyEncryptionTransformation = "RSA/ECB/OAEPWITHSHA1ANDMGF1PADDING";
+	private static final String keyEncryptionTransformation = "RSA//OAEPWITHSHA1ANDMGF1PADDING";
 
 	private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 

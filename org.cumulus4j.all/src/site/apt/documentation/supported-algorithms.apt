@@ -209,8 +209,8 @@ Supported algorithms
 	can decrypt the key. An administrator who dumps the medium used for node-to-node-communication
 	cannot make use of what he'll find there.
 
-	<<<RSA/ECB/OAEPWITHSHA1ANDMGF1PADDING>>> is used by default. At the moment, there is no configuration
-	setting to change this this, yet. However, this will likely change soon.
+	<<<RSA//OAEPWITHSHA1ANDMGF1PADDING>>> is used by default. At the moment, there is no configuration
+	setting to change this, yet. However, this will likely change soon.
 
 ** Asymmetric engines
 
