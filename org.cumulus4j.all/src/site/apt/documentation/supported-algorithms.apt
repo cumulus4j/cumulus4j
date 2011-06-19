@@ -16,7 +16,7 @@ Supported algorithms
 
 	With 256 bit keys, <<<TWOFISH>>> is more secure than <<<AES>>>. Furthermore, on ordinary hardware,
 	Twofish is faster. However, on some CPUs or with 128 bit key size, AES might be slightly faster
-	while providing the same level of security.
+	while providing approximately the same level of security.
 
 	In the following, you'll find a list of all supported possibilities. However:
 
@@ -24,7 +24,7 @@ Supported algorithms
 	or - even worse - it might break security!!! Only change the defaults, if you really know
 	what you are doing!>>
 	
-	If you are unsure, stick with the "Recommended choices"!
+	If you are unsure, stick with the "{{Recommended choices}}"!
 
 * Symmetric encryption
 
@@ -33,7 +33,7 @@ Supported algorithms
 	encryption to protect your keys (in case you loose your key store - e.g. on a USB thumb drive - or someone
 	steals it).
 
-** Recommended choices
+** {Recommended choices}
 
 	While there are many algorithms for encryption, block-mode, padding and MAC available to choose from, not
 	all combinations of them work with Cumulus4j. Some others work, but make no sense; e.g. to combine an
@@ -184,7 +184,7 @@ Supported algorithms
 	
 	[]
 
-* {{Block cipher operation mode}}s
+* {Block cipher operation mode}s
 
 	Block ciphers work - as the name implies - on a block of data (usually 64 or 128 bit). But usually there
 	is more data to encrypt than just one block. That's why the block cipher engine is always combined with a
@@ -270,7 +270,7 @@ Supported algorithms
 
 	* <<<NONE>>>
 	
-		* Means to NOT use a MAC at all. This is only recommended, if your {{{Block cipher operation mode}}}
+		* Means to NOT use a MAC at all. This is only recommended, if your {{Block cipher operation mode}}
 		already contains authentication (like e.g. <<<GCM>>> does). Otherwise, it is highly recommended to use a
 		MAC.
 	
