@@ -54,7 +54,7 @@ public class AppServer
 	public void setAppServerID(String appServerID)
 	{
 		if (this.appServerID != null && !this.appServerID.equals(appServerID))
-			throw new IllegalArgumentException("this.appServerID is already assigned! Cannot modify it afterwards!");
+			throw new IllegalArgumentException("this.appServerID is already assigned and new value differs from old value! Cannot modify it afterwards!");
 
 		this.appServerID = appServerID;
 	}
