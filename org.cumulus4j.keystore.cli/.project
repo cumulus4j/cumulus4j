@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.cumulus4j.keystore.cli</name>
+	<name>org.cumulus4j.keymanager.cli</name>
 	<comment></comment>
 	<projects>
 	</projects>
