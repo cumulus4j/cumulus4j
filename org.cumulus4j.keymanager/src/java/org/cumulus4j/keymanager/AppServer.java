@@ -34,8 +34,8 @@ public class AppServer
 		if (appServerManager == null)
 			throw new IllegalArgumentException("appServerManager == null");
 
-		if (appServerID == null)
-			throw new IllegalArgumentException("appServerID == null");
+//		if (appServerID == null) // this is now allowed! the appServerID will be assigned when putting this into the AppServerManager.
+//			throw new IllegalArgumentException("appServerID == null");
 
 		if (appServerBaseURL == null)
 			throw new IllegalArgumentException("appServerBaseURL == null");
