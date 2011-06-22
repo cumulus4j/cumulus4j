@@ -15,43 +15,53 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cumulus4j.keystore.cli;
+package org.cumulus4j.keymanager.cli;
 
-import org.kohsuke.args4j.Option;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 /**
- * {@link SubCommand} implementation for creating a new user.
- *
+ * <p>
+ * {@link SubCommand} implementation for showing the version number of the command
+ * line tool.
+ * </p>
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public class CreateUserSubCommand extends SubCommandWithKeyStoreWithAuth
+public class VersionSubCommand
+extends SubCommand
 {
-	@Option(name="-userName", required=true, usage="The new user to be created.")
-	private String userName;
+	public static String getVersion() throws IOException
+	{
+		Properties properties = new Properties();
+		InputStream in = VersionSubCommand.class.getResourceAsStream("/META-INF/maven/org.cumulus4j/org.cumulus4j.keymanager.cli/pom.properties");
+		if (in == null)
+			return "UNKNOWN";
 
-	@Option(name="-password", required=false, usage="The password of the new user. If omitted, the user will be asked for it interactively.")
-	private String password;
+		try {
+			properties.load(in);
+		} catch (IOException x) {
+			throw new IOException("Cannot read resource: /META-INF/MANIFEST.MF", x);
+		} finally {
+			in.close();
+		}
+		String version = properties.getProperty("version");
+		return version;
+	}
 
 	@Override
 	public String getSubCommandName() {
-		return "createUser";
+		return "version";
 	}
 
 	@Override
 	public String getSubCommandDescription() {
-		return "Create a new user by encrypting the master-key with the new user's password.";
+		return "Display the version of this JAR.";
 	}
 
 	@Override
-	public void prepare() throws Exception {
-		super.prepare();
-
-		if (password == null)
-			password = promptPassword("password: ");
-	}
-
-	@Override
-	public void run() throws Exception {
-		getKeyStore().createUser(getAuthUserName(), getAuthPasswordAsCharArray(), userName, password.toCharArray());
+	public void run() throws Exception
+	{
+		System.out.println(getVersion());
 	}
 }

@@ -15,53 +15,32 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cumulus4j.keystore.cli;
+package org.cumulus4j.keymanager.cli;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
+import org.kohsuke.args4j.Option;
 
 /**
- * <p>
- * {@link SubCommand} implementation for showing the version number of the command
- * line tool.
- * </p>
+ * {@link SubCommand} implementation for deleting a user.
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public class VersionSubCommand
-extends SubCommand
+public class DeleteUserSubCommand extends SubCommandWithKeyStoreWithAuth
 {
-	public static String getVersion() throws IOException
-	{
-		Properties properties = new Properties();
-		InputStream in = VersionSubCommand.class.getResourceAsStream("/META-INF/maven/org.cumulus4j/org.cumulus4j.keystore.cli/pom.properties");
-		if (in == null)
-			return "UNKNOWN";
-
-		try {
-			properties.load(in);
-		} catch (IOException x) {
-			throw new IOException("Cannot read resource: /META-INF/MANIFEST.MF", x);
-		} finally {
-			in.close();
-		}
-		String version = properties.getProperty("version");
-		return version;
-	}
+	@Option(name="-userName", required=true, usage="The user to be deleted.")
+	private String userName;
 
 	@Override
 	public String getSubCommandName() {
-		return "version";
+		return "deleteUser";
 	}
 
 	@Override
 	public String getSubCommandDescription() {
-		return "Display the version of this JAR.";
+		return "Delete the user, i.e. remove the given user's password slot.";
 	}
 
 	@Override
-	public void run() throws Exception
-	{
-		System.out.println(getVersion());
+	public void run() throws Exception {
+		getKeyStore().deleteUser(getAuthUserName(), getAuthPasswordAsCharArray(), userName);
 	}
 }

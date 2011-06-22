@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cumulus4j.keystore.cli;
+package org.cumulus4j.keymanager.cli;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ import org.kohsuke.args4j.CmdLineParser;
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public class KeyStoreCLI
+public class KeyManagerCLI
 {
 	public static final List<Class<? extends SubCommand>> subCommandClasses;
 	static {
@@ -79,7 +79,7 @@ public class KeyStoreCLI
 	private static final String CMD_PREFIX;
 	static {
 		try {
-			CMD_PREFIX = "java -jar org.cumulus4j.keystore.cli-" + VersionSubCommand.getVersion() + ".jar";
+			CMD_PREFIX = "java -jar org.cumulus4j.keymanager.cli-" + VersionSubCommand.getVersion() + ".jar";
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

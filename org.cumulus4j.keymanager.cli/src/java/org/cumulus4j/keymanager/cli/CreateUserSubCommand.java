@@ -15,34 +15,43 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cumulus4j.keystore.cli;
+package org.cumulus4j.keymanager.cli;
+
+import org.kohsuke.args4j.Option;
 
 /**
- * <p>
- * {@link SubCommand} implementation for showing the help.
- * </p>
- * <p>
- * Since the 'help' sub-command is currently handled by {@link KeyStoreCLI} internally,
- * this is a dummy class at the moment (just to show the 'help' in the help, for example).
- * </p>
+ * {@link SubCommand} implementation for creating a new user.
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public class HelpSubCommand extends SubCommand {
+public class CreateUserSubCommand extends SubCommandWithKeyStoreWithAuth
+{
+	@Option(name="-userName", required=true, usage="The new user to be created.")
+	private String userName;
+
+	@Option(name="-password", required=false, usage="The password of the new user. If omitted, the user will be asked for it interactively.")
+	private String password;
 
 	@Override
 	public String getSubCommandName() {
-		return "help";
+		return "createUser";
 	}
 
 	@Override
 	public String getSubCommandDescription() {
-		return "Get help.";
+		return "Create a new user by encrypting the master-key with the new user's password.";
+	}
+
+	@Override
+	public void prepare() throws Exception {
+		super.prepare();
+
+		if (password == null)
+			password = promptPassword("password: ");
 	}
 
 	@Override
 	public void run() throws Exception {
-		throw new UnsupportedOperationException("The help command is handled by the KeyStoreCLI itself.");
+		getKeyStore().createUser(getAuthUserName(), getAuthPasswordAsCharArray(), userName, password.toCharArray());
 	}
-
 }

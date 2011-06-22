@@ -15,14 +15,34 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.cumulus4j.keymanager.cli;
+
 /**
  * <p>
- * Command line interface for the {@link org.cumulus4j.keystore.KeyStore}.
+ * {@link SubCommand} implementation for showing the help.
  * </p>
  * <p>
- * This command line interface provides convenient maintenance features
- * like creating and initialising a new key store, showing infos about an
- * existing key store file, adding users etc.
+ * Since the 'help' sub-command is currently handled by {@link KeyManagerCLI} internally,
+ * this is a dummy class at the moment (just to show the 'help' in the help, for example).
  * </p>
+ *
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-package org.cumulus4j.keystore.cli;
+public class HelpSubCommand extends SubCommand {
+
+	@Override
+	public String getSubCommandName() {
+		return "help";
+	}
+
+	@Override
+	public String getSubCommandDescription() {
+		return "Get help.";
+	}
+
+	@Override
+	public void run() throws Exception {
+		throw new UnsupportedOperationException("The help command is handled by the KeyManagerCLI itself.");
+	}
+
+}

@@ -15,32 +15,14 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cumulus4j.keystore.cli;
-
-import org.kohsuke.args4j.Option;
-
 /**
- * {@link SubCommand} implementation for deleting a user.
- *
- * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ * <p>
+ * Command line interface for the {@link org.cumulus4j.keystore.KeyStore}.
+ * </p>
+ * <p>
+ * This command line interface provides convenient maintenance features
+ * like creating and initialising a new key store, showing infos about an
+ * existing key store file, adding users etc.
+ * </p>
  */
-public class DeleteUserSubCommand extends SubCommandWithKeyStoreWithAuth
-{
-	@Option(name="-userName", required=true, usage="The user to be deleted.")
-	private String userName;
-
-	@Override
-	public String getSubCommandName() {
-		return "deleteUser";
-	}
-
-	@Override
-	public String getSubCommandDescription() {
-		return "Delete the user, i.e. remove the given user's password slot.";
-	}
-
-	@Override
-	public void run() throws Exception {
-		getKeyStore().deleteUser(getAuthUserName(), getAuthPasswordAsCharArray(), userName);
-	}
-}
+package org.cumulus4j.keymanager.cli;

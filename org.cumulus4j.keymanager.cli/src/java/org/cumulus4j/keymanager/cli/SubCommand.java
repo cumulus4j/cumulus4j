@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cumulus4j.keystore.cli;
+package org.cumulus4j.keymanager.cli;
 
 import org.kohsuke.args4j.Option;
 
@@ -25,7 +25,7 @@ import org.kohsuke.args4j.Option;
  * </p>
  * <p>
  * The key-store-command-line-interface uses a syntax similar to the svn command and the logic of the
- * command 'java -jar org.cumulus4j.keystore.cli-VERSION.jar SUBCOMMAND -arg1 val1 -arg2 val2 ...'
+ * command 'java -jar org.cumulus4j.keymanager.cli-VERSION.jar SUBCOMMAND -arg1 val1 -arg2 val2 ...'
  * is thus actually implemented by a class extending this class and {@link #getSubCommandName() registering}
  * for a certain 'SUBCOMMAND'.
  * </p>

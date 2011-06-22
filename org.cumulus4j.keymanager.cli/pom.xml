@@ -7,9 +7,9 @@
 		<relativePath>../org.cumulus4j.parent/pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>org.cumulus4j.keystore.cli</artifactId>
+	<artifactId>org.cumulus4j.keymanager.cli</artifactId>
 	
-	<name>org.cumulus4j.keystore.cli</name>
+	<name>org.cumulus4j.keymanager.cli</name>
 	
 	<dependencies>
 		<dependency>
@@ -47,7 +47,7 @@
                 <executions>
                     <execution>
                         <configuration>
-	                        <mainClass>org.cumulus4j.keystore.cli.KeyStoreCLI</mainClass>
+	                        <mainClass>org.cumulus4j.keymanager.cli.KeyManagerCLI</mainClass>
 
                             <!-- Optional -->
                             <onejarVersion>0.96</onejarVersion>
