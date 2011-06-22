@@ -186,6 +186,11 @@ public class IntegrationWithAppServerAndKeyServerTest
 //		keyManagerAPI.setKeyStoreID(KEY_STORE_ID);
 //		keyManagerAPI.setKeyManagerBaseURL(URL_KEY_MANAGER_FRONT_WEBAPP);
 //
+//		org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam param = new org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam();
+//		param.setKeyActivityPeriodMSec(3600L * 1000L);
+//		param.setKeyStorePeriodMSec(24L * 3600L * 1000L);
+//		keyManagerAPI.initDateDependentKeyStrategy(param);
+//
 //		org.cumulus4j.keymanager.api.Session session = keyManagerAPI.getSession(URL_KEY_MANAGER_BACK_WEBAPP);
 //
 //		// It does not matter here in this test, but in real code, WE MUST ALWAYS lock() after we did unlock()!!!
