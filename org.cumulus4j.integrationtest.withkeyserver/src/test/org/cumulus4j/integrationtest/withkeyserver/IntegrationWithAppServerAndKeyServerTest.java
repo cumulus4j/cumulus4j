@@ -60,23 +60,14 @@ public class IntegrationWithAppServerAndKeyServerTest
 	private static final String KEY_SERVER_USER = "devil";
 	private static final char[] KEY_SERVER_PASSWORD = "testtesttest".toCharArray();
 
-//	@Test
-//	public void testThreeComputerScenarioWithUnifiedApi()
-//	throws Exception
-//	{
-//		KeyManagerAPI keyManagerAPI = new DefaultKeyManagerAPI();
-//		keyManagerAPI.setAuthUserName(KEY_SERVER_USER);
-//		keyManagerAPI.setAuthPassword(KEY_SERVER_PASSWORD);
-//		keyManagerAPI.setKeyStoreID(KEY_STORE_ID);
-//		Session session = keyManagerAPI.getSession(URL_KEY_MANAGER_BACK_WEBAPP);
-//
-//		/// 1 h
-//
-//		session.getCryptoSessionID();
-//	}
-
+	/**
+	 * Test for the 3-computer-deployment-scenario. DO NOT USE THIS AS AN EXAMPLE FOR YOUR OWN CODE!!!
+	 * You should instead use the API (this code here is called "low-level" for a reason!) as shown below.
+	 *
+	 * @throws Exception if sth. goes wrong.
+	 */
 	@Test
-	public void testThreeComputerScenario()
+	public void testThreeComputerScenarioLowLevel()
 	throws Exception
 	{
 		Client clientForKeyServer = new Client();
@@ -150,4 +141,20 @@ public class IntegrationWithAppServerAndKeyServerTest
 		if (!result.startsWith("OK:"))
 			Assert.fail("The POST request on URL " + url + " did not return the expected result! Instead it returned: " + result);
 	}
+
+//@Test
+//public void testThreeComputerScenarioWithUnifiedAPI()
+//throws Exception
+//{
+//	KeyManagerAPI keyManagerAPI = new DefaultKeyManagerAPI();
+//	keyManagerAPI.setAuthUserName(KEY_SERVER_USER);
+//	keyManagerAPI.setAuthPassword(KEY_SERVER_PASSWORD);
+//	keyManagerAPI.setKeyStoreID(KEY_STORE_ID);
+//	Session session = keyManagerAPI.getSession(URL_KEY_MANAGER_BACK_WEBAPP);
+//
+//	/// 1 h
+//
+//	session.getCryptoSessionID();
+//}
+
 }

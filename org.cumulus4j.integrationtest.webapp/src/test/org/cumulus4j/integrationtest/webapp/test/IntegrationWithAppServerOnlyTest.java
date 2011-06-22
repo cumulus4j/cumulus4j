@@ -28,6 +28,8 @@ import javax.ws.rs.core.MediaType;
 import org.cumulus4j.keymanager.AppServer;
 import org.cumulus4j.keymanager.AppServerManager;
 import org.cumulus4j.keymanager.Session;
+import org.cumulus4j.keymanager.api.DefaultKeyManagerAPI;
+import org.cumulus4j.keymanager.api.KeyManagerAPI;
 import org.cumulus4j.keystore.DateDependentKeyStrategy;
 import org.cumulus4j.keystore.KeyStore;
 import org.junit.Assert;
@@ -52,8 +54,17 @@ public class IntegrationWithAppServerOnlyTest
 	private static final String KEY_STORE_USER = "marco";
 	private static final char[] KEY_STORE_PASSWORD = "abcdefg-very+secret".toCharArray();
 
+	private static final String KEY_STORE_ID = "test-" + Long.toString(System.currentTimeMillis(), 36);
+
+	/**
+	 * Test for the 2-computer-deployment-scenario. DO NOT USE THIS AS AN EXAMPLE FOR YOUR OWN CODE!!!
+	 * You should instead use the API (this code here is called "low-level" for a reason!) as shown below
+	 * in {@link #testTwoComputerScenarioWithUnifiedAPI()}.
+	 *
+	 * @throws Exception if sth. goes wrong.
+	 */
 	@Test
-	public void testTwoComputerScenario() throws Exception
+	public void testTwoComputerScenarioLowLevel() throws Exception
 	{
 		File keyStoreFile = File.createTempFile("test-", ".keystore");
 		try {
@@ -68,36 +79,103 @@ public class IntegrationWithAppServerOnlyTest
 			Session session = appServer.getSessionManager().openSession(KEY_STORE_USER, KEY_STORE_PASSWORD);
 			session.setLocked(false);
 
-			Client client = new Client();
-			String url = URL_TEST + "?cryptoSessionID=" + URLEncoder.encode(session.getCryptoSessionID(), IOUtil.CHARSET_NAME_UTF_8);
-			String result;
-			try {
-				result = client.resource(url).accept(MediaType.TEXT_PLAIN).post(String.class);
-			} catch (UniformInterfaceException x) {
-				String message = null;
-				try {
-					InputStream in = x.getResponse().getEntityInputStream();
-					ByteArrayOutputStream out = new ByteArrayOutputStream();
-					IOUtil.transferStreamData(in, out);
-					in.close();
-					message = new String(out.toByteArray(), IOUtil.CHARSET_UTF_8);
-				} catch (Exception e) {
-					logger.error("Reading error message failed: " + e, e);
-				}
-				if (message == null)
-					throw x;
-				else
-					throw new IOException("Error-code=" + x.getResponse().getStatus() + " error-message=" + message, x);
-			}
-
-			if (result == null)
-				Assert.fail("The POST request on URL " + url + " did not return any result!");
-
-			if (!result.startsWith("OK:"))
-				Assert.fail("The POST request on URL " + url + " did not return the expected result! Instead it returned: " + result);
+			invokeTestWithinServer(session.getCryptoSessionID());
 		} finally {
 			keyStoreFile.delete();
 		}
 	}
 
+	private void invokeTestWithinServer(String cryptoSessionID)
+	throws Exception
+	{
+		Client client = new Client();
+		String url = URL_TEST + "?cryptoSessionID=" + URLEncoder.encode(cryptoSessionID, IOUtil.CHARSET_NAME_UTF_8);
+		String result;
+		try {
+			result = client.resource(url).accept(MediaType.TEXT_PLAIN).post(String.class);
+		} catch (UniformInterfaceException x) {
+			String message = null;
+			try {
+				InputStream in = x.getResponse().getEntityInputStream();
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				IOUtil.transferStreamData(in, out);
+				in.close();
+				message = new String(out.toByteArray(), IOUtil.CHARSET_UTF_8);
+			} catch (Exception e) {
+				logger.error("Reading error message failed: " + e, e);
+			}
+			if (message == null)
+				throw x;
+			else
+				throw new IOException("Error-code=" + x.getResponse().getStatus() + " error-message=" + message, x);
+		}
+
+		if (result == null)
+			Assert.fail("The POST request on URL " + url + " did not return any result!");
+
+		if (!result.startsWith("OK:"))
+			Assert.fail("The POST request on URL " + url + " did not return the expected result! Instead it returned: " + result);
+	}
+
+	@Test
+	public void testTwoComputerScenarioWithUnifiedAPI() throws Exception
+	{
+		File keyStoreDir = new File(IOUtil.getTempDir(), "cumulus4j-integration-test-key-stores");
+		try {
+			KeyManagerAPI keyManagerAPI = new DefaultKeyManagerAPI();
+			keyManagerAPI.setAuthUserName(KEY_STORE_USER);
+			keyManagerAPI.setAuthPassword(KEY_STORE_PASSWORD);
+			keyManagerAPI.setKeyStoreID(KEY_STORE_ID);
+
+			// We do not want to put test-key-store-files into the ~/.cumulus4j folder, thus setting this to the temp dir.
+			keyManagerAPI.setKeyManagerBaseURL(keyStoreDir.toURI().toString());
+
+			org.cumulus4j.keymanager.api.Session session = keyManagerAPI.getSession(URL_KEY_MANAGER_BACK_WEBAPP);
+
+			// It does not matter here in this test, but in real code, WE MUST ALWAYS lock() after we did unlock()!!!
+			// Hence we do it here, too, in case someone copies the code ;-)
+			// Marco :-)
+			session.unlock();
+			try {
+
+				invokeTestWithinServer(session.getCryptoSessionID());
+
+			} finally {
+				session.lock();
+			}
+
+		} finally {
+			File keyStoreFile = new File(keyStoreDir, KEY_STORE_ID + ".keystore");
+			if (!keyStoreFile.exists()) {
+				logger.warn("**************************************************************************");
+				logger.warn("**************************************************************************");
+				logger.warn("**************************************************************************");
+				logger.warn("**************************************************************************");
+				logger.warn("**************************************************************************");
+				logger.warn("**************************************************************************");
+				logger.warn("**************************************************************************");
+				logger.warn("**************************************************************************");
+				logger.warn("**************************************************************************");
+				logger.warn("**************************************************************************");
+
+				logger.warn("*** The key-store-file does not exist: " + keyStoreFile.getAbsolutePath());
+
+				logger.warn("**************************************************************************");
+				logger.warn("**************************************************************************");
+				logger.warn("**************************************************************************");
+				logger.warn("**************************************************************************");
+				logger.warn("**************************************************************************");
+				logger.warn("**************************************************************************");
+				logger.warn("**************************************************************************");
+				logger.warn("**************************************************************************");
+				logger.warn("**************************************************************************");
+				logger.warn("**************************************************************************");
+			}
+			else {
+				keyStoreFile.delete();
+				if (keyStoreFile.exists())
+					logger.warn("The key-store-file could not be deleted: " + keyStoreFile.getAbsolutePath());
+			}
+		}
+	}
 }
