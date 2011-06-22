@@ -30,6 +30,11 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.keymanager.api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.nightlabs</groupId>
 			<artifactId>org.nightlabs.util</artifactId>
 		</dependency>
@@ -108,12 +113,8 @@ in the reports just like every other test, too. Marco :-)
 					</connectors>
 					<systemProperties>
 						<systemProperty>
-							<name>cumulus4j.KeyManagerFrontWebApp.keyStoreFile</name>
-							<value>${java.io.tmpdir}/integrationtest.keystore</value>
-						</systemProperty>
-						<systemProperty>
-							<name>cumulus4j.KeyManagerFrontWebApp.deleteKeyStoreFileOnStartup</name>
-							<value>true</value>
+							<name>cumulus4j.keyStoreDir</name>
+							<value>${basedir}/target/integration-test-key-stores</value>
 						</systemProperty>
 					</systemProperties>
 				</configuration>

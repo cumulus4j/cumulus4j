@@ -17,8 +17,6 @@
  */
 package org.cumulus4j.keymanager.front.webapp;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,9 +24,6 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
-import org.cumulus4j.keymanager.AppServerManager;
-import org.cumulus4j.keymanager.back.shared.SystemPropertyUtil;
-import org.cumulus4j.keystore.KeyStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +46,9 @@ extends Application
 	 * passing "-Dorg.cumulus4j.keymanager.front.webapp.App.keyStoreFile=${java.io.tmpdir}/test.keystore"
 	 * to the java command will be resolved to "/tmp/test.keystore" on GNU+Linux.
 	 * </p>
+	 * @deprecated to be removed due to introduction of keyStoreID
 	 */
+	@Deprecated
 	public static final String SYSTEM_PROPERTY_KEY_STORE_FILE = "cumulus4j.KeyManagerFrontWebApp.keyStoreFile";
 
 	/**
@@ -63,17 +60,10 @@ extends Application
 	 * <b>Important:</b> This feature is for debugging and test reasons only! Never use it
 	 * on a productive system or you will loose all your keys (and thus your complete database)!!!
 	 * </p>
+	 * @deprecated TODO rename this after introduction of keyStoreID as they are not deleted on startup anymore but when first accessed.
 	 */
+	@Deprecated
 	public static final String SYSTEM_PROPERTY_DELETE_KEY_STORE_FILE_ON_STARTUP = "cumulus4j.KeyManagerFrontWebApp.deleteKeyStoreFileOnStartup";
-
-	private static File getUserHome()
-	{
-		String userHome = System.getProperty("user.home"); //$NON-NLS-1$
-		if (userHome == null)
-			throw new IllegalStateException("System property user.home is not set! This should never happen!"); //$NON-NLS-1$
-
-		return new File(userHome);
-	}
 
 	private static final Class<?>[] serviceClassesArray = {
 		AppServerService.class,
@@ -98,46 +88,67 @@ extends Application
 
 	private Set<Object> singletons;
 
-	private File keyStoreFile;
-	private KeyStore keyStore;
+//	private File keyStoreFile;
+//	private KeyStore keyStore;
 
-	private void initKeyStoreFile()
+//	private void initKeyStoreFile()
+//	{
+//		String keyStoreFileSysPropVal = System.getProperty(SYSTEM_PROPERTY_KEY_STORE_FILE);
+//		if (keyStoreFileSysPropVal == null || keyStoreFileSysPropVal.trim().isEmpty()) {
+//			keyStoreFile = new File(new File(getUserHome(), ".cumulus4j"), "cumulus4j.keystore");
+//			logger.info(
+//					"getSingletons: System property '{}' is empty or not specified. Using default keyStoreFile '{}'.",
+//					SYSTEM_PROPERTY_KEY_STORE_FILE, keyStoreFile.getAbsolutePath()
+//			);
+//		}
+//		else {
+//			String keyStoreFileSysPropValResolved = SystemPropertyUtil.resolveSystemProperties(keyStoreFileSysPropVal);
+//			keyStoreFile = new File(keyStoreFileSysPropValResolved);
+//			logger.info(
+//					"getSingletons: System property '{}' was set to '{}'. Using keyStoreFile '{}'.",
+//					new Object[] { SYSTEM_PROPERTY_KEY_STORE_FILE, keyStoreFileSysPropVal, keyStoreFile.getAbsolutePath() }
+//			);
+//		}
+//	}
+//
+//	private void deleteKeyStoreIfSysPropRequested() throws IOException {
+//		String deleteKS = System.getProperty(SYSTEM_PROPERTY_DELETE_KEY_STORE_FILE_ON_STARTUP);
+//		if (Boolean.TRUE.toString().equalsIgnoreCase(deleteKS)) {
+//			if (keyStoreFile.exists()) {
+//				logger.warn(
+//						"getSingletons: System property '{}' was set to 'true'. DELETING keyStoreFile '{}'!!!",
+//						SYSTEM_PROPERTY_DELETE_KEY_STORE_FILE_ON_STARTUP, keyStoreFile.getAbsolutePath()
+//				);
+//				if (!keyStoreFile.delete())
+//					throw new IOException("Could not delete keyStoreFile '" + keyStoreFile.getAbsolutePath() + "'!");
+//			}
+//			else {
+//				logger.warn(
+//						"getSingletons: System property '{}' was set to 'true', but keyStoreFile '{}' does NOT exist, hence not deleting it!",
+//						SYSTEM_PROPERTY_DELETE_KEY_STORE_FILE_ON_STARTUP, keyStoreFile.getAbsolutePath()
+//				);
+//			}
+//		}
+//	}
+
+	private void checkForDeprecatedSystemProperties()
 	{
-		String keyStoreFileSysPropVal = System.getProperty(SYSTEM_PROPERTY_KEY_STORE_FILE);
-		if (keyStoreFileSysPropVal == null || keyStoreFileSysPropVal.trim().isEmpty()) {
-			keyStoreFile = new File(new File(getUserHome(), ".cumulus4j"), "cumulus4j.keystore");
-			logger.info(
-					"getSingletons: System property '{}' is empty or not specified. Using default keyStoreFile '{}'.",
-					SYSTEM_PROPERTY_KEY_STORE_FILE, keyStoreFile.getAbsolutePath()
-			);
-		}
-		else {
-			String keyStoreFileSysPropValResolved = SystemPropertyUtil.resolveSystemProperties(keyStoreFileSysPropVal);
-			keyStoreFile = new File(keyStoreFileSysPropValResolved);
-			logger.info(
-					"getSingletons: System property '{}' was set to '{}'. Using keyStoreFile '{}'.",
-					new Object[] { SYSTEM_PROPERTY_KEY_STORE_FILE, keyStoreFileSysPropVal, keyStoreFile.getAbsolutePath() }
-			);
-		}
+		checkForDeprecatedSystemProperty(SYSTEM_PROPERTY_KEY_STORE_FILE);
+		checkForDeprecatedSystemProperty(SYSTEM_PROPERTY_DELETE_KEY_STORE_FILE_ON_STARTUP);
 	}
 
-	private void deleteKeyStoreIfSysPropRequested() throws IOException {
-		String deleteKS = System.getProperty(SYSTEM_PROPERTY_DELETE_KEY_STORE_FILE_ON_STARTUP);
-		if (Boolean.TRUE.toString().equalsIgnoreCase(deleteKS)) {
-			if (keyStoreFile.exists()) {
-				logger.warn(
-						"getSingletons: System property '{}' was set to 'true'. DELETING keyStoreFile '{}'!!!",
-						SYSTEM_PROPERTY_DELETE_KEY_STORE_FILE_ON_STARTUP, keyStoreFile.getAbsolutePath()
-				);
-				if (!keyStoreFile.delete())
-					throw new IOException("Could not delete keyStoreFile '" + keyStoreFile.getAbsolutePath() + "'!");
-			}
-			else {
-				logger.warn(
-						"getSingletons: System property '{}' was set to 'true', but keyStoreFile '{}' does NOT exist, hence not deleting it!",
-						SYSTEM_PROPERTY_DELETE_KEY_STORE_FILE_ON_STARTUP, keyStoreFile.getAbsolutePath()
-				);
-			}
+	private void checkForDeprecatedSystemProperty(String sysPropName)
+	{
+		if (System.getProperty(sysPropName) != null) {
+			logger.error("**************************************************************************");
+			logger.error("**************************************************************************");
+			logger.error("**************************************************************************");
+
+			logger.error("*** deprecated system property present (and ignored): " + sysPropName);
+
+			logger.error("**************************************************************************");
+			logger.error("**************************************************************************");
+			logger.error("**************************************************************************");
 		}
 	}
 
@@ -145,26 +156,28 @@ extends Application
 	public Set<Object> getSingletons()
 	{
 		if (singletons == null) {
-			initKeyStoreFile();
-
-			try {
-				deleteKeyStoreIfSysPropRequested();
-
-				if (!keyStoreFile.getParentFile().isDirectory()) {
-					keyStoreFile.getParentFile().mkdirs();
-					if (!keyStoreFile.getParentFile().isDirectory())
-						throw new IOException("Directory does not exist and could not be created: " + keyStoreFile.getParentFile().getAbsolutePath());
-				}
-
-				logger.info("Opening keyStoreFile: {}", keyStoreFile.getAbsolutePath());
-				keyStore = new KeyStore(keyStoreFile);
-			} catch (IOException x) {
-				throw new RuntimeException(x);
-			}
+			checkForDeprecatedSystemProperties();
+//			initKeyStoreFile();
+//
+//			try {
+//				deleteKeyStoreIfSysPropRequested();
+//
+//				if (!keyStoreFile.getParentFile().isDirectory()) {
+//					keyStoreFile.getParentFile().mkdirs();
+//					if (!keyStoreFile.getParentFile().isDirectory())
+//						throw new IOException("Directory does not exist and could not be created: " + keyStoreFile.getParentFile().getAbsolutePath());
+//				}
+//
+//				logger.info("Opening keyStoreFile: {}", keyStoreFile.getAbsolutePath());
+//				keyStore = new KeyStore(keyStoreFile);
+//			} catch (IOException x) {
+//				throw new RuntimeException(x);
+//			}
 
 			Set<Object> s = new HashSet<Object>();
-			s.add(new KeyStoreProvider(keyStore));
-			s.add(new AppServerManagerProvider(new AppServerManager(keyStore)));
+//			s.add(new KeyStoreProvider(keyStore));
+//			s.add(new AppServerManagerProvider(new AppServerManager(keyStore)));
+			s.add(new KeyStoreManagerProvider(new KeyStoreManager()));
 			singletons = Collections.unmodifiableSet(s);
 		}
 

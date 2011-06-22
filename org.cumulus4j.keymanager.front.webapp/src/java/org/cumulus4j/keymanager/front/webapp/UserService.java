@@ -39,6 +39,7 @@ import org.cumulus4j.keymanager.front.shared.UserList;
 import org.cumulus4j.keymanager.front.shared.UserWithPassword;
 import org.cumulus4j.keystore.AuthenticationException;
 import org.cumulus4j.keystore.CannotDeleteLastUserException;
+import org.cumulus4j.keystore.KeyStore;
 import org.cumulus4j.keystore.UserAlreadyExistsException;
 import org.cumulus4j.keystore.UserNotFoundException;
 import org.slf4j.Logger;
@@ -59,36 +60,43 @@ public class UserService extends AbstractService
 	}
 
 	@GET
-	@Path("{userName}")
-	public User getUser(@PathParam("userName") String userName)
+	@Path("{keyStoreID}/{userName}")
+	public User getUser(@PathParam("keyStoreID") String keyStoreID, @PathParam("userName") String userName)
 	{
 		logger.debug("getUser: entered");
 		Auth auth = getAuth();
 		try {
+			KeyStore keyStore = keyStoreManager.getKeyStore(keyStoreID);
 			if (keyStore.getUsers(auth.getUserName(), auth.getPassword()).contains(userName))
 				return new User(userName);
 			else
 				return null;
 		} catch (AuthenticationException e) {
 			throw new WebApplicationException(Response.status(Status.FORBIDDEN).entity(new Error(e)).build());
+		} catch (IOException e) {
+			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(e)).build());
 		} finally {
 			auth.clear();
 		}
 	}
 
 	@GET
-	public UserList getUsers()
+	@Path("{keyStoreID}")
+	public UserList getUsers(@PathParam("keyStoreID") String keyStoreID)
 	{
 		logger.debug("getUsers: entered");
 		UserList userList = new UserList();
 		Auth auth = getAuth();
 		try {
+			KeyStore keyStore = keyStoreManager.getKeyStore(keyStoreID);
 			Set<String> userNames = keyStore.getUsers(auth.getUserName(), auth.getPassword());
 			for (String userName : userNames) {
 				userList.getUsers().add(new User(userName));
 			}
 		} catch (AuthenticationException e) {
 			throw new WebApplicationException(Response.status(Status.FORBIDDEN).entity(new Error(e)).build());
+		} catch (IOException e) {
+			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(e)).build());
 		} finally {
 			auth.clear();
 		}
@@ -96,8 +104,8 @@ public class UserService extends AbstractService
 	}
 
 	@PUT
-	@Path("{userName}")
-	public void putUserWithUserNamePath(@PathParam("userName") String userName, UserWithPassword userWithPassword)
+	@Path("{keyStoreID}/{userName}")
+	public void putUserWithUserNamePath(@PathParam("keyStoreID") String keyStoreID, @PathParam("userName") String userName, UserWithPassword userWithPassword)
 	{
 		logger.debug("putUserWithUserNamePath: entered");
 
@@ -112,11 +120,12 @@ public class UserService extends AbstractService
 		else if (!userName.equals(userWithPassword.getUserName()))
 			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(new Error("Path's userName='" + userName + "' does not match entity's userName='" + userWithPassword.getUserName() + "'!")).build());
 
-		putUser(userWithPassword);
+		putUser(keyStoreID, userWithPassword);
 	}
 
 	@PUT
-	public void putUser(UserWithPassword userWithPassword)
+	@Path("{keyStoreID}")
+	public void putUser(@PathParam("keyStoreID") String keyStoreID, UserWithPassword userWithPassword)
 	{
 		logger.debug("putUser: entered");
 
@@ -126,6 +135,7 @@ public class UserService extends AbstractService
 		Auth auth = getAuth();
 
 		try {
+			KeyStore keyStore = keyStoreManager.getKeyStore(keyStoreID);
 			try {
 				keyStore.createUser(
 						auth.getUserName(), auth.getPassword(),
@@ -156,14 +166,15 @@ public class UserService extends AbstractService
 	}
 
 	@DELETE
-	@Path("{userName}")
-	public void deleteUser(@PathParam("userName") String userName)
+	@Path("{keyStoreID}/{userName}")
+	public void deleteUser(@PathParam("keyStoreID") String keyStoreID, @PathParam("userName") String userName)
 	{
 		logger.debug("deleteUser: entered");
 
 		Auth auth = getAuth();
 
 		try {
+			KeyStore keyStore = keyStoreManager.getKeyStore(keyStoreID);
 			keyStore.deleteUser(auth.getUserName(), auth.getPassword(), userName);
 		} catch (AuthenticationException e) {
 			throw new WebApplicationException(Response.status(Status.FORBIDDEN).entity(new Error(e)).build());

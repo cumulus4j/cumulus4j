@@ -17,7 +17,7 @@
  */
 package org.cumulus4j.keymanager.front.webapp;
 
-import java.net.URL;
+import java.io.IOException;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -27,7 +27,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -52,16 +51,17 @@ public class AppServerService extends AbstractService
 		logger.info("logger: instantiated AppServerService");
 	}
 
-	@Context
-	private AppServerManager appServerManager;
-
 	@GET
-	@Path("{appServerID}")
-	public org.cumulus4j.keymanager.front.shared.AppServer getAppServer(@PathParam("appServerID") String appServerID)
+	@Path("{keyStoreID}/{appServerID}")
+	public org.cumulus4j.keymanager.front.shared.AppServer getAppServer(
+			@PathParam("keyStoreID") String keyStoreID,
+			@PathParam("appServerID") String appServerID
+	)
 	{
 		logger.debug("getAppServer: entered");
-		Auth auth = authenticate();
+		Auth auth = authenticate(keyStoreID);
 		try {
+			AppServerManager appServerManager = keyStoreManager.getAppServerManager(keyStoreID);
 			AppServer appServer = appServerManager.getAppServerForAppServerID(appServerID);
 			if (appServer == null)
 				return null;
@@ -71,24 +71,30 @@ public class AppServerService extends AbstractService
 				as.setAppServerBaseURL(appServer.getAppServerBaseURL());
 				return as;
 			}
+		} catch (IOException e) {
+			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(e)).build());
 		} finally {
 			auth.clear();
 		}
 	}
 
 	@GET
-	public org.cumulus4j.keymanager.front.shared.AppServerList getAppServers()
+	@Path("{keyStoreID}")
+	public org.cumulus4j.keymanager.front.shared.AppServerList getAppServers(@PathParam("keyStoreID") String keyStoreID)
 	{
 		logger.debug("getAppServers: entered");
 		org.cumulus4j.keymanager.front.shared.AppServerList appServerList = new org.cumulus4j.keymanager.front.shared.AppServerList();
-		Auth auth = authenticate();
+		Auth auth = authenticate(keyStoreID);
 		try {
+			AppServerManager appServerManager = keyStoreManager.getAppServerManager(keyStoreID);
 			for (AppServer appServer : appServerManager.getAppServers()) {
 				org.cumulus4j.keymanager.front.shared.AppServer as = new org.cumulus4j.keymanager.front.shared.AppServer();
 				as.setAppServerID(appServer.getAppServerID());
 				as.setAppServerBaseURL(appServer.getAppServerBaseURL());
 				appServerList.getAppServers().add(as);
 			}
+		} catch (IOException e) {
+			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(e)).build());
 		} finally {
 			auth.clear();
 		}
@@ -96,8 +102,12 @@ public class AppServerService extends AbstractService
 	}
 
 	@PUT
-	@Path("{appServerID}")
-	public void putAppServerWithAppServerIDPath(@PathParam("appServerID") String appServerID, org.cumulus4j.keymanager.front.shared.AppServer appServer)
+	@Path("{keyStoreID}/{appServerID}")
+	public void putAppServerWithAppServerIDPath(
+			@PathParam("keyStoreID") String keyStoreID,
+			@PathParam("appServerID") String appServerID,
+			org.cumulus4j.keymanager.front.shared.AppServer appServer
+	)
 	{
 		logger.debug("putAppServerWithAppServerIDPath: entered");
 
@@ -112,55 +122,31 @@ public class AppServerService extends AbstractService
 		else if (!appServerID.equals(appServer.getAppServerID()))
 			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(new Error("Path's appServerID='" + appServerID + "' does not match entity's appServerID='" + appServer.getAppServerID() + "'!")).build());
 
-		putAppServer(appServer);
+		putAppServer(keyStoreID, appServer);
 	}
 
 	@PUT
 	@Produces(MediaType.TEXT_PLAIN)
-	public String putAppServer(org.cumulus4j.keymanager.front.shared.AppServer appServer)
+	@Path("{keyStoreID}")
+	public String putAppServer(
+			@PathParam("keyStoreID") String keyStoreID,
+			org.cumulus4j.keymanager.front.shared.AppServer appServer
+	)
 	{
 		logger.debug("putAppServer: entered");
 
 		if (appServer == null)
 			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(new Error("Missing request-entity!")).build());
 
-		if (appServer.getAppServerID() == null || appServer.getAppServerID().isEmpty()) {
-			URL url = appServer.getAppServerBaseURL();
-//			try {
-//				url = new URL(appServer.getAppServerBaseURL());
-//			} catch (MalformedURLException e) {
-//				throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(new Error(e)).build());
-//			}
-
-			AppServer oldAppServer;
-			String id;
-			int index = -1;
-			do {
-				id = url.getHost();
-				if (url.getPort() < 0) {
-					if (url.getDefaultPort() >= 0)
-						id += '-' + url.getDefaultPort();
-				}
-				else
-					id += '-' + url.getPort();
-
-				if (++index > 0)
-					id += '-' + index;
-
-				oldAppServer = appServerManager.getAppServerForAppServerID(id);
-			} while (oldAppServer != null && !appServer.getAppServerBaseURL().equals(oldAppServer.getAppServerBaseURL()));
-
-			appServer.setAppServerID(id);
-		}
-
-		Auth auth = authenticate();
+		Auth auth = authenticate(keyStoreID);
 		try {
+			AppServerManager appServerManager = keyStoreManager.getAppServerManager(keyStoreID);
 			AppServer as = new AppServer(appServerManager, appServer.getAppServerID(), appServer.getAppServerBaseURL());
 			appServerManager.putAppServer(as);
 			// TODO write AppServers to a file!
 			return appServer.getAppServerID();
-//		} catch (IOException e) {
-//			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(e)).build());
+		} catch (IOException e) {
+			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(e)).build());
 		} finally {
 			// extra safety => overwrite passwords
 			auth.clear();
@@ -168,16 +154,17 @@ public class AppServerService extends AbstractService
 	}
 
 	@DELETE
-	@Path("{appServerID}")
-	public void deleteAppServer(@PathParam("appServerID") String appServerID)
+	@Path("{keyStoreID}/{appServerID}")
+	public void deleteAppServer(@PathParam("keyStoreID") String keyStoreID, @PathParam("appServerID") String appServerID)
 	{
 		logger.debug("deleteAppServer: entered");
 
-		Auth auth = authenticate();
+		Auth auth = authenticate(keyStoreID);
 		try {
+			AppServerManager appServerManager = keyStoreManager.getAppServerManager(keyStoreID);
 			appServerManager.removeAppServer(appServerID);
-//		} catch (IOException e) {
-//			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(e)).build());
+		} catch (IOException e) {
+			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(e)).build());
 		} finally {
 			// extra safety => overwrite password
 			auth.clear();

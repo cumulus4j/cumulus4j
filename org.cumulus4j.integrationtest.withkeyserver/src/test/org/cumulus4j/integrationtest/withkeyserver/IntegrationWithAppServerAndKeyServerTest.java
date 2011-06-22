@@ -20,7 +20,6 @@ package org.cumulus4j.integrationtest.withkeyserver;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.net.URLEncoder;
 
 import javax.ws.rs.core.MediaType;
@@ -51,13 +50,30 @@ public class IntegrationWithAppServerAndKeyServerTest
 	private static final String URL_KEY_SERVER = "http://localhost:8686";
 	private static final String URL_KEY_MANAGER_FRONT_WEBAPP = URL_KEY_SERVER + "/org.cumulus4j.keymanager.front.webapp";
 
-	private static final String URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_APP_SERVER = URL_KEY_MANAGER_FRONT_WEBAPP + "/AppServer";
+	private static final String KEY_STORE_ID = "test-" + Long.toString(System.currentTimeMillis(), 36);
+
+	private static final String URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_APP_SERVER = URL_KEY_MANAGER_FRONT_WEBAPP + "/AppServer/" + KEY_STORE_ID;
 //	private static final String URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_USER = URL_KEY_MANAGER_FRONT_WEBAPP + "/User";
-	private static final String URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_DATE_DEPENDENT_KEY_STRATEGY = URL_KEY_MANAGER_FRONT_WEBAPP + "/DateDependentKeyStrategy";
-	private static final String URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_SESSION = URL_KEY_MANAGER_FRONT_WEBAPP + "/Session";
+	private static final String URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_DATE_DEPENDENT_KEY_STRATEGY = URL_KEY_MANAGER_FRONT_WEBAPP + "/DateDependentKeyStrategy/" + KEY_STORE_ID;
+	private static final String URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_SESSION = URL_KEY_MANAGER_FRONT_WEBAPP + "/Session/" + KEY_STORE_ID;
 
 	private static final String KEY_SERVER_USER = "devil";
 	private static final char[] KEY_SERVER_PASSWORD = "testtesttest".toCharArray();
+
+//	@Test
+//	public void testThreeComputerScenarioWithUnifiedApi()
+//	throws Exception
+//	{
+//		KeyManagerAPI keyManagerAPI = new DefaultKeyManagerAPI();
+//		keyManagerAPI.setAuthUserName(KEY_SERVER_USER);
+//		keyManagerAPI.setAuthPassword(KEY_SERVER_PASSWORD);
+//		keyManagerAPI.setKeyStoreID(KEY_STORE_ID);
+//		Session session = keyManagerAPI.getSession(URL_KEY_MANAGER_BACK_WEBAPP);
+//
+//		/// 1 h
+//
+//		session.getCryptoSessionID();
+//	}
 
 	@Test
 	public void testThreeComputerScenario()
@@ -87,7 +103,7 @@ public class IntegrationWithAppServerAndKeyServerTest
 
 		AppServer appServer = new AppServer();
 		appServer.setAppServerID("appServer1");
-		appServer.setAppServerBaseURL(new URL(URL_KEY_MANAGER_BACK_WEBAPP));
+		appServer.setAppServerBaseURL(URL_KEY_MANAGER_BACK_WEBAPP);
 
 		clientForKeyServer.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_APP_SERVER)
 		.type(MediaType.APPLICATION_XML_TYPE)

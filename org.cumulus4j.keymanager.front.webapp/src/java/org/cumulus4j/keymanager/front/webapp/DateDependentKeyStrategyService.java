@@ -22,6 +22,7 @@ import java.io.IOException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -31,6 +32,7 @@ import javax.ws.rs.core.Response.Status;
 import org.cumulus4j.keymanager.front.shared.DateDependentKeyStrategyInitParam;
 import org.cumulus4j.keymanager.front.shared.Error;
 import org.cumulus4j.keystore.DateDependentKeyStrategy;
+import org.cumulus4j.keystore.KeyStore;
 import org.cumulus4j.keystore.KeyStoreNotEmptyException;
 
 @Path("DateDependentKeyStrategy")
@@ -38,12 +40,13 @@ import org.cumulus4j.keystore.KeyStoreNotEmptyException;
 @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public class DateDependentKeyStrategyService extends AbstractService
 {
-	@Path("init")
+	@Path("{keyStoreID}/init")
 	@POST
-	public void init(DateDependentKeyStrategyInitParam param)
+	public void init(@PathParam("keyStoreID") String keyStoreID, DateDependentKeyStrategyInitParam param)
 	{
 		Auth auth = getAuth();
 		try {
+			KeyStore keyStore = keyStoreManager.getKeyStore(keyStoreID);
 			new DateDependentKeyStrategy(keyStore).init(
 					auth.getUserName(), auth.getPassword(),
 					param.getKeyActivityPeriodMSec(), param.getKeyStorePeriodMSec()

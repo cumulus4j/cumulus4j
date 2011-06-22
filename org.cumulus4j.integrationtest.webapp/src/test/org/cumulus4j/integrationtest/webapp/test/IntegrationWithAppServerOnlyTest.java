@@ -21,7 +21,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.net.URLEncoder;
 
 import javax.ws.rs.core.MediaType;
@@ -64,7 +63,7 @@ public class IntegrationWithAppServerOnlyTest
 			DateDependentKeyStrategy keyStrategy = new DateDependentKeyStrategy(keyStore);
 			keyStrategy.init(KEY_STORE_USER, KEY_STORE_PASSWORD, 3600L * 1000L, 24L * 3600L * 1000L);
 			AppServerManager appServerManager = new AppServerManager(keyStore);
-			AppServer appServer = new AppServer(appServerManager, "appServer1", new URL(URL_KEY_MANAGER_BACK_WEBAPP));
+			AppServer appServer = new AppServer(appServerManager, "appServer1", URL_KEY_MANAGER_BACK_WEBAPP);
 			appServerManager.putAppServer(appServer);
 			Session session = appServer.getSessionManager().openSession(KEY_STORE_USER, KEY_STORE_PASSWORD);
 			session.setLocked(false);

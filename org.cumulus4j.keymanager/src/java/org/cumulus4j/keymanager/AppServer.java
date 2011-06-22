@@ -17,8 +17,6 @@
  */
 package org.cumulus4j.keymanager;
 
-import java.net.URL;
-
 import org.cumulus4j.keymanager.channel.KeyManagerChannelManager;
 
 public class AppServer
@@ -27,11 +25,11 @@ public class AppServer
 
 	private AppServerManager appServerManager;
 	private String appServerID;
-	private URL appServerBaseURL;
+	private String appServerBaseURL;
 	private SessionManager sessionManager;
 	private KeyManagerChannelManager keyManagerChannelManager;
 
-	public AppServer(AppServerManager appServerManager, String appServerID, URL appServerBaseURL)
+	public AppServer(AppServerManager appServerManager, String appServerID, String appServerBaseURL)
 	{
 		if (appServerManager == null)
 			throw new IllegalArgumentException("appServerManager == null");
@@ -53,7 +51,15 @@ public class AppServer
 		return appServerID;
 	}
 
-	public URL getAppServerBaseURL() {
+	public void setAppServerID(String appServerID)
+	{
+		if (this.appServerID != null && !this.appServerID.equals(appServerID))
+			throw new IllegalArgumentException("this.appServerID is already assigned! Cannot modify it afterwards!");
+
+		this.appServerID = appServerID;
+	}
+
+	public String getAppServerBaseURL() {
 		return appServerBaseURL;
 	}
 

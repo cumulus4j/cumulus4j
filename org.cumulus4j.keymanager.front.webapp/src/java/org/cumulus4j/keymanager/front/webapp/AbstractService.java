@@ -18,6 +18,7 @@
 package org.cumulus4j.keymanager.front.webapp;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.CharBuffer;
@@ -49,7 +50,9 @@ public abstract class AbstractService
 
 	protected @Context HttpServletRequest request;
 
-	protected @Context KeyStore keyStore;
+//	protected @Context KeyStore keyStore;
+
+	protected @Context KeyStoreManager keyStoreManager;
 
 	/**
 	 * Get the authentication information. This method does <b>not</b> verify, if the given authentication information
@@ -122,11 +125,14 @@ public abstract class AbstractService
 		return auth;
 	}
 
-	protected Auth authenticate()
+	protected Auth authenticate(String keyStoreID)
 	{
 		Auth auth = getAuth();
 		try {
+			KeyStore keyStore = keyStoreManager.getKeyStore(keyStoreID);
 			keyStore.getKey(auth.getUserName(), auth.getPassword(), Long.MAX_VALUE);
+		} catch (IOException e) {
+			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(e)).build());
 		} catch (AuthenticationException e) {
 			throw new WebApplicationException(Response.status(Status.FORBIDDEN).entity(new Error(e)).build());
 		} catch (KeyNotFoundException e) {

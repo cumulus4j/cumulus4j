@@ -17,6 +17,8 @@
  */
 package org.cumulus4j.keymanager.front.webapp;
 
+import java.io.IOException;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -25,7 +27,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -50,23 +51,20 @@ public class SessionService extends AbstractService
 {
 	private static final Logger logger = LoggerFactory.getLogger(SessionService.class);
 
-	@Context
-	private AppServerManager appServerManager;
-
-	@Path("{appServerID}/open")
+	@Path("{keyStoreID}/{appServerID}/open")
 	@GET
-	public OpenSessionResponse open_GET(@PathParam("appServerID") String appServerID)
+	public OpenSessionResponse open_GET(@PathParam("keyStoreID") String keyStoreID, @PathParam("appServerID") String appServerID)
 	{
-		return open(appServerID);
+		return open(keyStoreID, appServerID);
 	}
 
-	@Path("{appServerID}/open")
+	@Path("{keyStoreID}/{appServerID}/open")
 	@POST
-	public OpenSessionResponse open(@PathParam("appServerID") String appServerID)
+	public OpenSessionResponse open(@PathParam("keyStoreID") String keyStoreID, @PathParam("appServerID") String appServerID)
 	{
 		Auth auth = getAuth();
 		try {
-			SessionManager sessionManager = getSessionManager(appServerID);
+			SessionManager sessionManager = getSessionManager(keyStoreID, appServerID);
 
 			Session session;
 			try {
@@ -87,7 +85,15 @@ public class SessionService extends AbstractService
 		}
 	}
 
-	private SessionManager getSessionManager(String appServerID) {
+	private SessionManager getSessionManager(String keyStoreID, String appServerID)
+	{
+		AppServerManager appServerManager;
+		try {
+			appServerManager = keyStoreManager.getAppServerManager(keyStoreID);
+		} catch (IOException e) {
+			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(e)).build());
+		}
+
 		AppServer appServer = appServerManager.getAppServerForAppServerID(appServerID);
 		if (appServer == null)
 			throw new WebApplicationException(Response.status(Status.NOT_FOUND).entity(new Error("There is no AppServer with appServerID=\"" + appServerID + "\"!")).build());
@@ -95,18 +101,18 @@ public class SessionService extends AbstractService
 		return appServer.getSessionManager();
 	}
 
-	@Path("{appServerID}/{cryptoSessionID}/unlock")
+	@Path("{keyStoreID}/{appServerID}/{cryptoSessionID}/unlock")
 	@GET
-	public void unlock_GET(@PathParam("appServerID") String appServerID, @PathParam("cryptoSessionID") String cryptoSessionID)
+	public void unlock_GET(@PathParam("keyStoreID") String keyStoreID, @PathParam("appServerID") String appServerID, @PathParam("cryptoSessionID") String cryptoSessionID)
 	{
-		unlock(appServerID, cryptoSessionID);
+		unlock(keyStoreID, appServerID, cryptoSessionID);
 	}
 
-	@Path("{appServerID}/{cryptoSessionID}/unlock")
+	@Path("{keyStoreID}/{appServerID}/{cryptoSessionID}/unlock")
 	@POST
-	public void unlock(@PathParam("appServerID") String appServerID, @PathParam("cryptoSessionID") String cryptoSessionID)
+	public void unlock(@PathParam("keyStoreID") String keyStoreID, @PathParam("appServerID") String appServerID, @PathParam("cryptoSessionID") String cryptoSessionID)
 	{
-		SessionManager sessionManager = getSessionManager(appServerID);
+		SessionManager sessionManager = getSessionManager(keyStoreID, appServerID);
 		Session session = sessionManager.getSessionForCryptoSessionID(cryptoSessionID);
 		if (session == null)
 			throw new WebApplicationException(Response.status(Status.NOT_FOUND).entity(new Error("There is no session with cryptoSessionID='" + cryptoSessionID + "'!")).build());
@@ -114,18 +120,18 @@ public class SessionService extends AbstractService
 		session.setLocked(false);
 	}
 
-	@Path("{appServerID}/{cryptoSessionID}/lock")
+	@Path("{keyStoreID}/{appServerID}/{cryptoSessionID}/lock")
 	@GET
-	public void lock_GET(@PathParam("appServerID") String appServerID, @PathParam("cryptoSessionID") String cryptoSessionID)
+	public void lock_GET(@PathParam("keyStoreID") String keyStoreID, @PathParam("appServerID") String appServerID, @PathParam("cryptoSessionID") String cryptoSessionID)
 	{
-		lock(appServerID, cryptoSessionID);
+		lock(keyStoreID, appServerID, cryptoSessionID);
 	}
 
-	@Path("{appServerID}/{cryptoSessionID}/lock")
+	@Path("{keyStoreID}/{appServerID}/{cryptoSessionID}/lock")
 	@POST
-	public void lock(@PathParam("appServerID") String appServerID, @PathParam("cryptoSessionID") String cryptoSessionID)
+	public void lock(@PathParam("keyStoreID") String keyStoreID, @PathParam("appServerID") String appServerID, @PathParam("cryptoSessionID") String cryptoSessionID)
 	{
-		SessionManager sessionManager = getSessionManager(appServerID);
+		SessionManager sessionManager = getSessionManager(keyStoreID, appServerID);
 		Session session = sessionManager.getSessionForCryptoSessionID(cryptoSessionID);
 		if (session == null)
 			throw new WebApplicationException(Response.status(Status.NOT_FOUND).entity(new Error("There is no session with cryptoSessionID='" + cryptoSessionID + "'!")).build());
@@ -133,13 +139,13 @@ public class SessionService extends AbstractService
 		session.setLocked(true);
 	}
 
-	@Path("{appServerID}/{cryptoSessionID}")
+	@Path("{keyStoreID}/{appServerID}/{cryptoSessionID}")
 	@DELETE
-	public void close(@PathParam("appServerID") String appServerID, @PathParam("cryptoSessionID") String cryptoSessionID)
+	public void close(@PathParam("keyStoreID") String keyStoreID, @PathParam("appServerID") String appServerID, @PathParam("cryptoSessionID") String cryptoSessionID)
 	{
 		logger.debug("close: appServerID='{}' cryptoSessionID='{}'", appServerID, cryptoSessionID);
 
-		SessionManager sessionManager = getSessionManager(appServerID);
+		SessionManager sessionManager = getSessionManager(keyStoreID, appServerID);
 		Session session = sessionManager.getSessionForCryptoSessionID(cryptoSessionID);
 		if (session != null)
 			session.close();

@@ -34,10 +34,7 @@
 		Marco.
 	-->
 	<name>Cumulus4j</name>
-	<!--
-		This description is displayed on the web site's /index.html (the
-		auto-report's "About") and therefore must be a bit more elaborate.
-	-->
+
 	<description>Cumulus4j is an encryption layer protecting your data from the hosting company.</description>
 
 	<modules>

@@ -1,0 +1,24 @@
+	---
+	Date-dependent key-strategy
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-22
+
+Date-dependent key-strategy
+
+	The application server needs to load keys temporarily into memory in order to work with the data. Otherwise
+	it would not be able to perform efficient queries, for example. In order to prevent an "evil administrator" from obtaining
+	access to all the data by simply dumping the application server's memory in this moment, Cumulus4j uses multiple keys
+	(a few thousand). This way, the "evil administrator" could only gain access to a subset of the data (hopefully very little).
+
+	One possible strategy to assign keys to data is by the time the data is written. At the moment, this is the only strategy
+	supported by Cumulus4j. Other strategies might be supported later.
+
+	The date-dependent key-strategy works by creating all keys for a certain period of time (by default 50 years) in advance.
+	Every key is active (i.e. used for encryption) in a certain pre-defined time range (by default 1 day). Whenever data is
+	encrypted, the key active at this moment is used to encrypt the record. The key-ID that was used to encrypt the data is
+	then stored together with every record (so that the system knows which key it needs to decrypt the data later). 
+
+	Therefore, an "evil administrator" dumping the memory of an application server, will only be able to access a small
+	subset of your data (e.g. usually a few days - in the worst case - e.g. if you just ran some report - maybe a few months).

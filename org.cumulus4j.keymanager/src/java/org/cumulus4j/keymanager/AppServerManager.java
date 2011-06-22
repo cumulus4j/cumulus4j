@@ -17,6 +17,8 @@
  */
 package org.cumulus4j.keymanager;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -57,14 +59,40 @@ public class AppServerManager
 		if (appServer == null)
 			throw new IllegalArgumentException("appServer == null");
 
-		if (appServer.getAppServerID() == null)
-			throw new IllegalArgumentException("appServer.appServerID == null");
+		if (this != appServer.getAppServerManager())
+			throw new IllegalArgumentException("appServer.appServerManager != this");
 
 		if (appServer.getAppServerBaseURL() == null)
 			throw new IllegalArgumentException("appServer.appServerBaseURL == null");
 
-		if (this != appServer.getAppServerManager())
-			throw new IllegalArgumentException("appServer.appServerManager != this");
+		URL url;
+		try {
+			url = new URL(appServer.getAppServerBaseURL());
+		} catch (MalformedURLException e) {
+			throw new IllegalArgumentException("appServer.appServerBaseURL is not a valid URL: " + e, e);
+		}
+
+		if (appServer.getAppServerID() == null) {
+			AppServer oldAppServer;
+			String id;
+			int index = -1;
+			do {
+				id = url.getHost();
+				if (url.getPort() < 0) {
+					if (url.getDefaultPort() >= 0)
+						id += '-' + url.getDefaultPort();
+				}
+				else
+					id += '-' + url.getPort();
+
+				if (++index > 0)
+					id += '-' + index;
+
+				oldAppServer = this.getAppServerForAppServerID(id);
+			} while (oldAppServer != null && !appServer.getAppServerBaseURL().equals(oldAppServer.getAppServerBaseURL()));
+
+			appServer.setAppServerID(id);
+		}
 
 		appServerID2appServer.put(appServer.getAppServerID(), appServer);
 		appServers = null;

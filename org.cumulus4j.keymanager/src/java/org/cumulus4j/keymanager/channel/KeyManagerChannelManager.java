@@ -17,8 +17,6 @@
  */
 package org.cumulus4j.keymanager.channel;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,8 +45,8 @@ import org.cumulus4j.keymanager.back.shared.Request;
 public class KeyManagerChannelManager
 {
 	private SessionManager sessionManager;
-	private URL appServerBaseURL;
-	private URL keyManagerChannelURL;
+	private String appServerBaseURL;
+	private String keyManagerChannelURL;
 	private int desiredThreadCount;
 
 	private Set<KeyManagerChannelListenerThread> listenerThreads = Collections.synchronizedSet(new HashSet<KeyManagerChannelListenerThread>());
@@ -69,7 +67,7 @@ public class KeyManagerChannelManager
 	 * "https://serverUsingCumulus4j.mydomain.org/org.cumulus4j.keymanager.back.webapp/KeyManagerChannel", then this must be
 	 * "https://serverUsingCumulus4j.mydomain.org/org.cumulus4j.keymanager.back.webapp".
 	 */
-	public KeyManagerChannelManager(SessionManager sessionManager, URL appServerBaseURL)
+	public KeyManagerChannelManager(SessionManager sessionManager, String appServerBaseURL)
 	{
 		if (sessionManager == null)
 			throw new IllegalArgumentException("sessionManager == null");
@@ -81,15 +79,11 @@ public class KeyManagerChannelManager
 
 		this.appServerBaseURL = appServerBaseURL;
 
-		try {
-			String s = appServerBaseURL.toString();
-			if (!s.endsWith("/"))
-				s += '/';
+		String s = appServerBaseURL.toString();
+		if (!s.endsWith("/"))
+			s += '/';
 
-			this.keyManagerChannelURL = new URL(s + "KeyManagerChannel");
-		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
-		}
+		this.keyManagerChannelURL = s + "KeyManagerChannel";
 
 		setDesiredThreadCount(5); // TODO make this manage itself automatically according to load statistics
 	}
@@ -108,7 +102,7 @@ public class KeyManagerChannelManager
 	 * "https://serverUsingCumulus4j.mydomain.org/org.cumulus4j.keymanager.back.webapp".
 	 * @return the base-URL before the "/KeyManagerChannel".
 	 */
-	public URL getAppServerBaseURL() {
+	public String getAppServerBaseURL() {
 		return appServerBaseURL;
 	}
 
@@ -117,7 +111,7 @@ public class KeyManagerChannelManager
 	 *
 	 * @return the complete URL to the <code>KeyManagerChannel</code>.
 	 */
-	public URL getKeyManagerChannelURL() {
+	public String getKeyManagerChannelURL() {
 		return keyManagerChannelURL;
 	}
 

@@ -7,9 +7,6 @@
         <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keymanager/org.cumulus4j.keymanager">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keymanager.api/org.cumulus4j.keymanager.api">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
         <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keymanager.back.shared/org.cumulus4j.keymanager.back.shared">
             <dependency-type>uses</dependency-type>
         </dependent-module>
