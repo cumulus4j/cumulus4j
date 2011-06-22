@@ -62,7 +62,8 @@ public class IntegrationWithAppServerAndKeyServerTest
 
 	/**
 	 * Test for the 3-computer-deployment-scenario. DO NOT USE THIS AS AN EXAMPLE FOR YOUR OWN CODE!!!
-	 * You should instead use the API (this code here is called "low-level" for a reason!) as shown below.
+	 * You should instead use the API (this code here is called "low-level" for a reason!) as shown below
+	 * in {@link #testThreeComputerScenarioWithUnifiedAPI()}.
 	 *
 	 * @throws Exception if sth. goes wrong.
 	 */
@@ -112,7 +113,39 @@ public class IntegrationWithAppServerAndKeyServerTest
 		.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_SESSION + '/' + appServer.getAppServerID() + '/' + cryptoSessionID + "/unlock")
 		.post();
 
+		invokeTestWithinServer(cryptoSessionID);
+//		Client client = new Client();
+//		String url = URL_TEST + "?cryptoSessionID=" + URLEncoder.encode(cryptoSessionID, IOUtil.CHARSET_NAME_UTF_8);
+//		String result;
+//		try {
+//			result = client.resource(url).accept(MediaType.TEXT_PLAIN).post(String.class);
+//		} catch (UniformInterfaceException x) {
+//			String message = null;
+//			try {
+//				InputStream in = x.getResponse().getEntityInputStream();
+//				ByteArrayOutputStream out = new ByteArrayOutputStream();
+//				IOUtil.transferStreamData(in, out);
+//				in.close();
+//				message = new String(out.toByteArray(), IOUtil.CHARSET_UTF_8);
+//			} catch (Exception e) {
+//				logger.error("Reading error message failed: " + e, e);
+//			}
+//			if (message == null)
+//				throw x;
+//			else
+//				throw new IOException("Error-code=" + x.getResponse().getStatus() + " error-message=" + message, x);
+//		}
+//
+//		if (result == null)
+//			Assert.fail("The POST request on URL " + url + " did not return any result!");
+//
+//		if (!result.startsWith("OK:"))
+//			Assert.fail("The POST request on URL " + url + " did not return the expected result! Instead it returned: " + result);
+	}
 
+	private void invokeTestWithinServer(String cryptoSessionID)
+	throws Exception
+	{
 		Client client = new Client();
 		String url = URL_TEST + "?cryptoSessionID=" + URLEncoder.encode(cryptoSessionID, IOUtil.CHARSET_NAME_UTF_8);
 		String result;
@@ -142,19 +175,30 @@ public class IntegrationWithAppServerAndKeyServerTest
 			Assert.fail("The POST request on URL " + url + " did not return the expected result! Instead it returned: " + result);
 	}
 
-//@Test
-//public void testThreeComputerScenarioWithUnifiedAPI()
-//throws Exception
-//{
-//	KeyManagerAPI keyManagerAPI = new DefaultKeyManagerAPI();
-//	keyManagerAPI.setAuthUserName(KEY_SERVER_USER);
-//	keyManagerAPI.setAuthPassword(KEY_SERVER_PASSWORD);
-//	keyManagerAPI.setKeyStoreID(KEY_STORE_ID);
-//	Session session = keyManagerAPI.getSession(URL_KEY_MANAGER_BACK_WEBAPP);
+//// The following test should be fine, but the code is not yet written => temporarily commenting it out. Marco :-)
+//	@Test
+//	public void testThreeComputerScenarioWithUnifiedAPI()
+//	throws Exception
+//	{
+//		KeyManagerAPI keyManagerAPI = new DefaultKeyManagerAPI();
+//		keyManagerAPI.setAuthUserName(KEY_SERVER_USER);
+//		keyManagerAPI.setAuthPassword(KEY_SERVER_PASSWORD);
+//		keyManagerAPI.setKeyStoreID(KEY_STORE_ID);
+//		keyManagerAPI.setKeyManagerBaseURL(URL_KEY_MANAGER_FRONT_WEBAPP);
 //
-//	/// 1 h
+//		org.cumulus4j.keymanager.api.Session session = keyManagerAPI.getSession(URL_KEY_MANAGER_BACK_WEBAPP);
 //
-//	session.getCryptoSessionID();
-//}
+//		// It does not matter here in this test, but in real code, WE MUST ALWAYS lock() after we did unlock()!!!
+//		// Hence we do it here, too, in case someone copies the code ;-)
+//		// Marco :-)
+//		session.unlock();
+//		try {
+//
+//			invokeTestWithinServer(session.getCryptoSessionID());
+//
+//		} finally {
+//			session.lock();
+//		}
+//	}
 
 }
