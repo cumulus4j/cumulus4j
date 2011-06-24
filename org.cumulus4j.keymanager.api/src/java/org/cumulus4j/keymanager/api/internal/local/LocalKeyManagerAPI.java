@@ -126,19 +126,21 @@ public class LocalKeyManagerAPI extends AbstractKeyManagerAPI
 		try {
 			AppServerManager appServerManager = getAppServerManager();
 			AppServer appServer;
-			String appServerID = appServerBaseURL2appServerID.get(appServerBaseURL);
-			if (appServerID == null) {
-				appServer = new AppServer(appServerManager, appServerID, appServerBaseURL);
-				appServerManager.putAppServer(appServer);
-				appServerID = appServer.getAppServerID();
+			synchronized (appServerBaseURL2appServerID) {
+				String appServerID = appServerBaseURL2appServerID.get(appServerBaseURL);
+				if (appServerID == null) {
+					appServer = new AppServer(appServerManager, appServerID, appServerBaseURL);
+					appServerManager.putAppServer(appServer);
+					appServer.getAppServerID();
+				}
+				else
+					appServer = appServerManager.getAppServerForAppServerID(appServerID);
 			}
-			else
-				appServer = appServerManager.getAppServerForAppServerID(appServerID);
 
 			// Try to open the session already now, so that we know already here, whether this works.
 			appServer.getSessionManager().openSession(getAuthUserName(), getAuthPassword());
 
-			return new SessionImpl(this, appServer);
+			return new LocalSession(this, appServer);
 		} catch (Exception x) {
 			throw new RuntimeException(x); // TODO introduce nice exceptions into this API!!!
 		}

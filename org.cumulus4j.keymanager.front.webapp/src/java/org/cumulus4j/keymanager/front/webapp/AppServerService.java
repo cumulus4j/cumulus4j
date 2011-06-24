@@ -101,6 +101,11 @@ public class AppServerService extends AbstractService
 		return appServerList;
 	}
 
+	/**
+	 * @deprecated This service method is not used by the unified key manager API. Shall we remove it?! It exists solely for
+	 * reasons of REST-ful service consistency. But maybe we should better remove it and provide ONE single way to handle things. Marco :-)
+	 */
+	@Deprecated
 	@PUT
 	@Path("{keyStoreID}/{appServerID}")
 	public void putAppServerWithAppServerIDPath(
@@ -142,7 +147,11 @@ public class AppServerService extends AbstractService
 		try {
 			AppServerManager appServerManager = keyStoreManager.getAppServerManager(keyStoreID);
 			AppServer as = new AppServer(appServerManager, appServer.getAppServerID(), appServer.getAppServerBaseURL());
-			appServerManager.putAppServer(as);
+			appServerManager.putAppServer(as); // This will assign appServer.appServerID, if that property is null.
+
+			if (appServer.getAppServerID() == null) // sanity check.
+				throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(new IllegalStateException("appServer.appServerID is null after registration of appServer!"))).build());
+
 			// TODO write AppServers to a file!
 			return appServer.getAppServerID();
 		} catch (IOException e) {

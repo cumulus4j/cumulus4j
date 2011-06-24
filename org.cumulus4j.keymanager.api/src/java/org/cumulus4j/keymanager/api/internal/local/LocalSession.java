@@ -5,13 +5,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.cumulus4j.keymanager.AppServer;
 import org.cumulus4j.keymanager.api.Session;
 
-public class SessionImpl implements Session
+public class LocalSession implements Session
 {
 	private LocalKeyManagerAPI localKeyManagerAPI;
 
 	private AppServer appServer;
 
-	public SessionImpl(LocalKeyManagerAPI localKeyManagerAPI, AppServer appServer)
+	public LocalSession(LocalKeyManagerAPI localKeyManagerAPI, AppServer appServer)
 	{
 		if (localKeyManagerAPI == null)
 			throw new IllegalArgumentException("localKeyManagerAPI == null");
