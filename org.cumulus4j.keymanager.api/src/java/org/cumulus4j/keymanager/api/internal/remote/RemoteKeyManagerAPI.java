@@ -35,6 +35,7 @@ public class RemoteKeyManagerAPI extends AbstractKeyManagerAPI
 			client.addFilter(
 					new HTTPBasicAuthFilter(getAuthUserName(), new String(getAuthPassword()))
 			);
+			this.client = client;
 		}
 		return client;
 	}
