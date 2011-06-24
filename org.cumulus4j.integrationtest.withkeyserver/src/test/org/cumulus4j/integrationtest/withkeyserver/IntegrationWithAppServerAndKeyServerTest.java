@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.security.SecureRandom;
 
 import javax.ws.rs.core.MediaType;
 
@@ -52,15 +53,17 @@ public class IntegrationWithAppServerAndKeyServerTest
 	private static final String URL_KEY_SERVER = "http://localhost:8686";
 	private static final String URL_KEY_MANAGER_FRONT_WEBAPP = URL_KEY_SERVER + "/org.cumulus4j.keymanager.front.webapp";
 
-	private static final String KEY_STORE_ID = "test-" + Long.toString(System.currentTimeMillis(), 36);
+	private static final String KEY_STORE_ID_VAR = "${keyStoreID}";
 
-	private static final String URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_APP_SERVER = URL_KEY_MANAGER_FRONT_WEBAPP + "/AppServer/" + KEY_STORE_ID;
+	private static final String URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_APP_SERVER = URL_KEY_MANAGER_FRONT_WEBAPP + "/AppServer/" + KEY_STORE_ID_VAR;
 //	private static final String URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_USER = URL_KEY_MANAGER_FRONT_WEBAPP + "/User";
-	private static final String URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_DATE_DEPENDENT_KEY_STRATEGY = URL_KEY_MANAGER_FRONT_WEBAPP + "/DateDependentKeyStrategy/" + KEY_STORE_ID;
-	private static final String URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_SESSION = URL_KEY_MANAGER_FRONT_WEBAPP + "/Session/" + KEY_STORE_ID;
+	private static final String URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_DATE_DEPENDENT_KEY_STRATEGY = URL_KEY_MANAGER_FRONT_WEBAPP + "/DateDependentKeyStrategy/" + KEY_STORE_ID_VAR;
+	private static final String URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_SESSION = URL_KEY_MANAGER_FRONT_WEBAPP + "/Session/" + KEY_STORE_ID_VAR;
 
 	private static final String KEY_SERVER_USER = "devil";
 	private static final char[] KEY_SERVER_PASSWORD = "testtesttest".toCharArray();
+
+	private static SecureRandom random = new SecureRandom();
 
 	/**
 	 * Test for the 3-computer-deployment-scenario. DO NOT USE THIS AS AN EXAMPLE FOR YOUR OWN CODE!!!
@@ -73,6 +76,8 @@ public class IntegrationWithAppServerAndKeyServerTest
 	public void testThreeComputerScenarioLowLevel()
 	throws Exception
 	{
+		String keyStoreID = "test-" + Long.toString(System.currentTimeMillis(), 36) + "-" + Long.toString(random.nextInt(), 36);
+
 		Client clientForKeyServer = new Client();
 		clientForKeyServer.addFilter(
 				new HTTPBasicAuthFilter(KEY_SERVER_USER, new String(KEY_SERVER_PASSWORD))
@@ -90,7 +95,7 @@ public class IntegrationWithAppServerAndKeyServerTest
 		DateDependentKeyStrategyInitParam ksInitParam = new DateDependentKeyStrategyInitParam();
 		ksInitParam.setKeyActivityPeriodMSec(3600L * 1000L);
 		ksInitParam.setKeyStorePeriodMSec(24L * 3600L * 1000L);
-		clientForKeyServer.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_DATE_DEPENDENT_KEY_STRATEGY + "/init")
+		clientForKeyServer.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_DATE_DEPENDENT_KEY_STRATEGY.replaceAll(KEY_STORE_ID_VAR, keyStoreID) + "/init")
 		.type(MediaType.APPLICATION_XML_TYPE)
 		.post(ksInitParam);
 
@@ -99,20 +104,20 @@ public class IntegrationWithAppServerAndKeyServerTest
 		appServer.setAppServerID("appServer1");
 		appServer.setAppServerBaseURL(URL_KEY_MANAGER_BACK_WEBAPP);
 
-		clientForKeyServer.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_APP_SERVER)
+		clientForKeyServer.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_APP_SERVER.replaceAll(KEY_STORE_ID_VAR, keyStoreID))
 		.type(MediaType.APPLICATION_XML_TYPE)
 		.put(appServer);
 
 
 		OpenSessionResponse openSessionResponse = clientForKeyServer
-		.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_SESSION + '/' + appServer.getAppServerID() + "/open")
+		.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_SESSION.replaceAll(KEY_STORE_ID_VAR, keyStoreID) + '/' + appServer.getAppServerID() + "/open")
 		.accept(MediaType.APPLICATION_XML_TYPE)
 		.post(OpenSessionResponse.class);
 
 		String cryptoSessionID = openSessionResponse.getCryptoSessionID();
 
 		clientForKeyServer
-		.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_SESSION + '/' + appServer.getAppServerID() + '/' + cryptoSessionID + "/unlock")
+		.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_SESSION.replaceAll(KEY_STORE_ID_VAR, keyStoreID) + '/' + appServer.getAppServerID() + '/' + cryptoSessionID + "/unlock")
 		.post();
 
 		invokeTestWithinServer(cryptoSessionID);
@@ -154,10 +159,12 @@ public class IntegrationWithAppServerAndKeyServerTest
 	public void testThreeComputerScenarioWithUnifiedAPI()
 	throws Exception
 	{
+		String keyStoreID = "test-" + Long.toString(System.currentTimeMillis(), 36) + "-" + Long.toString(random.nextInt(), 36);
+
 		KeyManagerAPI keyManagerAPI = new DefaultKeyManagerAPI();
 		keyManagerAPI.setAuthUserName(KEY_SERVER_USER);
 		keyManagerAPI.setAuthPassword(KEY_SERVER_PASSWORD);
-		keyManagerAPI.setKeyStoreID(KEY_STORE_ID);
+		keyManagerAPI.setKeyStoreID(keyStoreID);
 		keyManagerAPI.setKeyManagerBaseURL(URL_KEY_MANAGER_FRONT_WEBAPP);
 
 		org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam param = new org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam();
