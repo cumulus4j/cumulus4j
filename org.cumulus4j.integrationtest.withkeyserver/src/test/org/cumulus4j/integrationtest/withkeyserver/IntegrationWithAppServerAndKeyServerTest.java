@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.security.SecureRandom;
+import java.util.regex.Pattern;
 
 import javax.ws.rs.core.MediaType;
 
@@ -95,7 +96,7 @@ public class IntegrationWithAppServerAndKeyServerTest
 		DateDependentKeyStrategyInitParam ksInitParam = new DateDependentKeyStrategyInitParam();
 		ksInitParam.setKeyActivityPeriodMSec(3600L * 1000L);
 		ksInitParam.setKeyStorePeriodMSec(24L * 3600L * 1000L);
-		clientForKeyServer.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_DATE_DEPENDENT_KEY_STRATEGY.replaceAll(KEY_STORE_ID_VAR, keyStoreID) + "/init")
+		clientForKeyServer.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_DATE_DEPENDENT_KEY_STRATEGY.replaceAll(Pattern.quote(KEY_STORE_ID_VAR), keyStoreID) + "/init")
 		.type(MediaType.APPLICATION_XML_TYPE)
 		.post(ksInitParam);
 
@@ -104,20 +105,20 @@ public class IntegrationWithAppServerAndKeyServerTest
 		appServer.setAppServerID("appServer1");
 		appServer.setAppServerBaseURL(URL_KEY_MANAGER_BACK_WEBAPP);
 
-		clientForKeyServer.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_APP_SERVER.replaceAll(KEY_STORE_ID_VAR, keyStoreID))
+		clientForKeyServer.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_APP_SERVER.replaceAll(Pattern.quote(KEY_STORE_ID_VAR), keyStoreID))
 		.type(MediaType.APPLICATION_XML_TYPE)
 		.put(appServer);
 
 
 		OpenSessionResponse openSessionResponse = clientForKeyServer
-		.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_SESSION.replaceAll(KEY_STORE_ID_VAR, keyStoreID) + '/' + appServer.getAppServerID() + "/open")
+		.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_SESSION.replaceAll(Pattern.quote(KEY_STORE_ID_VAR), keyStoreID) + '/' + appServer.getAppServerID() + "/open")
 		.accept(MediaType.APPLICATION_XML_TYPE)
 		.post(OpenSessionResponse.class);
 
 		String cryptoSessionID = openSessionResponse.getCryptoSessionID();
 
 		clientForKeyServer
-		.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_SESSION.replaceAll(KEY_STORE_ID_VAR, keyStoreID) + '/' + appServer.getAppServerID() + '/' + cryptoSessionID + "/unlock")
+		.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_SESSION.replaceAll(Pattern.quote(KEY_STORE_ID_VAR), keyStoreID) + '/' + appServer.getAppServerID() + '/' + cryptoSessionID + "/unlock")
 		.post();
 
 		invokeTestWithinServer(cryptoSessionID);
