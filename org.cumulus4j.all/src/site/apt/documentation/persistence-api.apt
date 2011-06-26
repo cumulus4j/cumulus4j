@@ -16,7 +16,7 @@ Persistence API
 	as normal, but need to specify to use Cumulus4j. For example
 
 +------------------------------------------+
-javax.jdo.PersistenceManagerFactoryClass= org.datanucleus.api.jdo.JDOPersistenceManagerFactory
+javax.jdo.PersistenceManagerFactoryClass=org.datanucleus.api.jdo.JDOPersistenceManagerFactory
 
 datanucleus.storeManagerType=cumulus4j
 datanucleus.persistenceByReachabilityAtCommit=false

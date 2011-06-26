@@ -67,7 +67,7 @@ public class MessageBrokerRegistry
 				if (result == null) {
 					String messageBrokerImplClassName = System.getProperty(SYSTEM_PROPERTY_ACTIVE_MESSAGE_BROKER);
 					if (messageBrokerImplClassName == null || messageBrokerImplClassName.trim().isEmpty()) {
-						logger.info("sharedInstance: System property '{}' was not specified. Auto-detecting appropriate MessageBroker-implementation.", SYSTEM_PROPERTY_ACTIVE_MESSAGE_BROKER);
+						logger.info("getActiveMessageBroker: System property '{}' was not specified. Auto-detecting appropriate MessageBroker-implementation.", SYSTEM_PROPERTY_ACTIVE_MESSAGE_BROKER);
 
 						for (Class<?> c : MESSAGE_BROKER_IMPLEMENTATION_CLASSES) {
 							try {
@@ -75,7 +75,7 @@ public class MessageBrokerRegistry
 								result = mb;
 								break;
 							} catch (Exception e) {
-								logger.warn("sharedInstance: Could not instantiate " + c.getName() + ": " + e, e);
+								logger.warn("getActiveMessageBroker: Could not instantiate " + c.getName() + ": " + e, e);
 							}
 						}
 
