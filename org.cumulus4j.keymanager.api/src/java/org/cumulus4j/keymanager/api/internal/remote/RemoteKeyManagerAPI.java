@@ -20,6 +20,7 @@ import org.cumulus4j.keymanager.api.internal.AbstractKeyManagerAPI;
 import org.cumulus4j.keymanager.front.shared.AppServer;
 import org.cumulus4j.keymanager.front.shared.Error;
 import org.cumulus4j.keymanager.front.shared.OpenSessionResponse;
+import org.cumulus4j.keymanager.front.shared.PutAppServerResponse;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandlerException;
@@ -114,16 +115,18 @@ public class RemoteKeyManagerAPI extends AbstractKeyManagerAPI
 			appServer = new AppServer();
 			appServer.setAppServerBaseURL(appServerBaseURL);
 
-			String appServerID = getClient().resource(appendFinalSlash(getKeyManagerBaseURL()) + "AppServer/" + getKeyStoreID())
+			PutAppServerResponse putAppServerResponse = getClient().resource(appendFinalSlash(getKeyManagerBaseURL()) + "AppServer/" + getKeyStoreID())
 			.accept(MediaType.TEXT_PLAIN_TYPE)
 			.type(MediaType.APPLICATION_XML_TYPE)
-			.put(String.class, appServer);
+			.put(PutAppServerResponse.class, appServer);
 
-			if (appServerID == null)
-				throw new IllegalStateException("Key server returned null instead of an appServerID when putting an AppServer instance!"); // TODO nice exceptions for this API!
+			if (putAppServerResponse == null)
+				throw new IOException("Key server returned null instead of a PutAppServerResponse when putting an AppServer instance!");
 
-			appServer.setAppServerID(appServerID);
+			if (putAppServerResponse.getAppServerID() == null)
+				throw new IOException("Key server returned a PutAppServerResponse with property appServerID being null!");
 
+			appServer.setAppServerID(putAppServerResponse.getAppServerID());
 			appServerBaseURL2appServer.put(appServerBaseURL, appServer);
 		}
 

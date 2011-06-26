@@ -34,6 +34,7 @@ import javax.ws.rs.core.Response.Status;
 import org.cumulus4j.keymanager.AppServer;
 import org.cumulus4j.keymanager.AppServerManager;
 import org.cumulus4j.keymanager.front.shared.Error;
+import org.cumulus4j.keymanager.front.shared.PutAppServerResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,9 +132,8 @@ public class AppServerService extends AbstractService
 	}
 
 	@PUT
-	@Produces(MediaType.TEXT_PLAIN)
 	@Path("{keyStoreID}")
-	public String putAppServer(
+	public PutAppServerResponse putAppServer(
 			@PathParam("keyStoreID") String keyStoreID,
 			org.cumulus4j.keymanager.front.shared.AppServer appServer
 	)
@@ -153,7 +153,7 @@ public class AppServerService extends AbstractService
 				throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(new IllegalStateException("appServer.appServerID is null after registration of appServer!"))).build());
 
 			// TODO write AppServers to a file!
-			return as.getAppServerID();
+			return new PutAppServerResponse(as.getAppServerID());
 		} catch (IOException e) {
 			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(e)).build());
 		} finally {
