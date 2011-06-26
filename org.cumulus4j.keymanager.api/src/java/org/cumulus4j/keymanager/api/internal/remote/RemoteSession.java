@@ -75,6 +75,7 @@ public class RemoteSession implements Session
 			return response.getCryptoSessionID();
 		} catch (UniformInterfaceException x) {
 			RemoteKeyManagerAPI.throwUniformInterfaceExceptionAsAuthenticationException(x);
+			RemoteKeyManagerAPI.throwUniformInterfaceExceptionAsIOException(x);
 			throw new IOException(x);
 		}
 	}
@@ -96,6 +97,7 @@ public class RemoteSession implements Session
 			.post();
 		} catch (UniformInterfaceException x) {
 			RemoteKeyManagerAPI.throwUniformInterfaceExceptionAsAuthenticationException(x);
+			RemoteKeyManagerAPI.throwUniformInterfaceExceptionAsIOException(x);
 			throw new IOException(x);
 		}
 	}
@@ -113,6 +115,7 @@ public class RemoteSession implements Session
 			.post();
 		} catch (UniformInterfaceException x) {
 			RemoteKeyManagerAPI.throwUniformInterfaceExceptionAsAuthenticationException(x);
+			RemoteKeyManagerAPI.throwUniformInterfaceExceptionAsIOException(x);
 			throw new IOException(x);
 		}
 	}

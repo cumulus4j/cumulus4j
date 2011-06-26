@@ -108,35 +108,43 @@ public class RemoteKeyManagerAPI extends AbstractKeyManagerAPI
 	@Override
 	public Session getSession(String appServerBaseURL) throws IOException, AuthenticationException
 	{
-		AppServer appServer = appServerBaseURL2appServer.get(appServerBaseURL);
-		if (appServer == null) {
-			// Even if multiple threads run into this clause, the key-server will return
-			// the same appServerID for all of them.
-			appServer = new AppServer();
-			appServer.setAppServerBaseURL(appServerBaseURL);
+		try {
+			AppServer appServer = appServerBaseURL2appServer.get(appServerBaseURL);
+			if (appServer == null) {
+				// Even if multiple threads run into this clause, the key-server will return
+				// the same appServerID for all of them.
+				appServer = new AppServer();
+				appServer.setAppServerBaseURL(appServerBaseURL);
 
-			PutAppServerResponse putAppServerResponse = getClient().resource(appendFinalSlash(getKeyManagerBaseURL()) + "AppServer/" + getKeyStoreID())
-			.accept(MediaType.TEXT_PLAIN_TYPE)
-			.type(MediaType.APPLICATION_XML_TYPE)
-			.put(PutAppServerResponse.class, appServer);
+				PutAppServerResponse putAppServerResponse = getClient().resource(appendFinalSlash(getKeyManagerBaseURL()) + "AppServer/" + getKeyStoreID())
+				.accept(MediaType.TEXT_PLAIN_TYPE)
+				.type(MediaType.APPLICATION_XML_TYPE)
+				.put(PutAppServerResponse.class, appServer);
 
-			if (putAppServerResponse == null)
-				throw new IOException("Key server returned null instead of a PutAppServerResponse when putting an AppServer instance!");
+				if (putAppServerResponse == null)
+					throw new IOException("Key server returned null instead of a PutAppServerResponse when putting an AppServer instance!");
 
-			if (putAppServerResponse.getAppServerID() == null)
-				throw new IOException("Key server returned a PutAppServerResponse with property appServerID being null!");
+				if (putAppServerResponse.getAppServerID() == null)
+					throw new IOException("Key server returned a PutAppServerResponse with property appServerID being null!");
 
-			appServer.setAppServerID(putAppServerResponse.getAppServerID());
-			appServerBaseURL2appServer.put(appServerBaseURL, appServer);
+				appServer.setAppServerID(putAppServerResponse.getAppServerID());
+				appServerBaseURL2appServer.put(appServerBaseURL, appServer);
+			}
+
+			RemoteSession session = new RemoteSession(this, appServer);
+
+			// Try to open the session already now, so that we know already here, whether this works
+			// (this getter will internally trigger the REST request).
+			session.getCryptoSessionID();
+
+			return session;
+		} catch (UniformInterfaceException x) {
+			RemoteKeyManagerAPI.throwUniformInterfaceExceptionAsAuthenticationException(x);
+			RemoteKeyManagerAPI.throwUniformInterfaceExceptionAsIOException(x);
+			throw new IOException(x);
+		} catch (IOException x) {
+			throw x;
 		}
-
-		RemoteSession session = new RemoteSession(this, appServer);
-
-		// Try to open the session already now, so that we know already here, whether this works
-		// (this getter will internally trigger the REST request).
-		session.getCryptoSessionID();
-
-		return session;
 		// TODO try-catch-block and introduce nice exceptions into this API
 	}
 
