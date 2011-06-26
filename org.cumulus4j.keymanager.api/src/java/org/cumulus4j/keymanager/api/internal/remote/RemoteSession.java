@@ -1,14 +1,17 @@
 package org.cumulus4j.keymanager.api.internal.remote;
 
+import java.io.IOException;
 import java.util.Date;
 
 import javax.ws.rs.core.MediaType;
 
+import org.cumulus4j.keymanager.api.AuthenticationException;
 import org.cumulus4j.keymanager.api.Session;
 import org.cumulus4j.keymanager.front.shared.AppServer;
 import org.cumulus4j.keymanager.front.shared.OpenSessionResponse;
 
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.UniformInterfaceException;
 
 public class RemoteSession implements Session
 {
@@ -49,28 +52,37 @@ public class RemoteSession implements Session
 	private OpenSessionResponse lastOpenSessionResponse;
 
 	@Override
-	public synchronized String getCryptoSessionID()
+	public synchronized String getCryptoSessionID() throws AuthenticationException, IOException
 	{
-		// TODO don't do this always, but take lastOpenSessionResponse.getExpiry() [with a safety margin] into account (AND TIME DIFFERENCE BETWEEN LOCAL AND SERVER TIME!!!)
+		if (
+				lastOpenSessionResponseLocalTimestamp != null &&
+				lastOpenSessionResponseLocalTimestamp.after(new Date(System.currentTimeMillis() - 10000)) // TODO make time configurable!
+		)
+			return lastOpenSessionResponse.getCryptoSessionID();
 
-		Date now = new Date();
-		OpenSessionResponse response = getClient().resource(appendFinalSlash(getKeyManagerBaseURL()) + "Session/" + getKeyStoreID() + '/' + appServer.getAppServerID() + "/open")
-		.accept(MediaType.APPLICATION_XML_TYPE)
-		.post(OpenSessionResponse.class);
+		try {
+			Date now = new Date();
+			OpenSessionResponse response = getClient().resource(appendFinalSlash(getKeyManagerBaseURL()) + "Session/" + getKeyStoreID() + '/' + appServer.getAppServerID() + "/open")
+			.accept(MediaType.APPLICATION_XML_TYPE)
+			.post(OpenSessionResponse.class);
 
-		if (response == null)
-			throw new IllegalStateException("Key server returned null instead of an OpenSessionResponse when opening a session!"); // TODO nice exceptions for this API!
+			if (response == null)
+				throw new IllegalStateException("Key server returned null instead of an OpenSessionResponse when opening a session!"); // TODO nice exceptions for this API!
 
-		this.lastOpenSessionResponseLocalTimestamp = now;
-		this.lastOpenSessionResponse = response;
+			this.lastOpenSessionResponseLocalTimestamp = now;
+			this.lastOpenSessionResponse = response;
 
-		return response.getCryptoSessionID();
+			return response.getCryptoSessionID();
+		} catch (UniformInterfaceException x) {
+			RemoteKeyManagerAPI.throwUniformInterfaceExceptionAsAuthenticationException(x);
+			throw new IOException(x);
+		}
 	}
 
 	private int unlockCounter;
 
 	@Override
-	public synchronized void lock() {
+	public synchronized void lock() throws AuthenticationException, IOException {
 		if (--unlockCounter < 0)
 			throw new IllegalStateException("lock() called more often than unlock()!!!");
 
@@ -78,28 +90,45 @@ public class RemoteSession implements Session
 			doLock();
 	}
 
-	private void doLock() {
-		getClient().resource(appendFinalSlash(getKeyManagerBaseURL()) + "Session/" + getKeyStoreID() + '/' + appServer.getAppServerID() + '/' + getCryptoSessionID() + "/lock")
-		.post();
+	private void doLock() throws AuthenticationException, IOException {
+		try {
+			getClient().resource(appendFinalSlash(getKeyManagerBaseURL()) + "Session/" + getKeyStoreID() + '/' + appServer.getAppServerID() + '/' + getCryptoSessionID() + "/lock")
+			.post();
+		} catch (UniformInterfaceException x) {
+			RemoteKeyManagerAPI.throwUniformInterfaceExceptionAsAuthenticationException(x);
+			throw new IOException(x);
+		}
 	}
 
 	@Override
-	public synchronized void unlock()
+	public synchronized void unlock() throws AuthenticationException, IOException
 	{
 		if (0 == unlockCounter++)
 			doUnlock();
 	}
 
-	private void doUnlock() {
-		getClient().resource(appendFinalSlash(getKeyManagerBaseURL()) + "Session/" + getKeyStoreID() + '/' + appServer.getAppServerID() + '/' + getCryptoSessionID() + "/unlock")
-		.post();
+	private void doUnlock() throws AuthenticationException, IOException {
+		try {
+			getClient().resource(appendFinalSlash(getKeyManagerBaseURL()) + "Session/" + getKeyStoreID() + '/' + appServer.getAppServerID() + '/' + getCryptoSessionID() + "/unlock")
+			.post();
+		} catch (UniformInterfaceException x) {
+			RemoteKeyManagerAPI.throwUniformInterfaceExceptionAsAuthenticationException(x);
+			throw new IOException(x);
+		}
 	}
 
 	@Override
-	public void close() {
-		// TODO optimize this (it might open a brand new session just to close it).
-		getClient().resource(appendFinalSlash(getKeyManagerBaseURL()) + "Session/" + getKeyStoreID() + '/' + appServer.getAppServerID() + '/' + getCryptoSessionID())
+	public synchronized void close()
+	{
+		if (lastOpenSessionResponse == null)
+			return; // there's nothing to be closed, yet
+
+		String cryptoSessionID = lastOpenSessionResponse.getCryptoSessionID();
+		getClient().resource(appendFinalSlash(getKeyManagerBaseURL()) + "Session/" + getKeyStoreID() + '/' + appServer.getAppServerID() + '/' + cryptoSessionID)
 		.delete();
+
+		lastOpenSessionResponse = null;
+		lastOpenSessionResponseLocalTimestamp = null;
 	}
 
 }

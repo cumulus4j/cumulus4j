@@ -1,5 +1,7 @@
 package org.cumulus4j.keymanager.api;
 
+import java.io.IOException;
+
 /**
  * <p>
  * Entry point for the key management API.
@@ -32,6 +34,8 @@ public interface KeyManagerAPI
 
 	String getKeyManagerBaseURL();
 
+	void init() throws KeyManagerAPIInstantiationException;
+
 	/**
 	 *
 	 * @param keyManagerBaseURL the base-URL of the remote key-server or a local file-URL, if a local key-store is to be used.
@@ -40,9 +44,9 @@ public interface KeyManagerAPI
 	void setKeyManagerBaseURL(String keyManagerBaseURL);
 
 
-	void initDateDependentKeyStrategy(DateDependentKeyStrategyInitParam param);
+	void initDateDependentKeyStrategy(DateDependentKeyStrategyInitParam param) throws KeyStoreNotEmptyException, IOException;
 
 
-	Session getSession(String appServerBaseURL);
+	Session getSession(String appServerBaseURL) throws IOException, AuthenticationException;
 
 }

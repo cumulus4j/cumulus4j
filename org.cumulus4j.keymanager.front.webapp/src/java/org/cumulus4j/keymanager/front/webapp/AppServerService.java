@@ -149,11 +149,11 @@ public class AppServerService extends AbstractService
 			AppServer as = new AppServer(appServerManager, appServer.getAppServerID(), appServer.getAppServerBaseURL());
 			appServerManager.putAppServer(as); // This will assign appServer.appServerID, if that property is null.
 
-			if (appServer.getAppServerID() == null) // sanity check.
+			if (as.getAppServerID() == null) // sanity check.
 				throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(new IllegalStateException("appServer.appServerID is null after registration of appServer!"))).build());
 
 			// TODO write AppServers to a file!
-			return appServer.getAppServerID();
+			return as.getAppServerID();
 		} catch (IOException e) {
 			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(e)).build());
 		} finally {

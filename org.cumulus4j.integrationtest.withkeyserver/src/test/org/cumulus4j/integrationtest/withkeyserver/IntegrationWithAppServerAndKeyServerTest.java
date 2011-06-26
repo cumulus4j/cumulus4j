@@ -167,6 +167,7 @@ public class IntegrationWithAppServerAndKeyServerTest
 		keyManagerAPI.setAuthPassword(KEY_SERVER_PASSWORD);
 		keyManagerAPI.setKeyStoreID(keyStoreID);
 		keyManagerAPI.setKeyManagerBaseURL(URL_KEY_MANAGER_FRONT_WEBAPP);
+		keyManagerAPI.init();
 
 		org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam param = new org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam();
 		param.setKeyActivityPeriodMSec(3600L * 1000L);

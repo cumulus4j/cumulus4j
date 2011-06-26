@@ -1,8 +1,10 @@
 package org.cumulus4j.keymanager.api.internal.local;
 
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.cumulus4j.keymanager.AppServer;
+import org.cumulus4j.keymanager.api.AuthenticationException;
 import org.cumulus4j.keymanager.api.Session;
 
 public class LocalSession implements Session
@@ -31,18 +33,18 @@ public class LocalSession implements Session
 	}
 
 	@Override
-	public String getCryptoSessionID() {
+	public String getCryptoSessionID() throws AuthenticationException, IOException {
 		try {
 			return appServer.getSessionManager().openSession(localKeyManagerAPI.getAuthUserName(), localKeyManagerAPI.getAuthPassword()).getCryptoSessionID();
-		} catch (Exception x) {
-			throw new RuntimeException(x); // TODO introduce nice exceptions into this API!!!
+		} catch (org.cumulus4j.keystore.AuthenticationException e) {
+			throw new AuthenticationException(e);
 		}
 	}
 
 	private AtomicInteger unlockCounter = new AtomicInteger();
 
 	@Override
-	public void lock()
+	public void lock() throws AuthenticationException, IOException
 	{
 		int counter = unlockCounter.decrementAndGet();
 
@@ -54,13 +56,13 @@ public class LocalSession implements Session
 
 		try {
 			appServer.getSessionManager().openSession(localKeyManagerAPI.getAuthUserName(), localKeyManagerAPI.getAuthPassword()).setLocked(true);
-		} catch (Exception x) {
-			throw new RuntimeException(x); // TODO introduce nice exceptions into this API!!!
+		} catch (org.cumulus4j.keystore.AuthenticationException e) {
+			throw new AuthenticationException(e);
 		}
 	}
 
 	@Override
-	public void unlock()
+	public void unlock() throws AuthenticationException, IOException
 	{
 		unlockCounter.incrementAndGet();
 
@@ -71,8 +73,8 @@ public class LocalSession implements Session
 
 		try {
 			appServer.getSessionManager().openSession(localKeyManagerAPI.getAuthUserName(), localKeyManagerAPI.getAuthPassword()).setLocked(false);
-		} catch (Exception x) {
-			throw new RuntimeException(x); // TODO introduce nice exceptions into this API!!!
+		} catch (org.cumulus4j.keystore.AuthenticationException e) {
+			throw new AuthenticationException(e);
 		}
 	}
 

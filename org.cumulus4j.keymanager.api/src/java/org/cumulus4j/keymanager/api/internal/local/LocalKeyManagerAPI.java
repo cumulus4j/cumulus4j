@@ -12,7 +12,10 @@ import java.util.Map;
 
 import org.cumulus4j.keymanager.AppServer;
 import org.cumulus4j.keymanager.AppServerManager;
+import org.cumulus4j.keymanager.api.AuthenticationException;
 import org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam;
+import org.cumulus4j.keymanager.api.KeyManagerAPIInstantiationException;
+import org.cumulus4j.keymanager.api.KeyStoreNotEmptyException;
 import org.cumulus4j.keymanager.api.Session;
 import org.cumulus4j.keymanager.api.internal.AbstractKeyManagerAPI;
 import org.cumulus4j.keystore.DateDependentKeyStrategy;
@@ -102,7 +105,9 @@ public class LocalKeyManagerAPI extends AbstractKeyManagerAPI
 		appServerBaseURL2appServerID.clear();
 	}
 
-	public LocalKeyManagerAPI() {
+	public LocalKeyManagerAPI()
+	throws KeyManagerAPIInstantiationException
+	{
 		// We test here, whether the KeyStore is accessible. If it is not, it means the local stuff is not deployed
 		// and it should not be possible to instantiate a LocalKeyManagerAPI.
 		KeyStore.class.getConstructors();
@@ -110,18 +115,19 @@ public class LocalKeyManagerAPI extends AbstractKeyManagerAPI
 
 	@Override
 	public void initDateDependentKeyStrategy(DateDependentKeyStrategyInitParam param)
+	throws KeyStoreNotEmptyException, IOException
 	{
 		try {
 			KeyStore keyStore = getKeyStore();
 			DateDependentKeyStrategy keyStrategy = new DateDependentKeyStrategy(keyStore);
 			keyStrategy.init(getAuthUserName(), getAuthPassword(), param.getKeyActivityPeriodMSec(), param.getKeyStorePeriodMSec());
-		} catch (Exception x) {
-			throw new RuntimeException(x); // TODO introduce nice exceptions into this API!!!
+		} catch (org.cumulus4j.keystore.KeyStoreNotEmptyException e) {
+			throw new KeyStoreNotEmptyException(e);
 		}
 	}
 
 	@Override
-	public Session getSession(String appServerBaseURL)
+	public Session getSession(String appServerBaseURL) throws IOException, AuthenticationException
 	{
 		try {
 			AppServerManager appServerManager = getAppServerManager();
@@ -141,8 +147,8 @@ public class LocalKeyManagerAPI extends AbstractKeyManagerAPI
 			appServer.getSessionManager().openSession(getAuthUserName(), getAuthPassword());
 
 			return new LocalSession(this, appServer);
-		} catch (Exception x) {
-			throw new RuntimeException(x); // TODO introduce nice exceptions into this API!!!
+		} catch (org.cumulus4j.keystore.AuthenticationException e) {
+			throw new AuthenticationException(e);
 		}
 	}
 

@@ -131,6 +131,8 @@ public class IntegrationWithAppServerOnlyTest
 			// We do not want to put test-key-store-files into the ~/.cumulus4j folder, thus setting this to the temp dir.
 			keyManagerAPI.setKeyManagerBaseURL(keyStoreDir.toURI().toString());
 
+			keyManagerAPI.init();
+
 			DateDependentKeyStrategyInitParam param = new DateDependentKeyStrategyInitParam();
 			param.setKeyActivityPeriodMSec(3600L * 1000L);
 			param.setKeyStorePeriodMSec(24L * 3600L * 1000L);

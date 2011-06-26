@@ -3,6 +3,7 @@ package org.cumulus4j.keymanager.api.internal;
 import java.util.Arrays;
 
 import org.cumulus4j.keymanager.api.KeyManagerAPI;
+import org.cumulus4j.keymanager.api.KeyManagerAPIInstantiationException;
 
 public abstract class AbstractKeyManagerAPI
 implements KeyManagerAPI
@@ -17,13 +18,28 @@ implements KeyManagerAPI
 
 	private String keyManagerBaseURL;
 
+	protected boolean initialised = false;
+	protected void assertNotInitialised()
+	{
+		if (initialised)
+			throw new IllegalStateException("This instance of KeyManagerAPI is already initialised! Cannot modify configuration anymore!");
+	}
+	protected void assertInitialised()
+	{
+		if (! initialised)
+			throw new IllegalStateException("This instance of KeyManagerAPI is not yet initialised! Finish configuration and call init() first!");
+	}
+
 	@Override
 	public String getAuthUserName() {
 		return authUserName;
 	}
 
 	@Override
-	public void setAuthUserName(String authUserName) {
+	public void setAuthUserName(String authUserName)
+	{
+		assertNotInitialised();
+
 		if (equals(this.authUserName, authUserName))
 			return;
 
@@ -38,6 +54,8 @@ implements KeyManagerAPI
 	@Override
 	public void setAuthPassword(char[] authPassword)
 	{
+		assertNotInitialised();
+
 		if (Arrays.equals(this.authPassword, authPassword))
 			return;
 
@@ -56,7 +74,10 @@ implements KeyManagerAPI
 	}
 
 	@Override
-	public void setKeyStoreID(String keyStoreID) {
+	public void setKeyStoreID(String keyStoreID)
+	{
+		assertNotInitialised();
+
 		if (equals(this.keyStoreID, keyStoreID))
 			return;
 
@@ -69,7 +90,10 @@ implements KeyManagerAPI
 	}
 
 	@Override
-	public void setKeyManagerBaseURL(String keyManagerBaseURL) {
+	public void setKeyManagerBaseURL(String keyManagerBaseURL)
+	{
+		assertNotInitialised();
+
 		if (equals(this.keyManagerBaseURL, keyManagerBaseURL))
 			return;
 
@@ -77,7 +101,13 @@ implements KeyManagerAPI
 	}
 
 	@Override
+	public void init() throws KeyManagerAPIInstantiationException {
+		initialised = true;
+	}
+
+	@Override
 	protected void finalize() throws Throwable {
+		initialised = false; // otherwise the following setAuthPassword(...) fails.
 		setAuthPassword(null);
 		super.finalize();
 	}
