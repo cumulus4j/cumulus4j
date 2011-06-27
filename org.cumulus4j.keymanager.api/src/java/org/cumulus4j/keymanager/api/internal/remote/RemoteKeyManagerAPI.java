@@ -117,7 +117,7 @@ public class RemoteKeyManagerAPI extends AbstractKeyManagerAPI
 				appServer.setAppServerBaseURL(appServerBaseURL);
 
 				PutAppServerResponse putAppServerResponse = getClient().resource(appendFinalSlash(getKeyManagerBaseURL()) + "AppServer/" + getKeyStoreID())
-				.accept(MediaType.TEXT_PLAIN_TYPE)
+				.accept(MediaType.APPLICATION_XML_TYPE)
 				.type(MediaType.APPLICATION_XML_TYPE)
 				.put(PutAppServerResponse.class, appServer);
 
@@ -167,11 +167,11 @@ public class RemoteKeyManagerAPI extends AbstractKeyManagerAPI
 			} catch (ClientHandlerException e) {
 				//parsing the result failed => returning it as a String
 				String message = getClientResponseEntityAsString(x.getResponse());
-				throw new AuthenticationException("Server replied with error code " + x.getResponse().getStatus() + " and message: " + message);
+				throw new AuthenticationException("URL=\"" + x.getResponse().getLocation() + "\": Server replied with error code " + x.getResponse().getStatus() + " and message: " + message);
 			}
 		}
 
-		throw new AuthenticationException("Server replied with error code " + x.getResponse().getStatus() + "!");
+		throw new AuthenticationException("URL=\"" + x.getResponse().getLocation() + "\": Server replied with error code " + x.getResponse().getStatus() + "!");
 	}
 
 	private static String getClientResponseEntityAsString(ClientResponse response)
@@ -201,12 +201,12 @@ public class RemoteKeyManagerAPI extends AbstractKeyManagerAPI
 			} catch (ClientHandlerException e) {
 				//parsing the result failed => returning it as a String
 				String message = getClientResponseEntityAsString(x.getResponse());
-				throw new IOException("Server replied with error code " + x.getResponse().getStatus() + " and message: " + message);
+				throw new IOException("URL=\"" + x.getResponse().getLocation() + "\": Server replied with error code " + x.getResponse().getStatus() + " and message: " + message);
 			}
 		}
 
 		if (x.getResponse().getStatus() >= 400)
-			throw new IOException("Server replied with error code " + x.getResponse().getStatus() + "!");
+			throw new IOException("URL=\"" + x.getResponse().getLocation() + "\": Server replied with error code " + x.getResponse().getStatus() + "!");
 	}
 
 }
