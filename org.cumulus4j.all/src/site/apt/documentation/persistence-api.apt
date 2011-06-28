@@ -7,6 +7,8 @@
 
 Persistence API
 
+* Basic configuration
+
 	Anyone familiar with either of the two standardised Java persistence APIs (JDO, JPA) should have no problem
 	utilising Cumulus4j to encrypt their data. Please consult DataNucleus' documentation about the
 	{{{http://www.datanucleus.org/products/accessplatform_3_0/jdo/api.html}JDO API}} or the
@@ -46,6 +48,8 @@ cumulus4j.index.javax.jdo.option.ConnectionPassword=
 +------------------------------------------+
 	so now we're storing the index information in a MySQL datastore.
 
+* Encryption algorithm
+
 	Furthermore, you can optionally change the {{{./supported-algorithms.html}encryption and MAC algorithm}}
 	by specifying the following properties:
 
@@ -53,3 +57,21 @@ cumulus4j.index.javax.jdo.option.ConnectionPassword=
 cumulus4j.encryptionAlgorithm=AES/CBC/PKCS5
 cumulus4j.macAlgorithm=HMAC-SHA1
 +------------------------------------------+
+
+* Other persistence properties
+
+	You can configure how long sessions shall be active and when timers should clean expired ones up by the following
+	properties:
+
++------------------------------------------+
+cumulus4j.cryptoSessionExpiryTimerPeriodMSec=0
+cumulus4j.cryptoSessionExpiryAgeMSec=900000
++------------------------------------------+
+
+	These settings deactivate the timer (value 0) (required for the Google App Engine - otherwise not recommended) and set the
+	expiry age of a session to 15 minutes (= 900 000 ms). It is recommended to stick with the default settings, though.
+
++------------------------------------------+
+
++------------------------------------------+
+	

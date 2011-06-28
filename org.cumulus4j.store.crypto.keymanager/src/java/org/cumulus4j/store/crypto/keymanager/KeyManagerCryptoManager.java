@@ -29,7 +29,7 @@ import org.cumulus4j.store.crypto.CryptoSession;
  */
 public class KeyManagerCryptoManager extends AbstractCryptoManager
 {
-	private CipherCache cipherCache = new CipherCache();
+	private CipherCache cipherCache = new CipherCache(this);
 
 	@Override
 	protected CryptoSession createCryptoSession() {

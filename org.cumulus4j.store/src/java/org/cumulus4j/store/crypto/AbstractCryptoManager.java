@@ -49,7 +49,9 @@ public abstract class AbstractCryptoManager implements CryptoManager
 
 	private Map<String, CryptoSession> id2session = new HashMap<String, CryptoSession>();
 
-	private static final Timer closeExpiredSessionsTimer = new Timer();
+	private static volatile Timer closeExpiredSessionsTimer;
+	private static volatile boolean closeExpiredSessionsTimerInitialised = false;
+	private volatile boolean closeExpiredSessionsTaskInitialised = false;
 
 	private class CloseExpiredSessionsTask extends TimerTask
 	{
@@ -64,22 +66,7 @@ public abstract class AbstractCryptoManager implements CryptoManager
 		@Override
 		public void run() {
 			logger.debug("run: entered");
-			Date closeSessionsBeforeThisTimestamp = new Date(
-					System.currentTimeMillis() - getCryptoSessionExpiryAgeMSec()
-					- 60000L // additional buffer, preventing the implicit closing here and the getCryptoSession(...) method getting into a collision
-			);
-
-			CryptoSession[] sessions;
-			synchronized (id2session) {
-				sessions = id2session.values().toArray(new CryptoSession[id2session.size()]);
-			}
-
-			for (CryptoSession session : sessions) {
-				if (session.getLastUsageTimestamp().before(closeSessionsBeforeThisTimestamp)) {
-					logger.debug("run: closing expired session: " + session);
-					session.close();
-				}
-			}
+			closeExpiredCryptoSessions(true);
 
 			long currentPeriodMSec = getCryptoSessionExpiryTimerPeriodMSec();
 			if (currentPeriodMSec != expiryTimerPeriodMSec) {
@@ -94,20 +81,72 @@ public abstract class AbstractCryptoManager implements CryptoManager
 		}
 	};
 
-	{
-		long periodMSec = getCryptoSessionExpiryTimerPeriodMSec();
-		closeExpiredSessionsTimer.schedule(new CloseExpiredSessionsTask(periodMSec), periodMSec, periodMSec);
-	}
+	/**
+	 * <p>
+	 * Persistence property to control when the timer for cleaning up expired {@link CryptoSession}s is called. The
+	 * value configured here is a period, i.e. the timer will be triggered every X ms (roughly).
+	 * </p><p>
+	 * If this persistence property is not present (or not a valid number), the default is 60000 (1 minute), which means
+	 * the timer will wake up once a minute and call {@link #closeExpiredCryptoSessions(boolean)} with <code>force = true</code>.
+	 * </p><p>
+	 * If this persistence property is set to 0, the timer is deactivated and cleanup happens only synchronously
+	 * when {@link #getCryptoSession(String)} is called (periodically - not every time this method is called).
+	 * </p>
+	 */
+	public static final String PROPERTY_CRYPTO_SESSION_EXPIRY_TIMER_PERIOD_MSEC = "cumulus4j.cryptoSessionExpiryTimerPeriodMSec";
+
+	private long cryptoSessionExpiryTimerPeriodMSec = Long.MIN_VALUE;
+
+	/**
+	 * <p>
+	 * Persistence property to control after which time an unused {@link CryptoSession} expires.
+	 * </p><p>
+	 * <code>CryptoSession</code>s that are unused for the configured time in milliseconds are considered expired and
+	 * either periodically removed by a timer (see property {@value #PROPERTY_CRYPTO_SESSION_EXPIRY_TIMER_PERIOD_MSEC})
+	 * or periodically removed synchronously during a call to {@link #getCryptoSession(String)}.
+	 * </p><p>
+	 * If this property is not present (or not a valid number), the default value is 1800000 (30 minutes).
+	 * </p>
+	 */
+	public static final String PROPERTY_CRYPTO_SESSION_EXPIRY_AGE_MSEC = "cumulus4j.cryptoSessionExpiryAgeMSec";
+
+	private long cryptoSessionExpiryAgeMSec = Long.MIN_VALUE;
 
 	/**
 	 * <p>
 	 * Get the period in which expired crypto sessions are searched and closed.
 	 * </p>
+	 * <p>
+	 * This value can be configured using the persistence property {@value #PROPERTY_CRYPTO_SESSION_EXPIRY_TIMER_PERIOD_MSEC}.
+	 * A value of 0 means to deactivate the timer. In this case, only periodic cleanup during the {@link #getCryptoSession(String)}
+	 * occurs.
+	 * </p>
+	 *
 	 * @return the period in msec.
 	 */
 	protected long getCryptoSessionExpiryTimerPeriodMSec()
 	{
-		return 60000L;
+		long val = cryptoSessionExpiryTimerPeriodMSec;
+		if (val == Long.MIN_VALUE) {
+			String propName = PROPERTY_CRYPTO_SESSION_EXPIRY_TIMER_PERIOD_MSEC;
+			String propVal = (String) getCryptoManagerRegistry().getNucleusContext().getPersistenceConfiguration().getProperty(propName);
+			if (propVal != null && !propVal.trim().isEmpty()) {
+				try {
+					val = Long.parseLong(propVal.trim());
+					logger.info("getCryptoSessionExpiryTimerPeriodMSec: Property '{}' is set to {} ms.", propName, val);
+				} catch (NumberFormatException x) {
+					logger.warn("getCryptoSessionExpiryTimerPeriodMSec: Property '{}' is set to '{}', which is an ILLEGAL value (no valid number). Falling back to default value.", propName, propVal);
+				}
+			}
+
+			if (val == Long.MIN_VALUE) {
+				val = 60000L;
+				logger.info("getCryptoSessionExpiryTimerPeriodMSec: Property '{}' is not set. Using default value {}.", propName, val);
+			}
+
+			cryptoSessionExpiryTimerPeriodMSec = val;
+		}
+		return val;
 	}
 
 	/**
@@ -124,8 +163,70 @@ public abstract class AbstractCryptoManager implements CryptoManager
 	 */
 	protected long getCryptoSessionExpiryAgeMSec()
 	{
-		return 30L * 60000L;
+		long val = cryptoSessionExpiryAgeMSec;
+		if (val == Long.MIN_VALUE) {
+			String propName = PROPERTY_CRYPTO_SESSION_EXPIRY_AGE_MSEC;
+			String propVal = (String) getCryptoManagerRegistry().getNucleusContext().getPersistenceConfiguration().getProperty(propName);
+			if (propVal != null && !propVal.trim().isEmpty()) {
+				try {
+					val = Long.parseLong(propVal.trim());
+					logger.info("getCryptoSessionExpiryAgeMSec: Property '{}' is set to {} ms.", propName, val);
+				} catch (NumberFormatException x) {
+					logger.warn("getCryptoSessionExpiryAgeMSec: Property '{}' is set to '{}', which is an ILLEGAL value (no valid number). Falling back to default value.", propName, propVal);
+				}
+			}
+
+			if (val == Long.MIN_VALUE) {
+				val =  30L * 60000L;
+				logger.info("getCryptoSessionExpiryAgeMSec: Property '{}' is not set. Using default value {}.", propName, val);
+			}
+
+			cryptoSessionExpiryAgeMSec = val;
+		}
+		return val;
 	}
+
+	private Date lastCloseExpiredCryptoSessionsTimestamp = null;
+
+	/**
+	 * Closes expired {@link CryptoSession}s. If <code>force == false</code>, it does so only periodically.
+	 *
+	 * @param force whether to force the cleanup now or only do it periodically.
+	 */
+	protected void closeExpiredCryptoSessions(boolean force)
+	{
+		synchronized (this) {
+			if (
+					!force && (
+							lastCloseExpiredCryptoSessionsTimestamp != null && lastCloseExpiredCryptoSessionsTimestamp.after(new Date(System.currentTimeMillis() - getCryptoSessionExpiryAgeMSec()))
+					)
+			)
+			{
+				logger.trace("closeExpiredCryptoSessions: force == false and period not yet elapsed. Skipping.");
+				return;
+			}
+
+			lastCloseExpiredCryptoSessionsTimestamp = new Date();
+		}
+
+		Date closeSessionsBeforeThisTimestamp = new Date(
+				System.currentTimeMillis() - getCryptoSessionExpiryAgeMSec()
+				- 60000L // additional buffer, preventing the implicit closing here and the getCryptoSession(...) method getting into a collision
+		);
+
+		CryptoSession[] sessions;
+		synchronized (id2session) {
+			sessions = id2session.values().toArray(new CryptoSession[id2session.size()]);
+		}
+
+		for (CryptoSession session : sessions) {
+			if (session.getLastUsageTimestamp().before(closeSessionsBeforeThisTimestamp)) {
+				logger.debug("closeExpiredCryptoSessions: Closing expired session: " + session);
+				session.close();
+			}
+		}
+	}
+
 
 	@Override
 	public CryptoManagerRegistry getCryptoManagerRegistry() {
@@ -177,6 +278,31 @@ public abstract class AbstractCryptoManager implements CryptoManager
 	@Override
 	public CryptoSession getCryptoSession(String cryptoSessionID)
 	{
+		if (!closeExpiredSessionsTimerInitialised) {
+			synchronized (AbstractCryptoManager.class) {
+				if (!closeExpiredSessionsTimerInitialised) {
+					if (getCryptoSessionExpiryTimerPeriodMSec() > 0)
+						closeExpiredSessionsTimer = new Timer();
+					else
+						closeExpiredSessionsTimer = null;
+
+					closeExpiredSessionsTimerInitialised = true;
+				}
+			}
+		}
+
+		if (!closeExpiredSessionsTaskInitialised) {
+			synchronized (this) {
+				if (!closeExpiredSessionsTaskInitialised) {
+					if (closeExpiredSessionsTimer != null) {
+						long periodMSec = getCryptoSessionExpiryTimerPeriodMSec();
+						closeExpiredSessionsTimer.schedule(new CloseExpiredSessionsTask(periodMSec), periodMSec, periodMSec);
+					}
+					closeExpiredSessionsTaskInitialised = true;
+				}
+			}
+		}
+
 		CryptoSession session = null;
 		do {
 			synchronized (id2session) {
@@ -207,6 +333,12 @@ public abstract class AbstractCryptoManager implements CryptoManager
 		} while (session == null);
 
 		session.updateLastUsageTimestamp();
+
+		if (closeExpiredSessionsTimer == null) {
+			logger.trace("getCryptoSession: No timer enabled => calling closeExpiredCryptoSessions(false) now.");
+			closeExpiredCryptoSessions(false);
+		}
+
 		return session;
 	}
 

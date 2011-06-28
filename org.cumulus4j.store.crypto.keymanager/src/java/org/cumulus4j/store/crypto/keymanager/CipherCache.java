@@ -57,6 +57,16 @@ public class CipherCache
 		new HashMap<CipherOperationMode, Map<String,Map<Long,List<CipherCacheCipherEntry>>>>()
 	);
 
+	private KeyManagerCryptoManager cryptoManager;
+
+	public CipherCache(KeyManagerCryptoManager cryptoManager)
+	{
+		if (cryptoManager == null)
+			throw new IllegalArgumentException("cryptoManager == null");
+
+		this.cryptoManager = cryptoManager;
+	}
+
 	public long getActiveEncryptionKeyID()
 	{
 		long activeEncryptionKeyID;
@@ -261,6 +271,12 @@ public class CipherCache
 		logger.trace("clear: entered");
 		keyID2key.clear();
 		opmode2encryptionAlgorithm2keyID2cipherEntries.clear();
+	}
+
+	private void removeExpiredCacheEntriesPeriodically()
+	{
+		logger.trace("removeExpiredCacheEntriesPeriodically: entered");
+
 	}
 
 	private Map<String, CipherCacheKeyEncryptionKeyEntry> keyEncryptionTransformation2keyEncryptionKey = Collections.synchronizedMap(

@@ -412,7 +412,11 @@ extends AbstractCryptoSession
 		super.close();
 
 		// Our caches are used across multiple sessions for performance reasons,
-		// hence we cannot close the caches here.
+		// hence we cannot close the caches here (maybe we might consider closing the
+		// cache when the last session is closed, later).
+
+		doNothing(); // suppress PMD warning - I want this overridden method here in this class for documentation reasons. Marco :-)
 	}
 
+	private static final void doNothing() { }
 }

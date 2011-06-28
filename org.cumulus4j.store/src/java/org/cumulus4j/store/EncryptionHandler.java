@@ -46,7 +46,7 @@ public class EncryptionHandler
 {
 	public EncryptionHandler() { }
 
-	private CryptoSession acquireCryptoSession(ExecutionContext ec)
+	private CryptoSession getCryptoSession(ExecutionContext ec)
 	{
 		Object cryptoManagerID = ec.getProperty(CryptoManager.PROPERTY_CRYPTO_MANAGER_ID);
 		if (cryptoManagerID == null)
@@ -84,7 +84,7 @@ public class EncryptionHandler
 		if (ciphertext.getData() == null)
 			return null; // TODO or return an empty ObjectContainer instead?
 
-		CryptoSession cryptoSession = acquireCryptoSession(cryptoContext.getExecutionContext());
+		CryptoSession cryptoSession = getCryptoSession(cryptoContext.getExecutionContext());
 		Plaintext plaintext = cryptoSession.decrypt(cryptoContext, ciphertext);
 		if (plaintext == null)
 			throw new IllegalStateException("cryptoSession.decrypt(ciphertext) returned null! cryptoManagerID=" + cryptoSession.getCryptoManager().getCryptoManagerID() + " cryptoSessionID=" + cryptoSession.getCryptoSessionID());
@@ -117,7 +117,7 @@ public class EncryptionHandler
 		Plaintext plaintext = new Plaintext();
 		plaintext.setData(out.toByteArray()); out = null;
 
-		CryptoSession cryptoSession = acquireCryptoSession(cryptoContext.getExecutionContext());
+		CryptoSession cryptoSession = getCryptoSession(cryptoContext.getExecutionContext());
 		Ciphertext ciphertext = cryptoSession.encrypt(cryptoContext, plaintext);
 
 		if (ciphertext == null)
@@ -138,7 +138,7 @@ public class EncryptionHandler
 
 		Plaintext plaintext = null;
 		if (ciphertext.getData() != null) {
-			CryptoSession cryptoSession = acquireCryptoSession(cryptoContext.getExecutionContext());
+			CryptoSession cryptoSession = getCryptoSession(cryptoContext.getExecutionContext());
 			plaintext = cryptoSession.decrypt(cryptoContext, ciphertext);
 			if (plaintext == null)
 				throw new IllegalStateException("cryptoSession.decrypt(ciphertext) returned null! cryptoManagerID=" + cryptoSession.getCryptoManager().getCryptoManagerID() + " cryptoSessionID=" + cryptoSession.getCryptoSessionID());
@@ -153,7 +153,7 @@ public class EncryptionHandler
 		Plaintext plaintext = new Plaintext();
 		plaintext.setData(indexValue.toByteArray());
 
-		CryptoSession cryptoSession = acquireCryptoSession(cryptoContext.getExecutionContext());
+		CryptoSession cryptoSession = getCryptoSession(cryptoContext.getExecutionContext());
 		Ciphertext ciphertext = cryptoSession.encrypt(cryptoContext, plaintext);
 
 		if (ciphertext == null)
