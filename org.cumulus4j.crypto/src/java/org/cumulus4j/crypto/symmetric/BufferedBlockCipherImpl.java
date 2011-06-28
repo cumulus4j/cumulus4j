@@ -17,8 +17,6 @@
  */
 package org.cumulus4j.crypto.symmetric;
 
-import javax.swing.text.StyledEditorKit.UnderlineAction;
-
 import org.bouncycastle.crypto.BlockCipher;
 import org.bouncycastle.crypto.BufferedBlockCipher;
 import org.bouncycastle.crypto.CipherParameters;
