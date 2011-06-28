@@ -49,7 +49,7 @@ Usage
 
 * Key store
 
-	Cumulus4j stores all keys used to encrypt your database in a well-protected {{{key-store.html}key store}}.
+	Cumulus4j stores all keys used to encrypt your database in a well-protected {{{./key-store.html}key store}}.
 
 * Deployment
 

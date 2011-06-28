@@ -499,7 +499,7 @@ public final class CryptoRegistry
 		}
 	}
 
-	private static final void silentlyIgnore() { }
+	private static void silentlyIgnore() { } // this method does not need to be marked 'final', because the class is.
 
 	private AEADBlockCipher createAEADBlockCipherMode(String modeName, BlockCipher engine)
 	{

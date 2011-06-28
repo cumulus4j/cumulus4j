@@ -139,12 +139,12 @@ public class KeyManagerChannelService
 
 		ActiveKeyManagerChannelRegistration registration = registerActiveKeyManagerChannel(cryptoSessionIDPrefix);
 		try {
-			if (response != null) {
+			if (response != null && response.getRequestID() != null) {
 				// The NullResponse can either be a filler without request and thus needs to be discarded here,
 				// or it can be a response to a specific request. Hence, we check whether the Response.requestID is null
-				// and don't care about the type at all.
-				if (response.getRequestID() != null)
-					messageBroker.pushResponse(response);
+				// and don't care about the type at all. If it has a requestID, it must be pushed, no matter what type
+				// it is. Marco :-)
+				messageBroker.pushResponse(response);
 			}
 
 			Request request = messageBroker.pollRequest(cryptoSessionIDPrefix);

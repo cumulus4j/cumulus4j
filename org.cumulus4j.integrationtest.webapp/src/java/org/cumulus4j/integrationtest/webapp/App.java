@@ -24,9 +24,6 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
@@ -34,8 +31,6 @@ import org.slf4j.LoggerFactory;
 public class App
 extends Application
 {
-	private static final Logger logger = LoggerFactory.getLogger(App.class);
-
 	private static final Class<?>[] serviceClassesArray = {
 		TestService.class
 	};
@@ -61,8 +56,8 @@ extends Application
 	{
 		if (singletons == null) {
 			Set<Object> s = new HashSet<Object>();
-//			s.add(new KeyStoreProvider(keyStore));
-//			s.add(new SessionManagerProvider(new SessionManager(keyStore)));
+//			s.add(new SomeSingletonProvider(someSingleton));
+//			s.add(new AnotherSingletonProvider(anotherSingleton));
 			singletons = Collections.unmodifiableSet(s);
 		}
 
