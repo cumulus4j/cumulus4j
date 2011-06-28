@@ -147,76 +147,80 @@ public class CryptoCache
 			CipherOperationMode opmode, String encryptionAlgorithm, long keyID, byte[] keyData, byte[] iv
 	)
 	{
-		initTimerTaskOrRemoveExpiredEntriesPeriodically();
+		try {
+			Map<String, Map<Long, List<CryptoCacheCipherEntry>>> encryptionAlgorithm2keyID2encrypters =
+				opmode2encryptionAlgorithm2keyID2cipherEntries.get(opmode);
 
-		Map<String, Map<Long, List<CryptoCacheCipherEntry>>> encryptionAlgorithm2keyID2encrypters =
-			opmode2encryptionAlgorithm2keyID2cipherEntries.get(opmode);
-
-		if (encryptionAlgorithm2keyID2encrypters != null) {
-			Map<Long, List<CryptoCacheCipherEntry>> keyID2Encrypters = encryptionAlgorithm2keyID2encrypters.get(encryptionAlgorithm);
-			if (keyID2Encrypters != null) {
-				List<CryptoCacheCipherEntry> encrypters = keyID2Encrypters.get(keyID);
-				if (encrypters != null) {
-					CryptoCacheCipherEntry entry = popOrNull(encrypters);
-					if (entry != null) {
-						entry = new CryptoCacheCipherEntry(
-								setKeyData(keyID, entry.getKeyEntry().getKeyData()), entry
-						);
-						if (iv == null) {
-							iv = new byte[entry.getCipher().getIVSize()];
-							random.nextBytes(iv);
-						}
-
-						if (logger.isTraceEnabled())
-							logger.trace(
-									"acquireCipherEntry: Found cached Cipher@{} for opmode={}, encryptionAlgorithm={} and keyID={}. Initialising it with new IV (without key).",
-									new Object[] { System.identityHashCode(entry.getCipher()), opmode, encryptionAlgorithm, keyID }
+			if (encryptionAlgorithm2keyID2encrypters != null) {
+				Map<Long, List<CryptoCacheCipherEntry>> keyID2Encrypters = encryptionAlgorithm2keyID2encrypters.get(encryptionAlgorithm);
+				if (keyID2Encrypters != null) {
+					List<CryptoCacheCipherEntry> encrypters = keyID2Encrypters.get(keyID);
+					if (encrypters != null) {
+						CryptoCacheCipherEntry entry = popOrNull(encrypters);
+						if (entry != null) {
+							entry = new CryptoCacheCipherEntry(
+									setKeyData(keyID, entry.getKeyEntry().getKeyData()), entry
 							);
+							if (iv == null) {
+								iv = new byte[entry.getCipher().getIVSize()];
+								random.nextBytes(iv);
+							}
 
-						entry.getCipher().init(
-								opmode,
-								new ParametersWithIV(null, iv) // no key, because we reuse the cipher and want to suppress expensive rekeying
-						);
-						return entry;
+							if (logger.isTraceEnabled())
+								logger.trace(
+										"acquireCipherEntry: Found cached Cipher@{} for opmode={}, encryptionAlgorithm={} and keyID={}. Initialising it with new IV (without key).",
+										new Object[] { System.identityHashCode(entry.getCipher()), opmode, encryptionAlgorithm, keyID }
+								);
+
+							entry.getCipher().init(
+									opmode,
+									new ParametersWithIV(null, iv) // no key, because we reuse the cipher and want to suppress expensive rekeying
+							);
+							return entry;
+						}
 					}
 				}
 			}
-		}
 
-		if (keyData == null) {
-			keyData = getKeyData(keyID);
-			if (keyData == null)
-				return null;
-		}
+			if (keyData == null) {
+				keyData = getKeyData(keyID);
+				if (keyData == null)
+					return null;
+			}
 
-		Cipher cipher;
-		try {
-			cipher = CryptoRegistry.sharedInstance().createCipher(encryptionAlgorithm);
-		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException(e);
-		} catch (NoSuchPaddingException e) {
-			throw new RuntimeException(e);
-		}
+			Cipher cipher;
+			try {
+				cipher = CryptoRegistry.sharedInstance().createCipher(encryptionAlgorithm);
+			} catch (NoSuchAlgorithmException e) {
+				throw new RuntimeException(e);
+			} catch (NoSuchPaddingException e) {
+				throw new RuntimeException(e);
+			}
 
-		CryptoCacheCipherEntry entry = new CryptoCacheCipherEntry(
-				setKeyData(keyID, keyData), encryptionAlgorithm, cipher
-		);
-		if (iv == null) {
-			iv = new byte[entry.getCipher().getIVSize()];
-			random.nextBytes(iv);
-		}
-
-		if (logger.isTraceEnabled())
-			logger.trace(
-					"acquireCipherEntry: Created new Cipher@{} for opmode={}, encryptionAlgorithm={} and keyID={}. Initialising it with key and IV.",
-					new Object[] { System.identityHashCode(entry.getCipher()), opmode, encryptionAlgorithm, keyID }
+			CryptoCacheCipherEntry entry = new CryptoCacheCipherEntry(
+					setKeyData(keyID, keyData), encryptionAlgorithm, cipher
 			);
+			if (iv == null) {
+				iv = new byte[entry.getCipher().getIVSize()];
+				random.nextBytes(iv);
+			}
 
-		entry.getCipher().init(
-				opmode,
-				new ParametersWithIV(new KeyParameter(keyData), iv) // with key, because 1st time we use this cipher
-		);
-		return entry;
+			if (logger.isTraceEnabled())
+				logger.trace(
+						"acquireCipherEntry: Created new Cipher@{} for opmode={}, encryptionAlgorithm={} and keyID={}. Initialising it with key and IV.",
+						new Object[] { System.identityHashCode(entry.getCipher()), opmode, encryptionAlgorithm, keyID }
+				);
+
+			entry.getCipher().init(
+					opmode,
+					new ParametersWithIV(new KeyParameter(keyData), iv) // with key, because 1st time we use this cipher
+			);
+			return entry;
+		} finally {
+			// We do this at the end in order to maybe still fetch an entry that is about to expire just right now.
+			// Otherwise it might happen, that we delete one and recreate it again instead of just reusing it. Marco :-)
+			initTimerTaskOrRemoveExpiredEntriesPeriodically();
+		}
 	}
 
 	public void releaseCipherEntry(CryptoCacheCipherEntry cipherEntry)
@@ -340,33 +344,37 @@ public class CryptoCache
 
 	public CryptoCacheKeyDecrypterEntry acquireKeyDecryptor(String keyEncryptionTransformation)
 	{
-		initTimerTaskOrRemoveExpiredEntriesPeriodically();
-
-		List<CryptoCacheKeyDecrypterEntry> decryptors = keyEncryptionTransformation2keyDecryptors.get(keyEncryptionTransformation);
-		if (decryptors != null) {
-			CryptoCacheKeyDecrypterEntry entry;
-			do {
-				entry = popOrNull(decryptors);
-				if (entry != null && !entry.getKeyEncryptionKey().isExpired()) {
-					entry.updateLastUsageTimestamp();
-					return entry;
-				}
-			} while (entry != null);
-		}
-
-		Cipher keyDecryptor;
 		try {
-			keyDecryptor = CryptoRegistry.sharedInstance().createCipher(keyEncryptionTransformation);
-		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException(e);
-		} catch (NoSuchPaddingException e) {
-			throw new RuntimeException(e);
-		}
+			List<CryptoCacheKeyDecrypterEntry> decryptors = keyEncryptionTransformation2keyDecryptors.get(keyEncryptionTransformation);
+			if (decryptors != null) {
+				CryptoCacheKeyDecrypterEntry entry;
+				do {
+					entry = popOrNull(decryptors);
+					if (entry != null && !entry.getKeyEncryptionKey().isExpired()) {
+						entry.updateLastUsageTimestamp();
+						return entry;
+					}
+				} while (entry != null);
+			}
 
-		CryptoCacheKeyEncryptionKeyEntry keyEncryptionKey = getKeyEncryptionKey(keyEncryptionTransformation);
-		keyDecryptor.init(CipherOperationMode.DECRYPT, keyEncryptionKey.getKeyPair().getPrivate());
-		CryptoCacheKeyDecrypterEntry entry = new CryptoCacheKeyDecrypterEntry(keyEncryptionKey, keyEncryptionTransformation, keyDecryptor);
-		return entry;
+			Cipher keyDecryptor;
+			try {
+				keyDecryptor = CryptoRegistry.sharedInstance().createCipher(keyEncryptionTransformation);
+			} catch (NoSuchAlgorithmException e) {
+				throw new RuntimeException(e);
+			} catch (NoSuchPaddingException e) {
+				throw new RuntimeException(e);
+			}
+
+			CryptoCacheKeyEncryptionKeyEntry keyEncryptionKey = getKeyEncryptionKey(keyEncryptionTransformation);
+			keyDecryptor.init(CipherOperationMode.DECRYPT, keyEncryptionKey.getKeyPair().getPrivate());
+			CryptoCacheKeyDecrypterEntry entry = new CryptoCacheKeyDecrypterEntry(keyEncryptionKey, keyEncryptionTransformation, keyDecryptor);
+			return entry;
+		} finally {
+			// We do this at the end in order to maybe still fetch an entry that is about to expire just right now.
+			// Otherwise it might happen, that we delete one and recreate it again instead of just reusing it. Marco :-)
+			initTimerTaskOrRemoveExpiredEntriesPeriodically();
+		}
 	}
 
 	public void releaseKeyDecryptor(CryptoCacheKeyDecrypterEntry decryptorEntry)
