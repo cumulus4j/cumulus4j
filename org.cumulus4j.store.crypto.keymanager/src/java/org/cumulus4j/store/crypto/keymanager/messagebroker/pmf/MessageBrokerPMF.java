@@ -268,6 +268,15 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 
 		Date removePendingRequestsBeforeThisTimestamp = new Date(
 				System.currentTimeMillis() - getQueryTimeout()
+				// We use this cleanupTimerPeriod as a margin to prevent collisions with the code that still uses a PendingRequest
+				// and might right now (after the query-timeout) be about to delete it. Even though this time might thus
+				// be pretty long, it doesn't matter, if entries linger in the DB for a while as most are immediately cleaned up, anyway.
+				// This cleanup is only required for rare situations (e.g. when a JVM crashes). Otherwise our code should already
+				// ensure that objects are deleted immediately when they're not needed anymore.
+				// We might in the future replace the 'getCleanupTimerPeriod()' by a new system-property-controllable
+				// value (e.g. 'getCleanupDelay()'), though, to make it really nice & clean. But that's not important at all, IMHO.
+				// Marco :-)
+				- getCleanupTimerPeriod()
 		);
 
 		try {
