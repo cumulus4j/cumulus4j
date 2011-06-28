@@ -98,15 +98,24 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 	 * If this system property is not present (or not a valid number), the default is 3600000 (1 hour), which means
 	 * the timer will wake up once every hour and call {@link #removeExpiredPendingRequests(boolean)} with <code>force = true</code>.
 	 * </p><p>
-	 * If this persistence property is set to 0, the timer is deactivated and cleanup happens only synchronously
-	 * when one of the "normal" methods is called (periodically - not every time a method is called).
-	 * </p><p>
-	 * This way or another, all <code>PendingRequest</code>s with a {@link PendingRequest#getLastStatusChangeTimestamp() lastStatusChangeTimestamp}
-	 * being older than the {@link AbstractMessageBroker#getQueryTimeout() queryTimeout} are deleted.
+	 * All <code>PendingRequest</code>s with a {@link PendingRequest#getLastStatusChangeTimestamp() lastStatusChangeTimestamp}
+	 * being older than the {@link AbstractMessageBroker#getQueryTimeout() queryTimeout} (plus a safety margin of currently
+	 * this period) are deleted.
 	 * </p>
+	 * @see #SYSTEM_PROPERTY_CLEANUP_TIMER_ENABLED
 	 */
 	public static final String SYSTEM_PROPERTY_CLEANUP_TIMER_PERIOD = "cumulus4j.MessageBrokerPMF.cleanupTimer.period";
 
+	/**
+	 * <p>
+	 * System property to control whether the timer for cleaning up old {@link PendingRequest}s should be enabled. The
+	 * value configured here is a boolean value, i.e. it can be "true" or "false".
+	 * </p><p>
+	 * If it is disabled, the "normal" threads will do the clean-up-work periodically, when they run through
+	 * {@link #_query(Class, Request)} or {@link #_pollRequest(String)}.
+	 * </p>
+	 * @see #SYSTEM_PROPERTY_CLEANUP_TIMER_PERIOD
+	 */
 	public static final String SYSTEM_PROPERTY_CLEANUP_TIMER_ENABLED = "cumulus4j.MessageBrokerPMF.cleanupTimer.enabled";
 
 	private long cleanupTimerPeriod = Long.MIN_VALUE;
