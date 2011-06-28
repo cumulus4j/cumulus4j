@@ -134,8 +134,8 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 				} catch (NumberFormatException x) {
 					logger.warn("Value \"{}\" of system property '{}' is not valid, because it cannot be parsed as number!", property, propName);
 				}
-				if (timeout < 0)
-					logger.warn("Value \"{}\" of system property '{}' is not valid, because it is less than 0!", property, propName);
+				if (timeout <= 0)
+					logger.warn("Value \"{}\" of system property '{}' is not valid, because it is less than or equal to 0!", property, propName);
 				else {
 					logger.info("System property '{}' is specified with value {}.", propName, timeout);
 					cleanupTimerPeriod = timeout;
