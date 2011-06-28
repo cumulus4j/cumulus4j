@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
@@ -111,7 +112,19 @@ extends Thread
 				if (response == null)
 					response = new NullResponse(); // It seems Jersey does not allow null as entity :-(
 
-				Request request = nextRequestWebResourceBuilder.post(Request.class, response);
+				Request request;
+				try {
+					request = nextRequestWebResourceBuilder.post(Request.class, response);
+				} catch (UniformInterfaceException x) {
+					// Unfortunately, the Jersey client does not simply return null, but throws this exception,
+					// if the service returns null. Hence we catch it and check for code 204 (NO_CONTENT), which is no
+					// error, but expected. Alternatively, we could introduce a NullRequest (similar to the NullResponse),
+					// but I think, checking for 204 is cleaner than sending dummy objects around. Marco :-)
+					if (x.getResponse().getStatus() == ClientResponse.Status.NO_CONTENT.getStatusCode())
+						request = null;
+					else
+						throw x;
+				}
 
 				response = null; // we processed the last response (if any) and thus have to clear this now to prevent sending it again.
 
