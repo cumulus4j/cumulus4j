@@ -147,6 +147,8 @@ public class CryptoCache
 			CipherOperationMode opmode, String encryptionAlgorithm, long keyID, byte[] keyData, byte[] iv
 	)
 	{
+		initTimerTask();
+
 		Map<String, Map<Long, List<CryptoCacheCipherEntry>>> encryptionAlgorithm2keyID2encrypters =
 			opmode2encryptionAlgorithm2keyID2cipherEntries.get(opmode);
 
@@ -219,7 +221,7 @@ public class CryptoCache
 
 	public void releaseCipherEntry(CryptoCacheCipherEntry cipherEntry)
 	{
-		initTimerTaskOrRemoveExpiredEntriesPeriodically();
+		removeExpiredEntriesPeriodically();
 
 		if (cipherEntry == null)
 			return;
@@ -340,6 +342,8 @@ public class CryptoCache
 
 	public CryptoCacheKeyDecrypterEntry acquireKeyDecryptor(String keyEncryptionTransformation)
 	{
+		initTimerTask();
+
 		List<CryptoCacheKeyDecrypterEntry> decryptors = keyEncryptionTransformation2keyDecryptors.get(keyEncryptionTransformation);
 		if (decryptors != null) {
 			CryptoCacheKeyDecrypterEntry entry;
@@ -369,7 +373,7 @@ public class CryptoCache
 
 	public void releaseKeyDecryptor(CryptoCacheKeyDecrypterEntry decryptorEntry)
 	{
-		initTimerTaskOrRemoveExpiredEntriesPeriodically();
+		removeExpiredEntriesPeriodically();
 
 		if (decryptorEntry == null)
 			return;
@@ -429,7 +433,7 @@ public class CryptoCache
 		}
 	};
 
-	private final void initTimerTaskOrRemoveExpiredEntriesPeriodically()
+	private final void initTimerTask()
 	{
 		if (!cleanupTimerInitialised) {
 			synchronized (AbstractCryptoManager.class) {
@@ -453,7 +457,10 @@ public class CryptoCache
 				}
 			}
 		}
+	}
 
+	private final void removeExpiredEntriesPeriodically()
+	{
 		if (cleanupTimer == null) {
 			logger.trace("initTimerTaskOrRemoveExpiredEntriesPeriodically: No timer enabled => calling removeExpiredEntries(false) now.");
 			removeExpiredEntries(false);
