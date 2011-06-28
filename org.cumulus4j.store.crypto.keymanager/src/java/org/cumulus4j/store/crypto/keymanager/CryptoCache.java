@@ -397,17 +397,17 @@ public class CryptoCache
 	}
 
 
-	private static volatile Timer removeExpiredEntriesTimer = null;
-	private static volatile boolean removeExpiredEntriesTimerInitialised = false;
-	private volatile boolean removeExpiredEntriesTaskInitialised = false;
+	private static volatile Timer cleanupTimer = null;
+	private static volatile boolean cleanupTimerInitialised = false;
+	private volatile boolean cleanupTaskInitialised = false;
 
-	private class RemoveExpiredEntriesTask extends TimerTask
+	private class CleanupTask extends TimerTask
 	{
-		private final Logger logger = LoggerFactory.getLogger(RemoveExpiredEntriesTask.class);
+		private final Logger logger = LoggerFactory.getLogger(CleanupTask.class);
 
 		private final long expiryTimerPeriodMSec;
 
-		public RemoveExpiredEntriesTask(long expiryTimerPeriodMSec) {
+		public CleanupTask(long expiryTimerPeriodMSec) {
 			this.expiryTimerPeriodMSec = expiryTimerPeriodMSec;
 		}
 
@@ -416,7 +416,7 @@ public class CryptoCache
 			logger.debug("run: entered");
 			removeExpiredEntries(true);
 
-			long currentPeriodMSec = getCryptoCacheEntryExpiryTimerPeriodMSec();
+			long currentPeriodMSec = getCleanupTimerPeriod();
 			if (currentPeriodMSec != expiryTimerPeriodMSec) {
 				logger.info(
 						"run: The expiryTimerPeriodMSec changed (oldValue={}, newValue={}). Re-scheduling this task.",
@@ -424,50 +424,51 @@ public class CryptoCache
 				);
 				this.cancel();
 
-				removeExpiredEntriesTimer.schedule(new RemoveExpiredEntriesTask(currentPeriodMSec), currentPeriodMSec, currentPeriodMSec);
+				cleanupTimer.schedule(new CleanupTask(currentPeriodMSec), currentPeriodMSec, currentPeriodMSec);
 			}
 		}
 	};
 
 	private final void initTimerTaskOrRemoveExpiredEntriesPeriodically()
 	{
-		if (!removeExpiredEntriesTimerInitialised) {
+		if (!cleanupTimerInitialised) {
 			synchronized (AbstractCryptoManager.class) {
-				if (!removeExpiredEntriesTimerInitialised) {
-					if (getCryptoCacheEntryExpiryTimerPeriodMSec() > 0)
-						removeExpiredEntriesTimer = new Timer();
+				if (!cleanupTimerInitialised) {
+					if (getCleanupTimerEnabled())
+						cleanupTimer = new Timer();
 
-					removeExpiredEntriesTimerInitialised = true;
+					cleanupTimerInitialised = true;
 				}
 			}
 		}
 
-		if (!removeExpiredEntriesTaskInitialised) {
+		if (!cleanupTaskInitialised) {
 			synchronized (this) {
-				if (!removeExpiredEntriesTaskInitialised) {
-					if (removeExpiredEntriesTimer != null) {
-						long periodMSec = getCryptoCacheEntryExpiryTimerPeriodMSec();
-						removeExpiredEntriesTimer.schedule(new RemoveExpiredEntriesTask(periodMSec), periodMSec, periodMSec);
+				if (!cleanupTaskInitialised) {
+					if (cleanupTimer != null) {
+						long periodMSec = getCleanupTimerPeriod();
+						cleanupTimer.schedule(new CleanupTask(periodMSec), periodMSec, periodMSec);
 					}
-					removeExpiredEntriesTaskInitialised = true;
+					cleanupTaskInitialised = true;
 				}
 			}
 		}
 
-		if (removeExpiredEntriesTimer == null) {
+		if (cleanupTimer == null) {
 			logger.trace("initTimerTaskOrRemoveExpiredEntriesPeriodically: No timer enabled => calling removeExpiredEntries(false) now.");
 			removeExpiredEntries(false);
 		}
 	}
 
-	private Date lastRemoveExpiredCacheEntriesTimestamp = null;
+	private Date lastRemoveExpiredEntriesTimestamp = null;
 
 	private void removeExpiredEntries(boolean force)
 	{
 		synchronized (this) {
 			if (
 					!force && (
-							lastRemoveExpiredCacheEntriesTimestamp != null && lastRemoveExpiredCacheEntriesTimestamp.after(new Date(System.currentTimeMillis() - getCryptoCacheEntryExpiryAgeMSec()))
+							lastRemoveExpiredEntriesTimestamp != null &&
+							lastRemoveExpiredEntriesTimestamp.after(new Date(System.currentTimeMillis() - getCleanupTimerPeriod()))
 					)
 			)
 			{
@@ -475,13 +476,14 @@ public class CryptoCache
 				return;
 			}
 
-			lastRemoveExpiredCacheEntriesTimestamp = new Date();
+			lastRemoveExpiredEntriesTimestamp = new Date();
 		}
 
 		Date removeEntriesBeforeThisTimestamp = new Date(
-				System.currentTimeMillis() - getCryptoCacheEntryExpiryAgeMSec()
+				System.currentTimeMillis() - getCryptoCacheEntryExpiryAge()
 		);
 
+		int totalEntryCounter = 0;
 		int removedEntryCounter = 0;
 		synchronized (keyEncryptionTransformation2keyEncryptionKey) {
 			for (Iterator<Map.Entry<String, CryptoCacheKeyEncryptionKeyEntry>> it1 = keyEncryptionTransformation2keyEncryptionKey.entrySet().iterator(); it1.hasNext(); ) {
@@ -490,9 +492,11 @@ public class CryptoCache
 					it1.remove();
 					++removedEntryCounter;
 				}
+				else
+					++totalEntryCounter;
 			}
 		}
-		logger.debug("removeExpiredEntries: Removed {} instances of CryptoCacheKeyEncryptionKeyEntry.", removedEntryCounter);
+		logger.debug("removeExpiredEntries: Removed {} instances of CryptoCacheKeyEncryptionKeyEntry ({} left).", removedEntryCounter, totalEntryCounter);
 
 
 		// There are not many keyEncryptionTransformations (usually only ONE!), hence copying this is fine and very fast.
@@ -503,6 +507,7 @@ public class CryptoCache
 			);
 		}
 
+		totalEntryCounter = 0;
 		removedEntryCounter = 0;
 		for (String keyEncryptionTransformation : keyEncryptionTransformations) {
 			List<CryptoCacheKeyDecrypterEntry> entries = keyEncryptionTransformation2keyDecryptors.get(keyEncryptionTransformation);
@@ -516,27 +521,33 @@ public class CryptoCache
 						itEntry.remove();
 						++removedEntryCounter;
 					}
+					else
+						++totalEntryCounter;
 				}
 			}
 		}
-		logger.debug("removeExpiredEntries: Removed {} instances of CryptoCacheKeyDecrypterEntry.", removedEntryCounter);
+		logger.debug("removeExpiredEntries: Removed {} instances of CryptoCacheKeyDecrypterEntry ({} left).", removedEntryCounter, totalEntryCounter);
 
 
+		totalEntryCounter = 0;
 		removedEntryCounter = 0;
 		synchronized (keyID2key) {
 			for (Iterator<Map.Entry<Long, CryptoCacheKeyEntry>> it1 = keyID2key.entrySet().iterator(); it1.hasNext(); ) {
 				Map.Entry<Long, CryptoCacheKeyEntry> me1 = it1.next();
-
 				if (me1.getValue().getLastUsageTimestamp().before(removeEntriesBeforeThisTimestamp)) {
 					it1.remove();
 					++removedEntryCounter;
 				}
+				else
+					++totalEntryCounter;
 			}
 		}
-		logger.debug("removeExpiredEntries: Removed {} instances of CryptoCacheKeyEntry.", removedEntryCounter);
+		logger.debug("removeExpiredEntries: Removed {} instances of CryptoCacheKeyEntry ({} left).", removedEntryCounter, totalEntryCounter);
 
 
+		totalEntryCounter = 0;
 		removedEntryCounter = 0;
+		int totalListCounter = 0;
 		int removedListCounter = 0;
 		for (CipherOperationMode opmode : CipherOperationMode.values()) {
 			Map<String, Map<Long, List<CryptoCacheCipherEntry>>> encryptionAlgorithm2keyID2cipherEntries = opmode2encryptionAlgorithm2keyID2cipherEntries.get(opmode);
@@ -567,25 +578,29 @@ public class CryptoCache
 									it2.remove();
 									++removedEntryCounter;
 								}
+								else
+									++totalEntryCounter;
 							}
 
 							if (entries.isEmpty()) {
 								it1.remove();
 								++removedListCounter;
 							}
+							else
+								++totalListCounter;
 						}
 					}
 				}
 			}
 		}
-		logger.debug("removeExpiredEntries: Removed {} instances of CryptoCacheCipherEntry.", removedEntryCounter);
-		logger.debug("removeExpiredEntries: Removed {} instances of (empty) List<CryptoCacheCipherEntry>.", removedListCounter);
+		logger.debug("removeExpiredEntries: Removed {} instances of CryptoCacheCipherEntry ({} left).", removedEntryCounter, totalEntryCounter);
+		logger.debug("removeExpiredEntries: Removed {} instances of empty List<CryptoCacheCipherEntry> ({} non-empty lists left).", removedListCounter, totalListCounter);
 	}
 
 	/**
 	 * <p>
 	 * Persistence property to control when the timer for cleaning up expired {@link CryptoCache}-entries is called. The
-	 * value configured here is a period, i.e. the timer will be triggered every X ms (roughly).
+	 * value configured here is a period in milliseconds, i.e. the timer will be triggered every X ms (roughly).
 	 * </p><p>
 	 * If this persistence property is not present (or not a valid number), the default is 60000 (1 minute), which means
 	 * the timer will wake up once a minute and call {@link #removeExpiredEntries(boolean)} with <code>force = true</code>.
@@ -594,60 +609,109 @@ public class CryptoCache
 	 * when one of the release-methods is called (periodically - not every time a method is called).
 	 * </p>
 	 */
-	public static final String PROPERTY_CRYPTO_CACHE_ENTRY_EXPIRY_TIMER_PERIOD_MSEC = "cumulus4j.cryptoCacheEntryExpiryTimerPeriodMSec";
+	public static final String PROPERTY_CRYPTO_CACHE_CLEANUP_TIMER_PERIOD = "cumulus4j.CryptoCache.cleanupTimer.period";
 
-	private long cryptoCacheEntryExpiryTimerPeriodMSec = Long.MIN_VALUE;
+	public static final String PROPERTY_CRYPTO_CACHE_CLEANUP_TIMER_ENABLED = "cumulus4j.CryptoCache.cleanupTimer.enabled";
+
+	private long cleanupTimerPeriod = Long.MIN_VALUE;
+
+	private Boolean cleanupTimerEnabled = null;
 
 	/**
 	 * <p>
-	 * Persistence property to control after which time an unused {@link CryptoCache}-entry expires.
+	 * Persistence property to control after which time an unused entry expires.
 	 * </p><p>
 	 * Entries that are unused for the configured time in milliseconds are considered expired and
-	 * either periodically removed by a timer (see property {@value #PROPERTY_CRYPTO_CACHE_ENTRY_EXPIRY_TIMER_PERIOD_MSEC})
+	 * either periodically removed by a timer (see property {@value #PROPERTY_CRYPTO_CACHE_CLEANUP_TIMER_PERIOD})
 	 * or periodically removed synchronously during a call to one of the release-methods.
 	 * </p><p>
 	 * If this property is not present (or not a valid number), the default value is 1800000 (30 minutes).
 	 * </p>
 	 */
-	public static final String PROPERTY_CRYPTO_CACHE_ENTRY_EXPIRY_AGE_MSEC = "cumulus4j.cryptoCacheEntryExpiryAgeMSec";
+	public static final String PROPERTY_CRYPTO_CACHE_ENTRY_EXPIRY_AGE = "cumulus4j.CryptoCache.entryExpiryAge";
 
-	private long cryptoCacheEntryExpiryAgeMSec = Long.MIN_VALUE;
-
-
+	private long cryptoCacheEntryExpiryAge = Long.MIN_VALUE;
 
 	/**
 	 * <p>
 	 * Get the period in which expired entries are searched and closed.
 	 * </p>
 	 * <p>
-	 * This value can be configured using the persistence property {@value #PROPERTY_CRYPTO_CACHE_ENTRY_EXPIRY_TIMER_PERIOD_MSEC}.
-	 * A value of 0 means to deactivate the timer. In this case, only periodic cleanup during the release-methods
-	 * occurs.
+	 * This value can be configured using the persistence property {@value #PROPERTY_CRYPTO_CACHE_CLEANUP_TIMER_PERIOD}.
 	 * </p>
 	 *
 	 * @return the period in milliseconds.
+	 * @see #PROPERTY_CRYPTO_CACHE_CLEANUP_TIMER_PERIOD
+	 * @see #PROPERTY_CRYPTO_CACHE_CLEANUP_TIMER_ENABLED
 	 */
-	protected long getCryptoCacheEntryExpiryTimerPeriodMSec()
+	protected long getCleanupTimerPeriod()
 	{
-		long val = cryptoCacheEntryExpiryTimerPeriodMSec;
+		long val = cleanupTimerPeriod;
 		if (val == Long.MIN_VALUE) {
-			String propName = PROPERTY_CRYPTO_CACHE_ENTRY_EXPIRY_TIMER_PERIOD_MSEC;
+			String propName = PROPERTY_CRYPTO_CACHE_CLEANUP_TIMER_PERIOD;
 			String propVal = (String) cryptoManager.getCryptoManagerRegistry().getNucleusContext().getPersistenceConfiguration().getProperty(propName);
-			if (propVal != null && !propVal.trim().isEmpty()) {
+			propVal = propVal == null ? null : propVal.trim();
+			if (propVal != null && !propVal.isEmpty()) {
 				try {
-					val = Long.parseLong(propVal.trim());
-					logger.info("getCryptoCacheEntryExpiryTimerPeriodMSec: Property '{}' is set to {} ms.", propName, val);
+					val = Long.parseLong(propVal);
+					if (val <= 0) {
+						logger.warn("Persistence property '{}' is set to '{}', which is an ILLEGAL value (<= 0). Falling back to default value.", propName, propVal);
+						val = Long.MIN_VALUE;
+					}
+					else
+						logger.info("Persistence property '{}' is set to {} ms.", propName, val);
 				} catch (NumberFormatException x) {
-					logger.warn("getCryptoCacheEntryExpiryTimerPeriodMSec: Property '{}' is set to '{}', which is an ILLEGAL value (no valid number). Falling back to default value.", propName, propVal);
+					logger.warn("Persistence property '{}' is set to '{}', which is an ILLEGAL value (no valid number). Falling back to default value.", propName, propVal);
 				}
 			}
 
 			if (val == Long.MIN_VALUE) {
 				val = 60000L;
-				logger.info("getCryptoCacheEntryExpiryTimerPeriodMSec: Property '{}' is not set. Using default value {}.", propName, val);
+				logger.info("Persistence property '{}' is not set. Using default value {}.", propName, val);
 			}
 
-			cryptoCacheEntryExpiryTimerPeriodMSec = val;
+			cleanupTimerPeriod = val;
+		}
+		return val;
+	}
+
+	/**
+	 * <p>
+	 * Get the enabled status of the timer used to cleanup.
+	 * </p>
+	 * <p>
+	 * This value can be configured using the persistence property {@value #PROPERTY_CRYPTO_CACHE_CLEANUP_TIMER_ENABLED}.
+	 * </p>
+	 *
+	 * @return the enabled status.
+	 * @see #PROPERTY_CRYPTO_CACHE_CLEANUP_TIMER_PERIOD
+	 * @see #PROPERTY_CRYPTO_CACHE_CLEANUP_TIMER_ENABLED
+	 */
+	protected boolean getCleanupTimerEnabled()
+	{
+		Boolean val = cleanupTimerEnabled;
+		if (val == null) {
+			String propName = PROPERTY_CRYPTO_CACHE_CLEANUP_TIMER_ENABLED;
+			String propVal = (String) cryptoManager.getCryptoManagerRegistry().getNucleusContext().getPersistenceConfiguration().getProperty(propName);
+			propVal = propVal == null ? null : propVal.trim();
+			if (propVal != null && !propVal.isEmpty()) {
+				if (propVal.equalsIgnoreCase(Boolean.TRUE.toString()))
+					val = Boolean.TRUE;
+				else if (propVal.equalsIgnoreCase(Boolean.FALSE.toString()))
+					val = Boolean.FALSE;
+
+				if (val == null)
+					logger.warn("getCryptoCacheCleanupTimerEnabled: Property '{}' is set to '{}', which is an ILLEGAL value. Falling back to default value.", propName, propVal);
+				else
+					logger.info("getCryptoCacheCleanupTimerEnabled: Property '{}' is set to '{}'.", propName, val);
+			}
+
+			if (val == null) {
+				val = Boolean.TRUE;
+				logger.info("getCryptoCacheCleanupTimerEnabled: Property '{}' is not set. Using default value {}.", propName, val);
+			}
+
+			cleanupTimerEnabled = val;
 		}
 		return val;
 	}
@@ -659,20 +723,21 @@ public class CryptoCache
 	 * <p>
 	 * An entry expires when its lastUsageTimestamp
 	 * is longer in the past than this expiry age. Note, that the entry might be kept longer, because a
-	 * timer checks {@link #getCryptoCacheEntryExpiryTimerPeriodMSec() periodically} for expired entries.
+	 * timer checks {@link #getCryptoCacheEntryExpiryTimerPeriod() periodically} for expired entries.
 	 * </p>
 	 *
 	 * @return the expiry age (of non-usage-time) in milliseconds, after which an entry should be expired (and thus removed).
 	 */
-	protected long getCryptoCacheEntryExpiryAgeMSec()
+	protected long getCryptoCacheEntryExpiryAge()
 	{
-		long val = cryptoCacheEntryExpiryAgeMSec;
+		long val = cryptoCacheEntryExpiryAge;
 		if (val == Long.MIN_VALUE) {
-			String propName = PROPERTY_CRYPTO_CACHE_ENTRY_EXPIRY_AGE_MSEC;
+			String propName = PROPERTY_CRYPTO_CACHE_ENTRY_EXPIRY_AGE;
 			String propVal = (String) cryptoManager.getCryptoManagerRegistry().getNucleusContext().getPersistenceConfiguration().getProperty(propName);
-			if (propVal != null && !propVal.trim().isEmpty()) {
+			propVal = propVal == null ? null : propVal.trim();
+			if (propVal != null && !propVal.isEmpty()) {
 				try {
-					val = Long.parseLong(propVal.trim());
+					val = Long.parseLong(propVal);
 					logger.info("getCryptoCacheEntryExpiryAgeMSec: Property '{}' is set to {} ms.", propName, val);
 				} catch (NumberFormatException x) {
 					logger.warn("getCryptoCacheEntryExpiryAgeMSec: Property '{}' is set to '{}', which is an ILLEGAL value (no valid number). Falling back to default value.", propName, propVal);
@@ -684,7 +749,7 @@ public class CryptoCache
 				logger.info("getCryptoCacheEntryExpiryAgeMSec: Property '{}' is not set. Using default value {}.", propName, val);
 			}
 
-			cryptoCacheEntryExpiryAgeMSec = val;
+			cryptoCacheEntryExpiryAge = val;
 		}
 		return val;
 	}

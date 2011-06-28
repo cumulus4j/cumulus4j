@@ -65,20 +65,31 @@ cumulus4j.macAlgorithm=HMAC-SHA1
 	properties:
 
 +------------------------------------------+
-cumulus4j.cryptoSessionExpiryTimerPeriodMSec=0
-cumulus4j.cryptoSessionExpiryAgeMSec=900000
+cumulus4j.cryptoSessionExpiryAge=900000
+cumulus4j.cryptoSessionExpiryTimer.enabled=false
+cumulus4j.cryptoSessionExpiryTimer.period=300000
 +------------------------------------------+
 
-	These settings disable the timer (value 0) (required for the Google App Engine - otherwise <<not recommended>>) and set the
-	expiry age of a session to 15 minutes (= 900 000 ms). It is recommended to stick with the default settings, though.
+	These settings set the expiry age of a session to 15 minutes (= 900 000 ms) and disable the timer
+	(required for the Google App Engine - otherwise <<not recommended!!!>>).
+	
+	Note, that even though the timer is disabled, the timer-period is set to 5 minutes. This will cause the "normal"
+	threads to do a cleanup every 5 minutes, if they
+	call a "normal" method of the CryptoManager often enough. If no timer can be used, this at least does the
+	cleanup, whenever a thread normally runs through the CryptoManager code (and the period elapsed). If there is heavy
+	load on the system, it is approximately the same result as using a timer - if there is no load at all, however, it means
+	that the garbage is never removed.
+
+	It is recommended to stick with the default settings, though.
 
 	Right now, Cumulus4j solely uses shared caches (because this is much faster than per-session-caches) and you can configure
 	their timings via the following properties:
 
 +------------------------------------------+
-cumulus4j.cryptoCacheEntryExpiryTimerPeriodMSec=0
-cumulus4j.cryptoCacheEntryExpiryAgeMSec=900000
+cumulus4j.CryptoCache.cleanupTimer.enabled=false
+cumulus4j.CryptoCache.cleanupTimer.period=120000
+cumulus4j.CryptoCache.entryExpiryAge=900000
 +------------------------------------------+
 
-	Again, the timer is deactivated by setting the value 0, as is required for the GAE, but otherwise <<not recommended>>. As usual,
+	Again, the timer is deactivated, as is required for the GAE, but otherwise <<not recommended>>. As usual,
 	it is a good idea to stick with the default settings.

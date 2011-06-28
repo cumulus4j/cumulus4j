@@ -34,14 +34,15 @@ extends SubCommand
 	public static String getVersion() throws IOException
 	{
 		Properties properties = new Properties();
-		InputStream in = VersionSubCommand.class.getResourceAsStream("/META-INF/maven/org.cumulus4j/org.cumulus4j.keymanager.cli/pom.properties");
+		String resourceName = "/META-INF/maven/org.cumulus4j/org.cumulus4j.keymanager.cli/pom.properties";
+		InputStream in = VersionSubCommand.class.getResourceAsStream(resourceName);
 		if (in == null)
 			return "UNKNOWN";
 
 		try {
 			properties.load(in);
 		} catch (IOException x) {
-			throw new IOException("Cannot read resource: /META-INF/MANIFEST.MF", x);
+			throw new IOException("Cannot read resource: " + resourceName, x);
 		} finally {
 			in.close();
 		}

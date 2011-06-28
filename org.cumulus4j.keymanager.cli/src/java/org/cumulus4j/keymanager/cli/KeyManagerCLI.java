@@ -50,6 +50,8 @@ public class KeyManagerCLI
 		l.add(HelpSubCommand.class);
 		l.add(InfoSubCommand.class);
 		l.add(InitDateDependentKeyStrategySubCommand.class);
+		l.add(LicenceSubCommand.class);
+		l.add(LicenseSubCommand.class);
 		l.add(VersionSubCommand.class);
 
 		l.trimToSize();

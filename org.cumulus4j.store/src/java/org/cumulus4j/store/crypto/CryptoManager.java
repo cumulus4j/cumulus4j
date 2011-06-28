@@ -155,28 +155,37 @@ public interface CryptoManager
 	 * Persistence property to control when the timer for cleaning up expired {@link CryptoSession}s is called. The
 	 * value configured here is a period, i.e. the timer will be triggered every X ms (roughly).
 	 * </p><p>
-	 * If this persistence property is not present (or not a valid number), the default is 60000 (1 minute), which means
+	 * If this persistence property is not present (or not a valid number &gt; 0), the default is 60000 (1 minute), which means
 	 * the timer will wake up once a minute and do the clean-up (default implementation is calling
 	 * {@link AbstractCryptoManager#closeExpiredCryptoSessions(boolean)} with <code>force = true</code>).
 	 * </p><p>
 	 * If this persistence property is set to 0, the timer is deactivated and cleanup happens only synchronously
 	 * when {@link #getCryptoSession(String)} is called (periodically - not every time this method is called).
 	 * </p>
+	 * @see #PROPERTY_CRYPTO_SESSION_EXPIRY_TIMER_ENABLED
 	 */
-	public static final String PROPERTY_CRYPTO_SESSION_EXPIRY_TIMER_PERIOD_MSEC = "cumulus4j.cryptoSessionExpiryTimerPeriodMSec";
+	public static final String PROPERTY_CRYPTO_SESSION_EXPIRY_TIMER_PERIOD = "cumulus4j.cryptoSessionExpiryTimer.period";
+
+	/**
+	 * Persistence property to control whether the timer for cleaning up expired {@link CryptoSession}s is enabled.
+	 * The value configured here is a boolean (i.e. must be "true" or "false"). The default value (if the property
+	 * is not specified or incorrect) is "true".
+	 * @see #PROPERTY_CRYPTO_SESSION_EXPIRY_TIMER_PERIOD
+	 */
+	public static final String PROPERTY_CRYPTO_SESSION_EXPIRY_TIMER_ENABLED = "cumulus4j.cryptoSessionExpiryTimer.enabled";
 
 	/**
 	 * <p>
 	 * Persistence property to control after which time an unused {@link CryptoSession} expires.
 	 * </p><p>
 	 * <code>CryptoSession</code>s that are unused for the configured time in milliseconds are considered expired and
-	 * either periodically removed by a timer (see property {@value #PROPERTY_CRYPTO_SESSION_EXPIRY_TIMER_PERIOD_MSEC})
+	 * either periodically removed by a timer (see property {@value #PROPERTY_CRYPTO_SESSION_EXPIRY_TIMER_PERIOD})
 	 * or periodically removed synchronously during a call to {@link #getCryptoSession(String)}.
 	 * </p><p>
 	 * If this property is not present (or not a valid number), the default value is 1800000 (30 minutes).
 	 * </p>
 	 */
-	public static final String PROPERTY_CRYPTO_SESSION_EXPIRY_AGE_MSEC = "cumulus4j.cryptoSessionExpiryAgeMSec";
+	public static final String PROPERTY_CRYPTO_SESSION_EXPIRY_AGE = "cumulus4j.cryptoSessionExpiryAge";
 
 	/**
 	 * Get the registry which manages this {@link CryptoManager}.

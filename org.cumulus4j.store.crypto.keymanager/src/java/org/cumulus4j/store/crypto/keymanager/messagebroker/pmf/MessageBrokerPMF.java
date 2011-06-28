@@ -19,12 +19,16 @@ package org.cumulus4j.store.crypto.keymanager.messagebroker.pmf;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeoutException;
 
 import javax.jdo.FetchPlan;
@@ -36,6 +40,7 @@ import org.cumulus4j.keymanager.back.shared.Message;
 import org.cumulus4j.keymanager.back.shared.Request;
 import org.cumulus4j.keymanager.back.shared.Response;
 import org.cumulus4j.keymanager.back.shared.SystemPropertyUtil;
+import org.cumulus4j.store.crypto.AbstractCryptoManager;
 import org.cumulus4j.store.crypto.keymanager.messagebroker.AbstractMessageBroker;
 import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBroker;
 import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBrokerRegistry;
@@ -84,6 +89,220 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 	 * </p>
 	 */
 	public static final String SYSTEM_PROPERTY_PERSISTENCE_PROPERTIES_PREFIX = "cumulus4j.MessageBrokerPMF.persistenceProperties.";
+
+	/**
+	 * <p>
+	 * System property to control when the timer for cleaning up old {@link PendingRequest}s is called. The
+	 * value configured here is a period, i.e. the timer will be triggered every X ms (roughly).
+	 * </p><p>
+	 * If this system property is not present (or not a valid number), the default is 3600000 (1 hour), which means
+	 * the timer will wake up once every hour and call {@link #removeExpiredPendingRequests(boolean)} with <code>force = true</code>.
+	 * </p><p>
+	 * If this persistence property is set to 0, the timer is deactivated and cleanup happens only synchronously
+	 * when one of the "normal" methods is called (periodically - not every time a method is called).
+	 * </p><p>
+	 * This way or another, all <code>PendingRequest</code>s with a {@link PendingRequest#getLastStatusChangeTimestamp() lastStatusChangeTimestamp}
+	 * being older than the {@link AbstractMessageBroker#getQueryTimeout() queryTimeout} are deleted.
+	 * </p>
+	 */
+	public static final String SYSTEM_PROPERTY_CLEANUP_TIMER_PERIOD = "cumulus4j.MessageBrokerPMF.cleanupTimer.period";
+
+	public static final String SYSTEM_PROPERTY_CLEANUP_TIMER_ENABLED = "cumulus4j.MessageBrokerPMF.cleanupTimer.enabled";
+
+	private long cleanupTimerPeriod = Long.MIN_VALUE;
+
+	private Boolean cleanupTimerEnabled = null;
+
+	public long getCleanupTimerPeriod()
+	{
+		if (cleanupTimerPeriod < 0) {
+			final String propName = SYSTEM_PROPERTY_CLEANUP_TIMER_PERIOD;
+			String property = System.getProperty(propName);
+			long timeout = -1;
+			if (property != null && !property.isEmpty()) {
+				try {
+					timeout = Long.parseLong(property);
+				} catch (NumberFormatException x) {
+					logger.warn("Value \"{}\" of system property '{}' is not valid, because it cannot be parsed as number!", property, propName);
+				}
+				if (timeout < 0)
+					logger.warn("Value \"{}\" of system property '{}' is not valid, because it is less than 0!", property, propName);
+				else {
+					logger.info("System property '{}' is specified with value {}.", propName, timeout);
+					cleanupTimerPeriod = timeout;
+				}
+			}
+
+			if (cleanupTimerPeriod < 0) {
+				timeout = 15L * 60L * 1000L;
+				cleanupTimerPeriod = timeout;
+				logger.info("System property '{}' is not specified; using default value {}.", propName, timeout);
+			}
+		}
+
+		return cleanupTimerPeriod;
+	}
+
+	/**
+	 * <p>
+	 * Get the enabled status of the timer used to cleanup.
+	 * </p>
+	 * <p>
+	 * This value can be configured using the system property {@value #SYSTEM_PROPERTY_CLEANUP_TIMER_ENABLED}.
+	 * </p>
+	 *
+	 * @return the enabled status.
+	 * @see #SYSTEM_PROPERTY_CLEANUP_TIMER_PERIOD
+	 * @see #SYSTEM_PROPERTY_CLEANUP_TIMER_ENABLED
+	 */
+	protected boolean getCleanupTimerEnabled()
+	{
+		Boolean val = cleanupTimerEnabled;
+		if (val == null) {
+			String propName = SYSTEM_PROPERTY_CLEANUP_TIMER_ENABLED;
+			String propVal = System.getProperty(propName);
+			propVal = propVal == null ? null : propVal.trim();
+			if (propVal != null && !propVal.isEmpty()) {
+				if (propVal.equalsIgnoreCase(Boolean.TRUE.toString()))
+					val = Boolean.TRUE;
+				else if (propVal.equalsIgnoreCase(Boolean.FALSE.toString()))
+					val = Boolean.FALSE;
+
+				if (val == null)
+					logger.warn("System property '{}' is set to '{}', which is an ILLEGAL value. Falling back to default value.", propName, propVal);
+				else
+					logger.info("System property '{}' is set to '{}'.", propName, val);
+			}
+
+			if (val == null) {
+				val = Boolean.TRUE;
+				logger.info("System property '{}' is not set. Using default value {}.", propName, val);
+			}
+
+			cleanupTimerEnabled = val;
+		}
+		return val;
+	}
+
+	private static volatile Timer cleanupTimer = null;
+	private static volatile boolean cleanupTimerInitialised = false;
+	private volatile boolean cleanupTaskInitialised = false;
+
+	private class CleanupTask extends TimerTask
+	{
+		private final Logger logger = LoggerFactory.getLogger(CleanupTask.class);
+
+		private final long expiryTimerPeriodMSec;
+
+		public CleanupTask(long expiryTimerPeriodMSec) {
+			this.expiryTimerPeriodMSec = expiryTimerPeriodMSec;
+		}
+
+		@Override
+		public void run() {
+			logger.debug("run: entered");
+			removeExpiredPendingRequests(true);
+
+			long currentPeriodMSec = getCleanupTimerPeriod();
+			if (currentPeriodMSec != expiryTimerPeriodMSec) {
+				logger.info(
+						"run: The expiryTimerPeriodMSec changed (oldValue={}, newValue={}). Re-scheduling this task.",
+						expiryTimerPeriodMSec, currentPeriodMSec
+				);
+				this.cancel();
+
+				cleanupTimer.schedule(new CleanupTask(currentPeriodMSec), currentPeriodMSec, currentPeriodMSec);
+			}
+		}
+	};
+
+	private final void initTimerTaskOrRemoveExpiredPendingRequestsPeriodically()
+	{
+		if (!cleanupTimerInitialised) {
+			synchronized (AbstractCryptoManager.class) {
+				if (!cleanupTimerInitialised) {
+					if (getCleanupTimerEnabled())
+						cleanupTimer = new Timer();
+
+					cleanupTimerInitialised = true;
+				}
+			}
+		}
+
+		if (!cleanupTaskInitialised) {
+			synchronized (this) {
+				if (!cleanupTaskInitialised) {
+					if (cleanupTimer != null) {
+						long periodMSec = getCleanupTimerPeriod();
+						cleanupTimer.schedule(new CleanupTask(periodMSec), periodMSec, periodMSec);
+					}
+					cleanupTaskInitialised = true;
+				}
+			}
+		}
+
+		if (cleanupTimer == null) {
+			logger.trace("initTimerTaskOrRemoveExpiredPendingRequestsPeriodically: No timer enabled => calling removeExpiredEntries(false) now.");
+			removeExpiredPendingRequests(false);
+		}
+	}
+
+	private Date lastRemoveExpiredPendingRequestsTimestamp = null;
+
+	private void removeExpiredPendingRequests(boolean force)
+	{
+		synchronized (this) {
+			if (
+					!force && (
+							lastRemoveExpiredPendingRequestsTimestamp != null &&
+							lastRemoveExpiredPendingRequestsTimestamp.after(new Date(System.currentTimeMillis() - getCleanupTimerPeriod()))
+					)
+			)
+			{
+				logger.trace("removeExpiredPendingRequests: force == false and period not yet elapsed. Skipping.");
+				return;
+			}
+
+			lastRemoveExpiredPendingRequestsTimestamp = new Date();
+		}
+
+		Date removePendingRequestsBeforeThisTimestamp = new Date(
+				System.currentTimeMillis() - getQueryTimeout()
+		);
+
+		try {
+
+			Integer deletedCount = null;
+
+			PersistenceManager pm = createTransactionalPersistenceManager();
+			try {
+				Collection<PendingRequest> c = PendingRequest.getPendingRequestsWithLastStatusChangeTimestampOlderThanTimestamp(
+						pm, removePendingRequestsBeforeThisTimestamp
+				);
+
+				if (logger.isDebugEnabled())
+					deletedCount = c.size();
+
+				pm.deletePersistentAll(c);
+
+				pm.currentTransaction().commit();
+			} finally {
+				if (pm.currentTransaction().isActive())
+					pm.currentTransaction().rollback();
+
+				pm.close();
+			}
+
+			logger.debug("removeExpiredPendingRequests: Deleted {} expired PendingRequest instances.", deletedCount);
+
+		} catch (Exception x) {
+			String errMsg = "removeExpiredPendingRequests: Deleting the expired pending requests failed. This might *occasionally* happen due to the optimistic transaction handling (=> collisions). ";
+			if (logger.isDebugEnabled())
+				logger.warn(errMsg + x, x);
+			else
+				logger.warn(errMsg + "Enable DEBUG logging to see the stack trace. " + x);
+		}
+	}
 
 	private PersistenceManagerFactory pmf;
 
@@ -143,6 +362,8 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 		String requestID = request.getRequestID();
 
 		logger.debug("_query[requestID={}]: Entered with request: {}", requestID, request);
+
+		initTimerTaskOrRemoveExpiredPendingRequestsPeriodically();
 
 		PersistenceManager pm = createTransactionalPersistenceManager();
 		try {
@@ -258,6 +479,9 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 		logger.debug("_pollRequest[cryptoSessionIDPrefix={}]: Entered.", cryptoSessionIDPrefix);
 
 		long beginTimestamp = System.currentTimeMillis();
+
+		initTimerTaskOrRemoveExpiredPendingRequestsPeriodically();
+
 		Request request = null;
 		do {
 			logger.trace("_pollRequest[cryptoSessionIDPrefix={}]: Beginning tx.", cryptoSessionIDPrefix);

@@ -61,6 +61,10 @@ import org.cumulus4j.keymanager.back.shared.Response;
 	@Query(
 			name="getOldestPendingRequestWithStatus",
 			value="SELECT WHERE this.cryptoSessionIDPrefix == :cryptoSessionIDPrefix && this.status == :status ORDER BY this.lastStatusChangeTimestamp ASCENDING RANGE 0, 1"
+	),
+	@Query(
+			name="getPendingRequestsWithLastStatusChangeTimestampOlderThanTimestamp",
+			value="SELECT WHERE this.lastStatusChangeTimestamp < :timestamp"
 	)
 })
 public class PendingRequest
@@ -79,6 +83,23 @@ public class PendingRequest
 		 * Indicates fetching the {@link PendingRequest#getResponse() response} property of <code>PendingRequest</code>.
 		 */
 		public static final String response = "PendingRequest.response";
+	}
+
+	public static Collection<PendingRequest> getPendingRequestsWithLastStatusChangeTimestampOlderThanTimestamp(PersistenceManager pm, Date timestamp)
+	{
+		if (pm == null)
+			throw new IllegalArgumentException("pm == null");
+
+		if (timestamp == null)
+			throw new IllegalArgumentException("timestamp == null");
+
+		javax.jdo.Query q = pm.newNamedQuery(PendingRequest.class, "getPendingRequestsWithLastStatusChangeTimestampOlderThanTimestamp");
+		@SuppressWarnings("unchecked")
+		Collection<PendingRequest> c = (Collection<PendingRequest>) q.execute(timestamp);
+		// We return this directly and don't copy it (and thus do not close the query), because we delete all of them anyway
+		// and the tx is very short (no need to close the result-set, before tx-end). This way, the JDO impl has the chance
+		// to optimize (i.e. not to load anything from the DB, but really *directly* delete it).
+		return c;
 	}
 
 	/**
