@@ -134,7 +134,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 			}
 
 			if (cleanupTimerPeriod < 0) {
-				timeout = 15L * 60L * 1000L;
+				timeout = 60L * 60L * 1000L;
 				cleanupTimerPeriod = timeout;
 				logger.info("System property '{}' is not specified; using default value {}.", propName, timeout);
 			}
