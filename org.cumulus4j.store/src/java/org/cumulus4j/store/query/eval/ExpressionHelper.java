@@ -59,7 +59,7 @@ public class ExpressionHelper
 	static Map<String, MethodEvaluator> evaluatorByMethod = new HashMap<String, MethodEvaluator>();
 
 	/**
-	 * Accessor for the evaluator object for use of method XXX of class YYY in queries.
+	 * Accessor for the evaluator object for use of method xxx(...) of class Yyy in queries.
 	 * @param storeMgr Store Manager
 	 * @param clr ClassLoader resolver
 	 * @param clsName The class on which to invoke the method
@@ -84,7 +84,7 @@ public class ExpressionHelper
 		}
 
 		String evaluatorClassName = elem.getAttribute("evaluator");
-		Class evaluatorCls = clr.classForName(evaluatorClassName);
+		Class<?> evaluatorCls = clr.classForName(evaluatorClassName);
 		MethodEvaluator eval = null;
 		try {
 			eval = (MethodEvaluator) evaluatorCls.newInstance();
