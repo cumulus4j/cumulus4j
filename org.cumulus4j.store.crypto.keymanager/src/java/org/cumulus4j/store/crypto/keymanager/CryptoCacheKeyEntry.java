@@ -23,9 +23,9 @@ import java.util.Date;
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-class CipherCacheKeyEntry
+class CryptoCacheKeyEntry
 {
-	public CipherCacheKeyEntry(long keyID, byte[] keyData)
+	public CryptoCacheKeyEntry(long keyID, byte[] keyData)
 	{
 		if (keyID < 0)
 			throw new IllegalArgumentException("keyID < 0");
@@ -41,7 +41,7 @@ class CipherCacheKeyEntry
 
 	private byte[] keyData;
 
-	private Date lastUse = new Date();
+	private Date lastUsageTimestamp = new Date();
 
 	public long getKeyID() {
 		return keyID;
@@ -50,8 +50,8 @@ class CipherCacheKeyEntry
 		return keyData;
 	}
 
-	public Date getLastUse() {
-		return lastUse;
+	public Date getLastUsageTimestamp() {
+		return lastUsageTimestamp;
 	}
 
 	@Override

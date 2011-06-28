@@ -151,17 +151,17 @@ extends AbstractCryptoSession
 		if (encryptionCoordinateSet.getEncryptionCoordinateSetID() > (2 * Short.MAX_VALUE))
 			throw new IllegalStateException("The encryptionCoordinateSetID is out of range! The maximum is " + (2 * Short.MAX_VALUE) + ", because the value is encoded as UNsigned 2-byte-number! This means, you changed the encryption algorithm or the MAC algorithm too often. Switch back to settings you already used before!");
 
-		CipherCache cipherCache = ((KeyManagerCryptoManager)getCryptoManager()).getCipherCache();
+		CryptoCache cryptoCache = ((KeyManagerCryptoManager)getCryptoManager()).getCryptoCache();
 
-		CipherCacheKeyDecrypterEntry keyDecryptor = null;
-		CipherCacheCipherEntry encrypter = null;
+		CryptoCacheKeyDecrypterEntry keyDecryptor = null;
+		CryptoCacheCipherEntry encrypter = null;
 		try {
-			long activeEncryptionKeyID = cipherCache.getActiveEncryptionKeyID();
+			long activeEncryptionKeyID = cryptoCache.getActiveEncryptionKeyID();
 			if (activeEncryptionKeyID >= 0)
-				encrypter = cipherCache.acquireEncrypter(activeEncryptionAlgorithm, activeEncryptionKeyID);
+				encrypter = cryptoCache.acquireEncrypter(activeEncryptionAlgorithm, activeEncryptionKeyID);
 
 			if (encrypter == null) {
-				keyDecryptor = cipherCache.acquireKeyDecryptor(keyEncryptionTransformation);
+				keyDecryptor = cryptoCache.acquireKeyDecryptor(keyEncryptionTransformation);
 
 				GetActiveEncryptionKeyResponse getActiveEncryptionKeyResponse;
 				try {
@@ -180,8 +180,8 @@ extends AbstractCryptoSession
 				byte[] keyEncodedPlain = KeyEncryptionUtil.decryptKey(keyDecryptor.getKeyDecryptor(), getActiveEncryptionKeyResponse.getKeyEncodedEncrypted());
 
 				activeEncryptionKeyID = getActiveEncryptionKeyResponse.getKeyID();
-				cipherCache.setActiveEncryptionKeyID(activeEncryptionKeyID, getActiveEncryptionKeyResponse.getActiveUntilExcl());
-				encrypter = cipherCache.acquireEncrypter(activeEncryptionAlgorithm, activeEncryptionKeyID, keyEncodedPlain);
+				cryptoCache.setActiveEncryptionKeyID(activeEncryptionKeyID, getActiveEncryptionKeyResponse.getActiveUntilExcl());
+				encrypter = cryptoCache.acquireEncrypter(activeEncryptionAlgorithm, activeEncryptionKeyID, keyEncodedPlain);
 			}
 
 			Cipher cipher = encrypter.getCipher();
@@ -282,18 +282,18 @@ extends AbstractCryptoSession
 			logger.error("encrypt: " + e, e);
 			throw new RuntimeException(e);
 		} finally {
-			cipherCache.releaseKeyDecryptor(keyDecryptor);
-			cipherCache.releaseCipherEntry(encrypter);
+			cryptoCache.releaseKeyDecryptor(keyDecryptor);
+			cryptoCache.releaseCipherEntry(encrypter);
 		}
 	}
 
 	@Override
 	public Plaintext decrypt(CryptoContext cryptoContext, Ciphertext ciphertext)
 	{
-		CipherCache cipherCache = ((KeyManagerCryptoManager)getCryptoManager()).getCipherCache();
+		CryptoCache cryptoCache = ((KeyManagerCryptoManager)getCryptoManager()).getCryptoCache();
 
-		CipherCacheKeyDecrypterEntry keyDecryptor = null;
-		CipherCacheCipherEntry decrypter = null;
+		CryptoCacheKeyDecrypterEntry keyDecryptor = null;
+		CryptoCacheCipherEntry decrypter = null;
 		try {
 			long keyID = ciphertext.getKeyID();
 			int inOff = 0;
@@ -320,9 +320,9 @@ extends AbstractCryptoSession
 			int macIVLength = in[inOff++] & 0xff;
 			int macLength = in[inOff++] & 0xff;
 
-			decrypter = cipherCache.acquireDecrypter(encryptionCoordinateSet.getCipherTransformation(), keyID, iv);
+			decrypter = cryptoCache.acquireDecrypter(encryptionCoordinateSet.getCipherTransformation(), keyID, iv);
 			if (decrypter == null) {
-				keyDecryptor = cipherCache.acquireKeyDecryptor(keyEncryptionTransformation);
+				keyDecryptor = cryptoCache.acquireKeyDecryptor(keyEncryptionTransformation);
 
 				GetKeyResponse getKeyResponse;
 				try {
@@ -340,7 +340,7 @@ extends AbstractCryptoSession
 
 				byte[] keyEncodedPlain = KeyEncryptionUtil.decryptKey(keyDecryptor.getKeyDecryptor(), getKeyResponse.getKeyEncodedEncrypted());
 
-				decrypter = cipherCache.acquireDecrypter(encryptionCoordinateSet.getCipherTransformation(), keyID, keyEncodedPlain, iv);
+				decrypter = cryptoCache.acquireDecrypter(encryptionCoordinateSet.getCipherTransformation(), keyID, keyEncodedPlain, iv);
 			}
 
 			int inCryptLength = in.length - inOff;
@@ -402,8 +402,8 @@ extends AbstractCryptoSession
 			logger.error("decrypt: " + e, e);
 			throw new RuntimeException(e);
 		} finally {
-			cipherCache.releaseKeyDecryptor(keyDecryptor);
-			cipherCache.releaseCipherEntry(decrypter);
+			cryptoCache.releaseKeyDecryptor(keyDecryptor);
+			cryptoCache.releaseCipherEntry(decrypter);
 		}
 	}
 

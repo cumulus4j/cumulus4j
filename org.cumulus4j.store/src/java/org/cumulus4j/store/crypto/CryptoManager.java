@@ -151,6 +151,34 @@ public interface CryptoManager
 	static final String MAC_ALGORITHM_NONE = EncryptionCoordinateSet.MAC_ALGORITHM_NONE;
 
 	/**
+	 * <p>
+	 * Persistence property to control when the timer for cleaning up expired {@link CryptoSession}s is called. The
+	 * value configured here is a period, i.e. the timer will be triggered every X ms (roughly).
+	 * </p><p>
+	 * If this persistence property is not present (or not a valid number), the default is 60000 (1 minute), which means
+	 * the timer will wake up once a minute and do the clean-up (default implementation is calling
+	 * {@link AbstractCryptoManager#closeExpiredCryptoSessions(boolean)} with <code>force = true</code>).
+	 * </p><p>
+	 * If this persistence property is set to 0, the timer is deactivated and cleanup happens only synchronously
+	 * when {@link #getCryptoSession(String)} is called (periodically - not every time this method is called).
+	 * </p>
+	 */
+	public static final String PROPERTY_CRYPTO_SESSION_EXPIRY_TIMER_PERIOD_MSEC = "cumulus4j.cryptoSessionExpiryTimerPeriodMSec";
+
+	/**
+	 * <p>
+	 * Persistence property to control after which time an unused {@link CryptoSession} expires.
+	 * </p><p>
+	 * <code>CryptoSession</code>s that are unused for the configured time in milliseconds are considered expired and
+	 * either periodically removed by a timer (see property {@value #PROPERTY_CRYPTO_SESSION_EXPIRY_TIMER_PERIOD_MSEC})
+	 * or periodically removed synchronously during a call to {@link #getCryptoSession(String)}.
+	 * </p><p>
+	 * If this property is not present (or not a valid number), the default value is 1800000 (30 minutes).
+	 * </p>
+	 */
+	public static final String PROPERTY_CRYPTO_SESSION_EXPIRY_AGE_MSEC = "cumulus4j.cryptoSessionExpiryAgeMSec";
+
+	/**
 	 * Get the registry which manages this {@link CryptoManager}.
 	 * This method should normally never return <code>null</code>, because
 	 * the registry is {@link #setCryptoManagerRegistry(CryptoManagerRegistry) set} immediately

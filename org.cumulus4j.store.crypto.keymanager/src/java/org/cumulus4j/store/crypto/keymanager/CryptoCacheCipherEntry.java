@@ -24,14 +24,15 @@ import org.cumulus4j.crypto.Cipher;
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public class CipherCacheCipherEntry
+public class CryptoCacheCipherEntry
 {
-	private CipherCacheKeyEntry keyEntry;
+	private CryptoCacheKeyEntry keyEntry;
 	private String encryptionAlgorithm;
 	private Cipher cipher;
-	private Date lastUse = new Date();
 
-	public CipherCacheCipherEntry(CipherCacheKeyEntry keyEntry, String encryptionAlgorithm, Cipher cipher)
+	private Date lastUsageTimestamp = new Date();
+
+	public CryptoCacheCipherEntry(CryptoCacheKeyEntry keyEntry, String encryptionAlgorithm, Cipher cipher)
 	{
 		if (keyEntry == null)
 			throw new IllegalArgumentException("keyEntry == null");
@@ -47,12 +48,12 @@ public class CipherCacheCipherEntry
 		this.cipher = cipher;
 	}
 
-	public CipherCacheCipherEntry(CipherCacheKeyEntry keyEntry, CipherCacheCipherEntry original)
+	public CryptoCacheCipherEntry(CryptoCacheKeyEntry keyEntry, CryptoCacheCipherEntry original)
 	{
 		this(keyEntry, original.getEncryptionAlgorithm(), original.getCipher());
 	}
 
-	public CipherCacheKeyEntry getKeyEntry() {
+	public CryptoCacheKeyEntry getKeyEntry() {
 		return keyEntry;
 	}
 
@@ -64,7 +65,7 @@ public class CipherCacheCipherEntry
 		return cipher;
 	}
 
-	public Date getLastUse() {
-		return lastUse;
+	public Date getLastUsageTimestamp() {
+		return lastUsageTimestamp;
 	}
 }

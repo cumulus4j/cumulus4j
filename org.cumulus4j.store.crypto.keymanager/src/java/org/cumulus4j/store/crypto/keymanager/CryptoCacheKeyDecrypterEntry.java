@@ -17,17 +17,21 @@
  */
 package org.cumulus4j.store.crypto.keymanager;
 
+import java.util.Date;
+
 import org.cumulus4j.crypto.Cipher;
 
-public class CipherCacheKeyDecrypterEntry
+public class CryptoCacheKeyDecrypterEntry
 {
-	private CipherCacheKeyEncryptionKeyEntry keyEncryptionKey;
+	private CryptoCacheKeyEncryptionKeyEntry keyEncryptionKey;
 
 	private String keyEncryptionTransformation;
 
 	private Cipher keyDecryptor;
 
-	public CipherCacheKeyDecrypterEntry(CipherCacheKeyEncryptionKeyEntry keyEncryptionKey, String keyEncryptionTransformation, Cipher keyDecryptor)
+	private volatile Date lastUsageTimestamp = new Date();
+
+	public CryptoCacheKeyDecrypterEntry(CryptoCacheKeyEncryptionKeyEntry keyEncryptionKey, String keyEncryptionTransformation, Cipher keyDecryptor)
 	{
 		if (keyEncryptionKey == null)
 			throw new IllegalArgumentException("keyEncryptionKey == null");
@@ -43,7 +47,7 @@ public class CipherCacheKeyDecrypterEntry
 		this.keyDecryptor = keyDecryptor;
 	}
 
-	public CipherCacheKeyEncryptionKeyEntry getKeyEncryptionKey() {
+	public CryptoCacheKeyEncryptionKeyEntry getKeyEncryptionKey() {
 		return keyEncryptionKey;
 	}
 
@@ -53,5 +57,13 @@ public class CipherCacheKeyDecrypterEntry
 
 	public Cipher getKeyDecryptor() {
 		return keyDecryptor;
+	}
+
+	public Date getLastUsageTimestamp() {
+		return lastUsageTimestamp;
+	}
+
+	public void updateLastUsageTimestamp() {
+		this.lastUsageTimestamp = new Date();
 	}
 }

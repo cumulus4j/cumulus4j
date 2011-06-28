@@ -49,7 +49,7 @@ public abstract class AbstractCryptoManager implements CryptoManager
 
 	private Map<String, CryptoSession> id2session = new HashMap<String, CryptoSession>();
 
-	private static volatile Timer closeExpiredSessionsTimer;
+	private static volatile Timer closeExpiredSessionsTimer = null;
 	private static volatile boolean closeExpiredSessionsTimerInitialised = false;
 	private volatile boolean closeExpiredSessionsTaskInitialised = false;
 
@@ -81,34 +81,7 @@ public abstract class AbstractCryptoManager implements CryptoManager
 		}
 	};
 
-	/**
-	 * <p>
-	 * Persistence property to control when the timer for cleaning up expired {@link CryptoSession}s is called. The
-	 * value configured here is a period, i.e. the timer will be triggered every X ms (roughly).
-	 * </p><p>
-	 * If this persistence property is not present (or not a valid number), the default is 60000 (1 minute), which means
-	 * the timer will wake up once a minute and call {@link #closeExpiredCryptoSessions(boolean)} with <code>force = true</code>.
-	 * </p><p>
-	 * If this persistence property is set to 0, the timer is deactivated and cleanup happens only synchronously
-	 * when {@link #getCryptoSession(String)} is called (periodically - not every time this method is called).
-	 * </p>
-	 */
-	public static final String PROPERTY_CRYPTO_SESSION_EXPIRY_TIMER_PERIOD_MSEC = "cumulus4j.cryptoSessionExpiryTimerPeriodMSec";
-
 	private long cryptoSessionExpiryTimerPeriodMSec = Long.MIN_VALUE;
-
-	/**
-	 * <p>
-	 * Persistence property to control after which time an unused {@link CryptoSession} expires.
-	 * </p><p>
-	 * <code>CryptoSession</code>s that are unused for the configured time in milliseconds are considered expired and
-	 * either periodically removed by a timer (see property {@value #PROPERTY_CRYPTO_SESSION_EXPIRY_TIMER_PERIOD_MSEC})
-	 * or periodically removed synchronously during a call to {@link #getCryptoSession(String)}.
-	 * </p><p>
-	 * If this property is not present (or not a valid number), the default value is 1800000 (30 minutes).
-	 * </p>
-	 */
-	public static final String PROPERTY_CRYPTO_SESSION_EXPIRY_AGE_MSEC = "cumulus4j.cryptoSessionExpiryAgeMSec";
 
 	private long cryptoSessionExpiryAgeMSec = Long.MIN_VALUE;
 
@@ -122,7 +95,7 @@ public abstract class AbstractCryptoManager implements CryptoManager
 	 * occurs.
 	 * </p>
 	 *
-	 * @return the period in msec.
+	 * @return the period in milliseconds.
 	 */
 	protected long getCryptoSessionExpiryTimerPeriodMSec()
 	{
@@ -159,7 +132,7 @@ public abstract class AbstractCryptoManager implements CryptoManager
 	 * timer checks {@link #getCryptoSessionExpiryTimerPeriodMSec() periodically} for expired sessions.
 	 * </p>
 	 *
-	 * @return the expiry age (of non-usage-time) in msec, after which the session should be closed.
+	 * @return the expiry age (of non-usage-time) in milliseconds, after which the session should be closed.
 	 */
 	protected long getCryptoSessionExpiryAgeMSec()
 	{
@@ -275,16 +248,13 @@ public abstract class AbstractCryptoManager implements CryptoManager
 	 */
 	protected abstract CryptoSession createCryptoSession();
 
-	@Override
-	public CryptoSession getCryptoSession(String cryptoSessionID)
+	private final void initTimerTask()
 	{
 		if (!closeExpiredSessionsTimerInitialised) {
 			synchronized (AbstractCryptoManager.class) {
 				if (!closeExpiredSessionsTimerInitialised) {
 					if (getCryptoSessionExpiryTimerPeriodMSec() > 0)
 						closeExpiredSessionsTimer = new Timer();
-					else
-						closeExpiredSessionsTimer = null;
 
 					closeExpiredSessionsTimerInitialised = true;
 				}
@@ -302,6 +272,12 @@ public abstract class AbstractCryptoManager implements CryptoManager
 				}
 			}
 		}
+	}
+
+	@Override
+	public CryptoSession getCryptoSession(String cryptoSessionID)
+	{
+		initTimerTask();
 
 		CryptoSession session = null;
 		do {

@@ -190,7 +190,7 @@ public abstract class AbstractKeyManagerCryptoSessionTest
 		Ciphertext ciphertext1 = session.encrypt(cryptoContext, plaintext);
 
 		// Clear cache in order to test more code (i.e. ask the MockMessageBroker with a GetKeyRequest).
-		((KeyManagerCryptoManager)session.getCryptoManager()).getCipherCache().clear();
+		((KeyManagerCryptoManager)session.getCryptoManager()).getCryptoCache().clear();
 
 		Ciphertext ciphertext2 = session.encrypt(cryptoContext, plaintext);
 
@@ -204,7 +204,7 @@ public abstract class AbstractKeyManagerCryptoSessionTest
 		Assert.assertTrue("Not enough bits different between ciphertext1 and ciphertext2! Only " + c + " bits differ!", c > 1024);
 
 		// Clear cache in order to test more code (i.e. ask the MockMessageBroker with a GetKeyRequest).
-		((KeyManagerCryptoManager)session.getCryptoManager()).getCipherCache().clear();
+		((KeyManagerCryptoManager)session.getCryptoManager()).getCryptoCache().clear();
 
 		Plaintext decrypted = session.decrypt(cryptoContext, ciphertext);
 
@@ -214,7 +214,7 @@ public abstract class AbstractKeyManagerCryptoSessionTest
 		Plaintext decrypted1 = session.decrypt(cryptoContext, ciphertext1);
 
 		// Clear cache in order to test more code (i.e. ask the MockMessageBroker with a GetKeyRequest).
-		((KeyManagerCryptoManager)session.getCryptoManager()).getCipherCache().clear();
+		((KeyManagerCryptoManager)session.getCryptoManager()).getCryptoCache().clear();
 		Plaintext decrypted2 = session.decrypt(cryptoContext, ciphertext2);
 
 		c = countDifferentBits(decrypted.getData(), decrypted1.getData());

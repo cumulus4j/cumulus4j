@@ -122,7 +122,7 @@ public interface CryptoSession
 	 * the last time.
 	 * </p>
 	 * <p>
-	 * This timestamp is used
+	 * This timestamp is used for automatic closing of expired sessions.
 	 * </p>
 	 *
 	 * @return the timestamp of the last usage of this session.

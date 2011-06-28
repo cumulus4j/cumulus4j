@@ -28,7 +28,7 @@ datanucleus.plugin.allowUserBundles=true
 
 javax.jdo.option.ConnectionDriverName=org.apache.derby.jdbc.EmbeddedDriver
 javax.jdo.option.ConnectionURL=jdbc:derby:${java.io.tmpdir}/derby/cumulus4j;create=true
-javax.jdo.option.ConnectionUserName=root
+javax.jdo.option.ConnectionUserName=derbyuser
 javax.jdo.option.ConnectionPassword=
 +------------------------------------------+
 
@@ -36,16 +36,17 @@ javax.jdo.option.ConnectionPassword=
 	for the backend (Derby) datastore. If you want to control further the properties used for the backend datastore
 	simply add them to your persistence properties, prefixing them with <<cumulus4j.>> and they will be passed to
 	the backend datastore without the prefix.
-
+	
 	As an extension to this you can separate the "data" from the "index" information. You do this by specifying
 	a separate backend datastore for the index information. Like this
 
 +------------------------------------------+
 cumulus4j.index.javax.jdo.option.ConnectionDriverName=com.mysql.jdbc.Driver
 cumulus4j.index.javax.jdo.option.ConnectionURL=jdbc:mysql://127.0.0.1/cumulus4j
-cumulus4j.index.javax.jdo.option.ConnectionUserName=mysql
+cumulus4j.index.javax.jdo.option.ConnectionUserName=mysqluser
 cumulus4j.index.javax.jdo.option.ConnectionPassword=
 +------------------------------------------+
+
 	so now we're storing the index information in a MySQL datastore.
 
 * Encryption algorithm
@@ -58,9 +59,9 @@ cumulus4j.encryptionAlgorithm=AES/CBC/PKCS5
 cumulus4j.macAlgorithm=HMAC-SHA1
 +------------------------------------------+
 
-* Other persistence properties
+* Expiry of sessions and cached keys/ciphers
 
-	You can configure how long sessions shall be active and when timers should clean expired ones up by the following
+	You can configure how long sessions shall be active and when timers should clean-up expired ones by the following
 	properties:
 
 +------------------------------------------+
@@ -68,10 +69,16 @@ cumulus4j.cryptoSessionExpiryTimerPeriodMSec=0
 cumulus4j.cryptoSessionExpiryAgeMSec=900000
 +------------------------------------------+
 
-	These settings deactivate the timer (value 0) (required for the Google App Engine - otherwise not recommended) and set the
+	These settings disable the timer (value 0) (required for the Google App Engine - otherwise <<not recommended>>) and set the
 	expiry age of a session to 15 minutes (= 900 000 ms). It is recommended to stick with the default settings, though.
 
-+------------------------------------------+
+	Right now, Cumulus4j solely uses shared caches (because this is much faster than per-session-caches) and you can configure
+	their timings via the following properties:
 
 +------------------------------------------+
-	
+cumulus4j.cryptoCacheEntryExpiryTimerPeriodMSec=0
+cumulus4j.cryptoCacheEntryExpiryAgeMSec=900000
++------------------------------------------+
+
+	Again, the timer is deactivated by setting the value 0, as is required for the GAE, but otherwise <<not recommended>>. As usual,
+	it is a good idea to stick with the default settings.

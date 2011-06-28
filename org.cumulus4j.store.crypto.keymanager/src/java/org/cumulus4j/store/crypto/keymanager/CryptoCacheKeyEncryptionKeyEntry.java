@@ -22,13 +22,13 @@ import java.util.Date;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.cumulus4j.crypto.CryptoRegistry;
 
-public class CipherCacheKeyEncryptionKeyEntry
+public class CryptoCacheKeyEncryptionKeyEntry
 {
 	private AsymmetricCipherKeyPair keyPair;
 
 	private Date expiry;
 
-	public CipherCacheKeyEncryptionKeyEntry(AsymmetricCipherKeyPair keyPair, long keyEncryptionKeyActivePeriodMSec)
+	public CryptoCacheKeyEncryptionKeyEntry(AsymmetricCipherKeyPair keyPair, long keyEncryptionKeyActivePeriodMSec)
 	{
 		if (keyPair == null)
 			throw new IllegalArgumentException("keyPair == null");
