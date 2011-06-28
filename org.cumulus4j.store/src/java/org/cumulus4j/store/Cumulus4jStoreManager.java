@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -36,6 +37,7 @@ import org.cumulus4j.store.model.FieldMetaRole;
 import org.cumulus4j.store.model.IndexEntryFactoryRegistry;
 import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.NucleusContext;
+import org.datanucleus.api.jdo.JDOPersistenceManagerFactory;
 import org.datanucleus.identity.OID;
 import org.datanucleus.identity.SCOID;
 import org.datanucleus.metadata.AbstractClassMetaData;
@@ -43,6 +45,7 @@ import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.store.AbstractStoreManager;
 import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.connection.ManagedConnection;
+import org.datanucleus.store.schema.SchemaAwareStoreManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +58,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public class Cumulus4jStoreManager extends AbstractStoreManager
+public class Cumulus4jStoreManager extends AbstractStoreManager implements SchemaAwareStoreManager
 {
 	private static final Logger logger = LoggerFactory.getLogger(Cumulus4jStoreManager.class);
 
@@ -369,5 +372,64 @@ public class Cumulus4jStoreManager extends AbstractStoreManager
 //			return "uuid-hex";
 //		else
 //			return "increment";
+	}
+
+	@Override
+	public void createSchema(Set<String> classNames, Properties props) {
+		Cumulus4jConnectionFactory cf =
+			(Cumulus4jConnectionFactory) connectionMgr.lookupConnectionFactory(txConnectionFactoryName);
+		JDOPersistenceManagerFactory pmfData = (JDOPersistenceManagerFactory) cf.getPMFData();
+		JDOPersistenceManagerFactory pmfIndex = (JDOPersistenceManagerFactory) cf.getPMFIndex();
+		if (pmfData.getNucleusContext().getStoreManager() instanceof SchemaAwareStoreManager) {
+			// Create Cumulus4J "Data" (plus "Index" if not separate) schema
+			SchemaAwareStoreManager schemaMgr = (SchemaAwareStoreManager) pmfData.getNucleusContext().getStoreManager();
+			Set<String> cumulus4jClassNames = new HashSet<String>();
+			Collection<Class> pmfClasses = pmfData.getManagedClasses();
+			for (Class cls : pmfClasses) {
+				cumulus4jClassNames.add(cls.getName());
+			}
+			schemaMgr.createSchema(cumulus4jClassNames, new Properties());
+		}
+		if (pmfIndex != null && pmfIndex.getNucleusContext().getStoreManager() instanceof SchemaAwareStoreManager) {
+			// Create Cumulus4J "Index" schema
+			SchemaAwareStoreManager schemaMgr = (SchemaAwareStoreManager) pmfIndex.getNucleusContext().getStoreManager();
+			Set<String> cumulus4jClassNames = new HashSet<String>();
+			Collection<Class> pmfClasses = pmfIndex.getManagedClasses();
+			for (Class cls : pmfClasses) {
+				cumulus4jClassNames.add(cls.getName());
+			}
+			schemaMgr.createSchema(cumulus4jClassNames, new Properties());
+		}
+	}
+
+	@Override
+	public void deleteSchema(Set<String> classNames, Properties props) {
+		Cumulus4jConnectionFactory cf =
+			(Cumulus4jConnectionFactory) connectionMgr.lookupConnectionFactory(txConnectionFactoryName);
+		JDOPersistenceManagerFactory pmfData = (JDOPersistenceManagerFactory) cf.getPMFData();
+		JDOPersistenceManagerFactory pmfIndex = (JDOPersistenceManagerFactory) cf.getPMFIndex();
+		if (pmfData.getNucleusContext().getStoreManager() instanceof SchemaAwareStoreManager) {
+			SchemaAwareStoreManager schemaMgr = (SchemaAwareStoreManager) pmfData.getNucleusContext().getStoreManager();
+			Set<String> cumulus4jClassNames = new HashSet<String>();
+			Collection<Class> pmfClasses = pmfData.getManagedClasses();
+			for (Class cls : pmfClasses) {
+				cumulus4jClassNames.add(cls.getName());
+			}
+			schemaMgr.deleteSchema(cumulus4jClassNames, new Properties());
+		}
+		if (pmfIndex != null && pmfIndex.getNucleusContext().getStoreManager() instanceof SchemaAwareStoreManager) {
+			SchemaAwareStoreManager schemaMgr = (SchemaAwareStoreManager) pmfIndex.getNucleusContext().getStoreManager();
+			Set<String> cumulus4jClassNames = new HashSet<String>();
+			Collection<Class> pmfClasses = pmfIndex.getManagedClasses();
+			for (Class cls : pmfClasses) {
+				cumulus4jClassNames.add(cls.getName());
+			}
+			schemaMgr.deleteSchema(cumulus4jClassNames, new Properties());
+		}
+	}
+
+	@Override
+	public void validateSchema(Set<String> classNames, Properties props) {
+		// TODO Implement validation of Cumulus4j schema
 	}
 }
