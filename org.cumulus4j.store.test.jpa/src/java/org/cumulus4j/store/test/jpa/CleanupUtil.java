@@ -177,7 +177,7 @@ public class CleanupUtil
 			}
 
 			logger.info("dropAllTables : running SchemaTool to delete Cumulus4J schema");
-			schemaMgr.deleteSchema(schemaClassNames, null);
+			schemaMgr.deleteSchema(schemaClassNames, new Properties());
 			logger.info("dropAllTables : SchemaTool deletion of Cumulus4J schema complete");
 		}
 		else {
