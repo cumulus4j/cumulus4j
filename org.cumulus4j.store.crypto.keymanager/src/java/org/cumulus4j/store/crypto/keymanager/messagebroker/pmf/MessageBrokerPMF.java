@@ -204,6 +204,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 	{
 		private final Logger logger = LoggerFactory.getLogger(CleanupTask.class);
 
+		private final String thisID;
 		private WeakReference<MessageBrokerPMF> messageBrokerPMFRef;
 		private final long expiryTimerPeriodMSec;
 
@@ -212,6 +213,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 			if (messageBrokerPMF == null)
 				throw new IllegalArgumentException("messageBrokerPMF == null");
 
+			this.thisID = messageBrokerPMF.thisID + '.' + Long.toString(System.identityHashCode(this), 36);
 			this.messageBrokerPMFRef = new WeakReference<MessageBrokerPMF>(messageBrokerPMF);
 			this.expiryTimerPeriodMSec = expiryTimerPeriodMSec;
 		}
@@ -219,10 +221,10 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 		@Override
 		public void run() {
 			try {
-				logger.debug("run: entered");
+				logger.debug("[{}] run: entered", thisID);
 				final MessageBrokerPMF messageBrokerPMF = messageBrokerPMFRef.get();
 				if (messageBrokerPMF == null) {
-					logger.info("run: MessageBrokerPMF was garbage-collected. Cancelling this TimerTask.");
+					logger.info("[{}] run: MessageBrokerPMF was garbage-collected. Cancelling this TimerTask.", thisID);
 					this.cancel();
 					return;
 				}
@@ -232,8 +234,8 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 				long currentPeriodMSec = messageBrokerPMF.getCleanupTimerPeriod();
 				if (currentPeriodMSec != expiryTimerPeriodMSec) {
 					logger.info(
-							"run: The expiryTimerPeriodMSec changed (oldValue={}, newValue={}). Re-scheduling this task.",
-							expiryTimerPeriodMSec, currentPeriodMSec
+							"[{}] run: The expiryTimerPeriodMSec changed (oldValue={}, newValue={}). Re-scheduling this task.",
+							new Object[] { thisID, expiryTimerPeriodMSec, currentPeriodMSec }
 					);
 					this.cancel();
 
@@ -243,7 +245,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 				// The TimerThread is cancelled, if a task throws an exception. Furthermore, they are not logged at all.
 				// Since we do not want the TimerThread to die, we catch everything (Throwable - not only Exception) and log
 				// it here. IMHO there's nothing better we can do. Marco :-)
-				logger.error("run: " + x, x);
+				logger.error("[" + thisID + "] run: " + x, x);
 			}
 		}
 	};
@@ -274,7 +276,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 		}
 
 		if (cleanupTimer == null) {
-			logger.trace("initTimerTaskOrRemoveExpiredPendingRequestsPeriodically: No timer enabled => calling removeExpiredEntries(false) now.");
+			logger.trace("[{}] initTimerTaskOrRemoveExpiredPendingRequestsPeriodically: No timer enabled => calling removeExpiredEntries(false) now.", thisID);
 			removeExpiredPendingRequests(false);
 		}
 	}
@@ -291,7 +293,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 					)
 			)
 			{
-				logger.trace("removeExpiredPendingRequests: force == false and period not yet elapsed. Skipping.");
+				logger.trace("[{}] removeExpiredPendingRequests: force == false and period not yet elapsed. Skipping.", thisID);
 				return;
 			}
 
@@ -334,10 +336,10 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 				pm.close();
 			}
 
-			logger.debug("removeExpiredPendingRequests: Deleted {} expired PendingRequest instances.", deletedCount);
+			logger.debug("[{}] removeExpiredPendingRequests: Deleted {} expired PendingRequest instances.", thisID, deletedCount);
 
 		} catch (Exception x) {
-			String errMsg = "removeExpiredPendingRequests: Deleting the expired pending requests failed. This might *occasionally* happen due to the optimistic transaction handling (=> collisions). ";
+			String errMsg = "[" + thisID + "] removeExpiredPendingRequests: Deleting the expired pending requests failed. This might *occasionally* happen due to the optimistic transaction handling (=> collisions). ";
 			if (logger.isDebugEnabled())
 				logger.warn(errMsg + x, x);
 			else
