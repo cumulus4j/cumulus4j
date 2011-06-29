@@ -71,7 +71,7 @@
 		<menu name="Babel">
 			<item name="Deutsch" href="./de/index.html" img="images/de.png" />
 		</menu>
-		
+
 		<menu name="Releases">
 			<item name="Latest" href="../latest" />
 			<!-- Here, we should link the last 3 releases. Not more! The versions.html should contain all (but no snapshots). -->
