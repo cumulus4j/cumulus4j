@@ -67,7 +67,7 @@ implements Serializable
 		if (oldPw != null)
 			Arrays.fill(oldPw, (char)0);
 
-		this.authPassword = authPassword;
+		this.authPassword = authPassword.clone(); // Cloning is essential, because we clear it later on.
 	}
 
 
