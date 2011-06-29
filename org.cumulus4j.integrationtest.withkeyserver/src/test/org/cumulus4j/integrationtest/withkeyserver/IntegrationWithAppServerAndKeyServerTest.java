@@ -78,7 +78,7 @@ public class IntegrationWithAppServerAndKeyServerTest
 	public void testThreeComputerScenarioLowLevel()
 	throws Exception
 	{
-		String keyStoreID = "test-" + Long.toString(System.currentTimeMillis(), 36) + "-" + Long.toString(random.nextInt(), 36);
+		String keyStoreID = "test-" + Long.toString(System.currentTimeMillis(), 36) + '-' + Long.toString(random.nextLong(), 36);
 
 		Client clientForKeyServer = new Client();
 		clientForKeyServer.addFilter(
@@ -161,7 +161,7 @@ public class IntegrationWithAppServerAndKeyServerTest
 	public void testThreeComputerScenarioWithUnifiedAPI()
 	throws Exception
 	{
-		String keyStoreID = "test-" + Long.toString(System.currentTimeMillis(), 36) + "-" + Long.toString(random.nextInt(), 36);
+		String keyStoreID = "test-" + Long.toString(System.currentTimeMillis(), 36) + '-' + Long.toString(random.nextLong(), 36);
 
 		KeyManagerAPIConfiguration configuration = new KeyManagerAPIConfiguration();
 		configuration.setAuthUserName(KEY_SERVER_USER);
@@ -198,7 +198,7 @@ public class IntegrationWithAppServerAndKeyServerTest
 		KeyManagerAPIConfiguration configuration = new KeyManagerAPIConfiguration();
 		configuration.setAuthUserName(KEY_SERVER_USER);
 		configuration.setAuthPassword(KEY_SERVER_PASSWORD);
-		configuration.setKeyStoreID("test-" + Long.toString(System.currentTimeMillis(), 36));
+		configuration.setKeyStoreID("test-" + Long.toString(System.currentTimeMillis(), 36) + '-' + Long.toString(random.nextLong(), 36));
 		configuration.setKeyManagerBaseURL(URL_KEY_MANAGER_FRONT_WEBAPP);
 
 		KeyManagerAPI keyManagerAPI = new DefaultKeyManagerAPI();

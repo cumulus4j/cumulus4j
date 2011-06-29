@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.security.SecureRandom;
 
 import javax.ws.rs.core.MediaType;
 
@@ -56,7 +57,7 @@ public class IntegrationWithAppServerOnlyTest
 	private static final String KEY_STORE_USER = "marco";
 	private static final char[] KEY_STORE_PASSWORD = "abcdefg-very+secret".toCharArray();
 
-//	private static final String KEY_STORE_ID = "test-" + Long.toString(System.currentTimeMillis(), 36);
+	private static SecureRandom random = new SecureRandom();
 
 	/**
 	 * Test for the 2-computer-deployment-scenario. DO NOT USE THIS AS AN EXAMPLE FOR YOUR OWN CODE!!!
@@ -128,7 +129,7 @@ public class IntegrationWithAppServerOnlyTest
 		KeyManagerAPIConfiguration configuration = new KeyManagerAPIConfiguration();
 		configuration.setAuthUserName(KEY_STORE_USER);
 		configuration.setAuthPassword(KEY_STORE_PASSWORD);
-		configuration.setKeyStoreID("test-" + Long.toString(System.currentTimeMillis(), 36));
+		configuration.setKeyStoreID("test-" + Long.toString(System.currentTimeMillis(), 36) + '-' + Long.toString(random.nextLong(), 36));
 		configuration.setKeyManagerBaseURL(keyStoreDir.toURI().toString());
 
 		try {
@@ -198,7 +199,7 @@ public class IntegrationWithAppServerOnlyTest
 		KeyManagerAPIConfiguration configuration = new KeyManagerAPIConfiguration();
 		configuration.setAuthUserName(KEY_STORE_USER);
 		configuration.setAuthPassword(KEY_STORE_PASSWORD);
-		configuration.setKeyStoreID("test-" + Long.toString(System.currentTimeMillis(), 36));
+		configuration.setKeyStoreID("test-" + Long.toString(System.currentTimeMillis(), 36) + '-' + Long.toString(random.nextLong(), 36));
 		configuration.setKeyManagerBaseURL(keyStoreDir.toURI().toString());
 
 		try {
