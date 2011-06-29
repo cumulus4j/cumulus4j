@@ -19,6 +19,27 @@ package org.cumulus4j.keymanager;
 
 import org.cumulus4j.keymanager.channel.KeyManagerChannelManager;
 
+/**
+ * <p>
+ * An <code>AppServer</code> represents a logical application server. This logical application server
+ * might be a cluster/cloud consisting of many physical machines.
+ * </p>
+ * <p>
+ * An <code>AppServer</code> knows how to contact the application server (or more precisely the key-manager-channel-REST-service
+ * running on this application server) in order to establish a communication channel. See
+ * <a href="http://www.cumulus4j.org/1.0.0/documentation/deployment-scenarios.html">Deployment scenarios</a>.
+ * </p>
+ * <p>
+ * Since {@link Session}s are managed per <code>AppServer</code> (in case one single key-store is used for multiple
+ * application servers), this serves as a scope for sessions (thus every <code>AppServer</code> has one instance of
+ * {@link SessionManager}).
+ * </p>
+ * <p>
+ * This is not API! Use the classes and interfaces provided by <code>org.cumulus4j.keymanager.api</code> instead.
+ * </p>
+ *
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class AppServer
 {
 	private static final long serialVersionUID = 1L;

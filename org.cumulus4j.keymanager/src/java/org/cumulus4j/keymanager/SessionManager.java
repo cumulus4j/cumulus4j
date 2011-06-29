@@ -34,6 +34,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <p>
+ * Manager for {@link Session}s.
+ * </p>
+ * <p>
+ * There is one <code>SessionManager</code> for each {@link AppServer}. It provides the functionality to
+ * open and close sessions, expire them automatically after a certain time etc.
+ * </p>
+ * <p>
+ * This is not API! Use the classes and interfaces provided by <code>org.cumulus4j.keymanager.api</code> instead.
+ * </p>
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class SessionManager
@@ -143,7 +154,7 @@ public class SessionManager
 			keyStore.getKey(userName, password, Long.MAX_VALUE);
 		} catch (KeyNotFoundException e) {
 			// very likely, the key does not exist - this is expected and OK!
-			doNothing(); // Remove warning from PMD report: http://cumulus4j.org/pmd.html
+			doNothing(); // Remove warning from PMD report: http://cumulus4j.org/latest-dev/pmd.html
 		}
 
 		Session session = userName2Session.get(userName);

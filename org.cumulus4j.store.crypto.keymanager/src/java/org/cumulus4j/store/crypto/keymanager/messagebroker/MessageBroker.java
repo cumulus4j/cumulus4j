@@ -34,7 +34,7 @@ import org.cumulus4j.store.crypto.keymanager.rest.ErrorResponseException;
  * Broker transmitting {@link Message messages} between application-server and key-manager.
  * </p>
  * <p>
- * As documented in <a href="http://cumulus4j.org/documentation/deployment-scenarios.html">Deployment scenarios</a>,
+ * As documented in <a href="http://cumulus4j.org/1.0.0/documentation/deployment-scenarios.html">Deployment scenarios</a>,
  * TCP connections are always established from the key-manager (i.e. client or key-server) to the application server.
  * Since this means that the key-exchange-request-response-cycle works opposite the HTTP-request-response-cycle,
  * we need this <code>MessageBroker</code>.
@@ -47,7 +47,7 @@ import org.cumulus4j.store.crypto.keymanager.rest.ErrorResponseException;
  * of course be routed appropriately back to the correct cluster-node:
  * </p>
  * <p>
- * <img src="http://www.cumulus4j.org/images/deployment-scenario/deployment-scenario-without-keyserver-with-cluster.png" />
+ * <img src="http://www.cumulus4j.org/1.0.0/images/deployment-scenario/deployment-scenario-without-keyserver-with-cluster.png" />
  * </p>
  * <p>
  * <b>Important:</b> You should not directly implement this interface but instead subclass {@link AbstractMessageBroker}!

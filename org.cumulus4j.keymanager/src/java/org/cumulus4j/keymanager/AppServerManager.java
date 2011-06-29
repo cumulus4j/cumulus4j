@@ -27,6 +27,20 @@ import java.util.Map;
 
 import org.cumulus4j.keystore.KeyStore;
 
+/**
+ * <p>
+ * Manager for {@link AppServer}s.
+ * </p>
+ * <p>
+ * This is the actual key-manager-entry-point, as for every {@link KeyStore}, there can be many <code>AppServer</code>s in use.
+ * An instance of <code>AppServerManager</code> is bound to an instance of KeyStore (i.e. they are in a 1-1-relationship).
+ * </p>
+ * <p>
+ * This is not API! Use the classes and interfaces provided by <code>org.cumulus4j.keymanager.api</code> instead.
+ * </p>
+ *
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class AppServerManager
 {
 	private KeyStore keyStore;

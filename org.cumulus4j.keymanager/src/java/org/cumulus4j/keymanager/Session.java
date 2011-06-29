@@ -25,6 +25,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <p>
+ * Session to control and restrict the key exchange with the application server.
+ * </p>
+ * <p>
+ * In order to protect the keys as well as possible, keys can only be requested from an application
+ * server within the scope of a so-called crypto-session. The client controls when to open/close a crypto-session
+ * and when to allow keys to be transferred. Key transfer is only possible while a session is {@link #setLocked(boolean) unlocked}.
+ * </p>
+ * <p>
+ * This is not API! Use the classes and interfaces provided by <code>org.cumulus4j.keymanager.api</code> instead.
+ * </p>
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class Session
@@ -63,9 +75,9 @@ public class Session
 	private String cryptoSessionID;
 	private String userName;
 	private char[] password;
-	private Date lastUse;
-	private Date expiry;
-	private boolean locked = true;
+	private volatile Date lastUse;
+	private volatile Date expiry;
+	private volatile boolean locked = true;
 
 	/**
 	 * Get the identifier of this session.
@@ -117,6 +129,21 @@ public class Session
 		userName = null;
 	}
 
+	/**
+	 * <p>
+	 * Set the 'locked' status.
+	 * </p>
+	 * <p>
+	 * The application server can only request keys from a session that is currently unlocked. That means, a session
+	 * should first be unlocked, then the app-server should be made to work (on behalf of the client) and finally,
+	 * it should be locked again.
+	 * </p>
+	 * <p>
+	 * By default, every new session is locked.
+	 * </p>
+	 *
+	 * @param locked the new 'locked' status.
+	 */
 	public void setLocked(boolean locked) {
 		this.locked = locked;
 	}
