@@ -430,6 +430,27 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 
 	@Override
 	public void validateSchema(Set<String> classNames, Properties props) {
-		// TODO Implement validation of Cumulus4j schema
+		Cumulus4jConnectionFactory cf =
+			(Cumulus4jConnectionFactory) connectionMgr.lookupConnectionFactory(txConnectionFactoryName);
+		JDOPersistenceManagerFactory pmfData = (JDOPersistenceManagerFactory) cf.getPMFData();
+		JDOPersistenceManagerFactory pmfIndex = (JDOPersistenceManagerFactory) cf.getPMFIndex();
+		if (pmfData.getNucleusContext().getStoreManager() instanceof SchemaAwareStoreManager) {
+			SchemaAwareStoreManager schemaMgr = (SchemaAwareStoreManager) pmfData.getNucleusContext().getStoreManager();
+			Set<String> cumulus4jClassNames = new HashSet<String>();
+			Collection<Class> pmfClasses = pmfData.getManagedClasses();
+			for (Class cls : pmfClasses) {
+				cumulus4jClassNames.add(cls.getName());
+			}
+			schemaMgr.validateSchema(cumulus4jClassNames, new Properties());
+		}
+		if (pmfIndex != null && pmfIndex.getNucleusContext().getStoreManager() instanceof SchemaAwareStoreManager) {
+			SchemaAwareStoreManager schemaMgr = (SchemaAwareStoreManager) pmfIndex.getNucleusContext().getStoreManager();
+			Set<String> cumulus4jClassNames = new HashSet<String>();
+			Collection<Class> pmfClasses = pmfIndex.getManagedClasses();
+			for (Class cls : pmfClasses) {
+				cumulus4jClassNames.add(cls.getName());
+			}
+			schemaMgr.validateSchema(cumulus4jClassNames, new Properties());
+		}
 	}
 }
