@@ -80,7 +80,7 @@
 		-->
 		<site>
 			<id>www.cumulus4j.org</id>
-			<url>${distributionManagement.site.prefix}/www.cumulus4j.org/htdocs/</url>
+			<url>${distributionManagement.site.prefix}/www.cumulus4j.org/htdocs/${project.version}/</url>
 		</site>
 	</distributionManagement>
 
