@@ -150,7 +150,7 @@ extends AbstractJDOTransactionalTest
 					person.setName(starringName);
 					person = pm.makePersistent(person);
 				}
-				if (!movie.getStarring().contains(person)) // TODO open an issue in DN issue tracker - this contains should not be necessary - the add(...) should not do an INSERT if it is already in the set!
+				if (!movie.getStarring().contains(person))
 					movie.getStarring().add(person);
 			}
 
@@ -162,7 +162,7 @@ extends AbstractJDOTransactionalTest
 						language.setName(languageName);
 						language = pm.makePersistent(language);
 					}
-					if (!movie.getLanguages().contains(language)) // TODO open DataNucleus issue - add should not do an INSERT without checking - this contains should not be necessary!
+					if (!movie.getLanguages().contains(language))
 						movie.getLanguages().add(language);
 				}
 			}
