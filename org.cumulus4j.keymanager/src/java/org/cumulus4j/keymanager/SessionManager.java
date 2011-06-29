@@ -52,39 +52,50 @@ public class SessionManager
 
 		private WeakReference<SessionManager> sessionManagerRef;
 
-		public ExpireSessionTimerTask(SessionManager sessionManager) {
+		public ExpireSessionTimerTask(SessionManager sessionManager)
+		{
+			if (sessionManager == null)
+				throw new IllegalArgumentException("sessionManager == null");
+
 			this.sessionManagerRef = new WeakReference<SessionManager>(sessionManager);
 		}
 
 		@Override
 		public void run()
 		{
-			SessionManager sessionManager = sessionManagerRef.get();
-			if (sessionManager == null) {
-				logger.info("run: SessionManager has been garbage-collected. Removing this ExpireSessionTimerTask.");
-				this.cancel();
-				return;
-			}
-
-			Date now = new Date();
-
-			LinkedList<Session> sessionsToExpire = new LinkedList<Session>();
-			synchronized (sessionManager) {
-				for (Session session : sessionManager.cryptoSessionID2Session.values()) {
-					if (session.getExpiry().before(now))
-						sessionsToExpire.add(session);
+			try {
+				SessionManager sessionManager = sessionManagerRef.get();
+				if (sessionManager == null) {
+					logger.info("run: SessionManager has been garbage-collected. Removing this ExpireSessionTimerTask.");
+					this.cancel();
+					return;
 				}
-			}
 
-			for (Session session : sessionsToExpire) {
-				logger.info("run: Expiring session: userName='{}' cryptoSessionID='{}'.", session.getUserName(), session.getCryptoSessionID());
-				session.close();
-			}
+				Date now = new Date();
 
-			if (logger.isDebugEnabled()) {
+				LinkedList<Session> sessionsToExpire = new LinkedList<Session>();
 				synchronized (sessionManager) {
-					logger.debug("run: {} sessions left.", sessionManager.cryptoSessionID2Session.size());
+					for (Session session : sessionManager.cryptoSessionID2Session.values()) {
+						if (session.getExpiry().before(now))
+							sessionsToExpire.add(session);
+					}
 				}
+
+				for (Session session : sessionsToExpire) {
+					logger.info("run: Expiring session: userName='{}' cryptoSessionID='{}'.", session.getUserName(), session.getCryptoSessionID());
+					session.close();
+				}
+
+				if (logger.isDebugEnabled()) {
+					synchronized (sessionManager) {
+						logger.debug("run: {} sessions left.", sessionManager.cryptoSessionID2Session.size());
+					}
+				}
+			} catch (Throwable x) {
+				// The TimerThread is cancelled, if a task throws an exception. Furthermore, they are not logged at all.
+				// Since we do not want the TimerThread to die, we catch everything (Throwable - not only Exception) and log
+				// it here. IMHO there's nothing better we can do. Marco :-)
+				logger.error("run: " + x, x);
 			}
 		}
 	}

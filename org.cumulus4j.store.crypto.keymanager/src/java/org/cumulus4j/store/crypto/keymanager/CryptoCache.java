@@ -17,6 +17,7 @@
  */
 package org.cumulus4j.store.crypto.keymanager;
 
+import java.lang.ref.WeakReference;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Collections;
@@ -409,30 +410,50 @@ public class CryptoCache
 	private static volatile boolean cleanupTimerInitialised = false;
 	private volatile boolean cleanupTaskInitialised = false;
 
-	private class CleanupTask extends TimerTask
+	private static class CleanupTask extends TimerTask
 	{
 		private final Logger logger = LoggerFactory.getLogger(CleanupTask.class);
 
+		private WeakReference<CryptoCache> cryptoCacheRef;
 		private final long expiryTimerPeriodMSec;
 
-		public CleanupTask(long expiryTimerPeriodMSec) {
+		public CleanupTask(CryptoCache cryptoCache, long expiryTimerPeriodMSec)
+		{
+			if (cryptoCache == null)
+				throw new IllegalArgumentException("cryptoCache == null");
+
+			this.cryptoCacheRef = new WeakReference<CryptoCache>(cryptoCache);
 			this.expiryTimerPeriodMSec = expiryTimerPeriodMSec;
 		}
 
 		@Override
 		public void run() {
-			logger.debug("run: entered");
-			removeExpiredEntries(true);
+			try {
+				logger.debug("run: entered");
+				final CryptoCache cryptoCache = cryptoCacheRef.get();
+				if (cryptoCache == null) {
+					logger.info("run: CryptoCache was garbage-collected. Cancelling this TimerTask.");
+					this.cancel();
+					return;
+				}
 
-			long currentPeriodMSec = getCleanupTimerPeriod();
-			if (currentPeriodMSec != expiryTimerPeriodMSec) {
-				logger.info(
-						"run: The expiryTimerPeriodMSec changed (oldValue={}, newValue={}). Re-scheduling this task.",
-						expiryTimerPeriodMSec, currentPeriodMSec
-				);
-				this.cancel();
+				cryptoCache.removeExpiredEntries(true);
 
-				cleanupTimer.schedule(new CleanupTask(currentPeriodMSec), currentPeriodMSec, currentPeriodMSec);
+				long currentPeriodMSec = cryptoCache.getCleanupTimerPeriod();
+				if (currentPeriodMSec != expiryTimerPeriodMSec) {
+					logger.info(
+							"run: The expiryTimerPeriodMSec changed (oldValue={}, newValue={}). Re-scheduling this task.",
+							expiryTimerPeriodMSec, currentPeriodMSec
+					);
+					this.cancel();
+
+					cleanupTimer.schedule(new CleanupTask(cryptoCache, currentPeriodMSec), currentPeriodMSec, currentPeriodMSec);
+				}
+			} catch (Throwable x) {
+				// The TimerThread is cancelled, if a task throws an exception. Furthermore, they are not logged at all.
+				// Since we do not want the TimerThread to die, we catch everything (Throwable - not only Exception) and log
+				// it here. IMHO there's nothing better we can do. Marco :-)
+				logger.error("run: " + x, x);
 			}
 		}
 	};
@@ -455,7 +476,7 @@ public class CryptoCache
 				if (!cleanupTaskInitialised) {
 					if (cleanupTimer != null) {
 						long periodMSec = getCleanupTimerPeriod();
-						cleanupTimer.schedule(new CleanupTask(periodMSec), periodMSec, periodMSec);
+						cleanupTimer.schedule(new CleanupTask(this, periodMSec), periodMSec, periodMSec);
 					}
 					cleanupTaskInitialised = true;
 				}

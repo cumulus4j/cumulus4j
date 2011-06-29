@@ -19,6 +19,7 @@ package org.cumulus4j.store.crypto.keymanager.messagebroker.pmf;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -197,30 +198,50 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 	private static volatile boolean cleanupTimerInitialised = false;
 	private volatile boolean cleanupTaskInitialised = false;
 
-	private class CleanupTask extends TimerTask
+	private static class CleanupTask extends TimerTask
 	{
 		private final Logger logger = LoggerFactory.getLogger(CleanupTask.class);
 
+		private WeakReference<MessageBrokerPMF> messageBrokerPMFRef;
 		private final long expiryTimerPeriodMSec;
 
-		public CleanupTask(long expiryTimerPeriodMSec) {
+		public CleanupTask(MessageBrokerPMF messageBrokerPMF, long expiryTimerPeriodMSec)
+		{
+			if (messageBrokerPMF == null)
+				throw new IllegalArgumentException("messageBrokerPMF == null");
+
+			this.messageBrokerPMFRef = new WeakReference<MessageBrokerPMF>(messageBrokerPMF);
 			this.expiryTimerPeriodMSec = expiryTimerPeriodMSec;
 		}
 
 		@Override
 		public void run() {
-			logger.debug("run: entered");
-			removeExpiredPendingRequests(true);
+			try {
+				logger.debug("run: entered");
+				final MessageBrokerPMF messageBrokerPMF = messageBrokerPMFRef.get();
+				if (messageBrokerPMF == null) {
+					logger.info("run: MessageBrokerPMF was garbage-collected. Cancelling this TimerTask.");
+					this.cancel();
+					return;
+				}
 
-			long currentPeriodMSec = getCleanupTimerPeriod();
-			if (currentPeriodMSec != expiryTimerPeriodMSec) {
-				logger.info(
-						"run: The expiryTimerPeriodMSec changed (oldValue={}, newValue={}). Re-scheduling this task.",
-						expiryTimerPeriodMSec, currentPeriodMSec
-				);
-				this.cancel();
+				messageBrokerPMF.removeExpiredPendingRequests(true);
 
-				cleanupTimer.schedule(new CleanupTask(currentPeriodMSec), currentPeriodMSec, currentPeriodMSec);
+				long currentPeriodMSec = messageBrokerPMF.getCleanupTimerPeriod();
+				if (currentPeriodMSec != expiryTimerPeriodMSec) {
+					logger.info(
+							"run: The expiryTimerPeriodMSec changed (oldValue={}, newValue={}). Re-scheduling this task.",
+							expiryTimerPeriodMSec, currentPeriodMSec
+					);
+					this.cancel();
+
+					cleanupTimer.schedule(new CleanupTask(messageBrokerPMF, currentPeriodMSec), currentPeriodMSec, currentPeriodMSec);
+				}
+			} catch (Throwable x) {
+				// The TimerThread is cancelled, if a task throws an exception. Furthermore, they are not logged at all.
+				// Since we do not want the TimerThread to die, we catch everything (Throwable - not only Exception) and log
+				// it here. IMHO there's nothing better we can do. Marco :-)
+				logger.error("run: " + x, x);
 			}
 		}
 	};
@@ -243,7 +264,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 				if (!cleanupTaskInitialised) {
 					if (cleanupTimer != null) {
 						long periodMSec = getCleanupTimerPeriod();
-						cleanupTimer.schedule(new CleanupTask(periodMSec), periodMSec, periodMSec);
+						cleanupTimer.schedule(new CleanupTask(this, periodMSec), periodMSec, periodMSec);
 					}
 					cleanupTaskInitialised = true;
 				}

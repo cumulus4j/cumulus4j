@@ -532,39 +532,50 @@ public class KeyStore
 
 		private WeakReference<KeyStore> keyStoreRef;
 
-		public ExipreCacheEntryTimerTask(KeyStore keyStore) {
+		public ExipreCacheEntryTimerTask(KeyStore keyStore)
+		{
+			if (keyStore == null)
+				throw new IllegalArgumentException("keyStore == null");
+
 			this.keyStoreRef = new WeakReference<KeyStore>(keyStore);
 		}
 
 		@Override
 		public void run()
 		{
-			KeyStore keyStore = keyStoreRef.get();
-			if (keyStore == null) {
-				logger.info("run: KeyStore has been garbage-collected. Removing this ExipreCacheEntryTimerTask.");
-				this.cancel();
-				return;
-			}
-
-			Date removeCachedEntriesOlderThanThisDate = new Date(System.currentTimeMillis() - 3L * 60L * 1000L); // TODO make this configurable!
-
-			LinkedList<String> userNamesToExpire = new LinkedList<String>();
-			synchronized (keyStore) {
-				for (CachedMasterKey cmk : keyStore.cache_userName2cachedMasterKey.values()) {
-					if (cmk.getLastUse().before(removeCachedEntriesOlderThanThisDate))
-						userNamesToExpire.add(cmk.getUserName());
+			try {
+				KeyStore keyStore = keyStoreRef.get();
+				if (keyStore == null) {
+					logger.info("run: KeyStore has been garbage-collected. Removing this ExipreCacheEntryTimerTask.");
+					this.cancel();
+					return;
 				}
-			}
 
-			for (String userName : userNamesToExpire) {
-				logger.info("run: Expiring cache for user '{}'.", userName);
-				keyStore.clearCache(userName);
-			}
+				Date removeCachedEntriesOlderThanThisDate = new Date(System.currentTimeMillis() - 3L * 60L * 1000L); // TODO make this configurable!
 
-			if (logger.isDebugEnabled()) {
+				LinkedList<String> userNamesToExpire = new LinkedList<String>();
 				synchronized (keyStore) {
-					logger.debug("run: {} users left in cache.", keyStore.cache_userName2cachedMasterKey.size());
+					for (CachedMasterKey cmk : keyStore.cache_userName2cachedMasterKey.values()) {
+						if (cmk.getLastUse().before(removeCachedEntriesOlderThanThisDate))
+							userNamesToExpire.add(cmk.getUserName());
+					}
 				}
+
+				for (String userName : userNamesToExpire) {
+					logger.info("run: Expiring cache for user '{}'.", userName);
+					keyStore.clearCache(userName);
+				}
+
+				if (logger.isDebugEnabled()) {
+					synchronized (keyStore) {
+						logger.debug("run: {} users left in cache.", keyStore.cache_userName2cachedMasterKey.size());
+					}
+				}
+			} catch (Throwable x) {
+				// The TimerThread is cancelled, if a task throws an exception. Furthermore, they are not logged at all.
+				// Since we do not want the TimerThread to die, we catch everything (Throwable - not only Exception) and log
+				// it here. IMHO there's nothing better we can do. Marco :-)
+				logger.error("run: " + x, x);
 			}
 		}
 	}

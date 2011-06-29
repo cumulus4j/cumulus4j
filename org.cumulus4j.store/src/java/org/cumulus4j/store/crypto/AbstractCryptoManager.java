@@ -17,6 +17,7 @@
  */
 package org.cumulus4j.store.crypto;
 
+import java.lang.ref.WeakReference;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -53,30 +54,50 @@ public abstract class AbstractCryptoManager implements CryptoManager
 	private static volatile boolean closeExpiredSessionsTimerInitialised = false;
 	private volatile boolean closeExpiredSessionsTaskInitialised = false;
 
-	private class CloseExpiredSessionsTask extends TimerTask
+	private static class CloseExpiredSessionsTask extends TimerTask
 	{
 		private final Logger logger = LoggerFactory.getLogger(CloseExpiredSessionsTask.class);
 
+		private WeakReference<AbstractCryptoManager> abstractCryptoManagerRef;
 		private final long expiryTimerPeriodMSec;
 
-		public CloseExpiredSessionsTask(long expiryTimerPeriodMSec) {
+		public CloseExpiredSessionsTask(AbstractCryptoManager abstractCryptoManager, long expiryTimerPeriodMSec)
+		{
+			if (abstractCryptoManager == null)
+				throw new IllegalArgumentException("abstractCryptoManager == null");
+
+			this.abstractCryptoManagerRef = new WeakReference<AbstractCryptoManager>(abstractCryptoManager);
 			this.expiryTimerPeriodMSec = expiryTimerPeriodMSec;
 		}
 
 		@Override
 		public void run() {
-			logger.debug("run: entered");
-			closeExpiredCryptoSessions(true);
+			try {
+				logger.debug("run: entered");
+				final AbstractCryptoManager abstractCryptoManager = abstractCryptoManagerRef.get();
+				if (abstractCryptoManager == null) {
+					logger.info("run: AbstractCryptoManager was garbage-collected. Cancelling this TimerTask.");
+					this.cancel();
+					return;
+				}
 
-			long currentPeriodMSec = getCryptoSessionExpiryTimerPeriod();
-			if (currentPeriodMSec != expiryTimerPeriodMSec) {
-				logger.info(
-						"run: The expiryTimerPeriodMSec changed (oldValue={}, newValue={}). Re-scheduling this task.",
-						expiryTimerPeriodMSec, currentPeriodMSec
-				);
-				this.cancel();
+				abstractCryptoManager.closeExpiredCryptoSessions(true);
 
-				closeExpiredSessionsTimer.schedule(new CloseExpiredSessionsTask(currentPeriodMSec), currentPeriodMSec, currentPeriodMSec);
+				long currentPeriodMSec = abstractCryptoManager.getCryptoSessionExpiryTimerPeriod();
+				if (currentPeriodMSec != expiryTimerPeriodMSec) {
+					logger.info(
+							"run: The expiryTimerPeriodMSec changed (oldValue={}, newValue={}). Re-scheduling this task.",
+							expiryTimerPeriodMSec, currentPeriodMSec
+					);
+					this.cancel();
+
+					closeExpiredSessionsTimer.schedule(new CloseExpiredSessionsTask(abstractCryptoManager, currentPeriodMSec), currentPeriodMSec, currentPeriodMSec);
+				}
+			} catch (Throwable x) {
+				// The TimerThread is cancelled, if a task throws an exception. Furthermore, they are not logged at all.
+				// Since we do not want the TimerThread to die, we catch everything (Throwable - not only Exception) and log
+				// it here. IMHO there's nothing better we can do. Marco :-)
+				logger.error("run: " + x, x);
 			}
 		}
 	};
@@ -333,7 +354,7 @@ public abstract class AbstractCryptoManager implements CryptoManager
 				if (!closeExpiredSessionsTaskInitialised) {
 					if (closeExpiredSessionsTimer != null) {
 						long periodMSec = getCryptoSessionExpiryTimerPeriod();
-						closeExpiredSessionsTimer.schedule(new CloseExpiredSessionsTask(periodMSec), periodMSec, periodMSec);
+						closeExpiredSessionsTimer.schedule(new CloseExpiredSessionsTask(this, periodMSec), periodMSec, periodMSec);
 					}
 					closeExpiredSessionsTaskInitialised = true;
 				}
