@@ -21,6 +21,7 @@ import java.io.Console;
 
 import org.cumulus4j.keymanager.api.DefaultKeyManagerAPI;
 import org.cumulus4j.keymanager.api.KeyManagerAPI;
+import org.cumulus4j.keymanager.api.KeyManagerAPIConfiguration;
 import org.kohsuke.args4j.Option;
 
 /**
@@ -48,8 +49,10 @@ extends SubCommand
 	public void prepare() throws Exception
 	{
 		super.prepare();
-		keyManagerAPI.setKeyManagerBaseURL(keyManagerBaseURL);
-		keyManagerAPI.setKeyStoreID(keyStoreID);
+		KeyManagerAPIConfiguration configuration = new KeyManagerAPIConfiguration();
+		configuration.setKeyManagerBaseURL(keyManagerBaseURL);
+		configuration.setKeyStoreID(keyStoreID);
+		keyManagerAPI.setConfiguration(configuration);
 	}
 
 	protected String promptPassword(String fmt, Object ... args)

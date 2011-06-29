@@ -14,12 +14,14 @@ import org.cumulus4j.keymanager.AppServer;
 import org.cumulus4j.keymanager.AppServerManager;
 import org.cumulus4j.keymanager.api.AuthenticationException;
 import org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam;
+import org.cumulus4j.keymanager.api.KeyManagerAPIConfiguration;
 import org.cumulus4j.keymanager.api.KeyManagerAPIInstantiationException;
 import org.cumulus4j.keymanager.api.KeyStoreNotEmptyException;
 import org.cumulus4j.keymanager.api.Session;
 import org.cumulus4j.keymanager.api.internal.AbstractKeyManagerAPI;
 import org.cumulus4j.keystore.DateDependentKeyStrategy;
 import org.cumulus4j.keystore.KeyStore;
+import org.cumulus4j.keystore.UserNotFoundException;
 
 public class LocalKeyManagerAPI extends AbstractKeyManagerAPI
 {
@@ -90,16 +92,9 @@ public class LocalKeyManagerAPI extends AbstractKeyManagerAPI
 	}
 
 	@Override
-	public void setKeyManagerBaseURL(String keyManagerBaseURL) {
-		super.setKeyManagerBaseURL(keyManagerBaseURL);
-		this.keyStore = null;
-		this.appServerManager = null;
-		appServerBaseURL2appServerID.clear();
-	}
-
-	@Override
-	public void setKeyStoreID(String keyStoreID) {
-		super.setKeyStoreID(keyStoreID);
+	public void setConfiguration(KeyManagerAPIConfiguration configuration) throws IllegalArgumentException, KeyManagerAPIInstantiationException
+	{
+		super.setConfiguration(configuration);
 		this.keyStore = null;
 		this.appServerManager = null;
 		appServerBaseURL2appServerID.clear();
@@ -123,6 +118,37 @@ public class LocalKeyManagerAPI extends AbstractKeyManagerAPI
 			keyStrategy.init(getAuthUserName(), getAuthPassword(), param.getKeyActivityPeriodMSec(), param.getKeyStorePeriodMSec());
 		} catch (org.cumulus4j.keystore.KeyStoreNotEmptyException e) {
 			throw new KeyStoreNotEmptyException(e);
+		}
+	}
+
+	@Override
+	public void putUser(String userName, char[] password) throws AuthenticationException, IOException
+	{
+		KeyStore keyStore = getKeyStore();
+		try {
+			try {
+				keyStore.createUser(getAuthUserName(), getAuthPassword(), userName, password);
+			} catch (org.cumulus4j.keystore.UserAlreadyExistsException e) {
+				try {
+					keyStore.changeUserPassword(getAuthUserName(), getAuthPassword(), userName, password);
+				} catch (UserNotFoundException e1) {
+					throw new RuntimeException("What the hell?! Just caught a UserAlreadyExistsException - why is the user not existing now?!", e1);
+				}
+			}
+		} catch (org.cumulus4j.keystore.AuthenticationException e) {
+			throw new AuthenticationException(e);
+		}
+
+		// If we changed the current user's password, we automatically re-configure this API instance.
+		KeyManagerAPIConfiguration conf = getConf();
+		if (conf.getAuthUserName() != null && conf.getAuthUserName().equals(userName)) {
+			KeyManagerAPIConfiguration newConf = new KeyManagerAPIConfiguration(conf);
+			newConf.setAuthPassword(password);
+			try {
+				setConfiguration(newConf);
+			} catch (KeyManagerAPIInstantiationException e) {
+				throw new RuntimeException(e); // Shouldn't happen, because we copied the old configuration.
+			}
 		}
 	}
 

@@ -16,37 +16,40 @@ import java.io.IOException;
  */
 public interface KeyManagerAPI
 {
-
-	String getAuthUserName();
-
-	void setAuthUserName(String authUserName);
-
-
-	char[] getAuthPassword();
-
-	void setAuthPassword(char[] authPassword);
-
-
-	String getKeyStoreID();
-
-	void setKeyStoreID(String keyStoreID);
-
-
-	String getKeyManagerBaseURL();
-
-	void init() throws KeyManagerAPIInstantiationException;
+	/**
+	 * <p>
+	 * Set the configuration for this {@link KeyManagerAPI} instance.
+	 * </p>
+	 * <p>
+	 * Before a KeyManagerAPI instance can actually be used, it first needs to be configured. The configuration
+	 * passed to this method will be {@link KeyManagerAPIConfiguration#markReadOnly() marked read-only}.
+	 * </p>
+	 * @param configuration the configuration (which will be {@link KeyManagerAPIConfiguration#markReadOnly() marked read-only}
+	 * by this operation). Must not be <code>null</code>.
+	 * @throws IllegalArgumentException if the configuration is <code>null</code> or incomplete (e.g. {@link KeyManagerAPIConfiguration#getKeyStoreID() configuration.keyStoreID} being <code>null</code>).
+	 * @throws KeyManagerAPIInstantiationException if the actual implementation cannot be instantiated.
+	 */
+	void setConfiguration(KeyManagerAPIConfiguration configuration) throws IllegalArgumentException, KeyManagerAPIInstantiationException;
 
 	/**
-	 *
-	 * @param keyManagerBaseURL the base-URL of the remote key-server or a local file-URL, if a local key-store is to be used.
-	 * This argument can be <code>null</code>, which means to use a local file in the default directory "${user.home}/.cumulus4j/".
+	 * Get the current configuration of this {@link KeyManagerAPI}. If {@link #setConfiguration(KeyManagerAPIConfiguration)} was not
+	 * yet called, this is <code>null</code>.
+	 * @return the {@link KeyManagerAPIConfiguration} (or <code>null</code>, if not yet configured).
 	 */
-	void setKeyManagerBaseURL(String keyManagerBaseURL);
-
+	KeyManagerAPIConfiguration getConfiguration();
 
 	void initDateDependentKeyStrategy(DateDependentKeyStrategyInitParam param) throws KeyStoreNotEmptyException, IOException;
 
+	/**
+	 * Create a new user or change an existing user's password.
+	 * @param userName the name of the new user.
+	 * @param password the password of the new user.
+	 * @throws AuthenticationException if the {@link #setAuthUserName(String) authUserName} or the {@link #setAuthPassword(char[]) authPassword} is incorrect.
+	 * @throws IOException if the communication with the key-store (either local key-store-file or remote key-server) fails.
+	 */
+	void putUser(String userName, char[] password)
+	throws AuthenticationException, IOException;
 
-	Session getSession(String appServerBaseURL) throws IOException, AuthenticationException;
+	Session getSession(String appServerBaseURL) throws AuthenticationException, IOException;
 
 }

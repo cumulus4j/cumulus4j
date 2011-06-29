@@ -13,6 +13,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.cumulus4j.keymanager.api.AuthenticationException;
 import org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam;
+import org.cumulus4j.keymanager.api.KeyManagerAPIConfiguration;
 import org.cumulus4j.keymanager.api.KeyManagerAPIInstantiationException;
 import org.cumulus4j.keymanager.api.KeyStoreNotEmptyException;
 import org.cumulus4j.keymanager.api.Session;
@@ -21,6 +22,7 @@ import org.cumulus4j.keymanager.front.shared.AppServer;
 import org.cumulus4j.keymanager.front.shared.Error;
 import org.cumulus4j.keymanager.front.shared.OpenSessionResponse;
 import org.cumulus4j.keymanager.front.shared.PutAppServerResponse;
+import org.cumulus4j.keymanager.front.shared.UserWithPassword;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandlerException;
@@ -56,6 +58,21 @@ public class RemoteKeyManagerAPI extends AbstractKeyManagerAPI
 		}
 	}
 
+	@Override
+	public void setConfiguration(KeyManagerAPIConfiguration configuration) throws IllegalArgumentException, KeyManagerAPIInstantiationException
+	{
+		super.setConfiguration(configuration);
+		appServerBaseURL2appServer.clear();
+	}
+
+	protected static final String appendFinalSlash(String url)
+	{
+		if (url.endsWith("/"))
+			return url;
+		else
+			return url + '/';
+	}
+
 	private Client client;
 
 	protected synchronized Client getClient()
@@ -86,23 +103,35 @@ public class RemoteKeyManagerAPI extends AbstractKeyManagerAPI
 	}
 
 	@Override
-	public void setKeyManagerBaseURL(String keyManagerBaseURL) {
-		super.setKeyManagerBaseURL(keyManagerBaseURL);
-		appServerBaseURL2appServer.clear();
-	}
-
-	@Override
-	public void setKeyStoreID(String keyStoreID) {
-		super.setKeyStoreID(keyStoreID);
-		appServerBaseURL2appServer.clear();
-	}
-
-	protected static final String appendFinalSlash(String url)
+	public void putUser(String userName, char[] password) throws AuthenticationException, IOException
 	{
-		if (url.endsWith("/"))
-			return url;
-		else
-			return url + '/';
+		try {
+			UserWithPassword userWithPassword = new UserWithPassword();
+			userWithPassword.setUserName(userName);
+			userWithPassword.setPassword(password);
+
+			getClient().resource(appendFinalSlash(getKeyManagerBaseURL()) + "User/" + getKeyStoreID())
+			.type(MediaType.APPLICATION_XML_TYPE)
+			.put(userWithPassword);
+		} catch (UniformInterfaceException x) {
+			RemoteKeyManagerAPI.throwUniformInterfaceExceptionAsAuthenticationException(x);
+			RemoteKeyManagerAPI.throwUniformInterfaceExceptionAsIOException(x);
+			throw new IOException(x);
+//		} catch (IOException x) {
+//			throw x;
+		}
+
+		// If we changed the current user's password, we automatically re-configure this API instance.
+		KeyManagerAPIConfiguration conf = getConf();
+		if (conf.getAuthUserName() != null && conf.getAuthUserName().equals(userName)) {
+			KeyManagerAPIConfiguration newConf = new KeyManagerAPIConfiguration(conf);
+			newConf.setAuthPassword(password);
+			try {
+				setConfiguration(newConf);
+			} catch (KeyManagerAPIInstantiationException e) {
+				throw new RuntimeException(e); // Shouldn't happen, because we copied the old configuration.
+			}
+		}
 	}
 
 	@Override
@@ -208,5 +237,4 @@ public class RemoteKeyManagerAPI extends AbstractKeyManagerAPI
 		if (x.getResponse().getStatus() >= 400)
 			throw new IOException("URL=\"" + x.getResponse().getLocation() + "\": Server replied with error code " + x.getResponse().getStatus() + "!");
 	}
-
 }

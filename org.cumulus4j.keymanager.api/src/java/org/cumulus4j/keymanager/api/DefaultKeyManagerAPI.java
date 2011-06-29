@@ -8,78 +8,25 @@ import org.cumulus4j.keymanager.api.internal.remote.RemoteKeyManagerAPI;
 
 public class DefaultKeyManagerAPI extends AbstractKeyManagerAPI
 {
-	private KeyManagerAPI delegate;
+	private volatile KeyManagerAPI delegate;
 
 	@Override
-	public void setAuthUserName(final String authUserName)
+	public void setConfiguration(KeyManagerAPIConfiguration configuration) throws IllegalArgumentException, KeyManagerAPIInstantiationException
 	{
-		assertNotInitialised();
-		super.setAuthUserName(authUserName);
+		// We do *not* call super.setConfiguration(...), because the delegates might replace the configuration and
+		// thus this instance should not have a copy of it at all! Instead we override getConfiguration() as well.
 
-		KeyManagerAPI delegate = this.delegate;
-		if (delegate != null)
-			delegate.setAuthUserName(authUserName);
-	}
+		if (configuration == null)
+			throw new IllegalArgumentException("configuration == null");
 
-	@Override
-	public void setAuthPassword(final char[] authPassword)
-	{
-		assertNotInitialised();
-		super.setAuthPassword(authPassword);
+		configuration.markReadOnly();
 
-		KeyManagerAPI delegate = this.delegate;
-		if (delegate != null)
-			delegate.setAuthPassword(authPassword);
-	}
+		// In case, we already had a delegate before, we null it now (so we don't end up with some half-initialised stuff.
+		this.delegate = null;
 
-	@Override
-	public void setKeyStoreID(final String keyStoreID)
-	{
-		assertNotInitialised();
-		super.setKeyStoreID(keyStoreID);
+		String keyManagerBaseURL = configuration.getKeyManagerBaseURL();
 
-		KeyManagerAPI delegate = this.delegate;
-		if (delegate != null)
-			delegate.setKeyStoreID(keyStoreID);
-	}
-
-	@Override
-	public void setKeyManagerBaseURL(final String keyManagerBaseURL)
-	{
-		assertNotInitialised();
-
-		if (equals(keyManagerBaseURL, this.getKeyManagerBaseURL()))
-			return;
-
-		super.setKeyManagerBaseURL(keyManagerBaseURL);
-//		this.delegate = null; // enforce re-initialisation of delegate // not necessary with new init policy, anymore
-	}
-
-	@Override
-	public void init() throws KeyManagerAPIInstantiationException
-	{
-		if (initialised)
-			return;
-
-		initDelegate();
-
-		super.init(); // we call this after initDelegate(), because we want the initialised state to stay false, if the delegate initialisation failed.
-	}
-
-	private KeyManagerAPI getDelegate()
-	{
-		assertInitialised();
-		return this.delegate;
-	}
-
-	private KeyManagerAPI initDelegate() throws KeyManagerAPIInstantiationException
-	{
-		KeyManagerAPI delegate = this.delegate;
-		if (delegate != null)
-			return delegate;
-
-		String keyManagerBaseURL = getKeyManagerBaseURL();
-
+		KeyManagerAPI delegate;
 		if (keyManagerBaseURL == null || keyManagerBaseURL.startsWith(FILE_URL_PREFIX)) {
 			try {
 				delegate = new LocalKeyManagerAPI();
@@ -99,27 +46,45 @@ public class DefaultKeyManagerAPI extends AbstractKeyManagerAPI
 			}
 		}
 
-		delegate.setAuthUserName(getAuthUserName());
-		delegate.setAuthPassword(getAuthPassword());
-		delegate.setKeyStoreID(getKeyStoreID());
-		delegate.setKeyManagerBaseURL(getKeyManagerBaseURL());
-
+		delegate.setConfiguration(configuration);
 		this.delegate = delegate;
+	}
+
+	@Override
+	public KeyManagerAPIConfiguration getConfiguration()
+	{
+		KeyManagerAPI delegate = this.delegate;
+		if (delegate == null)
+			return null;
+		else
+			return delegate.getConfiguration();
+	}
+
+	private KeyManagerAPI getDelegate()
+	{
+		KeyManagerAPI delegate = this.delegate;
+		if (delegate == null)
+			throw new IllegalStateException("setConfiguration(...) was not yet called!");
+
 		return delegate;
 	}
 
 	@Override
 	public void initDateDependentKeyStrategy(DateDependentKeyStrategyInitParam param) throws KeyStoreNotEmptyException, IOException
 	{
-		KeyManagerAPI delegate = getDelegate();
-		delegate.initDateDependentKeyStrategy(param);
+		getDelegate().initDateDependentKeyStrategy(param);
 	}
 
 	@Override
-	public Session getSession(String appServerBaseURL) throws IOException, AuthenticationException
+	public void putUser(String userName, char[] password) throws AuthenticationException, IOException
 	{
-		KeyManagerAPI delegate = getDelegate();
-		return delegate.getSession(appServerBaseURL);
+		getDelegate().putUser(userName, password);
+	}
+
+	@Override
+	public Session getSession(String appServerBaseURL) throws AuthenticationException, IOException
+	{
+		return getDelegate().getSession(appServerBaseURL);
 	}
 
 }

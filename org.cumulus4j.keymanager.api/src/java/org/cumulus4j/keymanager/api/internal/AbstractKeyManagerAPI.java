@@ -1,8 +1,7 @@
 package org.cumulus4j.keymanager.api.internal;
 
-import java.util.Arrays;
-
 import org.cumulus4j.keymanager.api.KeyManagerAPI;
+import org.cumulus4j.keymanager.api.KeyManagerAPIConfiguration;
 import org.cumulus4j.keymanager.api.KeyManagerAPIInstantiationException;
 
 public abstract class AbstractKeyManagerAPI
@@ -10,106 +9,85 @@ implements KeyManagerAPI
 {
 	protected static final String FILE_URL_PREFIX = "file:";
 
-	private String authUserName;
+	private volatile KeyManagerAPIConfiguration configuration;
 
-	private char[] authPassword;
-
-	private String keyStoreID;
-
-	private String keyManagerBaseURL;
-
-	protected boolean initialised = false;
-	protected void assertNotInitialised()
+	/**
+	 * Get the configuration. If there is no configuration, yet, an
+	 * {@link IllegalStateException} is thrown.
+	 * @return the configuration, never <code>null</code>.
+	 * @throws IllegalStateException if there is no configuration, yet, i.e. setConfiguration(...) was not yet called.
+	 */
+	public KeyManagerAPIConfiguration getConf()
+	throws IllegalStateException
 	{
-		if (initialised)
-			throw new IllegalStateException("This instance of KeyManagerAPI is already initialised! Cannot modify configuration anymore!");
+		KeyManagerAPIConfiguration configuration = getConfiguration();
+		if (configuration == null)
+			throw new IllegalStateException("There is no configuration, yet! Call setConfiguration(...) first!");
+
+		return configuration;
 	}
-	protected void assertInitialised()
+
+	/**
+	 * Convenience method delegating to {@link KeyManagerAPIConfiguration#getAuthUserName()}.
+	 * @return the authUserName.
+	 * @throws IllegalStateException if there is no configuration, yet, i.e. setConfiguration(...) was not yet called.
+	 */
+	public String getAuthUserName() throws IllegalStateException {
+		return getConf().getAuthUserName();
+	}
+
+	/**
+	 * Convenience method delegating to {@link KeyManagerAPIConfiguration#getAuthPassword()}.
+	 * @return the authPassword.
+	 * @throws IllegalStateException if there is no configuration, yet, i.e. setConfiguration(...) was not yet called.
+	 */
+	public char[] getAuthPassword() throws IllegalStateException {
+		return getConf().getAuthPassword();
+	}
+
+	/**
+	 * Convenience method delegating to {@link KeyManagerAPIConfiguration#getKeyStoreID()}.
+	 * @return the keyStoreID.
+	 * @throws IllegalStateException if there is no configuration, yet, i.e. setConfiguration(...) was not yet called.
+	 */
+	public String getKeyStoreID() throws IllegalStateException {
+		return getConf().getKeyStoreID();
+	}
+
+	/**
+	 * Convenience method delegating to {@link KeyManagerAPIConfiguration#getKeyManagerBaseURL()}.
+	 * @return the keyManagerBaseURL.
+	 * @throws IllegalStateException if there is no configuration, yet, i.e. setConfiguration(...) was not yet called.
+	 */
+	public String getKeyManagerBaseURL() throws IllegalStateException {
+		return getConf().getKeyManagerBaseURL();
+	}
+
+	@Override
+	public void setConfiguration(KeyManagerAPIConfiguration configuration) throws IllegalArgumentException, KeyManagerAPIInstantiationException
 	{
-		if (! initialised)
-			throw new IllegalStateException("This instance of KeyManagerAPI is not yet initialised! Finish configuration and call init() first!");
+		if (configuration == null)
+			throw new IllegalArgumentException("configuration == null");
+
+		// Mark it read-only to prevent any configuration change besides calling this method again.
+		configuration.markReadOnly();
+
+		// The authUserName and authPassword is not necessarily required for all operations.
+//		if (configuration.getAuthUserName() == null)
+//			throw new IllegalArgumentException("configuration.authUserName == null");
+//
+//		if (configuration.getAuthPassword() == null)
+//			throw new IllegalArgumentException("configuration.authPassword == null");
+
+		if (configuration.getKeyStoreID() == null)
+			throw new IllegalArgumentException("configuration.keyStoreID == null");
+
+		this.configuration = configuration;
 	}
 
 	@Override
-	public String getAuthUserName() {
-		return authUserName;
-	}
-
-	@Override
-	public void setAuthUserName(String authUserName)
-	{
-		assertNotInitialised();
-
-		if (equals(this.authUserName, authUserName))
-			return;
-
-		this.authUserName = authUserName;
-	}
-
-	@Override
-	public char[] getAuthPassword() {
-		return authPassword;
-	}
-
-	@Override
-	public void setAuthPassword(char[] authPassword)
-	{
-		assertNotInitialised();
-
-		if (Arrays.equals(this.authPassword, authPassword))
-			return;
-
-		char[] oldPw = this.authPassword;
-		this.authPassword = null;
-
-		if (oldPw != null)
-			Arrays.fill(oldPw, (char)0);
-
-		this.authPassword = authPassword == null ? null : authPassword.clone();
-	}
-
-	@Override
-	public String getKeyStoreID() {
-		return keyStoreID;
-	}
-
-	@Override
-	public void setKeyStoreID(String keyStoreID)
-	{
-		assertNotInitialised();
-
-		if (equals(this.keyStoreID, keyStoreID))
-			return;
-
-		this.keyStoreID = keyStoreID;
-	}
-
-	@Override
-	public String getKeyManagerBaseURL() {
-		return keyManagerBaseURL;
-	}
-
-	@Override
-	public void setKeyManagerBaseURL(String keyManagerBaseURL)
-	{
-		assertNotInitialised();
-
-		if (equals(this.keyManagerBaseURL, keyManagerBaseURL))
-			return;
-
-		this.keyManagerBaseURL = keyManagerBaseURL;
-	}
-
-	@Override
-	public void init() throws KeyManagerAPIInstantiationException {
-		initialised = true;
-	}
-
-	@Override
-	protected void finalize() throws Throwable {
-		initialised = false; // otherwise the following setAuthPassword(...) fails.
-		setAuthPassword(null);
-		super.finalize();
+	public KeyManagerAPIConfiguration getConfiguration() {
+		return configuration;
 	}
 
 	protected static boolean equals(Object o1, Object o2)

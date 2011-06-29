@@ -28,6 +28,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.cumulus4j.keymanager.api.DefaultKeyManagerAPI;
 import org.cumulus4j.keymanager.api.KeyManagerAPI;
+import org.cumulus4j.keymanager.api.KeyManagerAPIConfiguration;
 import org.cumulus4j.keymanager.front.shared.AppServer;
 import org.cumulus4j.keymanager.front.shared.DateDependentKeyStrategyInitParam;
 import org.cumulus4j.keymanager.front.shared.OpenSessionResponse;
@@ -162,12 +163,14 @@ public class IntegrationWithAppServerAndKeyServerTest
 	{
 		String keyStoreID = "test-" + Long.toString(System.currentTimeMillis(), 36) + "-" + Long.toString(random.nextInt(), 36);
 
+		KeyManagerAPIConfiguration configuration = new KeyManagerAPIConfiguration();
+		configuration.setAuthUserName(KEY_SERVER_USER);
+		configuration.setAuthPassword(KEY_SERVER_PASSWORD);
+		configuration.setKeyStoreID(keyStoreID);
+		configuration.setKeyManagerBaseURL(URL_KEY_MANAGER_FRONT_WEBAPP);
+
 		KeyManagerAPI keyManagerAPI = new DefaultKeyManagerAPI();
-		keyManagerAPI.setAuthUserName(KEY_SERVER_USER);
-		keyManagerAPI.setAuthPassword(KEY_SERVER_PASSWORD);
-		keyManagerAPI.setKeyStoreID(keyStoreID);
-		keyManagerAPI.setKeyManagerBaseURL(URL_KEY_MANAGER_FRONT_WEBAPP);
-		keyManagerAPI.init();
+		keyManagerAPI.setConfiguration(configuration);
 
 		org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam param = new org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam();
 		param.setKeyActivityPeriodMSec(3600L * 1000L);
@@ -189,4 +192,44 @@ public class IntegrationWithAppServerAndKeyServerTest
 		}
 	}
 
+	@Test
+	public void testUnifiedAPIWithRemoteKeyServerThoroughly() throws Exception
+	{
+		KeyManagerAPIConfiguration configuration = new KeyManagerAPIConfiguration();
+		configuration.setAuthUserName(KEY_SERVER_USER);
+		configuration.setAuthPassword(KEY_SERVER_PASSWORD);
+		configuration.setKeyStoreID("test-" + Long.toString(System.currentTimeMillis(), 36));
+		configuration.setKeyManagerBaseURL(URL_KEY_MANAGER_FRONT_WEBAPP);
+
+		KeyManagerAPI keyManagerAPI = new DefaultKeyManagerAPI();
+		keyManagerAPI.setConfiguration(configuration);
+
+		org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam param = new org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam();
+		param.setKeyActivityPeriodMSec(3600L * 1000L);
+		param.setKeyStorePeriodMSec(24L * 3600L * 1000L);
+		keyManagerAPI.initDateDependentKeyStrategy(param);
+
+		keyManagerAPI.putUser(KEY_SERVER_USER, "anotherVerySecretPassword".toCharArray());
+
+		keyManagerAPI.putUser("user2", "password2".toCharArray());
+		keyManagerAPI.putUser("user3", "password3".toCharArray());
+
+		configuration = new KeyManagerAPIConfiguration(configuration);
+		configuration.setAuthUserName("user3");
+		configuration.setAuthPassword("password3".toCharArray());
+
+		org.cumulus4j.keymanager.api.Session session = keyManagerAPI.getSession(URL_KEY_MANAGER_BACK_WEBAPP);
+
+		// It does not matter here in this test, but in real code, WE MUST ALWAYS lock() after we did unlock()!!!
+		// Hence we do it here, too, in case someone copies the code ;-)
+		// Marco :-)
+		session.unlock();
+		try {
+
+			invokeTestWithinServer(session.getCryptoSessionID());
+
+		} finally {
+			session.lock();
+		}
+	}
 }
