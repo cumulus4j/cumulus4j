@@ -47,7 +47,6 @@
 		<module>../org.cumulus4j.keymanager.back.shared</module>
 		<module>../org.cumulus4j.keymanager.back.webapp</module>
 		<module>../org.cumulus4j.keymanager.cli</module>
-		<module>../org.cumulus4j.keymanager.front.client</module>
 		<module>../org.cumulus4j.keymanager.front.shared</module>
 		<module>../org.cumulus4j.keymanager.front.webapp</module>
 		<module>../org.cumulus4j.keystore</module>

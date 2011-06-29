@@ -528,6 +528,10 @@
             					<packages>org.cumulus4j.keymanager.api:org.cumulus4j.keymanager.api.*</packages>
             				</group>
             				<group>
+            					<title><![CDATA[<a target="_blank" href="../org.cumulus4j.keymanager.cli/">org.cumulus4j.keymanager.cli</a>]]></title>
+            					<packages>org.cumulus4j.keymanager.cli:org.cumulus4j.keymanager.cli.*</packages>
+            				</group>
+            				<group>
             					<title><![CDATA[<a target="_blank" href="../org.cumulus4j.keymanager.back.shared/">org.cumulus4j.keymanager.back.shared</a>]]></title>
             					<packages>org.cumulus4j.keymanager.back.shared:org.cumulus4j.keymanager.back.shared.*</packages>
             				</group>
@@ -550,10 +554,6 @@
             				<group>
             					<title><![CDATA[<a target="_blank" href="../org.cumulus4j.keystore/">org.cumulus4j.keystore</a>]]></title>
             					<packages>org.cumulus4j.keystore:org.cumulus4j.keystore.*</packages>
-            				</group>
-            				<group>
-            					<title><![CDATA[<a target="_blank" href="../org.cumulus4j.keystore.cli/">org.cumulus4j.keystore.cli</a>]]></title>
-            					<packages>org.cumulus4j.keystore.cli:org.cumulus4j.keystore.cli.*</packages>
             				</group>
             				<group>
             					<title><![CDATA[<a target="_blank" href="../org.cumulus4j.store/">org.cumulus4j.store</a>]]></title>
