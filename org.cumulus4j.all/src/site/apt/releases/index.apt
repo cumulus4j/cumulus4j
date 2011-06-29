@@ -8,9 +8,11 @@
 Releases
 
 	Development does not stop and Cumulus4j is permanently improved. Therefore, the API as well as the documentation change, too.
-	Hence, we keep this web-site for each release. Please make sure that you're reading the correct documentation for
-	the version of Cumulus4j you're using.
-	
+	Hence, we provide the corresponding web-site-version for each release.
+
+	Please make sure that you're reading the correct documentation for the version of Cumulus4j you're using. You find the version
+	of the web-site in the right bottom corner.
+
 	In the following you find a list of all releases:
 
 ~~ Please link all non-SNAPSHOT releases here with the LATEST FIRST:
