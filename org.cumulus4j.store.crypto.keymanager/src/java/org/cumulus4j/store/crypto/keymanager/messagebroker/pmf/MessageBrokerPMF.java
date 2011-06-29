@@ -37,6 +37,8 @@ import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 
+import org.cumulus4j.keymanager.back.shared.GetKeyRequest;
+import org.cumulus4j.keymanager.back.shared.IdentifierUtil;
 import org.cumulus4j.keymanager.back.shared.Message;
 import org.cumulus4j.keymanager.back.shared.Request;
 import org.cumulus4j.keymanager.back.shared.Response;
@@ -123,7 +125,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 
 	private Boolean cleanupTimerEnabled = null;
 
-	public long getCleanupTimerPeriod()
+	protected long getCleanupTimerPeriod()
 	{
 		if (cleanupTimerPeriod < 0) {
 			final String propName = SYSTEM_PROPERTY_CLEANUP_TIMER_PERIOD;
@@ -186,7 +188,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 
 			if (val == null) {
 				val = Boolean.TRUE;
-				logger.info("System property '{}' is not set. Using default value {}.", propName, val);
+				logger.info("System property '{}' is not set. Using default value '{}'.", propName, val);
 			}
 
 			cleanupTimerEnabled = val;
@@ -347,13 +349,15 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 
 	private Random random = new Random();
 
+	private final String thisID = Long.toString(System.identityHashCode(this), 36);
+
 	/**
 	 * Create an instance of <code>MessageBrokerPMF</code>. You should not call this constructor directly, but
 	 * instead use {@link MessageBrokerRegistry#getActiveMessageBroker()} to obtain the currently active {@link MessageBroker}.
 	 */
 	public MessageBrokerPMF()
 	{
-		logger.info("Instantiating MessageBrokerPMF.");
+		logger.info("[{}] Instantiating MessageBrokerPMF.", thisID);
 		Properties propertiesRaw = new Properties();
 		InputStream in = MessageBrokerPMF.class.getResourceAsStream("messagebroker-datanucleus.properties");
 		try {
@@ -373,7 +377,11 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 		for (Map.Entry<?, ?> me : propertiesRaw.entrySet())
 			properties.put(String.valueOf(me.getKey()), SystemPropertyUtil.resolveSystemProperties(String.valueOf(me.getValue())));
 
+		logger.info("[{}] javax.jdo.option.ConnectionDriverName={}", thisID, properties.get("javax.jdo.option.ConnectionDriverName"));
+		logger.info("[{}] javax.jdo.option.ConnectionURL={}", thisID, properties.get("javax.jdo.option.ConnectionURL"));
+
 		pmf = JDOHelper.getPersistenceManagerFactory(properties);
+		// First create the structure in a separate tx (in case, the underlying DB/configuration requires this.
 		PersistenceManager pm = pmf.getPersistenceManager();
 		try {
 			pm.currentTransaction().begin();
@@ -385,6 +393,34 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 
 			pm.close();
 		}
+
+		// Now test the DB access.
+		pm = pmf.getPersistenceManager();
+		try {
+			pm.currentTransaction().begin();
+			// Testing WRITE and READ access.
+			String cryptoSessionIDPrefix = IdentifierUtil.createRandomID(50); // using a length that is not used normally to prevent collisions with absolute certainty.
+			String cryptoSessionID = cryptoSessionIDPrefix + '.' + IdentifierUtil.createRandomID(10);
+			GetKeyRequest dummyRequest = new GetKeyRequest(cryptoSessionID, 1, "RSA", new byte[16]);
+			PendingRequest pendingRequest = new PendingRequest(dummyRequest);
+			pendingRequest = pm.makePersistent(pendingRequest);
+			pm.flush(); // Make sure, things are written NOW.
+
+			PendingRequest queriedPendingRequest = PendingRequest.getOldestPendingRequest(pm, cryptoSessionIDPrefix, PendingRequestStatus.waitingForProcessing);
+			if (!pendingRequest.equals(queriedPendingRequest))
+				throw new IllegalStateException("Query did not find the PendingRequest instance, we just persisted for testing!");
+
+			// And delete the garbage immediately again.
+			pm.deletePersistent(pendingRequest);
+
+			pm.currentTransaction().commit();
+		} finally {
+			if (pm.currentTransaction().isActive())
+				pm.currentTransaction().rollback();
+
+			pm.close();
+		}
+		logger.info("[{}] Successfully instantiated and tested MessageBrokerPMF.", thisID);
 	}
 
 	protected PersistenceManager createTransactionalPersistenceManager()

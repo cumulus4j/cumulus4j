@@ -49,8 +49,9 @@ import org.cumulus4j.keymanager.back.shared.Response;
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION)
 @Indices({
-//	@Index(members={"cryptoSessionIDPrefix", "status"}),
-	@Index(members={"cryptoSessionIDPrefix", "status", "lastStatusChangeTimestamp"})
+	@Index(members={"cryptoSessionIDPrefix", "status"}),
+	@Index(members={"cryptoSessionIDPrefix", "status", "lastStatusChangeTimestamp"}),
+	@Index(members={"lastStatusChangeTimestamp"})
 })
 @Version(strategy=VersionStrategy.VERSION_NUMBER)
 @FetchGroups({
@@ -281,5 +282,22 @@ public class PendingRequest
 	 */
 	public Date getLastStatusChangeTimestamp() {
 		return lastStatusChangeTimestamp;
+	}
+
+	@Override
+	public int hashCode() {
+		return (requestID == null) ? 0 : requestID.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		PendingRequest other = (PendingRequest) obj;
+		return (
+				this.requestID == other.requestID ||
+				(this.requestID != null && this.requestID.equals(other.requestID))
+		);
 	}
 }
