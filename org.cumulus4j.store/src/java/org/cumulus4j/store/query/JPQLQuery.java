@@ -74,7 +74,7 @@ public class JPQLQuery extends AbstractJPQLQuery {
 
 				@SuppressWarnings("unchecked")
 				Collection<? extends Object> c = this.candidateCollection;
-				candidates = new ArrayList<Object>(c); // TODO is it really necessary to copy? Other query implementations do... Marco.
+				candidates = new ArrayList<Object>(c);
 			}
 			else {
 				if (candidateExtent != null) {
@@ -103,8 +103,7 @@ public class JPQLQuery extends AbstractJPQLQuery {
 							NucleusLogger.QUERY.debug("Query evaluation of filter in datastore was incomplete so doing further work in-memory");
 						}
 					}
-					catch (UnsupportedOperationException uoe)
-					{
+					catch (UnsupportedOperationException uoe) {
 						// Some part of the filter is not yet supported, so fallback to in-memory evaluation
 						// Retrieve all candidates and perform all evaluation in-memory
 						NucleusLogger.QUERY.info("Query filter is not totally evaluatable in-datastore using Cumulus4j currently, so evaluating in-memory : "+uoe.getMessage());
