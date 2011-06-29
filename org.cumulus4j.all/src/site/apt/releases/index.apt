@@ -16,6 +16,6 @@ Releases
 ~~ Please link all non-SNAPSHOT releases here with the LATEST FIRST:
 ~~ And don't forget to update the German version of this file!!!
 
-	* {{{../latest}Latest development branch}} (not yet released!)
+	* {{{../latest/}Latest development branch}} (not yet released!)
 
-	* {{{../1.0.0}1.0.0}} (released 2012-01-01)
+	* {{{../1.0.0/}1.0.0}} (released 2012-01-01)
