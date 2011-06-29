@@ -1,0 +1,21 @@
+	---
+	Releases
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-29
+
+Releases
+
+	Development does not stop and Cumulus4j is permanently improved. Therefore, the API as well as the documentation change, too.
+	Hence, we keep this web-site for each release. Please make sure that you're reading the correct documentation for
+	the version of Cumulus4j you're using.
+	
+	In the following you find a list of all releases:
+
+~~ Please link all non-SNAPSHOT releases here with the LATEST FIRST:
+~~ And don't forget to update the German version of this file!!!
+
+	* {{{../latest}Latest development branch}} (not yet released!)
+
+	* {{{../1.0.0}1.0.0}} (released 2012-01-01)
