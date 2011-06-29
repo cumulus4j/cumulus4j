@@ -82,7 +82,6 @@ implements Serializable
 
 
 	public String getKeyManagerBaseURL() {
-		assertNotReadOnly();
 		return keyManagerBaseURL;
 	}
 
@@ -92,6 +91,7 @@ implements Serializable
 	 * This argument can be <code>null</code>, which means to use a local file in the default directory "${user.home}/.cumulus4j/".
 	 */
 	public void setKeyManagerBaseURL(String keyManagerBaseURL) {
+		assertNotReadOnly();
 		this.keyManagerBaseURL = keyManagerBaseURL;
 	}
 
