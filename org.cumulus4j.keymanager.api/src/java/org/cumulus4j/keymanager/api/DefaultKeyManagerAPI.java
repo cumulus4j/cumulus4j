@@ -6,6 +6,10 @@ import org.cumulus4j.keymanager.api.internal.AbstractKeyManagerAPI;
 import org.cumulus4j.keymanager.api.internal.local.LocalKeyManagerAPI;
 import org.cumulus4j.keymanager.api.internal.remote.RemoteKeyManagerAPI;
 
+/**
+ *
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class DefaultKeyManagerAPI extends AbstractKeyManagerAPI
 {
 	private volatile KeyManagerAPI delegate;

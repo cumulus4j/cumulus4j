@@ -20,6 +20,7 @@ package org.cumulus4j.keymanager.api;
 /**
  * Options controlling how <code>org.cumulus4j.keymanager.DateDependentKeyStrategy.init(...)</code>
  * should behave.
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class DateDependentKeyStrategyInitParam

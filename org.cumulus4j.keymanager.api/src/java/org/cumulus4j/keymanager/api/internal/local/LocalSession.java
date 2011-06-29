@@ -7,6 +7,9 @@ import org.cumulus4j.keymanager.AppServer;
 import org.cumulus4j.keymanager.api.AuthenticationException;
 import org.cumulus4j.keymanager.api.Session;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class LocalSession implements Session
 {
 	private LocalKeyManagerAPI localKeyManagerAPI;

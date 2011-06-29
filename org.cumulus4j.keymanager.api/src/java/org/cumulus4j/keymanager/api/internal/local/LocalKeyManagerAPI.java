@@ -23,6 +23,9 @@ import org.cumulus4j.keystore.DateDependentKeyStrategy;
 import org.cumulus4j.keystore.KeyStore;
 import org.cumulus4j.keystore.UserNotFoundException;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class LocalKeyManagerAPI extends AbstractKeyManagerAPI
 {
 	private KeyStore keyStore;

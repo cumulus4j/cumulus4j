@@ -13,6 +13,9 @@ import org.cumulus4j.keymanager.front.shared.OpenSessionResponse;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.UniformInterfaceException;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class RemoteSession implements Session
 {
 	private RemoteKeyManagerAPI remoteKeyManagerAPI;

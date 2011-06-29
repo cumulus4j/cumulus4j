@@ -2,6 +2,10 @@ package org.cumulus4j.keymanager.api;
 
 import java.io.IOException;
 
+/**
+ *
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public interface Session
 {
 	String getAppServerID();

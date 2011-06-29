@@ -4,6 +4,9 @@ import org.cumulus4j.keymanager.api.KeyManagerAPI;
 import org.cumulus4j.keymanager.api.KeyManagerAPIConfiguration;
 import org.cumulus4j.keymanager.api.KeyManagerAPIInstantiationException;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public abstract class AbstractKeyManagerAPI
 implements KeyManagerAPI
 {

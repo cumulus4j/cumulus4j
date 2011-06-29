@@ -30,6 +30,9 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class RemoteKeyManagerAPI extends AbstractKeyManagerAPI
 {
 	private Map<String, AppServer> appServerBaseURL2appServer = Collections.synchronizedMap(new HashMap<String, AppServer>());
