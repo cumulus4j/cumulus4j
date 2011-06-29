@@ -73,10 +73,9 @@
 		</menu>
 
 		<menu name="Versionen">
-			<item name="Neueste" href="../../latest/de" />
-			<!-- Here, we should link the last 3 releases. Not more! The versions.html should contain all (but no snapshots). -->
-			<item name="1.0.0" href="../../1.0.0/de" />
-			<item name="Alle" href="../../latest/de/releases" />
+			<item name="Neuester Entwicklungs-Schnappschuss" href="../../latest-dev/de/" />
+			<item name="Neueste stabile Version" href="../../latest-stable/de/" />
+			<item name="Alle Veröffentlichungen" href="../../latest-dev/releases" />
 		</menu>
 	</body>
 
