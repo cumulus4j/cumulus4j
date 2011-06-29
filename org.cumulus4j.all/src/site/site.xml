@@ -38,12 +38,6 @@
 			img="http://sflogo.sourceforge.net/sflogo.php?group_id=517465&amp;type=12"
 			width="120" height="30" alt="Get cumulus4j at SourceForge.net. Fast, secure and Free Open Source software downloads"
 			target="_blank" />
-<!--
-		<logo name="SourceForge" href="http://sourceforge.net/projects/cumulus4j"
-			img="http://sflogo.sourceforge.net/sflogo.php?group_id=517465&amp;type=15"
-			width="150" height="40" alt="Get cumulus4j at SourceForge.net. Fast, secure and Free Open Source software downloads"
-			target="_blank" />
--->
 
 		<logo name="Maven" href="http://maven.apache.org/"
 			img="http://maven.apache.org/images/logos/maven-feather.png"
@@ -76,6 +70,10 @@
 
 		<menu name="Babel">
 			<item name="Deutsch" href="./de/index.html" img="images/de.png" />
+		</menu>
+		
+		<menu name="Releases">
+			<item name="1.0.0" href="../1.0.0" />
 		</menu>
 	</body>
 

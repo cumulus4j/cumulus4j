@@ -26,7 +26,8 @@
 	<poweredBy>
 		<logo name="DataNucleus"
 			img="http://www.datanucleus.com/images/logos/DataNucleus_AccessPlatform_32.jpg"
-			href="http://www.datanucleus.org" target="_blank" />
+			href="http://www.datanucleus.org"
+			target="_blank" />
 
 		<logo name="BouncyCastle"
 			img="../images/TheLegionOfTheBouncyCastle.png"
@@ -39,7 +40,8 @@
 			target="_blank" />
 
 		<logo name="Maven" href="http://maven.apache.org/"
-			img="http://maven.apache.org/images/logos/maven-feather.png" target="_blank" />
+			img="http://maven.apache.org/images/logos/maven-feather.png"
+			target="_blank" />
 	</poweredBy>
 
 	<body>
@@ -68,6 +70,10 @@
 
 		<menu name="Babel">
 			<item name="English" href="../index.html" img="images/en.png" />
+		</menu>
+
+		<menu name="Versionen">
+			<item name="1.0.0" href="../1.0.0" />
 		</menu>
 	</body>
 
