@@ -436,7 +436,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 	{
 		String requestID = request.getRequestID();
 
-		logger.debug("_query[requestID={}]: Entered with request: {}", requestID, request);
+		logger.debug("[{}] _query[requestID={}]: Entered with request: {}", new Object[] { thisID , requestID, request });
 
 		initTimerTaskOrRemoveExpiredPendingRequestsPeriodically();
 
@@ -452,7 +452,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 		}
 		request = null;
 
-		logger.debug("_query[requestID={}]: Request persisted.", requestID);
+		logger.debug("[{}] _query[requestID={}]: Request persisted.", thisID, requestID);
 
 		// it would be nice if we could notify here, but this is not possible
 
@@ -478,7 +478,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 				// ignore
 			}
 
-			logger.trace("_query[requestID={}]: Beginning tx.", requestID);
+			logger.trace("[{}] _query[requestID={}]: Beginning tx.", thisID, requestID);
 
 			pm = createTransactionalPersistenceManager();
 			try {
@@ -512,8 +512,9 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 
 				if (response == null && System.currentTimeMillis() - beginTimestamp > getQueryTimeout()) {
 					logger.warn(
-							"_query[requestID={}]: Request for session {} was not answered within timeout. Current status is {}.",
+							"[{}] _query[requestID={}]: Request for session {} was not answered within timeout. Current status is {}.",
 							new Object[] {
+									thisID,
 									requestID,
 									(pendingRequest == null ? null : pendingRequest.getRequest().getCryptoSessionID()),
 									(pendingRequest == null ? null : pendingRequest.getStatus())
@@ -531,7 +532,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 				pm.currentTransaction().commit();
 			} catch (Exception x) {
 				response = null;
-				logger.warn("_query[requestID={}]: {}", requestID, x.toString());
+				logger.warn("[{}] _query[requestID={}]: {}", new Object[] { thisID, requestID, x.toString() });
 			} finally {
 				if (pm.currentTransaction().isActive())
 					pm.currentTransaction().rollback();
@@ -539,7 +540,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 				pm.close();
 			}
 
-			logger.trace("_query[requestID={}]: Ended tx. response={}", requestID, response);
+			logger.trace("[{}] _query[requestID={}]: Ended tx. response={}", new Object[] { thisID, requestID, response });
 
 		} while (response == null);
 
@@ -551,7 +552,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 	@Override
 	protected Request _pollRequest(String cryptoSessionIDPrefix)
 	{
-		logger.debug("_pollRequest[cryptoSessionIDPrefix={}]: Entered.", cryptoSessionIDPrefix);
+		logger.debug("[{}] _pollRequest[cryptoSessionIDPrefix={}]: Entered.", thisID, cryptoSessionIDPrefix);
 
 		long beginTimestamp = System.currentTimeMillis();
 
@@ -559,7 +560,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 
 		Request request = null;
 		do {
-			logger.trace("_pollRequest[cryptoSessionIDPrefix={}]: Beginning tx.", cryptoSessionIDPrefix);
+			logger.trace("[{}] _pollRequest[cryptoSessionIDPrefix={}]: Beginning tx.", thisID, cryptoSessionIDPrefix);
 
 			PersistenceManager pm = createTransactionalPersistenceManager();
 			try {
@@ -589,7 +590,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 				pm.currentTransaction().commit();
 			} catch (Exception x) {
 				request = null;
-				logger.warn("_pollRequest[cryptoSessionIDPrefix={}]: {}", cryptoSessionIDPrefix, x.toString());
+				logger.warn("[{}] _pollRequest[cryptoSessionIDPrefix={}]: {}", new Object[] { thisID, cryptoSessionIDPrefix, x.toString() });
 			} finally {
 				if (pm.currentTransaction().isActive())
 					pm.currentTransaction().rollback();
@@ -597,7 +598,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 				pm.close();
 			}
 
-			logger.trace("_pollRequest[cryptoSessionIDPrefix={}]: Ended tx. request={}", cryptoSessionIDPrefix, request);
+			logger.trace("[{}] _pollRequest[cryptoSessionIDPrefix={}]: Ended tx. request={}", new Object[] { thisID, cryptoSessionIDPrefix, request });
 
 			if (request == null) {
 				if (System.currentTimeMillis() - beginTimestamp > getPollRequestTimeout())
@@ -607,7 +608,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 					Thread.sleep(50L + random.nextInt(50)); // TODO make configurable?!
 				} catch (InterruptedException e) {
 					// ignore - only log - and break loop.
-					logger.warn("_pollRequest[cryptoSessionIDPrefix={}]: Thread.sleep(...) was interrupted with an InterruptedException.");
+					logger.warn("[{}] _pollRequest[cryptoSessionIDPrefix={}]: Thread.sleep(...) was interrupted with an InterruptedException.", thisID);
 					break;
 				}
 			}
@@ -616,7 +617,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 //		if (request != null && !testCollisionDetection.add(request.getRequestID()))
 //			logger.error("_pollRequest[cryptoSessionIDPrefix={}]: COLLISION!!! At least two threads process the same request! requestID={}", request.getRequestID());
 
-		logger.debug("_pollRequest[cryptoSessionIDPrefix={}]: Returning request: {}", cryptoSessionIDPrefix, request);
+		logger.debug("[{}] _pollRequest[cryptoSessionIDPrefix={}]: Returning request: {}", new Object[] { thisID, cryptoSessionIDPrefix, request });
 
 		return request;
 	}
@@ -632,7 +633,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 
 		String requestID = response.getRequestID();
 
-		logger.debug("_pushResponse[requestID={}]: Entered.", requestID);
+		logger.debug("[{}] _pushResponse[requestID={}]: Entered.", thisID, requestID);
 
 		List<Throwable> errors = new LinkedList<Throwable>();
 		boolean successful;
@@ -644,7 +645,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 
 				PendingRequest pendingRequest = PendingRequest.getPendingRequest(pm, response.getRequestID());
 				if (pendingRequest == null || pendingRequest.getStatus() != PendingRequestStatus.currentlyBeingProcessed)
-					logger.warn("_pushResponse[requestID={}]: There is no request currently being processed with this requestID!!!", requestID);
+					logger.warn("[{}] _pushResponse[requestID={}]: There is no request currently being processed with this requestID!!!", thisID, requestID);
 				else {
 					pendingRequest.setResponse(response);
 					pendingRequest.setStatus(PendingRequestStatus.completed);
@@ -653,7 +654,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 				pm.currentTransaction().commit(); successful = true;
 			} catch (Exception x) {
 				errors.add(x);
-				logger.warn("_pushResponse[requestID={}]: {}", requestID, x.toString());
+				logger.warn("[{}] _pushResponse[requestID={}]: {}", new Object[] { thisID, requestID, x.toString() });
 			} finally {
 				if (pm.currentTransaction().isActive())
 					pm.currentTransaction().rollback();
@@ -671,7 +672,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 					Thread.sleep(500L);
 				} catch (InterruptedException e) {
 					// ignore - only log - and break loop.
-					logger.warn("_pushResponse[requestID={}]: Thread.sleep(...) was interrupted with an InterruptedException.", requestID);
+					logger.warn("[{}] _pushResponse[requestID={}]: Thread.sleep(...) was interrupted with an InterruptedException.", thisID, requestID);
 					break;
 				}
 			}
@@ -681,7 +682,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 			Throwable lastError = null;
 			for (Throwable e : errors) {
 				lastError = e;
-				logger.warn("_pushResponse[requestID=" + requestID + "]: " + e, e);
+				logger.warn("[" + thisID + "] _pushResponse[requestID=" + requestID + "]: " + e, e);
 			}
 			if (lastError instanceof RuntimeException)
 				throw (RuntimeException)lastError;
