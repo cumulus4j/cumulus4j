@@ -21,7 +21,7 @@ Module org.cumulus4j.annotation
 	<dependency>
 		<groupId>org.cumulus4j</groupId>
 		<artifactId>org.cumulus4j.annotation</artifactId>
-		<version>${cumulus4jStableVersion}</version>
+		<version>${project.version}</version>
 	</dependency>
 	...
 </dependencies>

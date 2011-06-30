@@ -20,7 +20,7 @@ Module org.cumulus4j.store
 	<dependency>
 		<groupId>org.cumulus4j</groupId>
 		<artifactId>org.cumulus4j.store</artifactId>
-		<version>${cumulus4jStableVersion}</version>
+		<version>${project.version}</version>
 	</dependency>
 	...
 </dependencies>

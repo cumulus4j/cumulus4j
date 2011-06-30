@@ -12,7 +12,7 @@ Module org.cumulus4j.keymanager.cli
 	After downloading the JAR, use the following command to get help for this tool:
 
 +------------------------------------------+
-# java -jar org.cumulus4j.keymanager.cli-${cumulus4jStableVersion}.jar help
+java -jar org.cumulus4j.keymanager.cli-${project.version}.jar help
 +------------------------------------------+
 
 	You can manage local key stores (in the local file system) as well as key stores managed by
@@ -40,7 +40,7 @@ Module org.cumulus4j.keymanager.cli
 	<dependency>
 		<groupId>org.cumulus4j</groupId>
 		<artifactId>org.cumulus4j.keymanager.cli</artifactId>
-		<version>${cumulus4jStableVersion}</version>
+		<version>${project.version}</version>
 	</dependency>
 	...
 </dependencies>

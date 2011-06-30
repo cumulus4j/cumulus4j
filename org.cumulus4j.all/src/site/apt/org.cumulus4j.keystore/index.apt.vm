@@ -22,7 +22,7 @@ Module org.cumulus4j.keystore
 	<dependency>
 		<groupId>org.cumulus4j</groupId>
 		<artifactId>org.cumulus4j.keystore</artifactId>
-		<version>${cumulus4jStableVersion}</version>
+		<version>${project.version}</version>
 	</dependency>
 	...
 </dependencies>

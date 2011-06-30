@@ -33,7 +33,7 @@
 		here. Thus, I replaced this here by a more end-user-oriented name.
 		Marco.
 	-->
-	<name>Cumulus4j</name>
+	<name>Cumulus4j (${project.version})</name>
 
 	<description>Cumulus4j is an encryption layer protecting your data from the hosting company.</description>
 
