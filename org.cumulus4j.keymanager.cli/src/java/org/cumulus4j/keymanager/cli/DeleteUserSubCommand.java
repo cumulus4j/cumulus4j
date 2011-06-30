@@ -24,7 +24,7 @@ import org.kohsuke.args4j.Option;
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public class DeleteUserSubCommand extends SubCommandWithKeyStoreWithAuth
+public class DeleteUserSubCommand extends SubCommandWithKeyManagerAPIWithAuth
 {
 	@Option(name="-userName", required=true, usage="The user to be deleted.")
 	private String userName;
@@ -41,6 +41,6 @@ public class DeleteUserSubCommand extends SubCommandWithKeyStoreWithAuth
 
 	@Override
 	public void run() throws Exception {
-		getKeyStore().deleteUser(getAuthUserName(), getAuthPasswordAsCharArray(), userName);
+		getKeyManagerAPI().deleteUser(userName);
 	}
 }

@@ -17,6 +17,8 @@
  */
 package org.cumulus4j.keymanager.api;
 
+import java.io.Serializable;
+
 /**
  * Options controlling how <code>org.cumulus4j.keymanager.DateDependentKeyStrategy.init(...)</code>
  * should behave.
@@ -24,6 +26,7 @@ package org.cumulus4j.keymanager.api;
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class DateDependentKeyStrategyInitParam
+implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 

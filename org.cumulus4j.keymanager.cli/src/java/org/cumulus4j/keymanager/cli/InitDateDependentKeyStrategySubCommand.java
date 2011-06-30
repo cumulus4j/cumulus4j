@@ -17,8 +17,9 @@
  */
 package org.cumulus4j.keymanager.cli;
 
-import java.util.SortedSet;
-
+import org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam;
+import org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitResult;
+import org.cumulus4j.keymanager.api.KeyManagerAPIConfiguration;
 import org.cumulus4j.keystore.DateDependentKeyStrategy;
 import org.cumulus4j.keystore.KeyStore;
 import org.kohsuke.args4j.Option;
@@ -30,7 +31,7 @@ import org.kohsuke.args4j.Option;
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class InitDateDependentKeyStrategySubCommand
-extends SubCommandWithKeyStore
+extends SubCommandWithKeyManagerAPI
 {
 	@Option(
 			name="-userName", required=true,
@@ -95,14 +96,20 @@ extends SubCommandWithKeyStore
 
 		if (encryptionAlgorithm != null)
 			System.setProperty(KeyStore.SYSTEM_PROPERTY_ENCRYPTION_ALGORITHM, encryptionAlgorithm);
+
+		KeyManagerAPIConfiguration configuration = new KeyManagerAPIConfiguration(getKeyManagerAPI().getConfiguration());
+		configuration.setAuthUserName(userName);
+		configuration.setAuthPassword(password == null ? null : password.toCharArray());
+		getKeyManagerAPI().setConfiguration(configuration);
 	}
 
 	@Override
 	public void run() throws Exception {
-		DateDependentKeyStrategy strategy = new DateDependentKeyStrategy(getKeyStore());
-		strategy.init(userName, password.toCharArray(), keyActivityPeriodMSec, keyStorePeriodMSec);
-		SortedSet<Long> keyIDs = getKeyStore().getKeyIDs(userName, password.toCharArray());
-		System.out.println("Generated " + keyIDs.size() + " keys.");
+		DateDependentKeyStrategyInitParam param = new DateDependentKeyStrategyInitParam();
+		param.setKeyActivityPeriodMSec(keyActivityPeriodMSec);
+		param.setKeyStorePeriodMSec(keyStorePeriodMSec);
+		DateDependentKeyStrategyInitResult result = getKeyManagerAPI().initDateDependentKeyStrategy(param);
+		System.out.println("Generated " + result.getGeneratedKeyCount() + " keys.");
 	}
 
 }

@@ -17,7 +17,6 @@
  */
 package org.cumulus4j.keymanager.cli;
 
-import org.cumulus4j.keymanager.api.DefaultKeyManagerAPI;
 import org.cumulus4j.keymanager.api.KeyManagerAPI;
 import org.cumulus4j.keymanager.api.KeyManagerAPIConfiguration;
 import org.kohsuke.args4j.Option;
@@ -28,29 +27,41 @@ import org.kohsuke.args4j.Option;
  * </p>
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public abstract class SubCommandWithKeyManagerAPI
-extends SubCommand
+public abstract class SubCommandWithKeyManagerAPIWithAuth
+extends SubCommandWithKeyManagerAPI
 {
-	@Option(name="-keyManagerBaseURL", required=false, usage="Specifies where the key-store is located (either a URL on a remote server or a local directory). If omitted, it defaults to '${user.home}/.cumulus4j'.")
-	private String keyManagerBaseURL;
+	@Option(name="-authUserName", required=true, usage="The authenticated user authorizing this action. If the very first user is created, this value is ignored.")
+	private String authUserName;
 
-	@Option(name="-keyStoreID", required=true, usage="Specifies the key-store to work with.")
-	private String keyStoreID;
+	public String getAuthUserName()
+	{
+		return authUserName;
+	}
 
-	private KeyManagerAPI keyManagerAPI = new DefaultKeyManagerAPI();
+	@Option(name="-authPassword", required=false, usage="The password for authenticating the user specified by -authUserName. If the very first user is created, this value is ignored. If omitted, the user will be asked interactively (if required, i.e. if not creating the very first user).")
+	private String authPassword;
 
-	public KeyManagerAPI getKeyManagerAPI() {
-		return keyManagerAPI;
+	public char[] getAuthPasswordAsCharArray()
+	{
+		return authPassword == null ? null : authPassword.toCharArray();
+	}
+
+	public String getAuthPassword()
+	{
+		return authPassword;
 	}
 
 	@Override
 	public void prepare() throws Exception
 	{
 		super.prepare();
-		KeyManagerAPIConfiguration configuration = new KeyManagerAPIConfiguration();
-		configuration.setKeyManagerBaseURL(keyManagerBaseURL);
-		configuration.setKeyStoreID(keyStoreID);
-		keyManagerAPI.setConfiguration(configuration);
+		if (authPassword == null)
+			authPassword = promptPassword("authPassword: ");
+
+		KeyManagerAPIConfiguration configuration = new KeyManagerAPIConfiguration(getKeyManagerAPI().getConfiguration());
+		configuration.setAuthUserName(authUserName);
+		configuration.setAuthPassword(getAuthPasswordAsCharArray());
+		getKeyManagerAPI().setConfiguration(configuration);
 	}
 
 }

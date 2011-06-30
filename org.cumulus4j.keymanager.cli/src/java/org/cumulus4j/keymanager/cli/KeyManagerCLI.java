@@ -45,7 +45,7 @@ public class KeyManagerCLI
 	static {
 		ArrayList<Class<? extends SubCommand>> l = new ArrayList<Class<? extends SubCommand>>();
 
-		l.add(CreateUserSubCommand.class);
+		l.add(PutUserSubCommand.class);
 		l.add(DeleteUserSubCommand.class);
 		l.add(HelpSubCommand.class);
 		l.add(InfoSubCommand.class);

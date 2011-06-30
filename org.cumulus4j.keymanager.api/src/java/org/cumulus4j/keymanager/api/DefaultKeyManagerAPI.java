@@ -74,15 +74,21 @@ public class DefaultKeyManagerAPI extends AbstractKeyManagerAPI
 	}
 
 	@Override
-	public void initDateDependentKeyStrategy(DateDependentKeyStrategyInitParam param) throws KeyStoreNotEmptyException, IOException
+	public DateDependentKeyStrategyInitResult initDateDependentKeyStrategy(DateDependentKeyStrategyInitParam param) throws KeyStoreNotEmptyException, IOException
 	{
-		getDelegate().initDateDependentKeyStrategy(param);
+		return getDelegate().initDateDependentKeyStrategy(param);
 	}
 
 	@Override
 	public void putUser(String userName, char[] password) throws AuthenticationException, IOException
 	{
 		getDelegate().putUser(userName, password);
+	}
+
+	@Override
+	public void deleteUser(String userName) throws AuthenticationException, CannotDeleteLastUserException, IOException
+	{
+		getDelegate().deleteUser(userName);
 	}
 
 	@Override

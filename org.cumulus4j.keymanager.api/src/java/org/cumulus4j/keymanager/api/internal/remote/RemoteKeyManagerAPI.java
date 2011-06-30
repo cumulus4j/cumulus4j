@@ -12,7 +12,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 
 import org.cumulus4j.keymanager.api.AuthenticationException;
+import org.cumulus4j.keymanager.api.CannotDeleteLastUserException;
 import org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam;
+import org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitResult;
 import org.cumulus4j.keymanager.api.KeyManagerAPIConfiguration;
 import org.cumulus4j.keymanager.api.KeyManagerAPIInstantiationException;
 import org.cumulus4j.keymanager.api.KeyStoreNotEmptyException;
@@ -92,17 +94,26 @@ public class RemoteKeyManagerAPI extends AbstractKeyManagerAPI
 	}
 
 	@Override
-	public void initDateDependentKeyStrategy(DateDependentKeyStrategyInitParam param) throws KeyStoreNotEmptyException, IOException
+	public DateDependentKeyStrategyInitResult initDateDependentKeyStrategy(DateDependentKeyStrategyInitParam param) throws KeyStoreNotEmptyException, IOException
 	{
 		org.cumulus4j.keymanager.front.shared.DateDependentKeyStrategyInitParam ksInitParam = new org.cumulus4j.keymanager.front.shared.DateDependentKeyStrategyInitParam();
 		ksInitParam.setKeyActivityPeriodMSec(param.getKeyActivityPeriodMSec());
 		ksInitParam.setKeyStorePeriodMSec(param.getKeyStorePeriodMSec());
 
-		getClient().resource(appendFinalSlash(getKeyManagerBaseURL()) + "DateDependentKeyStrategy/" + getKeyStoreID() + "/init")
-		.type(MediaType.APPLICATION_XML_TYPE)
-		.post(ksInitParam);
+		org.cumulus4j.keymanager.front.shared.DateDependentKeyStrategyInitResult r;
+		try {
+			r = getClient().resource(appendFinalSlash(getKeyManagerBaseURL()) + "DateDependentKeyStrategy/" + getKeyStoreID() + "/init")
+			.type(MediaType.APPLICATION_XML_TYPE)
+			.post(org.cumulus4j.keymanager.front.shared.DateDependentKeyStrategyInitResult.class, ksInitParam);
+		} catch (UniformInterfaceException x) {
+			RemoteKeyManagerAPI.throwUniformInterfaceExceptionAsKeyStoreNotEmptyException(x);
+			RemoteKeyManagerAPI.throwUniformInterfaceExceptionAsIOException(x);
+			throw new IOException(x);
+		}
 
-		// TODO try-catch-block and introduce nice exceptions into this API - and possibly test them!!!
+		DateDependentKeyStrategyInitResult result = new DateDependentKeyStrategyInitResult();
+		result.setGeneratedKeyCount(r.getGeneratedKeyCount());
+		return result;
 	}
 
 	@Override
@@ -134,6 +145,22 @@ public class RemoteKeyManagerAPI extends AbstractKeyManagerAPI
 			} catch (KeyManagerAPIInstantiationException e) {
 				throw new RuntimeException(e); // Shouldn't happen, because we copied the old configuration.
 			}
+		}
+	}
+
+	@Override
+	public void deleteUser(String userName) throws AuthenticationException, CannotDeleteLastUserException, IOException
+	{
+		try {
+			getClient().resource(appendFinalSlash(getKeyManagerBaseURL()) + "User/" + getKeyStoreID() + '/' + userName)
+			.type(MediaType.APPLICATION_XML_TYPE)
+			.delete();
+		} catch (UniformInterfaceException x) {
+			RemoteKeyManagerAPI.throwUniformInterfaceExceptionAsAuthenticationException(x);
+			RemoteKeyManagerAPI.throwUniformInterfaceExceptionAsIOException(x);
+			throw new IOException(x);
+//		} catch (IOException x) {
+//			throw x;
 		}
 	}
 
@@ -240,4 +267,26 @@ public class RemoteKeyManagerAPI extends AbstractKeyManagerAPI
 		if (x.getResponse().getStatus() >= 400)
 			throw new IOException("URL=\"" + x.getResponse().getLocation() + "\": Server replied with error code " + x.getResponse().getStatus() + "!");
 	}
+
+	private static void throwUniformInterfaceExceptionAsKeyStoreNotEmptyException(UniformInterfaceException x)
+	throws KeyStoreNotEmptyException
+	{
+		if (x.getResponse().getStatus() < 400) // Every code < 400 means success => return without trying to read an Error.
+			return;
+
+		x.getResponse().bufferEntity();
+		if (x.getResponse().hasEntity())
+		{
+			try {
+				Error error = x.getResponse().getEntity(Error.class);
+				if (org.cumulus4j.keystore.KeyStoreNotEmptyException.class.getName().equals(error.getType()))
+					throw new KeyStoreNotEmptyException(error.getMessage());
+			} catch (ClientHandlerException e) {
+				//parsing the result failed => ignore it silently
+				doNothing();
+			}
+		}
+	}
+
+	private static final void doNothing() { }
 }

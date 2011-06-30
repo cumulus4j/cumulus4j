@@ -15,41 +15,30 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cumulus4j.keymanager.cli;
+package org.cumulus4j.keymanager.front.shared;
 
-import java.io.File;
+import java.io.Serializable;
 
-import org.cumulus4j.keystore.KeyStore;
-import org.kohsuke.args4j.Option;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * <p>
- * Abstract {@link SubCommand} implementation for being subclassed when a key-store is used.
- * </p>
+ * Result of the operation <code>org.cumulus4j.keymanager.DateDependentKeyStrategy.init(...)</code>.
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public abstract class SubCommandWithKeyStore
-extends SubCommand
+@XmlRootElement
+public class DateDependentKeyStrategyInitResult
+implements Serializable
 {
-	@Option(name="-keyStoreFile", required=true, usage="Specifies the key-store-file to work with.")
-	private File keyStoreFile;
+	private static final long serialVersionUID = 1L;
 
-	public File getKeyStoreFile() {
-		return keyStoreFile;
+	private int generatedKeyCount;
+
+	public int getGeneratedKeyCount() {
+		return generatedKeyCount;
 	}
 
-	private KeyStore keyStore;
-
-	public KeyStore getKeyStore()
-	{
-		return keyStore;
+	public void setGeneratedKeyCount(int generatedKeyCount) {
+		this.generatedKeyCount = generatedKeyCount;
 	}
-
-	@Override
-	public void prepare() throws Exception
-	{
-		super.prepare();
-		keyStore = new KeyStore(keyStoreFile);
-	}
-
 }

@@ -13,7 +13,9 @@ import java.util.Map;
 import org.cumulus4j.keymanager.AppServer;
 import org.cumulus4j.keymanager.AppServerManager;
 import org.cumulus4j.keymanager.api.AuthenticationException;
+import org.cumulus4j.keymanager.api.CannotDeleteLastUserException;
 import org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam;
+import org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitResult;
 import org.cumulus4j.keymanager.api.KeyManagerAPIConfiguration;
 import org.cumulus4j.keymanager.api.KeyManagerAPIInstantiationException;
 import org.cumulus4j.keymanager.api.KeyStoreNotEmptyException;
@@ -112,15 +114,28 @@ public class LocalKeyManagerAPI extends AbstractKeyManagerAPI
 	}
 
 	@Override
-	public void initDateDependentKeyStrategy(DateDependentKeyStrategyInitParam param)
+	public DateDependentKeyStrategyInitResult initDateDependentKeyStrategy(DateDependentKeyStrategyInitParam param)
 	throws KeyStoreNotEmptyException, IOException
 	{
+		if (param == null)
+			throw new IllegalArgumentException("param == null");
+
+		DateDependentKeyStrategyInitResult result = new DateDependentKeyStrategyInitResult();
+
 		try {
 			KeyStore keyStore = getKeyStore();
 			DateDependentKeyStrategy keyStrategy = new DateDependentKeyStrategy(keyStore);
 			keyStrategy.init(getAuthUserName(), getAuthPassword(), param.getKeyActivityPeriodMSec(), param.getKeyStorePeriodMSec());
+
+			result.setGeneratedKeyCount(
+					keyStore.getKeyIDs(getAuthUserName(), getAuthPassword()).size()
+			);
+
+			return result;
 		} catch (org.cumulus4j.keystore.KeyStoreNotEmptyException e) {
 			throw new KeyStoreNotEmptyException(e);
+		} catch (org.cumulus4j.keystore.AuthenticationException e) {
+			throw new IOException(e); // Should never happen, because we were able to initialise the key-store with this auth-data.
 		}
 	}
 
@@ -154,6 +169,24 @@ public class LocalKeyManagerAPI extends AbstractKeyManagerAPI
 			}
 		}
 	}
+
+	@Override
+	public void deleteUser(String userName) throws AuthenticationException, CannotDeleteLastUserException, IOException
+	{
+		KeyStore keyStore = getKeyStore();
+		try {
+			keyStore.deleteUser(getAuthUserName(), getAuthPassword(), userName);
+		} catch (org.cumulus4j.keystore.UserNotFoundException e) {
+			// silently ignore
+			doNothing();
+		} catch (org.cumulus4j.keystore.CannotDeleteLastUserException e) {
+			throw new CannotDeleteLastUserException(e);
+		} catch (org.cumulus4j.keystore.AuthenticationException e) {
+			throw new AuthenticationException(e);
+		}
+	}
+
+	private static final void doNothing() { }
 
 	@Override
 	public Session getSession(String appServerBaseURL) throws IOException, AuthenticationException

@@ -20,26 +20,26 @@ package org.cumulus4j.keymanager.cli;
 import org.kohsuke.args4j.Option;
 
 /**
- * {@link SubCommand} implementation for creating a new user.
+ * {@link SubCommand} implementation for creating a new user or updating an existing one.
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public class CreateUserSubCommand extends SubCommandWithKeyStoreWithAuth
+public class PutUserSubCommand extends SubCommandWithKeyManagerAPIWithAuth
 {
-	@Option(name="-userName", required=true, usage="The new user to be created.")
+	@Option(name="-userName", required=true, usage="The name of the user to be created/updated.")
 	private String userName;
 
-	@Option(name="-password", required=false, usage="The password of the new user. If omitted, the user will be asked for it interactively.")
+	@Option(name="-password", required=false, usage="The password of the user. If omitted, the user will be asked for it interactively.")
 	private String password;
 
 	@Override
 	public String getSubCommandName() {
-		return "createUser";
+		return "putUser";
 	}
 
 	@Override
 	public String getSubCommandDescription() {
-		return "Create a new user by encrypting the master-key with the new user's password.";
+		return "Create a new user or change an existing user's password.";
 	}
 
 	@Override
@@ -52,6 +52,6 @@ public class CreateUserSubCommand extends SubCommandWithKeyStoreWithAuth
 
 	@Override
 	public void run() throws Exception {
-		getKeyStore().createUser(getAuthUserName(), getAuthPasswordAsCharArray(), userName, password.toCharArray());
+		getKeyManagerAPI().putUser(userName, password.toCharArray());
 	}
 }

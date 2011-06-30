@@ -17,6 +17,8 @@
  */
 package org.cumulus4j.keymanager.cli;
 
+import java.io.Console;
+
 import org.kohsuke.args4j.Option;
 
 /**
@@ -57,4 +59,16 @@ public abstract class SubCommand
 
 	public abstract void run()
 	throws Exception;
+
+	protected String promptPassword(String fmt, Object ... args) {
+		Console console = System.console();
+		if (console == null)
+			throw new IllegalStateException("There is no system console! Cannot prompt \"" + String.format(fmt, args) + "\"!!!");
+	
+		char[] pw = console.readPassword(fmt, args);
+		if (pw == null)
+			return null;
+		else
+			return new String(pw);
+	}
 }

@@ -38,7 +38,14 @@ public interface KeyManagerAPI
 	 */
 	KeyManagerAPIConfiguration getConfiguration();
 
-	void initDateDependentKeyStrategy(DateDependentKeyStrategyInitParam param) throws KeyStoreNotEmptyException, IOException;
+	/**
+	 * Initialise a new key-store with the {@link org.cumulus4j.keystore.DateDependentKeyStrategy}.
+	 * @param param the settings controlling the details of how to initialise it. Must not be <code>null</code>.
+	 * @return
+	 * @throws KeyStoreNotEmptyException
+	 * @throws IOException
+	 */
+	DateDependentKeyStrategyInitResult initDateDependentKeyStrategy(DateDependentKeyStrategyInitParam param) throws KeyStoreNotEmptyException, IOException;
 
 	/**
 	 * Create a new user or change an existing user's password.
@@ -49,6 +56,9 @@ public interface KeyManagerAPI
 	 */
 	void putUser(String userName, char[] password)
 	throws AuthenticationException, IOException;
+
+	void deleteUser(String userName)
+	throws AuthenticationException, CannotDeleteLastUserException, IOException;
 
 	Session getSession(String appServerBaseURL) throws AuthenticationException, IOException;
 

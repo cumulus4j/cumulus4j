@@ -30,6 +30,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.cumulus4j.keymanager.front.shared.DateDependentKeyStrategyInitParam;
+import org.cumulus4j.keymanager.front.shared.DateDependentKeyStrategyInitResult;
 import org.cumulus4j.keymanager.front.shared.Error;
 import org.cumulus4j.keystore.DateDependentKeyStrategy;
 import org.cumulus4j.keystore.KeyStore;
@@ -42,8 +43,9 @@ public class DateDependentKeyStrategyService extends AbstractService
 {
 	@Path("{keyStoreID}/init")
 	@POST
-	public void init(@PathParam("keyStoreID") String keyStoreID, DateDependentKeyStrategyInitParam param)
+	public DateDependentKeyStrategyInitResult init(@PathParam("keyStoreID") String keyStoreID, DateDependentKeyStrategyInitParam param)
 	{
+		DateDependentKeyStrategyInitResult result = new DateDependentKeyStrategyInitResult();
 		Auth auth = getAuth();
 		try {
 			KeyStore keyStore = keyStoreManager.getKeyStore(keyStoreID);
@@ -51,9 +53,17 @@ public class DateDependentKeyStrategyService extends AbstractService
 					auth.getUserName(), auth.getPassword(),
 					param.getKeyActivityPeriodMSec(), param.getKeyStorePeriodMSec()
 			);
+
+			result.setGeneratedKeyCount(
+					keyStore.getKeyIDs(auth.getUserName(), auth.getPassword()).size()
+			);
+
+			return result;
 		} catch (KeyStoreNotEmptyException e) {
 			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(new Error(e)).build());
 		} catch (IOException e) {
+			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(e)).build());
+		} catch (Exception e) {
 			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(e)).build());
 		} finally {
 			auth.clear();
