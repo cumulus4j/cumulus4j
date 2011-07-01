@@ -31,8 +31,6 @@ import javax.jdo.annotations.NullValue;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.PersistenceModifier;
 import javax.jdo.annotations.Persistent;
-import javax.jdo.annotations.Queries;
-import javax.jdo.annotations.Query;
 import javax.jdo.listener.AttachCallback;
 
 import org.cumulus4j.store.test.account.id.AnchorID;
@@ -43,9 +41,6 @@ import org.cumulus4j.store.test.account.id.AnchorID;
 	table="JFireTrade_Account"
 )
 @Inheritance(strategy=InheritanceStrategy.NEW_TABLE)
-@Queries({
-	@Query(name="getAccountForCurrency", value="SELECT WHERE this.currency == :currency")
-})
 public class Account
 extends Anchor
 implements AttachCallback

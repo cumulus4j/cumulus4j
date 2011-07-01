@@ -413,21 +413,6 @@ extends AbstractJDOTransactionalTest
 		Assert.assertEquals(ACCOUNT_ID_2, JDOHelper.getObjectId(acct));
 	}
 
-	@Test(expected=Exception.class) // TODO which exception exactly?
-	public void queryWithDynamicQueryWithMissingParameter()
-	{
-		Query q = pm.newQuery(Account.class);
-		q.setFilter("this.currency == :currency");
-		q.execute(); // missing parameter should cause an exception
-	}
-
-	@Test(expected=Exception.class) // TODO which exception exactly?
-	public void queryWithNamedQueryWithMissingParameter()
-	{
-		Query q = pm.newNamedQuery(Account.class, "getAccountForCurrency");
-		q.execute(); // missing parameter should cause an exception
-	}
-
 	@After
 	public void deleteAll() throws IOException
 	{
