@@ -20,7 +20,7 @@ package org.cumulus4j.crypto;
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.Mac;
 
-public interface MacCalculator
+public interface MACCalculator
 extends Mac
 {
 	void setAlgorithmName(String algorithmName);
@@ -43,7 +43,7 @@ extends Mac
 	 * Convenience method to process the complete input byte array at once.
 	 * @param in the input to calculate a MAC for.
 	 * @return the MAC.
-	 * @throws IllegalStateException if the <code>MacCalculator</code> isn't initialised.
+	 * @throws IllegalStateException if the <code>MACCalculator</code> isn't initialised.
 	 */
 	byte[] doFinal(byte[] in)
 	throws IllegalStateException;

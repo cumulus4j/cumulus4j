@@ -1,4 +1,4 @@
-package org.cumulus4j.crypto.mode;
+package org.cumulus4j.crypto.internal.symmetric.mode;
 
 import org.bouncycastle.crypto.BlockCipher;
 import org.bouncycastle.crypto.modes.CBCBlockCipher;

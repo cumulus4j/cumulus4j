@@ -15,26 +15,28 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cumulus4j.crypto.asymmetric.keypairgenerator;
+package org.cumulus4j.crypto.internal.symmetric.mode;
 
-import org.bouncycastle.crypto.AsymmetricCipherKeyPairGenerator;
-import org.bouncycastle.crypto.generators.DSAKeyPairGenerator;
+import org.bouncycastle.crypto.BlockCipher;
+import org.bouncycastle.crypto.modes.OFBBlockCipher;
 
-public class DSAKeyPairGeneratorFactory
-extends AbstractAsymmetricCipherKeyPairGeneratorFactory
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
+public class C4jOFBBlockCipher extends OFBBlockCipher
 {
-	public DSAKeyPairGeneratorFactory() {
-		setAlgorithmName("DSA");
+	private static int determineBitBlockSize(BlockCipher engine, String modeName)
+	{
+		if (modeName.length() != 3)
+    {
+        int wordSize = Integer.parseInt(modeName.substring(3));
+        return wordSize;
+    }
+		else
+			return 8 * engine.getBlockSize();
 	}
 
-	@Override
-	public AsymmetricCipherKeyPairGenerator createAsymmetricCipherKeyPairGenerator(boolean initWithDefaults) {
-		DSAKeyPairGenerator generator = new DSAKeyPairGenerator();
-
-		// TODO implement meaningful and secure defaults!
-		if (initWithDefaults)
-			throw new UnsupportedOperationException("NYI: initWithDefaults");
-
-		return generator;
+	public C4jOFBBlockCipher(BlockCipher engine, String modeName) {
+		super(engine, determineBitBlockSize(engine, modeName));
 	}
 }

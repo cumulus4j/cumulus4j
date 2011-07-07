@@ -7,7 +7,7 @@ import java.util.Arrays;
 import junit.framework.Assert;
 
 import org.cumulus4j.crypto.CryptoRegistry;
-import org.cumulus4j.crypto.MacCalculator;
+import org.cumulus4j.crypto.MACCalculator;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -34,7 +34,7 @@ public class MacBenchmark
 	throws Exception
 	{
 		for (int i = 0; i < 100; ++i)
-			CryptoRegistry.sharedInstance().createMacCalculator(MAC_ALGORITHM, true);
+			CryptoRegistry.sharedInstance().createMACCalculator(MAC_ALGORITHM, true);
 	}
 
 	@Test
@@ -42,7 +42,7 @@ public class MacBenchmark
 	throws Exception
 	{
 		for (int i = 0; i < ITERATION_COUNT; ++i) {
-			CryptoRegistry.sharedInstance().createMacCalculator(MAC_ALGORITHM, true);
+			CryptoRegistry.sharedInstance().createMACCalculator(MAC_ALGORITHM, true);
 		}
 	}
 
@@ -51,7 +51,7 @@ public class MacBenchmark
 	throws Exception
 	{
 		for (int i = 0; i < ITERATION_COUNT; ++i) {
-			CryptoRegistry.sharedInstance().createMacCalculator(MAC_ALGORITHM, false);
+			CryptoRegistry.sharedInstance().createMACCalculator(MAC_ALGORITHM, false);
 		}
 	}
 
@@ -62,7 +62,7 @@ public class MacBenchmark
 		byte[] data = new byte[10240 + random.nextInt(4096)];
 		random.nextBytes(data);
 
-		MacCalculator macCalculator = CryptoRegistry.sharedInstance().createMacCalculator(MAC_ALGORITHM, true);
+		MACCalculator macCalculator = CryptoRegistry.sharedInstance().createMACCalculator(MAC_ALGORITHM, true);
 		for (int i = 0; i < ITERATION_COUNT; ++i) {
 			byte[] mac = new byte[macCalculator.getMacSize()];
 			macCalculator.update(data, 0, data.length);
@@ -78,7 +78,7 @@ public class MacBenchmark
 		random.nextBytes(data);
 
 		for (int i = 0; i < ITERATION_COUNT; ++i) {
-			MacCalculator macCalculator = CryptoRegistry.sharedInstance().createMacCalculator(MAC_ALGORITHM, true);
+			MACCalculator macCalculator = CryptoRegistry.sharedInstance().createMACCalculator(MAC_ALGORITHM, true);
 			byte[] mac = new byte[macCalculator.getMacSize()];
 			macCalculator.update(data, 0, data.length);
 			macCalculator.doFinal(mac, 0);

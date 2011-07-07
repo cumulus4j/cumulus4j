@@ -19,7 +19,7 @@ package org.cumulus4j.crypto;
 
 public interface MacCalculatorFactory
 {
-	MacCalculator createMacCalculator(boolean initWithDefaults);
+	MACCalculator createMacCalculator(boolean initWithDefaults);
 
 	String getAlgorithmName();
 

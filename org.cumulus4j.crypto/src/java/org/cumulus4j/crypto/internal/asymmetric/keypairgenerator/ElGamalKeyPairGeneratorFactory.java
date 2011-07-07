@@ -15,38 +15,25 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cumulus4j.crypto.asymmetric.keypairgenerator;
-
-import java.math.BigInteger;
-import java.security.SecureRandom;
+package org.cumulus4j.crypto.internal.asymmetric.keypairgenerator;
 
 import org.bouncycastle.crypto.AsymmetricCipherKeyPairGenerator;
-import org.bouncycastle.crypto.generators.RSAKeyPairGenerator;
-import org.bouncycastle.crypto.params.RSAKeyGenerationParameters;
+import org.bouncycastle.crypto.generators.ElGamalKeyPairGenerator;
 
-public class RSAKeyPairGeneratorFactory
+public class ElGamalKeyPairGeneratorFactory
 extends AbstractAsymmetricCipherKeyPairGeneratorFactory
 {
-	public RSAKeyPairGeneratorFactory() {
-		setAlgorithmName("RSA");
+	public ElGamalKeyPairGeneratorFactory() {
+		setAlgorithmName("ElGamal");
 	}
 
-	private static final BigInteger defaultPublicExponent = BigInteger.valueOf(0x10001);
-	private static final int defaultTests = 12;
-
-	private SecureRandom random;
-
 	@Override
-	public AsymmetricCipherKeyPairGenerator createAsymmetricCipherKeyPairGenerator(boolean initWithDefaults)
-	{
-		RSAKeyPairGenerator generator = new RSAKeyPairGenerator();
+	public AsymmetricCipherKeyPairGenerator createAsymmetricCipherKeyPairGenerator(boolean initWithDefaults) {
+		ElGamalKeyPairGenerator generator = new ElGamalKeyPairGenerator();
 
-		if (initWithDefaults) {
-			if (random == null)
-				random = new SecureRandom();
-
-			generator.init(new RSAKeyGenerationParameters(defaultPublicExponent, random, 4096, defaultTests));
-		}
+		// TODO implement meaningful and secure defaults!
+		if (initWithDefaults)
+			throw new UnsupportedOperationException("NYI: initWithDefaults");
 
 		return generator;
 	}

@@ -24,7 +24,7 @@ import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.cumulus4j.crypto.Cipher;
 import org.cumulus4j.crypto.CryptoRegistry;
-import org.cumulus4j.crypto.MacCalculator;
+import org.cumulus4j.crypto.MACCalculator;
 import org.cumulus4j.keymanager.back.shared.GetActiveEncryptionKeyRequest;
 import org.cumulus4j.keymanager.back.shared.GetActiveEncryptionKeyResponse;
 import org.cumulus4j.keymanager.back.shared.GetKeyRequest;
@@ -191,7 +191,7 @@ extends AbstractCryptoSession
 			byte[] macIV = EMPTY_BYTE_ARRAY;
 
 			if (!CryptoManager.MAC_ALGORITHM_NONE.equals(encryptionCoordinateSet.getMacAlgorithm())) {
-				MacCalculator macCalculator = CryptoRegistry.sharedInstance().createMacCalculator(encryptionCoordinateSet.getMacAlgorithm(), true);
+				MACCalculator macCalculator = CryptoRegistry.sharedInstance().createMACCalculator(encryptionCoordinateSet.getMacAlgorithm(), true);
 				mac = macCalculator.doFinal(plaintext.getData());
 
 				if (macCalculator.getParameters() instanceof ParametersWithIV) {
@@ -354,9 +354,9 @@ extends AbstractCryptoSession
 				logger.debug("decrypt: precalculated output-size does not match actually written output: expected={} actual={}", outLength, outOff);
 
 			int dataOff = 0;
-			MacCalculator macCalculator = null;
+			MACCalculator macCalculator = null;
 			if (!CryptoManager.MAC_ALGORITHM_NONE.equals(encryptionCoordinateSet.getMacAlgorithm())) {
-				macCalculator = CryptoRegistry.sharedInstance().createMacCalculator(encryptionCoordinateSet.getMacAlgorithm(), false);
+				macCalculator = CryptoRegistry.sharedInstance().createMACCalculator(encryptionCoordinateSet.getMacAlgorithm(), false);
 
 				CipherParameters macKeyParam = new KeyParameter(out, 0, macKeyLength);
 				dataOff += macKeyLength;

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cumulus4j.crypto.asymmetric;
+package org.cumulus4j.crypto.internal.asymmetric;
 
 import org.bouncycastle.crypto.BufferedAsymmetricBlockCipher;
 import org.bouncycastle.crypto.CipherParameters;

@@ -15,28 +15,25 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cumulus4j.crypto.asymmetric.keypairgenerator;
+package org.cumulus4j.crypto.internal.asymmetric.keypairgenerator;
 
 import org.bouncycastle.crypto.AsymmetricCipherKeyPairGenerator;
-import org.bouncycastle.crypto.generators.DHBasicKeyPairGenerator;
+import org.bouncycastle.crypto.generators.GOST3410KeyPairGenerator;
 
-public class DHBasicKeyPairGeneratorFactory
+public class GOST3410KeyPairGeneratorFactory
 extends AbstractAsymmetricCipherKeyPairGeneratorFactory
 {
-	public DHBasicKeyPairGeneratorFactory() {
-		setAlgorithmName("DH");
+	public GOST3410KeyPairGeneratorFactory() {
+		setAlgorithmName("GOST3410");
 	}
 
 	@Override
-	public AsymmetricCipherKeyPairGenerator createAsymmetricCipherKeyPairGenerator(boolean initWithDefaults)
-	{
-		DHBasicKeyPairGenerator generator = new DHBasicKeyPairGenerator();
+	public AsymmetricCipherKeyPairGenerator createAsymmetricCipherKeyPairGenerator(boolean initWithDefaults) {
+		GOST3410KeyPairGenerator generator = new GOST3410KeyPairGenerator();
 
 		// TODO implement meaningful and secure defaults!
 		if (initWithDefaults)
 			throw new UnsupportedOperationException("NYI: initWithDefaults");
-//		if (initWithDefaults)
-//			generator.init(new DHKeyGenerationParameters(new SecureRandom(), new DHParameters(p, g, q)));
 
 		return generator;
 	}

@@ -28,7 +28,7 @@ import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.cumulus4j.crypto.Cipher;
 import org.cumulus4j.crypto.CipherOperationMode;
 import org.cumulus4j.crypto.CryptoRegistry;
-import org.cumulus4j.crypto.MacCalculator;
+import org.cumulus4j.crypto.MACCalculator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +51,7 @@ public final class KeyEncryptionUtil
 		byte[] macKey = EMPTY_BYTE_ARRAY;
 		byte[] macIV = EMPTY_BYTE_ARRAY;
 
-		MacCalculator macCalculator = CryptoRegistry.sharedInstance().createMacCalculator(MAC_ALGORITHM, true);
+		MACCalculator macCalculator = CryptoRegistry.sharedInstance().createMACCalculator(MAC_ALGORITHM, true);
 		mac = macCalculator.doFinal(key);
 		if (macCalculator.getParameters() instanceof ParametersWithIV) {
 			ParametersWithIV pwiv = (ParametersWithIV) macCalculator.getParameters();
@@ -132,7 +132,7 @@ public final class KeyEncryptionUtil
 		outOff += decrypter.doFinal(out, outOff);
 
 		int dataOff = 0;
-		MacCalculator macCalculator = CryptoRegistry.sharedInstance().createMacCalculator(MAC_ALGORITHM, false);
+		MACCalculator macCalculator = CryptoRegistry.sharedInstance().createMACCalculator(MAC_ALGORITHM, false);
 
 		CipherParameters macKeyParam = new KeyParameter(out, 0, macKeyLength);
 		dataOff += macKeyLength;

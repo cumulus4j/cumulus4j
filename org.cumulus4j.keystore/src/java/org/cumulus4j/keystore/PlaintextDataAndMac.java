@@ -6,7 +6,7 @@ import java.util.Arrays;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.cumulus4j.crypto.CryptoRegistry;
-import org.cumulus4j.crypto.MacCalculator;
+import org.cumulus4j.crypto.MACCalculator;
 
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
@@ -66,9 +66,9 @@ class PlaintextDataAndMac
 		this.macKey = this.macIV = this.mac = new byte[0];
 
 		if (!KeyStore.MAC_ALGORITHM_NONE.equals(macAlgorithm)) {
-			MacCalculator macCalculator = CryptoRegistry.sharedInstance().createMacCalculator(this.macAlgorithm, true);
+			MACCalculator macCalculator = CryptoRegistry.sharedInstance().createMACCalculator(this.macAlgorithm, true);
 			if (macCalculator.getParameters() == null)
-				throw new IllegalStateException("The MacCalculator for macAlgorithm=\"" + macAlgorithm + "\" was NOT initialised!");
+				throw new IllegalStateException("The MACCalculator for macAlgorithm=\"" + macAlgorithm + "\" was NOT initialised!");
 			else if (macCalculator.getParameters() instanceof ParametersWithIV) {
 				ParametersWithIV pwiv = (ParametersWithIV)macCalculator.getParameters();
 				this.macIV = pwiv.getIV();
@@ -80,7 +80,7 @@ class PlaintextDataAndMac
 				this.macKey = kp.getKey();
 			}
 			else
-				throw new IllegalStateException("The MacCalculator for macAlgorithm=\"" + macAlgorithm + "\" was initialised with an unknown parameter (type " + macCalculator.getParameters().getClass().getName() + ")!");
+				throw new IllegalStateException("The MACCalculator for macAlgorithm=\"" + macAlgorithm + "\" was initialised with an unknown parameter (type " + macCalculator.getParameters().getClass().getName() + ")!");
 
 			this.mac = new byte[macCalculator.getMacSize()];
 			macCalculator.update(this.data, 0, this.data.length);
@@ -140,7 +140,7 @@ class PlaintextDataAndMac
 	{
 		boolean result = true;
 		if (!KeyStore.MAC_ALGORITHM_NONE.equals(macAlgorithm)) {
-			MacCalculator macCalculator = CryptoRegistry.sharedInstance().createMacCalculator(macAlgorithm, false);
+			MACCalculator macCalculator = CryptoRegistry.sharedInstance().createMACCalculator(macAlgorithm, false);
 			if (this.getMacIV().length > 0)
 				macCalculator.init(new ParametersWithIV(new KeyParameter(this.getMacKey()), this.getMacIV()));
 			else

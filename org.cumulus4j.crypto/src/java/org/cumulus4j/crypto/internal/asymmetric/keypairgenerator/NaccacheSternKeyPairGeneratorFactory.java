@@ -15,22 +15,27 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cumulus4j.crypto.asymmetric.keypairgenerator;
+package org.cumulus4j.crypto.internal.asymmetric.keypairgenerator;
 
-import org.cumulus4j.crypto.AsymmetricCipherKeyPairGeneratorFactory;
+import org.bouncycastle.crypto.AsymmetricCipherKeyPairGenerator;
+import org.bouncycastle.crypto.generators.NaccacheSternKeyPairGenerator;
 
-public abstract class AbstractAsymmetricCipherKeyPairGeneratorFactory
-implements AsymmetricCipherKeyPairGeneratorFactory
+public class NaccacheSternKeyPairGeneratorFactory
+extends AbstractAsymmetricCipherKeyPairGeneratorFactory
 {
-	private String algorithmName;
-
-	@Override
-	public String getAlgorithmName() {
-		return algorithmName;
+	public NaccacheSternKeyPairGeneratorFactory() {
+		setAlgorithmName("NaccacheStern");
 	}
 
 	@Override
-	public void setAlgorithmName(String algorithmName) {
-		this.algorithmName = algorithmName;
+	public AsymmetricCipherKeyPairGenerator createAsymmetricCipherKeyPairGenerator(boolean initWithDefaults)
+	{
+		NaccacheSternKeyPairGenerator generator = new NaccacheSternKeyPairGenerator();
+
+		// TODO implement meaningful and secure defaults!
+		if (initWithDefaults)
+			throw new UnsupportedOperationException("NYI: initWithDefaults");
+
+		return generator;
 	}
 }

@@ -15,28 +15,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cumulus4j.crypto.mode;
+package org.cumulus4j.crypto.internal.asymmetric.keypairgenerator;
 
-import org.bouncycastle.crypto.BlockCipher;
-import org.bouncycastle.crypto.modes.CFBBlockCipher;
+import org.cumulus4j.crypto.AsymmetricCipherKeyPairGeneratorFactory;
 
-/**
- * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
- */
-public class C4jCFBBlockCipher extends CFBBlockCipher
+public abstract class AbstractAsymmetricCipherKeyPairGeneratorFactory
+implements AsymmetricCipherKeyPairGeneratorFactory
 {
-	private static int determineBitBlockSize(BlockCipher engine, String modeName)
-	{
-		if (modeName.length() != 3)
-    {
-        int wordSize = Integer.parseInt(modeName.substring(3));
-        return wordSize;
-    }
-		else
-			return 8 * engine.getBlockSize();
+	private String algorithmName;
+
+	@Override
+	public String getAlgorithmName() {
+		return algorithmName;
 	}
 
-	public C4jCFBBlockCipher(BlockCipher engine, String modeName) {
-		super(engine, determineBitBlockSize(engine, modeName));
+	@Override
+	public void setAlgorithmName(String algorithmName) {
+		this.algorithmName = algorithmName;
 	}
 }

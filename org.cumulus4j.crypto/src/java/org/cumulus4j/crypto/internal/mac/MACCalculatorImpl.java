@@ -15,22 +15,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cumulus4j.crypto.mac;
+package org.cumulus4j.crypto.internal.mac;
 
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.DataLengthException;
 import org.bouncycastle.crypto.Mac;
-import org.cumulus4j.crypto.MacCalculator;
+import org.cumulus4j.crypto.MACCalculator;
 
-public class MacCalculatorImpl
-implements MacCalculator
+public class MACCalculatorImpl
+implements MACCalculator
 {
 	private Mac macEngine;
 
 	private int keySize;
 	private int ivSize;
 
-	public MacCalculatorImpl(Mac macEngine, int keySize, int ivSize)
+	public MACCalculatorImpl(Mac macEngine, int keySize, int ivSize)
 	{
 		if (macEngine == null)
 			throw new IllegalArgumentException("macEngine == null");
