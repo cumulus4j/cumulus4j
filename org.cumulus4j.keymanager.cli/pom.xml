@@ -10,6 +10,7 @@
 	<artifactId>org.cumulus4j.keymanager.cli</artifactId>
 	
 	<name>org.cumulus4j.keymanager.cli</name>
+	<description>Command line interface for the key-store. It uses the key-manager-API and can thus work with both, key-stores in the local file system as well as remote key-servers.</description>
 	
 	<dependencies>
 		<dependency>

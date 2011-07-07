@@ -7,6 +7,29 @@
 
 Module org.cumulus4j.store
 
+	Plug-in for {{{http://www.datanucleus.org}DataNucleus}} providing encrypted data-storage.
+	
+	DataNucleus uses the Eclipse plugin-mechanism and this plug-in is the core of Cumulus4j containing extensions
+	to the following DN extension-points:
+	
+	* org.datanucleus.store_manager
+	
+	* org.datanucleus.store_connectionfactory
+	
+	* org.datanucleus.store_query_query
+	
+	* org.cumulus4j.store.index_mapping
+	
+	* org.cumulus4j.store.query_method
+	
+	* org.datanucleus.store_valuegenerator
+	
+	* org.datanucleus.persistence_properties
+	
+	* org.datanucleus.member_annotation_handler
+	
+	This list might not be up-to-date, but it should give you an idea.
+
 	TODO document this module!
 
 * Maven

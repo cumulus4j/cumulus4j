@@ -11,6 +11,7 @@
 	<packaging>bundle</packaging>
 
 	<name>org.cumulus4j.keystore</name>
+	<description>Key store managing keys safely in the local file system.</description>
 
 	<dependencies>
 		<dependency>

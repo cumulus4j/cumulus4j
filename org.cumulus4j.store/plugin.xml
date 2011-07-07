@@ -20,7 +20,7 @@
 -->
 <?eclipse version="3.4"?>
 <plugin>
-  <extension-point id="cryptoManager" name="Crypto Manager" schema="schema/cryptoManager.exsd"/>
+  <extension-point id="crypto_manager" name="Crypto Manager" schema="schema/crypto_manager.exsd"/>
   <extension-point id="query_method" name="Query Methods" schema="schema/query_method.exsd"/>
   <extension-point id="index_mapping" name="Index Mappings" schema="schema/index_mapping.exsd"/>
 
@@ -123,8 +123,8 @@
     <valuegenerator name="sequence" class-name="org.cumulus4j.store.Cumulus4jIncrementGenerator" datastore="cumulus4j"/>
   </extension>
 
-  <extension point="org.cumulus4j.store.cryptoManager">
-    <cryptoManager class="org.cumulus4j.store.DummyCryptoManager" cryptoManagerID="dummy"/>
+  <extension point="org.cumulus4j.store.crypto_manager">
+    <cryptoManager class="org.cumulus4j.store.DummyCryptoManager" crypto-manager-id="dummy"/>
   </extension>
 
   <extension point="org.datanucleus.persistence_properties">

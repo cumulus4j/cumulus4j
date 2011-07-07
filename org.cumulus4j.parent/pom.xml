@@ -7,7 +7,7 @@
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>org.cumulus4j.parent</name>
-	<description>Cumulus4j Parent POM</description>
+	<description>Cumulus4j parent POM, i.e. the root-configuration from which all other POMs inherit common settings.</description>
 
 	<url>http://www.cumulus4j.org/</url>
 

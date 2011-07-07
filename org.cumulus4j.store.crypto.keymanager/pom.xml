@@ -9,6 +9,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>org.cumulus4j.store.crypto.keymanager</artifactId>
 	<name>org.cumulus4j.store.crypto.keymanager</name>
+	<description>Implementation of CryptoManager working with a key-manager as shown in 'Deployment scenarios'.</description>
 	<packaging>bundle</packaging>
 
 	<dependencies>

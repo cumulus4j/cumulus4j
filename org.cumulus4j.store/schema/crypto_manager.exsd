@@ -3,7 +3,7 @@
 <schema targetNamespace="org.cumulus4j.api" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="org.cumulus4j.api" id="cryptoManager" name="Crypto Manager"/>
+         <meta.schema plugin="org.cumulus4j.api" id="crypto-manager" name="Crypto Manager"/>
       </appinfo>
       <documentation>
          [Enter description of this extension point.]
@@ -18,7 +18,7 @@
       </annotation>
       <complexType>
          <sequence minOccurs="0" maxOccurs="unbounded">
-            <element ref="cryptoManager"/>
+            <element ref="crypto-manager"/>
          </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -47,9 +47,9 @@
       </complexType>
    </element>
 
-   <element name="cryptoManager">
+   <element name="crypto-manager">
       <complexType>
-         <attribute name="cryptoManagerID" type="string" use="required">
+         <attribute name="crypto-manager-id" type="string" use="required">
             <annotation>
                <documentation>
                   

@@ -18,11 +18,13 @@
 /**
  * <p>
  * Command line interface for the {@link org.cumulus4j.keystore.KeyStore}.
- * </p>
- * <p>
+ * </p><p>
  * This command line interface provides convenient maintenance features
  * like creating and initialising a new key store, showing infos about an
  * existing key store file, adding users etc.
+ * </p><p>
+ * The key-store can be located either in the local file system or on a
+ * remote key-server.
  * </p>
  */
 package org.cumulus4j.keymanager.cli;
