@@ -17,7 +17,7 @@
  */
 package org.cumulus4j.crypto;
 
-public interface MacCalculatorFactory
+public interface MACCalculatorFactory
 {
 	MACCalculator createMacCalculator(boolean initWithDefaults);
 

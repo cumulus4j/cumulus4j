@@ -19,16 +19,42 @@ package org.cumulus4j.crypto;
 
 import org.bouncycastle.crypto.AsymmetricCipherKeyPairGenerator;
 
+/**
+ * <p>
+ * Factory creating instances of {@link AsymmetricCipherKeyPairGenerator}.
+ * </p>
+ * <p>
+ * Implementations of this interface are used by {@link CryptoRegistry#createKeyPairGenerator(String, boolean)}
+ * to provide instances of <code>AsymmetricCipherKeyPairGenerator</code>.
+ * </p>
+ *
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public interface AsymmetricCipherKeyPairGeneratorFactory
 {
 	/**
 	 * Create and initialize a new instance of {@link AsymmetricCipherKeyPairGenerator}.
-	 * @param initWithDefaults TODO
-	 * @return a new ready-to-use instance of {@link AsymmetricCipherKeyPairGenerator}.
+	 * @param initWithDefaults whether to
+	 * {@link AsymmetricCipherKeyPairGenerator#init(org.bouncycastle.crypto.KeyGenerationParameters) initialise} the <code>AsymmetricCipherKeyPairGenerator</code> with default values
+	 * so that it can be used immediately as-is.
+	 * @return a new instance of {@link AsymmetricCipherKeyPairGenerator} (iff <code>initWithDefaults==true</code> ready-to-use;
+	 * otherwise requiring {@link AsymmetricCipherKeyPairGenerator#init(org.bouncycastle.crypto.KeyGenerationParameters) initialisation}
+	 * before it can be used).
 	 */
 	AsymmetricCipherKeyPairGenerator createAsymmetricCipherKeyPairGenerator(boolean initWithDefaults);
 
+	/**
+	 * Get the name of the encryption algorithm for which keys should be generated. For example "RSA".
+	 * @return the name of the encryption algorithm for which keys are to be generated.
+	 */
 	String getAlgorithmName();
 
+	/**
+	 * Set the name of the encryption algorithm for which keys are to be generated. This method
+	 * should never be called by API consumers! It should throw an {@link IllegalStateException}, if
+	 * it is called again, after an algorithm name was already set before.
+	 * @param algorithmName the name of the encryption algorithm; never <code>null</code>.
+	 * @see #getAlgorithmName()
+	 */
 	void setAlgorithmName(String algorithmName);
 }

@@ -50,6 +50,9 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
  * found when looking for the MANIFEST.MF (probably the wrong MANIFEST.MF was picked by the class loader).
  * 	</li>
  * </ul>
+ * <p>
+ * Note: Implementors should subclass {@link AbstractCipher} instead of directly implementing this interface.
+ * </p>
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public interface Cipher

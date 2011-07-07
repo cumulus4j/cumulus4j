@@ -20,6 +20,18 @@ package org.cumulus4j.crypto;
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.Mac;
 
+/**
+ * <p>
+ * A <code>MACCalculator</code> calculates <a href="http://en.wikipedia.org/wiki/Message_authentication_code">message
+ * authentication codes</a>.
+ * </p><p>
+ * Use {@link CryptoRegistry#createMACCalculator(String, boolean)} to obtain a <code>MACCalculator</code> instance.
+ * </p><p>
+ * <b>Important: <code>MACCalculator</code>s are not thread-safe!</b>
+ * </p>
+ *
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public interface MACCalculator
 extends Mac
 {

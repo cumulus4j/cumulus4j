@@ -44,10 +44,10 @@ import org.bouncycastle.crypto.paddings.ISO7816d4Padding;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.cumulus4j.crypto.MACCalculator;
-import org.cumulus4j.crypto.MacCalculatorFactory;
+import org.cumulus4j.crypto.MACCalculatorFactory;
 
 public abstract class AbstractMACCalculatorFactory
-implements MacCalculatorFactory
+implements MACCalculatorFactory
 {
 	private String algorithmName;
 

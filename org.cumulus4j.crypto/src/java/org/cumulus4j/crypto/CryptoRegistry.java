@@ -1138,9 +1138,9 @@ public final class CryptoRegistry
 		throw new UnsupportedOperationException("privateKey.class=\"" + privateKey.getClass().getName() + "\" not yet supported!");
 	}
 
-	private Map<String, MacCalculatorFactory> macName2macCalculatorFactory = new HashMap<String, MacCalculatorFactory>();
+	private Map<String, MACCalculatorFactory> macName2macCalculatorFactory = new HashMap<String, MACCalculatorFactory>();
 
-	private void registerMacCalculatorFactory(String macName, MacCalculatorFactory factory)
+	private void registerMACCalculatorFactory(String macName, MACCalculatorFactory factory)
 	{
 		if (macName != null)
 			factory.setAlgorithmName(macName);
@@ -1152,89 +1152,89 @@ public final class CryptoRegistry
 	@SuppressWarnings("deprecation")
 	private void registerDeprecatedMacCalculatorFactories()
 	{
-		registerMacCalculatorFactory("OLDHMACSHA384", new AbstractMACCalculatorFactory.OldSHA384());
-		registerMacCalculatorFactory("OLDHMACSHA512", new AbstractMACCalculatorFactory.OldSHA512());
+		registerMACCalculatorFactory("OLDHMACSHA384", new AbstractMACCalculatorFactory.OldSHA384());
+		registerMACCalculatorFactory("OLDHMACSHA512", new AbstractMACCalculatorFactory.OldSHA512());
 	}
 
 	{
-		registerMacCalculatorFactory("DES", new AbstractMACCalculatorFactory.DES());
-		registerMacCalculatorFactory("DESMAC", new AbstractMACCalculatorFactory.DES());
+		registerMACCalculatorFactory("DES", new AbstractMACCalculatorFactory.DES());
+		registerMACCalculatorFactory("DESMAC", new AbstractMACCalculatorFactory.DES());
 
-		registerMacCalculatorFactory("DES64", new AbstractMACCalculatorFactory.DES64());
-		registerMacCalculatorFactory("DES64MAC", new AbstractMACCalculatorFactory.DES64());
+		registerMACCalculatorFactory("DES64", new AbstractMACCalculatorFactory.DES64());
+		registerMACCalculatorFactory("DES64MAC", new AbstractMACCalculatorFactory.DES64());
 
-		registerMacCalculatorFactory("DES/CFB8", new AbstractMACCalculatorFactory.DESCFB8());
-		registerMacCalculatorFactory("DESMAC/CFB8", new AbstractMACCalculatorFactory.DESCFB8());
+		registerMACCalculatorFactory("DES/CFB8", new AbstractMACCalculatorFactory.DESCFB8());
+		registerMACCalculatorFactory("DESMAC/CFB8", new AbstractMACCalculatorFactory.DESCFB8());
 
-		registerMacCalculatorFactory("DESWITHISO9797", new AbstractMACCalculatorFactory.DES9797Alg3());
-		registerMacCalculatorFactory("DESWITHISO9797MAC", new AbstractMACCalculatorFactory.DES9797Alg3());
+		registerMACCalculatorFactory("DESWITHISO9797", new AbstractMACCalculatorFactory.DES9797Alg3());
+		registerMACCalculatorFactory("DESWITHISO9797MAC", new AbstractMACCalculatorFactory.DES9797Alg3());
 
-		registerMacCalculatorFactory("ISO9797ALG3", new AbstractMACCalculatorFactory.DES9797Alg3());
-		registerMacCalculatorFactory("ISO9797ALG3MAC", new AbstractMACCalculatorFactory.DES9797Alg3());
+		registerMACCalculatorFactory("ISO9797ALG3", new AbstractMACCalculatorFactory.DES9797Alg3());
+		registerMACCalculatorFactory("ISO9797ALG3MAC", new AbstractMACCalculatorFactory.DES9797Alg3());
 
-		registerMacCalculatorFactory("ISO9797ALG3WITHISO7816-4PADDING", new AbstractMACCalculatorFactory.DES9797Alg3with7816d4());
-		registerMacCalculatorFactory("ISO9797ALG3MACWITHISO7816-4PADDING", new AbstractMACCalculatorFactory.DES9797Alg3with7816d4());
+		registerMACCalculatorFactory("ISO9797ALG3WITHISO7816-4PADDING", new AbstractMACCalculatorFactory.DES9797Alg3with7816d4());
+		registerMACCalculatorFactory("ISO9797ALG3MACWITHISO7816-4PADDING", new AbstractMACCalculatorFactory.DES9797Alg3with7816d4());
 
-		registerMacCalculatorFactory("RC2", new AbstractMACCalculatorFactory.RC2());
-		registerMacCalculatorFactory("RC2MAC", new AbstractMACCalculatorFactory.RC2());
+		registerMACCalculatorFactory("RC2", new AbstractMACCalculatorFactory.RC2());
+		registerMACCalculatorFactory("RC2MAC", new AbstractMACCalculatorFactory.RC2());
 
-		registerMacCalculatorFactory("RC2/CFB8", new AbstractMACCalculatorFactory.RC2CFB8());
-		registerMacCalculatorFactory("RC2MAC/CFB8", new AbstractMACCalculatorFactory.RC2CFB8());
+		registerMACCalculatorFactory("RC2/CFB8", new AbstractMACCalculatorFactory.RC2CFB8());
+		registerMACCalculatorFactory("RC2MAC/CFB8", new AbstractMACCalculatorFactory.RC2CFB8());
 
-		registerMacCalculatorFactory("GOST28147", new AbstractMACCalculatorFactory.GOST28147());
-		registerMacCalculatorFactory("GOST28147MAC", new AbstractMACCalculatorFactory.GOST28147());
+		registerMACCalculatorFactory("GOST28147", new AbstractMACCalculatorFactory.GOST28147());
+		registerMACCalculatorFactory("GOST28147MAC", new AbstractMACCalculatorFactory.GOST28147());
 
 		registerDeprecatedMacCalculatorFactories();
 
-		registerMacCalculatorFactory("HMACMD2", new AbstractMACCalculatorFactory.MD2());
-		registerMacCalculatorFactory("HMAC-MD2", new AbstractMACCalculatorFactory.MD2());
-		registerMacCalculatorFactory("HMAC/MD2", new AbstractMACCalculatorFactory.MD2());
+		registerMACCalculatorFactory("HMACMD2", new AbstractMACCalculatorFactory.MD2());
+		registerMACCalculatorFactory("HMAC-MD2", new AbstractMACCalculatorFactory.MD2());
+		registerMACCalculatorFactory("HMAC/MD2", new AbstractMACCalculatorFactory.MD2());
 
-		registerMacCalculatorFactory("HMACMD4", new AbstractMACCalculatorFactory.MD4());
-		registerMacCalculatorFactory("HMAC-MD4", new AbstractMACCalculatorFactory.MD4());
-		registerMacCalculatorFactory("HMAC/MD4", new AbstractMACCalculatorFactory.MD4());
+		registerMACCalculatorFactory("HMACMD4", new AbstractMACCalculatorFactory.MD4());
+		registerMACCalculatorFactory("HMAC-MD4", new AbstractMACCalculatorFactory.MD4());
+		registerMACCalculatorFactory("HMAC/MD4", new AbstractMACCalculatorFactory.MD4());
 
-		registerMacCalculatorFactory("HMACMD5", new AbstractMACCalculatorFactory.MD5());
-		registerMacCalculatorFactory("HMAC-MD5", new AbstractMACCalculatorFactory.MD5());
-		registerMacCalculatorFactory("HMAC/MD5", new AbstractMACCalculatorFactory.MD5());
+		registerMACCalculatorFactory("HMACMD5", new AbstractMACCalculatorFactory.MD5());
+		registerMACCalculatorFactory("HMAC-MD5", new AbstractMACCalculatorFactory.MD5());
+		registerMACCalculatorFactory("HMAC/MD5", new AbstractMACCalculatorFactory.MD5());
 
-		registerMacCalculatorFactory("HMACSHA1", new AbstractMACCalculatorFactory.SHA1());
-		registerMacCalculatorFactory("HMAC-SHA1", new AbstractMACCalculatorFactory.SHA1());
-		registerMacCalculatorFactory("HMAC/SHA1", new AbstractMACCalculatorFactory.SHA1());
+		registerMACCalculatorFactory("HMACSHA1", new AbstractMACCalculatorFactory.SHA1());
+		registerMACCalculatorFactory("HMAC-SHA1", new AbstractMACCalculatorFactory.SHA1());
+		registerMACCalculatorFactory("HMAC/SHA1", new AbstractMACCalculatorFactory.SHA1());
 
-		registerMacCalculatorFactory("HMACSHA224", new AbstractMACCalculatorFactory.SHA224());
-		registerMacCalculatorFactory("HMAC-SHA224", new AbstractMACCalculatorFactory.SHA224());
-		registerMacCalculatorFactory("HMAC/SHA224", new AbstractMACCalculatorFactory.SHA224());
+		registerMACCalculatorFactory("HMACSHA224", new AbstractMACCalculatorFactory.SHA224());
+		registerMACCalculatorFactory("HMAC-SHA224", new AbstractMACCalculatorFactory.SHA224());
+		registerMACCalculatorFactory("HMAC/SHA224", new AbstractMACCalculatorFactory.SHA224());
 
-		registerMacCalculatorFactory("HMACSHA256", new AbstractMACCalculatorFactory.SHA256());
-		registerMacCalculatorFactory("HMAC-SHA256", new AbstractMACCalculatorFactory.SHA256());
-		registerMacCalculatorFactory("HMAC/SHA256", new AbstractMACCalculatorFactory.SHA256());
+		registerMACCalculatorFactory("HMACSHA256", new AbstractMACCalculatorFactory.SHA256());
+		registerMACCalculatorFactory("HMAC-SHA256", new AbstractMACCalculatorFactory.SHA256());
+		registerMACCalculatorFactory("HMAC/SHA256", new AbstractMACCalculatorFactory.SHA256());
 
-		registerMacCalculatorFactory("HMACSHA384", new AbstractMACCalculatorFactory.SHA384());
-		registerMacCalculatorFactory("HMAC-SHA384", new AbstractMACCalculatorFactory.SHA384());
-		registerMacCalculatorFactory("HMAC/SHA384", new AbstractMACCalculatorFactory.SHA384());
+		registerMACCalculatorFactory("HMACSHA384", new AbstractMACCalculatorFactory.SHA384());
+		registerMACCalculatorFactory("HMAC-SHA384", new AbstractMACCalculatorFactory.SHA384());
+		registerMACCalculatorFactory("HMAC/SHA384", new AbstractMACCalculatorFactory.SHA384());
 
-		registerMacCalculatorFactory("HMACSHA512", new AbstractMACCalculatorFactory.SHA512());
-		registerMacCalculatorFactory("HMAC-SHA512", new AbstractMACCalculatorFactory.SHA512());
-		registerMacCalculatorFactory("HMAC/SHA512", new AbstractMACCalculatorFactory.SHA512());
+		registerMACCalculatorFactory("HMACSHA512", new AbstractMACCalculatorFactory.SHA512());
+		registerMACCalculatorFactory("HMAC-SHA512", new AbstractMACCalculatorFactory.SHA512());
+		registerMACCalculatorFactory("HMAC/SHA512", new AbstractMACCalculatorFactory.SHA512());
 
-		registerMacCalculatorFactory("HMACRIPEMD128", new AbstractMACCalculatorFactory.RIPEMD128());
-		registerMacCalculatorFactory("HMAC-RIPEMD128", new AbstractMACCalculatorFactory.RIPEMD128());
-		registerMacCalculatorFactory("HMAC/RIPEMD128", new AbstractMACCalculatorFactory.RIPEMD128());
+		registerMACCalculatorFactory("HMACRIPEMD128", new AbstractMACCalculatorFactory.RIPEMD128());
+		registerMACCalculatorFactory("HMAC-RIPEMD128", new AbstractMACCalculatorFactory.RIPEMD128());
+		registerMACCalculatorFactory("HMAC/RIPEMD128", new AbstractMACCalculatorFactory.RIPEMD128());
 
-		registerMacCalculatorFactory("HMACRIPEMD160", new AbstractMACCalculatorFactory.RIPEMD160());
-		registerMacCalculatorFactory("HMAC-RIPEMD160", new AbstractMACCalculatorFactory.RIPEMD160());
-		registerMacCalculatorFactory("HMAC/RIPEMD160", new AbstractMACCalculatorFactory.RIPEMD160());
+		registerMACCalculatorFactory("HMACRIPEMD160", new AbstractMACCalculatorFactory.RIPEMD160());
+		registerMACCalculatorFactory("HMAC-RIPEMD160", new AbstractMACCalculatorFactory.RIPEMD160());
+		registerMACCalculatorFactory("HMAC/RIPEMD160", new AbstractMACCalculatorFactory.RIPEMD160());
 
-		registerMacCalculatorFactory("HMACTIGER", new AbstractMACCalculatorFactory.Tiger());
-		registerMacCalculatorFactory("HMAC-TIGER", new AbstractMACCalculatorFactory.Tiger());
-		registerMacCalculatorFactory("HMAC/TIGER", new AbstractMACCalculatorFactory.Tiger());
+		registerMACCalculatorFactory("HMACTIGER", new AbstractMACCalculatorFactory.Tiger());
+		registerMACCalculatorFactory("HMAC-TIGER", new AbstractMACCalculatorFactory.Tiger());
+		registerMACCalculatorFactory("HMAC/TIGER", new AbstractMACCalculatorFactory.Tiger());
 	}
 
 	public MACCalculator createMACCalculator(String algorithmName, boolean initWithDefaults)
 	throws NoSuchAlgorithmException
 	{
-		MacCalculatorFactory factory = macName2macCalculatorFactory.get(algorithmName.toUpperCase(Locale.ENGLISH));
+		MACCalculatorFactory factory = macName2macCalculatorFactory.get(algorithmName.toUpperCase(Locale.ENGLISH));
 		if (factory == null)
 			throw new NoSuchAlgorithmException("There is no MAC calculator registered for algorithmName=\"" + algorithmName.toUpperCase(Locale.ENGLISH) + "\"!");
 

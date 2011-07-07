@@ -22,6 +22,9 @@ import org.bouncycastle.crypto.CryptoException;
 import org.bouncycastle.crypto.DataLengthException;
 
 /**
+ * Abstract base class for {@link Cipher} implementations. Implementors should not implement
+ * the <code>Cipher</code> interface directly, but sub-class this class instead.
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public abstract class AbstractCipher implements Cipher
