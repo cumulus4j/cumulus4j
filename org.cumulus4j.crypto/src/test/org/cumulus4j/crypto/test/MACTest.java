@@ -45,7 +45,7 @@ public class MACTest
 	{
 		byte[] orig = new byte[1024 + random.nextInt(10240)];
 		random.nextBytes(orig);
-		for (String macAlgorithmName : CryptoRegistry.sharedInstance().getSupportedMacAlgorithms()) {
+		for (String macAlgorithmName : CryptoRegistry.sharedInstance().getSupportedMACAlgorithms()) {
 			logger.debug("------------------------------------------------------------------------");
 			logger.debug("testAllSupportedMacs: macAlgorithmName={}", macAlgorithmName);
 			MACCalculator macCalculator1 = CryptoRegistry.sharedInstance().createMACCalculator(macAlgorithmName, true);

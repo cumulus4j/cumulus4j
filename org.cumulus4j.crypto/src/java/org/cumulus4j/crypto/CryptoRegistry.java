@@ -1324,7 +1324,7 @@ public final class CryptoRegistry
 	 * </p>
 	 *
 	 * @param algorithmName the name of the MAC algorithm. See <a href="http://cumulus4j.org/1.0.0/documentation/supported-algorithms.html">Supported algorithms</a>
-	 * for a list of supported algorithms or use {@link #getSupportedMacAlgorithms()} to query them.
+	 * for a list of supported algorithms or use {@link #getSupportedMACAlgorithms()} to query them.
 	 * @param initWithDefaults whether to
 	 * {@link MACCalculator#init(org.bouncycastle.crypto.CipherParameters) initialise} the <code>MACCalculator</code> with default values
 	 * so that it can be used immediately as-is.
@@ -1332,7 +1332,7 @@ public final class CryptoRegistry
 	 * otherwise requiring {@link MACCalculator#init(org.bouncycastle.crypto.CipherParameters) initialisation}
 	 * before it can be used).
 	 * @throws NoSuchAlgorithmException if there is no {@link MACCalculatorFactory} registered to suit the given <code>algorithmName</code>.
-	 * @see #getSupportedMacAlgorithms()
+	 * @see #getSupportedMACAlgorithms()
 	 */
 	public MACCalculator createMACCalculator(String algorithmName, boolean initWithDefaults)
 	throws NoSuchAlgorithmException
@@ -1353,7 +1353,7 @@ public final class CryptoRegistry
 	 * @return all supported MAC algorithms.
 	 * @see #createMACCalculator(String, boolean)
 	 */
-	public Set<String> getSupportedMacAlgorithms()
+	public Set<String> getSupportedMACAlgorithms()
 	{
 		return Collections.unmodifiableSet(new TreeSet<String>(macName2macCalculatorFactory.keySet()));
 	}

@@ -49,7 +49,7 @@ public class ShowSupportedAlgosForDocumentation
 	public void showSupportedMACs() {
 		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 		System.out.println("*** MAC ***");
-		for (String mac : cryptoRegistry.getSupportedMacAlgorithms())
+		for (String mac : cryptoRegistry.getSupportedMACAlgorithms())
 			System.out.println(mac);
 
 		System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
