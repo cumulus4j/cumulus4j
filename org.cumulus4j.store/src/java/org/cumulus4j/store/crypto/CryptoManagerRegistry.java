@@ -144,8 +144,8 @@ public class CryptoManagerRegistry
 			NucleusContext nucleusContext = getNucleusContext();
 
 			cryptoManager = (CryptoManager) nucleusContext.getPluginManager().createExecutableExtension(
-					"org.cumulus4j.store.cryptoManager",
-					"cryptoManagerID", cryptoManagerID,
+					"org.cumulus4j.store.crypto_manager",
+					"crypto-manager-id", cryptoManagerID,
 					"class",
 					null, null
 			);
