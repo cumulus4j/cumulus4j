@@ -132,7 +132,7 @@ public interface CryptoManager
 	 * The property can be set in the persistence-unit/persistence-properties-file for the
 	 * <code>PersistenceManagerFactory</code>/<code>EntityManagerFactory</code>.
 	 * </p>
-	 * @see #getMacAlgorithm()
+	 * @see #getMACAlgorithm()
 	 */
 	static final String PROPERTY_MAC_ALGORITHM = "cumulus4j.macAlgorithm";
 
@@ -302,6 +302,6 @@ public interface CryptoManager
 	 * @return the currently configured MAC algorithm.
 	 * @see #PROPERTY_MAC_ALGORITHM
 	 */
-	String getMacAlgorithm();
+	String getMACAlgorithm();
 
 }

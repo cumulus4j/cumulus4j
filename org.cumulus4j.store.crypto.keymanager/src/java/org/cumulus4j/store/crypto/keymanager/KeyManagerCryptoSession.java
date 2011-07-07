@@ -141,7 +141,7 @@ extends AbstractCryptoSession
 		EncryptionCoordinateSet encryptionCoordinateSet = cryptoContext.getEncryptionCoordinateSetManager().createEncryptionCoordinateSet(
 				cryptoContext.getPersistenceManagerConnection(),
 				getCryptoManager().getEncryptionAlgorithm(),
-				getCryptoManager().getMacAlgorithm()
+				getCryptoManager().getMACAlgorithm()
 		);
 		String activeEncryptionAlgorithm = encryptionCoordinateSet.getCipherTransformation();
 
@@ -190,8 +190,8 @@ extends AbstractCryptoSession
 			byte[] macKey = EMPTY_BYTE_ARRAY;
 			byte[] macIV = EMPTY_BYTE_ARRAY;
 
-			if (!CryptoManager.MAC_ALGORITHM_NONE.equals(encryptionCoordinateSet.getMacAlgorithm())) {
-				MACCalculator macCalculator = CryptoRegistry.sharedInstance().createMACCalculator(encryptionCoordinateSet.getMacAlgorithm(), true);
+			if (!CryptoManager.MAC_ALGORITHM_NONE.equals(encryptionCoordinateSet.getMACAlgorithm())) {
+				MACCalculator macCalculator = CryptoRegistry.sharedInstance().createMACCalculator(encryptionCoordinateSet.getMACAlgorithm(), true);
 				mac = macCalculator.doFinal(plaintext.getData());
 
 				if (macCalculator.getParameters() instanceof ParametersWithIV) {
@@ -355,8 +355,8 @@ extends AbstractCryptoSession
 
 			int dataOff = 0;
 			MACCalculator macCalculator = null;
-			if (!CryptoManager.MAC_ALGORITHM_NONE.equals(encryptionCoordinateSet.getMacAlgorithm())) {
-				macCalculator = CryptoRegistry.sharedInstance().createMACCalculator(encryptionCoordinateSet.getMacAlgorithm(), false);
+			if (!CryptoManager.MAC_ALGORITHM_NONE.equals(encryptionCoordinateSet.getMACAlgorithm())) {
+				macCalculator = CryptoRegistry.sharedInstance().createMACCalculator(encryptionCoordinateSet.getMACAlgorithm(), false);
 
 				CipherParameters macKeyParam = new KeyParameter(out, 0, macKeyLength);
 				dataOff += macKeyLength;
@@ -376,17 +376,17 @@ extends AbstractCryptoSession
 			int macOff = dataOff + dataLength;
 
 			if (macCalculator != null) {
-				byte[] newMac = new byte[macCalculator.getMacSize()];
+				byte[] newMAC = new byte[macCalculator.getMacSize()];
 				macCalculator.update(out, dataOff, dataLength);
-				macCalculator.doFinal(newMac, 0);
+				macCalculator.doFinal(newMAC, 0);
 
-				if (newMac.length != macLength)
-					throw new IOException("MACs have different length! Expected MAC has " + macLength + " bytes and newly calculated MAC has " + newMac.length + " bytes!");
+				if (newMAC.length != macLength)
+					throw new IOException("MACs have different length! Expected MAC has " + macLength + " bytes and newly calculated MAC has " + newMAC.length + " bytes!");
 
 				for (int i = 0; i < macLength; ++i) {
 					byte expected = out[macOff + i];
-					if (expected != newMac[i])
-						throw new IOException("MAC mismatch! mac[" + i + "] was expected to be " + expected + " but was " + newMac[i]);
+					if (expected != newMAC[i])
+						throw new IOException("MAC mismatch! mac[" + i + "] was expected to be " + expected + " but was " + newMAC[i]);
 				}
 			}
 

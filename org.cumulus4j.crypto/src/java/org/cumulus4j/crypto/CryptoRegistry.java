@@ -1232,12 +1232,12 @@ public final class CryptoRegistry
 		if (macName != null)
 			factory.setAlgorithmName(macName);
 
-		logger.trace("registerMacCalculatorFactory: algorithmName=\"{}\" factoryClass=\"{}\"", factory.getAlgorithmName(), factory.getClass().getName());
+		logger.trace("registerMACCalculatorFactory: algorithmName=\"{}\" factoryClass=\"{}\"", factory.getAlgorithmName(), factory.getClass().getName());
 		macName2macCalculatorFactory.put(factory.getAlgorithmName(), factory);
 	}
 
 	@SuppressWarnings("deprecation")
-	private void registerDeprecatedMacCalculatorFactories()
+	private void registerDeprecatedMACCalculatorFactories()
 	{
 		registerMACCalculatorFactory("OLDHMACSHA384", new MACCalculatorFactoryImpl.OldSHA384());
 		registerMACCalculatorFactory("OLDHMACSHA512", new MACCalculatorFactoryImpl.OldSHA512());
@@ -1271,7 +1271,7 @@ public final class CryptoRegistry
 		registerMACCalculatorFactory("GOST28147", new MACCalculatorFactoryImpl.GOST28147());
 		registerMACCalculatorFactory("GOST28147MAC", new MACCalculatorFactoryImpl.GOST28147());
 
-		registerDeprecatedMacCalculatorFactories();
+		registerDeprecatedMACCalculatorFactories();
 
 		registerMACCalculatorFactory("HMACMD2", new MACCalculatorFactoryImpl.MD2());
 		registerMACCalculatorFactory("HMAC-MD2", new MACCalculatorFactoryImpl.MD2());

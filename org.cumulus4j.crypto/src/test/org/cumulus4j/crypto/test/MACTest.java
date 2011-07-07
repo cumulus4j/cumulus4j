@@ -41,15 +41,15 @@ public class MACTest
 	private SecureRandom random = new SecureRandom();
 
 	@Test
-	public void testAllSupportedMacs() throws Exception
+	public void testAllSupportedMACs() throws Exception
 	{
 		byte[] orig = new byte[1024 + random.nextInt(10240)];
 		random.nextBytes(orig);
 		for (String macAlgorithmName : CryptoRegistry.sharedInstance().getSupportedMACAlgorithms()) {
 			logger.debug("------------------------------------------------------------------------");
-			logger.debug("testAllSupportedMacs: macAlgorithmName={}", macAlgorithmName);
+			logger.debug("testAllSupportedMACs: macAlgorithmName={}", macAlgorithmName);
 			MACCalculator macCalculator1 = CryptoRegistry.sharedInstance().createMACCalculator(macAlgorithmName, true);
-			Assert.assertNotNull("CryptoRegistry.createMacCalculator(...) returned null for macAlgorithmName=" + macAlgorithmName, macCalculator1);
+			Assert.assertNotNull("CryptoRegistry.createMACCalculator(...) returned null for macAlgorithmName=" + macAlgorithmName, macCalculator1);
 			byte[] mac1 = new byte[macCalculator1.getMacSize()];
 			macCalculator1.update(orig, 0, orig.length);
 			macCalculator1.doFinal(mac1, 0);
@@ -68,8 +68,8 @@ public class MACTest
 			else
 				throw new IllegalStateException("macParams type unsupported type=" + (macParams == null ? null : macParams.getClass().getName()) + " macParams=" + macParams);
 
-			logger.debug("testAllSupportedMacs: macKey={}", Util.encodeHexStr(macKey));
-			logger.debug("testAllSupportedMacs: macIV={}", macIV == null ? null : Util.encodeHexStr(macIV));
+			logger.debug("testAllSupportedMACs: macKey={}", Util.encodeHexStr(macKey));
+			logger.debug("testAllSupportedMACs: macIV={}", macIV == null ? null : Util.encodeHexStr(macIV));
 
 			MACCalculator macCalculator2 = CryptoRegistry.sharedInstance().createMACCalculator(macAlgorithmName, false);
 			CipherParameters macCipherParameters2 = null;
@@ -83,47 +83,47 @@ public class MACTest
 			macCalculator2.update(orig, 0, orig.length);
 			macCalculator2.doFinal(mac2, 0);
 
-			logger.debug("testAllSupportedMacs: mac1={}", Util.encodeHexStr(mac1));
-			logger.debug("testAllSupportedMacs: mac2={}", Util.encodeHexStr(mac2));
+			logger.debug("testAllSupportedMACs: mac1={}", Util.encodeHexStr(mac1));
+			logger.debug("testAllSupportedMACs: mac2={}", Util.encodeHexStr(mac2));
 
 			Assert.assertArrayEquals(mac1, mac2);
 
 
 
 			if (macIV != null) {
-				byte[] wrongMacIV = macIV.clone();
-				random.nextBytes(wrongMacIV);
+				byte[] wrongMACIV = macIV.clone();
+				random.nextBytes(wrongMACIV);
 				MACCalculator macCalculator3 = CryptoRegistry.sharedInstance().createMACCalculator(macAlgorithmName, false);
-				CipherParameters macCipherParameters3 = new ParametersWithIV(new KeyParameter(macKey), wrongMacIV);
+				CipherParameters macCipherParameters3 = new ParametersWithIV(new KeyParameter(macKey), wrongMACIV);
 				byte[] mac3 = new byte[macCalculator3.getMacSize()];
 				macCalculator3.init(macCipherParameters3);
 				macCalculator3.update(orig, 0, orig.length);
 				macCalculator3.doFinal(mac3, 0);
 
-				logger.debug("testAllSupportedMacs: wrongIV={}", Util.encodeHexStr(wrongMacIV));
-				logger.debug("testAllSupportedMacs: wrongMAC={}", Util.encodeHexStr(mac3));
+				logger.debug("testAllSupportedMACs: wrongIV={}", Util.encodeHexStr(wrongMACIV));
+				logger.debug("testAllSupportedMACs: wrongMAC={}", Util.encodeHexStr(mac3));
 				Assert.assertFalse("Passed different MAC-IV, but still got the same MAC! It seems the IV is ignored!", Arrays.equals(mac1, mac3));
 			}
 
 
 			{
-				byte[] wrongMacKey = macKey.clone();
-				random.nextBytes(wrongMacKey);
+				byte[] wrongMACKey = macKey.clone();
+				random.nextBytes(wrongMACKey);
 				MACCalculator macCalculator4 = CryptoRegistry.sharedInstance().createMACCalculator(macAlgorithmName, false);
 
 				CipherParameters macCipherParameters4 = null;
 				if (macIV == null)
-					macCipherParameters4 = new KeyParameter(wrongMacKey);
+					macCipherParameters4 = new KeyParameter(wrongMACKey);
 				else
-					macCipherParameters4 = new ParametersWithIV(new KeyParameter(wrongMacKey), macIV);
+					macCipherParameters4 = new ParametersWithIV(new KeyParameter(wrongMACKey), macIV);
 
 				byte[] mac4 = new byte[macCalculator4.getMacSize()];
 				macCalculator4.init(macCipherParameters4);
 				macCalculator4.update(orig, 0, orig.length);
 				macCalculator4.doFinal(mac4, 0);
 
-				logger.debug("testAllSupportedMacs: wrongKey={}", Util.encodeHexStr(wrongMacKey));
-				logger.debug("testAllSupportedMacs: wrongMAC={}", Util.encodeHexStr(mac4));
+				logger.debug("testAllSupportedMACs: wrongKey={}", Util.encodeHexStr(wrongMACKey));
+				logger.debug("testAllSupportedMACs: wrongMAC={}", Util.encodeHexStr(mac4));
 				Assert.assertFalse("Passed different MAC-keys, but still got the same MAC! It seems the key is ignored!", Arrays.equals(mac1, mac4));
 			}
 
@@ -143,7 +143,7 @@ public class MACTest
 				macCalculator2.update(wrongData, 0, wrongData.length);
 				macCalculator2.doFinal(mac5, 0);
 
-				logger.debug("testAllSupportedMacs: MACforWrongData={}", Util.encodeHexStr(mac5));
+				logger.debug("testAllSupportedMACs: MACforWrongData={}", Util.encodeHexStr(mac5));
 				Assert.assertFalse("Passed different data, but still got the same MAC!", Arrays.equals(mac1, mac5));
 
 

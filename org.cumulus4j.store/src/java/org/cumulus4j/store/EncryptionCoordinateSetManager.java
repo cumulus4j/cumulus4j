@@ -20,7 +20,7 @@ public class EncryptionCoordinateSetManager
 	}
 	protected static String getEncryptionCoordinateString(EncryptionCoordinateSet encryptionCoordinateSet)
 	{
-		return getEncryptionCoordinateString(encryptionCoordinateSet.getCipherTransformation(), encryptionCoordinateSet.getMacAlgorithm());
+		return getEncryptionCoordinateString(encryptionCoordinateSet.getCipherTransformation(), encryptionCoordinateSet.getMACAlgorithm());
 	}
 
 	public EncryptionCoordinateSetManager() { }

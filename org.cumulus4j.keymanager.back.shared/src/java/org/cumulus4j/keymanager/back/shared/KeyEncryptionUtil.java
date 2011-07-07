@@ -151,17 +151,17 @@ public final class KeyEncryptionUtil
 		int macOff = dataOff + dataLength;
 
 		if (macCalculator != null) {
-			byte[] newMac = new byte[macCalculator.getMacSize()];
+			byte[] newMAC = new byte[macCalculator.getMacSize()];
 			macCalculator.update(out, dataOff, dataLength);
-			macCalculator.doFinal(newMac, 0);
+			macCalculator.doFinal(newMAC, 0);
 
-			if (newMac.length != macLength)
-				throw new IOException("MACs have different length! Expected MAC has " + macLength + " bytes and newly calculated MAC has " + newMac.length + " bytes!");
+			if (newMAC.length != macLength)
+				throw new IOException("MACs have different length! Expected MAC has " + macLength + " bytes and newly calculated MAC has " + newMAC.length + " bytes!");
 
 			for (int i = 0; i < macLength; ++i) {
 				byte expected = out[macOff + i];
-				if (expected != newMac[i])
-					throw new IOException("MAC mismatch! mac[" + i + "] was expected to be " + expected + " but was " + newMac[i]);
+				if (expected != newMAC[i])
+					throw new IOException("MAC mismatch! mac[" + i + "] was expected to be " + expected + " but was " + newMAC[i]);
 			}
 		}
 

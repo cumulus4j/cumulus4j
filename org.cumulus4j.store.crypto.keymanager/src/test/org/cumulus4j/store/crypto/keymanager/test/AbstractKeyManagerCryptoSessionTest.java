@@ -75,7 +75,7 @@ public abstract class AbstractKeyManagerCryptoSessionTest
 
 	protected abstract String getEncryptionAlgorithm();
 
-	protected abstract String getMacAlgorithm();
+	protected abstract String getMACAlgorithm();
 
 	@Before
 	public void before()
@@ -92,8 +92,8 @@ public abstract class AbstractKeyManagerCryptoSessionTest
 		if (getEncryptionAlgorithm() != null)
 			pmfProps.put(CryptoManager.PROPERTY_ENCRYPTION_ALGORITHM, getEncryptionAlgorithm());
 
-		if (getMacAlgorithm() != null)
-			pmfProps.put(CryptoManager.PROPERTY_MAC_ALGORITHM, getMacAlgorithm());
+		if (getMACAlgorithm() != null)
+			pmfProps.put(CryptoManager.PROPERTY_MAC_ALGORITHM, getMACAlgorithm());
 
 		pmf = JDOHelper.getPersistenceManagerFactory(pmfProps);
 

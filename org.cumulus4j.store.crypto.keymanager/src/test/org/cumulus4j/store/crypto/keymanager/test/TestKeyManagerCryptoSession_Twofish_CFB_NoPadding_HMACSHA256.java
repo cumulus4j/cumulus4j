@@ -9,7 +9,7 @@ extends AbstractKeyManagerCryptoSessionTest
 	}
 
 	@Override
-	protected String getMacAlgorithm() {
+	protected String getMACAlgorithm() {
 		return "HMAC-SHA256"; // does not have a MAC-IV
 	}
 }

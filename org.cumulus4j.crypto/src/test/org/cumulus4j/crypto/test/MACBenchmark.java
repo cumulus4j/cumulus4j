@@ -33,15 +33,7 @@ public class MACBenchmark
 	}
 
 	@Test
-	public void aaa()
-	throws Exception
-	{
-		for (int i = 0; i < 100; ++i)
-			CryptoRegistry.sharedInstance().createMACCalculator(MAC_ALGORITHM, true);
-	}
-
-	@Test
-	public void benchmarkCreateManyInitialisedMacCalculators()
+	public void benchmarkCreateManyInitialisedMACCalculators()
 	throws Exception
 	{
 		for (int i = 0; i < ITERATION_COUNT; ++i) {
@@ -50,7 +42,7 @@ public class MACBenchmark
 	}
 
 	@Test
-	public void benchmarkCreateManyUNinitialisedMacCalculators()
+	public void benchmarkCreateManyUNinitialisedMACCalculators()
 	throws Exception
 	{
 		for (int i = 0; i < ITERATION_COUNT; ++i) {
@@ -59,7 +51,7 @@ public class MACBenchmark
 	}
 
 	@Test
-	public void benchmarkCalculateManyMacsWithSameMacCalculator()
+	public void benchmarkCalculateManyMACsWithSameMACCalculator()
 	throws Exception
 	{
 		byte[] data = new byte[10240 + random.nextInt(4096)];
@@ -74,7 +66,7 @@ public class MACBenchmark
 	}
 
 	@Test
-	public void benchmarkCalculateManyMacsWithNewMacCalculator()
+	public void benchmarkCalculateManyMACsWithNewMACCalculator()
 	throws Exception
 	{
 		byte[] data = new byte[10240 + random.nextInt(4096)];

@@ -28,7 +28,7 @@ import org.cumulus4j.store.crypto.CryptoSession;
  * <p>
  * Via the {@link EncryptionCoordinateSetManager}, the {@link CryptoManager}
  * (or {@link CryptoSession}) implementation can map the {@link Cipher#getTransformation()
- * cipher-transformation} and other encryption-coordinates (e.g. the {@link #getMacAlgorithm() MAC algorithm})
+ * cipher-transformation} and other encryption-coordinates (e.g. the {@link #getMACAlgorithm() MAC algorithm})
  * to a number in order to save space in each persistent record.
  * </p>
  *
@@ -83,13 +83,13 @@ public class EncryptionCoordinateSet
 	 * <p>
 	 * As each <code>EncryptionCoordinateSet</code> maps all encryption settings to an ID, all
 	 * properties of this class except for the ID form a unique index together. At the moment,
-	 * these are: {@link #getCipherTransformation() cipher-transformation} and {@link #getMacAlgorithm() MAC-algorithm}.
+	 * these are: {@link #getCipherTransformation() cipher-transformation} and {@link #getMACAlgorithm() MAC-algorithm}.
 	 * </p>
 	 *
 	 * @param pm the backend-{@link PersistenceManager} (the one used for data, if there is a separate index-DB used).
 	 * @param cipherTransformation the {@link #getCipherTransformation() cipher-transformation} of the searched instance.
 	 * Must not be <code>null</code>.
-	 * @param macAlgorithm the {@link #getMacAlgorithm()} of the searched instance. Must not be <code>null</code>
+	 * @param macAlgorithm the {@link #getMACAlgorithm()} of the searched instance. Must not be <code>null</code>
 	 * (use {@value #MAC_ALGORITHM_NONE} for no MAC).
 	 * @return the <code>EncryptionCoordinateSet</code> identified by the given properties or
 	 * <code>null</code>, if no such instance exists in the datastore.
@@ -122,7 +122,7 @@ public class EncryptionCoordinateSet
 	 * @param pm the backend-{@link PersistenceManager} (the one used for data, if there is a separate index-DB used).
 	 * @param cipherTransformation the {@link #getCipherTransformation() cipher-transformation} of the searched instance.
 	 * Must not be <code>null</code>.
-	 * @param macAlgorithm the {@link #getMacAlgorithm()} of the searched instance. Must not be <code>null</code>
+	 * @param macAlgorithm the {@link #getMACAlgorithm()} of the searched instance. Must not be <code>null</code>
 	 * (use {@value #MAC_ALGORITHM_NONE} for no MAC).
 	 * @return the <code>EncryptionCoordinateSet</code> identified by the given properties. This method never returns
 	 * <code>null</code>, but instead creates and persists a new instance if needed.
@@ -210,7 +210,7 @@ public class EncryptionCoordinateSet
 	 * </p>
 	 * @return the <a href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a>-algorithm.
 	 */
-	public String getMacAlgorithm() {
+	public String getMACAlgorithm() {
 		return macAlgorithm;
 	}
 }

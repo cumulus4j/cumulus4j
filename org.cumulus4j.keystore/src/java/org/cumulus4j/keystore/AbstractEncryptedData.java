@@ -77,25 +77,25 @@ abstract class AbstractEncryptedData
 
 	private String macAlgorithm;
 
-	public String getMacAlgorithm() {
+	public String getMACAlgorithm() {
 		return macAlgorithm;
 	}
 
 	private short macKeySize;
 
-	public short getMacKeySize() {
+	public short getMACKeySize() {
 		return macKeySize;
 	}
 
 	private short macIVSize;
 
-	public short getMacIVSize() {
+	public short getMACIVSize() {
 		return macIVSize;
 	}
 
 	private short macSize;
 
-	public short getMacSize() {
+	public short getMACSize() {
 		return macSize;
 	}
 

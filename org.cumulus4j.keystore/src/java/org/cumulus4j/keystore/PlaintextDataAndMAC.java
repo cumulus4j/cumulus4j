@@ -11,20 +11,20 @@ import org.cumulus4j.crypto.MACCalculator;
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-class PlaintextDataAndMac
+class PlaintextDataAndMAC
 {
-	public PlaintextDataAndMac(byte[] dataAndMac, AbstractEncryptedData encryptedKey)
+	public PlaintextDataAndMAC(byte[] dataAndMAC, AbstractEncryptedData encryptedKey)
 	{
 		this(
-				dataAndMac,
-				encryptedKey.getMacAlgorithm(), encryptedKey.getMacKeySize(), encryptedKey.getMacIVSize(), encryptedKey.getMacSize()
+				dataAndMAC,
+				encryptedKey.getMACAlgorithm(), encryptedKey.getMACKeySize(), encryptedKey.getMACIVSize(), encryptedKey.getMACSize()
 		);
 	}
 
-	private PlaintextDataAndMac(byte[] dataAndMac, String macAlgorithm, short macKeySize, short macIVSize, short macSize)
+	private PlaintextDataAndMAC(byte[] dataAndMAC, String macAlgorithm, short macKeySize, short macIVSize, short macSize)
 	{
-		if (dataAndMac == null)
-			throw new IllegalArgumentException("dataAndMac == null");
+		if (dataAndMAC == null)
+			throw new IllegalArgumentException("dataAndMAC == null");
 
 		if (macAlgorithm == null)
 			throw new IllegalArgumentException("macAlgorithm == null");
@@ -32,28 +32,28 @@ class PlaintextDataAndMac
 		this.macAlgorithm = macAlgorithm;
 		this.macKey = new byte[macKeySize];
 		this.macIV = new byte[macIVSize];
-		this.data = new byte[dataAndMac.length - macSize - macIVSize - macKeySize];
+		this.data = new byte[dataAndMAC.length - macSize - macIVSize - macKeySize];
 		this.mac = new byte[macSize];
 
 		int srcPos = 0;
 
-		System.arraycopy(dataAndMac, srcPos, this.macKey, 0, this.macKey.length);
+		System.arraycopy(dataAndMAC, srcPos, this.macKey, 0, this.macKey.length);
 		srcPos += this.macKey.length;
 
-		System.arraycopy(dataAndMac, srcPos, this.macIV, 0, this.macIV.length);
+		System.arraycopy(dataAndMAC, srcPos, this.macIV, 0, this.macIV.length);
 		srcPos += this.macIV.length;
 
-		System.arraycopy(dataAndMac, srcPos, this.data, 0, this.data.length);
+		System.arraycopy(dataAndMAC, srcPos, this.data, 0, this.data.length);
 		srcPos += this.data.length;
 
-		System.arraycopy(dataAndMac, srcPos, this.mac, 0, this.mac.length);
+		System.arraycopy(dataAndMAC, srcPos, this.mac, 0, this.mac.length);
 		srcPos += this.mac.length;
 
-		if (srcPos != dataAndMac.length)
-			throw new IllegalStateException("srcPos != dataAndMac.length :: " + srcPos + " != " + dataAndMac.length);
+		if (srcPos != dataAndMAC.length)
+			throw new IllegalStateException("srcPos != dataAndMAC.length :: " + srcPos + " != " + dataAndMAC.length);
 	}
 
-	public PlaintextDataAndMac(byte[] data, String macAlgorithm) throws NoSuchAlgorithmException
+	public PlaintextDataAndMAC(byte[] data, String macAlgorithm) throws NoSuchAlgorithmException
 	{
 		if (data == null)
 			throw new IllegalArgumentException("data == null");
@@ -94,20 +94,20 @@ class PlaintextDataAndMac
 	private byte[] data;
 	private byte[] mac;
 
-	public String getMacAlgorithm() {
+	public String getMACAlgorithm() {
 		return macAlgorithm;
 	}
 
-	public byte[] getMacKey() {
+	public byte[] getMACKey() {
 		return macKey;
 	}
-	public byte[] getMacIV() {
+	public byte[] getMACIV() {
 		return macIV;
 	}
 	public byte[] getData() {
 		return data;
 	}
-	public byte[] getMac() {
+	public byte[] getMAC() {
 		return mac;
 	}
 
@@ -141,19 +141,19 @@ class PlaintextDataAndMac
 		boolean result = true;
 		if (!KeyStore.MAC_ALGORITHM_NONE.equals(macAlgorithm)) {
 			MACCalculator macCalculator = CryptoRegistry.sharedInstance().createMACCalculator(macAlgorithm, false);
-			if (this.getMacIV().length > 0)
-				macCalculator.init(new ParametersWithIV(new KeyParameter(this.getMacKey()), this.getMacIV()));
+			if (this.getMACIV().length > 0)
+				macCalculator.init(new ParametersWithIV(new KeyParameter(this.getMACKey()), this.getMACIV()));
 			else
-				macCalculator.init(new KeyParameter(this.getMacKey()));
+				macCalculator.init(new KeyParameter(this.getMACKey()));
 
 			byte[] newMAC = new byte[macCalculator.getMacSize()];
 			macCalculator.update(this.getData(), 0, this.getData().length);
 			macCalculator.doFinal(newMAC, 0);
-			if (!Arrays.equals(this.getMac(), newMAC)) {
+			if (!Arrays.equals(this.getMAC(), newMAC)) {
 				result = false;
 				KeyStore.logger.warn(
-						"verifyMAC: MAC verification failed! macAlgorithm={} expectedMac={} calculatedMac={}",
-						new Object[] { macAlgorithm, KeyStoreUtil.encodeHexStr(this.getMac()), KeyStoreUtil.encodeHexStr(newMAC) }
+						"verifyMAC: MAC verification failed! macAlgorithm={} expectedMAC={} calculatedMAC={}",
+						new Object[] { macAlgorithm, KeyStoreUtil.encodeHexStr(this.getMAC()), KeyStoreUtil.encodeHexStr(newMAC) }
 				);
 			}
 		}

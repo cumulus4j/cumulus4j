@@ -446,7 +446,7 @@ public abstract class AbstractCryptoManager implements CryptoManager
 	private String encryptionAlgorithm = null;
 
 	@Override
-	public String getMacAlgorithm()
+	public String getMACAlgorithm()
 	{
 		String ma = macAlgorithm;
 
@@ -460,11 +460,11 @@ public abstract class AbstractCryptoManager implements CryptoManager
 			if (macAlgorithmPropValue == null || macAlgorithmPropValue.trim().isEmpty()) {
 				ma = MAC_ALGORITHM_NONE; // default value, if the property was not defined.
 //				ma = "HMAC-SHA1";
-				logger.info("getMacAlgorithm: Property '{}' is not set. Using default MAC algorithm '{}'.", macAlgorithmPropName, ma);
+				logger.info("getMACAlgorithm: Property '{}' is not set. Using default MAC algorithm '{}'.", macAlgorithmPropName, ma);
 			}
 			else {
 				ma = macAlgorithmPropValue.trim();
-				logger.info("getMacAlgorithm: Property '{}' is set to '{}'. Using this MAC algorithm.", macAlgorithmPropName, ma);
+				logger.info("getMACAlgorithm: Property '{}' is set to '{}'. Using this MAC algorithm.", macAlgorithmPropName, ma);
 			}
 			ma = ma.toUpperCase(Locale.ENGLISH);
 			macAlgorithm = ma;

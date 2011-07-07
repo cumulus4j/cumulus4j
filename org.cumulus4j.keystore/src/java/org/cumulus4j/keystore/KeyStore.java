@@ -196,13 +196,13 @@ import org.slf4j.LoggerFactory;
  * 				</tr>
  *
  * 				<tr>
- * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMacKey</i>: MAC key: Number of bytes in the MAC's key.</td>
+ * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMACKey</i>: MAC key: Number of bytes in the MAC's key.</td>
  * 				</tr>
  * 				<tr>
- * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMacIV</i>: MAC IV: Number of bytes in the MAC's IV.</td>
+ * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMACIV</i>: MAC IV: Number of bytes in the MAC's IV.</td>
  * 				</tr>
  * 				<tr>
- * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMac</i>: MAC: Number of bytes in the MAC.</td>
+ * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMAC</i>: MAC: Number of bytes in the MAC.</td>
  * 				</tr>
  *
  *				<tr>
@@ -211,16 +211,16 @@ import org.slf4j.LoggerFactory;
  * 							<tbody>
  * 								<tr><td bgcolor="#C0C0C0" colspan="2"><b>ENCRYPTED</b></td></tr>
  * 								<tr>
- * 									<td align="right" valign="top"><i>lenMacKey</i></td><td valign="top">MAC key: The actual MAC's key (random).</td>
+ * 									<td align="right" valign="top"><i>lenMACKey</i></td><td valign="top">MAC key: The actual MAC's key (random).</td>
  * 								</tr>
  * 								<tr>
- * 									<td align="right" valign="top"><i>lenMacIV</i></td><td valign="top">MAC IV: The actual MAC's IV (random).</td>
+ * 									<td align="right" valign="top"><i>lenMACIV</i></td><td valign="top">MAC IV: The actual MAC's IV (random).</td>
  * 								</tr>
  * 								<tr>
  * 									<td align="right" valign="top"><i>all until MAC</i></td><td valign="top">The actual data (payload).</td>
  * 								</tr>
  * 								<tr>
- * 									<td align="right" valign="top"><i>lenMac</i></td><td valign="top">MAC: The actual MAC.</td>
+ * 									<td align="right" valign="top"><i>lenMAC</i></td><td valign="top">MAC: The actual MAC.</td>
  * 								</tr>
  * 							</tbody>
  * 						</table>
@@ -275,13 +275,13 @@ import org.slf4j.LoggerFactory;
  * 				</tr>
  *
  * 				<tr>
- * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMacKey</i>: MAC key: Number of bytes in the MAC's key.</td>
+ * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMACKey</i>: MAC key: Number of bytes in the MAC's key.</td>
  * 				</tr>
  * 				<tr>
- * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMacIV</i>: MAC IV: Number of bytes in the MAC's IV.</td>
+ * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMACIV</i>: MAC IV: Number of bytes in the MAC's IV.</td>
  * 				</tr>
  * 				<tr>
- * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMac</i>: MAC: Number of bytes in the MAC.</td>
+ * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMAC</i>: MAC: Number of bytes in the MAC.</td>
  * 				</tr>
  *
  *				<tr>
@@ -290,16 +290,16 @@ import org.slf4j.LoggerFactory;
  * 							<tbody>
  * 								<tr><td bgcolor="#C0C0C0" colspan="2"><b>ENCRYPTED</b></td></tr>
  * 								<tr>
- * 									<td align="right" valign="top"><i>lenMacKey</i></td><td valign="top">MAC key: The actual MAC's key (random).</td>
+ * 									<td align="right" valign="top"><i>lenMACKey</i></td><td valign="top">MAC key: The actual MAC's key (random).</td>
  * 								</tr>
  * 								<tr>
- * 									<td align="right" valign="top"><i>lenMacIV</i></td><td valign="top">MAC IV: The actual MAC's IV (random).</td>
+ * 									<td align="right" valign="top"><i>lenMACIV</i></td><td valign="top">MAC IV: The actual MAC's IV (random).</td>
  * 								</tr>
  * 								<tr>
  * 									<td align="right" valign="top"><i>all until MAC</i></td><td valign="top">The actual data (payload).</td>
  * 								</tr>
  * 								<tr>
- * 									<td align="right" valign="top"><i>lenMac</i></td><td valign="top">MAC: The actual MAC.</td>
+ * 									<td align="right" valign="top"><i>lenMAC</i></td><td valign="top">MAC: The actual MAC.</td>
  * 								</tr>
  * 							</tbody>
  * 						</table>
@@ -359,13 +359,13 @@ import org.slf4j.LoggerFactory;
  * 				</tr>
  *
  * 				<tr>
- * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMacKey</i>: MAC key: Number of bytes in the MAC's key.</td>
+ * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMACKey</i>: MAC key: Number of bytes in the MAC's key.</td>
  * 				</tr>
  * 				<tr>
- * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMacIV</i>: MAC IV: Number of bytes in the MAC's IV.</td>
+ * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMACIV</i>: MAC IV: Number of bytes in the MAC's IV.</td>
  * 				</tr>
  * 				<tr>
- * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMac</i>: MAC: Number of bytes in the MAC.</td>
+ * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMAC</i>: MAC: Number of bytes in the MAC.</td>
  * 				</tr>
  *
  *				<tr>
@@ -374,16 +374,16 @@ import org.slf4j.LoggerFactory;
  * 							<tbody>
  * 								<tr><td bgcolor="#C0C0C0" colspan="2"><b>ENCRYPTED</b></td></tr>
  * 								<tr>
- * 									<td align="right" valign="top"><i>lenMacKey</i></td><td valign="top">MAC key: The actual MAC's key (random).</td>
+ * 									<td align="right" valign="top"><i>lenMACKey</i></td><td valign="top">MAC key: The actual MAC's key (random).</td>
  * 								</tr>
  * 								<tr>
- * 									<td align="right" valign="top"><i>lenMacIV</i></td><td valign="top">MAC IV: The actual MAC's IV (random).</td>
+ * 									<td align="right" valign="top"><i>lenMACIV</i></td><td valign="top">MAC IV: The actual MAC's IV (random).</td>
  * 								</tr>
  * 								<tr>
  * 									<td align="right" valign="top"><i>all until MAC</i></td><td valign="top">The actual data (payload).</td>
  * 								</tr>
  * 								<tr>
- * 									<td align="right" valign="top"><i>lenMac</i></td><td valign="top">MAC: The actual MAC.</td>
+ * 									<td align="right" valign="top"><i>lenMAC</i></td><td valign="top">MAC: The actual MAC.</td>
  * 								</tr>
  * 							</tbody>
  * 						</table>
@@ -645,7 +645,7 @@ public class KeyStore
 	private String encryptionAlgorithm = null;
 
 
-	String getMacAlgorithm()
+	String getMACAlgorithm()
 	{
 		String ma = macAlgorithm;
 
@@ -654,11 +654,11 @@ public class KeyStore
 			String macAlgorithmPropValue = System.getProperty(macAlgorithmPropName);
 			if (macAlgorithmPropValue == null || macAlgorithmPropValue.trim().isEmpty()) {
 				ma = MAC_ALGORITHM_NONE; // default value, if the property was not defined.
-				logger.info("getMacAlgorithm: System property '{}' is not set. Using default MAC algorithm '{}'.", macAlgorithmPropName, ma);
+				logger.info("getMACAlgorithm: System property '{}' is not set. Using default MAC algorithm '{}'.", macAlgorithmPropName, ma);
 			}
 			else {
 				ma = macAlgorithmPropValue.trim();
-				logger.info("getMacAlgorithm: System property '{}' is set to '{}'. Using this MAC algorithm.", macAlgorithmPropName, ma);
+				logger.info("getMACAlgorithm: System property '{}' is set to '{}'. Using this MAC algorithm.", macAlgorithmPropName, ma);
 			}
 			macAlgorithm = ma;
 		}
@@ -794,7 +794,7 @@ public class KeyStore
 		if (encryptedKey == null)
 			logger.warn("getMasterKey: Unknown userName: {}", authUserName); // NOT throw exception here to not disclose the true reason of the AuthenticationException - see below
 		else {
-			PlaintextDataAndMac plaintextDataAndMac;
+			PlaintextDataAndMAC plaintextDataAndMAC;
 			try {
 				Cipher cipher = getCipherForUserPassword(
 						authPassword,
@@ -807,17 +807,17 @@ public class KeyStore
 				);
 				byte[] decrypted = cipher.doFinal(encryptedKey.getEncryptedData());
 
-				plaintextDataAndMac = new PlaintextDataAndMac(decrypted, encryptedKey);
+				plaintextDataAndMAC = new PlaintextDataAndMAC(decrypted, encryptedKey);
 			} catch (CryptoException x) {
 				logger.warn("getMasterKey: Caught CryptoException indicating a wrong password for user \"{}\"!", authUserName);
-				plaintextDataAndMac = null;
+				plaintextDataAndMAC = null;
 			} catch (GeneralSecurityException x) {
 				throw new RuntimeException(x);
 			}
 
 			try {
-				if (plaintextDataAndMac != null && plaintextDataAndMac.verifyMAC())
-					result = new MasterKey(plaintextDataAndMac.getData());
+				if (plaintextDataAndMAC != null && plaintextDataAndMAC.verifyMAC())
+					result = new MasterKey(plaintextDataAndMAC.getData());
 				else
 					logger.warn("getMasterKey: Wrong password for user \"{}\"! MAC verification failed.", authUserName);
 			} catch (GeneralSecurityException x) {
@@ -1049,8 +1049,8 @@ public class KeyStore
 					salt, null, null, CipherOperationMode.ENCRYPT
 			);
 
-			PlaintextDataAndMac plaintextDataAndMac = new PlaintextDataAndMac(plainMasterKeyData, getMacAlgorithm());
-			byte[] encrypted = cipher.doFinal(plaintextDataAndMac.toByteArray());
+			PlaintextDataAndMAC plaintextDataAndMAC = new PlaintextDataAndMAC(plainMasterKeyData, getMACAlgorithm());
+			byte[] encrypted = cipher.doFinal(plaintextDataAndMAC.toByteArray());
 
 			byte[] iv = ((ParametersWithIV)cipher.getParameters()).getIV();
 
@@ -1062,10 +1062,10 @@ public class KeyStore
 					salt,
 					keyStoreData.stringConstant(cipher.getTransformation()),
 					iv,
-					keyStoreData.stringConstant(plaintextDataAndMac.getMacAlgorithm()),
-					(short)plaintextDataAndMac.getMacKey().length,
-					(short)plaintextDataAndMac.getMacIV().length,
-					(short)plaintextDataAndMac.getMac().length,
+					keyStoreData.stringConstant(plaintextDataAndMAC.getMACAlgorithm()),
+					(short)plaintextDataAndMAC.getMACKey().length,
+					(short)plaintextDataAndMAC.getMACIV().length,
+					(short)plaintextDataAndMAC.getMAC().length,
 					encrypted
 			);
 			keyStoreData.user2keyMap.put(userName, encryptedKey);
@@ -1241,11 +1241,11 @@ public class KeyStore
 			);
 			byte[] decrypted = cipher.doFinal(encryptedKey.getEncryptedData());
 
-			PlaintextDataAndMac plaintextDataAndMac = new PlaintextDataAndMac(decrypted, encryptedKey);
-			if (!plaintextDataAndMac.verifyMAC())
+			PlaintextDataAndMAC plaintextDataAndMAC = new PlaintextDataAndMAC(decrypted, encryptedKey);
+			if (!plaintextDataAndMAC.verifyMAC())
 				throw new IllegalStateException("MAC mismatch!!! This means, the decryption key was wrong!");
 
-			return plaintextDataAndMac.getData();
+			return plaintextDataAndMAC.getData();
 		} catch (CryptoException e) {
 			throw new RuntimeException(e);
 		} catch (GeneralSecurityException e) {
@@ -1267,20 +1267,20 @@ public class KeyStore
 		MasterKey masterKey = getMasterKey(authUserName, authPassword);
 
 		try {
-			PlaintextDataAndMac plaintextDataAndMac = new PlaintextDataAndMac(key, getMacAlgorithm());
+			PlaintextDataAndMAC plaintextDataAndMAC = new PlaintextDataAndMAC(key, getMACAlgorithm());
 
 			Cipher cipher = getCipherForMasterKey(masterKey, null, null, CipherOperationMode.ENCRYPT);
 			byte[] iv = ((ParametersWithIV)cipher.getParameters()).getIV();
-			byte[] encrypted = cipher.doFinal(plaintextDataAndMac.toByteArray());
+			byte[] encrypted = cipher.doFinal(plaintextDataAndMAC.toByteArray());
 
 			EncryptedKey encryptedKey = new EncryptedKey(
 					keyID,
 					keyStoreData.stringConstant(cipher.getTransformation()),
 					iv,
-					plaintextDataAndMac.getMacAlgorithm(),
-					(short)plaintextDataAndMac.getMacKey().length,
-					(short)plaintextDataAndMac.getMacIV().length,
-					(short)plaintextDataAndMac.getMac().length,
+					plaintextDataAndMAC.getMACAlgorithm(),
+					(short)plaintextDataAndMAC.getMACKey().length,
+					(short)plaintextDataAndMAC.getMACIV().length,
+					(short)plaintextDataAndMAC.getMAC().length,
 					encrypted
 			);
 			keyStoreData.keyID2keyMap.put(keyID, encryptedKey);
@@ -1358,11 +1358,11 @@ public class KeyStore
 				);
 				byte[] decrypted = cipher.doFinal(encryptedProperty.getEncryptedData());
 
-				PlaintextDataAndMac plaintextDataAndMac = new PlaintextDataAndMac(decrypted, encryptedProperty);
-				if (!plaintextDataAndMac.verifyMAC())
+				PlaintextDataAndMAC plaintextDataAndMAC = new PlaintextDataAndMAC(decrypted, encryptedProperty);
+				if (!plaintextDataAndMAC.verifyMAC())
 					throw new IllegalStateException("MAC mismatch!!! This means, the decryption key was wrong!");
 
-				result.setValueEncoded(plaintextDataAndMac.getData());
+				result.setValueEncoded(plaintextDataAndMAC.getData());
 			} catch (CryptoException e) {
 				throw new RuntimeException(e);
 			} catch (GeneralSecurityException e) {
@@ -1477,10 +1477,10 @@ public class KeyStore
 		}
 		else {
 			try {
-				PlaintextDataAndMac plaintextDataAndMac = new PlaintextDataAndMac(plainValueEncoded, getMacAlgorithm());
+				PlaintextDataAndMAC plaintextDataAndMAC = new PlaintextDataAndMAC(plainValueEncoded, getMACAlgorithm());
 
 				Cipher cipher = getCipherForMasterKey(masterKey, null, null, CipherOperationMode.ENCRYPT);
-				byte[] encrypted = cipher.doFinal(plaintextDataAndMac.toByteArray());
+				byte[] encrypted = cipher.doFinal(plaintextDataAndMAC.toByteArray());
 				byte[] iv = ((ParametersWithIV)cipher.getParameters()).getIV();
 
 				@SuppressWarnings("unchecked")
@@ -1489,10 +1489,10 @@ public class KeyStore
 						property.getName(), propertyType,
 						keyStoreData.stringConstant(cipher.getTransformation()),
 						iv,
-						plaintextDataAndMac.getMacAlgorithm(),
-						(short)plaintextDataAndMac.getMacKey().length,
-						(short)plaintextDataAndMac.getMacIV().length,
-						(short)plaintextDataAndMac.getMac().length,
+						plaintextDataAndMAC.getMACAlgorithm(),
+						(short)plaintextDataAndMAC.getMACKey().length,
+						(short)plaintextDataAndMAC.getMACIV().length,
+						(short)plaintextDataAndMAC.getMAC().length,
 						encrypted
 				);
 				keyStoreData.name2propertyMap.put(encryptedProperty.getName(), encryptedProperty);

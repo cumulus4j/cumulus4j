@@ -11,7 +11,7 @@ extends AbstractKeyManagerCryptoSessionTest
 	}
 
 	@Override
-	protected String getMacAlgorithm() {
+	protected String getMACAlgorithm() {
 		return CryptoManager.MAC_ALGORITHM_NONE;
 	}
 }
