@@ -5,11 +5,21 @@ import java.io.IOException;
 /**
  * <p>
  * Entry point for the key management API.
+ * </p><p>
+ * Use <code>new DefaultKeyManagerAPI()</code> to get an instance, which you should keep (e.g. in a static shared
+ * instance or some other context). Except for this one reference to {@link DefaultKeyManagerAPI} (i.e. an implementation class),
+ * you should only reference the interfaces of this API project!
+ * </p><p>
+ * An application server using Cumulus4j is only able to read or write data, when the key manager grants access to
+ * keys. In order to control this access, crypto-sessions are used (not to be confused with a servlet's session):
+ * An application server can only request a key from a key manager, when the crypto-session exists and is unlocked.
+ * Usually, a client will first unlock the session, then send a request to the app server and when the app server responded,
+ * lock the session, again. Thus most of the time, a key manager will reject access to keys, even while a connection
+ * between app server and key manager exists.
  * </p>
  * <p>
- * Use <code>new DefaultKeyManagerAPI()</code> to get an instance, which you should keep (e.g. in a static shared
- * instance or some other context). Except for this one reference to {@link DefaultKeyManagerAPI},
- * you should only reference the interfaces of this API project!
+ * This entire API (all classes in <code>org.cumulus4j.keymanager.api</code>) is thread-safe. You can - and should - share
+ * one <code>KeyManagerAPI</code> instance across multiple threads.
  * </p>
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de

@@ -204,7 +204,6 @@ public class RemoteKeyManagerAPI extends AbstractKeyManagerAPI
 		} catch (IOException x) {
 			throw x;
 		}
-		// TODO try-catch-block and introduce nice exceptions into this API
 	}
 
 	protected static void throwUniformInterfaceExceptionAsAuthenticationException(UniformInterfaceException x)
