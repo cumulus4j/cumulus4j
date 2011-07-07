@@ -16,10 +16,12 @@ import java.io.IOException;
  * Usually, a client will first unlock the session, then send a request to the app server and when the app server responded,
  * lock the session, again. Thus most of the time, a key manager will reject access to keys, even while a connection
  * between app server and key manager exists.
- * </p>
- * <p>
+ * </p><p>
  * This entire API (all classes in <code>org.cumulus4j.keymanager.api</code>) is thread-safe. You can - and should - share
  * one <code>KeyManagerAPI</code> instance across multiple threads.
+ * </p><p>
+ * Note, that you must {@link #setConfiguration(KeyManagerAPIConfiguration) configure} the <code>KeyManagerAPI</code>, before
+ * you can use it.
  * </p>
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
@@ -58,7 +60,9 @@ public interface KeyManagerAPI
 	DateDependentKeyStrategyInitResult initDateDependentKeyStrategy(DateDependentKeyStrategyInitParam param) throws KeyStoreNotEmptyException, IOException;
 
 	/**
-	 * Create a new user or change an existing user's password.
+	 * Create a new user or change an existing user's password. If the password of the {@link KeyManagerAPIConfiguration#getAuthUserName() current user}
+	 * is modified, this instance of KeyManagerAPI will be updated with a new configuration, automatically. Other instances of <code>KeyManagerAPI</code>
+	 * - even in the same JVM - are not updated, though.
 	 * @param userName the name of the new user.
 	 * @param password the password of the new user.
 	 * @throws AuthenticationException if the {@link #setAuthUserName(String) authUserName} or the {@link #setAuthPassword(char[]) authPassword} is incorrect.
@@ -67,9 +71,31 @@ public interface KeyManagerAPI
 	void putUser(String userName, char[] password)
 	throws AuthenticationException, IOException;
 
+	/**
+	 * Delete a user. If the specified user does not exist, this method is a no-op. Note, that the current user can delete himself.
+	 * In this case, a 2nd call to this method would cause an <code>AuthenticationException</code>.
+	 * @param userName the name of the user to be deleted.
+	 * @throws AuthenticationException if the {@link #setAuthUserName(String) authUserName} or the {@link #setAuthPassword(char[]) authPassword} is incorrect.
+	 * @throws CannotDeleteLastUserException if you attempted to delete the last user (which would render the key-store to be totally
+	 * unreadable).
+	 * @throws IOException if the communication with the key-store (either local key-store-file or remote key-server) fails.
+	 */
 	void deleteUser(String userName)
 	throws AuthenticationException, CannotDeleteLastUserException, IOException;
 
+	/**
+	 * <p>
+	 * Get a session for a certain application server.
+	 * </p>
+	 *
+	 * @param appServerBaseURL the base-url of the app-server-key-manager-channel (must not be <code>null</code>). This is the part of the URL before the "/KeyManagerChannel" -
+	 * e.g. if the REST URL of the KeyManagerChannel-service is
+	 * "https://serverUsingCumulus4j.mydomain.org/org.cumulus4j.keymanager.back.webapp/KeyManagerChannel", then this must be
+	 * "https://serverUsingCumulus4j.mydomain.org/org.cumulus4j.keymanager.back.webapp".
+	 * @return the session; never <code>null</code>.
+	 * @throws AuthenticationException if the {@link #setAuthUserName(String) authUserName} or the {@link #setAuthPassword(char[]) authPassword} is incorrect.
+	 * @throws IOException if the communication with the key-store (either local key-store-file or remote key-server) fails.
+	 */
 	Session getSession(String appServerBaseURL) throws AuthenticationException, IOException;
 
 }

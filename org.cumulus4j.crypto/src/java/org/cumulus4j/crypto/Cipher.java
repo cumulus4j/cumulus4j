@@ -48,7 +48,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
  * the Java runtime environment (installing some files that are not included in the operating system's
  * package management).</li>
  * 	<li>The {@link BouncyCastleProvider} was not correctly registered in the JCE when using One-JAR to
- * package e.g. the <code>org.cumulus4j.keystore.cli</code>. Probably because the signatures where not
+ * package e.g. the <code>org.cumulus4j.keymanager.cli</code>. Probably because the signatures where not
  * found when looking for the MANIFEST.MF (probably the wrong MANIFEST.MF was picked by the class loader).
  * 	</li>
  * </ul>

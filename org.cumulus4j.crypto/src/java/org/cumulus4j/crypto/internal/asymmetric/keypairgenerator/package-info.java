@@ -1,6 +1,6 @@
 /**
  * <p>
- * Internal (non-API) package for key <a href="http://en.wikipedia.org/wiki/Public-key_cryptography">asymmetric</a> encryption.
+ * Internal (non-API) package for key-pair-generation used by <a href="http://en.wikipedia.org/wiki/Public-key_cryptography">asymmetric</a> encryption.
  * </p><p>
  * This package contains implementations of {@link org.cumulus4j.crypto.AsymmetricCipherKeyPairGeneratorFactory}.
  * </p>

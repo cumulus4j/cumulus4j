@@ -7,6 +7,15 @@ import org.cumulus4j.keymanager.api.internal.local.LocalKeyManagerAPI;
 import org.cumulus4j.keymanager.api.internal.remote.RemoteKeyManagerAPI;
 
 /**
+ * <p>
+ * Implementation of {@link KeyManagerAPI} that delegates to a specific implementation.
+ * </p><p>
+ * Instantiate an instance of this class and then use the <code>KeyManagerAPI</code> interface
+ * everywhere to reference it.
+ * </p><p>
+ * When using dependency injection, there should be no reference
+ * to this class at all except for the configuration of the dependency injection.
+ * </p>
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
