@@ -25,15 +25,15 @@ Deployment: Module-location-matrix
 		
 	* org.datanucleus.* (DB-/API-dependent plugins)
 		
-	* {{{/org.cumulus4j.annotation/}org.cumulus4j.annotation}}
+	* {{{../org.cumulus4j.annotation/}org.cumulus4j.annotation}}
 		
-	* {{{/org.cumulus4j.store/}org.cumulus4j.store}}
+	* {{{../org.cumulus4j.store/}org.cumulus4j.store}}
 		
-	* {{{/org.cumulus4j.store.crypto.keymanager/}org.cumulus4j.store.crypto.keymanager}}
+	* {{{../org.cumulus4j.store.crypto.keymanager/}org.cumulus4j.store.crypto.keymanager}}
 		
-	* {{{/org.cumulus4j.keymanager.back.shared/}org.cumulus4j.keymanager.back.shared}}
+	* {{{../org.cumulus4j.keymanager.back.shared/}org.cumulus4j.keymanager.back.shared}}
 	
-	* {{{/org.cumulus4j.keymanager.back.webapp/}org.cumulus4j.keymanager.back.webapp}}
+	* {{{../org.cumulus4j.keymanager.back.webapp/}org.cumulus4j.keymanager.back.webapp}}
 	
 	[]
 
@@ -41,15 +41,15 @@ Deployment: Module-location-matrix
 
 	* javax.jdo:jdo-api (not necessary when using DTOs)
 
-	* {{{/org.cumulus4j.annotation/}org.cumulus4j.annotation}} (not necessary when using DTOs)
+	* {{{../org.cumulus4j.annotation/}org.cumulus4j.annotation}} (not necessary when using DTOs)
 
-	* {{{/org.cumulus4j.keystore/}org.cumulus4j.keystore}}
+	* {{{../org.cumulus4j.keystore/}org.cumulus4j.keystore}}
 
-	* {{{/org.cumulus4j.keymanager/}org.cumulus4j.keymanager}}
+	* {{{../org.cumulus4j.keymanager/}org.cumulus4j.keymanager}}
 
-	* {{{/org.cumulus4j.keymanager.api/}org.cumulus4j.keymanager.api}}
+	* {{{../org.cumulus4j.keymanager.api/}org.cumulus4j.keymanager.api}}
 
-	* {{{/org.cumulus4j.keymanager.back.shared/}org.cumulus4j.keymanager.back.shared}}
+	* {{{../org.cumulus4j.keymanager.back.shared/}org.cumulus4j.keymanager.back.shared}}
 
 	[]	
 
@@ -65,31 +65,31 @@ Deployment: Module-location-matrix
 		
 	* org.datanucleus.* (DB-/API-dependent plugins)
 		
-	* {{{/org.cumulus4j.annotation/}org.cumulus4j.annotation}}
+	* {{{../org.cumulus4j.annotation/}org.cumulus4j.annotation}}
 		
-	* {{{/org.cumulus4j.store/}org.cumulus4j.store}}
+	* {{{../org.cumulus4j.store/}org.cumulus4j.store}}
 		
-	* {{{/org.cumulus4j.store.crypto.keymanager/}org.cumulus4j.store.crypto.keymanager}}
+	* {{{../org.cumulus4j.store.crypto.keymanager/}org.cumulus4j.store.crypto.keymanager}}
 		
-	* {{{/org.cumulus4j.keymanager.back.shared/}org.cumulus4j.keymanager.back.shared}}
+	* {{{../org.cumulus4j.keymanager.back.shared/}org.cumulus4j.keymanager.back.shared}}
 	
-	* {{{/org.cumulus4j.keymanager.back.webapp/}org.cumulus4j.keymanager.back.webapp}}
+	* {{{../org.cumulus4j.keymanager.back.webapp/}org.cumulus4j.keymanager.back.webapp}}
 	
 	[]
 
 ** Key server
 
-	* {{{/org.cumulus4j.keystore/}org.cumulus4j.keystore}}
+	* {{{../org.cumulus4j.keystore/}org.cumulus4j.keystore}}
 
-	* {{{/org.cumulus4j.keymanager/}org.cumulus4j.keymanager}}
+	* {{{../org.cumulus4j.keymanager/}org.cumulus4j.keymanager}}
 
-	* {{{/org.cumulus4j.keymanager.api/}org.cumulus4j.keymanager.api}}
+	* {{{../org.cumulus4j.keymanager.api/}org.cumulus4j.keymanager.api}}
 
-	* {{{/org.cumulus4j.keymanager.back.shared/}org.cumulus4j.keymanager.back.shared}}
+	* {{{../org.cumulus4j.keymanager.back.shared/}org.cumulus4j.keymanager.back.shared}}
 
-	* {{{/org.cumulus4j.keymanager.front.shared/}org.cumulus4j.keymanager.front.shared}}
+	* {{{../org.cumulus4j.keymanager.front.shared/}org.cumulus4j.keymanager.front.shared}}
 
-	* {{{/org.cumulus4j.keymanager.front.webapp/}org.cumulus4j.keymanager.front.webapp}}
+	* {{{../org.cumulus4j.keymanager.front.webapp/}org.cumulus4j.keymanager.front.webapp}}
 	
 	[]
 
@@ -105,11 +105,11 @@ Deployment: Module-location-matrix
 
 	* javax.jdo:jdo-api (not necessary when using DTOs)
 
-	* {{{/org.cumulus4j.annotation/}org.cumulus4j.annotation}} (not necessary when using DTOs)
+	* {{{../org.cumulus4j.annotation/}org.cumulus4j.annotation}} (not necessary when using DTOs)
 
-	* {{{/org.cumulus4j.keymanager.api/}org.cumulus4j.keymanager.api}}
+	* {{{../org.cumulus4j.keymanager.api/}org.cumulus4j.keymanager.api}}
 
-	* {{{/org.cumulus4j.keymanager.front.shared/}org.cumulus4j.keymanager.front.shared}}
+	* {{{../org.cumulus4j.keymanager.front.shared/}org.cumulus4j.keymanager.front.shared}}
 
 	[]
 
