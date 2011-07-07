@@ -8,8 +8,10 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>org.cumulus4j.keymanager</artifactId>
-	<name>org.cumulus4j.keymanager</name>
 	<packaging>bundle</packaging>
+	
+	<name>org.cumulus4j.keymanager</name>
+	<description>Key manager sending keys to the app-server (when requested and allowed).</description>
 
 	<dependencies>
 		<dependency>

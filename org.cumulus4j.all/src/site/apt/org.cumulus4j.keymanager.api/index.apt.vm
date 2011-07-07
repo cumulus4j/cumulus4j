@@ -7,7 +7,15 @@
 
 Module org.cumulus4j.keymanager.api
 
-	TODO document this module!
+	API to be used by the client code for controlling a key manager (local key store or remote key-server).
+
+	As shown in the {{{../documentation/deployment-scenarios.html}deployment scenarios}}, the
+	{{{../org.cumulus4j.keystore/}key-store}} can be located in the local file system or on a remote key-server.
+	This API provides a generic way (no matter where it is located) to access the key-store. The only
+	thing that is different between the two scenarios is the URL of the key-manager (either "file:/some/directory" or
+	"http[s]://some-server.domain.tld/some-path".
+
+	See the {{{../apidocs/index.html?org/cumulus4j/keymanager/api/package-summary.html}javadoc}} for further information.
 
 * Maven
 

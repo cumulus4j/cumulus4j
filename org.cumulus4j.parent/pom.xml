@@ -692,7 +692,8 @@
 		-->
 		<site>
 			<id>www.cumulus4j.org</id>
-			<url>${distributionManagement.site.prefix}/www.cumulus4j.org/junk/</url>
+<!--			<url>${distributionManagement.site.prefix}/www.cumulus4j.org/junk/</url> -->
+			<url>file:${java.io.tmpdir}/cumulus4j-junk</url>
 		</site>
 	<!--
 		TODO auto-deployment When we release Cumulus4j as Free Software, we
