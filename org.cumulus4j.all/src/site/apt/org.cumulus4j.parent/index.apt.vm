@@ -14,3 +14,20 @@ Module org.cumulus4j.parent
 
 	Besides the <<<pom.xml>>>, there are some other global settings declared in this project
 	(e.g. the used skin for this web-site is configured in <<</src/site/site.xml>>>).
+
+* Maven
+
+	After adding the repositories documented on the {{{../download/index.html}Download}} page
+	to your <<<pom.xml>>>, you can add the following parent-declaration in order to inherit the
+	project configuration: 
+
++------------------------------------------+
+	<parent>
+		<artifactId>org.cumulus4j.parent</artifactId>
+		<groupId>org.cumulus4j</groupId>
+		<version>${project.version}</version>
+		<relativePath>../org.cumulus4j.parent/pom.xml</relativePath>
+	</parent>
++------------------------------------------+
+
+	The <<<relativePath>>> is optional, but if you specify it, you likely have to modify it.

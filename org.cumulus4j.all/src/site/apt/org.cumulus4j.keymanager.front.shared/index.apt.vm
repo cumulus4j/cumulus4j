@@ -25,3 +25,8 @@ Module org.cumulus4j.keymanager.front.shared
 	...
 </dependencies>
 +------------------------------------------+
+
+* Deployment location
+
+	The {{{../documentation/deployment-module-location-matrix.html}module-location-matrix}} shows where
+	this module needs to be deployed.

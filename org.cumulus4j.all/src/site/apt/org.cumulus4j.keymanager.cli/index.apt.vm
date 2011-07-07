@@ -47,5 +47,5 @@ java -jar org.cumulus4j.keymanager.cli-${project.version}.jar help
 +------------------------------------------+
 
 	However, as said: This module is <<not a library>> and therefore you should normally not need to
-	include it into the <<<pom.xml>>> of any of your modules.
- 
+	include it into the <<<pom.xml>>> of any of your modules. We provide these Maven coordinates merely
+	for special situations like bundling this CLI into an installation package. 
