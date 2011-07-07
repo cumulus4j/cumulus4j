@@ -20,11 +20,7 @@
 -->
 <?eclipse version="3.4"?>
 <plugin>
- <extension
-       point="org.cumulus4j.store.crypto-manager">
-    <cryptoManager
-          class="org.cumulus4j.store.crypto.keymanager.KeyManagerCryptoManager"
-          crypto-manager-id="keyManager">
-    </cryptoManager>
+ <extension point="org.cumulus4j.store.crypto_manager">
+    <crypto-manager class="org.cumulus4j.store.crypto.keymanager.KeyManagerCryptoManager" crypto-manager-id="keyManager"/>
  </extension>
 </plugin>

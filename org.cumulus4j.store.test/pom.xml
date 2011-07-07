@@ -9,7 +9,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>org.cumulus4j.store.test</artifactId>
 	<name>org.cumulus4j.store.test</name>
-	<description>Various example data models for tests and jUnit test classes</description>
+	<description>Tests for org.cumulus4j.store testing persist- and query-functionality without key management. The tests in this project use the JDO API.</description>
 	<dependencies>
 		<dependency>
 			<groupId>javax.jdo</groupId>

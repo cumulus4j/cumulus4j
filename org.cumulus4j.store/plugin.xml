@@ -124,7 +124,7 @@
   </extension>
 
   <extension point="org.cumulus4j.store.crypto_manager">
-    <cryptoManager class="org.cumulus4j.store.DummyCryptoManager" crypto-manager-id="dummy"/>
+    <crypto-manager class="org.cumulus4j.store.DummyCryptoManager" crypto-manager-id="dummy"/>
   </extension>
 
   <extension point="org.datanucleus.persistence_properties">
