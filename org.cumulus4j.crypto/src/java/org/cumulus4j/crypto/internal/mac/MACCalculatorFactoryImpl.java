@@ -17,8 +17,6 @@
  */
 package org.cumulus4j.crypto.internal.mac;
 
-import java.security.SecureRandom;
-
 import org.bouncycastle.crypto.BlockCipher;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.MD2Digest;
@@ -41,53 +39,14 @@ import org.bouncycastle.crypto.macs.HMac;
 import org.bouncycastle.crypto.macs.ISO9797Alg3Mac;
 import org.bouncycastle.crypto.macs.OldHMac;
 import org.bouncycastle.crypto.paddings.ISO7816d4Padding;
-import org.bouncycastle.crypto.params.KeyParameter;
-import org.bouncycastle.crypto.params.ParametersWithIV;
+import org.cumulus4j.crypto.AbstractMACCalculatorFactory;
 import org.cumulus4j.crypto.MACCalculator;
-import org.cumulus4j.crypto.MACCalculatorFactory;
 
-public abstract class AbstractMACCalculatorFactory
-implements MACCalculatorFactory
+public abstract class MACCalculatorFactoryImpl
+extends AbstractMACCalculatorFactory
 {
-	private String algorithmName;
-
-	@Override
-	public String getAlgorithmName() {
-		return algorithmName;
-	}
-
-	@Override
-	public void setAlgorithmName(String algorithmName) {
-		this.algorithmName = algorithmName;
-	}
-
-	@Override
-	public MACCalculator createMacCalculator(boolean initWithDefaults)
-	{
-		MACCalculator macCalculator = _createMACCalculator();
-
-		if (initWithDefaults) {
-			SecureRandom random = new SecureRandom();
-			byte[] key = new byte[macCalculator.getKeySize()];
-			random.nextBytes(key);
-			if (macCalculator.getIVSize() > 0) {
-				byte[] iv = new byte[macCalculator.getIVSize()];
-				random.nextBytes(iv);
-				macCalculator.init(new ParametersWithIV(new KeyParameter(key), iv));
-			}
-			else
-				macCalculator.init(new KeyParameter(key));
-		}
-
-		macCalculator.setAlgorithmName(getAlgorithmName());
-
-		return macCalculator;
-	}
-
-	protected abstract MACCalculator _createMACCalculator();
-
 	public static class DES
-	extends AbstractMACCalculatorFactory
+	extends MACCalculatorFactoryImpl
 	{
 		@Override
 		public MACCalculator _createMACCalculator() {
@@ -97,7 +56,7 @@ implements MACCalculatorFactory
 	}
 
 	public static class DES64
-	extends AbstractMACCalculatorFactory
+	extends MACCalculatorFactoryImpl
 	{
 		@Override
 		public MACCalculator _createMACCalculator() {
@@ -107,7 +66,7 @@ implements MACCalculatorFactory
 	}
 
 	public static class RC2
-	extends AbstractMACCalculatorFactory
+	extends MACCalculatorFactoryImpl
 	{
 		@Override
 		public MACCalculator _createMACCalculator() {
@@ -117,7 +76,7 @@ implements MACCalculatorFactory
 	}
 
 	public static class GOST28147
-	extends AbstractMACCalculatorFactory
+	extends MACCalculatorFactoryImpl
 	{
 		@Override
 		public MACCalculator _createMACCalculator() {
@@ -126,7 +85,7 @@ implements MACCalculatorFactory
 	}
 
 	public static class DESCFB8
-	extends AbstractMACCalculatorFactory
+	extends MACCalculatorFactoryImpl
 	{
 		@Override
 		public MACCalculator _createMACCalculator() {
@@ -136,7 +95,7 @@ implements MACCalculatorFactory
 	}
 
 	public static class RC2CFB8
-	extends AbstractMACCalculatorFactory
+	extends MACCalculatorFactoryImpl
 	{
 		@Override
 		public MACCalculator _createMACCalculator() {
@@ -146,7 +105,7 @@ implements MACCalculatorFactory
 	}
 
 	public static class DES9797Alg3with7816d4
-	extends AbstractMACCalculatorFactory
+	extends MACCalculatorFactoryImpl
 	{
 		@Override
 		public MACCalculator _createMACCalculator() {
@@ -156,7 +115,7 @@ implements MACCalculatorFactory
 	}
 
 	public static class DES9797Alg3
-	extends AbstractMACCalculatorFactory
+	extends MACCalculatorFactoryImpl
 	{
 		@Override
 		public MACCalculator _createMACCalculator() {
@@ -166,7 +125,7 @@ implements MACCalculatorFactory
 	}
 
 	public static class MD2
-	extends AbstractMACCalculatorFactory
+	extends MACCalculatorFactoryImpl
 	{
 		@Override
 		public MACCalculator _createMACCalculator() {
@@ -176,7 +135,7 @@ implements MACCalculatorFactory
 	}
 
 	public static class MD4
-	extends AbstractMACCalculatorFactory
+	extends MACCalculatorFactoryImpl
 	{
 		@Override
 		public MACCalculator _createMACCalculator() {
@@ -186,7 +145,7 @@ implements MACCalculatorFactory
 	}
 
 	public static class MD5
-	extends AbstractMACCalculatorFactory
+	extends MACCalculatorFactoryImpl
 	{
 		@Override
 		public MACCalculator _createMACCalculator() {
@@ -196,7 +155,7 @@ implements MACCalculatorFactory
 	}
 
 	public static class SHA1
-	extends AbstractMACCalculatorFactory
+	extends MACCalculatorFactoryImpl
 	{
 		@Override
 		public MACCalculator _createMACCalculator() {
@@ -206,7 +165,7 @@ implements MACCalculatorFactory
 	}
 
 	public static class SHA224
-	extends AbstractMACCalculatorFactory
+	extends MACCalculatorFactoryImpl
 	{
 		@Override
 		public MACCalculator _createMACCalculator() {
@@ -216,7 +175,7 @@ implements MACCalculatorFactory
 	}
 
 	public static class SHA256
-	extends AbstractMACCalculatorFactory
+	extends MACCalculatorFactoryImpl
 	{
 		@Override
 		public MACCalculator _createMACCalculator() {
@@ -226,7 +185,7 @@ implements MACCalculatorFactory
 	}
 
 	public static class SHA384
-	extends AbstractMACCalculatorFactory
+	extends MACCalculatorFactoryImpl
 	{
 		@Override
 		public MACCalculator _createMACCalculator() {
@@ -240,7 +199,7 @@ implements MACCalculatorFactory
 	 */
 	@Deprecated
 	public static class OldSHA384
-	extends AbstractMACCalculatorFactory
+	extends MACCalculatorFactoryImpl
 	{
 		@Override
 		public MACCalculator _createMACCalculator() {
@@ -250,7 +209,7 @@ implements MACCalculatorFactory
 	}
 
 	public static class SHA512
-	extends AbstractMACCalculatorFactory
+	extends MACCalculatorFactoryImpl
 	{
 		@Override
 		public MACCalculator _createMACCalculator() {
@@ -264,7 +223,7 @@ implements MACCalculatorFactory
 	 */
 	@Deprecated
 	public static class OldSHA512
-	extends AbstractMACCalculatorFactory
+	extends MACCalculatorFactoryImpl
 	{
 		@Override
 		public MACCalculator _createMACCalculator() {
@@ -274,7 +233,7 @@ implements MACCalculatorFactory
 	}
 
 	public static class RIPEMD128
-	extends AbstractMACCalculatorFactory
+	extends MACCalculatorFactoryImpl
 	{
 		@Override
 		public MACCalculator _createMACCalculator() {
@@ -284,7 +243,7 @@ implements MACCalculatorFactory
 	}
 
 	public static class RIPEMD160
-	extends AbstractMACCalculatorFactory
+	extends MACCalculatorFactoryImpl
 	{
 		@Override
 		public MACCalculator _createMACCalculator() {
@@ -294,7 +253,7 @@ implements MACCalculatorFactory
 	}
 
 	public static class Tiger
-	extends AbstractMACCalculatorFactory
+	extends MACCalculatorFactoryImpl
 	{
 		@Override
 		public MACCalculator _createMACCalculator() {
@@ -311,7 +270,7 @@ implements MACCalculatorFactory
 //	//
 //
 //	public static class PBEWithRIPEMD160
-//	extends AbstractMACCalculatorFactory
+//	extends MACCalculatorFactoryImpl
 //	{
 //		public PBEWithRIPEMD160()
 //		{
@@ -320,7 +279,7 @@ implements MACCalculatorFactory
 //	}
 //
 //	public static class PBEWithSHA
-//	extends AbstractMACCalculatorFactory
+//	extends MACCalculatorFactoryImpl
 //	{
 //		public PBEWithSHA()
 //		{
@@ -329,7 +288,7 @@ implements MACCalculatorFactory
 //	}
 //
 //	public static class PBEWithTiger
-//	extends AbstractMACCalculatorFactory
+//	extends MACCalculatorFactoryImpl
 //	{
 //		public PBEWithTiger()
 //		{

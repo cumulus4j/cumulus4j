@@ -17,11 +17,49 @@
  */
 package org.cumulus4j.crypto;
 
+/**
+ * <p>
+ * Factory creating instances of {@link MACCalculator}.
+ * </p><p>
+ * Implementations of this interface are used by {@link CryptoRegistry#createMACCalculator(String, boolean)}
+ * to provide instances of <code>MACCalculator</code>.
+ * </p><p>
+ * Note: Implementors should subclass {@link AbstractMACCalculatorFactory} instead of directly implementing this
+ * interface.
+ * </p>
+ *
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public interface MACCalculatorFactory
 {
-	MACCalculator createMacCalculator(boolean initWithDefaults);
+	/**
+	 * <p>
+	 * Create a new instance of {@link MACCalculator} and optionally
+	 * {@link MACCalculator#init(org.bouncycastle.crypto.CipherParameters) initialise} it.
+	 * </p>
+	 *
+	 * @param initWithDefaults whether to
+	 * {@link MACCalculator#init(org.bouncycastle.crypto.CipherParameters) initialise} the <code>MACCalculator</code> with default values
+	 * so that it can be used immediately as-is.
+	 * @return a new instance of {@link MACCalculator} (iff <code>initWithDefaults==true</code> ready-to-use;
+	 * otherwise requiring {@link MACCalculator#init(org.bouncycastle.crypto.CipherParameters) initialisation}
+	 * before it can be used).
+	 */
+	MACCalculator createMACCalculator(boolean initWithDefaults);
 
+	/**
+	 * Get the name of the MAC algorithm implemented by the {@link MACCalculator} created by this factory.
+	 * See <a href="http://cumulus4j.org/1.0.0/documentation/supported-algorithms.html">Supported algorithms</a>
+	 * for a list of supported algorithms.
+	 * @return the name of the MAC algorithm.
+	 */
 	String getAlgorithmName();
 
+	/**
+	 * Set the name of the MAC algorithm. This method is called once and should throw an {@link IllegalStateException}
+	 * if it is called again.
+	 * @param algorithmName the name of the MAC algorithm; never <code>null</code>.
+	 * @see #getAlgorithmName()
+	 */
 	void setAlgorithmName(String algorithmName);
 }

@@ -22,8 +22,7 @@ import org.bouncycastle.crypto.AsymmetricCipherKeyPairGenerator;
 /**
  * <p>
  * Factory creating instances of {@link AsymmetricCipherKeyPairGenerator}.
- * </p>
- * <p>
+ * </p><p>
  * Implementations of this interface are used by {@link CryptoRegistry#createKeyPairGenerator(String, boolean)}
  * to provide instances of <code>AsymmetricCipherKeyPairGenerator</code>.
  * </p>
@@ -33,7 +32,7 @@ import org.bouncycastle.crypto.AsymmetricCipherKeyPairGenerator;
 public interface AsymmetricCipherKeyPairGeneratorFactory
 {
 	/**
-	 * Create and initialize a new instance of {@link AsymmetricCipherKeyPairGenerator}.
+	 * Create and optionally initialise a new instance of {@link AsymmetricCipherKeyPairGenerator}.
 	 * @param initWithDefaults whether to
 	 * {@link AsymmetricCipherKeyPairGenerator#init(org.bouncycastle.crypto.KeyGenerationParameters) initialise} the <code>AsymmetricCipherKeyPairGenerator</code> with default values
 	 * so that it can be used immediately as-is.
@@ -45,6 +44,8 @@ public interface AsymmetricCipherKeyPairGeneratorFactory
 
 	/**
 	 * Get the name of the encryption algorithm for which keys should be generated. For example "RSA".
+	 * See <a href="http://cumulus4j.org/1.0.0/documentation/supported-algorithms.html">Supported algorithms</a>
+	 * for a list of supported algorithms.
 	 * @return the name of the encryption algorithm for which keys are to be generated.
 	 */
 	String getAlgorithmName();
