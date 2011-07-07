@@ -4,6 +4,9 @@ import org.bouncycastle.crypto.BlockCipher;
 import org.bouncycastle.crypto.modes.CBCBlockCipher;
 import org.bouncycastle.crypto.modes.CTSBlockCipher;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class C4jCBCCTSBlockCipher
 extends CTSBlockCipher
 {

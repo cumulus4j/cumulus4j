@@ -31,9 +31,12 @@ import org.nightlabs.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MacTest
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
+public class MACTest
 {
-	private static final Logger logger = LoggerFactory.getLogger(MacTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(MACTest.class);
 
 	private SecureRandom random = new SecureRandom();
 

@@ -20,6 +20,9 @@ package org.cumulus4j.crypto.internal.asymmetric.keypairgenerator;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPairGenerator;
 import org.bouncycastle.crypto.generators.GOST3410KeyPairGenerator;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class GOST3410KeyPairGeneratorFactory
 extends AbstractAsymmetricCipherKeyPairGeneratorFactory
 {

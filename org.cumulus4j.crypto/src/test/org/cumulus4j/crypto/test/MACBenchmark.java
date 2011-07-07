@@ -13,9 +13,12 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MacBenchmark
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
+public class MACBenchmark
 {
-	private static final Logger logger = LoggerFactory.getLogger(MacBenchmark.class);
+	private static final Logger logger = LoggerFactory.getLogger(MACBenchmark.class);
 
 	private static final String MAC_ALGORITHM = "HMAC-SHA1";
 

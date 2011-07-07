@@ -128,22 +128,99 @@ public interface Cipher
    */
 	int getOutputBlockSize();
 
+	/**
+	 * Return the size of the output buffer required for an {@link #update(byte[], int, int, byte[], int) update}
+	 * of an input of <code>length</code> bytes.
+	 * @param length the size of the input (in bytes) that is to be passed to {@link #update(byte[], int, int, byte[], int)}.
+	 * @return the required length of the output buffer in bytes.
+	 */
 	int getUpdateOutputSize(int length);
 
+	/**
+	 * Return the size of the output buffer required for an {@link #update(byte[], int, int, byte[], int) update} plus a
+	 * {@link #doFinal(byte[], int) doFinal} with an input of <code>length</code> bytes.
+	 * @param length the size of the input (in bytes) that is to be passed to {@link #update(byte[], int, int, byte[], int)}.
+	 * @return the required length of the output buffer in bytes.
+	 */
 	int getOutputSize(int length);
 
+	/**
+	 * <p>
+	 * Update this cipher with a single byte. This is synonymous to calling {@link #update(byte[], int, int, byte[], int)}
+	 * with an <code>in</code> byte array of length 1 and <code>inOff = 0</code> and <code>inLen = 1</code>.
+	 * </p><p>
+	 * Note that data might still be unprocessed in this cipher when this method returns. That is because many ciphers work
+	 * with blocks and keep a block unprocessed until it is filled up. Call {@link #doFinal(byte[], int)} after you finished
+	 * updating this cipher (i.e. all input was passed completely).
+	 * </p>
+	 *
+	 * @param in the input to be encrypted or decrypted (or a part of the input).
+	 * @param out the buffer receiving the output (data is written into this byte-array). Must not be <code>null</code>.
+	 * @param outOff the array-index in <code>out</code> at which to start writing. Must be &gt;=0.
+	 * @return the number of bytes written into <code>out</code>.
+	 * @throws DataLengthException if the buffer <code>out</code> is insufficient.
+	 * @throws IllegalStateException if this cipher has not yet been {@link #init(CipherOperationMode, CipherParameters) initialised}.
+	 * @throws CryptoException if there is a cryptographic error happening while processing the input. For example when
+	 * decrypting a padding might be wrong or an authenticating block mode (like GCM) might recognize that the ciphertext has
+	 * been manipulated/corrupted.
+	 * @see #update(byte[], int, int, byte[], int)
+	 * @see #doFinal(byte[], int)
+	 */
 	int update(byte in, byte[] out, int outOff) throws DataLengthException,
 			IllegalStateException, CryptoException;
 
+	/**
+	 * <p>
+	 * Update this cipher with multiple bytes.
+	 * </p><p>
+	 * Note that data might still be unprocessed in this cipher when this method returns. That is because many ciphers work
+	 * with blocks and keep a block unprocessed until it is filled up. Call {@link #doFinal(byte[], int)} after you finished
+	 * updating this cipher (i.e. all input was passed completely).
+	 * </p>
+	 *
+	 * @param in the input to be encrypted or decrypted (or a part of the input). Must not be <code>null</code>.
+	 * @param inOff the array-index in <code>in</code> at which to start reading. Must be &gt;=0.
+	 * @param inLen the number of bytes that should be read from <code>in</code>.
+	 * @param out the buffer receiving the output (data is written into this byte-array). Must not be <code>null</code>.
+	 * @param outOff the array-index in <code>out</code> at which to start writing. Must be &gt;=0.
+	 * @return the number of bytes written into <code>out</code>.
+	 * @throws DataLengthException if the buffer <code>out</code> is insufficient or if <code>inOff + inLen</code> exceeds the
+	 * input byte array.
+	 * @throws IllegalStateException if this cipher has not yet been {@link #init(CipherOperationMode, CipherParameters) initialised}.
+	 * @throws CryptoException if there is a cryptographic error happening while processing the input. For example when
+	 * decrypting a padding might be wrong or an authenticating block mode (like GCM) might recognize that the ciphertext has
+	 * been manipulated/corrupted.
+	 * @see #update(byte, byte[], int)
+	 * @see #doFinal(byte[], int)
+	 */
 	int update(byte[] in, int inOff, int inLen, byte[] out, int outOff)
 			throws DataLengthException, IllegalStateException, CryptoException;
 
+	/**
+	 * Process the last block in the buffer. After this call, no unprocessed data is left in this
+	 * cipher and it is {@link #reset()} implicitly.
+	 *
+	 * @param out the buffer receiving the output (data is written into this byte-array). Must not be <code>null</code>.
+	 * @param outOff the array-index in <code>out</code> at which to start writing. Must be &gt;=0.
+	 * @return the number of bytes written into <code>out</code>.
+	 * @throws DataLengthException if the buffer <code>out</code> is insufficient or if <code>inOff + inLen</code> exceeds the
+	 * input byte array.
+	 * @throws IllegalStateException if this cipher has not yet been {@link #init(CipherOperationMode, CipherParameters) initialised}.
+	 * @throws CryptoException if there is a cryptographic error happening while processing the input. For example when
+	 * decrypting a padding might be wrong or an authenticating block mode (like GCM) might recognize that the ciphertext has
+	 * been manipulated/corrupted.
+	 * @see #update(byte, byte[], int)
+	 * @see #update(byte[], int, int, byte[], int)
+	 * @see #doFinal(byte[])
+	 */
 	int doFinal(byte[] out, int outOff) throws DataLengthException,
 			IllegalStateException, CryptoException;
 
 	/**
-	 * Convenience method to encrypt/decrypt the complete input byte array at once.
-	 * @param in the input to be encrypted or decrypted.
+	 * Convenience method to encrypt/decrypt the complete input byte array at once. After this method was called,
+	 * no unprocessed data is left in this cipher and it is {@link #reset()} implicitly.
+	 *
+	 * @param in the input to be encrypted or decrypted. Must not be <code>null</code>.
 	 * @return the processed output.
 	 * @throws IllegalStateException if the cipher isn't initialised.
 	 * @throws CryptoException if padding is expected and not found or sth. else goes wrong while encrypting or decrypting.
@@ -153,26 +230,8 @@ public interface Cipher
 
 	/**
 	 * Get the required size of the IV (in bytes). If a cipher supports multiple sizes, this is the optimal (most secure) IV size.
+	 * If the cipher supports no IV, this is 0.
 	 * @return the required size of the IV.
 	 */
 	int getIVSize();
-
-//	/**
-//	 * Get a ready-to-use <code>SecretKeyGenerator</code>.
-//	 * @param initWithDefaults TODO
-//	 * @return a <code>SecretKeyGenerator</code> appropriate for this Cipher and ready to be used.
-//	 * @throws UnsupportedOperationException
-//	 */
-//	SecretKeyGenerator createSecretKeyGenerator(boolean initWithDefaults)
-//	throws UnsupportedOperationException;
-//
-//	/**
-//	 * Get a ready-to-use <code>AsymmetricCipherKeyPairGenerator</code>.
-//	 * @param initWithDefaults TODO
-//	 * @return an <code>AsymmetricCipherKeyPairGenerator</code> appropriate for this <code>Cipher</code> and ready to be used.
-//	 * @throws UnsupportedOperationException if this <code>Cipher</code> does not implement asymmetric encryption.
-//	 * @see #createSecretKeyGenerator(boolean)
-//	 */
-//	AsymmetricCipherKeyPairGenerator createKeyPairGenerator(boolean initWithDefaults)
-//	throws UnsupportedOperationException;
 }

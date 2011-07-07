@@ -28,6 +28,9 @@ import org.bouncycastle.crypto.modes.OFBBlockCipher;
 import org.cumulus4j.crypto.AbstractCipher;
 import org.cumulus4j.crypto.CipherOperationMode;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class AEADBlockCipherImpl extends AbstractCipher
 {
 	private AEADBlockCipher delegate;

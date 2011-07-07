@@ -20,6 +20,9 @@ package org.cumulus4j.crypto.internal.asymmetric.keypairgenerator;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPairGenerator;
 import org.bouncycastle.crypto.generators.ElGamalKeyPairGenerator;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class ElGamalKeyPairGeneratorFactory
 extends AbstractAsymmetricCipherKeyPairGeneratorFactory
 {

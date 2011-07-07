@@ -21,7 +21,7 @@ import org.bouncycastle.crypto.KeyGenerationParameters;
 import org.bouncycastle.crypto.params.KeyParameter;
 
 /**
- * Generator for secret keys as used in symmetric encryption.
+ * Generator for secret keys to be used in <a href="http://en.wikipedia.org/wiki/Symmetric_encryption">symmetric encryption</a>.
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */

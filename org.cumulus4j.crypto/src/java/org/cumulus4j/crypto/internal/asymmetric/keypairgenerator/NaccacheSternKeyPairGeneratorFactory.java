@@ -20,6 +20,9 @@ package org.cumulus4j.crypto.internal.asymmetric.keypairgenerator;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPairGenerator;
 import org.bouncycastle.crypto.generators.NaccacheSternKeyPairGenerator;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class NaccacheSternKeyPairGeneratorFactory
 extends AbstractAsymmetricCipherKeyPairGeneratorFactory
 {

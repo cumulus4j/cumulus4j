@@ -22,6 +22,9 @@ import org.bouncycastle.crypto.DataLengthException;
 import org.bouncycastle.crypto.Mac;
 import org.cumulus4j.crypto.MACCalculator;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class MACCalculatorImpl
 implements MACCalculator
 {

@@ -42,6 +42,9 @@ import org.bouncycastle.crypto.paddings.ISO7816d4Padding;
 import org.cumulus4j.crypto.AbstractMACCalculatorFactory;
 import org.cumulus4j.crypto.MACCalculator;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public abstract class MACCalculatorFactoryImpl
 extends AbstractMACCalculatorFactory
 {

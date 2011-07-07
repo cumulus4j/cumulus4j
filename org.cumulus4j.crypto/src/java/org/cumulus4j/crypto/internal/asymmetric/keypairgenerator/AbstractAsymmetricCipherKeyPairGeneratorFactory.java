@@ -19,6 +19,9 @@ package org.cumulus4j.crypto.internal.asymmetric.keypairgenerator;
 
 import org.cumulus4j.crypto.AsymmetricCipherKeyPairGeneratorFactory;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public abstract class AbstractAsymmetricCipherKeyPairGeneratorFactory
 implements AsymmetricCipherKeyPairGeneratorFactory
 {

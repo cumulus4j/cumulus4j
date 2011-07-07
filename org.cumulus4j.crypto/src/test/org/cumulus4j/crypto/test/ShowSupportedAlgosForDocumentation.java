@@ -4,6 +4,9 @@ import org.cumulus4j.crypto.CipherEngineType;
 import org.cumulus4j.crypto.CryptoRegistry;
 import org.junit.Test;
 
+/**
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class ShowSupportedAlgosForDocumentation
 {
 	private static CryptoRegistry cryptoRegistry = CryptoRegistry.sharedInstance();
