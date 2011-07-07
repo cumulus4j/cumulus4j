@@ -23,6 +23,11 @@ import org.bouncycastle.crypto.KeyGenerationParameters;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.cumulus4j.crypto.SecretKeyGenerator;
 
+/**
+ * Default implementation of {@link SecretKeyGenerator}.
+ *
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class SecretKeyGeneratorImpl implements SecretKeyGenerator
 {
 	private int strength;

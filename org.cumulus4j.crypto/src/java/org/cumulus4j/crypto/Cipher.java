@@ -20,6 +20,8 @@ package org.cumulus4j.crypto;
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.CryptoException;
 import org.bouncycastle.crypto.DataLengthException;
+import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /**
@@ -57,6 +59,27 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
  */
 public interface Cipher
 {
+	/**
+	 * <p>
+	 * Initialise the cipher.
+	 * </p><p>
+	 * A cipher cannot be used, before this method was called.
+	 * </p><p>
+	 * A cipher can be re-initialised to modify only certain parameters (and keep the others). For example to modify
+	 * the <a href="http://en.wikipedia.org/wiki/Initialisation_vector">IV</a> while keeping the key, a cipher can
+	 * be re-initialised with an IV only (i.e. <code>null</code> is passed to
+	 * {@link ParametersWithIV#ParametersWithIV(CipherParameters, byte[], int, int)} instead of a {@link KeyParameter}).
+	 * This is useful for performance reasons, because modifying an IV is a very fast operation while changing the key is
+	 * slow (especially <a href="http://en.wikipedia.org/wiki/Blowfish_%28cipher%29">Blowfish</a> is known for its very
+	 * slow key initialisation).
+	 * </p>
+	 *
+	 * @param mode the operation mode; must not be <code>null</code>.
+	 * @param parameters the parameters; for example an instance of {@link ParametersWithIV} with a wrapped {@link KeyParameter}
+	 * to pass IV and secret key.
+	 * @throws IllegalArgumentException if the given arguments are invalid - for example if the given <code>parameters</code>
+	 * are not understood by the implementation (parameters not compatible with the chosen algorithm).
+	 */
 	void init(CipherOperationMode mode, CipherParameters parameters)
 	throws IllegalArgumentException;
 
@@ -83,6 +106,10 @@ public interface Cipher
 	 */
 	String getTransformation();
 
+	/**
+	 * Reset this cipher. After resetting, the state is the same as if it was just freshly
+	 * {@link #init(CipherOperationMode, CipherParameters) initialised}.
+	 */
 	void reset();
 
 	/**

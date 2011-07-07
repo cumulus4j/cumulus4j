@@ -18,10 +18,19 @@
 package org.cumulus4j.crypto;
 
 /**
+ * Operation mode of a {@link Cipher}. Used to
+ * {@link Cipher#init(CipherOperationMode, org.bouncycastle.crypto.CipherParameters) initialise} a cipher.
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public enum CipherOperationMode
 {
+	/**
+	 * Operation mode is encryption (from <a href="http://en.wikipedia.org/wiki/Plaintext">plaintext</a> to <a href="http://en.wikipedia.org/wiki/Ciphertext">ciphertext</a>).
+	 */
 	ENCRYPT,
+
+	/**
+	 * Operation mode is decryption (from <a href="http://en.wikipedia.org/wiki/Ciphertext">ciphertext</a> to <a href="http://en.wikipedia.org/wiki/Plaintext">plaintext</a>).
+	 */
 	DECRYPT
 }

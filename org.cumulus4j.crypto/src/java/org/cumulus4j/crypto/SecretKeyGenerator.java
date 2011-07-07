@@ -20,9 +20,25 @@ package org.cumulus4j.crypto;
 import org.bouncycastle.crypto.KeyGenerationParameters;
 import org.bouncycastle.crypto.params.KeyParameter;
 
+/**
+ * Generator for secret keys as used in symmetric encryption.
+ *
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public interface SecretKeyGenerator
 {
+	/**
+	 * Initialise this <code>SecretKeyGenerator</code>. Implementations should
+	 * be able to initialise with defaults, if no parameters are given (i.e. <code>params</code> being <code>null</code>).
+	 * Usually, defaults mean to generate 256 bit keys.
+	 * @param params the parameters or <code>null</code>, if defaults should be used.
+	 */
 	void init(KeyGenerationParameters params);
 
+	/**
+	 * Generate random a secret key. Throws an {@link IllegalStateException}, if
+	 * {@link #init(KeyGenerationParameters)} was not yet called.
+	 * @return the newly created secret key; never <code>null</code>.
+	 */
 	KeyParameter generateKey();
 }

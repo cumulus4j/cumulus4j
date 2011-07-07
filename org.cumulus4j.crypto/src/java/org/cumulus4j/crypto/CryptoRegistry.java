@@ -656,10 +656,13 @@ public final class CryptoRegistry
 	}
 
 	/**
-	 * Get all supported cipher engines.
+	 * Get all supported cipher engines. A cipher engine implements a raw
+	 * <a href="http://en.wikipedia.org/wiki/Encryption_algorithm">encryption algorithm</a>;
+	 * 'raw' means without any additional transformation like block mode or padding.
 	 *
 	 * @param cipherEngineType the type of the cipher engine or <code>null</code> to list all.
-	 * @return all supported cipher engines.
+	 * @return all supported cipher engines for the (optionally) given criteria.
+	 * @see #createCipher(String)
 	 */
 	public Set<String> getSupportedCipherEngines(CipherEngineType cipherEngineType)
 	{
@@ -677,6 +680,24 @@ public final class CryptoRegistry
 		return Collections.unmodifiableSortedSet(result);
 	}
 
+	/**
+	 * <p>
+	 * Get all supported <a href="http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation">modes</a> for
+	 * the given cipher engine (a raw
+	 * <a href="http://en.wikipedia.org/wiki/Encryption_algorithm">encryption algorithm</a>). The
+	 * <code>cipherEngine</code> can be <code>null</code> to not restrict the result by this criterion.
+	 * </p>
+	 * <p>
+	 * See <a href="http://cumulus4j.org/1.0.0/documentation/supported-algorithms.html">Supported algorithms</a>
+	 * for a list of supported algorithms or use {@link #getSupportedCipherEngines(CipherEngineType)} to
+	 * query them.
+	 * </p>
+	 *
+	 * @param cipherEngine the name of the encryption algorithm for which to look up supported
+	 * modes or <code>null</code> to list all.
+	 * @return all supported modes for the (optionally) given criteria.
+	 * @see #createCipher(String)
+	 */
 	public Set<String> getSupportedCipherModes(String cipherEngine)
 	{
 		if (cipherEngine != null)
@@ -870,11 +891,39 @@ public final class CryptoRegistry
 		}
 	}
 
+	/**
+	 * Get all supported paddings for the given {@link CipherEngineType}. If there is
+	 * no cipher-engine-type given, all supported paddings for all engine types are returned.
+	 * @param cipherEngineType the type of the cipher engine or <code>null</code> to ignore this criterion.
+	 * @return all supported paddings for the (optionally) given criteria.
+	 * @see #createCipher(String)
+	 */
 	public Set<String> getSupportedCipherPaddings(CipherEngineType cipherEngineType)
 	{
 		return getSupportedCipherPaddings(cipherEngineType, null, null);
 	}
 
+	/**
+	 * <p>
+	 * Get all supported paddings for the given cipher engine (a raw
+	 * <a href="http://en.wikipedia.org/wiki/Encryption_algorithm">encryption algorithm</a>) and
+	 * <a href="http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation">mode</a>. Each of the
+	 * parameters can be <code>null</code> to not restrict the result by this criterion.
+	 * </p>
+	 * <p>
+	 * See <a href="http://cumulus4j.org/1.0.0/documentation/supported-algorithms.html">Supported algorithms</a>
+	 * for a list of supported algorithms or use {@link #getSupportedCipherEngines(CipherEngineType)}
+	 * and {@link #getSupportedCipherModes(String)} to
+	 * query them.
+	 * </p>
+	 *
+	 * @param cipherEngine the cipher engine for which to get the supported paddings or <code>null</code>
+	 * to list all.
+	 * @param cipherMode the <a href="http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation">mode</a>
+	 * to restrict the result or <code>null</code> to list all (for the given cipher-engine).
+	 * @return all supported paddings for the (optionally) given criteria.
+	 * @see #createCipher(String)
+	 */
 	public Set<String> getSupportedCipherPaddings(String cipherEngine, String cipherMode)
 	{
 		return getSupportedCipherPaddings(null, cipherEngine, cipherMode);
@@ -930,7 +979,8 @@ public final class CryptoRegistry
 	 * </p>
 	 *
 	 * @param cipherEngineType the type of the cipher engine or <code>null</code> to list all.
-	 * @return all supported cipher transformations.
+	 * @return all supported cipher transformations for the (optionally) given criteria.
+	 * @see #createCipher(String)
 	 */
 	public Set<String> getSupportedCipherTransformations(CipherEngineType cipherEngineType)
 	{
@@ -972,13 +1022,21 @@ public final class CryptoRegistry
 	 * </p>
 	 * <p>
 	 * See <a href="http://cumulus4j.org/1.0.0/documentation/supported-algorithms.html">Supported algorithms</a>
-	 * for a list of supported algorithms.
+	 * for a list of supported algorithms or use {@link #getSupportedCipherTransformations(CipherEngineType)}
+	 * to query them. Additionally, you can use {@link #getSupportedCipherEngines(CipherEngineType)},
+	 * {@link #getSupportedCipherModes(String)} and {@link #getSupportedCipherPaddings(String, String)}
+	 * to query the individual parts of the supported transformations.
 	 * </p>
 	 *
 	 * @param transformation the transformation. This is case-INsensitive. It must not be <code>null</code>.
 	 * @return a new <code>Cipher</code> instance.
 	 * @throws NoSuchAlgorithmException if there is no encryption engine or no mode registered to suit the given transformation.
 	 * @throws NoSuchPaddingException if there is no padding registered to suit the given transformation.
+	 * @see #getSupportedCipherTransformations(CipherEngineType)
+	 * @see #getSupportedCipherEngines(CipherEngineType)
+	 * @see #getSupportedCipherModes(String)
+	 * @see #getSupportedCipherPaddings(CipherEngineType)
+	 * @see #getSupportedCipherPaddings(String, String)
 	 */
 	public Cipher createCipher(String transformation)
 	throws NoSuchAlgorithmException, NoSuchPaddingException
@@ -1050,9 +1108,32 @@ public final class CryptoRegistry
 		return result;
 	}
 
+	/**
+	 * Create a new {@link SecretKeyGenerator}.
+	 *
+	 * @param algorithmName the encryption algorithm for which the generated keys will be used.
+	 * This is the first element of a transformation, i.e.
+	 * you can pass a <code>transformation</code> to {@link #splitTransformation(String)} and use element 0 of its result.
+	 * See <a href="http://cumulus4j.org/1.0.0/documentation/supported-algorithms.html">Supported algorithms</a>
+	 * for a list of supported algorithms.
+	 * @param initWithDefaults whether to initialise the secret key generator with default values.
+	 * @return an instance of {@link SecretKeyGenerator}. If <code>initWithDefaults == true</code>, it can directly
+	 * be used to generate keys, i.e. it is already initialised with some default values. If <code>initWithDefaults == false</code>,
+	 * you still have to {@link SecretKeyGenerator#init(org.bouncycastle.crypto.KeyGenerationParameters) initialise} the
+	 * key generator before you can use it.
+	 * @throws NoSuchAlgorithmException
+	 */
 	public SecretKeyGenerator createSecretKeyGenerator(String algorithmName, boolean initWithDefaults)
 	throws NoSuchAlgorithmException
 	{
+		if (algorithmName == null)
+			throw new IllegalArgumentException("algorithmName == null");
+
+		algorithmName = algorithmName.toUpperCase(Locale.ENGLISH);
+
+		if (!algorithmName2blockCipherEngineClass.containsKey(algorithmName) && !algorithmName2streamCipherEngineClass.containsKey(algorithmName))
+			throw new NoSuchAlgorithmException("There is no block/stream cipher registered for the algorithmName=\"" + algorithmName + "\"!");
+
 		SecretKeyGeneratorImpl secretKeyGeneratorImpl = new SecretKeyGeneratorImpl();
 
 		if (initWithDefaults)
@@ -1237,9 +1318,28 @@ public final class CryptoRegistry
 		registerMACCalculatorFactory("HMAC/TIGER", new MACCalculatorFactoryImpl.Tiger());
 	}
 
+	/**
+	 * <p>
+	 * Create a <a href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a> calculator.
+	 * </p>
+	 *
+	 * @param algorithmName the name of the MAC algorithm. See <a href="http://cumulus4j.org/1.0.0/documentation/supported-algorithms.html">Supported algorithms</a>
+	 * for a list of supported algorithms or use {@link #getSupportedMacAlgorithms()} to query them.
+	 * @param initWithDefaults whether to
+	 * {@link MACCalculator#init(org.bouncycastle.crypto.CipherParameters) initialise} the <code>MACCalculator</code> with default values
+	 * so that it can be used immediately as-is.
+	 * @return a new instance of {@link MACCalculator} (iff <code>initWithDefaults==true</code> ready-to-use;
+	 * otherwise requiring {@link MACCalculator#init(org.bouncycastle.crypto.CipherParameters) initialisation}
+	 * before it can be used).
+	 * @throws NoSuchAlgorithmException if there is no {@link MACCalculatorFactory} registered to suit the given <code>algorithmName</code>.
+	 * @see #getSupportedMacAlgorithms()
+	 */
 	public MACCalculator createMACCalculator(String algorithmName, boolean initWithDefaults)
 	throws NoSuchAlgorithmException
 	{
+		if (algorithmName == null)
+			throw new IllegalArgumentException("algorithmName == null");
+
 		MACCalculatorFactory factory = macName2macCalculatorFactory.get(algorithmName.toUpperCase(Locale.ENGLISH));
 		if (factory == null)
 			throw new NoSuchAlgorithmException("There is no MAC calculator registered for algorithmName=\"" + algorithmName.toUpperCase(Locale.ENGLISH) + "\"!");
@@ -1247,6 +1347,12 @@ public final class CryptoRegistry
 		return factory.createMACCalculator(initWithDefaults);
 	}
 
+	/**
+	 * Get all supported <a href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a> algorithms.
+	 * {@link #createMACCalculator(String, boolean)} should be able to return a {@link MACCalculator} for each of them.
+	 * @return all supported MAC algorithms.
+	 * @see #createMACCalculator(String, boolean)
+	 */
 	public Set<String> getSupportedMacAlgorithms()
 	{
 		return Collections.unmodifiableSet(new TreeSet<String>(macName2macCalculatorFactory.keySet()));
