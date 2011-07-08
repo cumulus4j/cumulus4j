@@ -8,52 +8,51 @@ Theory
 
 	Cumulus4j uses encryption in order to protect your data.
 
-
-	Before data is written to the data store, it gets encrypted by Cumulus4j.
-	Cumulus4j also decrypts data before it is used by your application.
-	All this happens transparent to your application.
+	Before data is written to the data store, it gets encrypted by Cumulus4j. 
+	Cumulus4j also decrypts data before it is used by your application. All this happens transparent to your application.
 
 [../images/scheme.jpeg] Basic Cumulus4j scheme
 
+* The Cumulus4j data structure
+
+	The Cumulus4j datastructure is depicted below. 
+	It stores objects in a manner that hides relations of field values i.e. which values occur together in an object.
+	
+	[../images/c4j-datastructure.jpeg] The Cumulus4j data structure
+
+	In the table ClassMeta, metadata about objects is stored. 
+	Each ClassMeta entry has a list of references to the Fieldmeta entries of the fields of the Class. 
+	In the table FieldMeta, metadata about object fields is stored. 
+	Each FiedlsMeta entry has a reference to the ClassMeta entry of its class and may have references to its sub-fields. 
+	The table DataEntry holds encrypted representation of actual objects. 
+	These objects can be accessed through IndexEntry tables that hold index values and encrypted pointers to the DataEntry table. 		Additionally each index entry has a reference to the FieldMeta entry of its field.
+
 * Encryption
 
-	We use state of the art probabilistic symmetric encryption schemes (eg. AES with PKCS#5 padding) to protect your data.
-	The encryption not only hides the content, it also makes shure that data manipulations will be detected.
-	In order to support efficient queries, indices are created or updated during the encryption phase.
-	Then, the indices and the data gets stored in the database backend.
+	We use state of the art probabilistic symmetric encryption schemes (eg. AES with PKCS#5 padding) to protect your data. 
+	The	encryption not only hides the content, it also makes shure that data manipulations will be detected.
+	Cumulus4j applies encryption to the DataEntries and to the Indices in the IndexEntries.
 
 
 * Decryption
 
-	Cumulus4j transforms issued queries in order to execute them on the encrypted data.
-	Selections are executed efficiently with the help of the indices. Projections and aggregations are executed on the selected encrypted data.
+	Cumulus4j transforms issued queries in order to execute them on the Cumulus4j Data Structure.
+	Retrieved data is encrypted on-the-fly. Selections are executed efficiently in 4 Steps.
 
-
-* Example
-
-	In this example, we consider a simple SQL query
-
-	SELECT * FROM clients WHERE name * 'Alice' and surname * 'Jones'
-
-	In the first step, the query is parsed and the type (SELECT) is determined.
-	Then the relevant tables are identified (in this case: clients).
-	Then the index tables for the table clients are queried to retrieve all row numbers of relevant records in the encrypted table.
-	After decrypting those lines, the original query is executed on the relevant data in an additional local database, yielding the correct result.
-
+	1: Retrieve IndexEntries that match the conditions of the query. This involves decryption.
+	2: Retrieve the encrypted DataEntries that correspont to the retrieved IndexEntries
+	3: Decrypt DataEntries, project and aggregate them acording to the issued query.
+	4: Return results
 
 * Security
 
-	In the index tables the information that a record 'Alice Jones' exists, is hidden by fragmentation.
-	Only the information that at least one record with name 'Alice' and at least one record with surname 'Jones' exist, are visible in the index tables.
-	With the key only available on the client's side, all associations are hidden from the cloud provider.
-	Data manipulation caused by the provider can be easily detected during decryption.
-	Enhancing security is one of the project's goals.
-
+	Cumulus4j provides Ind-ICP security for your Data. This means, that it hides which attribute values belong together. 
+	An adversary copying you datastore cannot reconstruct the stored Objects.
 
 * Compatibility
 
-	The Cumulus4j-Adapter can be used fully transparent to the client application, that uses it like a regular SQL backend.
-	It is integrated into DataNucleus and supports the full range of JDOQL.
+	The Cumulus4j-Adapter can be used fully transparent to the client application.
+	It is integrated into DataNucleus and fully supports JDO and JPA.
 
 
 * Performance
