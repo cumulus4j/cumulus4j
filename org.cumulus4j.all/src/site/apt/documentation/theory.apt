@@ -18,7 +18,7 @@ Theory
 	The Cumulus4j datastructure is depicted below. 
 	It stores objects in a manner that hides relations of field values i.e. which values occur together in an object.
 	
-	[../images/c4j-datastructure.jpeg] The Cumulus4j data structure
+	[../images/c4j-datastructure.png] The Cumulus4j data structure
 
 	In the table ClassMeta, metadata about objects is stored. 
 	Each ClassMeta entry has a list of references to the Fieldmeta entries of the fields of the Class. 
@@ -40,8 +40,11 @@ Theory
 	Retrieved data is encrypted on-the-fly. Selections are executed efficiently in 4 Steps.
 
 	* Retrieve IndexEntries that match the conditions of the query. This involves decryption.
+	
 	* Retrieve the encrypted DataEntries that correspont to the retrieved IndexEntries
+	
 	* Decrypt DataEntries, project and aggregate them acording to the issued query.
+	
 	* Return results.
 
 * Security
