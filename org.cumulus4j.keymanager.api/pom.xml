@@ -28,12 +28,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.cumulus4j</groupId>
-			<artifactId>org.cumulus4j.keymanager.front.client</artifactId>
-			<version>${project.version}</version>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>org.cumulus4j</groupId>
 			<artifactId>org.cumulus4j.keymanager.front.shared</artifactId>
 			<version>${project.version}</version>
 			<optional>true</optional>
