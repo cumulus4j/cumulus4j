@@ -39,10 +39,10 @@ Theory
 	Cumulus4j transforms issued queries in order to execute them on the Cumulus4j Data Structure.
 	Retrieved data is encrypted on-the-fly. Selections are executed efficiently in 4 Steps.
 
-	1: Retrieve IndexEntries that match the conditions of the query. This involves decryption.
-	2: Retrieve the encrypted DataEntries that correspont to the retrieved IndexEntries
-	3: Decrypt DataEntries, project and aggregate them acording to the issued query.
-	4: Return results
+	* Retrieve IndexEntries that match the conditions of the query. This involves decryption.
+	* Retrieve the encrypted DataEntries that correspont to the retrieved IndexEntries
+	* Decrypt DataEntries, project and aggregate them acording to the issued query.
+	* Return results.
 
 * Security
 
