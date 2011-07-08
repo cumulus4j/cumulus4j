@@ -204,15 +204,21 @@ extends AbstractJDOTransactionalTest
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("this.name == :name");
 
-        // Positive test
-		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("New test bla bla bla.");
-		Assert.assertEquals("Number of results was wrong", 1, result.size());
-		LocalAccountantDelegate delegate = result.iterator().next();
-		assertDelegate0(delegate);
+    // Positive test
+		{
+			@SuppressWarnings("unchecked")
+			List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("New test bla bla bla.");
+			Assert.assertEquals("Number of results was wrong", 1, result.size());
+			LocalAccountantDelegate delegate = result.iterator().next();
+			assertDelegate0(delegate);
+		}
 
 		// Negative test
-		result = (List<LocalAccountantDelegate>) q.execute("New test bla bla bla2");
-		Assert.assertEquals("Number of results was wrong", 0, result.size());
+		{
+			@SuppressWarnings("unchecked")
+			List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("New test bla bla bla2");
+			Assert.assertEquals("Number of results was wrong", 0, result.size());
+		}
 	}
 
 	@Test
@@ -221,6 +227,7 @@ extends AbstractJDOTransactionalTest
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("this.name == :pName && this.name2 == :pName2");
 
+		@SuppressWarnings("unchecked")
 		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute(
 				"New test bla bla bla.", "2nd name");
 		Assert.assertEquals("Number of results was wrong", 1, result.size());
@@ -234,14 +241,20 @@ extends AbstractJDOTransactionalTest
 		String propClobIndexingEnabled = "cumulus4j.index.clob.enabled";
 		NucleusContext nucleusContext = ((JDOPersistenceManagerFactory)pm.getPersistenceManagerFactory()).getNucleusContext();
 		Object valClobIndexingEnabled = nucleusContext.getPersistenceConfiguration().getProperty(propClobIndexingEnabled);
-		if (Boolean.FALSE.toString().equals(valClobIndexingEnabled)) {
-			logger.warn("queryAndWithTwoStringEquals_1clob: CLOB indexing is disabled (due to property '" + propClobIndexingEnabled + "') => Skipping this test!");
+		if (Boolean.FALSE.toString().equals(String.valueOf(valClobIndexingEnabled))) { // since shortly, DN returns a Boolean instead of a String - this code works with both.
+			logger.warn("queryAndWithTwoStringEquals_1clob: CLOB indexing is disabled (due to property '{}') => Skipping this test!", propClobIndexingEnabled);
 			return;
 		}
+		if (valClobIndexingEnabled == null)
+			logger.info("queryAndWithTwoStringEquals_1clob: Property '{}' is not set => default value is 'true'.", propClobIndexingEnabled);
+		else
+			logger.info("queryAndWithTwoStringEquals_1clob: Property '{}' is '{}'.", propClobIndexingEnabled, valClobIndexingEnabled);
+
 
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("this.name == :pName && this.description == :pDesc");
 
+		@SuppressWarnings("unchecked")
 		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute(
 				"New test bla bla bla.", "description");
 		Assert.assertEquals("Number of results was wrong", 1, result.size());
@@ -255,6 +268,7 @@ extends AbstractJDOTransactionalTest
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("this.name.indexOf(:needle) >= 0");
 
+		@SuppressWarnings("unchecked")
 		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("bla");
 		Assert.assertEquals("Number of results was wrong", 1, result.size());
 		LocalAccountantDelegate delegate = result.iterator().next();
@@ -268,6 +282,7 @@ extends AbstractJDOTransactionalTest
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("this.name.startsWith(:startStr)");
 
+		@SuppressWarnings("unchecked")
 		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("New ");
 		Assert.assertEquals("Number of results was wrong", 1, result.size());
 		LocalAccountantDelegate delegate = result.iterator().next();
@@ -277,7 +292,7 @@ extends AbstractJDOTransactionalTest
 		q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("param.startsWith(this.name)");
 		q.declareParameters("java.lang.String param");
-		Map params = new HashMap<String, Object>();
+		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("param", "Some other test extra characters");
 		result = (List<LocalAccountantDelegate>) q.executeWithMap(params);
 		Assert.assertEquals("Number of results was wrong", 1, result.size());
@@ -291,6 +306,7 @@ extends AbstractJDOTransactionalTest
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("this.name.endsWith(:endStr)");
 
+		@SuppressWarnings("unchecked")
 		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("bla.");
 		Assert.assertEquals("Number of results was wrong", 1, result.size());
 		LocalAccountantDelegate delegate = result.iterator().next();
@@ -304,6 +320,7 @@ extends AbstractJDOTransactionalTest
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("this.name.endsWith(:endStr) && this.name.substring(1).endsWith('bla.')");
 
+		@SuppressWarnings("unchecked")
 		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("bla.");
 		Assert.assertEquals("Number of results was wrong", 1, result.size());
 		LocalAccountantDelegate delegate = result.iterator().next();
@@ -316,15 +333,21 @@ extends AbstractJDOTransactionalTest
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("this.name.matches(:endStr)");
 
-		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute(".*bla.*");
-		Assert.assertEquals("Number of results was wrong", 1, result.size());
-		LocalAccountantDelegate delegate = result.iterator().next();
-		assertDelegate0(delegate);
+		{
+			@SuppressWarnings("unchecked")
+			List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute(".*bla.*");
+			Assert.assertEquals("Number of results was wrong", 1, result.size());
+			LocalAccountantDelegate delegate = result.iterator().next();
+			assertDelegate0(delegate);
+		}
 
-		result = (List<LocalAccountantDelegate>) q.execute("(?i).*BLA.*");
-		Assert.assertEquals("Number of results was wrong", 1, result.size());
-		delegate = result.iterator().next();
-		assertDelegate0(delegate);
+		{
+			@SuppressWarnings("unchecked")
+			List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("(?i).*BLA.*");
+			Assert.assertEquals("Number of results was wrong", 1, result.size());
+			LocalAccountantDelegate delegate = result.iterator().next();
+			assertDelegate0(delegate);
+		}
 	}
 
 	@Test
@@ -333,6 +356,7 @@ extends AbstractJDOTransactionalTest
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("this.name.toUpperCase() == :str");
 
+		@SuppressWarnings("unchecked")
 		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("SOME OTHER TEST");
 		Assert.assertEquals("Number of results was wrong", 1, result.size());
 		LocalAccountantDelegate delegate = result.iterator().next();
@@ -345,6 +369,7 @@ extends AbstractJDOTransactionalTest
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("this.name.toLowerCase() == :str");
 
+		@SuppressWarnings("unchecked")
 		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("some other test");
 		Assert.assertEquals("Number of results was wrong", 1, result.size());
 		LocalAccountantDelegate delegate = result.iterator().next();
@@ -357,19 +382,25 @@ extends AbstractJDOTransactionalTest
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("this.name.substring(5) == :str");
 
+		{
+		@SuppressWarnings("unchecked")
 		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("other test");
 		Assert.assertEquals("Number of results was wrong", 1, result.size());
 		LocalAccountantDelegate delegate = result.iterator().next();
 		assertDelegate1(delegate);
 		q.closeAll();
+		}
 
 		q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("this.name.substring(5,10) == :str");
 
-		result = (List<LocalAccountantDelegate>) q.execute("other");
-		Assert.assertEquals("Number of results was wrong", 1, result.size());
-		delegate = result.iterator().next();
-		assertDelegate1(delegate);
+		{
+			@SuppressWarnings("unchecked")
+			List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute("other");
+			Assert.assertEquals("Number of results was wrong", 1, result.size());
+			LocalAccountantDelegate delegate = result.iterator().next();
+			assertDelegate1(delegate);
+		}
 	}
 
 	@Test
@@ -378,6 +409,7 @@ extends AbstractJDOTransactionalTest
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("this.creationDate.getYear() == :yr");
 
+		@SuppressWarnings("unchecked")
 		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute(2011);
 		Assert.assertEquals("Number of results was wrong", 1, result.size());
 		LocalAccountantDelegate delegate = result.iterator().next();
@@ -395,6 +427,7 @@ extends AbstractJDOTransactionalTest
 		Set<String> inputStrings = new HashSet<String>();
 		inputStrings.add("Some other test");
 
+		@SuppressWarnings("unchecked")
 		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.execute(inputStrings);
 		Assert.assertEquals("Number of results was wrong", 1, result.size());
 		LocalAccountantDelegate delegate = result.iterator().next();
@@ -407,6 +440,7 @@ extends AbstractJDOTransactionalTest
 		Query q = pm.newQuery(Account.class);
 		q.setFilter("this.currency == :currency");
 
+		@SuppressWarnings("unchecked")
 		List<Account> result = (List<Account>) q.execute(Currency.getInstance("GBP"));
 		Assert.assertEquals("Number of results was wrong", 1, result.size());
 		Account acct = result.iterator().next();
