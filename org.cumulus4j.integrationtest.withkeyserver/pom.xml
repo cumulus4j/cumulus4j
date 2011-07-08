@@ -26,11 +26,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.cumulus4j</groupId>
-			<artifactId>org.cumulus4j.keymanager.front.client</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.cumulus4j</groupId>
 			<artifactId>org.cumulus4j.keymanager.api</artifactId>
 			<version>${project.version}</version>
 		</dependency>

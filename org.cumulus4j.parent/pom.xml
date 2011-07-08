@@ -540,10 +540,6 @@
             					<packages>org.cumulus4j.keymanager.back.webapp:org.cumulus4j.keymanager.back.webapp.*</packages>
             				</group>
             				<group>
-            					<title><![CDATA[<a target="_blank" href="../org.cumulus4j.keymanager.front.client/">org.cumulus4j.keymanager.front.client</a>]]></title>
-            					<packages>org.cumulus4j.keymanager.front.client:org.cumulus4j.keymanager.front.client.*</packages>
-            				</group>
-            				<group>
             					<title><![CDATA[<a target="_blank" href="../org.cumulus4j.keymanager.front.shared/">org.cumulus4j.keymanager.front.shared</a>]]></title>
             					<packages>org.cumulus4j.keymanager.front.shared:org.cumulus4j.keymanager.front.shared.*</packages>
             				</group>

@@ -4,22 +4,22 @@
         <wb-resource deploy-path="/" source-path="/src/webapp"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/java"/>
         <wb-resource deploy-path="/" source-path="/src/main/webapp"/>
-        <dependent-module archiveName="org.cumulus4j.keymanager.back.shared-1.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keymanager.back.shared/org.cumulus4j.keymanager.back.shared">
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.keymanager.back.shared/org.cumulus4j.keymanager.back.shared">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="org.cumulus4j.store-1.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.store/org.cumulus4j.store">
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.store/org.cumulus4j.store">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="org.cumulus4j.crypto-1.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.crypto/org.cumulus4j.crypto">
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.crypto/org.cumulus4j.crypto">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="org.cumulus4j.store.crypto.keymanager-1.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.store.crypto.keymanager/org.cumulus4j.store.crypto.keymanager">
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.store.crypto.keymanager/org.cumulus4j.store.crypto.keymanager">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="org.cumulus4j.store.test-1.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.store.test/org.cumulus4j.store.test">
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.store.test/org.cumulus4j.store.test">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="org.cumulus4j.annotation-1.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.annotation/org.cumulus4j.annotation">
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.cumulus4j.annotation/org.cumulus4j.annotation">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <property name="java-output-path" value="/org.cumulus4j.integrationtest.webapp/target/classes"/>
