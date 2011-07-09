@@ -34,29 +34,69 @@ public class ErrorResponse extends Response
 	private String type;
 	private String message;
 
+	/**
+	 * Create an empty instance of <code>ErrorResponse</code>.
+	 * Only used for serialisation/deserialisation.
+	 */
 	public ErrorResponse() { }
 
+	/**
+	 * Create an instance of <code>ErrorResponse</code> in order to reply the given <code>request</code>.
+	 *
+	 * @param request the request to be replied.
+	 * @param errorMessage a description of what went wrong.
+	 */
 	public ErrorResponse(Request request, String errorMessage) {
 		super(request);
 		this.message = errorMessage;
 	}
 
-	public ErrorResponse(Request request, Throwable t) {
+	/**
+	 * Create an instance of <code>ErrorResponse</code> in order to reply the given <code>request</code>.
+	 *
+	 * @param request the request to be replied.
+	 * @param throwable the error to be wrapped and sent back to the app-server instead of a normal response.
+	 */
+	public ErrorResponse(Request request, Throwable throwable) {
 		super(request);
-		this.type = t.getClass().getName();
-		this.message = t.getMessage();
+		this.type = throwable.getClass().getName();
+		this.message = throwable.getMessage();
 	}
 
+	/**
+	 * Get the error-type. This is a fully qualified class-name of the {@link Throwable}-sub-class
+	 * passed to {@link #ErrorResponse(Request, Throwable)} or {@link #setType(String) otherwise set}.
+	 * @return the error-type or <code>null</code>.
+	 * @see #setType(String)
+	 */
 	public String getType() {
 		return type;
 	}
+	/**
+	 * Set the error-type.
+	 * @param type the error-type or <code>null</code>. If not <code>null</code>, this must be a fully
+	 * qualified class-name of the {@link Throwable}-sub-class.
+	 * @see #getType()
+	 */
 	public void setType(String type) {
 		this.type = type;
 	}
 
+	/**
+	 * Get the error-message. If an exception was wrapped by this <code>ErrorResponse</code> instance,
+	 * it will be the result of {@link Throwable#getMessage()}.
+	 * @return the error-message.
+	 * @see #setMessage(String)
+	 */
 	public String getMessage() {
 		return message;
 	}
+	/**
+	 * Set the error-message, i.e. a description of what went wrong and prevented successful handling
+	 * of the request.
+	 * @param errorMessage the error message.
+	 * @see #getMessage()
+	 */
 	public void setMessage(String errorMessage) {
 		this.message = errorMessage;
 	}
