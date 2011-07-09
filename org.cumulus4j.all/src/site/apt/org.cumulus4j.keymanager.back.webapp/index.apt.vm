@@ -7,7 +7,13 @@
 
 Module org.cumulus4j.keymanager.back.webapp
 
-	TODO document this module!
+	Web-app running on the app-server to allow communication between key-manager and app-server (see the
+	yellow arrow in {{{../documentation/deployment-scenarios.html}Deployment scenarios}}).
+
+	This module contains only build information (a <<<pom.xml>>>) and a web-app-declaration
+	(a <<<WEB-INF/web.xml>>>). The actual REST implementation classes are in module
+	{{{../org.cumulus4j.store.crypto.keymanager/}org.cumulus4j.store.crypto.keymanager}}, package
+	{{{../apidocs/index.html?org/cumulus4j/store/crypto/keymanager/rest/package-summary.html}org.cumulus4j.store.crypto.keymanager.rest}}.
 
 * Maven
 

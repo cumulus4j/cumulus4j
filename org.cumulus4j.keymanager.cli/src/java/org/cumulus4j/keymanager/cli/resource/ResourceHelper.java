@@ -5,7 +5,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 
-public class ResourceHelper {
+/**
+ * Helper for accessing resource files.
+ *
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
+public final class ResourceHelper {
+
+	private ResourceHelper() { }
 
 	public static InputStream openLicenceAsStream()
 	{

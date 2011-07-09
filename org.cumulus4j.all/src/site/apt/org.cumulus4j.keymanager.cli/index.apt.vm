@@ -19,7 +19,7 @@ java -jar org.cumulus4j.keymanager.cli-${project.version}.jar help
 	a remote key server. Here is an excerpt of the functionality (there are more features - use the above
 	help command for a complete listing):
 
-	* Create a new key store and initialise it with the {{{./date-dependent-key-strategy.html}date-dependent key-strategy}}.
+	* Create a new key store and initialise it with the {{{../documentation/date-dependent-key-strategy.html}date-dependent key-strategy}}.
 
 	* Add a user.
 
