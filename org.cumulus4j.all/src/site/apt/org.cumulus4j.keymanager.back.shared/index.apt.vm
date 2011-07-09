@@ -11,7 +11,7 @@ Module org.cumulus4j.keymanager.back.shared
 	(either embedded in app-client or in key-server) and {{{../org.cumulus4j.keymanager.back.webapp/}app-server}}.
 
 	Since the communication is based on REST, most classes here are {{{http://en.wikipedia.org/wiki/Data_Transfer_Object}DTOs}}
-	(sub-classed from {{{../apidocs/index.html?org/cumulus4j/keymanager/back/shared/Message.html}Message}) which are
+	(sub-classed from {{{../apidocs/index.html?org/cumulus4j/keymanager/back/shared/Message.html}Message}}) which are
 	transferred via XML or JSON.
 
 * Maven
