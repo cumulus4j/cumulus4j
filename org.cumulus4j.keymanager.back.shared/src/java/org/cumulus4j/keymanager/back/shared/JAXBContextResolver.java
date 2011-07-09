@@ -30,6 +30,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * {@link ContextResolver} implementation telling JAXB all DTO classes that are required for
+ * the communication channel between app-server and key-manager.
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @Provider
@@ -47,11 +50,16 @@ public final class JAXBContextResolver implements ContextResolver<JAXBContext>
 		GetKeyResponse.class,
 		NullResponse.class,
 		Request.class,
-		Response.class
+		Response.class,
+		Message.class
 	};
 
 	private static final Set<Class<?>> types = Collections.unmodifiableSet(new HashSet<Class<?>>(Arrays.asList(cTypes)));
 
+	/**
+	 * Create a new instance of <code>JAXBContextResolver</code>. This is called by Jersey (the class is passed to it).
+	 * @throws Exception in case creation of this resolver fails.
+	 */
 	public JAXBContextResolver() throws Exception {
 		logger.debug("Instantiating JAXBContextResolver.");
 		this.context = JAXBContext.newInstance(cTypes);

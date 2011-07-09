@@ -7,7 +7,16 @@
 
 Module org.cumulus4j.keymanager
 
-	TODO document this module!
+	The key-manager sends keys from the locally managed key-store to the app-server, whenever the app-server
+	requests keys and the app-client allows it. 
+
+	Therefore, the key-manager receives a {{{../apidocs/index.html?org/cumulus4j/keymanager/back/shared/Request.html}Request}}
+	from the app-server and processes it via a {{{../apidocs/index.html?org/cumulus4j/keymanager/channel/RequestHandler.html}RequestHandler}}.
+	After it is processed, the result is sent back to the app-server via a
+	{{{../apidocs/index.html?org/cumulus4j/keymanager/back/shared/Response.html}Response}}.
+
+	The requests are only processed within the scope of a valid and unlocked
+	{{{../apidocs/index.html?org/cumulus4j/keymanager/api/Session.html}crypto-session}}. 
 
 * Maven
 

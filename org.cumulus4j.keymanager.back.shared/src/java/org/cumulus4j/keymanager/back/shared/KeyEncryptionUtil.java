@@ -33,6 +33,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <p>
+ * Utility class to en- &amp; decrypt symmetric secret keys using asymmetric encryption.
+ * </p>
+ * <p>
+ * TODO the MAC algorithm should be communicated between key-manager and app-server (maybe
+ * the app-server specifies it, but with the possibility that the key-manager can override, i.e. use another one?!
+ * thus requiring the GetKeyResponse to tell the app-server, which one was actually used - or maybe encode this into the
+ * binary result here? Or maybe only specify it here on the key-manager-side (and encode in the binary)?
+ * less work and probably sufficient).
+ * </p>
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public final class KeyEncryptionUtil
@@ -45,6 +56,17 @@ public final class KeyEncryptionUtil
 
 	private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
+	/**
+	 * Encrypt the given symmetric secret <code>key</code> with the given {@link Cipher}.
+	 * The key will be protected against manipulation/corruption by a MAC.
+	 *
+	 * @param key the symmetric secret key to be encrypted.
+	 * @param encrypter the cipher used for encryption.
+	 * @return the key together with the MAC's key + IV - all encrypted.
+	 * @throws CryptoException in case the encryption fails.
+	 * @throws NoSuchAlgorithmException in case a crypto algorithm's name (e.g. for the MAC) does not exist in the {@link CryptoRegistry}.
+	 * @see #encryptKey(byte[], String, byte[])
+	 */
 	public static byte[] encryptKey(byte[] key, Cipher encrypter) throws CryptoException, NoSuchAlgorithmException
 	{
 		byte[] mac = EMPTY_BYTE_ARRAY;
@@ -103,6 +125,20 @@ public final class KeyEncryptionUtil
 		return result;
 	}
 
+	/**
+	 * Encrypt the given symmetric secret <code>key</code>.
+	 * The key will be protected against manipulation/corruption by a MAC (the algorithm is currently hard-coded, but this might be changed, soon).
+	 *
+	 * @param key the symmetric secret key to be encrypted.
+	 * @param keyEncryptionTransformation the transformation to be used to encrypt (see {@link CryptoRegistry#createCipher(String)}).
+	 * @param keyEncryptionPublicKey the public key to be used to encrypt the given <code>key</code>.
+	 * @return the key together with the MAC's key + IV - all encrypted.
+	 * @throws GeneralSecurityException if there's a problem {@link CryptoRegistry#createCipher(String) obtaining the cipher from the CryptoRegistry}.
+	 * @throws IOException if decoding the public key from its binary representation fails.
+	 * @throws CryptoException in case the encryption fails.
+	 * @see #encryptKey(byte[], Cipher)
+	 * @see #decryptKey(Cipher, byte[])
+	 */
 	public static byte[] encryptKey(byte[] key, String keyEncryptionTransformation, byte[] keyEncryptionPublicKey)
 	throws GeneralSecurityException, IOException, CryptoException
 	{
@@ -113,6 +149,19 @@ public final class KeyEncryptionUtil
 		return keyEncodedEncrypted;
 	}
 
+	/**
+	 * Decrypt a previously {@link #encryptKey(byte[], String, byte[]) encrypted} secret key and verify its integrity
+	 * via a MAC.
+	 *
+	 * @param decrypter the cipher to be used for decryption (already initialised with key + IV).
+	 * @param keyEncodedEncrypted the encrypted key as produced by {@link #encryptKey(byte[], Cipher)}
+	 * @return the decrypted secret key (as originally passed to {@link #encryptKey(byte[], Cipher)}.
+	 * @throws CryptoException if decryption failed.
+	 * @throws IOException if data cannot be read or is corrupted - e.g. if MAC verification failed.
+	 * @throws NoSuchAlgorithmException if the {@link CryptoRegistry} does not know the (MAC) algorithm.
+	 * @see {@link #encryptKey(byte[], Cipher)}
+	 * @see {@link #encryptKey(byte[], String, byte[])}
+	 */
 	public static byte[] decryptKey(Cipher decrypter, byte[] keyEncodedEncrypted) throws CryptoException, IOException, NoSuchAlgorithmException
 	{
 		int encryptedOff = 0;

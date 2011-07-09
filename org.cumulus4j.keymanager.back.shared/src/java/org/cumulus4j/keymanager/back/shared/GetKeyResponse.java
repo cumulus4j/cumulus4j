@@ -20,7 +20,13 @@ package org.cumulus4j.keymanager.back.shared;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * <p>
+ * {@link Response} implementation to send a specific symmetric secret key to the app-server.
+ * It is the response to a {@link GetKeyRequest}.
+ * </p>
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ * @see GetKeyRequest
  */
 @XmlRootElement
 public class GetKeyResponse extends Response
@@ -30,8 +36,19 @@ public class GetKeyResponse extends Response
 	private long keyID;
 	private byte[] keyEncodedEncrypted;
 
+	/**
+	 * Create an empty instance of <code>GetKeyResponse</code>.
+	 * Only used for serialisation/deserialisation.
+	 */
 	public GetKeyResponse() { }
 
+	/**
+	 * Create an instance of <code>GetKeyResponse</code> in order to reply the given <code>request</code>.
+	 *
+	 * @param request the request to be replied (an instance of {@link GetActiveEncryptionKeyRequest}).
+	 * @param keyID the identifier of the key to be sent to the app-server.
+	 * @param keyEncodedEncrypted the {@link KeyEncryptionUtil#encryptKey(byte[], org.cumulus4j.crypto.Cipher) encrypted} symmetric secret key.
+	 */
 	public GetKeyResponse(Request request, long keyID, byte[] keyEncodedEncrypted) {
 		super(request);
 
@@ -42,16 +59,36 @@ public class GetKeyResponse extends Response
 		this.keyEncodedEncrypted = keyEncodedEncrypted;
 	}
 
+	/**
+	 * Get the identifier of the symmetric secret key transported by this response.
+	 * @return the identifier of the symmetric secret key transported by this response.
+	 * @see #setKeyID(long)
+	 */
 	public long getKeyID() {
 		return keyID;
 	}
+	/**
+	 * Set the identifier of the symmetric secret key transported by this response.
+	 * @param keyID the identifier of the symmetric secret key transported by this response.
+	 * @see #getKeyID()
+	 */
 	public void setKeyID(long keyID) {
 		this.keyID = keyID;
 	}
 
+	/**
+	 * Get the {@link KeyEncryptionUtil#encryptKey(byte[], org.cumulus4j.crypto.Cipher) encrypted} symmetric secret key.
+	 * @return the {@link KeyEncryptionUtil#encryptKey(byte[], org.cumulus4j.crypto.Cipher) encrypted} symmetric secret key.
+	 * @see #setKeyEncodedEncrypted(byte[])
+	 */
 	public byte[] getKeyEncodedEncrypted() {
 		return keyEncodedEncrypted;
 	}
+	/**
+	 * Set the {@link KeyEncryptionUtil#encryptKey(byte[], org.cumulus4j.crypto.Cipher) encrypted} symmetric secret key.
+	 * @param key the {@link KeyEncryptionUtil#encryptKey(byte[], org.cumulus4j.crypto.Cipher) encrypted} symmetric secret key.
+	 * @see #getKeyEncodedEncrypted()
+	 */
 	public void setKeyEncodedEncrypted(byte[] key) {
 		this.keyEncodedEncrypted = key;
 	}

@@ -20,6 +20,8 @@ package org.cumulus4j.keymanager.back.shared;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * {@link Response} implementation not containing any data and symbolising Java's <code>null</code> value.
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @XmlRootElement
@@ -30,7 +32,8 @@ extends Response
 
 	/**
 	 * Create a <code>NullResponse</code> without a prior request. This is just used as filler
-	 * without being forwarded to any requester.
+	 * without being forwarded to any requester. It circumvents the problem that Jersey has a problem
+	 * when a REST service (aka resource) method expecting an entity should be called without one.
 	 */
 	public NullResponse() { }
 
@@ -39,7 +42,7 @@ extends Response
 	 * processed like any other response, i.e. forwarded to the requester, but finally
 	 * translated to <code>null</code>
 	 * (<code>org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBroker.query(Class<R>, Request)</code>
-	 * never returns a <code>NullResponse</code> instance).
+	 * never returns a <code>NullResponse</code> instance; instead it returns <code>null</code>).
 	 * @param request the request that is answered by this new <code>NullResponse</code> instance.
 	 */
 	public NullResponse(Request request)

@@ -20,6 +20,10 @@ package org.cumulus4j.keymanager.back.shared;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * {@link Request} implementation for sending an error back to the app-server.
+ * It can optionally wrap a {@link Throwable} to provide more precise information
+ * (the type) than just a message.
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @XmlRootElement

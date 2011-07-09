@@ -20,7 +20,10 @@ package org.cumulus4j.keymanager.back.shared;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * Super-class for all responses sent from key-manager to app-server.
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ * @see Request
  */
 @XmlRootElement
 public abstract class Response extends Message

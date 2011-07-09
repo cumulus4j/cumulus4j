@@ -19,7 +19,10 @@ package org.cumulus4j.keymanager.channel;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import org.bouncycastle.crypto.CryptoException;
 import org.cumulus4j.keymanager.Session;
@@ -32,6 +35,7 @@ import org.cumulus4j.keymanager.back.shared.Response;
 import org.cumulus4j.keystore.AuthenticationException;
 import org.cumulus4j.keystore.DateDependentKeyStrategy;
 import org.cumulus4j.keystore.KeyNotFoundException;
+import org.cumulus4j.keystore.KeyStore;
 
 /**
  * <p>
@@ -48,7 +52,9 @@ import org.cumulus4j.keystore.KeyNotFoundException;
  */
 public class GetActiveEncryptionKeyRequestHandler extends AbstractRequestHandler<GetActiveEncryptionKeyRequest>
 {
-	private static DateDependentKeyStrategy.ActiveKey activeKey;
+	private static Map<KeyStore, DateDependentKeyStrategy.ActiveKey> keyStore2activeKey = Collections.synchronizedMap(
+			new WeakHashMap<KeyStore, DateDependentKeyStrategy.ActiveKey>()
+	);
 
 	@Override
 	public Response handle(GetActiveEncryptionKeyRequest request)
@@ -67,16 +73,25 @@ public class GetActiveEncryptionKeyRequestHandler extends AbstractRequestHandler
 		if (session.getExpiry().before(new Date()))
 			throw new IllegalStateException("The session for cryptoSessionID=" + request.getCryptoSessionID() + " is already expired!");
 
-		DateDependentKeyStrategy.ActiveKey currentActiveKey = activeKey;
+		if (request.getTimestamp() == null)
+			throw new IllegalArgumentException("request.getTimestamp() == null");
 
-		if (currentActiveKey == null || currentActiveKey.getActiveToExcl().compareTo(new Date()) <= 0) {
-			DateDependentKeyStrategy keyStrategy = new DateDependentKeyStrategy(sessionManager.getKeyStore());
-			DateDependentKeyStrategy.ActiveKey newActiveKey = keyStrategy.getActiveKey(session.getUserName(), session.getPassword(), null);
-			activeKey = newActiveKey;
+		KeyStore keyStore = sessionManager.getKeyStore();
+		DateDependentKeyStrategy.ActiveKey currentActiveKey = keyStore2activeKey.get(keyStore);
+
+		if (currentActiveKey == null || currentActiveKey.getActiveToExcl().compareTo(request.getTimestamp()) <= 0) {
+			DateDependentKeyStrategy keyStrategy = new DateDependentKeyStrategy(keyStore);
+			DateDependentKeyStrategy.ActiveKey newActiveKey = keyStrategy.getActiveKey(
+					session.getUserName(), session.getPassword(), request.getTimestamp()
+			);
+			if (newActiveKey == null)
+				throw new IllegalStateException("keyStrategy.getActiveKey(...) returned null!");
+
+			keyStore2activeKey.put(keyStore, newActiveKey);
 			currentActiveKey = newActiveKey;
 		}
 
-		byte[] key = sessionManager.getKeyStore().getKey(session.getUserName(), session.getPassword(), currentActiveKey.getKeyID());
+		byte[] key = keyStore.getKey(session.getUserName(), session.getPassword(), currentActiveKey.getKeyID());
 		byte[] keyEncodedEncrypted = KeyEncryptionUtil.encryptKey(key, request.getKeyEncryptionTransformation(), request.getKeyEncryptionPublicKey());
 		return new GetActiveEncryptionKeyResponse(
 				request,
