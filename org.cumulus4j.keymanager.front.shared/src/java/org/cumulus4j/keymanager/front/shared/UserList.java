@@ -23,6 +23,9 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * <p>
+ * DTO representing a list of {@link User}s.
+ * </p>
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @XmlRootElement
@@ -30,9 +33,20 @@ public class UserList
 {
 	private List<User> users = new ArrayList<User>();
 
+	/**
+	 * Get the users. This property is initialised to an empty {@link List}
+	 * by the default constructor (i.e. never <code>null</code>, if not explicitly set).
+	 * @return the users.
+	 * @see #setUsers(List)
+	 */
 	public List<User> getUsers() {
 		return users;
 	}
+	/**
+	 * Set the users.
+	 * @param users the users.
+	 * @see #getUsers()
+	 */
 	public void setUsers(List<User> users) {
 		this.users = users;
 	}

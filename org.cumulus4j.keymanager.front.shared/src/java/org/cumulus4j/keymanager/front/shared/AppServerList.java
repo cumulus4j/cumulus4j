@@ -23,6 +23,9 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * <p>
+ * DTO representing a list of {@link AppServer}s.
+ * </p>
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @XmlRootElement
@@ -30,10 +33,21 @@ public class AppServerList
 {
 	private List<AppServer> appServers = new ArrayList<AppServer>();
 
+	/**
+	 * Get the app-servers. This property is initialised to an empty {@link List}
+	 * by the default constructor (i.e. never <code>null</code>, if not explicitly set).
+	 * @return the app-servers.
+	 * @see #setAppServers(List)
+	 */
 	public List<AppServer> getAppServers() {
 		return appServers;
 	}
-	public void setAppServers(List<AppServer> users) {
-		this.appServers = users;
+	/**
+	 * Set the app-servers.
+	 * @param appServers the app-servers.
+	 * @see #getAppServers()
+	 */
+	public void setAppServers(List<AppServer> appServers) {
+		this.appServers = appServers;
 	}
 }

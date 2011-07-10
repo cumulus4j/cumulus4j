@@ -20,6 +20,7 @@ package org.cumulus4j.keymanager.front.shared;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * DTO representing a user (with a password).
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @XmlRootElement
@@ -29,10 +30,18 @@ public class UserWithPassword extends User
 
 	private char[] password;
 
+	/**
+	 * Get the password.
+	 * @return the password.
+	 */
 	public char[] getPassword() {
 		return password;
 	}
 
+	/**
+	 * Set the password.
+	 * @param password the password.
+	 */
 	public void setPassword(char[] password) {
 		this.password = password;
 	}

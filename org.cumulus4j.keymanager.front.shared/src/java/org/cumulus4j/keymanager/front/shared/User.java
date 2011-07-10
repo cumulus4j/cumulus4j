@@ -22,6 +22,7 @@ import java.io.Serializable;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * DTO representing a user.
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @XmlRootElement
@@ -32,15 +33,31 @@ implements Serializable
 
 	private String userName;
 
+	/**
+	 * Create an empty <code>User</code> instance.
+	 */
 	public User() { }
 
+	/**
+	 * Create a <code>User</code> instance with a <code>userName</code>.
+	 * @param userName the user's name (as used for log-in).
+	 */
 	public User(String userName) {
 		this.userName = userName;
 	}
 
+	/**
+	 * Get the user's name (as used for log-in).
+	 * @return the user's name.
+	 */
 	public String getUserName() {
 		return userName;
 	}
+
+	/**
+	 * Set the user's name (as used for log-in).
+	 * @param userName the user's name.
+	 */
 	public void setUserName(String userName) {
 		this.userName = userName;
 	}

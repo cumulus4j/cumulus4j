@@ -21,6 +21,20 @@ import java.io.Serializable;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * <p>
+ * DTO representing an app-server.
+ * </p><p>
+ * An <code>AppServer</code> represents a logical application server. This logical application server
+ * might be a cluster/cloud consisting of many physical machines.
+ * </p><p>
+ * An <code>AppServer</code> contains the coordinates needed to contact the application server
+ * (or more precisely the key-manager-channel-REST-service
+ * running on this application server) in order to establish a communication channel. See
+ * <a href="http://www.cumulus4j.org/1.0.0/documentation/deployment-scenarios.html">Deployment scenarios</a>.
+ * </p>
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 @XmlRootElement
 public class AppServer
 implements Serializable
@@ -33,15 +47,44 @@ implements Serializable
 
 	private String appServerBaseURL;
 
+	/**
+	 * <p>
+	 * Get the app-server's ID.
+	 * </p><p>
+	 * If this instance of <code>AppServer</code> is used to PUT an app-server into the key-server,
+	 * then this property can be <code>null</code> in order to have the
+	 * key-server assign the ID. The app-server's ID is sent back to the client in a {@link PutAppServerResponse}.
+	 * </p>
+	 * @return the app-server's ID.
+	 * @see #setAppServerID(String)
+	 */
 	public String getAppServerID() {
 		return appServerID;
 	}
+	/**
+	 * Set the app-server's ID.
+	 * @param appServerID the app-server's ID.
+	 * @see #getAppServerID()
+	 */
 	public void setAppServerID(String appServerID) {
 		this.appServerID = appServerID;
 	}
+	/**
+	 * Get the base-url of the app-server-key-manager-channel. This is the part of the URL before the "/KeyManagerChannel" -
+	 * e.g. if the REST URL of the KeyManagerChannel-service is
+	 * "https://serverUsingCumulus4j.mydomain.org/org.cumulus4j.keymanager.back.webapp/KeyManagerChannel", then this must be
+	 * "https://serverUsingCumulus4j.mydomain.org/org.cumulus4j.keymanager.back.webapp".
+	 * @return the base-url of the app-server-key-manager-channel.
+	 * @see #setAppServerBaseURL(String)
+	 */
 	public String getAppServerBaseURL() {
 		return appServerBaseURL;
 	}
+	/**
+	 * Set the base-url of the app-server-key-manager-channel.
+	 * @param appServerBaseURL the base-url of the app-server-key-manager-channel.
+	 * @see #getAppServerBaseURL()
+	 */
 	public void setAppServerBaseURL(String appServerBaseURL) {
 		this.appServerBaseURL = appServerBaseURL;
 	}

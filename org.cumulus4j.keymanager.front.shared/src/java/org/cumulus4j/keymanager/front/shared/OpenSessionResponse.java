@@ -23,6 +23,10 @@ import java.util.Date;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * Response sent back from the key-server to the client after it requested opening a session.
+ * This might not necessarily
+ * represent a new session as a previously opened session might just be refreshed and reused.
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @XmlRootElement
@@ -48,19 +52,41 @@ public class OpenSessionResponse implements Serializable
 	 * <li>Separator '.': A dot is used as separator.</li>
 	 * <li>The rest of the cryptoSessionID, which is unique within the scope of the prefix.</li>
 	 * </ul>
+	 * <p>
+	 * Note, that this identifier is structurally the same, no matter if the key-manager is embedded in the client
+	 * or separate in a key-server.
+	 * </p>
 	 *
 	 * @return the crypto-session's unique identifier.
+	 * @see #setCryptoSessionID(String)
 	 */
 	public String getCryptoSessionID() {
 		return cryptoSessionID;
 	}
+	/**
+	 * Set the crypto-session's unique identifier. See {@link #getCryptoSessionID()} for
+	 * how such an identifier must look like.
+	 * @param cryptoSessionID the crypto-session's unique identifier.
+	 * @see #getCryptoSessionID()
+	 */
 	public void setCryptoSessionID(String cryptoSessionID) {
 		this.cryptoSessionID = cryptoSessionID;
 	}
 
+	/**
+	 * Get the timestamp, when this session expires. The session expires only, if no new open-session-request
+	 * occurs that would refresh the session and thus postpone the expiry.
+	 * @return the timestamp, when this session expires.
+	 * @see #setExpiry(Date)
+	 */
 	public Date getExpiry() {
 		return expiry;
 	}
+	/**
+	 * Set the timestamp, when this session expires.
+	 * @param expiry the timestamp, when this session expires.
+	 * @see #getExpiry()
+	 */
 	public void setExpiry(Date expiry) {
 		this.expiry = expiry;
 	}

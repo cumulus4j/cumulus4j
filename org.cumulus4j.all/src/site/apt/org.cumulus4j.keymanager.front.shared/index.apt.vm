@@ -7,7 +7,11 @@
 
 Module org.cumulus4j.keymanager.front.shared
 
-	TODO document this module!
+	Shared classes to communicate between {{{../org.cumulus4j.keymanager.api/}app-client (key manager API}} and
+	{{{../org.cumulus4j.keymanager.front.webapp/}key-server}}.
+
+	Since the communication is based on REST, most classes here are {{{http://en.wikipedia.org/wiki/Data_Transfer_Object}DTOs}}
+	which are transferred via XML or JSON.
 
 * Maven
 

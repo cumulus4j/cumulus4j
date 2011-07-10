@@ -22,6 +22,10 @@ import java.io.Serializable;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * DTO for sending an error back to the app-server.
+ * It can optionally wrap a {@link Throwable} to provide more precise information
+ * (the type) than just a message.
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @XmlRootElement
@@ -35,47 +39,92 @@ public class Error implements Serializable
 	private String type;
 	private String message;
 
+	/**
+	 * Create an empty instance of <code>Error</code>.
+	 * Only used for serialisation/deserialisation.
+	 */
 	public Error() { }
 
-	public Error(Throwable t) {
-		this.type = t.getClass().getName();
-		this.message = t.getMessage();
+	/**
+	 * Create an instance of <code>Error</code> wrapping a {@link Throwable}.
+	 * @param throwable the error to be wrapped and sent back to the client instead of a normal response.
+	 */
+	public Error(Throwable throwable) {
+		this.type = throwable.getClass().getName();
+		this.message = throwable.getMessage();
 
-		Throwable r = t;
+		Throwable r = throwable;
 		while (r.getCause() != null)
 			r = r.getCause();
 
-		if (r != t) {
+		if (r != throwable) {
 			this.rootType = r.getClass().getName();
 			this.rootMessage = r.getMessage();
 		}
 	}
 
+	/**
+	 * Create an instance of <code>Error</code> with an error message.
+	 * @param message the message describing what went wrong.
+	 */
 	public Error(String message) {
 		this.message = message;
 	}
 
+	/**
+	 * Get the fully qualified class-name of the root-{@link Throwable} in the exception's cause-chain.
+	 * @return the fully qualified class-name of the root-{@link Throwable}. Can be <code>null</code>.
+	 */
 	public String getRootType() {
 		return rootType;
 	}
+	/**
+	 * Get the fully qualified class-name of the root-{@link Throwable} in the exception's cause-chain.
+	 * @param rootType the fully qualified class-name of the root-{@link Throwable} or <code>null</code>.
+	 */
 	public void setRootType(String rootType) {
 		this.rootType = rootType;
 	}
+	/**
+	 * Get the root-{@link Throwable}'s exception-{@link Throwable#getMessage() message}.
+	 * @return the message of the root-{@link Throwable} in the exception's cause-chain.
+	 */
 	public String getRootMessage() {
 		return rootMessage;
 	}
+	/**
+	 * Set the root-{@link Throwable}'s exception-{@link Throwable#getMessage() message}.
+	 * @param rootMessage the message of the root-{@link Throwable} in the exception's cause-chain.
+	 */
 	public void setRootMessage(String rootMessage) {
 		this.rootMessage = rootMessage;
 	}
+	/**
+	 * Get the fully qualified class-name of the wrapped {@link Throwable}.
+	 * @return the fully qualified class-name of the wrapped {@link Throwable}.
+	 */
 	public String getType() {
 		return type;
 	}
+	/**
+	 * Set the fully qualified class-name of the wrapped {@link Throwable}.
+	 * @param type the fully qualified class-name of the wrapped {@link Throwable}.
+	 */
 	public void setType(String type) {
 		this.type = type;
 	}
+	/**
+	 * Get the error-message. If this <code>Error</code> wraps a {@link Throwable}, this is
+	 * {@link Throwable#getMessage()}
+	 * @return the error-message.
+	 */
 	public String getMessage() {
 		return message;
 	}
+	/**
+	 * Set the error-message.
+	 * @param message the error-message.
+	 */
 	public void setMessage(String message) {
 		this.message = message;
 	}
