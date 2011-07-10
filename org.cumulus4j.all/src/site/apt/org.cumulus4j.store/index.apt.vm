@@ -9,6 +9,11 @@ Module org.cumulus4j.store
 
 	Plug-in for {{{http://www.datanucleus.org}DataNucleus}} providing encrypted data-storage.
 	
+	It is responsible for storing data in an encrypted form as well as querying the data (JDOQL or JPAQL
+	are supported). Therefore, it uses a backend-datastore (accessed via DataNucleus over the JDO API)
+	in which it manages its own data structure. Additionally to using only one single backend-datastore, the
+	usage of two separate datastores (one for indexes and one for the actual data) is supported, too.
+	
 	DataNucleus uses the Eclipse plugin-mechanism and this plug-in is the core of Cumulus4j containing extensions
 	to the following DN extension-points:
 	
@@ -28,9 +33,22 @@ Module org.cumulus4j.store
 	
 	* org.datanucleus.member_annotation_handler
 	
-	This list might not be up-to-date, but it should give you an idea.
-
-	TODO document this module!
+	[]
+	
+	In order to be extensible, this plug-in itself declares a few extension-points:
+	
+	* org.cumulus4j.store.crypto_manager (see {{{../apidocs/index.html?org/cumulus4j/store/crypto/CryptoManager.html}CryptoManager}})
+	
+		* Extension provided by {{{../org.cumulus4j.store.crypto.keymanager/}org.cumulus4j.store.crypto.keymanager}}
+	
+	* org.cumulus4j.store.index_mapping (see {{{../apidocs/index.html?org/cumulus4j/store/model/IndexEntry.html}IndexEntry}})
+	
+	* org.cumulus4j.store.query_method (see {{{../apidocs/index.html?org/cumulus4j/store/query/method/MethodEvaluator.html}MethodEvaluator}})
+	
+	[]
+	
+	These lists might not be up-to-date, but they should give you an idea
+	(check the <<<plugin.xml>>>, if you want to be sure).
 
 * Maven
 
