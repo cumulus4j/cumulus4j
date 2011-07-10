@@ -17,21 +17,17 @@ Module org.cumulus4j.store
 	DataNucleus uses the Eclipse plugin-mechanism and this plug-in is the core of Cumulus4j containing extensions
 	to the following DN extension-points:
 	
-	* org.datanucleus.store_manager
-	
-	* org.datanucleus.store_connectionfactory
-	
-	* org.datanucleus.store_query_query
-	
-	* org.cumulus4j.store.index_mapping
-	
-	* org.cumulus4j.store.query_method
-	
-	* org.datanucleus.store_valuegenerator
+	* org.datanucleus.member_annotation_handler
 	
 	* org.datanucleus.persistence_properties
 	
-	* org.datanucleus.member_annotation_handler
+	* org.datanucleus.store_connectionfactory
+	
+	* org.datanucleus.store_manager
+	
+	* org.datanucleus.store_query_query
+	
+	* org.datanucleus.store_valuegenerator
 	
 	[]
 	
