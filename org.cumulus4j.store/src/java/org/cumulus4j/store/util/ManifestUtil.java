@@ -25,10 +25,20 @@ import java.util.jar.Manifest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Utility to read a <code>MANIFEST.MF</code>.
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class ManifestUtil
 {
 	private static final Logger logger = LoggerFactory.getLogger(ManifestUtil.class);
 
+	/**
+	 * Read the <code>MANIFEST.MF</code> of the JAR file containing the given class.
+	 * @param clazz a class located in the JAR whose MANIFEST.MF should be read.
+	 * @return the manifest; never <code>null</code>.
+	 * @throws IOException if reading the manifest fails.
+	 */
 	public static Manifest readManifest(Class<?> clazz)
 	throws IOException
 	{
