@@ -22,7 +22,7 @@ import java.io.Serializable;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * DTO for sending an error back to the app-server.
+ * DTO for sending an error back to the client (<code>KeyManagerAPI</code>).
  * It can optionally wrap a {@link Throwable} to provide more precise information
  * (the type) than just a message.
  *
