@@ -29,9 +29,11 @@ import org.slf4j.LoggerFactory;
  * Utility to read a <code>MANIFEST.MF</code>.
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public class ManifestUtil
+public final class ManifestUtil
 {
 	private static final Logger logger = LoggerFactory.getLogger(ManifestUtil.class);
+
+	private ManifestUtil() { }
 
 	/**
 	 * Read the <code>MANIFEST.MF</code> of the JAR file containing the given class.
