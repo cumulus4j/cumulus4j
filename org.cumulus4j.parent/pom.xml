@@ -9,8 +9,6 @@
 	<name>org.cumulus4j.parent</name>
 	<description>Cumulus4j parent POM, i.e. the root-configuration from which all other POMs inherit common settings.</description>
 
-	<url>http://www.cumulus4j.org/</url>
-
 	<ciManagement>
 		<system>jenkins</system>
 		<url>https://dev.nightlabs.org/jenkins/job/Cumulus4j/</url>

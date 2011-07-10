@@ -7,7 +7,8 @@
 
 Module org.cumulus4j.keystore
 
-	The key store manages keys safely in the local file system. It is similar to a
+	The {{{../apidocs/index.html?org/cumulus4j/keystore/KeyStore.html}key store}} manages keys safely
+	in the local file system. It is similar to a
 	{{{http://download.oracle.com/javase/6/docs/api/java/security/KeyStore.html}Java-KeyStore}},
 	but	specifically serves the needs of Cumulus4j.
 
