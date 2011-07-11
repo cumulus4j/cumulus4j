@@ -22,10 +22,17 @@ import java.util.Date;
 import java.util.List;
 
 import org.cumulus4j.keystore.prop.Long2LongSortedMapProperty;
+import org.cumulus4j.keystore.prop.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <p>
+ * Key management strategy determining the currently active encryption key by the current time.
+ * </p><p>
+ * See <a href="../../../documentation/date-dependent-key-strategy.html">Date-dependent key-strategy</a> for further
+ * details.
+ * </p>
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
@@ -35,8 +42,16 @@ public class DateDependentKeyStrategy
 
 	private KeyStore keyStore;
 
+	/**
+	 * Name of the {@link Property} where the key-strategy's timestamp-to-key-map is stored.
+	 * The property is of type {@link Long2LongSortedMapProperty}.
+	 */
 	public static final String PROPERTY_ACTIVE_FROM_TIMESTAMP_2_KEY_ID = "DateDependentKeyStrategy.activeFromTimestamp2KeyID";
 
+	/**
+	 * Create a new instance for the given {@link KeyStore}.
+	 * @param keyStore the <code>KeyStore</code> to work with. Must not be <code>null</code>.
+	 */
 	public DateDependentKeyStrategy(KeyStore keyStore)
 	{
 		if (keyStore == null)
@@ -45,12 +60,25 @@ public class DateDependentKeyStrategy
 		this.keyStore = keyStore;
 	}
 
+	/**
+	 * Get the {@link KeyStore} that was passed to {@link #DateDependentKeyStrategy(KeyStore)}.
+	 * @param keyStore the <code>KeyStore</code> to work with. Never <code>null</code>.
+	 */
 	public KeyStore getKeyStore() {
 		return keyStore;
 	}
 
 	/**
-	 * Initialise an {@link KeyStore#isEmpty() empty} <code>KeyStore</code>
+	 * <p>
+	 * Initialise an {@link KeyStore#isEmpty() empty} <code>KeyStore</code>.
+	 * </p><p>
+	 * This initialisation consists of creating a user and a few (thousand) keys. How many keys,
+	 * depends on the parameters <code>keyActivityPeriodMSec</code> and <code>keyStorePeriodMSec</code>.
+	 * The keys are added to a {@link Long2LongSortedMapProperty} (i.e. a <code>Map</code>) with the
+	 * key being the "from-timestamp" and the value being the key-ID. The "from-timestamp" is the time
+	 * (including) from which on the key will be used as "active encryption key". The "active encryption
+	 * key" is the key, that will be used for encryption in the app-server at a certain moment in time.
+	 * </p>
 	 *
 	 * @param userName the initial user to be created.
 	 * @param password the password for the initial user.
