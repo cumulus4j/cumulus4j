@@ -11,9 +11,9 @@ Module org.cumulus4j.store.crypto.keymanager
 	key-manager as shown in {{{../documentation/deployment-scenarios.html}Deployment scenarios}}.
 
 	This module is a plug-in to {{{../org.cumulus4j.store/}org.cumulus4j.store}} (DataNucleus uses the Eclipse plugin-mechanism
-	and we therefore do the same).
-
-	TODO document this module!
+	and we therefore do the same). It contains the REST API classes that allow the remote key manager (in client or in
+	key-server) to establish a connection to the app-server (yellow arrow in 'Deployment scenarios'). The registration
+	of this REST app is located in the <<<web.xml>>> of module {{{../org.cumulus4j.keymanager.back.webapp/}org.cumulus4j.keymanager.back.webapp}}. 
 
 * Maven
 
