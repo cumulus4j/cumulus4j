@@ -57,6 +57,7 @@
 			<item name="Usage" href="./documentation/usage.html" />
 			<item name="Theory" href="./documentation/theory.html" />
 			<item name="Development" href="./documentation/development.html" />
+			<item name="Supported algorithms" href="./documentation/supported-algorithms.html" />
 			<item name="Javadoc" href="./apidocs/index.html" target="_blank" />
 		</menu>
 

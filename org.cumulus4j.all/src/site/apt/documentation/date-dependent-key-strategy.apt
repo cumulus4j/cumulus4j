@@ -22,3 +22,11 @@ Date-dependent key-strategy
 
 	Therefore, an "evil administrator" dumping the memory of an application server, will only be able to access a small
 	subset of your data (e.g. usually a few days - in the worst case - e.g. if you just ran some report - maybe a few months).
+
+* Javadoc
+
+	* {{{../apidocs/index.html?org/cumulus4j/keystore/DateDependentKeyStrategy.html}org.cumulus4j.keystore.DateDependentKeyStrategy}}
+	
+	* {{{../apidocs/index.html?org/cumulus4j/keymanager/front/webapp/DateDependentKeyStrategyService.html}org.cumulus4j.keymanager.front.webapp.DateDependentKeyStrategyService}}
+	
+	* {{{../apidocs/org/cumulus4j/keymanager/api/KeyManagerAPI.html#initDateDependentKeyStrategy(org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam)}org.cumulus4j.keymanager.api.KeyManagerAPI.initDateDependentKeyStrategy(...)}}
