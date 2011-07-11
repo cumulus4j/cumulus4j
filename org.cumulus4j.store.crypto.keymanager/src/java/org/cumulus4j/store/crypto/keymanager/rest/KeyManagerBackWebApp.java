@@ -27,8 +27,12 @@ import javax.ws.rs.core.Application;
 import org.cumulus4j.keymanager.back.shared.JAXBContextResolver;
 
 /**
+ * <p>
  * REST application providing the API for the communication between key-manager and application-server.
  * The URL to this application must be given to the key-manager (i.e. more precisely the <code>AppServer</code>).
+ * <p></p>
+ * This class is the entry point for Jersey where all REST services and their environment is declared.
+ * </p>
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */

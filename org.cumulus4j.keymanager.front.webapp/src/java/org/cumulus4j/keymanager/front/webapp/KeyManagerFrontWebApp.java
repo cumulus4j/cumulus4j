@@ -28,6 +28,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <p>
+ * REST application for the key-server.
+ * <p></p>
+ * This class is the entry point for Jersey where all REST services and their environment is declared.
+ * </p>
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @ApplicationPath("/")
@@ -36,34 +42,34 @@ extends Application
 {
 	private static final Logger logger = LoggerFactory.getLogger(KeyManagerFrontWebApp.class);
 
-	/**
-	 * <p>
-	 * System property to control which key file is to be used. If not specified,
-	 * the file "${user.home}/.cumulus4j/cumulus4j.keystore" will be used.
-	 * </p>
-	 * <p>
-	 * You can use system properties in this system-property's value. For example
-	 * passing "-Dorg.cumulus4j.keymanager.front.webapp.App.keyStoreFile=${java.io.tmpdir}/test.keystore"
-	 * to the java command will be resolved to "/tmp/test.keystore" on GNU+Linux.
-	 * </p>
-	 * @deprecated to be removed due to introduction of keyStoreID
-	 */
-	@Deprecated
-	public static final String SYSTEM_PROPERTY_KEY_STORE_FILE = "cumulus4j.KeyManagerFrontWebApp.keyStoreFile";
+//	/**
+//	 * <p>
+//	 * System property to control which key file is to be used. If not specified,
+//	 * the file "${user.home}/.cumulus4j/cumulus4j.keystore" will be used.
+//	 * </p>
+//	 * <p>
+//	 * You can use system properties in this system-property's value. For example
+//	 * passing "-Dorg.cumulus4j.keymanager.front.webapp.App.keyStoreFile=${java.io.tmpdir}/test.keystore"
+//	 * to the java command will be resolved to "/tmp/test.keystore" on GNU+Linux.
+//	 * </p>
+//	 * @deprecated to be removed due to introduction of keyStoreID
+//	 */
+//	@Deprecated
+//	public static final String SYSTEM_PROPERTY_KEY_STORE_FILE = "cumulus4j.KeyManagerFrontWebApp.keyStoreFile";
 
-	/**
-	 * <p>
-	 * System property to control whether to delete the key-store-file on startup.
-	 * Possible values are "true" and "false".
-	 * </p>
-	 * <p>
-	 * <b>Important:</b> This feature is for debugging and test reasons only! Never use it
-	 * on a productive system or you will loose all your keys (and thus your complete database)!!!
-	 * </p>
-	 * @deprecated TODO rename this after introduction of keyStoreID as they are not deleted on startup anymore but when first accessed.
-	 */
-	@Deprecated
-	public static final String SYSTEM_PROPERTY_DELETE_KEY_STORE_FILE_ON_STARTUP = "cumulus4j.KeyManagerFrontWebApp.deleteKeyStoreFileOnStartup";
+//	/**
+//	 * <p>
+//	 * System property to control whether to delete the key-store-file on startup.
+//	 * Possible values are "true" and "false".
+//	 * </p>
+//	 * <p>
+//	 * <b>Important:</b> This feature is for debugging and test reasons only! Never use it
+//	 * on a productive system or you will loose all your keys (and thus your complete database)!!!
+//	 * </p>
+//	 * @deprecated TODO rename this after introduction of keyStoreID as they are not deleted on startup anymore but when first accessed.
+//	 */
+//	@Deprecated
+//	public static final String SYSTEM_PROPERTY_DELETE_KEY_STORE_FILE_ON_STARTUP = "cumulus4j.KeyManagerFrontWebApp.deleteKeyStoreFileOnStartup";
 
 	private static final Class<?>[] serviceClassesArray = {
 		AppServerService.class,
@@ -79,6 +85,12 @@ extends Application
 			s.add(c);
 
 		serviceClassesSet = Collections.unmodifiableSet(s);
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("<init>: Service classes:");
+			for (Class<?> c : serviceClassesSet)
+				logger.debug("<init>: {}", c == null ? null : c.getName());
+		}
 	}
 
 	@Override
@@ -131,32 +143,32 @@ extends Application
 //		}
 //	}
 
-	private void checkForDeprecatedSystemProperties()
-	{
-		checkForDeprecatedSystemProperty(SYSTEM_PROPERTY_KEY_STORE_FILE);
-		checkForDeprecatedSystemProperty(SYSTEM_PROPERTY_DELETE_KEY_STORE_FILE_ON_STARTUP);
-	}
-
-	private void checkForDeprecatedSystemProperty(String sysPropName)
-	{
-		if (System.getProperty(sysPropName) != null) {
-			logger.error("**************************************************************************");
-			logger.error("**************************************************************************");
-			logger.error("**************************************************************************");
-
-			logger.error("*** deprecated system property present (and ignored): " + sysPropName);
-
-			logger.error("**************************************************************************");
-			logger.error("**************************************************************************");
-			logger.error("**************************************************************************");
-		}
-	}
+//	private void checkForDeprecatedSystemProperties()
+//	{
+//		checkForDeprecatedSystemProperty(SYSTEM_PROPERTY_KEY_STORE_FILE);
+//		checkForDeprecatedSystemProperty(SYSTEM_PROPERTY_DELETE_KEY_STORE_FILE_ON_STARTUP);
+//	}
+//
+//	private void checkForDeprecatedSystemProperty(String sysPropName)
+//	{
+//		if (System.getProperty(sysPropName) != null) {
+//			logger.error("**************************************************************************");
+//			logger.error("**************************************************************************");
+//			logger.error("**************************************************************************");
+//
+//			logger.error("*** deprecated system property present (and ignored): " + sysPropName);
+//
+//			logger.error("**************************************************************************");
+//			logger.error("**************************************************************************");
+//			logger.error("**************************************************************************");
+//		}
+//	}
 
 	@Override
 	public Set<Object> getSingletons()
 	{
 		if (singletons == null) {
-			checkForDeprecatedSystemProperties();
+//			checkForDeprecatedSystemProperties();
 //			initKeyStoreFile();
 //
 //			try {

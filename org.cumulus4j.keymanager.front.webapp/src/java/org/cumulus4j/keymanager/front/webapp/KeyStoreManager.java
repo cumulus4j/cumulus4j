@@ -5,12 +5,28 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.ws.rs.core.Context;
+
 import org.cumulus4j.keymanager.AppServerManager;
 import org.cumulus4j.keymanager.back.shared.SystemPropertyUtil;
 import org.cumulus4j.keystore.KeyStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * <p>
+ * Manager for {@link KeyStore}s mapping a <code>keyStoreID</code> to a file name in the local
+ * file system.
+ * </p><p>
+ * One instance of this class is held as a REST-app-singleton and injected into the REST services
+ * via {@link Context} like this example:
+ * </p>
+ * <pre>
+ * private &#64;Context KeyStoreManager keyStoreManager;
+ * </pre>
+ *
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class KeyStoreManager
 {
 	private static final Logger logger = LoggerFactory.getLogger(KeyStoreManager.class);
@@ -71,6 +87,13 @@ public class KeyStoreManager
 		return keyStoreDir;
 	}
 
+	/**
+	 * Get the <code>KeyStore</code> identified by the given <code>keyStoreID</code>. If it does not exist,
+	 * it is implicitely created.
+	 * @param keyStoreID the identfier of the {@link KeyStore} to be returned. Must not be <code>null</code>.
+	 * @return the <code>KeyStore</code> identified by the given <code>keyStoreID</code>.
+	 * @throws IOException if reading from / writing to the local file system failed.
+	 */
 	public synchronized KeyStore getKeyStore(String keyStoreID) throws IOException
 	{
 		if (keyStoreID == null)
@@ -85,6 +108,15 @@ public class KeyStoreManager
 		return keyStore;
 	}
 
+	/**
+	 * Get the <code>AppServerManager</code> that is assigned (in a 1-1-relation) to the {@link KeyStore}
+	 * identified by the given ID.
+	 *
+	 * @param keyStoreID the identfier of the {@link KeyStore} whose <code>AppServerManager</code> shall be returned. Must not be <code>null</code>.
+	 * @return the <code>AppServerManager</code> that is assigned (in a 1-1-relation) to the {@link KeyStore}
+	 * identified by the given ID.
+	 * @throws IOException if reading from / writing to the local file system failed.
+	 */
 	public synchronized AppServerManager getAppServerManager(String keyStoreID) throws IOException
 	{
 		if (keyStoreID == null)

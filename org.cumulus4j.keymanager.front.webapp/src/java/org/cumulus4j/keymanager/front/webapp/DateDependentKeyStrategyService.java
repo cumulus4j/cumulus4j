@@ -36,11 +36,23 @@ import org.cumulus4j.keystore.DateDependentKeyStrategy;
 import org.cumulus4j.keystore.KeyStore;
 import org.cumulus4j.keystore.KeyStoreNotEmptyException;
 
+/**
+ * REST service to work with a {@link KeyStore} via the {@link DateDependentKeyStrategy}.
+ * At the moment, it only provides an initialisation method, but others might follow later.
+ *
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 @Path("DateDependentKeyStrategy")
 @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public class DateDependentKeyStrategyService extends AbstractService
 {
+	/**
+	 * Initialise a {@link KeyStore} by delegating to {@link DateDependentKeyStrategy#init(String, char[], long, long)}.
+	 * @param keyStoreID identifier of the key-store to work with.
+	 * @param param parameters controlling how the initialisation should behave.
+	 * @return summary-result of the initialisation.
+	 */
 	@Path("{keyStoreID}/init")
 	@POST
 	public DateDependentKeyStrategyInitResult init(@PathParam("keyStoreID") String keyStoreID, DateDependentKeyStrategyInitParam param)

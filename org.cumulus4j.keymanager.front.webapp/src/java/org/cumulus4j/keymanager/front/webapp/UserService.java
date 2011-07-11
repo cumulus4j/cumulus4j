@@ -46,6 +46,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * REST service for user management.
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @Path("User")
@@ -55,10 +57,21 @@ public class UserService extends AbstractService
 {
 	private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
+	/**
+	 * Create a new instance.
+	 */
 	public UserService() {
 		logger.info("logger: instantiated UserService");
 	}
 
+	/**
+	 * Get a {@link KeyStore}'s user identified by the given
+	 * <code>keyStoreID</code> and <code>userName</code>.
+	 * @param keyStoreID identifier of the {@link KeyStore} to work with.
+	 * @param userName the user's name.
+	 * @return the desired user or <code>null</code>, if there is no user with the given name
+	 * in the specified <code>KeyStore</code>.
+	 */
 	@GET
 	@Path("{keyStoreID}/{userName}")
 	public User getUser(@PathParam("keyStoreID") String keyStoreID, @PathParam("userName") String userName)
@@ -80,6 +93,11 @@ public class UserService extends AbstractService
 		}
 	}
 
+	/**
+	 * Get all users of the {@link KeyStore} identified by <code>keyStoreID</code>.
+	 * @param keyStoreID identifier of the {@link KeyStore} to work with.
+	 * @return all users of the {@link KeyStore} identified by <code>keyStoreID</code>.
+	 */
 	@GET
 	@Path("{keyStoreID}")
 	public UserList getUsers(@PathParam("keyStoreID") String keyStoreID)
@@ -123,6 +141,12 @@ public class UserService extends AbstractService
 //		putUser(keyStoreID, userWithPassword);
 //	}
 
+	/**
+	 * Put a user. If a user with the same {@link UserWithPassword#getUserName() name} already exists,
+	 * it is updated, otherwise the new user is added to the {@link KeyStore} identified by <code>keyStoreID</code>.
+	 * @param keyStoreID identifier of the {@link KeyStore} to work with.
+	 * @param userWithPassword the user's information to be stored.
+	 */
 	@PUT
 	@Path("{keyStoreID}")
 	public void putUser(@PathParam("keyStoreID") String keyStoreID, UserWithPassword userWithPassword)
@@ -165,6 +189,11 @@ public class UserService extends AbstractService
 		}
 	}
 
+	/**
+	 * Delete a user.
+	 * @param keyStoreID identifier of the {@link KeyStore} to work with.
+	 * @param userName the {@link User#getUserName() name} of the user to be deleted.
+	 */
 	@DELETE
 	@Path("{keyStoreID}/{userName}")
 	public void deleteUser(@PathParam("keyStoreID") String keyStoreID, @PathParam("userName") String userName)
