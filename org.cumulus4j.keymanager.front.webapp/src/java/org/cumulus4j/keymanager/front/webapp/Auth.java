@@ -21,7 +21,9 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 /**
- * Authentication information (username + password).
+ * Authentication information (username + password). Can be obtained in every
+ * REST service by sub-classing {@link AbstractService} and using
+ * {@link AbstractService#getAuth()} or {@link AbstractService#authenticate(String)}.
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
