@@ -103,25 +103,25 @@ public class UserService extends AbstractService
 		return userList;
 	}
 
-	@PUT
-	@Path("{keyStoreID}/{userName}")
-	public void putUserWithUserNamePath(@PathParam("keyStoreID") String keyStoreID, @PathParam("userName") String userName, UserWithPassword userWithPassword)
-	{
-		logger.debug("putUserWithUserNamePath: entered");
-
-		if (userName == null)
-			throw new IllegalArgumentException("How the hell can userName be null?!");
-
-		if (userWithPassword == null)
-			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(new Error("Missing request-entity!")).build());
-
-		if (userWithPassword.getUserName() == null)
-			userWithPassword.setUserName(userName);
-		else if (!userName.equals(userWithPassword.getUserName()))
-			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(new Error("Path's userName='" + userName + "' does not match entity's userName='" + userWithPassword.getUserName() + "'!")).build());
-
-		putUser(keyStoreID, userWithPassword);
-	}
+//	@PUT
+//	@Path("{keyStoreID}/{userName}")
+//	public void putUserWithUserNamePath(@PathParam("keyStoreID") String keyStoreID, @PathParam("userName") String userName, UserWithPassword userWithPassword)
+//	{
+//		logger.debug("putUserWithUserNamePath: entered");
+//
+//		if (userName == null)
+//			throw new IllegalArgumentException("How the hell can userName be null?!");
+//
+//		if (userWithPassword == null)
+//			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(new Error("Missing request-entity!")).build());
+//
+//		if (userWithPassword.getUserName() == null)
+//			userWithPassword.setUserName(userName);
+//		else if (!userName.equals(userWithPassword.getUserName()))
+//			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(new Error("Path's userName='" + userName + "' does not match entity's userName='" + userWithPassword.getUserName() + "'!")).build());
+//
+//		putUser(keyStoreID, userWithPassword);
+//	}
 
 	@PUT
 	@Path("{keyStoreID}")

@@ -22,7 +22,7 @@ Deployment scenarios
 	etc.) will be initiated by the client. Requests are then sent from the client to the server, while
 	the server's response goes the opposite way.
 
-* 2-computer-scenario (without key-server)
+* {2-computer-scenario} (without key-server)
 
 	If you add Cumulus4j to the picture, your back-end will additionally contain a Cumulus4j REST-based
 	API and your client communicates in parallel with this API to allow for key management:
@@ -40,7 +40,7 @@ Deployment scenarios
 	provide JavaScript client-libs. They might follow later. If you want to contribute this functionality, please
 	join the {{{./development.html}development}} team! You're welcome! 
 
-* 3-computer-scenario (with key-server)
+* {3-computer-scenario} (with key-server)
 
 	Alternatively to holding the keys on every client, it is possible to run a separate key-server:
 
@@ -54,7 +54,7 @@ Deployment scenarios
 	Which modules need to be deployed where is documented in the
 	{{{./deployment-module-location-matrix.html}module-location-matrix}}.
 
-* Cluster-nodes
+* {Cluster-nodes}
 
 	It is important to understand that the application server usually is not one single machine, but a cluster.
 	Especially when using the cloud, the application server might be distributed over an unknown number

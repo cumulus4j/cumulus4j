@@ -21,7 +21,6 @@ import java.io.IOException;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -51,12 +50,12 @@ public class SessionService extends AbstractService
 {
 	private static final Logger logger = LoggerFactory.getLogger(SessionService.class);
 
-	@Path("{keyStoreID}/{appServerID}/open")
-	@GET
-	public OpenSessionResponse open_GET(@PathParam("keyStoreID") String keyStoreID, @PathParam("appServerID") String appServerID)
-	{
-		return open(keyStoreID, appServerID);
-	}
+//	@Path("{keyStoreID}/{appServerID}/open")
+//	@GET
+//	public OpenSessionResponse open_GET(@PathParam("keyStoreID") String keyStoreID, @PathParam("appServerID") String appServerID)
+//	{
+//		return open(keyStoreID, appServerID);
+//	}
 
 	@Path("{keyStoreID}/{appServerID}/open")
 	@POST
@@ -101,12 +100,12 @@ public class SessionService extends AbstractService
 		return appServer.getSessionManager();
 	}
 
-	@Path("{keyStoreID}/{appServerID}/{cryptoSessionID}/unlock")
-	@GET
-	public void unlock_GET(@PathParam("keyStoreID") String keyStoreID, @PathParam("appServerID") String appServerID, @PathParam("cryptoSessionID") String cryptoSessionID)
-	{
-		unlock(keyStoreID, appServerID, cryptoSessionID);
-	}
+//	@Path("{keyStoreID}/{appServerID}/{cryptoSessionID}/unlock")
+//	@GET
+//	public void unlock_GET(@PathParam("keyStoreID") String keyStoreID, @PathParam("appServerID") String appServerID, @PathParam("cryptoSessionID") String cryptoSessionID)
+//	{
+//		unlock(keyStoreID, appServerID, cryptoSessionID);
+//	}
 
 	@Path("{keyStoreID}/{appServerID}/{cryptoSessionID}/unlock")
 	@POST
@@ -120,12 +119,12 @@ public class SessionService extends AbstractService
 		session.setLocked(false);
 	}
 
-	@Path("{keyStoreID}/{appServerID}/{cryptoSessionID}/lock")
-	@GET
-	public void lock_GET(@PathParam("keyStoreID") String keyStoreID, @PathParam("appServerID") String appServerID, @PathParam("cryptoSessionID") String cryptoSessionID)
-	{
-		lock(keyStoreID, appServerID, cryptoSessionID);
-	}
+//	@Path("{keyStoreID}/{appServerID}/{cryptoSessionID}/lock")
+//	@GET
+//	public void lock_GET(@PathParam("keyStoreID") String keyStoreID, @PathParam("appServerID") String appServerID, @PathParam("cryptoSessionID") String cryptoSessionID)
+//	{
+//		lock(keyStoreID, appServerID, cryptoSessionID);
+//	}
 
 	@Path("{keyStoreID}/{appServerID}/{cryptoSessionID}/lock")
 	@POST

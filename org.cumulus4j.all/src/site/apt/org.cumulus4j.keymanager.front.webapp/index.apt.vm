@@ -7,7 +7,15 @@
 
 Module org.cumulus4j.keymanager.front.webapp
 
-	TODO document this module!
+	Key-server managing {{{../org.cumulus4j.keystore/}key-stores} and providing keys
+	to the app-server whenever requested (by the app-server) and granted (by the client).
+	
+	See {{{../documentation/deployment-scenarios.html#3-computer-scenario}Deployment scenarios / 3-computer-scenario}}
+	for further details.
+	
+	The key-server can be accessed via a REST-based API. The module
+	{{{../org.cumulus4j.keymanager.api/}org.cumulus4j.keymanager.api}} provides a Java-API
+	wrapping the REST-services of this key-server.
 
 * Maven
 

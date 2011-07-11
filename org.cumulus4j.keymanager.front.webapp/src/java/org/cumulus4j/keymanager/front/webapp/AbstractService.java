@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 import com.sun.jersey.core.util.Base64;
 
 /**
- * Base class for
+ * Abstract base class for all REST services of the key-server.
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
@@ -57,11 +57,15 @@ public abstract class AbstractService
 	/**
 	 * Get the authentication information. This method does <b>not</b> verify, if the given authentication information
 	 * is correct! It merely checks, if the client sent a 'Basic' authentication header. If it did not,
-	 * this method throws a {@link WebApplicationException} with {@link Status#UNAUTHORIZED}. If it did, it extracts
-	 * the information and puts it into an {@link Auth} instance.
+	 * this method throws a {@link WebApplicationException} with {@link Status#UNAUTHORIZED} or {@link Status#FORBIDDEN}.
+	 * If it did, it extracts the information and puts it into an {@link Auth} instance.
 	 * @return the {@link Auth} instance extracted from the client's headers. Never <code>null</code>.
+	 * @throws WebApplicationException with {@link Status#UNAUTHORIZED}, if the client did not send an 'Authorization' header;
+	 * with {@link Status#FORBIDDEN}, if there is an 'Authorization' header, but no 'Basic' authentication header (other authentication modes, like e.g. 'Digest'
+	 * are not supported).
 	 */
 	protected Auth getAuth()
+	throws WebApplicationException
 	{
 		String authorizationHeader = request.getHeader("Authorization");
 		if (authorizationHeader == null || authorizationHeader.isEmpty()) {
@@ -125,7 +129,18 @@ public abstract class AbstractService
 		return auth;
 	}
 
+	/**
+	 * Get the {@link Auth} information via {@link #getAuth()} and verify, if they are valid. The validity is checked
+	 * by trying to access the key-store.
+	 * @param keyStoreID identifier of the key-store to work with.
+	 * @return the {@link Auth} information via {@link #getAuth()}; never <code>null</code>.
+	 * @throws WebApplicationException with {@link Status#UNAUTHORIZED}, if the client did not send an 'Authorization' header
+	 * or if user-name / password is wrong;
+	 * with {@link Status#FORBIDDEN}, if there is an 'Authorization' header, but no 'Basic' authentication header (other authentication modes, like e.g. 'Digest'
+	 * are not supported); with {@link Status#INTERNAL_SERVER_ERROR}, if there was an {@link IOException}.
+	 */
 	protected Auth authenticate(String keyStoreID)
+	throws WebApplicationException
 	{
 		Auth auth = getAuth();
 		try {
@@ -134,7 +149,7 @@ public abstract class AbstractService
 		} catch (IOException e) {
 			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(e)).build());
 		} catch (AuthenticationException e) {
-			throw new WebApplicationException(Response.status(Status.FORBIDDEN).entity(new Error(e)).build());
+			throw new WebApplicationException(Response.status(Status.UNAUTHORIZED).entity(new Error(e)).build());
 		} catch (KeyNotFoundException e) {
 			// ignore this - it's expected
 			doNothing(); // Remove warning from PMD report: http://cumulus4j.org/pmd.html

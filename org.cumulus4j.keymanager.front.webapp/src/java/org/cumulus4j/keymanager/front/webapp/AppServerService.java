@@ -31,7 +31,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.cumulus4j.keymanager.AppServer;
 import org.cumulus4j.keymanager.AppServerManager;
 import org.cumulus4j.keymanager.front.shared.Error;
 import org.cumulus4j.keymanager.front.shared.PutAppServerResponse;
@@ -39,6 +38,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * REST service to manage {@link org.cumulus4j.keymanager.front.shared.AppServer AppServer}s.
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @Path("AppServer")
@@ -48,10 +49,19 @@ public class AppServerService extends AbstractService
 {
 	private static final Logger logger = LoggerFactory.getLogger(AppServerService.class);
 
+	/**
+	 * Create an instance.
+	 */
 	public AppServerService() {
-		logger.info("logger: instantiated AppServerService");
+		logger.debug("logger: instantiated AppServerService");
 	}
 
+	/**
+	 * Get an <code>AppServer</code>.
+	 * @param keyStoreID identifier of the key-store to work with.
+	 * @param appServerID identifier of app-server to retrieve.
+	 * @return the <code>AppServer</code> or <code>null</code>, if no matching <code>AppServer</code> exists.
+	 */
 	@GET
 	@Path("{keyStoreID}/{appServerID}")
 	public org.cumulus4j.keymanager.front.shared.AppServer getAppServer(
@@ -63,7 +73,7 @@ public class AppServerService extends AbstractService
 		Auth auth = authenticate(keyStoreID);
 		try {
 			AppServerManager appServerManager = keyStoreManager.getAppServerManager(keyStoreID);
-			AppServer appServer = appServerManager.getAppServerForAppServerID(appServerID);
+			org.cumulus4j.keymanager.AppServer appServer = appServerManager.getAppServerForAppServerID(appServerID);
 			if (appServer == null)
 				return null;
 			else {
@@ -79,6 +89,12 @@ public class AppServerService extends AbstractService
 		}
 	}
 
+	/**
+	 * Get a list of all <code>AppServer</code>s managed by this key-server for the specified key-store.
+	 * @param keyStoreID identifier of the key-store to work with.
+	 * @return a list of all <code>AppServer</code>s for the specified key-store. Never <code>null</code>, but
+	 * it may be an empty list.
+	 */
 	@GET
 	@Path("{keyStoreID}")
 	public org.cumulus4j.keymanager.front.shared.AppServerList getAppServers(@PathParam("keyStoreID") String keyStoreID)
@@ -88,7 +104,7 @@ public class AppServerService extends AbstractService
 		Auth auth = authenticate(keyStoreID);
 		try {
 			AppServerManager appServerManager = keyStoreManager.getAppServerManager(keyStoreID);
-			for (AppServer appServer : appServerManager.getAppServers()) {
+			for (org.cumulus4j.keymanager.AppServer appServer : appServerManager.getAppServers()) {
 				org.cumulus4j.keymanager.front.shared.AppServer as = new org.cumulus4j.keymanager.front.shared.AppServer();
 				as.setAppServerID(appServer.getAppServerID());
 				as.setAppServerBaseURL(appServer.getAppServerBaseURL());
@@ -102,35 +118,47 @@ public class AppServerService extends AbstractService
 		return appServerList;
 	}
 
+//	/**
+//	 * Put an <code>AppServer</code>.
+//	 * @param keyStoreID identifier of the key-store to work with.
+//	 * @param appServerID identifier of the <code>AppServer</code> (must match
+//	 * {@link org.cumulus4j.keymanager.front.shared.AppServer#getAppServerID()}).
+//	 * @param appServer the <code>AppServer</code> to be put.
+//	 * @deprecated This service method is not used by the unified key manager API. Shall we remove it?! It exists solely for
+//	 * reasons of REST-ful service consistency. But maybe we should better remove it and provide ONE single way to handle things. Marco :-)
+//	 */
+//	@Deprecated
+//	@PUT
+//	@Path("{keyStoreID}/{appServerID}")
+//	public void putAppServerWithAppServerIDPath(
+//			@PathParam("keyStoreID") String keyStoreID,
+//			@PathParam("appServerID") String appServerID,
+//			org.cumulus4j.keymanager.front.shared.AppServer appServer
+//	)
+//	{
+//		logger.debug("putAppServerWithAppServerIDPath: entered");
+//
+//		if (appServerID == null)
+//			throw new IllegalArgumentException("How the hell can appServerID be null?!");
+//
+//		if (appServer == null)
+//			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(new Error("Missing request-entity!")).build());
+//
+//		if (appServer.getAppServerID() == null || appServer.getAppServerID().isEmpty())
+//			appServer.setAppServerID(appServerID);
+//		else if (!appServerID.equals(appServer.getAppServerID()))
+//			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(new Error("Path's appServerID='" + appServerID + "' does not match entity's appServerID='" + appServer.getAppServerID() + "'!")).build());
+//
+//		putAppServer(keyStoreID, appServer);
+//	}
+
 	/**
-	 * @deprecated This service method is not used by the unified key manager API. Shall we remove it?! It exists solely for
-	 * reasons of REST-ful service consistency. But maybe we should better remove it and provide ONE single way to handle things. Marco :-)
+	 * Put an <code>AppServer</code>.
+	 * @param keyStoreID identifier of the key-store to work with.
+	 * @param appServer the <code>AppServer</code> to be put.
+	 * @return data that might have been created/changed during the put operation (e.g. if the <code>appServerID</code>
+	 * was <code>null</code> before, it is assigned during this method call).
 	 */
-	@Deprecated
-	@PUT
-	@Path("{keyStoreID}/{appServerID}")
-	public void putAppServerWithAppServerIDPath(
-			@PathParam("keyStoreID") String keyStoreID,
-			@PathParam("appServerID") String appServerID,
-			org.cumulus4j.keymanager.front.shared.AppServer appServer
-	)
-	{
-		logger.debug("putAppServerWithAppServerIDPath: entered");
-
-		if (appServerID == null)
-			throw new IllegalArgumentException("How the hell can appServerID be null?!");
-
-		if (appServer == null)
-			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(new Error("Missing request-entity!")).build());
-
-		if (appServer.getAppServerID() == null || appServer.getAppServerID().isEmpty())
-			appServer.setAppServerID(appServerID);
-		else if (!appServerID.equals(appServer.getAppServerID()))
-			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(new Error("Path's appServerID='" + appServerID + "' does not match entity's appServerID='" + appServer.getAppServerID() + "'!")).build());
-
-		putAppServer(keyStoreID, appServer);
-	}
-
 	@PUT
 	@Path("{keyStoreID}")
 	public PutAppServerResponse putAppServer(
@@ -146,7 +174,9 @@ public class AppServerService extends AbstractService
 		Auth auth = authenticate(keyStoreID);
 		try {
 			AppServerManager appServerManager = keyStoreManager.getAppServerManager(keyStoreID);
-			AppServer as = new AppServer(appServerManager, appServer.getAppServerID(), appServer.getAppServerBaseURL());
+			org.cumulus4j.keymanager.AppServer as = new org.cumulus4j.keymanager.AppServer(
+					appServerManager, appServer.getAppServerID(), appServer.getAppServerBaseURL()
+			);
 			appServerManager.putAppServer(as); // This will assign appServer.appServerID, if that property is null.
 
 			if (as.getAppServerID() == null) // sanity check.
@@ -162,6 +192,11 @@ public class AppServerService extends AbstractService
 		}
 	}
 
+	/**
+	 * Delete the AppServer.
+	 * @param keyStoreID identifier of the key-store to work with.
+	 * @param appServerID identifier of app-server to delete.
+	 */
 	@DELETE
 	@Path("{keyStoreID}/{appServerID}")
 	public void deleteAppServer(@PathParam("keyStoreID") String keyStoreID, @PathParam("appServerID") String appServerID)
