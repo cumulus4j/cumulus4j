@@ -7,7 +7,7 @@
 
 Module org.cumulus4j.keymanager.front.webapp
 
-	Key-server managing {{{../org.cumulus4j.keystore/}key-stores} and providing keys
+	Key-server managing {{{../org.cumulus4j.keystore/}key-stores}} and providing keys
 	to the app-server whenever requested (by the app-server) and granted (by the client).
 	
 	See {{{../documentation/deployment-scenarios.html#3-computer-scenario}Deployment scenarios / 3-computer-scenario}}
