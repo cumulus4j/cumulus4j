@@ -65,7 +65,7 @@ Key store
 	<<<initDateDependentKeyStrategy>>> sub-command like this:
 	
 +----------------------------------+
-java -jar org.cumulus4j.keymanager.cli-1.0.0-SNAPSHOT.jar initDateDependentKeyStrategy -keyStoreID MY-KEY-STORE -userName USER1
+java -jar org.cumulus4j.keymanager.cli-${project.version}.jar initDateDependentKeyStrategy -keyStoreID MY-KEY-STORE -userName USER1
 +----------------------------------+
 	
 	There are quite a few options available and you might want to use the following command to learn more about this command: 
