@@ -560,9 +560,16 @@
             					<packages>org.cumulus4j.store.crypto.keymanager:org.cumulus4j.store.crypto.keymanager.*</packages>
             				</group>
             			</groups>
+            			<header><![CDATA[<b>Cumulus4j API</b><br/>(${project.version})]]></header>
             			<links>
+            				<!-- The Legion of the Bouncy Castle -->
+            				<link>http://www.bouncycastle.org/docs/docs1.6</link>
+            				<link>http://www.bouncycastle.org/docs/mdocs1.6</link>
+            				<link>http://www.bouncycastle.org/docs/pgdocs1.6</link>
+            				<link>http://www.bouncycastle.org/docs/tspdocs1.6</link>
+
             				<!-- JDO (javax.jdo.*) -->
-            				<link>http://db.apache.org/jdo/api30/apidocs/</link>
+            				<link>http://db.apache.org/jdo/api30/apidocs</link>
 
             				<!-- Jersey (REST implementation) -->
             				<link>http://jersey.java.net/nonav/apidocs/${jersey.version}/jersey</link>
