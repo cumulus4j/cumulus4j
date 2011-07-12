@@ -65,7 +65,7 @@ public interface KeyManagerAPI
 	 * - even in the same JVM - are not updated, though.
 	 * @param userName the name of the new user.
 	 * @param password the password of the new user.
-	 * @throws AuthenticationException if the {@link #setAuthUserName(String) authUserName} or the {@link #setAuthPassword(char[]) authPassword} is incorrect.
+	 * @throws AuthenticationException if the {@link KeyManagerAPIConfiguration#setAuthUserName(String) authUserName} or the {@link KeyManagerAPIConfiguration#setAuthPassword(char[]) authPassword} is incorrect.
 	 * @throws IOException if the communication with the key-store (either local key-store-file or remote key-server) fails.
 	 */
 	void putUser(String userName, char[] password)
@@ -75,7 +75,7 @@ public interface KeyManagerAPI
 	 * Delete a user. If the specified user does not exist, this method is a no-op. Note, that the current user can delete himself.
 	 * In this case, a 2nd call to this method would cause an <code>AuthenticationException</code>.
 	 * @param userName the name of the user to be deleted.
-	 * @throws AuthenticationException if the {@link #setAuthUserName(String) authUserName} or the {@link #setAuthPassword(char[]) authPassword} is incorrect.
+	 * @throws AuthenticationException if the {@link KeyManagerAPIConfiguration#setAuthUserName(String) authUserName} or the {@link KeyManagerAPIConfiguration#setAuthPassword(char[]) authPassword} is incorrect.
 	 * @throws CannotDeleteLastUserException if you attempted to delete the last user (which would render the key-store to be totally
 	 * unreadable).
 	 * @throws IOException if the communication with the key-store (either local key-store-file or remote key-server) fails.
@@ -93,7 +93,7 @@ public interface KeyManagerAPI
 	 * "https://serverUsingCumulus4j.mydomain.org/org.cumulus4j.keymanager.back.webapp/KeyManagerChannel", then this must be
 	 * "https://serverUsingCumulus4j.mydomain.org/org.cumulus4j.keymanager.back.webapp".
 	 * @return the session; never <code>null</code>.
-	 * @throws AuthenticationException if the {@link #setAuthUserName(String) authUserName} or the {@link #setAuthPassword(char[]) authPassword} is incorrect.
+	 * @throws AuthenticationException if the {@link KeyManagerAPIConfiguration#setAuthUserName(String) authUserName} or the {@link KeyManagerAPIConfiguration#setAuthPassword(char[]) authPassword} is incorrect.
 	 * @throws IOException if the communication with the key-store (either local key-store-file or remote key-server) fails.
 	 */
 	Session getSession(String appServerBaseURL) throws AuthenticationException, IOException;
