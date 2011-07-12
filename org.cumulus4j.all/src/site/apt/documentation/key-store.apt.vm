@@ -74,7 +74,7 @@ java -jar org.cumulus4j.keymanager.cli-${project.version}.jar initDateDependentK
 java -jar org.cumulus4j.keymanager.cli-${project.version}.jar help initDateDependentKeyStrategy
 +----------------------------------+
 
-* Module
+* Modules
 
 	The following modules are related to the key-store and you might want to continue reading these documents:
 
