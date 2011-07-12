@@ -1172,12 +1172,28 @@ public final class CryptoRegistry
 		return generator;
 	}
 
+	/**
+	 * Decode (deserialise) a public key, that was previously encoded (serialised) by {@link #encodePublicKey(CipherParameters)}.
+	 * @param publicKeyData the serialised public key.
+	 * @return the public key (as previously passed to {@link #encodePublicKey(CipherParameters)}).
+	 * @throws IOException if parsing the serialised public key fails.
+	 * @see #encodePublicKey(CipherParameters)
+	 * @see #decodePrivateKey(byte[])
+	 */
 	public CipherParameters decodePublicKey(byte[] publicKeyData) throws IOException
 	{
 		AsymmetricKeyParameter asymmetricKeyParameter = PublicKeyFactory.createKey(publicKeyData);
 		return asymmetricKeyParameter;
 	}
 
+	/**
+	 * Encode (serialise) a public key in order to store it or transport it over a network.
+	 * @param publicKey the public key to be encoded; must not be <code>null</code>.
+	 * @return the encoded (serialised) form of the public key. Can be passed to {@link #decodePublicKey(byte[])} to
+	 * reverse this method.
+	 * @see #decodePublicKey(byte[])
+	 * @see #encodePrivateKey(CipherParameters)
+	 */
 	public byte[] encodePublicKey(CipherParameters publicKey)
 	{
 		if (publicKey == null)
@@ -1197,12 +1213,33 @@ public final class CryptoRegistry
 		throw new UnsupportedOperationException("publicKey.class=\"" + publicKey.getClass().getName() + "\" not yet supported!");
 	}
 
+	/**
+	 * Decode (deserialise) a private key, that was previously encoded (serialised) by {@link #encodePrivateKey(CipherParameters)}.
+	 * @param privateKeyData the serialised private key.
+	 * @return the private key (as previously passed to {@link #encodePrivateKey(CipherParameters)).
+	 * @throws IOException if parsing the serialised private key fails.
+	 * @see #encodePrivateKey(CipherParameters)
+	 * @see #decodePublicKey(byte[])
+	 */
 	public CipherParameters decodePrivateKey(byte[] privateKeyData) throws IOException
 	{
 		AsymmetricKeyParameter asymmetricKeyParameter = PrivateKeyFactory.createKey(privateKeyData);
 		return asymmetricKeyParameter;
 	}
 
+	/**
+	 * <p>
+	 * Encode (serialise) a private key in order to store it or transport it over a network.
+	 * </p><p>
+	 * <b>Important: You should keep your private key secret!</b> Thus, you might want to encrypt the result before
+	 * storing it to a file or sending it somewhere!
+	 * </p>
+	 * @param privateKey the private key to be encoded; must not be <code>null</code>.
+	 * @return the encoded (serialised) form of the private key. Can be passed to {@link #decodePrivateKey(byte[])} to
+	 * reverse this method.
+	 * @see #decodePrivateKey(byte[])
+	 * @see #encodePublicKey(CipherParameters)
+	 */
 	public byte[] encodePrivateKey(CipherParameters privateKey)
 	{
 		if (privateKey == null)
