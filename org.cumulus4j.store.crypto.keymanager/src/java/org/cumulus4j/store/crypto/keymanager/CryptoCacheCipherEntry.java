@@ -27,38 +27,38 @@ import org.cumulus4j.crypto.Cipher;
 public class CryptoCacheCipherEntry
 {
 	private CryptoCacheKeyEntry keyEntry;
-	private String encryptionAlgorithm;
+	private String cipherTransformation;
 	private Cipher cipher;
 
 	private Date lastUsageTimestamp = new Date();
 
-	public CryptoCacheCipherEntry(CryptoCacheKeyEntry keyEntry, String encryptionAlgorithm, Cipher cipher)
+	public CryptoCacheCipherEntry(CryptoCacheKeyEntry keyEntry, String cipherTransformation, Cipher cipher)
 	{
 		if (keyEntry == null)
 			throw new IllegalArgumentException("keyEntry == null");
 
-		if (encryptionAlgorithm == null)
-			throw new IllegalArgumentException("encryptionAlgorithm == null");
+		if (cipherTransformation == null)
+			throw new IllegalArgumentException("cipherTransformation == null");
 
 		if (cipher == null)
 			throw new IllegalArgumentException("cipher == null");
 
 		this.keyEntry = keyEntry;
-		this.encryptionAlgorithm = encryptionAlgorithm;
+		this.cipherTransformation = cipherTransformation;
 		this.cipher = cipher;
 	}
 
 	public CryptoCacheCipherEntry(CryptoCacheKeyEntry keyEntry, CryptoCacheCipherEntry original)
 	{
-		this(keyEntry, original.getEncryptionAlgorithm(), original.getCipher());
+		this(keyEntry, original.getCipherTransformation(), original.getCipher());
 	}
 
 	public CryptoCacheKeyEntry getKeyEntry() {
 		return keyEntry;
 	}
 
-	public String getEncryptionAlgorithm() {
-		return encryptionAlgorithm;
+	public String getCipherTransformation() {
+		return cipherTransformation;
 	}
 
 	public Cipher getCipher() {

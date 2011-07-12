@@ -45,6 +45,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <p>
+ * Cache for secret keys, {@link Cipher}s and other crypto-related objects.
+ * </p><p>
+ * There exists one instance of <code>CryptoCache</code> per {@link KeyManagerCryptoManager}.
+ * This cache therefore holds objects across multiple {@link KeyManagerCryptoSession sessions}.
+ * </p>
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class CryptoCache
@@ -58,12 +65,16 @@ public class CryptoCache
 
 	private Map<Long, CryptoCacheKeyEntry> keyID2key = Collections.synchronizedMap(new HashMap<Long, CryptoCacheKeyEntry>());
 
-	private Map<CipherOperationMode, Map<String, Map<Long, List<CryptoCacheCipherEntry>>>> opmode2encryptionAlgorithm2keyID2cipherEntries = Collections.synchronizedMap(
+	private Map<CipherOperationMode, Map<String, Map<Long, List<CryptoCacheCipherEntry>>>> opmode2cipherTransformation2keyID2cipherEntries = Collections.synchronizedMap(
 		new HashMap<CipherOperationMode, Map<String,Map<Long,List<CryptoCacheCipherEntry>>>>()
 	);
 
 	private KeyManagerCryptoManager cryptoManager;
 
+	/**
+	 * Create a <code>CryptoCache</code> instance.
+	 * @param cryptoManager the owning <code>CryptoManager</code>.
+	 */
 	public CryptoCache(KeyManagerCryptoManager cryptoManager)
 	{
 		if (cryptoManager == null)
@@ -72,6 +83,13 @@ public class CryptoCache
 		this.cryptoManager = cryptoManager;
 	}
 
+	/**
+	 * Get the currently active encryption key. If there has none yet be {@link #setActiveEncryptionKeyID(long, Date) set}
+	 * or the <code>activeUntilExcl</code> has been reached (i.e. the previous active key expired),
+	 * this method returns -1.
+	 * @return the currently active encryption key or -1, if there is none.
+	 * @see #setActiveEncryptionKeyID(long, Date)
+	 */
 	public long getActiveEncryptionKeyID()
 	{
 		long activeEncryptionKeyID;
@@ -90,6 +108,12 @@ public class CryptoCache
 		return activeEncryptionKeyID;
 	}
 
+	/**
+	 * Set the currently active encryption key.
+	 * @param activeEncryptionKeyID identifier of the symmetric secret key that is currently active.
+	 * @param activeUntilExcl timestamp until when (excluding) the specified key is active.
+	 * @see #getActiveEncryptionKeyID()
+	 */
 	public void setActiveEncryptionKeyID(long activeEncryptionKeyID, Date activeUntilExcl)
 	{
 		if (activeEncryptionKeyID <= 0)
@@ -104,6 +128,11 @@ public class CryptoCache
 		}
 	}
 
+	/**
+	 * Get the actual key data for the given key identifier.
+	 * @param keyID identifier of the requested key.
+	 * @return actual key data or <code>null</code>, if the specified key is not cached.
+	 */
 	protected byte[] getKeyData(long keyID)
 	{
 		CryptoCacheKeyEntry entry = keyID2key.get(keyID);
@@ -117,6 +146,12 @@ public class CryptoCache
 		}
 	}
 
+	/**
+	 * Put a certain key into this cache.
+	 * @param keyID identifier of the key. Must be &lt;= 0.
+	 * @param keyData actual key. Must not be <code>null</code>.
+	 * @return the immutable entry for the given key in this cache.
+	 */
 	protected CryptoCacheKeyEntry setKeyData(long keyID, byte[] keyData)
 	{
 		CryptoCacheKeyEntry entry = new CryptoCacheKeyEntry(keyID, keyData);
@@ -124,36 +159,120 @@ public class CryptoCache
 		return entry;
 	}
 
-	public CryptoCacheCipherEntry acquireDecrypter(String encryptionAlgorithm, long keyID, byte[] iv)
+	/**
+	 * <p>
+	 * Acquire a decrypter and {@link Cipher#init(CipherOperationMode, org.bouncycastle.crypto.CipherParameters) initialise} it so that
+	 * it is ready to be used.
+	 * </p><p>
+	 * This method can only return a <code>Cipher</code>, if there is one cached, already, or at least the key is cached so that a new
+	 * <code>Cipher</code> can be created. If there is neither a cipher nor a key cached, this method returns <code>null</code>.
+	 * The key - if found - is refreshed (with the current timestamp) by this operation and will thus be evicted later.
+	 * </p><p>
+	 * <b>Important:</b> You must use a try-finally-block ensuring that {@link #releaseCipherEntry(CryptoCacheCipherEntry)} is called!
+	 * </p>
+	 *
+	 * @param cipherTransformation the encryption algorithm (the complete transformation as passed to {@link CryptoRegistry#createCipher(String)}).
+	 * @param keyID identifier of the key.
+	 * @param iv initialisation vector. Must be the same as the one that was used for encryption.
+	 * @return <code>null</code> or an entry wrapping the desired cipher.
+	 * @see #acquireDecrypter(String, long, byte[], byte[])
+	 * @see #releaseCipherEntry(CryptoCacheCipherEntry)
+	 */
+	public CryptoCacheCipherEntry acquireDecrypter(String cipherTransformation, long keyID, byte[] iv)
 	{
-		return acquireDecrypter(encryptionAlgorithm, keyID, null, iv);
+		return acquireDecrypter(cipherTransformation, keyID, null, iv);
 	}
 
+	/**
+	 * <p>
+	 * Acquire a decrypter and {@link Cipher#init(CipherOperationMode, org.bouncycastle.crypto.CipherParameters) initialise} it so that
+	 * it is ready to be used.
+	 * </p><p>
+	 * This method returns an existing <code>Cipher</code>, if there is one cached, already. Otherwise a new <code>Cipher</code> is created.
+	 * The key is added (with the current timestamp) into the cache.
+	 * </p><p>
+	 * <b>Important:</b> You must use a try-finally-block ensuring that {@link #releaseCipherEntry(CryptoCacheCipherEntry)} is called!
+	 * </p>
+	 *
+	 * @param encryptionAlgorithm the encryption algorithm (the complete transformation as passed to {@link CryptoRegistry#createCipher(String)}).
+	 * @param keyID identifier of the key.
+	 * @param keyData the actual key. If it is <code>null</code>, the key is fetched from the cache. If it is not cached,
+	 * this method returns <code>null</code>.
+	 * @param iv initialisation vector. Must be the same as the one that was used for encryption.
+	 * @return an entry wrapping the desired cipher. Never returns <code>null</code>, if <code>keyData</code> was specified.
+	 * If <code>keyData == null</code> and the key is not cached, <code>null</code> is returned.
+	 * @see #acquireDecrypter(String, long, byte[])
+	 * @see #releaseCipherEntry(CryptoCacheCipherEntry)
+	 */
 	public CryptoCacheCipherEntry acquireDecrypter(String encryptionAlgorithm, long keyID, byte[] keyData, byte[] iv)
 	{
 		return acquireCipherEntry(CipherOperationMode.DECRYPT, encryptionAlgorithm, keyID, keyData, iv);
 	}
 
+	/**
+	 * <p>
+	 * Acquire an encrypter and {@link Cipher#init(CipherOperationMode, org.bouncycastle.crypto.CipherParameters) initialise} it so that
+	 * it is ready to be used.
+	 * </p><p>
+	 * This method can only return a <code>Cipher</code>, if there is one cached, already, or at least the key is cached so that a new
+	 * <code>Cipher</code> can be created. If there is neither a cipher nor a key cached, this method returns <code>null</code>.
+	 * The key - if found - is refreshed (with the current timestamp) by this operation and will thus be evicted later.
+	 * </p><p>
+	 * You should use a try-finally-block ensuring that {@link #releaseCipherEntry(CryptoCacheCipherEntry)} is called!
+	 * </p><p>
+	 * This method generates a random IV (initialisation vector) every time it is called. The IV can be obtained via
+	 * {@link Cipher#getParameters()} and casting the result to {@link ParametersWithIV}. The IV is required for decryption.
+	 * </p>
+	 *
+	 * @param encryptionAlgorithm the encryption algorithm (the complete transformation as passed to {@link CryptoRegistry#createCipher(String)}).
+	 * @param keyID identifier of the key.
+	 * @return <code>null</code> or an entry wrapping the desired cipher.
+	 * @see #acquireEncrypter(String, long, byte[])
+	 * @see #releaseCipherEntry(CryptoCacheCipherEntry)
+	 */
 	public CryptoCacheCipherEntry acquireEncrypter(String encryptionAlgorithm, long keyID)
 	{
 		return acquireEncrypter(encryptionAlgorithm, keyID, null);
 	}
 
-	public CryptoCacheCipherEntry acquireEncrypter(String encryptionAlgorithm, long keyID, byte[] keyData)
+	/**
+	 * <p>
+	 * Acquire an encrypter and {@link Cipher#init(CipherOperationMode, org.bouncycastle.crypto.CipherParameters) initialise} it so that
+	 * it is ready to be used.
+	 * </p><p>
+	 * This method returns an existing <code>Cipher</code>, if there is one cached, already. Otherwise a new <code>Cipher</code> is created.
+	 * The key is added (with the current timestamp) into the cache.
+	 * </p><p>
+	 * You should use a try-finally-block ensuring that {@link #releaseCipherEntry(CryptoCacheCipherEntry)} is called!
+	 * </p><p>
+	 * This method generates a random IV (initialisation vector) every time it is called. The IV can be obtained via
+	 * {@link Cipher#getParameters()} and casting the result to {@link ParametersWithIV}. The IV is required for decryption.
+	 * </p>
+	 *
+	 * @param cipherTransformation the encryption algorithm (the complete transformation as passed to {@link CryptoRegistry#createCipher(String)}).
+	 * @param keyID identifier of the key.
+	 * @param keyData the actual key. If it is <code>null</code>, the key is fetched from the cache. If it is not cached,
+	 * this method returns <code>null</code>.
+	 * @return an entry wrapping the desired cipher. Never returns <code>null</code>, if <code>keyData</code> was specified.
+	 * If <code>keyData == null</code> and the key is not cached, <code>null</code> is returned.
+	 * @see #acquireEncrypter(String, long)
+	 * @see #releaseCipherEntry(CryptoCacheCipherEntry)
+	 */
+	public CryptoCacheCipherEntry acquireEncrypter(String cipherTransformation, long keyID, byte[] keyData)
 	{
-		return acquireCipherEntry(CipherOperationMode.ENCRYPT, encryptionAlgorithm, keyID, keyData, null);
+		return acquireCipherEntry(CipherOperationMode.ENCRYPT, cipherTransformation, keyID, keyData, null);
 	}
 
 	private CryptoCacheCipherEntry acquireCipherEntry(
-			CipherOperationMode opmode, String encryptionAlgorithm, long keyID, byte[] keyData, byte[] iv
+			CipherOperationMode opmode, String cipherTransformation, long keyID, byte[] keyData, byte[] iv
 	)
 	{
 		try {
-			Map<String, Map<Long, List<CryptoCacheCipherEntry>>> encryptionAlgorithm2keyID2encrypters =
-				opmode2encryptionAlgorithm2keyID2cipherEntries.get(opmode);
+			Map<String, Map<Long, List<CryptoCacheCipherEntry>>> cipherTransformation2keyID2encrypters =
+				opmode2cipherTransformation2keyID2cipherEntries.get(opmode);
 
-			if (encryptionAlgorithm2keyID2encrypters != null) {
-				Map<Long, List<CryptoCacheCipherEntry>> keyID2Encrypters = encryptionAlgorithm2keyID2encrypters.get(encryptionAlgorithm);
+			if (cipherTransformation2keyID2encrypters != null) {
+				Map<Long, List<CryptoCacheCipherEntry>> keyID2Encrypters = cipherTransformation2keyID2encrypters.get(cipherTransformation);
 				if (keyID2Encrypters != null) {
 					List<CryptoCacheCipherEntry> encrypters = keyID2Encrypters.get(keyID);
 					if (encrypters != null) {
@@ -170,7 +289,7 @@ public class CryptoCache
 							if (logger.isTraceEnabled())
 								logger.trace(
 										"acquireCipherEntry: Found cached Cipher@{} for opmode={}, encryptionAlgorithm={} and keyID={}. Initialising it with new IV (without key).",
-										new Object[] { System.identityHashCode(entry.getCipher()), opmode, encryptionAlgorithm, keyID }
+										new Object[] { System.identityHashCode(entry.getCipher()), opmode, cipherTransformation, keyID }
 								);
 
 							entry.getCipher().init(
@@ -191,7 +310,7 @@ public class CryptoCache
 
 			Cipher cipher;
 			try {
-				cipher = CryptoRegistry.sharedInstance().createCipher(encryptionAlgorithm);
+				cipher = CryptoRegistry.sharedInstance().createCipher(cipherTransformation);
 			} catch (NoSuchAlgorithmException e) {
 				throw new RuntimeException(e);
 			} catch (NoSuchPaddingException e) {
@@ -199,7 +318,7 @@ public class CryptoCache
 			}
 
 			CryptoCacheCipherEntry entry = new CryptoCacheCipherEntry(
-					setKeyData(keyID, keyData), encryptionAlgorithm, cipher
+					setKeyData(keyID, keyData), cipherTransformation, cipher
 			);
 			if (iv == null) {
 				iv = new byte[entry.getCipher().getIVSize()];
@@ -209,7 +328,7 @@ public class CryptoCache
 			if (logger.isTraceEnabled())
 				logger.trace(
 						"acquireCipherEntry: Created new Cipher@{} for opmode={}, encryptionAlgorithm={} and keyID={}. Initialising it with key and IV.",
-						new Object[] { System.identityHashCode(entry.getCipher()), opmode, encryptionAlgorithm, keyID }
+						new Object[] { System.identityHashCode(entry.getCipher()), opmode, cipherTransformation, keyID }
 				);
 
 			entry.getCipher().init(
@@ -224,6 +343,20 @@ public class CryptoCache
 		}
 	}
 
+	/**
+	 * <p>
+	 * Release a {@link Cipher} wrapped in the given entry.
+	 * </p><p>
+	 * This should be called in a finally block ensuring that the Cipher is put back into the cache.
+	 * </p>
+	 * @param cipherEntry the entry to be put back into the cache or <code>null</code>, if it was not yet assigned.
+	 * This method accepts <code>null</code> as argument to make usage in a try-finally-block easier and less error-prone
+	 * (no <code>null</code>-checks required).
+	 * @see #acquireDecrypter(String, long, byte[])
+	 * @see #acquireDecrypter(String, long, byte[], byte[])
+	 * @see #acquireEncrypter(String, long)
+	 * @see #acquireEncrypter(String, long, byte[])
+	 */
 	public void releaseCipherEntry(CryptoCacheCipherEntry cipherEntry)
 	{
 		if (cipherEntry == null)
@@ -235,33 +368,33 @@ public class CryptoCache
 					new Object[] {
 							System.identityHashCode(cipherEntry.getCipher()),
 							cipherEntry.getCipher().getMode(),
-							cipherEntry.getEncryptionAlgorithm(),
+							cipherEntry.getCipherTransformation(),
 							cipherEntry.getKeyEntry().getKeyID()
 					}
 			);
 
-		Map<String, Map<Long, List<CryptoCacheCipherEntry>>> encryptionAlgorithm2keyID2cipherEntries;
-		synchronized (opmode2encryptionAlgorithm2keyID2cipherEntries) {
-			encryptionAlgorithm2keyID2cipherEntries =
-				opmode2encryptionAlgorithm2keyID2cipherEntries.get(cipherEntry.getCipher().getMode());
+		Map<String, Map<Long, List<CryptoCacheCipherEntry>>> cipherTransformation2keyID2cipherEntries;
+		synchronized (opmode2cipherTransformation2keyID2cipherEntries) {
+			cipherTransformation2keyID2cipherEntries =
+				opmode2cipherTransformation2keyID2cipherEntries.get(cipherEntry.getCipher().getMode());
 
-			if (encryptionAlgorithm2keyID2cipherEntries == null) {
-				encryptionAlgorithm2keyID2cipherEntries = Collections.synchronizedMap(
+			if (cipherTransformation2keyID2cipherEntries == null) {
+				cipherTransformation2keyID2cipherEntries = Collections.synchronizedMap(
 						new HashMap<String, Map<Long,List<CryptoCacheCipherEntry>>>()
 				);
 
-				opmode2encryptionAlgorithm2keyID2cipherEntries.put(
-						cipherEntry.getCipher().getMode(), encryptionAlgorithm2keyID2cipherEntries
+				opmode2cipherTransformation2keyID2cipherEntries.put(
+						cipherEntry.getCipher().getMode(), cipherTransformation2keyID2cipherEntries
 				);
 			}
 		}
 
 		Map<Long, List<CryptoCacheCipherEntry>> keyID2cipherEntries;
-		synchronized (encryptionAlgorithm2keyID2cipherEntries) {
-			keyID2cipherEntries = encryptionAlgorithm2keyID2cipherEntries.get(cipherEntry.getEncryptionAlgorithm());
+		synchronized (cipherTransformation2keyID2cipherEntries) {
+			keyID2cipherEntries = cipherTransformation2keyID2cipherEntries.get(cipherEntry.getCipherTransformation());
 			if (keyID2cipherEntries == null) {
 				keyID2cipherEntries = Collections.synchronizedMap(new HashMap<Long, List<CryptoCacheCipherEntry>>());
-				encryptionAlgorithm2keyID2cipherEntries.put(cipherEntry.getEncryptionAlgorithm(), keyID2cipherEntries);
+				cipherTransformation2keyID2cipherEntries.put(cipherEntry.getCipherTransformation(), keyID2cipherEntries);
 			}
 		}
 
@@ -277,11 +410,18 @@ public class CryptoCache
 		cipherEntries.add(cipherEntry);
 	}
 
+	/**
+	 * Clear this cache entirely. This evicts all cached objects - no matter what type.
+	 */
 	public void clear()
 	{
 		logger.trace("clear: entered");
 		keyID2key.clear();
-		opmode2encryptionAlgorithm2keyID2cipherEntries.clear();
+		opmode2cipherTransformation2keyID2cipherEntries.clear();
+		synchronized (activeEncryptionKeyMutex) {
+			activeEncryptionKeyID = -1;
+			activeEncryptionKeyUntilExcl = null;
+		}
 	}
 
 	private Map<String, CryptoCacheKeyEncryptionKeyEntry> keyEncryptionTransformation2keyEncryptionKey = Collections.synchronizedMap(
@@ -292,13 +432,27 @@ public class CryptoCache
 			new HashMap<String, List<CryptoCacheKeyDecrypterEntry>>()
 	);
 
+	/**
+	 * How long should the public-private-key-pair for secret-key-encryption be used. After that time, a new
+	 * public-private-key-pair is generated.
+	 * @return the time a public-private-key-pair should be used.
+	 * @see #getKeyEncryptionKey(String)
+	 */
 	protected long getKeyEncryptionKeyActivePeriodMSec()
 	{
-		return 3600L * 1000L;
+		return 3600L * 1000L * 5L; // use the same key pair for 5 hours - TODO must make this configurable via a persistence property!
 	}
 
+	/**
+	 * Get the key-pair that is currently active for secret-key-encryption.
+	 * @param keyEncryptionTransformation the transformation to be used for secret-key-encryption. Must not be <code>null</code>.
+	 * @return entry wrapping the key-pair that is currently active for secret-key-encryption.
+	 */
 	protected CryptoCacheKeyEncryptionKeyEntry getKeyEncryptionKey(String keyEncryptionTransformation)
 	{
+		if (keyEncryptionTransformation == null)
+			throw new IllegalArgumentException("keyEncryptionTransformation == null");
+
 		synchronized (keyEncryptionTransformation2keyEncryptionKey) {
 			CryptoCacheKeyEncryptionKeyEntry entry = keyEncryptionTransformation2keyEncryptionKey.get(keyEncryptionTransformation);
 			if (entry != null && !entry.isExpired())
@@ -326,8 +480,7 @@ public class CryptoCache
 
 	/**
 	 * Remove the first element from the given list and return it.
-	 * If the list is empty, return <code>null</code>.
-	 *
+	 * If the list is empty, return <code>null</code>. This method is thread-safe, if the given <code>list</code> is.
 	 * @param <T> the type of the list's elements.
 	 * @param list the list; must not be <code>null</code>.
 	 * @return the first element of the list (after removing it) or <code>null</code>, if the list
@@ -343,8 +496,21 @@ public class CryptoCache
 		}
 	}
 
+	/**
+	 * Acquire a cipher to be used for secret-key-decryption. The cipher is already initialised with the current
+	 * {@link #getKeyEncryptionKey(String) keyEncryptionKey} and can thus be directly used.
+	 * <p>
+	 * You should call {@link #releaseKeyDecryptor(CryptoCacheKeyDecrypterEntry)} to put the cipher back into the cache!
+	 * </p>
+	 * @param keyEncryptionTransformation the transformation to be used for secret-key-encryption. Must not be <code>null</code>.
+	 * @return entry wrapping the cipher that is ready to be used for secret-key-decryption.
+	 * @see #releaseKeyDecryptor(CryptoCacheKeyDecrypterEntry)
+	 */
 	public CryptoCacheKeyDecrypterEntry acquireKeyDecryptor(String keyEncryptionTransformation)
 	{
+		if (keyEncryptionTransformation == null)
+			throw new IllegalArgumentException("keyEncryptionTransformation == null");
+
 		try {
 			List<CryptoCacheKeyDecrypterEntry> decryptors = keyEncryptionTransformation2keyDecryptors.get(keyEncryptionTransformation);
 			if (decryptors != null) {
@@ -378,6 +544,10 @@ public class CryptoCache
 		}
 	}
 
+	/**
+	 * Release a cipher (put it back into the cache).
+	 * @param decryptorEntry the entry to be released or <code>null</code> (silently ignored).
+	 */
 	public void releaseKeyDecryptor(CryptoCacheKeyDecrypterEntry decryptorEntry)
 	{
 		if (decryptorEntry == null)
@@ -395,6 +565,12 @@ public class CryptoCache
 		keyDecryptors.add(decryptorEntry);
 	}
 
+	/**
+	 * Get a key-pair-generator for the given transformation.
+	 * @param keyEncryptionTransformation the transformation (based on an asymmetric crypto algorithm) for which to obtain
+	 * a key-pair-generator.
+	 * @return the key-pair-generator.
+	 */
 	protected AsymmetricCipherKeyPairGenerator getAsymmetricCipherKeyPairGenerator(String keyEncryptionTransformation)
 	{
 		String algorithmName = CryptoRegistry.splitTransformation(keyEncryptionTransformation)[0];
@@ -579,7 +755,7 @@ public class CryptoCache
 		int totalListCounter = 0;
 		int removedListCounter = 0;
 		for (CipherOperationMode opmode : CipherOperationMode.values()) {
-			Map<String, Map<Long, List<CryptoCacheCipherEntry>>> encryptionAlgorithm2keyID2cipherEntries = opmode2encryptionAlgorithm2keyID2cipherEntries.get(opmode);
+			Map<String, Map<Long, List<CryptoCacheCipherEntry>>> encryptionAlgorithm2keyID2cipherEntries = opmode2cipherTransformation2keyID2cipherEntries.get(opmode);
 			if (encryptionAlgorithm2keyID2cipherEntries == null)
 				continue;
 
@@ -633,13 +809,23 @@ public class CryptoCache
 	 * </p><p>
 	 * If this persistence property is not present (or not a valid number), the default is 60000 (1 minute), which means
 	 * the timer will wake up once a minute and call {@link #removeExpiredEntries(boolean)} with <code>force = true</code>.
-	 * </p><p>
-	 * If this persistence property is set to 0, the timer is deactivated and cleanup happens only synchronously
-	 * when one of the release-methods is called (periodically - not every time a method is called).
 	 * </p>
 	 */
 	public static final String PROPERTY_CRYPTO_CACHE_CLEANUP_TIMER_PERIOD = "cumulus4j.CryptoCache.cleanupTimer.period";
 
+	/**
+	 * <p>
+	 * Persistence property to control whether the timer for cleaning up expired {@link CryptoCache}-entries is enabled. The
+	 * value configured here can be either <code>true</code> or <code>false</code>.
+	 * </p><p>
+	 * If this persistence property is not present (or not a valid number), the default is <code>true</code>, which means the
+	 * timer is enabled and will periodically call {@link #removeExpiredEntries(boolean)} with <code>force = true</code>.
+	 * </p><p>
+	 * If this persistence property is set to <code>false</code>, the timer is deactivated and cleanup happens only synchronously
+	 * when one of the release-methods is called; periodically - not every time a method is called. The period is in this
+	 * case the same as for the timer, i.e. configurable via {@link #PROPERTY_CRYPTO_CACHE_CLEANUP_TIMER_PERIOD}.
+	 * </p>
+	 */
 	public static final String PROPERTY_CRYPTO_CACHE_CLEANUP_TIMER_ENABLED = "cumulus4j.CryptoCache.cleanupTimer.enabled";
 
 	private long cleanupTimerPeriod = Long.MIN_VALUE;
