@@ -25,11 +25,21 @@ import org.cumulus4j.store.model.Sequence;
 import org.datanucleus.store.connection.ManagedConnection;
 import org.datanucleus.store.valuegenerator.AbstractDatastoreGenerator;
 import org.datanucleus.store.valuegenerator.ValueGenerationBlock;
+import org.datanucleus.store.valuegenerator.ValueGenerator;
 
+/**
+ * {@link ValueGenerator} implementation generating values by incrementing a counter.
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class Cumulus4jIncrementGenerator extends AbstractDatastoreGenerator
 {
 	private String sequenceName;
 
+	/**
+	 * Create an instance. This is called by DataNucleus.
+	 * @param name symbolic name for the generator.
+	 * @param props Properties controlling the behaviour of the generator.
+	 */
 	public Cumulus4jIncrementGenerator(String name, Properties props) {
 		super(name, props);
 		allocationSize = 5;
