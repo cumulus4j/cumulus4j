@@ -18,23 +18,23 @@
 package org.cumulus4j.crypto;
 
 /**
- * Type of a cipher engine (a raw <a href="http://en.wikipedia.org/wiki/Encryption_algorithm">encryption algorithm</a>).
+ * Type of a cipher engine (a raw <a target="_blank" href="http://en.wikipedia.org/wiki/Encryption_algorithm">encryption algorithm</a>).
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public enum CipherEngineType
 {
 	/**
-	 * Indicates a <a href="http://en.wikipedia.org/wiki/Symmetric_key_algorithm">symmetric</a> <a href="http://en.wikipedia.org/wiki/Block_cipher">block cipher</a>.
+	 * Indicates a <a target="_blank" href="http://en.wikipedia.org/wiki/Symmetric_key_algorithm">symmetric</a> <a target="_blank" href="http://en.wikipedia.org/wiki/Block_cipher">block cipher</a>.
 	 */
 	symmetricBlock,
 
 	/**
-	 * Indicates an asymmetric block cipher (aka <a href="http://en.wikipedia.org/wiki/Public_key_cryptography">public key cryptography</a>).
+	 * Indicates an asymmetric block cipher (aka <a target="_blank" href="http://en.wikipedia.org/wiki/Public_key_cryptography">public key cryptography</a>).
 	 */
 	asymmetricBlock,
 
 	/**
-	 * Indicates a <a href="http://en.wikipedia.org/wiki/Symmetric_key_algorithm">symmetric</a> <a href="http://en.wikipedia.org/wiki/Stream_cipher">stream cipher</a>.
+	 * Indicates a <a target="_blank" href="http://en.wikipedia.org/wiki/Symmetric_key_algorithm">symmetric</a> <a target="_blank" href="http://en.wikipedia.org/wiki/Stream_cipher">stream cipher</a>.
 	 */
 	symmetricStream
 }

@@ -71,7 +71,7 @@ import org.cumulus4j.keymanager.back.shared.Response;
 public class PendingRequest
 {
 	/**
-	 * <a href="http://www.datanucleus.org/products/accessplatform_3_0/jdo/fetchgroup.html">Fetch-groups</a> for
+	 * <a target="_blank" href="http://www.datanucleus.org/products/accessplatform_3_0/jdo/fetchgroup.html">Fetch-groups</a> for
 	 * {@link PendingRequest}.
 	 * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
 	 */

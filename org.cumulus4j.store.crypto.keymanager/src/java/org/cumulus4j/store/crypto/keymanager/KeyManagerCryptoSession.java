@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 /**
  * <p>
  * Implementation of {@link org.cumulus4j.store.crypto.CryptoSession CryptoSession} working with a
- * key-manager as shown in <a href="http://cumulus4j.org/1.0.0/documentation/deployment-scenarios.html">Deployment scenarios</a>.
+ * key-manager as shown in <a target="_blank" href="http://cumulus4j.org/1.0.0/documentation/deployment-scenarios.html">Deployment scenarios</a>.
  * </p>
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
@@ -106,7 +106,7 @@ extends AbstractCryptoSession
 	 * 	</tr><tr>
 	 * 		<td align="right" valign="top"><i>ivLen</i></td><td>Actual IV (random initialisation vector).</td>
 	 * 	</tr><tr>
-	 *		<td align="right" valign="top">1</td><td><i>macKeyLen</i>: <a href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a>'s key length in bytes</td>
+	 *		<td align="right" valign="top">1</td><td><i>macKeyLen</i>: <a target="_blank" href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a>'s key length in bytes</td>
 	 * 	</tr><tr>
 	 *		<td align="right" valign="top">1</td><td><i>macIVLen</i>: MAC's IV length in bytes</td>
 	 *	</tr><tr>

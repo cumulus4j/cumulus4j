@@ -22,7 +22,7 @@ import org.bouncycastle.crypto.Mac;
 
 /**
  * <p>
- * A <code>MACCalculator</code> calculates <a href="http://en.wikipedia.org/wiki/Message_authentication_code">message
+ * A <code>MACCalculator</code> calculates <a target="_blank" href="http://en.wikipedia.org/wiki/Message_authentication_code">message
  * authentication codes</a>.
  * </p><p>
  * Use {@link CryptoRegistry#createMACCalculator(String, boolean)} to obtain a <code>MACCalculator</code> instance.

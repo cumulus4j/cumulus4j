@@ -23,7 +23,7 @@ import org.cumulus4j.store.query.QueryEvaluator;
 import org.datanucleus.query.expression.SubqueryExpression;
 
 /**
- * Evaluator handling a <a href="http://www.datanucleus.org/products/accessplatform_3_0/jdo/jdoql_subquery.html">sub-query</a>.
+ * Evaluator handling a <a target="_blank" href="http://www.datanucleus.org/products/accessplatform_3_0/jdo/jdoql_subquery.html">sub-query</a>.
  * @author Andy Jefferson
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de (only added javadoc)
  */

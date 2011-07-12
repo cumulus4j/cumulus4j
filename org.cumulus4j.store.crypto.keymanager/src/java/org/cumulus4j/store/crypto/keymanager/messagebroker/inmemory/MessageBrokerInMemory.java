@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * </p>
  * <p>
  * <b>Important:</b> This implementation can usually not be used in a cluster! It is only cluster-able, if you use transparent
- * JVM-clustering, e.g. with <a href="http://www.terracotta.org/">Terracotta</a>!
+ * JVM-clustering, e.g. with <a target="_blank" href="http://www.terracotta.org/">Terracotta</a>!
  * </p>
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de

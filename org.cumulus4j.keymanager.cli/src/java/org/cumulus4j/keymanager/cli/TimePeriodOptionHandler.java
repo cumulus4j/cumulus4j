@@ -52,7 +52,7 @@ import org.kohsuke.args4j.spi.Setter;
 public class TimePeriodOptionHandler extends OneArgumentOptionHandler<Long>
 {
 	/**
-	 * Units based on <a href="http://en.wikipedia.org/wiki/ISO_31-1">ISO 31-1</a> (where it exists).
+	 * Units based on <a target="_blank" href="http://en.wikipedia.org/wiki/ISO_31-1">ISO 31-1</a> (where it exists).
 	 *
 	 * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
 	 */
@@ -83,7 +83,7 @@ public class TimePeriodOptionHandler extends OneArgumentOptionHandler<Long>
 		d("Day", 24L * h.msec),
 
 		/**
-		 * Year. <a href="http://en.wikipedia.org/wiki/Year">Abbreviation from latin "annus".</a>
+		 * Year. <a target="_blank" href="http://en.wikipedia.org/wiki/Year">Abbreviation from latin "annus".</a>
 		 */
 		a("Year", 365L * d.msec),
 

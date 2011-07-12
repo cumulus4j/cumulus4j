@@ -43,7 +43,7 @@ import org.datanucleus.query.expression.DyadicExpression;
  * is executed.
  * </p>
  * <p>
- * See <a href="http://en.wikipedia.org/wiki/De_Morgan%27s_laws">De Morgan's laws</a> in wikipedia for details.
+ * See <a target="_blank" href="http://en.wikipedia.org/wiki/De_Morgan%27s_laws">De Morgan's laws</a> in wikipedia for details.
  * </p>
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de

@@ -17,13 +17,13 @@
  */
 /**
  * <p>
- * Cumulus4j is a plug-in for <a href="http://www.datanucleus.org">DataNucleus</a> providing encrypted data-storage.
+ * Cumulus4j is a plug-in for <a target="_blank" href="http://www.datanucleus.org">DataNucleus</a> providing encrypted data-storage.
  * </p>
  * <p>
  * Most classes in this package are extensions using DataNucleus' extension-points in order to implement
  * reading and writing of objects. DataNucleus uses the Eclipse extension mechanism. If you are not
  * familiar with Eclipse extensions, start reading here:
- * <a href="http://wiki.eclipse.org/FAQ_What_are_extensions_and_extension_points%3F">Eclipse FAQ
+ * <a target="_blank" href="http://wiki.eclipse.org/FAQ_What_are_extensions_and_extension_points%3F">Eclipse FAQ
  * What are extensions and extension points?</a>
  * </p>
  * <p>

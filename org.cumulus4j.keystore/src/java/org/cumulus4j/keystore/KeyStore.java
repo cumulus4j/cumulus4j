@@ -66,7 +66,7 @@ import org.slf4j.LoggerFactory;
  * An instance of <code>KeyStore</code> manages a file in the local file system, in which it stores
  * the keys used by the Cumulus4j-DataNucleus-plug-in in an encrypted form. All data written to the
  * file is encrypted, hence plain data never touches the local file system (except for
- * <a href="http://en.wikipedia.org/wiki/Swap_space">swapping</a>!).
+ * <a target="_blank" href="http://en.wikipedia.org/wiki/Swap_space">swapping</a>!).
  * </p>
  * <p>
  * For every read/write operation, the <code>KeyStore</code> requires a user to authenticate via a
@@ -192,7 +192,7 @@ import org.slf4j.LoggerFactory;
  * 				</tr>
  *
  * 				<tr>
- * 					<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the <a href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a> algorithm used to authenticate this record's data (index in the list of 'Block A').</td>
+ * 					<td align="right" valign="top">4</td><td valign="top">int: Reference to the name of the <a target="_blank" href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a> algorithm used to authenticate this record's data (index in the list of 'Block A').</td>
  * 				</tr>
  *
  * 				<tr>
@@ -456,7 +456,7 @@ public class KeyStore
 	 * to specify the command line argument "-Dcumulus4j.KeyStore.encryptionAlgorithm=AES/CFB/NoPadding".
 	 * </p>
 	 * <p>
-	 * See <a href="http://cumulus4j.org/1.0.0/documentation/supported-algorithms.html">this document</a>
+	 * See <a target="_blank" href="http://cumulus4j.org/1.0.0/documentation/supported-algorithms.html">this document</a>
 	 * for further information about what values are supported.
 	 * </p>
 	 * <p>
@@ -469,7 +469,7 @@ public class KeyStore
 
 	/**
 	 * <p>
-	 * System property to control the <a href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a>
+	 * System property to control the <a target="_blank" href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a>
 	 * algorithm that is used to protect the data within the key-store against manipulation.
 	 * </p>
 	 * <p>
@@ -486,7 +486,7 @@ public class KeyStore
 	 * operations, only.
 	 * </p>
 	 * <p>
-	 * Some block cipher modes (e.g. <a href="http://en.wikipedia.org/wiki/Galois/Counter_Mode">GCM</a>) already include authentication
+	 * Some block cipher modes (e.g. <a target="_blank" href="http://en.wikipedia.org/wiki/Galois/Counter_Mode">GCM</a>) already include authentication
 	 * and therefore no MAC is necessary. In this case, you can specify the MAC algorithm {@value #MAC_ALGORITHM_NONE}.
 	 * </p>
 	 * <p>
@@ -504,12 +504,12 @@ public class KeyStore
 
 	/**
 	 * <p>
-	 * Constant for deactivating the <a href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a>.
+	 * Constant for deactivating the <a target="_blank" href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a>.
 	 * </p>
 	 * <p>
 	 * <b>Important: Deactivating the MAC is dangerous!</b> Choose this value only, if you are absolutely
 	 * sure that your {@link #SYSTEM_PROPERTY_ENCRYPTION_ALGORITHM encryption algorithm} already
-	 * provides authentication - like <a href="http://en.wikipedia.org/wiki/Galois/Counter_Mode">GCM</a>
+	 * provides authentication - like <a target="_blank" href="http://en.wikipedia.org/wiki/Galois/Counter_Mode">GCM</a>
 	 * does for example.
 	 * </p>
 	 * @see #SYSTEM_PROPERTY_MAC_ALGORITHM

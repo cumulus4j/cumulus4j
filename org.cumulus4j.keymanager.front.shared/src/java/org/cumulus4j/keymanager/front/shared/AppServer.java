@@ -31,7 +31,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * An <code>AppServer</code> contains the coordinates needed to contact the application server
  * (or more precisely the key-manager-channel-REST-service
  * running on this application server) in order to establish a communication channel. See
- * <a href="http://www.cumulus4j.org/1.0.0/documentation/deployment-scenarios.html">Deployment scenarios</a>.
+ * <a target="_blank" href="http://www.cumulus4j.org/1.0.0/documentation/deployment-scenarios.html">Deployment scenarios</a>.
  * </p>
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */

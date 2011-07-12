@@ -20,7 +20,7 @@
  * REST API for the communication between client and key-server.
  * </p>
  * <p>
- * As documented in <a href="http://cumulus4j.org/1.0.0/documentation/deployment-scenarios.html#3-computer-scenario">Deployment scenarios / 3-computer-scenario</a>,
+ * As documented in <a target="_blank" href="http://cumulus4j.org/1.0.0/documentation/deployment-scenarios.html#3-computer-scenario">Deployment scenarios / 3-computer-scenario</a>,
  * the client controls via a crypto-session when the app-server is granted access to the key-manager.
  * The REST API provided by this package is the green arrow in the graphics of the 'Deployment scenarios', section
  * '3-computer-scenario (with key-server)'.

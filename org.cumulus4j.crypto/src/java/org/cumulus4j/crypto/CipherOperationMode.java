@@ -25,12 +25,12 @@ package org.cumulus4j.crypto;
 public enum CipherOperationMode
 {
 	/**
-	 * Operation mode is encryption (from <a href="http://en.wikipedia.org/wiki/Plaintext">plaintext</a> to <a href="http://en.wikipedia.org/wiki/Ciphertext">ciphertext</a>).
+	 * Operation mode is encryption (from <a target="_blank" href="http://en.wikipedia.org/wiki/Plaintext">plaintext</a> to <a target="_blank" href="http://en.wikipedia.org/wiki/Ciphertext">ciphertext</a>).
 	 */
 	ENCRYPT,
 
 	/**
-	 * Operation mode is decryption (from <a href="http://en.wikipedia.org/wiki/Ciphertext">ciphertext</a> to <a href="http://en.wikipedia.org/wiki/Plaintext">plaintext</a>).
+	 * Operation mode is decryption (from <a target="_blank" href="http://en.wikipedia.org/wiki/Ciphertext">ciphertext</a> to <a target="_blank" href="http://en.wikipedia.org/wiki/Plaintext">plaintext</a>).
 	 */
 	DECRYPT
 }

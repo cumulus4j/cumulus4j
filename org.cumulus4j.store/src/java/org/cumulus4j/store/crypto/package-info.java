@@ -17,7 +17,7 @@
  */
 /**
  * <p>
- * Crypto API for <a href="http://www.cumulus4j.org">Cumulus4j</a> (key management + en-/decryption).
+ * Crypto API for <a target="_blank" href="http://www.cumulus4j.org">Cumulus4j</a> (key management + en-/decryption).
  * </p>
  * <p>
  * The classes in this package provide interfaces and abstract classes used to provide

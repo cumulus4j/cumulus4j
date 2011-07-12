@@ -88,7 +88,7 @@ public class EncryptionCoordinateSetManager
 	 * @param persistenceManagerConnection the connection to the underlying datastore(s).
 	 * @param cipherTransformation the transformation (as passed to {@link CryptoRegistry#createCipher(String)}) used to encrypt and
 	 * decrypt the persistent data (or index).
-	 * @param macAlgorithm the <a href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a> algorithm (as passed to {@link CryptoRegistry#createMACCalculator(String, boolean)})
+	 * @param macAlgorithm the <a target="_blank" href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a> algorithm (as passed to {@link CryptoRegistry#createMACCalculator(String, boolean)})
 	 * used to verify peristent records for integrity. Might be {@link EncryptionCoordinateSet#MAC_ALGORITHM_NONE} to deactivate
 	 * the MAC calculation.
 	 * @return the <code>EncryptionCoordinateSet</code> (detached) matching the given properties. If <code>create == true</code>, this
@@ -136,7 +136,7 @@ public class EncryptionCoordinateSetManager
 	 * @param persistenceManagerConnection the connection to the underlying datastore(s).
 	 * @param cipherTransformation the transformation (as passed to {@link CryptoRegistry#createCipher(String)}) used to encrypt and
 	 * decrypt the persistent data (or index).
-	 * @param macAlgorithm the <a href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a> algorithm (as passed to {@link CryptoRegistry#createMACCalculator(String, boolean)})
+	 * @param macAlgorithm the <a target="_blank" href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a> algorithm (as passed to {@link CryptoRegistry#createMACCalculator(String, boolean)})
 	 * used to verify peristent records for integrity. Might be {@link EncryptionCoordinateSet#MAC_ALGORITHM_NONE} to deactivate
 	 * the MAC calculation.
 	 * @return the <code>EncryptionCoordinateSet</code> (detached) matching the given properties or <code>null</code>.
@@ -160,7 +160,7 @@ public class EncryptionCoordinateSetManager
 	 * @param persistenceManagerConnection the connection to the underlying datastore(s).
 	 * @param cipherTransformation the transformation (as passed to {@link CryptoRegistry#createCipher(String)}) used to encrypt and
 	 * decrypt the persistent data (or index).
-	 * @param macAlgorithm the <a href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a> algorithm (as passed to {@link CryptoRegistry#createMACCalculator(String, boolean)})
+	 * @param macAlgorithm the <a target="_blank" href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a> algorithm (as passed to {@link CryptoRegistry#createMACCalculator(String, boolean)})
 	 * used to verify peristent records for integrity. Might be {@link EncryptionCoordinateSet#MAC_ALGORITHM_NONE} to deactivate
 	 * the MAC calculation.
 	 * @return the <code>EncryptionCoordinateSet</code> (detached) matching the given properties; never <code>null</code>.

@@ -31,8 +31,8 @@ import javax.xml.bind.annotation.XmlRootElement;
  * </p>
  * <p>
  * We implement a
- * <a href="http://en.wikipedia.org/wiki/Request-response">request-response</a>
- * <a href="http://en.wikipedia.org/wiki/Messaging_pattern">messaging-pattern</a>,
+ * <a target="_blank" href="http://en.wikipedia.org/wiki/Request-response">request-response</a>
+ * <a target="_blank" href="http://en.wikipedia.org/wiki/Messaging_pattern">messaging-pattern</a>,
  * hence for every <code>Request</code> instance,
  * there must be exactly one <code>Response</code> instance. Both are identified
  * by the {@link #getRequestID() requestID}

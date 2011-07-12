@@ -47,12 +47,12 @@ public class EncryptionCoordinateSet
 {
 	/**
 	 * <p>
-	 * Constant for deactivating the <a href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a>.
+	 * Constant for deactivating the <a target="_blank" href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a>.
 	 * </p>
 	 * <p>
 	 * <b>Important: Deactivating the MAC is dangerous!</b> Choose this value only, if you are absolutely
 	 * sure that your {@link #getCipherTransformation() cipher-transformation} already
-	 * provides authentication - like <a href="http://en.wikipedia.org/wiki/Galois/Counter_Mode">GCM</a>
+	 * provides authentication - like <a target="_blank" href="http://en.wikipedia.org/wiki/Galois/Counter_Mode">GCM</a>
 	 * does for example.
 	 * </p>
 	 */
@@ -201,14 +201,14 @@ public class EncryptionCoordinateSet
 	}
 	/**
 	 * <p>
-	 * Get the <a href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a>-algorithm
+	 * Get the <a target="_blank" href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a>-algorithm
 	 * used to protect a record against corruption/manipulation.
 	 * </p>
 	 * <p>
 	 * Implementors of {@link CryptoManager}/{@link CryptoSession} should take {@link #MAC_ALGORITHM_NONE}
 	 * into account! If this value equals that constant, MAC calculation and storage should be skipped.
 	 * </p>
-	 * @return the <a href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a>-algorithm.
+	 * @return the <a target="_blank" href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a>-algorithm.
 	 */
 	public String getMACAlgorithm() {
 		return macAlgorithm;

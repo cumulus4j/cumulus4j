@@ -20,7 +20,7 @@
  * Broker transmitting messages between application-server and key-manager.
  * </p>
  * <p>
- * As documented in <a href="http://cumulus4j.org/1.0.0/documentation/deployment-scenarios.html">Deployment scenarios</a>,
+ * As documented in <a target="_blank" href="http://cumulus4j.org/1.0.0/documentation/deployment-scenarios.html">Deployment scenarios</a>,
  * TCP connections are always established from the key-manager (i.e. client or key-server) to the application server.
  * Since this means that the key-exchange-request-response-cycle works opposite the HTTP-request-response-cycle,
  * we need the {@link org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBroker}.

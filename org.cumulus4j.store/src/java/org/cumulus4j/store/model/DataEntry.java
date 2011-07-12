@@ -227,19 +227,19 @@ implements StoreCallback
 	 * For JDO, please read the following (and related) documentation:
 	 * </p>
 	 * <ul>
-	 * 	<li><a href="http://www.datanucleus.org/products/accessplatform_3_0/jdo/application_identity.html">JDO Mapping / Identity / Application Identity</a></li>
-	 * 	<li><a href="http://www.datanucleus.org/products/accessplatform_3_0/jdo/datastore_identity.html">JDO Mapping / Identity / Datastore Identity</a></li>
+	 * 	<li><a target="_blank" href="http://www.datanucleus.org/products/accessplatform_3_0/jdo/application_identity.html">JDO Mapping / Identity / Application Identity</a></li>
+	 * 	<li><a target="_blank" href="http://www.datanucleus.org/products/accessplatform_3_0/jdo/datastore_identity.html">JDO Mapping / Identity / Datastore Identity</a></li>
 	 * </ul>
 	 * <p>
 	 * For JPA, please read the following (and related) documentation:
 	 * </p>
 	 * <ul>
-	 * 	<li><a href="http://www.datanucleus.org/products/accessplatform_3_0/jpa/application_identity.html">JPA Mapping / Identity / Application Identity</a></li>
-	 * 	<li><a href="http://www.datanucleus.org/products/accessplatform_3_0/jpa/datastore_identity.html">JPA Mapping / Identity / Datastore Identity</a></li>
+	 * 	<li><a target="_blank" href="http://www.datanucleus.org/products/accessplatform_3_0/jpa/application_identity.html">JPA Mapping / Identity / Application Identity</a></li>
+	 * 	<li><a target="_blank" href="http://www.datanucleus.org/products/accessplatform_3_0/jpa/datastore_identity.html">JPA Mapping / Identity / Datastore Identity</a></li>
 	 * </ul>
 	 *
 	 * @return the OID in String-form
-	 * (e.g. the result of <code><a href="http://db.apache.org/jdo/api30/apidocs/javax/jdo/JDOHelper.html#getObjectId%28java.lang.Object%29">JDOHelper.getObjectId</a>(entity).toString()</code>
+	 * (e.g. the result of <code><a target="_blank" href="http://db.apache.org/jdo/api30/apidocs/javax/jdo/JDOHelper.html#getObjectId%28java.lang.Object%29">JDOHelper.getObjectId</a>(entity).toString()</code>
 	 * when using JDO).
 	 */
 	public String getObjectID() {

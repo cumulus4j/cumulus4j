@@ -18,7 +18,7 @@
 package org.cumulus4j.store.crypto;
 
 /**
- * Object representing unencrypted information (aka <a href="http://en.wikipedia.org/wiki/Plaintext">plaintext</a>).
+ * Object representing unencrypted information (aka <a target="_blank" href="http://en.wikipedia.org/wiki/Plaintext">plaintext</a>).
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */

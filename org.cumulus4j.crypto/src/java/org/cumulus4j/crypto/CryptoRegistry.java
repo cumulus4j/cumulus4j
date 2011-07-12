@@ -657,7 +657,7 @@ public final class CryptoRegistry
 
 	/**
 	 * Get all supported cipher engines. A cipher engine implements a raw
-	 * <a href="http://en.wikipedia.org/wiki/Encryption_algorithm">encryption algorithm</a>;
+	 * <a target="_blank" href="http://en.wikipedia.org/wiki/Encryption_algorithm">encryption algorithm</a>;
 	 * 'raw' means without any additional transformation like block mode or padding.
 	 *
 	 * @param cipherEngineType the type of the cipher engine or <code>null</code> to list all.
@@ -682,13 +682,13 @@ public final class CryptoRegistry
 
 	/**
 	 * <p>
-	 * Get all supported <a href="http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation">modes</a> for
+	 * Get all supported <a target="_blank" href="http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation">modes</a> for
 	 * the given cipher engine (a raw
-	 * <a href="http://en.wikipedia.org/wiki/Encryption_algorithm">encryption algorithm</a>). The
+	 * <a target="_blank" href="http://en.wikipedia.org/wiki/Encryption_algorithm">encryption algorithm</a>). The
 	 * <code>cipherEngine</code> can be <code>null</code> to not restrict the result by this criterion.
 	 * </p>
 	 * <p>
-	 * See <a href="http://cumulus4j.org/1.0.0/documentation/supported-algorithms.html">Supported algorithms</a>
+	 * See <a target="_blank" href="http://cumulus4j.org/1.0.0/documentation/supported-algorithms.html">Supported algorithms</a>
 	 * for a list of supported algorithms or use {@link #getSupportedCipherEngines(CipherEngineType)} to
 	 * query them.
 	 * </p>
@@ -906,12 +906,12 @@ public final class CryptoRegistry
 	/**
 	 * <p>
 	 * Get all supported paddings for the given cipher engine (a raw
-	 * <a href="http://en.wikipedia.org/wiki/Encryption_algorithm">encryption algorithm</a>) and
-	 * <a href="http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation">mode</a>. Each of the
+	 * <a target="_blank" href="http://en.wikipedia.org/wiki/Encryption_algorithm">encryption algorithm</a>) and
+	 * <a target="_blank" href="http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation">mode</a>. Each of the
 	 * parameters can be <code>null</code> to not restrict the result by this criterion.
 	 * </p>
 	 * <p>
-	 * See <a href="http://cumulus4j.org/1.0.0/documentation/supported-algorithms.html">Supported algorithms</a>
+	 * See <a target="_blank" href="http://cumulus4j.org/1.0.0/documentation/supported-algorithms.html">Supported algorithms</a>
 	 * for a list of supported algorithms or use {@link #getSupportedCipherEngines(CipherEngineType)}
 	 * and {@link #getSupportedCipherModes(String)} to
 	 * query them.
@@ -919,7 +919,7 @@ public final class CryptoRegistry
 	 *
 	 * @param cipherEngine the cipher engine for which to get the supported paddings or <code>null</code>
 	 * to list all.
-	 * @param cipherMode the <a href="http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation">mode</a>
+	 * @param cipherMode the <a target="_blank" href="http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation">mode</a>
 	 * to restrict the result or <code>null</code> to list all (for the given cipher-engine).
 	 * @return all supported paddings for the (optionally) given criteria.
 	 * @see #createCipher(String)
@@ -1021,7 +1021,7 @@ public final class CryptoRegistry
 	 * "ECB" and "NoPadding" are equivalent to an empty <code>String</code>.
 	 * </p>
 	 * <p>
-	 * See <a href="http://cumulus4j.org/1.0.0/documentation/supported-algorithms.html">Supported algorithms</a>
+	 * See <a target="_blank" href="http://cumulus4j.org/1.0.0/documentation/supported-algorithms.html">Supported algorithms</a>
 	 * for a list of supported algorithms or use {@link #getSupportedCipherTransformations(CipherEngineType)}
 	 * to query them. Additionally, you can use {@link #getSupportedCipherEngines(CipherEngineType)},
 	 * {@link #getSupportedCipherModes(String)} and {@link #getSupportedCipherPaddings(String, String)}
@@ -1114,7 +1114,7 @@ public final class CryptoRegistry
 	 * @param algorithmName the encryption algorithm for which the generated keys will be used.
 	 * This is the first element of a transformation, i.e.
 	 * you can pass a <code>transformation</code> to {@link #splitTransformation(String)} and use element 0 of its result.
-	 * See <a href="http://cumulus4j.org/1.0.0/documentation/supported-algorithms.html">Supported algorithms</a>
+	 * See <a target="_blank" href="http://cumulus4j.org/1.0.0/documentation/supported-algorithms.html">Supported algorithms</a>
 	 * for a list of supported algorithms.
 	 * @param initWithDefaults whether to initialise the secret key generator with default values.
 	 * @return an instance of {@link SecretKeyGenerator}. If <code>initWithDefaults == true</code>, it can directly
@@ -1149,7 +1149,7 @@ public final class CryptoRegistry
 	 *
 	 * @param algorithmName the name of the <b>asymmetric</b> encryption algorithm. This is the first element of a transformation, i.e.
 	 * you can pass a <code>transformation</code> to {@link #splitTransformation(String)} and use element 0 of its result.
-	 * See <a href="http://cumulus4j.org/1.0.0/documentation/supported-algorithms.html">Supported algorithms</a>
+	 * See <a target="_blank" href="http://cumulus4j.org/1.0.0/documentation/supported-algorithms.html">Supported algorithms</a>
 	 * for a list of supported algorithms.
 	 * @param initWithDefaults whether to initialise the key pair generator with default values.
 	 * @return an instance of {@link AsymmetricCipherKeyPairGenerator}. If <code>initWithDefaults == true</code>, it can directly
@@ -1357,10 +1357,10 @@ public final class CryptoRegistry
 
 	/**
 	 * <p>
-	 * Create a <a href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a> calculator.
+	 * Create a <a target="_blank" href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a> calculator.
 	 * </p>
 	 *
-	 * @param algorithmName the name of the MAC algorithm. See <a href="http://cumulus4j.org/1.0.0/documentation/supported-algorithms.html">Supported algorithms</a>
+	 * @param algorithmName the name of the MAC algorithm. See <a target="_blank" href="http://cumulus4j.org/1.0.0/documentation/supported-algorithms.html">Supported algorithms</a>
 	 * for a list of supported algorithms or use {@link #getSupportedMACAlgorithms()} to query them.
 	 * @param initWithDefaults whether to
 	 * {@link MACCalculator#init(org.bouncycastle.crypto.CipherParameters) initialise} the <code>MACCalculator</code> with default values
@@ -1385,7 +1385,7 @@ public final class CryptoRegistry
 	}
 
 	/**
-	 * Get all supported <a href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a> algorithms.
+	 * Get all supported <a target="_blank" href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a> algorithms.
 	 * {@link #createMACCalculator(String, boolean)} should be able to return a {@link MACCalculator} for each of them.
 	 * @return all supported MAC algorithms.
 	 * @see #createMACCalculator(String, boolean)

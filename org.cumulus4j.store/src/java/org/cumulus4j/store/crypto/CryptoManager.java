@@ -74,7 +74,7 @@ public interface CryptoManager
 	 * to specify "cumulus4j.encryptionAlgorithm=AES/CFB/NoPadding" in the persistence-unit/persistence-properties-file.
 	 * </p>
 	 * <p>
-	 * See <a href="http://cumulus4j.org/1.0.0/documentation/supported-algorithms.html">this document</a>
+	 * See <a target="_blank" href="http://cumulus4j.org/1.0.0/documentation/supported-algorithms.html">this document</a>
 	 * for further information about what values are supported.
 	 * </p>
 	 * <p>
@@ -98,7 +98,7 @@ public interface CryptoManager
 
 	/**
 	 * <p>
-	 * Property to control the <a href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a>
+	 * Property to control the <a target="_blank" href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a>
 	 * algorithm that is used to protect the data within the key-store against manipulation.
 	 * </p>
 	 * <p>
@@ -115,7 +115,7 @@ public interface CryptoManager
 	 * operations, only.
 	 * </p>
 	 * <p>
-	 * Some block cipher modes (e.g. <a href="http://en.wikipedia.org/wiki/Galois/Counter_Mode">GCM</a>) already include authentication
+	 * Some block cipher modes (e.g. <a target="_blank" href="http://en.wikipedia.org/wiki/Galois/Counter_Mode">GCM</a>) already include authentication
 	 * and therefore no MAC is necessary. In this case, you can specify the MAC algorithm {@value #MAC_ALGORITHM_NONE}.
 	 * </p>
 	 * <p>
@@ -138,12 +138,12 @@ public interface CryptoManager
 
 	/**
 	 * <p>
-	 * Constant for deactivating the <a href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a>.
+	 * Constant for deactivating the <a target="_blank" href="http://en.wikipedia.org/wiki/Message_authentication_code">MAC</a>.
 	 * </p>
 	 * <p>
 	 * <b>Important: Deactivating the MAC is dangerous!</b> Choose this value only, if you are absolutely
 	 * sure that your {@link #PROPERTY_ENCRYPTION_ALGORITHM encryption algorithm} already
-	 * provides authentication - like <a href="http://en.wikipedia.org/wiki/Galois/Counter_Mode">GCM</a>
+	 * provides authentication - like <a target="_blank" href="http://en.wikipedia.org/wiki/Galois/Counter_Mode">GCM</a>
 	 * does for example.
 	 * </p>
 	 * @see #PROPERTY_MAC_ALGORITHM

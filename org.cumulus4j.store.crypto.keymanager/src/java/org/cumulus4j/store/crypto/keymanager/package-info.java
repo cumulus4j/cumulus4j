@@ -18,7 +18,7 @@
 /**
  * <p>
  * Implementation of {@link org.cumulus4j.store.crypto.CryptoManager CryptoManager} working with a
- * key-manager as shown in <a href="http://cumulus4j.org/1.0.0/documentation/deployment-scenarios.html">Deployment scenarios</a>.
+ * key-manager as shown in <a target="_blank" href="http://cumulus4j.org/1.0.0/documentation/deployment-scenarios.html">Deployment scenarios</a>.
  * </p>
  */
 package org.cumulus4j.store.crypto.keymanager;

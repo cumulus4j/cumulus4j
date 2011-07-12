@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Key management strategy determining the currently active encryption key by the current time.
  * </p><p>
- * See <a href="../../../documentation/date-dependent-key-strategy.html">Date-dependent key-strategy</a> for further
+ * See <a target="_blank" href="../../../documentation/date-dependent-key-strategy.html">Date-dependent key-strategy</a> for further
  * details.
  * </p>
  *

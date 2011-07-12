@@ -143,29 +143,29 @@ public interface CryptoSession
 
 	/**
 	 * <p>
-	 * Encrypt the given <a href="http://en.wikipedia.org/wiki/Plaintext">plaintext</a>.
+	 * Encrypt the given <a target="_blank" href="http://en.wikipedia.org/wiki/Plaintext">plaintext</a>.
 	 * </p>
 	 * <p>
 	 * This method is thread-safe. Thus, implementors should keep in mind that {@link Cipher} is not thread-safe!
 	 * </p>
 	 * @param cryptoContext context used to encrypt or decrypt data.
-	 * @param plaintext the unencrypted information (aka <a href="http://en.wikipedia.org/wiki/Plaintext">plaintext</a>) to be encrypted.
+	 * @param plaintext the unencrypted information (aka <a target="_blank" href="http://en.wikipedia.org/wiki/Plaintext">plaintext</a>) to be encrypted.
 	 *
-	 * @return the encrypted information (aka <a href="http://en.wikipedia.org/wiki/Ciphertext">ciphertext</a>).
+	 * @return the encrypted information (aka <a target="_blank" href="http://en.wikipedia.org/wiki/Ciphertext">ciphertext</a>).
 	 */
 	Ciphertext encrypt(CryptoContext cryptoContext, Plaintext plaintext);
 
 	/**
 	 * <p>
-	 * Decrypt the given <a href="http://en.wikipedia.org/wiki/Ciphertext">ciphertext</a>.
+	 * Decrypt the given <a target="_blank" href="http://en.wikipedia.org/wiki/Ciphertext">ciphertext</a>.
 	 * </p>
 	 * <p>
 	 * This method is thread-safe. Thus, implementors should keep in mind that {@link Cipher} is not thread-safe!
 	 * </p>
 	 * @param cryptoContext context used to encrypt or decrypt data.
-	 * @param ciphertext the encrypted information (aka <a href="http://en.wikipedia.org/wiki/Ciphertext">ciphertext</a>) to be decrypted.
+	 * @param ciphertext the encrypted information (aka <a target="_blank" href="http://en.wikipedia.org/wiki/Ciphertext">ciphertext</a>) to be decrypted.
 	 *
-	 * @return the unencrypted information (aka <a href="http://en.wikipedia.org/wiki/Plaintext">plaintext</a>).
+	 * @return the unencrypted information (aka <a target="_blank" href="http://en.wikipedia.org/wiki/Plaintext">plaintext</a>).
 	 */
 	Plaintext decrypt(CryptoContext cryptoContext, Ciphertext ciphertext);
 

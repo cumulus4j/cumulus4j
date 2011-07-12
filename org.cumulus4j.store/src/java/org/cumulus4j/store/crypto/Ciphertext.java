@@ -18,7 +18,7 @@
 package org.cumulus4j.store.crypto;
 
 /**
- * Object representing encrypted information (aka <a href="http://en.wikipedia.org/wiki/Ciphertext">ciphertext</a>).
+ * Object representing encrypted information (aka <a target="_blank" href="http://en.wikipedia.org/wiki/Ciphertext">ciphertext</a>).
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */

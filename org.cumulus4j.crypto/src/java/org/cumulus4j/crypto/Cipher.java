@@ -66,11 +66,11 @@ public interface Cipher
 	 * A cipher cannot be used, before this method was called.
 	 * </p><p>
 	 * A cipher can be re-initialised to modify only certain parameters (and keep the others). For example to modify
-	 * the <a href="http://en.wikipedia.org/wiki/Initialisation_vector">IV</a> while keeping the key, a cipher can
+	 * the <a target="_blank" href="http://en.wikipedia.org/wiki/Initialisation_vector">IV</a> while keeping the key, a cipher can
 	 * be re-initialised with an IV only (i.e. <code>null</code> is passed to
 	 * {@link ParametersWithIV#ParametersWithIV(CipherParameters, byte[], int, int)} instead of a {@link KeyParameter}).
 	 * This is useful for performance reasons, because modifying an IV is a very fast operation while changing the key is
-	 * slow (especially <a href="http://en.wikipedia.org/wiki/Blowfish_%28cipher%29">Blowfish</a> is known for its very
+	 * slow (especially <a target="_blank" href="http://en.wikipedia.org/wiki/Blowfish_%28cipher%29">Blowfish</a> is known for its very
 	 * slow key initialisation).
 	 * </p>
 	 *
