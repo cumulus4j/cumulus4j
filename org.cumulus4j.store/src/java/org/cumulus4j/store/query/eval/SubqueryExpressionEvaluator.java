@@ -22,9 +22,20 @@ import java.util.Set;
 import org.cumulus4j.store.query.QueryEvaluator;
 import org.datanucleus.query.expression.SubqueryExpression;
 
+/**
+ * Evaluator handling a <a href="http://www.datanucleus.org/products/accessplatform_3_0/jdo/jdoql_subquery.html">sub-query</a>.
+ * @author Andy Jefferson
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de (only added javadoc)
+ */
 public class SubqueryExpressionEvaluator
 extends AbstractExpressionEvaluator<SubqueryExpression>
 {
+	/**
+	 * Create an instance.
+	 * @param queryEvaluator the evaluator responsible for the evaluation of the whole query.
+	 * @param parent the parent in the tree structure or <code>null</code>, if this is the root.
+	 * @param expression the expression to evaluate.
+	 */
 	public SubqueryExpressionEvaluator(QueryEvaluator queryEvaluator, AbstractExpressionEvaluator<?> parent, SubqueryExpression expression)
 	{
 		super(queryEvaluator, parent, expression);
