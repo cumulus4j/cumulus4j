@@ -8,7 +8,7 @@
 Module org.cumulus4j.integrationtest.withkeyserver
 
 	This is an integration test launching a second Jetty servlet container
-	(additionally to the one started by {{{/org.cumulus4j.integrationtest.webapp/index.html}org.cumulus4j.integrationtest.webapp}}
+	(additionally to the one started by {{{../org.cumulus4j.integrationtest.webapp/index.html}org.cumulus4j.integrationtest.webapp}}
 	as key server. It is used to test the cooperation of all parts in a complete simulation
 	of app server (provided by <<<org.cumulus4j.integrationtest.webapp>>>),
 	key server (set up by this project) and client (test classes in /src/test of this
