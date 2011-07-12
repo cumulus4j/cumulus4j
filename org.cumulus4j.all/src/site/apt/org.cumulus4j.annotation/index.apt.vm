@@ -10,6 +10,8 @@ Module org.cumulus4j.annotation
 	Annotations which can be used in the data model classes additionally to the JDO/JPA annotations
 	in order to control the behaviour of Cumulus4j.
 
+	See {{{../documentation/persistence-mapping.html}Persistence mapping}} for further details.
+
 * Maven
 
 	After adding the repositories documented on the {{{../download/index.html}Download}} page

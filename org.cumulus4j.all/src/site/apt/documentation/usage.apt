@@ -3,36 +3,19 @@
 	---
 	Marco หงุ่ยตระกูล-Schulze
 	---
-	2011-04-07
+	2011-07-12
 
 Usage
 
-* Persistence Mapping
+* Persistence mapping
 
-	You define the persistence mapping for your model classes in the normal way for JDO/JPA, using annotations or XML.
-	For details about this, please consult DataNucleus' documentation
-	about {{{http://www.datanucleus.org/products/accessplatform_3_0/jdo/mapping.html}JDO Mapping}}
-	or {{{http://www.datanucleus.org/products/accessplatform_3_0/jpa/mapping.html}JPA Mapping}}.
-	All standard annotations/XML applies here, with no exceptions.
+	You define the persistence mapping for your model classes in the normal way for JDO/JPA, using annotations or XML
+	(as described in DataNucleus' documentation in
+	{{{http://www.datanucleus.org/products/accessplatform_3_0/jdo/mapping.html}JDO Mapping}}
+	or {{{http://www.datanucleus.org/products/accessplatform_3_0/jpa/mapping.html}JPA Mapping}}).
 
-	One difference between normal JDO/JPA persistence and Cumulus4j persistence is that if you want to query
-	a field of one of your model classes in the datastore then it needs "indexing". This is not indexing in the 
-	relational database	sense, but instead indexing of the encrypted field value so that it doesn't need loading into 
-	memory to determine if it passes a particular query constraint. By default all persistent fields are "indexed". 
-	Obviously this has an impact on performance, so you can specify particular fields to be not indexed. 
-	You do this as follows:
-
-	[[1]] JDO: Standard Annotations
-	
-	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
-	
-	[[2]] JDO/JPA: Cumulus4j Annotations
-	
-	@NotQueryable
-	
-	[[3]] JPA: DataNucleus Annotations
-	
-	@Extension(key="cumulus4j-queryable", value="false") 
+	Besides the standard annotations and XML, Cumulus4j provides some additional mapping features.
+	{{{./persistence-mapping.html}Read more about the Persistence mapping here.}}
 
 * Persistence API
 
@@ -40,9 +23,9 @@ Usage
 	utilising Cumulus4j to encrypt their data. Above you defined the mapping of your classes, and now you choose the 
 	API you prefer to handle the persistence process.
 
-	{{{./persistence-api.html}Read more about the Persistence API.}}
+	{{{./persistence-api.html}Read more about the Persistence API here.}}
 
-* Datastore Schema
+* Datastore schema
 
 	Cumulus4j has its own datastore schema in order to provide secure data. You can find documentation of
 	the current schema definition {{{./schema.html}here}}.

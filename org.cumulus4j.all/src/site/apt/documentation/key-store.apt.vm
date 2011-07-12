@@ -42,17 +42,44 @@ Key store
 
 * Key size
 
-	By default, keys have a length of 256 bit.
+	By default, keys have a length of 256 bit. But it is possible to specify a different key length (needs to be
+	specified during initialisation!).
 
 	Important: The key store determines, which key size is used to encrypt your database!
 
-* Date-dependent key strategy
+* Date-dependent key-strategy
 
 	Keys are rotated from time to time. By default, one key is valid for one day, but you can choose otherwise
 	if you want to.
 	
-	TODO document this!
+	See {{{./date-dependent-key-strategy.html}Date-dependent key-strategy}} for further details.
 
 * Initialisation
 
-	TODO document CLI!
+	Before you can use a key-store, you have to initialise it. Initialisation comprises creation of at least one user
+	and all keys. Currently, the only strategy supported is the 'Date-dependent key-strategy', hence the initialisation
+	works via this strategy.
+	
+	The easiest way to perform an initialisation is the CLI (command line interface). You need to download
+	<<<org.cumulus4j.keymanager.cli-${project.version}.jar>>> and then use the
+	<<<initDateDependentKeyStrategy>>> sub-command like this:
+	
++----------------------------------+
+java -jar org.cumulus4j.keymanager.cli-1.0.0-SNAPSHOT.jar initDateDependentKeyStrategy -keyStoreID MY-KEY-STORE -userName USER1
++----------------------------------+
+	
+	There are quite a few options available and you might want to use the following command to learn more about this command: 
+	
++----------------------------------+
+java -jar org.cumulus4j.keymanager.cli-${project.version}.jar help initDateDependentKeyStrategy
++----------------------------------+
+
+* Module
+
+	The following modules are related to the key-store and you might want to continue reading these documents:
+
+	{{{../org.cumulus4j.keystore/}org.cumulus4j.keystore}} - the actual key-store.
+	
+	{{{../org.cumulus4j.keymanager.api/}org.cumulus4j.keymanager.api}} - API to access a key-store (locally or on a remote key-server).
+	
+	{{{../org.cumulus4j.keymanager.cli/}org.cumulus4j.keymanager.cli}} - Command line interface to work with a key-store (locally or on a remote key-server).
