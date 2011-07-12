@@ -7,5 +7,5 @@
 
 Module org.cumulus4j.store.test.jpa
 
-	Tests for {{{/org.cumulus4j.store/index.html}org.cumulus4j.store}} testing persist- and query-functionality
+	Tests for {{{../org.cumulus4j.store/}org.cumulus4j.store}} testing persist- and query-functionality
 	without key management. The tests in this project use the JPA API.
