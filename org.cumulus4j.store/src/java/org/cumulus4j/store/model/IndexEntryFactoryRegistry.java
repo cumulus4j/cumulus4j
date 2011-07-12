@@ -18,6 +18,7 @@
 package org.cumulus4j.store.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -36,6 +37,14 @@ import org.datanucleus.store.exceptions.UnsupportedDataTypeException;
 import org.datanucleus.util.StringUtils;
 
 /**
+ * <p>
+ * Registry responsible for the extension-point <code>org.cumulus4j.store.index_mapping</code>.
+ * </p><p>
+ * This registry maps an {@link IndexEntryFactory} to a java-type or a combination of java-,
+ * jdbc- and sql-type.
+ * </p><p>
+ * There is one instance of <code>IndexEntryFactoryRegistry</code> per {@link Cumulus4jStoreManager}.
+ * </p>
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class IndexEntryFactoryRegistry
@@ -51,12 +60,12 @@ public class IndexEntryFactoryRegistry
 	private IndexEntryFactory indexEntryFactoryContainerSize = new DefaultIndexEntryFactory(IndexEntryContainerSize.class);
 
 	class IndexMapping {
-		Class javaType;
+		Class<?> javaType;
 		String jdbcTypes;
 		String sqlTypes;
 		IndexEntryFactory factory;
 
-		public boolean matches(Class type, String jdbcType, String sqlType) {
+		public boolean matches(Class<?> type, String jdbcType, String sqlType) {
 			if (javaType.isAssignableFrom(type)) {
 				if (jdbcTypes != null) {
 					if (jdbcType == null) {
@@ -82,8 +91,12 @@ public class IndexEntryFactoryRegistry
 		}
 	}
 
-	public IndexEntryFactoryRegistry(Cumulus4jStoreManager storeMgr) {
-
+	/**
+	 * Create a new registry instance.
+	 * @param storeMgr the owning store-manager.
+	 */
+	public IndexEntryFactoryRegistry(Cumulus4jStoreManager storeMgr)
+	{
 		// Load up plugin information
 		ClassLoaderResolver clr = storeMgr.getNucleusContext().getClassLoaderResolver(storeMgr.getClass().getClassLoader());
 		PluginManager pluginMgr = storeMgr.getNucleusContext().getPluginManager();
@@ -103,7 +116,10 @@ public class IndexEntryFactoryRegistry
 				}
 				else {
 					// Create a new factory of this type and cache it
-					Class idxEntryClass = pluginMgr.loadClass(elems[i].getExtension().getPlugin().getSymbolicName(), indexTypeName);
+					@SuppressWarnings("unchecked")
+					Class<? extends IndexEntry> idxEntryClass = pluginMgr.loadClass(
+							elems[i].getExtension().getPlugin().getSymbolicName(), indexTypeName
+					);
 					IndexEntryFactory factory = new DefaultIndexEntryFactory(idxEntryClass);
 					factoryByEntryType.put(indexTypeName, factory);
 					mapping.factory = factory;
@@ -240,6 +256,12 @@ public class IndexEntryFactoryRegistry
 		return javaTypeName + ":" + (jdbcTypeName != null ? jdbcTypeName : "") + ":" + (sqlTypeName != null ? sqlTypeName : "");
 	}
 
+	/**
+	 * Get the special {@link IndexEntryFactory} used for container-sizes. This special index
+	 * allows using {@link Collection#isEmpty()}, {@link Collection#size()} and the like in JDOQL
+	 * (or "SIZE(...)" and the like in JPQL).
+	 * @return the special {@link IndexEntryFactory} used for container-sizes.
+	 */
 	public IndexEntryFactory getIndexEntryFactoryForContainerSize() {
 		return indexEntryFactoryContainerSize;
 	}
