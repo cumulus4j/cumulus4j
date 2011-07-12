@@ -62,7 +62,7 @@ public class DateDependentKeyStrategy
 
 	/**
 	 * Get the {@link KeyStore} that was passed to {@link #DateDependentKeyStrategy(KeyStore)}.
-	 * @param keyStore the <code>KeyStore</code> to work with. Never <code>null</code>.
+	 * @return the <code>KeyStore</code> this strategy instance works with. Never <code>null</code>.
 	 */
 	public KeyStore getKeyStore() {
 		return keyStore;
@@ -200,11 +200,10 @@ public class DateDependentKeyStrategy
 	 * <p>
 	 * Get the details of the key which is / was / will be active at the given <code>timestamp</code>.
 	 * </p>
-	 *
 	 * @param authUserName the authenticated user authorizing this action.
 	 * @param authPassword the password for authenticating the user specified by <code>authUserName</code>.
-	 * @param timestamp
-	 * @return
+	 * @param timestamp the timestamp at which the active key should be determined. If <code>null</code>, NOW (<code>new Date()</code>) is assumed.
+	 * @return the active key at the given <code>timestamp</code>.
 	 * @throws AuthenticationException if the specified <code>authUserName</code> does not exist or the specified <code>authPassword</code>
 	 * is not correct for the given <code>authUserName</code>.
 	 */
