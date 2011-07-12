@@ -159,8 +159,8 @@ public final class KeyEncryptionUtil
 	 * @throws CryptoException if decryption failed.
 	 * @throws IOException if data cannot be read or is corrupted - e.g. if MAC verification failed.
 	 * @throws NoSuchAlgorithmException if the {@link CryptoRegistry} does not know the (MAC) algorithm.
-	 * @see {@link #encryptKey(byte[], Cipher)}
-	 * @see {@link #encryptKey(byte[], String, byte[])}
+	 * @see #encryptKey(byte[], Cipher)
+	 * @see #encryptKey(byte[], String, byte[])
 	 */
 	public static byte[] decryptKey(Cipher decrypter, byte[] keyEncodedEncrypted) throws CryptoException, IOException, NoSuchAlgorithmException
 	{
