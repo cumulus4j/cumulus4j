@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * a second backend StoreManager for the persistence of index data to the chosen index datastore.
  * The user will persist objects of their own classes, and these will be translated into the persistence of
  * DataEntry, ClassMeta, FieldMeta for the data, as well as various IndexXXX types.
- * 
+ *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class Cumulus4jStoreManager extends AbstractStoreManager implements SchemaAwareStoreManager
@@ -143,9 +143,9 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 				pm.getFetchPlan().setMaxFetchDepth(-1);
 				result = pm.detachCopy(result);
 
-				PersistenceManager pmIndex = pmConn.getIndexPM();
-				if (pmIndex != null) {
+				if (pmConn.indexHasOwnPM()) {
 					// Replicate ClassMeta+FieldMeta to Index datastore
+					PersistenceManager pmIndex = pmConn.getIndexPM();
 					pmIndex.getFetchPlan().setGroup(FetchPlan.ALL);
 					pmIndex.getFetchPlan().setMaxFetchDepth(-1);
 					pmIndex.makePersistent(result);

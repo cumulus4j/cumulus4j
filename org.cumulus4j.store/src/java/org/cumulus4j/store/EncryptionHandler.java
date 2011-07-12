@@ -72,8 +72,9 @@ public class EncryptionHandler
 	 * Get a plain (unencrypted) {@link ObjectContainer} from the encrypted byte-array in
 	 * the {@link DataEntry#getValue() DataEntry.value} property.
 	 * @param cryptoContext the context.
-	 * @param dataEntry the {@link DataEntry} holding the encrypted data.
-	 * @return the plain {@link ObjectContainer}
+	 * @param dataEntry the {@link DataEntry} holding the encrypted data (read from).
+	 * @return the plain {@link ObjectContainer}.
+	 * @see #encryptDataEntry(CryptoContext, DataEntry, ObjectContainer)
 	 */
 	public ObjectContainer decryptDataEntry(CryptoContext cryptoContext, DataEntry dataEntry)
 	{
@@ -103,6 +104,14 @@ public class EncryptionHandler
 		return objectContainer;
 	}
 
+	/**
+	 * Encrypt the given plain <code>objectContainer</code> and store the cipher-text into the given
+	 * <code>dataEntry</code>.
+	 * @param cryptoContext the context.
+	 * @param dataEntry the {@link DataEntry} that should be holding the encrypted data (written into).
+	 * @param objectContainer the plain {@link ObjectContainer} (read from).
+	 * @see #decryptDataEntry(CryptoContext, DataEntry)
+	 */
 	public void encryptDataEntry(CryptoContext cryptoContext, DataEntry dataEntry, ObjectContainer objectContainer)
 	{
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -130,6 +139,13 @@ public class EncryptionHandler
 		dataEntry.setValue(ciphertext.getData());
 	}
 
+	/**
+	 * Get a plain (unencrypted) {@link IndexValue} from the encrypted byte-array in
+	 * the {@link IndexEntry#getIndexValue() IndexEntry.indexValue} property.
+	 * @param cryptoContext the context.
+	 * @param indexEntry the {@link IndexEntry} holding the encrypted data (read from).
+	 * @return the plain {@link IndexValue}.
+	 */
 	public IndexValue decryptIndexEntry(CryptoContext cryptoContext, IndexEntry indexEntry)
 	{
 		Ciphertext ciphertext = new Ciphertext();
@@ -148,6 +164,13 @@ public class EncryptionHandler
 		return indexValue;
 	}
 
+	/**
+	 * Encrypt the given plain <code>indexValue</code> and store the cipher-text into the given
+	 * <code>indexEntry</code>.
+	 * @param cryptoContext the context.
+	 * @param indexEntry the {@link IndexEntry} that should be holding the encrypted data (written into).
+	 * @param indexValue the plain {@link IndexValue} (read from).
+	 */
 	public void encryptIndexEntry(CryptoContext cryptoContext, IndexEntry indexEntry, IndexValue indexValue)
 	{
 		Plaintext plaintext = new Plaintext();

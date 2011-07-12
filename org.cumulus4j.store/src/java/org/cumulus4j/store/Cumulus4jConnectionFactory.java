@@ -265,9 +265,9 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 		public void close() {
 			if (pmConnection != null) {
 				PersistenceManager dataPM = pmConnection.getDataPM();
-				PersistenceManager indexPM = pmConnection.getIndexPM();
 				dataPM.close();
 				if (pmConnection.indexHasOwnPM()) {
+					PersistenceManager indexPM = pmConnection.getIndexPM();
 					indexPM.close();
 				}
 				pmConnection = null;
@@ -298,9 +298,9 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 			//        		throw new IllegalStateException("Transaction already started! Cannot start twice!");
 
 			PersistenceManager dataPM = pmConnection.getDataPM();
-			PersistenceManager indexPM = pmConnection.getIndexPM();
 			dataPM.currentTransaction().begin();
 			if (pmConnection.indexHasOwnPM()) {
+				PersistenceManager indexPM = pmConnection.getIndexPM();
 				indexPM.currentTransaction().begin();
 			}
 			//        	this.xid = xid;
@@ -315,9 +315,9 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 			//        		throw new IllegalStateException("Transaction mismatch! this.xid=" + this.xid + " otherXid=" + xid);
 
 			PersistenceManager dataPM = pmConnection.getDataPM();
-			PersistenceManager indexPM = pmConnection.getIndexPM();
 			dataPM.currentTransaction().commit();
 			if (pmConnection.indexHasOwnPM()) {
+				PersistenceManager indexPM = pmConnection.getIndexPM();
 				indexPM.currentTransaction().commit();
 			}
 
@@ -333,9 +333,9 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 			//        		throw new IllegalStateException("Transaction mismatch! this.xid=" + this.xid + " otherXid=" + xid);
 
 			PersistenceManager dataPM = pmConnection.getDataPM();
-			PersistenceManager indexPM = pmConnection.getIndexPM();
 			dataPM.currentTransaction().rollback();
 			if (pmConnection.indexHasOwnPM()) {
+				PersistenceManager indexPM = pmConnection.getIndexPM();
 				indexPM.currentTransaction().rollback();
 			}
 
