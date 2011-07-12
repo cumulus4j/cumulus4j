@@ -509,7 +509,7 @@
 					<version>2.7</version>
 					<configuration>
 						<detectLinks>true</detectLinks>
-						<doctitle><![CDATA[<b><a href="http://www.cumulus4j.org/${project.version}/">Cumulus4j</a> API</b><br/>(${project.version})]]></doctitle>
+						<doctitle><![CDATA[<a href="http://www.cumulus4j.org/${project.version}/">Cumulus4j</a> API (version ${project.version})]]></doctitle>
             			<excludePackageNames>org.cumulus4j.store.test*:org.cumulus4j.integrationtest*</excludePackageNames>
 						<groups>
 							<group>
