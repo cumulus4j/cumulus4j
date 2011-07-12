@@ -37,6 +37,14 @@ import org.cumulus4j.store.Cumulus4jIncrementGenerator;
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 public class Sequence
 {
+	/**
+	 * Get the <code>Sequence</code> identified by the given <code>sequenceName</code>.
+	 * If no such <code>Sequence</code> exists, this method returns <code>null</code>.
+	 * @param pm the backend-<code>PersistenceManager</code> used to access the underlying datastore; must not be <code>null</code>.
+	 * @param sequenceName the name of the sequence; must not be <code>null</code>.
+	 * @return the <code>Sequence</code> identified by the given <code>sequenceName</code> or <code>null</code>, if no such
+	 * <code>Sequence</code> exists.
+	 */
 	public static Sequence getSequence(PersistenceManager pm, String sequenceName)
 	{
 		StringIdentity id = new StringIdentity(Sequence.class, sequenceName);
@@ -49,6 +57,13 @@ public class Sequence
 		return sequence;
 	}
 
+	/**
+	 * Get the <code>Sequence</code> identified by the given <code>sequenceName</code>.
+	 * If no such <code>Sequence</code> exists, this method creates &amp; persists one.
+	 * @param pm the backend-<code>PersistenceManager</code> used to access the underlying datastore; must not be <code>null</code>.
+	 * @param sequenceName the name of the sequence; must not be <code>null</code>.
+	 * @return the <code>Sequence</code> identified by the given <code>sequenceName</code>; never <code>null</code>.
+	 */
 	public static Sequence createSequence(PersistenceManager pm, String sequenceName)
 	{
 		Sequence sequence = getSequence(pm, sequenceName);
@@ -65,8 +80,15 @@ public class Sequence
 
 	private long nextValue = 1;
 
+	/**
+	 * Default constructor. Should never be used by actual code! It exists only to fulfill the JDO requirements.
+	 */
 	protected Sequence() { }
 
+	/**
+	 * Constructor creating a <code>Sequence</code> with the given primary key.
+	 * @param sequenceName the name of the sequence; must not be <code>null</code>.
+	 */
 	protected Sequence(String sequenceName)
 	{
 		if (sequenceName == null)
@@ -75,14 +97,26 @@ public class Sequence
 		this.sequenceName = sequenceName;
 	}
 
+	/**
+	 * Get the name of the sequence.
+	 * @return the name of the sequence.
+	 */
 	public String getSequenceName() {
 		return sequenceName;
 	}
 
+	/**
+	 * Get the next value (i.e. the first unused value) for this sequence.
+	 * @return the next value (i.e. the first unused value) for this sequence.
+	 */
 	public long getNextValue() {
 		return nextValue;
 	}
 
+	/**
+	 * Set the next value (i.e. the first unused value) for this sequence.
+	 * @param nextValue the next value (i.e. the first unused value) for this sequence.
+	 */
 	public void setNextValue(long nextValue) {
 		this.nextValue = nextValue;
 	}
