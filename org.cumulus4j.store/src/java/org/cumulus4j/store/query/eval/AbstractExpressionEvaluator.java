@@ -66,6 +66,13 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 
 	private Map<ResultDescriptor, List<Object>> resultDescriptor2resultObjects = new HashMap<ResultDescriptor, List<Object>>();
 
+	/**
+	 * Create an <code>AbstractExpressionEvaluator</code> instance.
+	 * @param queryEvaluator the evaluator responsible for evaluating the entire query. Must not be <code>null</code>.
+	 * @param parent the parent-node in the tree. The <code>AbstractExpressionEvaluator</code>s form a tree analogue to the
+	 * tree provided by DataNucleus. This <code>parent</code> is <code>null</code>, if it is the root of the tree.
+	 * @param expression the expression that is to be evaluated by this <code>AbstractExpressionEvaluator</code> instance.
+	 */
 	public AbstractExpressionEvaluator(QueryEvaluator queryEvaluator, AbstractExpressionEvaluator<?> parent, X expression)
 	{
 		if (queryEvaluator == null)
@@ -80,14 +87,27 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 		this.expression = expression;
 	}
 
+	/**
+	 * Get the evaluator responsible for evaluating the entire query.
+	 * @return the evaluator responsible for evaluating the entire query.
+	 */
 	public QueryEvaluator getQueryEvaluator() {
 		return queryEvaluator;
 	}
 
+	/**
+	 * Get the parent-node in the tree. The <code>AbstractExpressionEvaluator</code>s form a tree analogue to the
+	 * tree provided by DataNucleus. This <code>parent</code> is <code>null</code>, if it is the root of the tree.
+	 * @return the parent-node in the tree or <code>null</code>, if this is the root.
+	 */
 	public AbstractExpressionEvaluator<?> getParent() {
 		return parent;
 	}
 
+	/**
+	 * Get the expression that is to be evaluated by this <code>AbstractExpressionEvaluator</code>.
+	 * @return the expression that is to be evaluated by this <code>AbstractExpressionEvaluator</code>.
+	 */
 	public X getExpression() {
 		return expression;
 	}
@@ -96,9 +116,20 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 
 	private AbstractExpressionEvaluator<? extends Expression> right;
 
+	/**
+	 * Get the left branch in the tree structure.
+	 * @return the left branch in the tree structure or <code>null</code> if there is none.
+	 * @see #setLeft(AbstractExpressionEvaluator)
+	 * @see #getRight()
+	 */
 	public AbstractExpressionEvaluator<? extends Expression> getLeft() {
 		return left;
 	}
+	/**
+	 * Set the left branch in the tree structure.
+	 * @param left the left branch in the tree structure or <code>null</code> if there is none.
+	 * @see #getLeft()
+	 */
 	public void setLeft(AbstractExpressionEvaluator<? extends Expression> left)
 	{
 		if (left != null && !this.equals(left.getParent()))
@@ -107,9 +138,20 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 		this.left = left;
 	}
 
+	/**
+	 * Get the right branch in the tree structure.
+	 * @return the right branch in the tree structure or <code>null</code> if there is none.
+	 * @see #setRight(AbstractExpressionEvaluator)
+	 * @see #getLeft()
+	 */
 	public AbstractExpressionEvaluator<? extends Expression> getRight() {
 		return right;
 	}
+	/**
+	 * Set the right branch in the tree structure.
+	 * @param right the right branch in the tree structure or <code>null</code> if there is none.
+	 * @see #getRight()
+	 */
 	public void setRight(AbstractExpressionEvaluator<? extends Expression> right)
 	{
 		if (right != null && !this.equals(right.getParent()))
@@ -339,7 +381,7 @@ public abstract class AbstractExpressionEvaluator<X extends Expression>
 	 * is not supported ({@link ResultDescriptor#getSymbol()} should be consistent with the implementation of
 	 * {@link #_getResultSymbols()}).
 	 * @throws UnsupportedOperationException
-	 * @see {@link #queryResultObjects(ResultDescriptor)}
+	 * @see #queryResultObjects(ResultDescriptor)
 	 */
 	protected List<Object> _queryResultObjects(ResultDescriptor resultDescriptor)
 	throws UnsupportedOperationException
