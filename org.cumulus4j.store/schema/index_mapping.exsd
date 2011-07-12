@@ -73,13 +73,23 @@
                </documentation>
             </annotation>
          </attribute>
-         <attribute name="index-entry-type" type="string" use="required">
+         <attribute name="index-entry-type" type="string">
             <annotation>
                <documentation>
-                  
+                  The type of IndexEntry that should be managed. Must be null (or empty), if an index-entry-factory-type is specified.
                </documentation>
                <appinfo>
                   <meta.attribute kind="java" basedOn="org.cumulus4j.store.model.IndexEntry:"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="index-entry-factory-type" type="string">
+            <annotation>
+               <documentation>
+                  Usually, you defined index-entry-type instead (and leave this empty or null). But if you want to specify a custom factory, you can specify it here and leave index-entry-type undefined.
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn="org.cumulus4j.store.model.IndexEntryFactory:"/>
                </appinfo>
             </annotation>
          </attribute>

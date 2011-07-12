@@ -23,7 +23,17 @@ import java.util.Map;
 import javax.jdo.PersistenceManager;
 
 /**
+ * <p>
  * Factory for creating (or looking up) specific {@link IndexEntry} implementations.
+ * </p><p>
+ * It is optional to implement a specific factory. For most use cases, it is sufficient to
+ * use the {@link DefaultIndexEntryFactory} (which is used, if the extension specifies the
+ * attribute <code>index-entry-type</code>), but you can alternatively specify a custom
+ * factory via the extension-attribute <code>index-entry-factory-type</code>.
+ * </p><p>
+ * If you specify a custom
+ * factory, you must omit (or leave empty) the <code>index-entry-type</code>!
+ * </p>
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public abstract class IndexEntryFactory

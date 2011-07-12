@@ -110,19 +110,54 @@ public class IndexEntryFactoryRegistry
 				mapping.javaType = clr.classForName(typeName);
 
 				String indexTypeName = elems[i].getAttribute("index-entry-type");
-				if (factoryByEntryType.containsKey(indexTypeName)) {
-					// Reuse the existing factory of this type
-					mapping.factory = factoryByEntryType.get(indexTypeName);
+				if (indexTypeName != null)
+					indexTypeName = indexTypeName.trim();
+
+				if (indexTypeName != null && indexTypeName.isEmpty())
+					indexTypeName = null;
+
+				String indexFactoryTypeName = elems[i].getAttribute("index-entry-factory-type");
+				if (indexFactoryTypeName != null)
+					indexFactoryTypeName = indexFactoryTypeName.trim();
+
+				if (indexFactoryTypeName != null && indexFactoryTypeName.isEmpty())
+					indexFactoryTypeName = null;
+
+				if (indexFactoryTypeName != null && indexTypeName != null)
+					throw new IllegalStateException("Both, 'index-entry-factory-type' and 'index-entry-type' are specified, but only exactly one must be present! index-entry-factory-type=\"" + indexFactoryTypeName + "\" index-entry-type=\"" + indexTypeName + "\"");
+
+				if (indexFactoryTypeName == null && indexTypeName == null)
+					throw new IllegalStateException("Both, 'index-entry-factory-type' and 'index-entry-type' are missing, but exactly one must be present!");
+
+				if (indexFactoryTypeName != null) {
+					@SuppressWarnings("unchecked")
+					Class<? extends IndexEntryFactory> idxEntryFactoryClass = pluginMgr.loadClass(
+							elems[i].getExtension().getPlugin().getSymbolicName(), indexFactoryTypeName
+					);
+					try {
+						mapping.factory = idxEntryFactoryClass.newInstance();
+					} catch (InstantiationException e) {
+						throw new RuntimeException(e);
+					} catch (IllegalAccessException e) {
+						throw new RuntimeException(e);
+					}
+					indexTypeName = mapping.factory.getIndexEntryClass().getName();
 				}
 				else {
-					// Create a new factory of this type and cache it
-					@SuppressWarnings("unchecked")
-					Class<? extends IndexEntry> idxEntryClass = pluginMgr.loadClass(
-							elems[i].getExtension().getPlugin().getSymbolicName(), indexTypeName
-					);
-					IndexEntryFactory factory = new DefaultIndexEntryFactory(idxEntryClass);
-					factoryByEntryType.put(indexTypeName, factory);
-					mapping.factory = factory;
+					if (factoryByEntryType.containsKey(indexTypeName)) {
+						// Reuse the existing factory of this type
+						mapping.factory = factoryByEntryType.get(indexTypeName);
+					}
+					else {
+						// Create a new factory of this type and cache it
+						@SuppressWarnings("unchecked")
+						Class<? extends IndexEntry> idxEntryClass = pluginMgr.loadClass(
+								elems[i].getExtension().getPlugin().getSymbolicName(), indexTypeName
+						);
+						IndexEntryFactory factory = new DefaultIndexEntryFactory(idxEntryClass);
+						factoryByEntryType.put(indexTypeName, factory);
+						mapping.factory = factory;
+					}
 				}
 
 				String jdbcTypes = elems[i].getAttribute("jdbc-types");
