@@ -22,13 +22,22 @@ import java.util.Date;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.cumulus4j.crypto.CryptoRegistry;
 
+/**
+ * {@link CryptoCache}-entry wrapping a {@link AsymmetricCipherKeyPair key-pair} used for asymmetric en-/decryption of secret keys.
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class CryptoCacheKeyEncryptionKeyEntry
 {
 	private AsymmetricCipherKeyPair keyPair;
 
 	private Date expiry;
 
-	public CryptoCacheKeyEncryptionKeyEntry(AsymmetricCipherKeyPair keyPair, long keyEncryptionKeyActivePeriodMSec)
+	/**
+	 * Create an instance.
+	 * @param keyPair the key-pair used for en-/decrypting secret keys.
+	 * @param keyEncryptionKeyActivePeriodMSec the length (in milliseconds) how long the key-pair should be used.
+	 */
+	protected CryptoCacheKeyEncryptionKeyEntry(AsymmetricCipherKeyPair keyPair, long keyEncryptionKeyActivePeriodMSec)
 	{
 		if (keyPair == null)
 			throw new IllegalArgumentException("keyPair == null");
@@ -37,21 +46,40 @@ public class CryptoCacheKeyEncryptionKeyEntry
 		this.expiry = new Date(System.currentTimeMillis() + keyEncryptionKeyActivePeriodMSec);
 	}
 
+	/**
+	 * Get the timestamp after which the key-pair expires. This instance of <code>CryptoCacheKeyEncryptionKeyEntry</code>
+	 * should be evicted then.
+	 * @return the timestamp after which the key-pair expires; never <code>null</code>.
+	 */
 	public Date getExpiry() {
 		return expiry;
 	}
 
+	/**
+	 * Determine, if this entry is expired.
+	 * @return <code>true</code>, if the key-pair is expired and should not be used anymore; <code>false</code> otherwise.
+	 */
 	public boolean isExpired()
 	{
 		return new Date().after(expiry);
 	}
 
+	/**
+	 * Get the key-pair.
+	 * @return the key-pair; never <code>null</code>.
+	 */
 	public AsymmetricCipherKeyPair getKeyPair() {
 		return keyPair;
 	}
 
 	private byte[] encodedPublicKey;
 
+	/**
+	 * Get the encoded (serialised) public key. This can be sent to the remote key-manager where
+	 * {@link CryptoRegistry#decodePublicKey(byte[])} can be used to decode (deserialise) the byte array
+	 * again.
+	 * @return the encoded (serialised) public key.
+	 */
 	public byte[] getEncodedPublicKey()
 	{
 		if (encodedPublicKey == null)

@@ -21,11 +21,17 @@ import java.util.Arrays;
 import java.util.Date;
 
 /**
+ * {@link CryptoCache}-entry wrapping a secret key used for symmetric en-/decryption of actual data.
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-class CryptoCacheKeyEntry
+public class CryptoCacheKeyEntry
 {
-	public CryptoCacheKeyEntry(long keyID, byte[] keyData)
+	/**
+	 * Create a new instance.
+	 * @param keyID identifier of the key to be cached; must be &gt;= 0.
+	 * @param keyData actual key data (raw). Warning: This byte array will be overwritten with 0 by the {@link #finalize()} method!
+	 */
+	protected CryptoCacheKeyEntry(long keyID, byte[] keyData)
 	{
 		if (keyID < 0)
 			throw new IllegalArgumentException("keyID < 0");
@@ -43,13 +49,26 @@ class CryptoCacheKeyEntry
 
 	private Date lastUsageTimestamp = new Date();
 
+	/**
+	 * Get the identifier of the key being cached.
+	 * @return the identifier of the key being cached.
+	 */
 	public long getKeyID() {
 		return keyID;
 	}
+
+	/**
+	 * Get the actual raw key data.
+	 * @return the actual raw key data.
+	 */
 	public byte[] getKeyData() {
 		return keyData;
 	}
 
+	/**
+	 * Get the timestamp when the key was used the last time.
+	 * @return the timestamp when the key was used the last time.
+	 */
 	public Date getLastUsageTimestamp() {
 		return lastUsageTimestamp;
 	}

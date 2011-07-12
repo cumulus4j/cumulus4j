@@ -21,6 +21,10 @@ import java.util.Date;
 
 import org.cumulus4j.crypto.Cipher;
 
+/**
+ * {@link CryptoCache}-entry wrapping a {@link Cipher} used for secret-key-decryption.
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class CryptoCacheKeyDecrypterEntry
 {
 	private CryptoCacheKeyEncryptionKeyEntry keyEncryptionKey;
@@ -31,7 +35,13 @@ public class CryptoCacheKeyDecrypterEntry
 
 	private volatile Date lastUsageTimestamp = new Date();
 
-	public CryptoCacheKeyDecrypterEntry(CryptoCacheKeyEncryptionKeyEntry keyEncryptionKey, String keyEncryptionTransformation, Cipher keyDecryptor)
+	/**
+	 * Create a new instance.
+	 * @param keyEncryptionKey corresponding key-pair-entry.
+	 * @param keyEncryptionTransformation the (public-private-key-pair-)transformation used to encrypt the secret keys used for symmetric encryption/decryption of the actual data.
+	 * @param keyDecryptor the cipher.
+	 */
+	protected CryptoCacheKeyDecrypterEntry(CryptoCacheKeyEncryptionKeyEntry keyEncryptionKey, String keyEncryptionTransformation, Cipher keyDecryptor)
 	{
 		if (keyEncryptionKey == null)
 			throw new IllegalArgumentException("keyEncryptionKey == null");
@@ -51,18 +61,35 @@ public class CryptoCacheKeyDecrypterEntry
 		return keyEncryptionKey;
 	}
 
+	/**
+	 * Get the (public-private-key-pair-)transformation used to encrypt the secret keys used for symmetric en-/decryption
+	 * of the actual data.
+	 * @return the (public-private-key-pair-)transformation used to encrypt the secret keys used for symmetric en-/decryption
+	 * of the actual data.
+	 */
 	public String getKeyEncryptionTransformation() {
 		return keyEncryptionTransformation;
 	}
 
+	/**
+	 * Get the cipher.
+	 * @return the cipher.
+	 */
 	public Cipher getKeyDecryptor() {
 		return keyDecryptor;
 	}
 
+	/**
+	 * Get the timestamp when the cipher was used the last time.
+	 * @return the timestamp when the cipher was used the last time.
+	 */
 	public Date getLastUsageTimestamp() {
 		return lastUsageTimestamp;
 	}
 
+	/**
+	 * Update the {@link #getLastUsageTimestamp() lastUsageTimestamp} (set it to NOW).
+	 */
 	public void updateLastUsageTimestamp() {
 		this.lastUsageTimestamp = new Date();
 	}
