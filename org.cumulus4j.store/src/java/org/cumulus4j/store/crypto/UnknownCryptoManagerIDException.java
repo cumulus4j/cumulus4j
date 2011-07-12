@@ -17,16 +17,30 @@
  */
 package org.cumulus4j.store.crypto;
 
+/**
+ * Thrown by {@link CryptoManagerRegistry#getCryptoManager(String)}, if there is no {@link CryptoManager}
+ * registered for the given ID.
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public class UnknownCryptoManagerIDException extends IllegalArgumentException
 {
 	private static final long serialVersionUID = 1L;
 	private String cryptoManagerID;
 
+	/**
+	 * Create a new exception instance.
+	 * @param cryptoManagerID the ID for which there is no {@link CryptoManager} registered.
+	 */
 	public UnknownCryptoManagerIDException(String cryptoManagerID) {
 		super("There is no CryptoManager registered with cryptoManagerID=\"" + cryptoManagerID + "\"!");
 		this.cryptoManagerID = cryptoManagerID;
 	}
 
+	/**
+	 * Get the ID for which there is no {@link CryptoManager} registered.
+	 * @return the ID for which there is no {@link CryptoManager} registered. Might be <code>null</code>,
+	 * if there was no <code>cryptoManagerID</code> specified at all.
+	 */
 	public String getCryptoManagerID() {
 		return cryptoManagerID;
 	}
