@@ -23,10 +23,15 @@ import java.util.Map;
 import javax.jdo.PersistenceManager;
 
 /**
+ * Factory for creating (or looking up) specific {@link IndexEntry} implementations.
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public abstract class IndexEntryFactory
 {
+	/**
+	 * Get the concrete implementation class (sub-class) of {@link IndexEntry} managed by this factory.
+	 * @return the concrete implementation class of {@link IndexEntry} managed by this factory.
+	 */
 	public abstract Class<? extends IndexEntry> getIndexEntryClass();
 
 	/**
