@@ -509,6 +509,7 @@
 					<version>2.7</version>
 					<configuration>
 						<detectLinks>true</detectLinks>
+						<doctitle><![CDATA[<b><a href="http://www.cumulus4j.org/${project.version}/">Cumulus4j</a> API</b><br/>(${project.version})]]></doctitle>
             			<excludePackageNames>org.cumulus4j.store.test*:org.cumulus4j.integrationtest*</excludePackageNames>
 						<groups>
 							<group>
@@ -560,7 +561,7 @@
             					<packages>org.cumulus4j.store.crypto.keymanager:org.cumulus4j.store.crypto.keymanager.*</packages>
             				</group>
             			</groups>
-            			<header><![CDATA[<b>Cumulus4j API</b><br/>(${project.version})]]></header>
+            			<header><![CDATA[<b><a href="http://www.cumulus4j.org/${project.version}/">Cumulus4j</a> API</b><br/>(${project.version})]]></header>
             			<links>
             				<!-- The Legion of the Bouncy Castle -->
             				<link>http://www.bouncycastle.org/docs/docs1.6</link>
