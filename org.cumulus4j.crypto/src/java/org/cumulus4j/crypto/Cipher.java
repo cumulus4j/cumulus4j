@@ -25,6 +25,7 @@ import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /**
+ * <p>TEST ${project.version} TEST</p>
  * <p>
  * A cipher encrypts or decrypts data.
  * </p>

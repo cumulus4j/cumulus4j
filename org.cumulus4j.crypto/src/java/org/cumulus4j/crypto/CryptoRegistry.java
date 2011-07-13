@@ -1216,7 +1216,7 @@ public final class CryptoRegistry
 	/**
 	 * Decode (deserialise) a private key, that was previously encoded (serialised) by {@link #encodePrivateKey(CipherParameters)}.
 	 * @param privateKeyData the serialised private key.
-	 * @return the private key (as previously passed to {@link #encodePrivateKey(CipherParameters)).
+	 * @return the private key (as previously passed to {@link #encodePrivateKey(CipherParameters)}).
 	 * @throws IOException if parsing the serialised private key fails.
 	 * @see #encodePrivateKey(CipherParameters)
 	 * @see #decodePublicKey(byte[])

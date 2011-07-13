@@ -590,7 +590,7 @@
 
 				<plugin>
 					<artifactId>maven-resources-plugin</artifactId>
-					<version>2.4.3</version>
+					<version>2.5</version>
 					<configuration>
 						<encoding>UTF-8</encoding>
 					</configuration>
@@ -701,6 +701,95 @@
 					</execution>
 				</executions>
 			</plugin>
+
+<!--
+	*** BEGIN Javadoc with filtering ***
+	We want to use variables like ${project.version} in Javadoc. Hence we configure it to generate the Javadoc
+	first in "target/javadoc.unfiltered" and then copy it (while filtering all HTML files) to "target/apidocs"
+	(the ordinary Maven Javadoc directory).
+	
+	As the site needs it in "target/site/apidocs", we copy it again (the filtered version).
+	
+	Finally, we create the javadoc-JAR from the filtered version - but this is not done here - it's only done in
+	project "org.cumulus4j.crypto.all" - see that pom.xml.
+-->
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+						<configuration>
+							<outputDirectory>${project.build.directory}/javadoc.unfiltered</outputDirectory>
+							<!-- <reportOutputDirectory>${project.reporting.outputDirectory}</reportOutputDirectory> -->
+							<reportOutputDirectory>${project.build.directory}</reportOutputDirectory>
+							<destDir>javadoc.unfiltered</destDir>
+						</configuration>
+
+						<id>javadoc-generate-unfiltered</id>
+						<phase>site</phase>
+						<goals>
+							<goal>javadoc</goal>
+							<!-- <goal>jar</goal> -->
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<configuration>
+							<outputDirectory>${project.build.directory}/apidocs</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${project.build.directory}/javadoc.unfiltered</directory>
+									<filtering>true</filtering>
+									<includes>
+										<include>**/*.html</include>
+									</includes>
+								</resource>
+								<resource>
+									<directory>${project.build.directory}/javadoc.unfiltered</directory>
+									<filtering>false</filtering>
+									<excludes>
+										<exclude>**/*.html</exclude>
+									</excludes>
+								</resource>
+							</resources>
+						</configuration>
+
+						<id>javadoc-filter</id>
+						<phase>site</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+					</execution>
+
+					<execution>
+						<configuration>
+							<outputDirectory>${project.reporting.outputDirectory}/apidocs</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${project.build.directory}/apidocs</directory>
+									<filtering>false</filtering>
+									<includes>
+										<include>**/*</include>
+									</includes>
+								</resource>
+							</resources>
+						</configuration>
+
+						<id>javadoc-copy-to-site</id>
+						<phase>site</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+<!--
+	*** END Javadoc with filtering ***
+-->
 		</plugins>
 	</build>
 
