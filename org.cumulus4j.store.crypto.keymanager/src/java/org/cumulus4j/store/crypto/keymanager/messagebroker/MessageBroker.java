@@ -47,7 +47,7 @@ import org.cumulus4j.store.crypto.keymanager.rest.ErrorResponseException;
  * of course be routed appropriately back to the correct cluster-node:
  * </p>
  * <p>
- * <img src="http://www.cumulus4j.org/${project.version}/images/deployment-scenario/deployment-scenario-without-keyserver-with-cluster.png" />
+ * <img src="http://cumulus4j.org/${project.version}/images/deployment-scenario/deployment-scenario-without-keyserver-with-cluster.png" />
  * </p>
  * <p>
  * <b>Important:</b> You should not directly implement this interface but instead subclass {@link AbstractMessageBroker}!

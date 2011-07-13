@@ -27,7 +27,7 @@ import org.cumulus4j.keymanager.channel.KeyManagerChannelManager;
  * <p>
  * An <code>AppServer</code> knows how to contact the application server (or more precisely the key-manager-channel-REST-service
  * running on this application server) in order to establish a communication channel. See
- * <a target="_blank" href="http://www.cumulus4j.org/${project.version}/documentation/deployment-scenarios.html">Deployment scenarios</a>.
+ * <a target="_blank" href="http://cumulus4j.org/${project.version}/documentation/deployment-scenarios.html">Deployment scenarios</a>.
  * </p>
  * <p>
  * Since {@link Session}s are managed per <code>AppServer</code> (in case one single key-store is used for multiple
