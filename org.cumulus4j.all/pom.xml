@@ -86,6 +86,34 @@
 
 	<build>
 		<plugins>
+<!--
+	*** BEGIN Javadoc with filtering ***
+	We want to use variables like ${project.version} in Javadoc. Hence we configure it to generate the Javadoc
+	first in "target/javadoc.unfiltered" and then copy it (while filtering all HTML files) to "target/apidocs"
+	(the ordinary Maven Javadoc directory).
+	
+	As the site needs it in "target/site/apidocs", we copy it again (the filtered version).
+	
+	Finally, we create the javadoc-JAR from the filtered version - but this is not done here - it's only done in
+	project "org.cumulus4j.crypto.all" - see that pom.xml.
+-->
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>javadoc-aggregate</id>
+						<phase>site</phase>
+						<goals>
+							<goal>javadoc:aggregate</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+<!--
+	*** END Javadoc with filtering ***
+-->
+		
+		
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
