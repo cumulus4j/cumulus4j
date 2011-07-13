@@ -456,7 +456,7 @@ public class KeyStore
 	 * to specify the command line argument "-Dcumulus4j.KeyStore.encryptionAlgorithm=AES/CFB/NoPadding".
 	 * </p>
 	 * <p>
-	 * See <a target="_blank" href="http://cumulus4j.org/1.0.0/documentation/supported-algorithms.html">this document</a>
+	 * See <a target="_blank" href="http://cumulus4j.org/${project.version}/documentation/supported-algorithms.html">this document</a>
 	 * for further information about what values are supported.
 	 * </p>
 	 * <p>

@@ -49,7 +49,7 @@ public interface MACCalculatorFactory
 
 	/**
 	 * Get the name of the MAC algorithm implemented by the {@link MACCalculator} created by this factory.
-	 * See <a target="_blank" href="http://cumulus4j.org/1.0.0/documentation/supported-algorithms.html">Supported algorithms</a>
+	 * See <a target="_blank" href="http://cumulus4j.org/${project.version}/documentation/supported-algorithms.html">Supported algorithms</a>
 	 * for a list of supported algorithms.
 	 * @return the name of the MAC algorithm.
 	 */

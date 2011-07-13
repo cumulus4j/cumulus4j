@@ -23,7 +23,7 @@ import org.cumulus4j.store.crypto.CryptoSession;
 /**
  * <p>
  * Implementation of {@link org.cumulus4j.store.crypto.CryptoManager CryptoManager} working with a
- * key-manager as shown in <a target="_blank" href="http://cumulus4j.org/1.0.0/documentation/deployment-scenarios.html">Deployment scenarios</a>.
+ * key-manager as shown in <a target="_blank" href="http://cumulus4j.org/${project.version}/documentation/deployment-scenarios.html">Deployment scenarios</a>.
  * </p>
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */

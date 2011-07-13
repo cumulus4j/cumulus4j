@@ -4,7 +4,7 @@ package org.cumulus4j.keymanager.api;
  * Thrown if a {@link KeyManagerAPI} implementation cannot be instantiated.
  * This is usually the case, if the deployment is incomplete for the implementation
  * in question (and the arguments specified). See the document
- * <a target="_blank" href="http://cumulus4j.org/1.0.0/documentation/deployment-module-location-matrix.html">Deployment: Module-location-matrix</a>
+ * <a target="_blank" href="http://cumulus4j.org/${project.version}/documentation/deployment-module-location-matrix.html">Deployment: Module-location-matrix</a>
  * for details about which module needs to be deployed where.
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
