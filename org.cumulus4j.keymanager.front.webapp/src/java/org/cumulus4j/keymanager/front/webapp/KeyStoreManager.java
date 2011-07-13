@@ -34,11 +34,11 @@ public class KeyStoreManager
 	/**
 	 * <p>
 	 * System property to control which directory is used to manage key store files. If not specified,
-	 * the directory "${user.home}/.cumulus4j/" will be used.
+	 * the directory "&#36;{user.home}/.cumulus4j/" will be used.
 	 * </p>
 	 * <p>
 	 * You can use system properties in this system-property's value. For example
-	 * passing "-Dcumulus4j.keyStoreDir=${java.io.tmpdir}/cumulus4j-key-stores"
+	 * passing "-Dcumulus4j.keyStoreDir=&#36;{java.io.tmpdir}/cumulus4j-key-stores"
 	 * to the java command will be resolved to "/tmp/cumulus4j-key-stores" on GNU+Linux.
 	 * </p>
 	 */

@@ -172,7 +172,7 @@ implements Serializable
 	 * "file:") or a key-server (accessible via REST over HTTP or HTTPS).
 	 * @param keyManagerBaseURL the base-URL of the remote key-server or a local file-URL (referencing a directory!),
 	 * if a local key-store is to be used. This argument can be <code>null</code>, which means to use a local file in
-	 * the default directory "${user.home}/.cumulus4j/".
+	 * the default directory "&#36;{user.home}/.cumulus4j/".
 	 * @see #getKeyManagerBaseURL()
 	 */
 	public void setKeyManagerBaseURL(String keyManagerBaseURL) {

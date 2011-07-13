@@ -30,12 +30,12 @@ public final class SystemPropertyUtil
 	private SystemPropertyUtil() { }
 
 	/**
-	 * Resolve system properties like "${java.io.tmpdir}" in a <code>String</code>.
+	 * Resolve system properties like "&#36;{java.io.tmpdir}" in a <code>String</code>.
 	 * Note, that this method works recursively, i.e. you can specify a system property
-	 * "<code>aaa = someString/${bbb}/other</code>" and a system property "<code>bbb = xxx</code>" and the string
-	 * "<code>yyy/${aaa}/zzz</code>" will be resolved to "<code>yyy/someString/xxx/other</code>".
+	 * "<code>aaa = someString/&#36;{bbb}/other</code>" and a system property "<code>bbb = xxx</code>" and the string
+	 * "<code>yyy/&#36;{aaa}/zzz</code>" will be resolved to "<code>yyy/someString/xxx/other</code>".
 	 *
-	 * @param raw the raw <code>String</code>, e.g. "${java.io.tmpdir}/mydirectory".
+	 * @param raw the raw <code>String</code>, e.g. "&#36;{java.io.tmpdir}/mydirectory".
 	 * @return the resolved <code>String</code>, e.g. "/tmp/mydirectory".
 	 */
 	public static String resolveSystemProperties(String raw)

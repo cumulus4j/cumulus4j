@@ -45,11 +45,11 @@ extends Application
 //	/**
 //	 * <p>
 //	 * System property to control which key file is to be used. If not specified,
-//	 * the file "${user.home}/.cumulus4j/cumulus4j.keystore" will be used.
+//	 * the file "&#36;{user.home}/.cumulus4j/cumulus4j.keystore" will be used.
 //	 * </p>
 //	 * <p>
 //	 * You can use system properties in this system-property's value. For example
-//	 * passing "-Dorg.cumulus4j.keymanager.front.webapp.App.keyStoreFile=${java.io.tmpdir}/test.keystore"
+//	 * passing "-Dorg.cumulus4j.keymanager.front.webapp.App.keyStoreFile=&#36;{java.io.tmpdir}/test.keystore"
 //	 * to the java command will be resolved to "/tmp/test.keystore" on GNU+Linux.
 //	 * </p>
 //	 * @deprecated to be removed due to introduction of keyStoreID
