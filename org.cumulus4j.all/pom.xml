@@ -87,30 +87,40 @@
 	<build>
 		<plugins>
 <!--
-	*** BEGIN Javadoc with filtering ***
-	We want to use variables like ${project.version} in Javadoc. Hence we configure it to generate the Javadoc
-	first in "target/javadoc.unfiltered" and then copy it (while filtering all HTML files) to "target/apidocs"
-	(the ordinary Maven Javadoc directory).
-	
-	As the site needs it in "target/site/apidocs", we copy it again (the filtered version).
-	
-	Finally, we create the javadoc-JAR from the filtered version - but this is not done here - it's only done in
-	project "org.cumulus4j.crypto.all" - see that pom.xml.
+	*** BEGIN Package special (already filtered) javadoc-jar and site-jar ***
 -->
 			<plugin>
-				<artifactId>maven-javadoc-plugin</artifactId>
+				<artifactId>maven-jar-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>javadoc-aggregate</id>
+						<id>javadoc-jar</id>
 						<phase>site</phase>
 						<goals>
-							<goal>javadoc:aggregate</goal>
+							<goal>jar</goal>
 						</goals>
+						<configuration>
+							<classesDirectory>${project.build.directory}/apidocs</classesDirectory>
+							<finalName>${project.artifactId}-javadoc.jar</finalName>
+							<outputDirectory>${project.build.directory}</outputDirectory>
+						</configuration>
+					</execution>
+					
+					<execution>
+						<id>site-jar</id>
+						<phase>site</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<configuration>
+							<classesDirectory>${project.build.directory}/site</classesDirectory>
+							<finalName>${project.artifactId}-site.jar</finalName>
+							<outputDirectory>${project.build.directory}</outputDirectory>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
 <!--
-	*** END Javadoc with filtering ***
+	*** END Package special (already filtered) javadoc-jar and site-jar ***
 -->
 		
 		

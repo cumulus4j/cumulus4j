@@ -738,6 +738,12 @@
 				<artifactId>maven-resources-plugin</artifactId>
 				<executions>
 					<execution>
+						<id>javadoc-filter</id>
+						<phase>site</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+
 						<configuration>
 							<outputDirectory>${project.build.directory}/apidocs</outputDirectory>
 							<resources>
@@ -757,15 +763,15 @@
 								</resource>
 							</resources>
 						</configuration>
+					</execution>
 
-						<id>javadoc-filter</id>
+					<execution>
+						<id>javadoc-copy-to-site</id>
 						<phase>site</phase>
 						<goals>
 							<goal>copy-resources</goal>
 						</goals>
-					</execution>
 
-					<execution>
 						<configuration>
 							<outputDirectory>${project.reporting.outputDirectory}/apidocs</outputDirectory>
 							<resources>
@@ -778,12 +784,6 @@
 								</resource>
 							</resources>
 						</configuration>
-
-						<id>javadoc-copy-to-site</id>
-						<phase>site</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
 					</execution>
 				</executions>
 			</plugin>
