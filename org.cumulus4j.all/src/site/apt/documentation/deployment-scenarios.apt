@@ -70,4 +70,4 @@ Deployment scenarios
 	and after receiving the response (3) it finally forwards that response to the original requestor (4).
 
 	The handling of this complete process is done by implementations of
-	{{{https://www.cumulus4j.org/apidocs/index.html?org/cumulus4j/store/crypto/keymanager/messagebroker/MessageBroker.html}MessageBroker}}.
+	{{{../apidocs/index.html?org/cumulus4j/store/crypto/keymanager/messagebroker/MessageBroker.html}MessageBroker}}.
