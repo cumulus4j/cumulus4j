@@ -332,42 +332,42 @@
 			<dependency>
 				<groupId>org.datanucleus</groupId>
 				<artifactId>datanucleus-api-jdo</artifactId>
-				<version>${datanucleus.version.dependency}</version>
+				<version>${datanucleus.dependency.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.datanucleus</groupId>
 				<artifactId>datanucleus-api-jpa</artifactId>
-				<version>${datanucleus.version.dependency}</version>
+				<version>${datanucleus.dependency.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.datanucleus</groupId>
 				<artifactId>datanucleus-core</artifactId>
-				<version>${datanucleus.version.dependency}</version>
+				<version>${datanucleus.dependency.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.datanucleus</groupId>
 				<artifactId>datanucleus-rdbms</artifactId>
-				<version>${datanucleus.version.dependency}</version>
+				<version>${datanucleus.dependency.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.datanucleus</groupId>
 				<artifactId>datanucleus-mongodb</artifactId>
-				<version>${datanucleus.version.dependency}</version>
+				<version>${datanucleus.dependency.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.datanucleus</groupId>
 				<artifactId>datanucleus-hbase</artifactId>
-				<version>${datanucleus.version.dependency}</version>
+				<version>${datanucleus.dependency.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.datanucleus</groupId>
 				<artifactId>datanucleus-excel</artifactId>
-				<version>${datanucleus.version.dependency}</version>
+				<version>${datanucleus.dependency.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.datanucleus</groupId>
 				<artifactId>datanucleus-odf</artifactId>
-				<version>${datanucleus.version.dependency}</version>
+				<version>${datanucleus.dependency.version}</version>
 			</dependency>
 
 			<dependency>
@@ -470,7 +470,7 @@
 				<plugin>
 					<groupId>org.datanucleus</groupId>
 					<artifactId>maven-datanucleus-plugin</artifactId>
-					<version>${datanucleus.version.dependency}</version>
+					<version>3.0.0-release-SNAPSHOT</version>
 					<configuration>
 						<log4jConfiguration>${basedir}/enhancer-log4j.properties</log4jConfiguration>
 						<verbose>false</verbose>
@@ -487,6 +487,33 @@
 							</goals>
 						</execution>
 					</executions>
+					<dependencies>
+						<!--
+							The maven-datanucleus-plugin declares the dependencies onto other DN-libs via a range
+							which causes problems when Cumulus4j does not declare a dependency onto exactly the same
+							DN version (usually the newest one). In this case, two versions of the same DN jar are
+							loaded into the class-path and cause the build to fail with an error like this:
+
+								[ERROR] Failed to execute goal org.datanucleus:maven-datanucleus-plugin:3.0.0-m2:enhance
+								(default) on project org.cumulus4j.store: Error executing enhancer: InvocationTargetException:
+								Plugin (Bundle) "org.datanucleus" is already registered. Ensure you dont have multiple JAR
+								versions of the same plugin in the classpath.
+
+							To prevent this problem, we overwrite the dependencies of the maven-datanucleus-plugin here.
+
+							Marco :-) 
+						-->
+						<dependency>
+							<groupId>org.datanucleus</groupId>
+							<artifactId>datanucleus-core</artifactId>
+							<version>${datanucleus.dependency.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>org.datanucleus</groupId>
+							<artifactId>datanucleus-enhancer</artifactId>
+							<version>${datanucleus.dependency.version}</version>
+						</dependency>
+					</dependencies>
 				</plugin>
 				
 				<plugin>
@@ -570,10 +597,10 @@
             				<link>http://www.bouncycastle.org/docs/tspdocs1.6</link>
 
             				<!-- DataNucleus -->
-            				<link>http://www.datanucleus.org/javadocs/core/${datanucleus.version.javadoc}</link>
-            				<link>http://www.datanucleus.org/javadocs/api.jdo/${datanucleus.version.javadoc}</link>
-            				<link>http://www.datanucleus.org/javadocs/jpa/${datanucleus.version.javadoc}</link>
-            				<link>http://www.datanucleus.org/javadocs/store.rdbms/${datanucleus.version.javadoc}</link>
+            				<link>http://www.datanucleus.org/javadocs/core/${datanucleus.javadoc.version}</link>
+            				<link>http://www.datanucleus.org/javadocs/api.jdo/${datanucleus.javadoc.version}</link>
+            				<link>http://www.datanucleus.org/javadocs/jpa/${datanucleus.javadoc.version}</link>
+            				<link>http://www.datanucleus.org/javadocs/store.rdbms/${datanucleus.javadoc.version}</link>
 
             				<!-- JDO (javax.jdo.*) -->
             				<link>http://db.apache.org/jdo/api30/apidocs</link>
@@ -852,8 +879,8 @@
 		<log4j.version>1.2.16</log4j.version>
 		<slf4j.version>1.6.1</slf4j.version>
 		<jersey.version>1.6</jersey.version>
-		<datanucleus.version.dependency>3.0.0-release-SNAPSHOT</datanucleus.version.dependency>
-		<datanucleus.version.javadoc>3.0</datanucleus.version.javadoc>
+		<datanucleus.dependency.version>3.0.0-m6</datanucleus.dependency.version>
+		<datanucleus.javadoc.version>3.0</datanucleus.javadoc.version>
 		
 		<!-- Force UTF-8 for all files read (sources) and written (reports) by Maven. -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
