@@ -24,6 +24,11 @@
 	name="Cumulus4j - Securing your data in the cloud">
 
 	<poweredBy>
+		<logo name="Bundesministerium für Bildung und Forschung"
+			img="./images/bmbf-139x88.png"
+			href="http://www.bmbf.de"
+			target="_blank" />
+
 		<logo name="DataNucleus"
 			img="http://www.datanucleus.com/images/logos/DataNucleus_AccessPlatform_32.jpg"
 			href="http://www.datanucleus.org"
