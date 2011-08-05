@@ -6,9 +6,9 @@
 
 Theorie
 
-	Um Ihre Daten zu schützen, benutz Cumulus4j Verschlüsselung.
+	Um Ihre Daten zu schützen, benutzt Cumulus4j Verschlüsselung.
 
-	Bevor Daten in den data store geschrieben werden, werden sie von Cumulus4j automatisch verschlüsselt.
+	Bevor Daten in den Data Store geschrieben werden, werden sie von Cumulus4j automatisch verschlüsselt.
 	Cumulus4j entschlüsselt die Daten auch, bevor sie von Ihrer Applikation benutzt werden. 
 	Die geschieht für Ihre Anwendung transparent.
 
@@ -17,7 +17,7 @@ Theorie
 
 * Die Cumulus4j-Datenstruktur
 
-	Die Cumulus4j Datanstruktur ist unten abgebildet.
+	Die Cumulus4j Datenstruktur ist unten abgebildet.
 	Sie speichert Objekte in einer Weise, die Relationen von Attributswerten versteckt. Das heißt es ist nicht ersichtlich 
 	mit welchen Werten die Variablen eines Objektes belegt sind.
 	
@@ -35,7 +35,7 @@ Theorie
 	Zusätzlich ist in jedem Eintrag in der IndexEntry-Tabelle 
 	eine Referenz auf den entsprechenden Eintrag in der FieldMeta-Tabelle enthalten.
 
-* EVerschlüssleung
+* Verschlüssleung
 
 	Um Ihre Daten zu schützen benutzt Cumulus4j aktuelle probabilistische symmetrische Verschlüsselungsverfahren 
 	(z.B. AES mit PKCS#5-Padding).
@@ -45,7 +45,7 @@ Theorie
 
 * Entschlüsselung
 
-	Cumulus4j transformiert eingehende Datenbankanfragen um sie auf der Clumulus4j-Datenstruktur ausführen zu können.
+	Cumulus4j transformiert eingehende Datenbankanfragen um sie auf der Cumulus4j-Datenstruktur ausführen zu können.
 	Abgerufene Daten werden on-the-fly entschlüsselt. Selektionen werden effizient in den folgenden vier Schritten durchgeführt:
 
 	* Rufe IndexEntries ab, die die Bedingungen der Anfrage erfüllen. Dieser schritt involviert Entschlüsselung der Indexeinträge.
@@ -69,6 +69,6 @@ Theorie
 
 * Performance
 
-	Durch die Verwendung symmterischer Verschlüsselungsverfahren und Indizes für schnelles Suchen von Einträgen liefert das 	Plugin eine gute Performance
-	Ein Ziel dieses Projektes ist die Geschwindigkeitsoptimierung des Adapters, sodass für die erhöhte Sicherheit nur noch ein 		vertretbar kleiner Mehranfwand nötig ist.
+	Durch die Verwendung symmetrischer Verschlüsselungsverfahren und Indizes für schnelles Suchen von Einträgen liefert das 	Plugin eine gute Performance
+	Ein Ziel dieses Projektes ist die Geschwindigkeitsoptimierung des Adapters, sodass für die erhöhte Sicherheit nur noch ein 		vertretbar kleiner Mehraufwand nötig ist.
 
