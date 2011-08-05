@@ -4,7 +4,7 @@
 	Matthias Huber, Matthias Gabel
 	---
 
-Theory
+Theorie
 
 	Um Ihre Daten zu schützen, benutz Cumulus4j Verschlüsselung.
 
@@ -13,15 +13,15 @@ Theory
 	Die geschieht für Ihre Anwendung transparent.
 
 
-[../images/scheme.jpeg] Basic Cumulus4j scheme
+[../images/scheme.jpeg] Vereinfachtes Schema von Cumulus4j
 
-* Die Cumulus4j Datenstruktur
+* Die Cumulus4j-Datenstruktur
 
 	Die Cumulus4j Datanstruktur ist unten abgebildet.
 	Sie speichert Objekte in einer Weise, die Relationen von Attributswerten versteckt. Das heißt es ist nicht ersichtlich 
 	mit welchen Werten die Variablen eines Objektes belegt sind.
 	
-[../images/c4j-datastructure.png] Die Cumulus4j Datenstruktur
+[../images/c4j-datastructure.png] Die Cumulus4j-Datenstruktur
 
 	In der Tabelle ClassMeta werden Metadaten über die gespeicherten Objekte hinterlegt.
 	Jeder Eintrag in ClassMeta enthält eine Liste von Referenzen zu Einträgen in FieldMeta der entsprechenden Klasse.
@@ -38,7 +38,7 @@ Theory
 * EVerschlüssleung
 
 	Um Ihre Daten zu schützen benutzt Cumulus4j aktuelle probabilistische symmetrische Verschlüsselungsverfahren 
-	(z.B. AES mit PKCS#5 padding).
+	(z.B. AES mit PKCS#5-Padding).
 	Eine solche Verschlüsselung versteckt nicht nur den Inhalt, sondern stellt auch sicher, dass Manipulationen entdeckt werden.
 	Cumulus4j verwendet Verschlüsselung für Einträge in der DataEntries-Tabelle und für die Indexeinträge in der IndexEntries-Tabelle.
 
@@ -67,8 +67,8 @@ Theory
 	Er ist in DataNucleus integriert und unterstützt JDO sowie JPA vollständig.
 
 
-
 * Performance
 
-	Due to the use of symmetric encryption and indices for fast record lookup, the plugin already provides good performance.
-	One goal of this project is speed optimization resulting in only a small overhead for security.
+	Durch die Verwendung symmterischer Verschlüsselungsverfahren und Indizes für schnelles Suchen von Einträgen liefert das 	Plugin eine gute Performance
+	Ein Ziel dieses Projektes ist die Geschwindigkeitsoptimierung des Adapters, sodass für die erhöhte Sicherheit nur noch ein 		vertretbar kleiner Mehranfwand nötig ist.
+
