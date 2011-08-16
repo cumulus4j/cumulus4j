@@ -21,7 +21,7 @@ Supported algorithms
 	In the following, you'll find a list of all supported possibilities. However:
 
 	<<Important: Changing the encryption settings can cause Cumulus4j to not work at all
-	or - even worse - it might break security!!! Only change the defaults, if you really know
+	or - even worse - it might break security!!! Only change these settings, if you really know
 	what you are doing!>>
 	
 	If you are unsure, stick with the "{{Recommended choices}}"!
