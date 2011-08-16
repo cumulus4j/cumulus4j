@@ -9,44 +9,37 @@ Willkommen bei Cumulus4j!
 
 	Ständig neue Presseberichte über den Verkauf von vertraulichen Bankinformationen an die Steuerbehörden
 	verunsichern zunehmend Kunden über die Sicherheit ihrer Daten. Dies um so mehr, wenn wichtige
-	geschäftsbezogene Informationen einem Dienstleister zur Durchführung von betriebswirtschaftlichen Services,
-	wie Fakturierung und Buchführung über das Internet bereitgestellt werden sollen.
+	geschäftsbezogene Informationen einem Dienstleister zur Durchführung von betriebswirtschaftlichen Services
+	(z.B. Fakturierung und Buchführung) über das Internet bereitgestellt werden sollen.
 
 	Eine der wichtigsten Hürden
 	für den Erfolg von betriebswirtschaftlichen Dienstleistungen über das Internet - Software as a Service - ist es
 	deshalb, echte Datensicherheit für Kunden zu garantieren, so dass z.B. auch kein Systemadministrator Daten abziehen
-	und weitergeben kann. Genau die Lösung dieser Aufgabe haben sich
-	die Firmen {{{http://ax-ag.com}AX Business Solutions AG}} und
-	{{http://nightlabs.de}NighLabs Consulting GmbH}} sowie das {{{http://www.fzi.de}FZI Forschungszentrum Informatik}}
-	an der Universität Karlsruhe mit dem Projekt Cumulus4j zum Ziel gesetzt.
+	und weitergeben kann.
 
-	Primäres Ziel des Projektes Cumulus4j ist es, eine sichere Architektur für vertrauenswürdige Rechnungswesenssoftware
+	Um diese Hürde zu überwinden, hat Cumulus4j das Ziel, eine sichere Architektur für vertrauenswürdige Rechnungswesenssoftware
 	im Internet zu erstellen. Die Anforderungen einer Rechnungswesenssoftware an eine vertrauenswürdige Datenbank
-	ähneln natürlich weitgehend auch denen anderer Enterprise-Applikationen, so daß Cumulus4j für zahlreiche Anwendungen
-	interessant und keinesfalls auf Software für Rechnungswesen eingeschränkt ist.
+	ähneln natürlich weitgehend auch denen anderer Enterprise-Applikationen, so daß Cumulus4j für eine Vielzahl von Anwendungen
+	interessant ist.
 
-	Um das Ziel einer vertrauenswürdigen Datenverwaltung zu erreichen, müssen die Datenbestände verschlüsselt in der
-	Cloud abgelegt werden. Dies könnte man zwar auch schon mit einer Festplattenverschlüsselung wie
-	z.B. {{{http://en.wikipedia.org/wiki/Linux_Unified_Key_Setup}LUKS}}
-	oder {{{http://en.wikipedia.org/wiki/TrueCrypt}TrueCrypt}}, doch um mit den Daten auch arbeiten zu können, muß die
-	Festplatte ins System {{{http://de.wikipedia.org/wiki/Mounten}eingehängt}} ("gemountet") werden, wodurch einem
-	Angreifer von innen (z.B. einem Administrator) sämtliche Daten in die Hände fallen. Schließlich stehen nach dem Mounten
-	alle Daten jedem angemeldeten Systembenutzer zur Verfügung.
+	Um eine vertrauenswürdige Datenverwaltung zu gewährleisten, müssen die Datenbestände verschlüsselt in der
+	Cloud abgelegt werden. Dies könnte man zwar auch schon mit einer Festplattenverschlüsselung (z.B.
+	{{{http://en.wikipedia.org/wiki/Linux_Unified_Key_Setup}LUKS}}
+	oder {{{http://en.wikipedia.org/wiki/TrueCrypt}TrueCrypt}}), doch um mit den Daten auch arbeiten zu können, müßte die
+	Festplatte bei dieser Lösung ins System {{{http://de.wikipedia.org/wiki/Mounten}eingehängt}} ("gemountet") werden,
+	wodurch einem internen Angreifer (z.B. einem Administrator) sämtliche Daten in die Hände fielen. Schließlich stehen
+	nach dem Mounten alle Daten jedem angemeldeten Systembenutzer bequem über das Dateisystem zur Verfügung.
 
 [./images/overview.png] Übersicht
 
-	Cumulus4j vereint die Lösungen zu folgenden Anforderungen:
+	Cumulus4j löst dieses Problem und erfüllt dabei folgende Anforderungen:
 
 	* <<Sicherheit>>: Dem derzeitigen Stand der Wissenschaft entsprechende probabilistische Verschlüsselungsalgorithmen
 	(z.B. Twofish, AES) schützen Ihre Daten. Daten werden nur im Arbeitsspeicher entschlüsselt. Es gibt - anders als
 	bei der Festplattenverschlüsselung - nicht nur einen einzigen Schlüssel für alle Daten, sondern mehrere zehntausend Schlüssel.
-	Auch erfolgt die Ver-/Entschlüsselung innerhalb der Anwendung (nicht als Laufwerk auf System-Ebene). 
-	
-	Ein Administrator des Cloud-Anbieters hat somit nicht die Möglichkeit, über das Dateisystem oder einen SQL-Dump an die Daten
-	zu gelangen. Er könnte höchstens durch einen Dump des Arbeitsspeichers an einen Teil der Schlüssel gelangen und somit
-	aber auch nur einige Datensätze entschlüsseln. Dieser Angriff ist wohlgemerkt äußerst aufwendig und könnte nur einen Teil
-	der Daten kompromittieren.
-	
+	Auch erfolgt die Ver-/Entschlüsselung innerhalb der Anwendung (nicht als Laufwerk auf System-Ebene). Dies macht es selbst
+	für interne Angreifer (wie z.B. Systemadministratoren) extrem schwer, "mit den Daten durchzubrennen".
+
 	* <<Einfache Integration>>: Damit Cumulus4j leicht in eine Applikation integriert werden kann, wurde es als Plugin
 	für {{{http://de.wikipedia.org/wiki/DataNucleus}DataNucleus}} entwickelt. Damit stehen moderne Persistenz-APIs
 	wie {{{http://de.wikipedia.org/wiki/Java_Data_Objects}Java Data Objects (JDO)}} oder
@@ -54,15 +47,16 @@ Willkommen bei Cumulus4j!
 	nahezu transparente Integration von Cumulus4j in eine Cloud-Applikation ermöglichen (lediglich für das Schlüssel-Management
 	sind wenige Zeilen zur Ansteuerung von Cumulus4j-spezifischer API nötig).
 
-	* <<Abfragbarkeit>>: Obwohl alle Datensätze verschlüsselt gespeichert werden (in einer zugrundeliegenden Datenbank), sind
+	* <<Abfragbarkeit>>: Obwohl alle Datensätze verschlüsselt gespeichert werden, sind
 	effiziente Abfragen mit den Abfragesprachen JDOQL und JPQL möglich.
-	
+
 	* <<Portablilität>>: Cumulus4j kann mit zahlreichen gängigen Datenbanken als Backend arbeiten (z.B. MySQL, Google-BigTable,
 	Hadoop HBase, MongoDB, {{{http://www.datanucleus.org/products/accessplatform_3_0/datastores.html}u.v.a.}}). Es ist in Java
 	geschrieben und läuft sowohl in OSGi- als auch in klassischen Umgebungen (JavaSE, JavaEE).
-	
+
 	[]
 
-	Das Cumulus4j-Projekt wird vom Bundesministerium für Bildung und Forschung im Rahmen der KMU-innovativ Initiative gefördert.
+	Das Cumulus4j-Projekt wird vom Bundesministerium für Bildung und Forschung im Rahmen der Initiative
+	{{{http://www.hightech-strategie.de/de/kmu-innovativ.php}KMU-innovativ}} gefördert.
 	
 	Cumulus4j wird im Januar 2012 als freie Software unter den Bedingungen der {{{./license.html}AGPL}} veröffentlicht.
