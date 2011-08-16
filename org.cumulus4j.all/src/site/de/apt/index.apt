@@ -33,7 +33,7 @@ Willkommen bei Cumulus4j!
 	Angreifer von innen (z.B. einem Administrator) sämtliche Daten in die Hände fallen. Schließlich stehen nach dem Mounten
 	alle Daten jedem angemeldeten Systembenutzer zur Verfügung.
 
-[../images/overview.png] Übersicht
+[./images/overview.png] Übersicht
 
 	Cumulus4j vereint die Lösungen zu folgenden Anforderungen:
 
