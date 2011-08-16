@@ -7,8 +7,10 @@
 
 Willkommen bei Cumulus4j!
 
-	Schon einige Male wurden vertrauliche Bankinformationen an Steuerbehörden verkauft und auch daß
-	Hacker riesige Datenbanken von Großkonzernen kopieren, liest man immer wieder in den Medien.
+* Das Problem
+
+	Schon einige Male wurden vertrauliche Bankinformationen gestohlen und an Steuerbehörden verkauft; und auch daß
+	bösartige Hacker riesige Datenbanken von Großkonzernen kopieren, liest man immer wieder in den Medien.
 	Kein Wunder, daß Kunden über die Sicherheit ihrer Daten besorgt sind und die meisten Unternehmen es daher
 	ablehnen, geschäftsbezogene Informationen an einen Dienstleister zur Durchführung betriebswirtschaftlicher
 	Services (z.B. Fakturierung und Buchführung) über das Internet zu übermitteln.
@@ -17,6 +19,8 @@ Willkommen bei Cumulus4j!
 	für den Erfolg von betriebswirtschaftlichen Dienstleistungen über das Internet - Software as a Service - ist es
 	also, echte Datensicherheit für Kunden zu garantieren, so daß nicht einmal ein Systemadministrator Daten abziehen
 	und weitergeben kann.
+
+* Die Lösung
 
 	Um diese Hürde zu überwinden, hat Cumulus4j das Ziel, eine sichere Architektur für vertrauenswürdige Rechnungswesenssoftware
 	im Internet zu erstellen. Die Anforderungen einer Rechnungswesenssoftware an eine vertrauenswürdige Datenbank
@@ -27,9 +31,9 @@ Willkommen bei Cumulus4j!
 	Cloud abgelegt werden. Dies könnte man zwar auch schon mit einer Festplattenverschlüsselung (z.B.
 	{{{http://en.wikipedia.org/wiki/Linux_Unified_Key_Setup}LUKS}}
 	oder {{{http://en.wikipedia.org/wiki/TrueCrypt}TrueCrypt}}), doch um mit den Daten arbeiten zu können, müßte die
-	Festplatte bei dieser Lösung ins System {{{http://de.wikipedia.org/wiki/Mounten}eingehängt}} ("gemountet") werden,
+	Festplatte bei dieser Lösung ins Betriebssystem {{{http://de.wikipedia.org/wiki/Mounten}eingehängt}} werden,
 	wodurch einem internen Angreifer (z.B. einem Administrator) sämtliche Daten in die Hände fielen. Schließlich stehen
-	nach dem Mounten alle Daten jedem angemeldeten Systembenutzer bequem über das Dateisystem zur Verfügung.
+	nach dem Mounten alle Daten dem angemeldeten Systemadmin bequem über das Dateisystem zur Verfügung.
 
 [./images/overview.png] Übersicht
 
@@ -39,7 +43,7 @@ Willkommen bei Cumulus4j!
 	Sämtliche Daten werden nur im Arbeitsspeicher entschlüsselt. Es gibt - anders als
 	bei der Festplattenverschlüsselung - nicht nur einen einzigen Schlüssel für alle Daten, sondern mehrere zehntausend Schlüssel.
 	Auch erfolgt die Ver-/Entschlüsselung innerhalb der Anwendung und nicht als Laufwerk auf System-Ebene. Dies macht es selbst
-	für interne Angreifer nahezu unmöglich, mehr als eine kleine Zahl von Datensätzen zu stehlen.
+	für interne Angreifer nahezu unmöglich, mehr als eine kleine Zahl von Datensätzen zu stehlen (durch einen Speicher-Dump).
 
 	* <<Einfache Integration>>: Damit Cumulus4j leicht in eine Applikation integriert werden kann, wurde es als Plugin
 	für {{{http://de.wikipedia.org/wiki/DataNucleus}DataNucleus}} entwickelt. So stehen moderne Persistenz-APIs
