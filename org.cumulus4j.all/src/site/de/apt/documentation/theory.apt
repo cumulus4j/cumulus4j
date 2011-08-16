@@ -8,10 +8,9 @@ Theorie
 
 	Um Ihre Daten zu schützen, benutzt Cumulus4j Verschlüsselung.
 
-	Bevor Daten in den Data Store geschrieben werden, werden sie von Cumulus4j automatisch verschlüsselt.
-	Cumulus4j entschlüsselt die Daten auch, bevor sie von Ihrer Applikation benutzt werden. 
+	Bevor Daten in den Datenspeicher geschrieben werden, werden sie von Cumulus4j automatisch verschlüsselt.
+	Cumulus4j entschlüsselt die Daten auch wieder, bevor sie von Ihrer Applikation benutzt werden. 
 	Die geschieht für Ihre Anwendung transparent.
-
 
 [../images/scheme.jpeg] Vereinfachtes Schema von Cumulus4j
 
@@ -37,11 +36,10 @@ Theorie
 
 * Verschlüssleung
 
-	Um Ihre Daten zu schützen benutzt Cumulus4j aktuelle probabilistische symmetrische Verschlüsselungsverfahren 
-	(z.B. AES mit PKCS#5-Padding).
+	Um Ihre Daten zu schützen, benutzt Cumulus4j aktuelle probabilistische symmetrische Verschlüsselungsverfahren 
+	(z.B. AES mit Galois/Counter-Mode und PKCS#5-Padding).
 	Eine solche Verschlüsselung versteckt nicht nur den Inhalt, sondern stellt auch sicher, dass Manipulationen entdeckt werden.
 	Cumulus4j verwendet Verschlüsselung für Einträge in der DataEntries-Tabelle und für die Indexeinträge in der IndexEntries-Tabelle.
-
 
 * Entschlüsselung
 
@@ -65,7 +63,6 @@ Theorie
 
 	Der Cumulus4j-Adapter arbeitet vollständig transparent. 
 	Er ist in DataNucleus integriert und unterstützt JDO sowie JPA vollständig.
-
 
 * Performance
 

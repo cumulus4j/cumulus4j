@@ -29,10 +29,10 @@ Theory
 
 * Encryption
 
-	We use state of the art probabilistic symmetric encryption schemes (eg. AES with PKCS#5 padding) to protect your data. 
-	The	encryption not only hides the content, it also makes shure that data manipulations will be detected.
-	Cumulus4j applies encryption to the DataEntries and to the Indices in the IndexEntries.
-
+	We use state of the art probabilistic symmetric encryption schemes (e.g. AES with Galois/Counter mode and PKCS#5 padding) to
+	protect your data.
+	The	encryption not only hides the content, it also makes sure that data manipulations will be detected.
+	Cumulus4j applies encryption to the DataEntries and to the indices in the IndexEntries.
 
 * Decryption
 
@@ -56,7 +56,6 @@ Theory
 
 	The Cumulus4j-Adapter can be used fully transparent to the client application.
 	It is integrated into DataNucleus and fully supports JDO and JPA.
-
 
 * Performance
 
