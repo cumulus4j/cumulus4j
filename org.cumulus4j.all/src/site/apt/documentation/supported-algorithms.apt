@@ -231,10 +231,16 @@ Supported algorithms
 	The following engines are available:
 
 	* <<<ELGAMAL>>>
+	
+		* {{{http://en.wikipedia.org/wiki/ElGamal_encryption}Wikipedia: ElGamal encryption}}
 
 	* <<<NACCACHESTERN>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Naccache%E2%80%93Stern_cryptosystem}Wikipedia: Naccache–Stern cryptosystem}}
 
 	* <<<RSA>>>
+	
+		* {{{http://en.wikipedia.org/wiki/RSA}Wikipedia: RSA}}
 	
 	[]
 
@@ -267,7 +273,7 @@ Supported algorithms
 	
 	* <<<CFB>>>
 	
-		* {{{http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher_feedback_.28CFB.29}Wikipedia}}
+		* {{{http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher_feedback_.28CFB.29}Wikipedia: Cipher feedback (CFB)}}
 	
 	* <<<CFB8>>>, <<<CFB16>>>, <<<CFB24>>> ... <<<CFB256>>>
 	
