@@ -314,7 +314,7 @@ Unterstützte Algorithmen
 ** Symmetrisch
 
 	Bei der Verschlüsselung mit einem symmetrischen Blockchiffre-Verfahren paßt die Größe der zu verarbeitenden Daten
-	meist nicht genauf auf die feste Block-Größe. Daher muß bei den meisten Blockchiffre-Operations-Modi der letzte
+	meist nicht genau auf die feste Block-Größe. Daher muß bei den meisten Blockchiffre-Operations-Modi der letzte
 	Datenblock mit so vielen zusätzlichen Bytes aufgefüllt werden, daß er die benötigte Größe erreicht.
 
 	* <<<NOPADDING>>>
