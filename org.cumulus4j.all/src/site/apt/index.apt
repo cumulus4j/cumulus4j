@@ -10,7 +10,7 @@ Welcome to Cumulus4j!
 * The problem
 
 	Sensitive banking information was stolen and sold to tax authorities already quite a few times; and incidents of
-	hackers copying huge databases from multinational companies are reported in the media again and again.
+	evil hackers copying huge databases from multinational companies are reported in the media again and again.
 	It is understandable that customers are worried about the security of their data and most companies thus
 	refrain from transmitting business-relevant data over the Internet to a service provider for outsourcing
 	operational services (like invoicing or accounting).
