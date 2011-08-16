@@ -1,15 +1,14 @@
 	---
-	Deployment-Szenarien
+	Betriebsszenarien
 	---
 	Marco หงุ่ยตระกูล-Schulze
 	---
 	2011-05-26
 
-Deployment-Szenarien
+Betriebsszenarien
 
-	Cumulus4j can be used in 2 different deployment scenarios. But before we explain
-	them, here's the normal deployment scenario (without Cumulus4j) that you're already
-	used to:
+	Cumulus4j kann in zwei verschiedenen Szenarien betrieben werden. Aber bevor wir diese erklären, hier
+	eine Darstellung des normalen Betriebs (ohne Cumulus4j), den Sie bereits kennen, zum Vergleich:
 
 [../images/deployment-scenario/deployment-scenario-without-cumulus4j.png] Deployment without Cumulus4j
 
