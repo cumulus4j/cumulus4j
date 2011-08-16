@@ -16,7 +16,7 @@ Welcome to Cumulus4j!
 	operational services (like invoicing or accounting).
 	
 	One of the most important barriers for the success of business-operational services via the Internet - software
-	as a service - is thus guaranteeing data security to customers, so that not even a system administrator can dump
+	as a service - is thus the lack of data security which would guarantee that not even a system administrator can dump
 	and sell data.
 
 * The solution
