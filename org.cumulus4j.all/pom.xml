@@ -138,6 +138,35 @@
 								<dependencyDetailsEnabled>true</dependencyDetailsEnabled>
 								<dependencyLocationsEnabled>true</dependencyLocationsEnabled>
 							</configuration>
+							<!--
+							We configure the reportSets (instead of simply omitting this and using the default), because
+							we want all reports BUT the ones commented out below.
+							
+							See http://maven.apache.org/plugins/maven-project-info-reports-plugin/ for all available ones
+							(this configuration should be updated, if new reports come into existence). Marco :-)
+							-->
+							<reportSets>
+								<reportSet>
+									<reports>
+										<report>cim</report>
+										<report>dependencies</report>
+										<report>dependency-convergence</report>
+										<report>dependency-management</report>
+										<report>distribution-management</report>
+										<report>help</report>
+										<!-- <report>index</report> -->
+										<report>issue-tracking</report>
+										<report>license</report>
+										<report>mailing-list</report>
+										<report>modules</report>
+										<report>plugin-management</report>
+										<report>plugins</report>
+										<report>project-team</report>
+										<report>scm</report>
+										<report>summary</report>
+									</reports>
+								</reportSet>
+							</reportSets>
 						</plugin>
 <!--
 The Javadoc is deployed on the web-site, even if this is missing. The only difference is that
