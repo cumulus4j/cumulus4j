@@ -8,7 +8,7 @@
 Betriebsszenarien
 
 	Cumulus4j kann in zwei verschiedenen Szenarien betrieben werden. Aber bevor wir diese erklären, hier
-	eine Darstellung des normalen Betriebs (ohne Cumulus4j), den Sie bereits kennen, zum Vergleich:
+	zum Vergleich eine Darstellung des normalen Betriebs (ohne Cumulus4j), den Sie bereits kennen:
 
 [../images/deployment-scenario/deployment-scenario-without-cumulus4j.png] Betrieb ohne Cumulus4j
 
