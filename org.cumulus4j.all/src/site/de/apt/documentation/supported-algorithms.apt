@@ -12,7 +12,7 @@ Unterstützte Algorithmen
 	Vorlieben bervorzugen Sie vielleicht eine andere Konfiguration.
 
 	Zum Beispiel verwendet Cumulus4j standardmäßig <<<TWOFISH>>> mit einer Schlüssellänge von 256 Bit. Diese
-	Schlüssellänge grenzt an Paranoia und vielleicht möchten Sie ja auf nur 128 Bit wechseln, um etwas Performance
+	Schlüssellänge grenzt an Paranoia und vielleicht möchten Sie ja auf nur 128 Bit wechseln, um etwas mehr Leistung
 	zu gewinnen. 
 
 	Mit 256-Bit-Schlüsseln ist <<<TWOFISH>>> sicherer als <<<AES>>>. Außerdem ist Twofish auf der meisten Hardware
@@ -73,8 +73,8 @@ Unterstützte Algorithmen
 
 ** Blockchiffre-Verfahren
 
-	{{{http://en.wikipedia.org/wiki/Block_cipher}Blockchiffre}} are the most widely used encryption algorithms.
-	They combine very high security with good performance.
+	{{{http://en.wikipedia.org/wiki/Block_cipher}Blockchiffren}} sind die meist-verwendeten Verschlüsselungsalgorithmen.
+	Sie kombinieren sehr hohe Sicherheit mit guter Leistung.
 
 	* <<<NULL>>>
 	
@@ -168,13 +168,15 @@ Unterstützte Algorithmen
 
 ** Stromchiffre-Verfahren
 
-	{{{http://en.wikipedia.org/wiki/Stream_cipher}Stream ciphers}} can be used instead of block ciphers. They are
-	usually faster, but more susceptible to serious security problems if used incorrectly. However, we believe
-	that Cumulus4j uses them correctly - e.g. by using long IVs - and you might give them a try, if high performance
-	is essential to you (if you do benchmarks, please send them to us!).
+	{{{http://en.wikipedia.org/wiki/Stream_cipher}Stromchiffren}} können anstelle von Blockchiffren verwendet werden. Sie sind
+	üblicherweise schneller, jedoch auch anfälliger für ernste Sicherheitsprobleme, wenn sie inkorrekt verwendet werden.
+	Allerdings glauben wir, daß Cumulus4j sie korrekt verwendet - z.B. indem lange IVs zur Anwendung kommen - und Sie können
+	sie daher gern ausprobieren, wenn hohe Leistungen essentiell für Sie sind (wenn Sie Leistungsmessungen vornehmen, senden
+	Sie sie uns bitte!).
 	
-	The main reason why we do not recommend them (yet), is that we cannot thoroughly test and investigate the
-	multitude of supported algorithms. If you're willing to help us, please do! Here's what is supported at the moment:
+	Der Hauptgrund, weshalb wir sie (noch) nicht empfehlen, ist, daß wir die Vielzahl an unterstützten Algorithmen nicht
+	intensiv testen und untersuchen können. Wenn Sie uns dabei behilflich sein möchten, dann bitte probieren Sie sie!
+	Hier sind die derzeit unterstützten Stromchiffren:
 
 	* <<<GRAIN-128>>>
 	
@@ -208,13 +210,14 @@ Unterstützte Algorithmen
 
 * Asymmetrische Verschlüsselung
 
-	{{{http://en.wikipedia.org/wiki/Asymmetric_encryption}Asymmetric encryption}} is used
-	to protect the key exchange (of the keys that are used in the symmetric encryption).
+	{{{http://en.wikipedia.org/wiki/Asymmetric_encryption}Asymmetrische Verschlüsselung}} wird verwendet,
+	um den Austausch der geheimen Schlüssel (die von der symmetrischen Verschlüsselung benutzt werden) zu
+	schützen.
 
-	The {{{./key-store.html}key store}} is located on the client or on a separate key server
-	(see {{{./deployment-scenarios.html}Deployment scenarios}}, but the keys are needed
-	on the application server in order to encrypt/decrypt the actual data. That
-	means key transfers are necessary.
+	Der {{{./key-store.html}Schlüsselspeicher}} liegt auf dem Client oder auf einem separaten Schlüssel-Server
+	(siehe {{{./deployment-scenarios.html}Deployment-Szenarios}}), aber die geheimen Schlüssel werden auf dem
+	Applikations-Server benötigt, um dort die eigentlichen Daten zu ent- bzw. zu verschlüsseln. Das bedeutet,
+	Schlüssel-Transfers sind notwendig. 
 	
 	In order to get the keys from the key store to the application server, usually an
 	HTTPS connection protects them on their way through the open internet. However,
@@ -371,7 +374,7 @@ Unterstützte Algorithmen
 
 		* {{{http://en.wikipedia.org/wiki/SHA-1}Wikipedia: SHA-1}}
 		
-		* {{{http://www.ietf.org/rfc/rfc2437.txt}RFC 2437: Chapter 10.2 (Mask Generation Functions) and 10.2.1 (MGF1)}
+		* {{{http://www.ietf.org/rfc/rfc2437.txt}RFC 2437: Chapter 10.2 (Mask Generation Functions) and 10.2.1 (MGF1)}}
 
 	* <<<PKCS1>>>
 	

@@ -207,7 +207,7 @@ Supported algorithms
 	to protect the key exchange (of the keys that are used in the symmetric encryption).
 
 	The {{{./key-store.html}key store}} is located on the client or on a separate key server
-	(see {{{./deployment-scenarios.html}Deployment scenarios}}, but the keys are needed
+	(see {{{./deployment-scenarios.html}Deployment scenarios}}), but the keys are needed
 	on the application server in order to encrypt/decrypt the actual data. That
 	means key transfers are necessary.
 	
@@ -366,7 +366,7 @@ Supported algorithms
 
 		* {{{http://en.wikipedia.org/wiki/SHA-1}Wikipedia: SHA-1}}
 		
-		* {{{http://www.ietf.org/rfc/rfc2437.txt}RFC 2437: Chapter 10.2 (Mask Generation Functions) and 10.2.1 (MGF1)}
+		* {{{http://www.ietf.org/rfc/rfc2437.txt}RFC 2437: Chapter 10.2 (Mask Generation Functions) and 10.2.1 (MGF1)}}
 
 	* <<<PKCS1>>>
 	
