@@ -220,13 +220,10 @@ Unterstützte Algorithmen
 	Schlüssel-Transfers sind notwendig. 
 
 	Die Schlüssel werden auf ihrem Weg vom Key-Store durch das offene Internet zum Applikations-Server
-	üblicherweise durch eine HTTPS-Verbindung geschützt.
-
-	In order to get the keys from the key store to the application server, usually an
-	HTTPS connection protects them on their way through the open internet. However,
-	in order to get the keys from one application server node to another node (in the typical
-	cluster/cloud environment), the keys might be temporarily stored in a database. To protect
-	the keys in these situations, asymmetric encryption is used.
+	üblicherweise durch eine HTTPS-Verbindung geschützt. Wenn sie jedoch ein Applikations-Server-Knoten
+	an einen anderen Knoten (in einer gängigen Cluster-/Cloud-Umgebung) weiterleitet, werden sie u.U.
+	temporär in einer Datenbank gespeichert. Um die Schlüssel in diesen Situationen zu schützen, kommt
+	asymmetrische Verschlüsselung zur Anwendung.
 
 	Every application server node generates a public/private-key-pair. Whenever it requires
 	a key, it sends its public key together with the key-request to the key-manager. The
