@@ -366,7 +366,7 @@ Supported algorithms
 
 		* {{{http://en.wikipedia.org/wiki/SHA-1}Wikipedia: SHA-1}}
 		
-		* {{{http://www.ietf.org/rfc/rfc2437.txt}RFC 2437: Chapter 10.2 (Mask Generation Functions} and 10.2.1 (MGF1)}
+		* {{{http://www.ietf.org/rfc/rfc2437.txt}RFC 2437: Chapter 10.2 (Mask Generation Functions) and 10.2.1 (MGF1)}
 
 	* <<<PKCS1>>>
 	

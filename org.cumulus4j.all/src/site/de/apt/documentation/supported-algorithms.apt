@@ -37,43 +37,43 @@ Unterstützte Algorithmen
 
 ** {Empfohlene Möglichkeiten}
 
-	Obgleich Sie aus zahlreichen Algorithmen für Verschlüsselung, Block-Modus, Polsterung (auch "Padding" genannt)
+	Obgleich Sie aus zahlreichen Algorithmen für Verschlüsselung, Block-Modus, Füllung (auch "Padding" genannt)
 	und Nachrichtenauthentifizierungs-Code (auch "MAC" genannt)
 	wählen können, funktionieren nicht alle Kombinationen mit Cumulus4j. Einige funktionieren vielleicht, ergeben jedoch keinen
 	Sinn; z.B. einen authentifizierenden Block-Modus mit einer MAC gemeinsam zu verwenden, bedeutet
 	2 (redundante!) Nachrichtenauthenfikationen zu benutzen, was das System nur unnötig ausbremst, ohne zusätzliche Sicherheit
 	zu bringen.
 
-	Daher bieten wir Ihnen hier eine kleine Auswahl von sinnvollen Möglichkeiten, die Sie vielleicht gegenüber den Standardeinstellungen
-	bevorzugen:
+	Daher bieten wir Ihnen hier eine kleine Auswahl von sinnvollen Möglichkeiten, die Sie vielleicht gegenüber den
+	Standardeinstellungen bevorzugen:
 
-*---------------------+-----------------+----------------+------------+
-| <<Verschlüsselung>> | <<Block-Modus>> | <<Polsterung>> | <<MAC>>    |
-*---------------------+-----------------+----------------+------------+
-| AES                 | GCM             | NoPadding      | None       |
-*---------------------+-----------------+----------------+------------+
-| AES                 | CFB             | NoPadding      | HMAC-SHA1  |
-*---------------------+-----------------+----------------+------------+
-| AES                 | CBC             | PKCS5          | HMAC-SHA1  |
-*---------------------+-----------------+----------------+------------+
-| Twofish             | GCM             | NoPadding      | None       |
-*---------------------+-----------------+----------------+------------+
-| Twofish             | CFB             | NoPadding      | HMAC-SHA1  |
-*---------------------+-----------------+----------------+------------+
-| Twofish             | CBC             | PKCS5          | HMAC-SHA1  |
-*---------------------+-----------------+----------------+------------+
+*-------------------------------+-----------------+-------------+------------+
+| <<Verschlüsselungsverfahren>> | <<Block-Modus>> | <<Füllung>> | <<MAC>>    |
+*-------------------------------+-----------------+-------------+------------+
+| AES                           | GCM             | NoPadding   | None       |
+*-------------------------------+-----------------+-------------+------------+
+| AES                           | CFB             | NoPadding   | HMAC-SHA1  |
+*-------------------------------+-----------------+-------------+------------+
+| AES                           | CBC             | PKCS5       | HMAC-SHA1  |
+*-------------------------------+-----------------+-------------+------------+
+| Twofish                       | GCM             | NoPadding   | None       |
+*-------------------------------+-----------------+-------------+------------+
+| Twofish                       | CFB             | NoPadding   | HMAC-SHA1  |
+*-------------------------------+-----------------+-------------+------------+
+| Twofish                       | CBC             | PKCS5       | HMAC-SHA1  |
+*-------------------------------+-----------------+-------------+------------+
 
-	"Verschlüsselung", "Block-Modus" and "Polsterung" werden üblicherweise zusammen in eine Zeichenkette
+	"Verschlüsselungsverfahren", "Block-Modus" and "Füllung" werden üblicherweise zusammen in eine Zeichenkette
 	wie "AES/GCM/NoPadding" geschrieben (also mittels "/" separiert). Der Nachrichtenauthentifizierungs-Code (MAC)
 	wird meist separat konfiguriert.
 
-	In {{{./persistence-api.html}Persistence API}}, it is documented, how you configure this for the
-	actual datastore and in {{{./key-store.html}Key store}} you'll see how you can apply different
-	encryption/MAC settings to the key store.
+	Auf der Seite {{{./persistence-api.html}Persistenz-API}} ist dokumentiert, wie Sie dies für den eigentlichen
+	Datenspeicher konfigurieren und auf {{{./key-store.html}Schlüsselspeicher}} sehen Sie, wie Sie die verschiedenen
+	Verschlüsselungs-/MAC-Einstellungen auf den Key-Store anwenden.
 
-** Block cipher engines
+** Blockchiffre-Verfahren
 
-	{{{http://en.wikipedia.org/wiki/Block_cipher}Block ciphers}} are the most widely used encryption algorithms.
+	{{{http://en.wikipedia.org/wiki/Block_cipher}Blockchiffre}} are the most widely used encryption algorithms.
 	They combine very high security with good performance.
 
 	* <<<NULL>>>
@@ -166,7 +166,7 @@ Unterstützte Algorithmen
 	
 	[]
 
-** Stream cipher engines
+** Stromchiffre-Verfahren
 
 	{{{http://en.wikipedia.org/wiki/Stream_cipher}Stream ciphers}} can be used instead of block ciphers. They are
 	usually faster, but more susceptible to serious security problems if used incorrectly. However, we believe
@@ -206,7 +206,7 @@ Unterstützte Algorithmen
 	
 	[]
 
-* Asymmetric encryption
+* Asymmetrische Verschlüsselung
 
 	{{{http://en.wikipedia.org/wiki/Asymmetric_encryption}Asymmetric encryption}} is used
 	to protect the key exchange (of the keys that are used in the symmetric encryption).
@@ -231,7 +231,7 @@ Unterstützte Algorithmen
 	<<<RSA//OAEPWITHSHA1ANDMGF1PADDING>>> is used by default. At the moment, there is no configuration
 	setting to change this, yet. However, this will likely change soon.
 
-** Asymmetric engines
+** Asymmetrische Verfahren
 
 	The following engines are available:
 
@@ -249,7 +249,7 @@ Unterstützte Algorithmen
 	
 	[]
 
-* {Block cipher operation mode}s
+* {Blockchiffre-Modi}
 
 	Block ciphers work - as the name implies - on a block of data (usually 64 or 128 bit). But usually there
 	is more data to encrypt than just one block. That's why the block cipher engine is always combined with a
@@ -371,7 +371,7 @@ Unterstützte Algorithmen
 
 		* {{{http://en.wikipedia.org/wiki/SHA-1}Wikipedia: SHA-1}}
 		
-		* {{{http://www.ietf.org/rfc/rfc2437.txt}RFC 2437: Chapter 10.2 (Mask Generation Functions} and 10.2.1 (MGF1)}
+		* {{{http://www.ietf.org/rfc/rfc2437.txt}RFC 2437: Chapter 10.2 (Mask Generation Functions) and 10.2.1 (MGF1)}
 
 	* <<<PKCS1>>>
 	
@@ -387,7 +387,7 @@ Unterstützte Algorithmen
 
 	* <<<NONE>>>
 	
-		* Means to NOT use a MAC at all. This is only recommended, if your {{Block cipher operation mode}}
+		* Means to NOT use a MAC at all. This is only recommended, if your {{Blockchiffre-Modi}Blockchiffre-Modus}
 		already contains authentication (like e.g. <<<GCM>>> does). Otherwise, it is highly recommended to use a
 		MAC.
 	
