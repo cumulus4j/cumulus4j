@@ -19,6 +19,12 @@ Dokumentation
 	Sie möchten uns bei der Entwicklung von Cumulus4j helfen? Die Seite {{{./development.html}Entwicklung}} erklärt
 	den Einstieg.
 
+* Unterstützte Algorithmen
+
+	Cumulus4j verwendet standardmäßig sehr schnelle und hochsichere Algorithmen. Doch abhängig von Ihrer Hardware
+	oder Ihren persönlichen Vorlieben bervorzugen Sie vielleicht eine andere Konfiguration. Sie können aus einer Fülle
+	von {{{./supported-algorithms.html}unterstützten Algorithmen}} auswählen.
+
 * API-Dokumentation (Javadoc)
 
 	API-Dokumentation steht in Form von {{{../apidocs/index.html}Javadoc}} zur Verfügung.

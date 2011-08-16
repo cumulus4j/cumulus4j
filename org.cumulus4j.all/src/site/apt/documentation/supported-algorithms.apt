@@ -173,17 +173,31 @@ Supported algorithms
 
 	* <<<GRAIN-128>>>
 	
+		* {{{http://en.wikipedia.org/wiki/Grain_%28cipher%29}Wikipedia: Grain (cipher)}}
+	
 	* <<<GRAIN-V1>>>
 	
+		* {{{http://en.wikipedia.org/wiki/Grain_%28cipher%29}Wikipedia: Grain (cipher)}}
+
 	* <<<HC-128>>>
 	
-	* <<<HC-256>>>
+		* {{{http://en.wikipedia.org/wiki/HC-128}Wikipedia: HC-128}}
 	
+	* <<<HC-256>>>
+
+		* {{{http://en.wikipedia.org/wiki/HC-256}Wikipedia: HC-256}}	
+
 	* <<<ISAAC>>>
+	
+		* {{{http://en.wikipedia.org/wiki/ISAAC_%28cipher%29}Wikipedia: ISAAC (cipher)}}
 	
 	* <<<RC4>>>
 	
+		* {{{http://en.wikipedia.org/wiki/RC4}Wikipedia: RC4}}
+	
 	* <<<SALSA20>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Salsa20}Wikipedia: Salsa20}}
 	
 	[]
 
