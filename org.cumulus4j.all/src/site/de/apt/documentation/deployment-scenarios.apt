@@ -10,18 +10,18 @@ Betriebsszenarien
 	Cumulus4j kann in zwei verschiedenen Szenarien betrieben werden. Aber bevor wir diese erklären, hier
 	eine Darstellung des normalen Betriebs (ohne Cumulus4j), den Sie bereits kennen, zum Vergleich:
 
-[../images/deployment-scenario/deployment-scenario-without-cumulus4j.png] Deployment without Cumulus4j
+[../images/deployment-scenario/deployment-scenario-without-cumulus4j.png] Betrieb ohne Cumulus4j
 
-	Usually, you deploy the back-end of your application to your application server (e.g.
-	Jetty, Tomcat, Glassfish, JBoss, or whatever you like). If your client is a browser, you're already done.
-	If your client is a rich client (aka. fat client), you additionally deploy the front-end to your
-	client-computer(s).
+	Normalerweise betreiben Sie das Back-End Ihrer Applikation auf Ihrem Applikationsserver (z.B.
+	Jetty, Tomcat, Glassfish, JBoss, oder was immer Sie bevorzugen). Wenn Ihr Client ein Browser ist, dann
+	ist das bereits alles. Wenn Ihr Client ein Rich-Client (auch Fat-Client genannt) ist, dann installieren
+	Sie zusätzlich das Front-End auf Ihren Client-Computern. 
 
-	As indicated by the cyan arrow, the connection (usually a TCP/IP-based protocol like HTTP, HTTPS, RMI
-	etc.) will be initiated by the client. Requests are then sent from the client to the server, while
-	the server's response goes the opposite way.
+	Wie aus dem blaugrünen Pfeil hervorgeht, wird die Verbindung (üblicherweise ein TCP/IP-basierendes Protokoll
+	wie HTTP, HTTPS, RMI etc.) vom Client aus aufgebaut. Anfragen werden darüber vom Client an den Server
+	geschickt, während die Antworten auf dem entgegengesetzten Weg zurückkommen.
 
-* {2-computer-scenario} (without key-server)
+* {2-computer-scenario} (ohne Schlüssel-Server)
 
 	If you add Cumulus4j to the picture, your back-end will additionally contain a Cumulus4j REST-based
 	API and your client communicates in parallel with this API to allow for key management:
@@ -39,7 +39,7 @@ Betriebsszenarien
 	provide JavaScript client-libs. They might follow later. If you want to contribute this functionality, please
 	join the {{{./development.html}development}} team! You're welcome! 
 
-* {3-computer-scenario} (with key-server)
+* {3-computer-scenario} (mit Schlüssel-Server)
 
 	Alternatively to holding the keys on every client, it is possible to run a separate key-server:
 

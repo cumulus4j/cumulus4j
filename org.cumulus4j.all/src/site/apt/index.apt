@@ -40,7 +40,7 @@ Welcome to Cumulus4j!
 
 	* <<Security>>: State-of-the-art encryption algorithms protect your data. All data are decrypted in the volatile memory only.
 	There is - unlike when using disk encryption - not only one single key for all data, but multiple ten-thousands of keys.
-	Additionally, the en-/decryption is done inside the application and not as a drive on the operatin-system-level. This makes
+	Additionally, the en-/decryption is done inside the application and not as a drive on the operating-system-level. This makes
 	it nearly impossible for an internal adversary to steal more than a small number of data records (by RAM-dumping).
 
 	* <<Easy integration>>: In order to ease the integration of Cumulus4j into an application, it was designed as a plug-in
