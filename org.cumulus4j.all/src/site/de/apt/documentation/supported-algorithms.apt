@@ -78,7 +78,7 @@ Unterstützte Algorithmen
 
 	* <<<NULL>>>
 	
-		* Means NO encryption at all. You should never use this except for testing/debugging!
+		* Bedeutet, überhaupt KEINE Verschlüsselung zu verwenden. Sie sollten dies niemals - außer für Tests & Fehlersuche - benutzen!
 
 	* <<<AES>>>
 	
@@ -86,11 +86,11 @@ Unterstützte Algorithmen
 	
 	* <<<AES.FAST>>>
 	 
-		* This is the same algorithm as <<<AES>>>, but an implementation with higher memory consumption and being faster.
+	 	* Dies ist der gleiche Algorithmus wie <<<AES>>>, jedoch eine Implementation mit höherem Speichervebrauch bei dadurch schnellerem Durchsatz.
 	
 	* <<<AES.LIGHT>>> 
 	
-		* This is the same algorithm as <<<AES>>>, but an implementation with lower memory consumption and being slower.
+		* Dies ist der gleiche Algorithmus wie <<<AES>>>, jedoch eine Implementation mit niedrigerem Speichervebrauch bei dadurch geringerer Geschwindigkeit.
 
 	* <<<BLOWFISH>>>
 	
@@ -101,8 +101,8 @@ Unterstützte Algorithmen
 		* {{{http://en.wikipedia.org/wiki/Camellia_%28cipher%29}Wikipedia: Camellia (cipher)}}
 	
 	* <<<CAMELLIA.LIGHT>>>
-	
-		* This is the same algorithm as <<<CAMELLIA>>>, but an implementation with lower memory consumption and being slower.
+
+		* Dies ist der gleiche Algorithmus wie <<<CAMELLIA>>>, jedoch eine Implementation mit niedrigerem Speichervebrauch bei dadurch geringerer Geschwindigkeit.
 	
 	* <<<CAST5>>>
 
@@ -225,18 +225,20 @@ Unterstützte Algorithmen
 	temporär in einer Datenbank gespeichert. Um die Schlüssel in diesen Situationen zu schützen, kommt
 	asymmetrische Verschlüsselung zur Anwendung.
 
-	Every application server node generates a public/private-key-pair. Whenever it requires
-	a key, it sends its public key together with the key-request to the key-manager. The
-	key is then encrypted with the public key and sent back. Only the original app-server-node
-	can decrypt the key. An administrator who dumps the medium used for node-to-node-communication
-	cannot make use of what he'll find there.
+	Jeder Knoten des (ggf. geclusterten) Applikations-Servers erzeugt ein Schlüsselpaar bestehend aus einem
+	öffentlichen und einem privaten Schlüssel. Wann immer er einen geheimen Schlüssel (für die symmetrische
+	Verschlüsselung) benötigt, sendet er seinen öffentlichen Schlüssel zusammen mit der Anforderung nach
+	einem geheimen Schlüssel an den Schlüssel-Verwalter. Der geheime Schlüssel wird dann mit diesem öffentlichen
+	Schlüssel verschlüsselt und das Ergebnis zurück geschickt. Nur der originale Applikations-Server-Knoten kann
+	(mit seinem privaten Schlüssel) den geheimen Schlüssel entschlüsseln. Ein Administrator, der das Medium ausliest,
+	welches für die Knoten-zu-Knoten-Kommunikation genutzt wird, kann mit den ausgelesenen Daten nichts anfangen.
 
-	<<<RSA//OAEPWITHSHA1ANDMGF1PADDING>>> is used by default. At the moment, there is no configuration
-	setting to change this, yet. However, this will likely change soon.
+	<<<RSA//OAEPWITHSHA1ANDMGF1PADDING>>> wird standardmäßig verwendet. Momentan gibt es noch keine Einstellung,
+	mit der dies umkonfiguriert werden kann. Doch diese Konfigurationsmöglichkeit wird in absehbarer Zeit geschaffen.
 
 ** Asymmetrische Verfahren
 
-	The following engines are available:
+	Die folgenden Verfahren stehen zur Verfügung:
 
 	* <<<ELGAMAL>>>
 	
@@ -254,22 +256,22 @@ Unterstützte Algorithmen
 
 * {Blockchiffre-Modi}
 
-	Block ciphers work - as the name implies - on a block of data (usually 64 or 128 bit). But usually there
-	is more data to encrypt than just one block. That's why the block cipher engine is always combined with a
-	{{{http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation}mode of operation}}. The mode implements
-	a secure way to encrypt (or decrypt) more than just one block.
+	Blockchiffren arbeiten - wie der Name sagt - mit einem Datenblock fester Länge (normalerweise 64 oder 128 Bit).
+	Jedoch sind die zu verschlüsselnden Daten meist länger als nur ein Block. Daher werden Blockchiffren immer mit
+	einem {{{http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation}Operations-Modus}} kombiniert. Der Modus
+	implementiert einen sicheren Weg, mehr Daten als nur einen Block zu ver- bzw. zu entschlüsseln.
 	
-	Cumulus4j supports the following modes:
+	Cumulus4j unterstützt die folgenden Modi:
 	
 	* <<<ECB>>>
 	
-		* Do NOT use this!!! It is extremely insecure!!!
+		* Dieser Modus sollte NICHT benutzt werden!!! Er ist äußerst unsicher!!!
 	
-		* {{{http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Electronic_codebook_.28ECB.29}Wikipedia}}
+		* {{{http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Electronic_codebook_.28ECB.29}Wikipedia: Electronic_codebook (ECB)}}
 	
 	* <<<CBC>>>
 	
-		* {{{http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29}Wikipedia}}
+		* {{{http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29}Wikipedia: Cipher-block chaining (CBC)}}
 	
 	* <<<CBC-CTS>>>
 
@@ -307,18 +309,18 @@ Unterstützte Algorithmen
 	
 	[]
 
-* Padding
+* Füllung (Padding)
 
-** Symmetric
+** Symmetrisch
 
-	When encrypting data using a symmetric block-cipher, the input data usually does not match exactly the fixed block size.
-	Therefore, with most block-cipher-modes, it is required that the last input block is filled up with additional bytes until
-	it matches the required length.
+	Bei der Verschlüsselung mit einem symmetrischen Blockchiffre-Verfahren paßt die Größe der zu verarbeitenden Daten
+	meist nicht genauf auf die feste Block-Größe. Daher muß bei den meisten Blockchiffre-Operations-Modi der letzte
+	Datenblock mit so vielen zusätzlichen Bytes aufgefüllt werden, daß er die benötigte Größe erreicht.
 
 	* <<<NOPADDING>>>
 	
-		* Means to not use any padding. This only works with stream-ciphers or with block-cipher-modes that operate the
-		block-cipher in a stream-cipher-like mode (like e.g. CFB does).
+		* Bedeutet, keine Füllung zu verwenden. Dies funktioniert nur mit Stromchiffren oder mit Blockchiffre-Modi, die
+		den Blockchiffre-Algorithmus wie einen Stromchiffre verwenden (wie es beispielsweise CFB tut).
 
 	* <<<ISO10126>>>
 	
@@ -350,17 +352,17 @@ Unterstützte Algorithmen
 	
 	[]
 	
-** Asymmetric
+** Asymmetrisch
 
-	In public-key-cryptography, padding means to prepare a message for encryption using an elaborate algorithm. Originally,
-	"padding" was nothing more than filling up the message with random bytes, but because this is not a secure form of padding,
-	it is not used anymore. Modern padding algorithms are far more advanced in order to provide protection against
-	many forms of attacks.
+	Bei asymmetrischer Kryptographie bedeutet Padding (Füllung) die Vorbereitung der Daten für die Verschlüsselung durch einen
+	ausgefeilten Algorithmus. Ursprünglich war die "Füllung" tatsächlich nicht mehr als das Auffüllen der Nachricht mit zufälligen
+	Bytes. Da dies jedoch eine unsichere Form des Paddings ist, wird sie nicht mehr verwendet. Moderne Füllungsalgorithmen sind
+	weiter fortgeschritten und bieten Schutz gegen zahlreiche mögliche Angriffe.
 
 	* <<<NOPADDING>>>
 
-		* Means to not use any padding. This only works, if the input data already matches the requirements of the
-		public-key-encryption-algorithm.
+		* Bedeutet, keine Füllung zu verwenden. Dies funktioniert nur, wenn die Eingabedaten exakt den Anforderungen des
+		asymmetrischen Kryptographieverfahrens entsprechen.
 
 	* <<<ISO9796-1>>>
 
@@ -382,17 +384,17 @@ Unterstützte Algorithmen
 
 	[]
 
-* MAC
+* Nachrichtenauthentifizierungs-Code (MAC)
 
-	A {{{http://en.wikipedia.org/wiki/Message_authentication_code}Message authentication code}} (or MAC) is used to
-	detect data manipulation or corruption. It is thus similar to a checksum, but in contrast to it, an attacker cannot
-	simply modify a few more bits to produce the same checksum as the original message.
+	Ein {{{http://en.wikipedia.org/wiki/Message_authentication_code}Nachrichtenauthentifizierungs-Code}} (oder MAC
+	von "Message authentication code") dient dazu, Datenmanipulation oder -korruption zu erkennen. Er ist daher einer
+	Prüfsumme ähnlich, jedoch kann ein Angreifer im Gegensatz zu einer einfachen Prüfsumme nicht einfach ein paar weitere
+	Bits ändern, um wieder die gleiche Summe wie die der originalen Nachricht zu erreichen.
 
 	* <<<NONE>>>
 	
-		* Means to NOT use a MAC at all. This is only recommended, if your {{{Blockchiffre-Modi}Blockchiffre-Modus}}
-		already contains authentication (like e.g. <<<GCM>>> does). Otherwise, it is highly recommended to use a
-		MAC.
+		* Bedeutet, überhaupt KEINEN MAC zu verwenden. Dies ist nur empfohlen, wenn der {{{Blockchiffre-Modi}Blockchiffre-Modus}}
+		bereits Authentifikation mitbringt. Ansonsten ist es dringend empfohlen, einen Nachrichtenauthentifizierungs-Code zu benutzen.
 	
 	* <<<DES>>>
 	

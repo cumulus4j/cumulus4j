@@ -7,4 +7,38 @@
 
 Benutzung
 
-	TODO Here we should document how to use Cumulus4j.
+* Persistenz-Zuordnung
+
+	You define the persistence mapping for your model classes in the normal way for JDO/JPA, using annotations or XML
+	(as described in DataNucleus' documentation in
+	{{{http://www.datanucleus.org/products/accessplatform_3_0/jdo/mapping.html}JDO Mapping}}
+	or {{{http://www.datanucleus.org/products/accessplatform_3_0/jpa/mapping.html}JPA Mapping}}).
+
+	Besides the standard annotations and XML, Cumulus4j provides some additional mapping features.
+	{{{./persistence-mapping.html}Read more about the Persistence mapping here.}}
+
+* Persistenz-API
+
+	Anyone familiar with either of the two standardised Java persistence APIs (JDO, JPA) should have no problem
+	utilising Cumulus4j to encrypt their data. Above you defined the mapping of your classes, and now you choose the 
+	API you prefer to handle the persistence process.
+
+	{{{./persistence-api.html}Read more about the Persistence API here.}}
+
+* Datenspeicher-Schema
+
+	Cumulus4j has its own datastore schema in order to provide secure data. You can find documentation of
+	the current schema definition {{{./schema.html}here}}.
+
+* Schlüsselspeicher (Key-Store)
+
+	Cumulus4j stores all keys used to encrypt your database in a well-protected {{{./key-store.html}key store}}.
+
+* Deployment
+
+    Cumulus4j has been tested for deployment onto the following datastores : RDBMS, HBase, MongoDB, ODF, Excel.
+    This can be achieved using the relevant store plugin for DataNucleus.
+
+    You find a documentation of the currently supported {{{./deployment-scenarios.html}deployment scenarios here}}.
+    For details about which modules need to be deployed where, please consult the
+    {{{./deployment-module-location-matrix.html}module-location-matrix}}.

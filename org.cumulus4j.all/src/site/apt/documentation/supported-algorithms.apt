@@ -218,9 +218,10 @@ Supported algorithms
 	the keys in these situations, asymmetric encryption is used.
 
 	Every application server node generates a public/private-key-pair. Whenever it requires
-	a key, it sends its public key together with the key-request to the key-manager. The
-	key is then encrypted with the public key and sent back. Only the original app-server-node
-	can decrypt the key. An administrator who dumps the medium used for node-to-node-communication
+	a secret key (for symmetric en-/decryption), it sends its public key together with the
+	secret-key-request to the key-manager. The secret key is then encrypted with the
+	public key and sent back. Only the original app-server-node can decrypt the secret key.
+	An administrator who dumps the medium used for node-to-node-communication
 	cannot make use of what he'll find there.
 
 	<<<RSA//OAEPWITHSHA1ANDMGF1PADDING>>> is used by default. At the moment, there is no configuration
@@ -257,11 +258,11 @@ Supported algorithms
 	
 		* Do NOT use this!!! It is extremely insecure!!!
 	
-		* {{{http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Electronic_codebook_.28ECB.29}Wikipedia}}
+		* {{{http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Electronic_codebook_.28ECB.29}Wikipedia: Electronic_codebook (ECB)}}
 	
 	* <<<CBC>>>
 	
-		* {{{http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29}Wikipedia}}
+		* {{{http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29}Wikipedia: Cipher-block chaining (CBC)}}
 	
 	* <<<CBC-CTS>>>
 
