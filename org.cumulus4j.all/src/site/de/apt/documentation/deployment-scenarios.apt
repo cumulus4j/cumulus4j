@@ -23,50 +23,52 @@ Betriebsszenarien
 
 * {2-computer-scenario} (ohne Schlüssel-Server)
 
-	If you add Cumulus4j to the picture, your back-end will additionally contain a Cumulus4j REST-based
-	API and your client communicates in parallel with this API to allow for key management:
+	Wenn man Cumulus4j diesem Bild hinzufügt, dann stellt Ihr Back-End zusätzlich noch eine REST-basierte
+	Cumulus4j-API zur Verfügung, über die der Client das Schlüssel-Management parallel kommuniziert:  
 
-[../images/deployment-scenario/deployment-scenario-without-keyserver.png] Deployment without key server
+[../images/deployment-scenario/deployment-scenario-without-keyserver.png] Betrieb ohne Schlüssel-Server
 
-	The second communication channel is (as indicated by the yellow arrow) initiated by the client,
-	too, and should thus not lead to any firewall problem.
+	Der zweite Kommunikationskanal wird (wie durch den gelben Pfeil gezeigt) ebenfalls vom Client aus
+	geöffnet und sollte daher nicht zu Firewall-Problemen führen.
 
-	The requests, however, are sent from the server to the client inside the existing connection. These
-	key requests happen whenever the server has to encrypt or decrypt data and therefore needs access to
-	certain keys.
+	Die Anfragen werden jedoch vom Server zum Client innerhalb der bestehenden Verbindung gesandt. Diese
+	Schlüssel-Anforderungs-Anfragen entstehen immer dann, wenn der Server Daten ver- oder entschlüsseln muß
+	und daher Zugriff auf bestimmte Schlüssel benötigt.
 
-	At the moment, this scenario only works with a rich client, because the Cumulus4j project does not (yet)
-	provide JavaScript client-libs. They might follow later. If you want to contribute this functionality, please
-	join the {{{./development.html}development}} team! You're welcome! 
+	Momentan funktioniert dieses Betriebsszenario nur mit einem Rich-Client, denn das Cumulus4j-Projekt stellt
+	(noch) keine JavaScript-Bibliotheken zur Verfügung. Diese folgen vielleicht später. Wenn Sie diese Funktionalität
+	beisteuern möchten, dann schließen Sie sich bitte dem {{{./development.html}Entwickler}}-Team an! Sie sind willkommen!
 
 * {3-computer-scenario} (mit Schlüssel-Server)
 
-	Alternatively to holding the keys on every client, it is possible to run a separate key-server:
+	Alternativ dazu, die Schlüssel auf jedem Client zu halten, ist es möglich, einen separaten Schlüssel-Server zu betreiben:
 
-[../images/deployment-scenario/deployment-scenario-with-keyserver.png] Deployment with key server
+[../images/deployment-scenario/deployment-scenario-with-keyserver.png] Betrieb mit Schlüssel-Server
 
-	This key-server could be located in your company's private LAN, for example, or somewhere in the
-	internet, but separated from the application servers (e.g. another cloud or a hosting provider).
+	Dieser Schlüssel-Server könnte zum Beispiel in Ihrem privaten Firmen-LAN oder auch irgendwo im Internet stehen, aber
+	natürlich separat vom Infrastrukturbetreiber Ihres Applikations-Servers (z.B. ein anderer Cloud- oder ein klassischer
+	Hosting-Provider).
 
-* Modules
+* Module
 
-	Which modules need to be deployed where is documented in the
-	{{{./deployment-module-location-matrix.html}module-location-matrix}}.
+	Welche Module wo installiert werden müssen, ist in der {{{./deployment-module-location-matrix.html}Modul-Ort-Matrix}}
+	beschrieben.
 
-* {Cluster-nodes}
+* {Cluster-Knoten}
 
-	It is important to understand that the application server usually is not one single machine, but a cluster.
-	Especially when using the cloud, the application server might be distributed over an unknown number
-	of physical machines (cluster-nodes).
+	Es ist wichtig zu verstehen, daß der Applikations-Server üblicherweise nicht eine einzelne Maschine sondern ein Cluster
+	ist. Insbesondere wenn man die Cloud verwendet, kann ein Applikations-Server über eine unbekannte Zahl von physischen
+	Maschinen (Cluster-Knoten) verteilt sein. 
 
-	Therefore, it can happen (and is even very likely!) that the two connections arrive on separate cluster-nodes,
-	like shown in this example:
+	Daher kann es passieren (und ist sogar recht wahrscheinlich!), daß die beiden Verbindungen auf separaten Cluster-Knoten
+	ankommen, wie es das folgende Beispiel zeigt:
 
-[../images/deployment-scenario/deployment-scenario-without-keyserver-with-cluster.png] Deployment without key server with clustered application server
+[../images/deployment-scenario/deployment-scenario-without-keyserver-with-cluster.png] Betrieb ohne Schlüssel-Server mit Applikations-Server-Cluster
 
-	Therefore, the original key request (1) must be sent to the cluster-node having a direct connection
-	with the key-manager, first. Then, this other cluster-node forwards the key request (2) to the key-manager
-	and after receiving the response (3) it finally forwards that response to the original requestor (4).
+	Deshalb muß die originale Schlüssel-Anforderung (1) zunächst zu dem Cluster-Knoten gesandt werden, der
+	eine direkte Verbindung zum Schlüssel-Manager hat. Dann muß dieser Cluster-Knoten die Schlüssel-Anforderung
+	(2) zum Schlüssel-Manager weiterleiten und nachdem er dessen Antwort (3) erhalten hat, diese wiederum an den
+	ursprünglich anfragenden Server zurück leiten (4).
 
-	The handling of this complete process is done by implementations of
-	{{{../apidocs/index.html?org/cumulus4j/store/crypto/keymanager/messagebroker/MessageBroker.html}MessageBroker}}.
+	Die Durchführung dieses komplexen Vorgangs erfolgt in Implementationen von
+	{{{../../apidocs/index.html?org/cumulus4j/store/crypto/keymanager/messagebroker/MessageBroker.html}MessageBroker}}. 

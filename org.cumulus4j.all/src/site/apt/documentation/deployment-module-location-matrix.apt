@@ -101,11 +101,11 @@ Deployment: Module-location-matrix
 	libraries listed below. But if the client is Java, the following
 	modules will be required (JDO + C4J-annotations are required, if
 	data model classes are used directly - if DTOs are used, these
-	dependencies are unnecessary)
+	dependencies are unnecessary).
 
-	* javax.jdo:jdo-api (not necessary when using DTOs)
+	* javax.jdo:jdo-api (not necessary when using DTOs only)
 
-	* {{{../org.cumulus4j.annotation/}org.cumulus4j.annotation}} (not necessary when using DTOs)
+	* {{{../org.cumulus4j.annotation/}org.cumulus4j.annotation}} (not necessary when using DTOs only)
 
 	* {{{../org.cumulus4j.keymanager.api/}org.cumulus4j.keymanager.api}}
 
