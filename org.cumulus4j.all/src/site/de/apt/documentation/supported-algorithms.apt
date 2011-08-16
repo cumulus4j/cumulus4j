@@ -7,61 +7,66 @@
 
 Unterstützte Algorithmen
 
-	Cumulus4j uses very fast and highly secure algorithms by default. Thus, it is recommended
-	that you just use the default settings. However, depending on your hardware or your
-	personal taste, you might prefer a different configuration.
+	Cumulus4j verwendet standardmäßig sehr schnelle und hochsichere Algorithmen. Daher empfehlen wir Ihnen,
+	einfach die Standardeinstellungen zu verwenden. Doch abhängig von Ihrer Hardware oder Ihren persönlichen
+	Vorlieben bervorzugen Sie vielleicht eine andere Konfiguration.
 
-	For example, the default is to use <<<TWOFISH>>> with 256 bit key size. 256 bit key size
-	is close to paranoia and you might choose to use only 128 bit instead in order to gain performance.
+	Zum Beispiel verwendet Cumulus4j standardmäßig <<<TWOFISH>>> mit einer Schlüssellänge von 256 Bit. Diese
+	Schlüssellänge grenzt an Paranoia und vielleicht möchten Sie ja auf nur 128 Bit wechseln, um etwas Performance
+	zu gewinnen. 
 
-	With 256 bit keys, <<<TWOFISH>>> is more secure than <<<AES>>>. Furthermore, on ordinary hardware,
-	Twofish is faster. However, on some CPUs or with 128 bit key size, AES might be slightly faster
-	while providing approximately the same level of security.
+	Mit 256-Bit-Schlüsseln ist <<<TWOFISH>>> sicherer als <<<AES>>>. Außerdem ist Twofish auf der meisten Hardware
+	schneller. Mit bestimmten CPUs jedoch oder mit nur 128 Bit Schlüssellänge ist AES etwas schneller als Twofish.
+	Und bei nur 128 Bit Schlüssellänge sind beide Algorithmen auch etwa gleich sicher.
 
-	In the following, you'll find a list of all supported possibilities. However:
+	Im Folgenden finden Sie eine Liste aller unterstützten Möglichkeiten. Aber:
 
-	<<Important: Changing the encryption settings can cause Cumulus4j to not work at all
-	or - even worse - it might break security!!! Only change the defaults, if you really know
-	what you are doing!>>
+	<<Wichtig: Änderungen an den Einstellungen der Verschlüsselung können dazu führen, daß Cumulus4j nicht mehr
+	funktioniert oder - noch viel schlimmer - daß es nicht mehr sicher ist!!! Ändern Sie daher nur dann die Einstellungen,
+	wenn Sie wirklich verstehen, was Sie da tun!>>
 	
-	If you are unsure, stick with the "{{Recommended choices}}"!
+	Wenn Sie unsicher sind, bleiben Sie besser bei den "{{Empfohlene Möglichkeiten}empfohlenen Möglichkeiten}"!
 
-* Symmetric encryption
+* Symmetrische Verschlüsselung
 
-	{{{http://en.wikipedia.org/wiki/Symmetric_encryption}Symmetric encryption}} is used to encrypt the data
-	in your database. Since it requires secret keys, Cumulus4j provides a key store, which also uses symmetric
-	encryption to protect your keys (in case you loose your key store - e.g. on a USB thumb drive - or someone
-	steals it).
+	{{{http://en.wikipedia.org/wiki/Symmetric_encryption}Symmetrische Verschlüsselung}} wird verwendet, um die Daten
+	in Ihrer Datenbank sicher abzulegen. Da hierfür geheime Schlüssel notwendig sind, bietet Cumulus4j einen Schlüsselspeicher
+	(auch "Key-Store" genannt), der seinerseits wiederum mittels symmetrischer Verschlüsselung die geheimen Schlüssel
+	geschützt abspeichert (für den Fall, daß Sie Ihren Key-Store verlieren - z.B. auf einem USB-Speicher-Stick - oder
+	daß jemand ihn stiehlt).
 
-** {Recommended choices}
+** {Empfohlene Möglichkeiten}
 
-	While there are many algorithms for encryption, block-mode, padding and MAC available to choose from, not
-	all combinations of them work with Cumulus4j. Some others work, but make no sense; e.g. to combine an
-	authenticating block-mode with a MAC means to have 2 (redundant!) message authentications which only slows
-	down the system unnecessarily.
+	Obgleich Sie aus zahlreichen Algorithmen für Verschlüsselung, Block-Modus, Polsterung (auch "Padding" genannt)
+	und Nachrichtenauthentifizierungs-Code (auch "MAC" genannt)
+	wählen können, funktionieren nicht alle Kombinationen mit Cumulus4j. Einige funktionieren vielleicht, ergeben jedoch keinen
+	Sinn; z.B. einen authentifizierenden Block-Modus mit einer MAC gemeinsam zu verwenden, bedeutet
+	2 (redundante!) Nachrichtenauthenfikationen zu benutzen, was das System nur unnötig ausbremst, ohne zusätzliche Sicherheit
+	zu bringen.
 
-	Therefore, we provide a small choice here that might be suitable for you and preferred over the default
-	settings:
+	Daher bieten wir Ihnen hier eine kleine Auswahl von sinnvollen Möglichkeiten, die Sie vielleicht gegenüber den Standardeinstellungen
+	bevorzugen:
 
-*-------------------+-----------------+----------------+------------+
-| <<Encryption>>    | <<Mode>>        | <<Padding>>    | <<MAC>>    |
-*-------------------+-----------------+----------------+------------+
-| AES               | GCM             | NoPadding      | None       |
-*-------------------+-----------------+----------------+------------+
-| AES               | CFB             | NoPadding      | HMAC-SHA1  |
-*-------------------+-----------------+----------------+------------+
-| AES               | CBC             | PKCS5          | HMAC-SHA1  |
-*-------------------+-----------------+----------------+------------+
-| Twofish           | GCM             | NoPadding      | None       |
-*-------------------+-----------------+----------------+------------+
-| Twofish           | CFB             | NoPadding      | HMAC-SHA1  |
-*-------------------+-----------------+----------------+------------+
-| Twofish           | CBC             | PKCS5          | HMAC-SHA1  |
-*-------------------+-----------------+----------------+------------+
+*---------------------+-----------------+----------------+------------+
+| <<Verschlüsselung>> | <<Block-Modus>> | <<Polsterung>> | <<MAC>>    |
+*---------------------+-----------------+----------------+------------+
+| AES                 | GCM             | NoPadding      | None       |
+*---------------------+-----------------+----------------+------------+
+| AES                 | CFB             | NoPadding      | HMAC-SHA1  |
+*---------------------+-----------------+----------------+------------+
+| AES                 | CBC             | PKCS5          | HMAC-SHA1  |
+*---------------------+-----------------+----------------+------------+
+| Twofish             | GCM             | NoPadding      | None       |
+*---------------------+-----------------+----------------+------------+
+| Twofish             | CFB             | NoPadding      | HMAC-SHA1  |
+*---------------------+-----------------+----------------+------------+
+| Twofish             | CBC             | PKCS5          | HMAC-SHA1  |
+*---------------------+-----------------+----------------+------------+
 
-	"Encryption", "Mode" and "Padding" are usually concatenated to a string like "AES/GCM/NoPadding".
-	The MAC is usually configured separately.
-	
+	"Verschlüsselung", "Block-Modus" and "Polsterung" werden üblicherweise zusammen in eine Zeichenkette
+	wie "AES/GCM/NoPadding" geschrieben (also mittels "/" separiert). Der Nachrichtenauthentifizierungs-Code (MAC)
+	wird meist separat konfiguriert.
+
 	In {{{./persistence-api.html}Persistence API}}, it is documented, how you configure this for the
 	actual datastore and in {{{./key-store.html}Key store}} you'll see how you can apply different
 	encryption/MAC settings to the key store.
@@ -173,17 +178,31 @@ Unterstützte Algorithmen
 
 	* <<<GRAIN-128>>>
 	
+		* {{{http://en.wikipedia.org/wiki/Grain_%28cipher%29}Wikipedia: Grain (cipher)}}
+	
 	* <<<GRAIN-V1>>>
 	
+		* {{{http://en.wikipedia.org/wiki/Grain_%28cipher%29}Wikipedia: Grain (cipher)}}
+
 	* <<<HC-128>>>
 	
-	* <<<HC-256>>>
+		* {{{http://en.wikipedia.org/wiki/HC-128}Wikipedia: HC-128}}
 	
+	* <<<HC-256>>>
+
+		* {{{http://en.wikipedia.org/wiki/HC-256}Wikipedia: HC-256}}	
+
 	* <<<ISAAC>>>
+	
+		* {{{http://en.wikipedia.org/wiki/ISAAC_%28cipher%29}Wikipedia: ISAAC (cipher)}}
 	
 	* <<<RC4>>>
 	
+		* {{{http://en.wikipedia.org/wiki/RC4}Wikipedia: RC4}}
+	
 	* <<<SALSA20>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Salsa20}Wikipedia: Salsa20}}
 	
 	[]
 
@@ -217,10 +236,16 @@ Unterstützte Algorithmen
 	The following engines are available:
 
 	* <<<ELGAMAL>>>
+	
+		* {{{http://en.wikipedia.org/wiki/ElGamal_encryption}Wikipedia: ElGamal encryption}}
 
 	* <<<NACCACHESTERN>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Naccache%E2%80%93Stern_cryptosystem}Wikipedia: Naccache–Stern cryptosystem}}
 
 	* <<<RSA>>>
+	
+		* {{{http://en.wikipedia.org/wiki/RSA}Wikipedia: RSA}}
 	
 	[]
 
@@ -253,7 +278,7 @@ Unterstützte Algorithmen
 	
 	* <<<CFB>>>
 	
-		* {{{http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher_feedback_.28CFB.29}Wikipedia}}
+		* {{{http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher_feedback_.28CFB.29}Wikipedia: Cipher feedback (CFB)}}
 	
 	* <<<CFB8>>>, <<<CFB16>>>, <<<CFB24>>> ... <<<CFB256>>>
 	
@@ -283,44 +308,82 @@ Unterstützte Algorithmen
 
 ** Symmetric
 
+	When encrypting data using a symmetric block-cipher, the input data usually does not match exactly the fixed block size.
+	Therefore, with most block-cipher-modes, it is required that the last input block is filled up with additional bytes until
+	it matches the required length.
+
 	* <<<NOPADDING>>>
+	
+		* Means to not use any padding. This only works with stream-ciphers or with block-cipher-modes that operate the
+		block-cipher in a stream-cipher-like mode (like e.g. CFB does).
 
 	* <<<ISO10126>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Padding_%28cryptography%29#Byte_padding}Wikipedia: Padding (cryptography) / Byte padding}}
 
 	* <<<ISO10126-2>>>
+
+		* {{{http://en.wikipedia.org/wiki/Padding_%28cryptography%29#Byte_padding}Wikipedia: Padding (cryptography) / Byte padding}}
 
 	* <<<ISO7816-4>>>
 
 	* <<<PKCS5>>>
+	
+		* {{{http://en.wikipedia.org/wiki/PKCS}Wikipedia: PKCS}}
 
 	* <<<PKCS7>>>
+
+		* {{{http://en.wikipedia.org/wiki/Padding_%28cryptography%29#Byte_padding}Wikipedia: Padding (cryptography) / Byte padding}}
 
 	* <<<TBC>>>
 
 	* <<<X9.23>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Padding_%28cryptography%29#Byte_padding}Wikipedia: Padding (cryptography) / Byte padding}}	
 
 	* <<<ZEROBYTE>>>
+
+		* {{{http://en.wikipedia.org/wiki/Padding_%28cryptography%29#Byte_padding}Wikipedia: Padding (cryptography) / Byte padding}}
 	
 	[]
 	
 ** Asymmetric
 
+	In public-key-cryptography, padding means to prepare a message for encryption using an elaborate algorithm. Originally,
+	"padding" was nothing more than filling up the message with random bytes, but because this is not a secure form of padding,
+	it is not used anymore. Modern padding algorithms are far more advanced in order to provide protection against
+	many forms of attacks.
+
 	* <<<NOPADDING>>>
+
+		* Means to not use any padding. This only works, if the input data already matches the requirements of the
+		public-key-encryption-algorithm.
 
 	* <<<ISO9796-1>>>
 
 	* <<<OAEP>>>
 
+		* {{{http://en.wikipedia.org/wiki/Optimal_asymmetric_encryption_padding}Wikipedia: Optimal asymmetric encryption padding}}
+
 	* <<<OAEPWITHSHA1ANDMGF1>>>
+
+		* {{{http://en.wikipedia.org/wiki/Optimal_asymmetric_encryption_padding}Wikipedia: Optimal asymmetric encryption padding}}
+
+		* {{{http://en.wikipedia.org/wiki/SHA-1}Wikipedia: SHA-1}}
+		
+		* {{{http://www.ietf.org/rfc/rfc2437.txt}RFC 2437: Chapter 10.2 (Mask Generation Functions} and 10.2.1 (MGF1)}
 
 	* <<<PKCS1>>>
 	
+		* {{{http://en.wikipedia.org/wiki/PKCS1}Wikipedia: PKCS1}}
+
 	[]
 
 * MAC
 
 	A {{{http://en.wikipedia.org/wiki/Message_authentication_code}Message authentication code}} (or MAC) is used to
-	detect data manipulation or corruption.
+	detect data manipulation or corruption. It is thus similar to a checksum, but in contrast to it, an attacker cannot
+	simply modify a few more bits to produce the same checksum as the original message.
 
 	* <<<NONE>>>
 	
@@ -330,6 +393,8 @@ Unterstützte Algorithmen
 	
 	* <<<DES>>>
 	
+		* {{{http://en.wikipedia.org/wiki/Data_Encryption_Standard}Wikipedia: Data Encryption Standard}}
+	
 	* <<<DES/CFB8>>>
 	
 	* <<<DES64>>>
@@ -338,27 +403,73 @@ Unterstützte Algorithmen
 	
 	* <<<GOST28147>>>
 	
+		* {{{http://en.wikipedia.org/wiki/GOST_%28block_cipher%29}Wikipedia: GOST (block cipher)}}
+	
 	* <<<HMAC-MD2>>>
+	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+		
+		* {{{http://en.wikipedia.org/wiki/MD2_%28cryptography%29}Wikipedia: MD2 (cryptography)}}
 	
 	* <<<HMAC-MD4>>>
 	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+
+		* {{{http://en.wikipedia.org/wiki/MD4}Wikipedia: MD4}}
+	
 	* <<<HMAC-MD5>>>
+	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+		
+		* {{{http://en.wikipedia.org/wiki/MD5}Wikipedia: MD5}}
 	
 	* <<<HMAC-RIPEMD128>>>
 	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+
+		* {{{http://en.wikipedia.org/wiki/RIPEMD}Wikipedia: RIPEMD}}
+	
 	* <<<HMAC-RIPEMD160>>>
+	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+		
+		* {{{http://en.wikipedia.org/wiki/RIPEMD}Wikipedia: RIPEMD}}
 	
 	* <<<HMAC-SHA1>>>
 	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+				
+		* {{{http://en.wikipedia.org/wiki/SHA-1}Wikipedia: SHA-1}}		
+	
 	* <<<HMAC-SHA224>>>
+	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+		
+		* {{{http://en.wikipedia.org/wiki/SHA-2}Wikipedia: SHA-2}}
 	
 	* <<<HMAC-SHA256>>>
 	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+		
+		* {{{http://en.wikipedia.org/wiki/SHA-2}Wikipedia: SHA-2}}
+	
 	* <<<HMAC-SHA384>>>
+	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+		
+		* {{{http://en.wikipedia.org/wiki/SHA-2}Wikipedia: SHA-2}}
 	
 	* <<<HMAC-SHA512>>>
 	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+		
+		* {{{http://en.wikipedia.org/wiki/SHA-2}Wikipedia: SHA-2}}
+	
 	* <<<HMAC-TIGER>>>
+	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+		
+		* {{{http://en.wikipedia.org/wiki/Tiger_%28cryptography%29}Wikipedia: Tiger (cryptography)}}
 	
 	* <<<ISO9797ALG3>>>
 	
@@ -370,11 +481,8 @@ Unterstützte Algorithmen
 	
 	* <<<RC2>>>
 	
+		* {{{http://en.wikipedia.org/wiki/RC2}Wikipedia: RC2}}
+	
 	* <<<RC2/CFB8>>>
 	
 	[]
-	
-* TODO
-	
-	Continue to document this!
-

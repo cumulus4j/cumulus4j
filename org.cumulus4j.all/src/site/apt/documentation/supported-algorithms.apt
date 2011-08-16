@@ -303,44 +303,82 @@ Supported algorithms
 
 ** Symmetric
 
+	When encrypting data using a symmetric block-cipher, the input data usually does not match exactly the fixed block size.
+	Therefore, with most block-cipher-modes, it is required that the last input block is filled up with additional bytes until
+	it matches the required length.
+
 	* <<<NOPADDING>>>
+	
+		* Means to not use any padding. This only works with stream-ciphers or with block-cipher-modes that operate the
+		block-cipher in a stream-cipher-like mode (like e.g. CFB does).
 
 	* <<<ISO10126>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Padding_%28cryptography%29#Byte_padding}Wikipedia: Padding (cryptography) / Byte padding}}
 
 	* <<<ISO10126-2>>>
+
+		* {{{http://en.wikipedia.org/wiki/Padding_%28cryptography%29#Byte_padding}Wikipedia: Padding (cryptography) / Byte padding}}
 
 	* <<<ISO7816-4>>>
 
 	* <<<PKCS5>>>
+	
+		* {{{http://en.wikipedia.org/wiki/PKCS}Wikipedia: PKCS}}
 
 	* <<<PKCS7>>>
+
+		* {{{http://en.wikipedia.org/wiki/Padding_%28cryptography%29#Byte_padding}Wikipedia: Padding (cryptography) / Byte padding}}
 
 	* <<<TBC>>>
 
 	* <<<X9.23>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Padding_%28cryptography%29#Byte_padding}Wikipedia: Padding (cryptography) / Byte padding}}	
 
 	* <<<ZEROBYTE>>>
+
+		* {{{http://en.wikipedia.org/wiki/Padding_%28cryptography%29#Byte_padding}Wikipedia: Padding (cryptography) / Byte padding}}
 	
 	[]
 	
 ** Asymmetric
 
+	In public-key-cryptography, padding means to prepare a message for encryption using an elaborate algorithm. Originally,
+	"padding" was nothing more than filling up the message with random bytes, but because this is not a secure form of padding,
+	it is not used anymore. Modern padding algorithms are far more advanced in order to provide protection against
+	many forms of attacks.
+
 	* <<<NOPADDING>>>
+
+		* Means to not use any padding. This only works, if the input data already matches the requirements of the
+		public-key-encryption-algorithm.
 
 	* <<<ISO9796-1>>>
 
 	* <<<OAEP>>>
 
+		* {{{http://en.wikipedia.org/wiki/Optimal_asymmetric_encryption_padding}Wikipedia: Optimal asymmetric encryption padding}}
+
 	* <<<OAEPWITHSHA1ANDMGF1>>>
+
+		* {{{http://en.wikipedia.org/wiki/Optimal_asymmetric_encryption_padding}Wikipedia: Optimal asymmetric encryption padding}}
+
+		* {{{http://en.wikipedia.org/wiki/SHA-1}Wikipedia: SHA-1}}
+		
+		* {{{http://www.ietf.org/rfc/rfc2437.txt}RFC 2437: Chapter 10.2 (Mask Generation Functions} and 10.2.1 (MGF1)}
 
 	* <<<PKCS1>>>
 	
+		* {{{http://en.wikipedia.org/wiki/PKCS1}Wikipedia: PKCS1}}
+
 	[]
 
 * MAC
 
 	A {{{http://en.wikipedia.org/wiki/Message_authentication_code}Message authentication code}} (or MAC) is used to
-	detect data manipulation or corruption.
+	detect data manipulation or corruption. It is thus similar to a checksum, but in contrast to it, an attacker cannot
+	simply modify a few more bits to produce the same checksum as the original message.
 
 	* <<<NONE>>>
 	
@@ -350,6 +388,8 @@ Supported algorithms
 	
 	* <<<DES>>>
 	
+		* {{{http://en.wikipedia.org/wiki/Data_Encryption_Standard}Wikipedia: Data Encryption Standard}}
+	
 	* <<<DES/CFB8>>>
 	
 	* <<<DES64>>>
@@ -358,27 +398,73 @@ Supported algorithms
 	
 	* <<<GOST28147>>>
 	
+		* {{{http://en.wikipedia.org/wiki/GOST_%28block_cipher%29}Wikipedia: GOST (block cipher)}}
+	
 	* <<<HMAC-MD2>>>
+	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+		
+		* {{{http://en.wikipedia.org/wiki/MD2_%28cryptography%29}Wikipedia: MD2 (cryptography)}}
 	
 	* <<<HMAC-MD4>>>
 	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+
+		* {{{http://en.wikipedia.org/wiki/MD4}Wikipedia: MD4}}
+	
 	* <<<HMAC-MD5>>>
+	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+		
+		* {{{http://en.wikipedia.org/wiki/MD5}Wikipedia: MD5}}
 	
 	* <<<HMAC-RIPEMD128>>>
 	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+
+		* {{{http://en.wikipedia.org/wiki/RIPEMD}Wikipedia: RIPEMD}}
+	
 	* <<<HMAC-RIPEMD160>>>
+	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+		
+		* {{{http://en.wikipedia.org/wiki/RIPEMD}Wikipedia: RIPEMD}}
 	
 	* <<<HMAC-SHA1>>>
 	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+				
+		* {{{http://en.wikipedia.org/wiki/SHA-1}Wikipedia: SHA-1}}		
+	
 	* <<<HMAC-SHA224>>>
+	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+		
+		* {{{http://en.wikipedia.org/wiki/SHA-2}Wikipedia: SHA-2}}
 	
 	* <<<HMAC-SHA256>>>
 	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+		
+		* {{{http://en.wikipedia.org/wiki/SHA-2}Wikipedia: SHA-2}}
+	
 	* <<<HMAC-SHA384>>>
+	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+		
+		* {{{http://en.wikipedia.org/wiki/SHA-2}Wikipedia: SHA-2}}
 	
 	* <<<HMAC-SHA512>>>
 	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+		
+		* {{{http://en.wikipedia.org/wiki/SHA-2}Wikipedia: SHA-2}}
+	
 	* <<<HMAC-TIGER>>>
+	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+		
+		* {{{http://en.wikipedia.org/wiki/Tiger_%28cryptography%29}Wikipedia: Tiger (cryptography)}}
 	
 	* <<<ISO9797ALG3>>>
 	
@@ -390,11 +476,8 @@ Supported algorithms
 	
 	* <<<RC2>>>
 	
+		* {{{http://en.wikipedia.org/wiki/RC2}Wikipedia: RC2}}
+	
 	* <<<RC2/CFB8>>>
 	
 	[]
-	
-* TODO
-	
-	Continue to document this!
-
