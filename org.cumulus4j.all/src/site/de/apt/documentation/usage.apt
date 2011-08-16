@@ -9,36 +9,38 @@ Benutzung
 
 * Persistenz-Zuordnung
 
-	You define the persistence mapping for your model classes in the normal way for JDO/JPA, using annotations or XML
-	(as described in DataNucleus' documentation in
+	Sie definieren die Persistenz-Zuordnung für Ihre Datenmodell-Klassen wie es für JDO/JPA üblich ist, also mittels
+	Annotationen oder XML (wie beschrieben in der DataNucleus-Dokumentation in
 	{{{http://www.datanucleus.org/products/accessplatform_3_0/jdo/mapping.html}JDO Mapping}}
-	or {{{http://www.datanucleus.org/products/accessplatform_3_0/jpa/mapping.html}JPA Mapping}}).
+	oder {{{http://www.datanucleus.org/products/accessplatform_3_0/jpa/mapping.html}JPA Mapping}}).
 
-	Besides the standard annotations and XML, Cumulus4j provides some additional mapping features.
-	{{{./persistence-mapping.html}Read more about the Persistence mapping here.}}
+	Neben Standard-Annotationen & -XML bietet Cumulus4j auch zusätzliche Zuordnungs-Features.
+	{{{./persistence-mapping.html}Lesen Sie hier mehr über die Persistenz-Zuordnung.}}
 
 * Persistenz-API
 
-	Anyone familiar with either of the two standardised Java persistence APIs (JDO, JPA) should have no problem
-	utilising Cumulus4j to encrypt their data. Above you defined the mapping of your classes, and now you choose the 
-	API you prefer to handle the persistence process.
+	Jeder, der eine der beiden standardisierten Java-Persistenz-APIs (JDO, JPA) kennt, sollte kein Problem damit
+	haben, Cumulus4j zur Verschlüsselung seiner Daten einzusetzen. Wie oben beschrieben wird zunächst die
+	Persistenz-Zuordnung vorgenommen und danach kann man eine API wählen, um den Persistenz-Prozeß zu verwenden.
 
-	{{{./persistence-api.html}Read more about the Persistence API here.}}
+	{{{./persistence-api.html}Lesen Sie hier mehr über die Persistenz-API.}}
 
 * Datenspeicher-Schema
 
-	Cumulus4j has its own datastore schema in order to provide secure data. You can find documentation of
-	the current schema definition {{{./schema.html}here}}.
+	Cumulus4j hat sein eigenes Datenbank-Schema (in der zugrunde liegenden Back-End-Datenbank) um die sichere
+	und effiziente Datenablage zu ermöglichen. Sie finden die Dokumentation zur aktuellen Schema-Definition
+	{{{./schema.html}hier}}.
 
 * Schlüsselspeicher (Key-Store)
 
-	Cumulus4j stores all keys used to encrypt your database in a well-protected {{{./key-store.html}key store}}.
+	Cumulus4j speichert alle Schlüssel, die zur Verschlüsselung der Datenbank benutzt werden, in einem gut gesicherten
+	{{{./key-store.html}Key-Store}}.
 
-* Deployment
+* Betrieb
 
-    Cumulus4j has been tested for deployment onto the following datastores : RDBMS, HBase, MongoDB, ODF, Excel.
-    This can be achieved using the relevant store plugin for DataNucleus.
+    Cumulus4j wurde getestet zum Betrieb mit den folgenden Back-End-Datenspeichern: RDBMS, HBase, MongoDB, ODF, Excel.
+    Für den jeweiligen Datenbank-Typ wird das entsprechende "Store-Plugin" für DataNucleus benötigt.
 
-    You find a documentation of the currently supported {{{./deployment-scenarios.html}deployment scenarios here}}.
-    For details about which modules need to be deployed where, please consult the
-    {{{./deployment-module-location-matrix.html}module-location-matrix}}.
+	Sie finden Dokumentation zu den derzeit unterstützten {{{./deployment-scenarios.html}Betriebsszenarien hier}}.
+	Für Details darüber, welche Module wo installiert werden müssen, konsultieren Sie bitte die
+    {{{./deployment-module-location-matrix.html}Modul-Ort-Matrix}}.

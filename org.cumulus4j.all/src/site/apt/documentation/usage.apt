@@ -27,8 +27,8 @@ Usage
 
 * Datastore schema
 
-	Cumulus4j has its own datastore schema in order to provide secure data. You can find documentation of
-	the current schema definition {{{./schema.html}here}}.
+	Cumulus4j has its own datastore schema (in the underyling back-end-database) in order to provide secure data.
+	You can find documentation of the current schema definition {{{./schema.html}here}}.
 
 * Key store
 

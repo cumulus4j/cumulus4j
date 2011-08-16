@@ -13,7 +13,7 @@ Betrieb: Modul-Ort-Matrix
 * {2-Computer-Szenario} (ohne Schlüssel-Server)
 
 	Hinweis: Das Cumulus4j-Projekt stellt noch keine JavaScript-Bibliotheken für dieses Szenario
-	zur Verfügung. Daher ist es noch nicht für Thin-Clients (die in einem Browser laufen) unterstützt:
+	zur Verfügung. Daher ist es noch nicht für Thin-Clients (die in einem Browser laufen) unterstützt.
 
 ** Applikations-Server
 
