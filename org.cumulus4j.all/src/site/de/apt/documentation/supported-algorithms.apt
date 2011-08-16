@@ -218,7 +218,10 @@ Unterstützte Algorithmen
 	(siehe {{{./deployment-scenarios.html}Deployment-Szenarios}}), aber die geheimen Schlüssel werden auf dem
 	Applikations-Server benötigt, um dort die eigentlichen Daten zu ent- bzw. zu verschlüsseln. Das bedeutet,
 	Schlüssel-Transfers sind notwendig. 
-	
+
+	Die Schlüssel werden auf ihrem Weg vom Key-Store durch das offene Internet zum Applikations-Server
+	üblicherweise durch eine HTTPS-Verbindung geschützt.
+
 	In order to get the keys from the key store to the application server, usually an
 	HTTPS connection protects them on their way through the open internet. However,
 	in order to get the keys from one application server node to another node (in the typical
@@ -390,7 +393,7 @@ Unterstützte Algorithmen
 
 	* <<<NONE>>>
 	
-		* Means to NOT use a MAC at all. This is only recommended, if your {{Blockchiffre-Modi}Blockchiffre-Modus}
+		* Means to NOT use a MAC at all. This is only recommended, if your {{{Blockchiffre-Modi}Blockchiffre-Modus}}
 		already contains authentication (like e.g. <<<GCM>>> does). Otherwise, it is highly recommended to use a
 		MAC.
 	
