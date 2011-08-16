@@ -215,7 +215,7 @@ Unterstützte Algorithmen
 	schützen.
 
 	Der {{{./key-store.html}Schlüsselspeicher}} liegt auf dem Client oder auf einem separaten Schlüssel-Server
-	(siehe {{{./deployment-scenarios.html}Deployment-Szenarios}}), aber die geheimen Schlüssel werden auf dem
+	(siehe {{{./deployment-scenarios.html}Deployment-Szenarien}}), aber die geheimen Schlüssel werden auf dem
 	Applikations-Server benötigt, um dort die eigentlichen Daten zu ent- bzw. zu verschlüsseln. Das bedeutet,
 	Schlüssel-Transfers sind notwendig. 
 

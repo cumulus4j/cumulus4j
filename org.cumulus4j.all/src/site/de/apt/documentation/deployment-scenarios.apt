@@ -1,11 +1,11 @@
 	---
-	Deployment scenarios
+	Deployment-Szenarien
 	---
 	Marco หงุ่ยตระกูล-Schulze
 	---
 	2011-05-26
 
-Deployment scenarios
+Deployment-Szenarien
 
 	Cumulus4j can be used in 2 different deployment scenarios. But before we explain
 	them, here's the normal deployment scenario (without Cumulus4j) that you're already
