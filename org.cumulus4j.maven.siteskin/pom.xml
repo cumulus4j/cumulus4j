@@ -1,0 +1,66 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.cumulus4j.maven</groupId>
+	<artifactId>org.cumulus4j.maven.siteskin</artifactId>
+	<name>${project.artifactId}</name>
+	<version>1.0.0-SNAPSHOT</version>
+	<inceptionYear>2011</inceptionYear>
+	<scm>
+		<url>https://dev.nightlabs.org/svn/public/cumulus4j/trunk/org.cumulus4j.maven.siteskin</url>
+		<connection>scm:svn:https://dev.nightlabs.org/svn/public/cumulus4j/trunk/org.cumulus4j.maven.siteskin</connection>
+		<developerConnection>scm:svn:https://dev.nightlabs.org/svn/public/cumulus4j/trunk/org.cumulus4j.maven.siteskin</developerConnection>
+	</scm>
+	<ciManagement>
+		<system>jenkins</system>
+		<url>https://dev.nightlabs.org/jenkins/job/org.cumulus4j.maven.siteskin/</url>
+	</ciManagement>
+	<organization>
+		<name>NightLabs Consulting GmbH</name>
+		<url>http://www.nightlabs.de</url>
+	</organization>
+	<developers>
+		<developer>
+			<id>mklinger</id>
+			<name>Marc Klinger</name>
+			<email>mklinger[at]nightlabs[dot]de</email>
+			<organization>NightLabs</organization>
+			<organizationUrl>http://www.nightlabs.de</organizationUrl>
+		</developer>
+		<developer>
+			<id>mschulze</id>
+			<name>Marco หงุ่ยตระกูล-Schulze</name>
+			<email>mklinger[at]nightlabs[dot]de</email>
+			<organization>NightLabs</organization>
+			<organizationUrl>http://www.nightlabs.de</organizationUrl>
+		</developer>
+	</developers>
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-site-plugin</artifactId>
+					<version>3.0-beta-3</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<distributionManagement>
+		<!--
+		Moved to "libs-..." (from "plugins-..."), because with a proper repositories+pluginRepositories
+		configuration, the maven-site-plugin tries to download the skin from an ordinary repository - NOT from a
+		pluginRepository. It wouldn't be clean to put the "plugins-..." repository in the <repositories> section.
+		Hence, here must be the "libs-..." instead.
+		2011-06-01 Marco :-) 
+		-->
+		<repository>
+			<id>dev.nightlabs.org-libs-releases-local</id>
+			<url>https://dev.nightlabs.org/maven-repository/libs-releases-local</url>
+		</repository>
+		<snapshotRepository>
+			<id>dev.nightlabs.org-libs-snapshots-local</id>
+			<url>https://dev.nightlabs.org/maven-repository/libs-snapshots-local</url>
+		</snapshotRepository>
+	</distributionManagement>
+</project>
