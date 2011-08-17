@@ -34,7 +34,7 @@ Theorie
 	Zusätzlich ist in jedem Eintrag in der IndexEntry-Tabelle 
 	eine Referenz auf den entsprechenden Eintrag in der FieldMeta-Tabelle enthalten.
 
-* Verschlüssleung
+* Verschlüsselung
 
 	Um Ihre Daten zu schützen, benutzt Cumulus4j aktuelle probabilistische symmetrische Verschlüsselungsverfahren 
 	(z.B. AES mit Galois/Counter-Mode und PKCS#5-Padding).
