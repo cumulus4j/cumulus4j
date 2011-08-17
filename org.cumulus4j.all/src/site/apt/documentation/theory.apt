@@ -21,11 +21,12 @@ Theory
 [../images/c4j-datastructure.png] The Cumulus4j data structure
 
 	In the table ClassMeta, metadata about objects is stored. 
-	Each ClassMeta entry has a list of references to the Fieldmeta entries of the fields of the Class. 
+	Each ClassMeta entry has a list of references to the FieldMeta entries of the fields of the class. 
 	In the table FieldMeta, metadata about object fields is stored. 
-	Each FiedlsMeta entry has a reference to the ClassMeta entry of its class and may have references to its sub-fields. 
+	Each FieldMeta entry has a reference to the ClassMeta entry of its class and may have references to its sub-fields. 
 	The table DataEntry holds encrypted representation of actual objects. 
-	These objects can be accessed through IndexEntry tables that hold index values and encrypted pointers to the DataEntry table. 		Additionally each index entry has a reference to the FieldMeta entry of its field.
+	These objects can be accessed through IndexEntry tables that hold index values and encrypted pointers to the DataEntry table.
+	Additionally each index entry has a reference to the FieldMeta entry of its field.
 
 * Encryption
 
