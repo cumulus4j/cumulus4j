@@ -9,7 +9,7 @@ Theory
 	Cumulus4j uses encryption in order to protect your data.
 
 	Before data is written to the data store, it gets encrypted by Cumulus4j. 
-	Cumulus4j also decrypts data before it is used by your application. All this happens transparent to your application.
+	Cumulus4j also decrypts data before it is used by your application. All this happens transparently to your application.
 
 [../images/scheme.jpeg] Basic Cumulus4j scheme
 
@@ -49,7 +49,9 @@ Theory
 
 * Security
 
-	Cumulus4j provides Ind-ICP security for your Data. This means, that it hides which attribute values belong together. 
+	Cumulus4j provides
+	{{{http://books.google.com/books?id=JxiCjJI8C_0C&pg=PA164&dq=Indistinguishability+under+Independent+Column+Permutation&hl=en&ei=ChFLTqupOYf4sgaArtnEBw&sa=X&oi=book_result&ct=result&resnum=1&ved=0CCkQ6AEwAA}Ind-ICP}}
+	security for your data. This means, that it hides which attribute values belong together. 
 	An adversary copying you datastore cannot reconstruct the stored Objects.
 
 * Compatibility

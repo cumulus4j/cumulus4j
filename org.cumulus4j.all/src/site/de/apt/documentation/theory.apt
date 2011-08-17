@@ -56,7 +56,9 @@ Theorie
 
 * Sicherheit
 
-	Cumulus4j bietet Ind-ICP-Sicherheit für Ihre Daten. Das bedeutet, dass versteckt wird, welche Attributswerte zusammen gehören.
+	Cumulus4j bietet
+	{{{http://books.google.com/books?id=JxiCjJI8C_0C&pg=PA164&dq=Indistinguishability+under+Independent+Column+Permutation&hl=en&ei=ChFLTqupOYf4sgaArtnEBw&sa=X&oi=book_result&ct=result&resnum=1&ved=0CCkQ6AEwAA}Ind-ICP}}-Sicherheit
+	für Ihre Daten. Das bedeutet, dass versteckt wird, welche Attributswerte zusammen gehören.
 	Ein Angreifer, der Ihre Daten stiehlt, kann die darin gespeicherten Objekte nicht rekonstruieren.
 
 * Kompatibilität
