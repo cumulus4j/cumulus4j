@@ -16,8 +16,8 @@ Theorie
 
 * Die Cumulus4j-Datenstruktur
 
-	Die Cumulus4j Datenstruktur ist unten abgebildet.
-	Sie speichert Objekte in einer Weise, die Relationen von Attributswerten versteckt. Das heißt es ist nicht ersichtlich 
+	Die Cumulus4j-Datenstruktur ist unten abgebildet.
+	Sie speichert Objekte in einer Weise, die Relationen von Attributswerten versteckt. Das heißt, es ist nicht ersichtlich 
 	mit welchen Werten die Variablen eines Objektes belegt sind.
 	
 [../images/c4j-datastructure.png] Die Cumulus4j-Datenstruktur
@@ -25,9 +25,9 @@ Theorie
 	In der Tabelle ClassMeta werden Metadaten über die gespeicherten Objekte hinterlegt.
 	Jeder Eintrag in ClassMeta enthält eine Liste von Referenzen zu Einträgen in FieldMeta der entsprechenden Klasse.
 	In dieser Tabelle (FieldMeta) sind Metadaten über die Felder von Objekten hinterlegt.
-	Jeder Eintrag in FiedlsMeta hat eine Referenz zum ClassMeta-Eintrag seiner Klasse, 
-	und kann Referenzen zu eventuellen enthaltenen Feldern haben.
-	
+	Jeder Eintrag in FieldMeta hat eine Referenz zum ClassMeta-Eintrag seiner Klasse
+	und kann Referenzen zu eventuellen enthaltenen Sub-Feldern haben.
+
 	Die Tabelle DataEntry speichert eine verschlüsselte Repräsentation der eigentlichen Objekte.
 	Auf diese Objekte kann mittels der IndexEntry-Tabellen, 
 	die Indexeinträge und verschlüsselte Referenzen auf Einträge in die DataEntry-Tabelle speichert, zugegriffen werden.
