@@ -29,8 +29,15 @@
 	</bannerRight>
 
 	<poweredBy>
+		<!--
+		There is a bug causing the above defined <bannerRight/>-image to be used for all powered-by-entries
+		that use a relative image path. Therefore, even the C4j-images must be declared with an absolute path.
+		Relative paths work fine, if the <bannerRight/>-element is missing in this file.
+		Marco :-)
+		-->
+
 		<logo name="Bundesministerium für Bildung und Forschung"
-			img="./images/bmbf-139x87.png"
+			img="http://cumulus4j.org/${project.version}/images/bmbf-139x87.png"
 			href="http://www.bmbf.de"
 			target="_blank" />
 
@@ -40,7 +47,7 @@
 			target="_blank" />
 
 		<logo name="BouncyCastle"
-			img="../images/TheLegionOfTheBouncyCastle.png"
+			img="http://cumulus4j.org/${project.version}/images/TheLegionOfTheBouncyCastle.png"
 			href="http://www.bouncycastle.org"
 			target="_blank" />
 
