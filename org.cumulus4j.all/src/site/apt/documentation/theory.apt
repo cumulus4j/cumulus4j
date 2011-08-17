@@ -57,7 +57,7 @@ Theory
 
 * Compatibility
 
-	The Cumulus4j adapter can be used transparently to the client application.
+	The Cumulus4j adapter can be used transparently to the application.
 	It is integrated into DataNucleus and fully supports JDO and JPA.
 
 * Performance

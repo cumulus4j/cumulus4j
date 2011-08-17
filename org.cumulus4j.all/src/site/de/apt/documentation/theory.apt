@@ -63,7 +63,7 @@ Theorie
 
 * Kompatibilität
 
-	Der Cumulus4j-Adapter arbeitet vollständig transparent. 
+	Der Cumulus4j-Adapter arbeitet für die Applikation transparent. 
 	Er ist in DataNucleus integriert und unterstützt JDO sowie JPA vollständig.
 
 * Performance
