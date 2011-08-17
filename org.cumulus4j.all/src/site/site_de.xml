@@ -37,7 +37,7 @@
 		-->
 
 		<logo name="Bundesministerium für Bildung und Forschung"
-			img="http://cumulus4j.org/${project.version}/images/bmbf-139x87.png"
+			img="http://cumulus4j.org/${project.version}/de/images/bmbf-139x87.png"
 			href="http://www.bmbf.de"
 			target="_blank" />
 
