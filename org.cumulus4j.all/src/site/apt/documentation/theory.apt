@@ -53,15 +53,14 @@ Theory
 	Cumulus4j provides
 	{{{http://books.google.com/books?id=JxiCjJI8C_0C&pg=PA164&dq=Indistinguishability+under+Independent+Column+Permutation&hl=en&ei=ChFLTqupOYf4sgaArtnEBw&sa=X&oi=book_result&ct=result&resnum=1&ved=0CCkQ6AEwAA}Ind-ICP}}
 	security for your data. This means, that it hides which attribute values belong together. 
-	An adversary copying you datastore cannot reconstruct the stored Objects.
+	An adversary copying your datastore cannot reconstruct the stored objects.
 
 * Compatibility
 
-	The Cumulus4j-Adapter can be used fully transparent to the client application.
+	The Cumulus4j adapter can be used transparently to the client application.
 	It is integrated into DataNucleus and fully supports JDO and JPA.
 
 * Performance
 
 	Due to the use of symmetric encryption and indices for fast record lookup, the plugin already provides good performance.
 	One goal of this project is speed optimization resulting in only a small overhead for security.
-
