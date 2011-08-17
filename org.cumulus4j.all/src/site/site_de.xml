@@ -23,6 +23,11 @@
 	xsi:schemaLocation="http://maven.apache.org/DECORATION/1.0.0 http://maven.apache.org/xsd/decoration-1.0.1.xsd"
 	name="Cumulus4j - Securing your data in the cloud">
 
+	<bannerRight>
+		<src>../images/banner-right.png</src>
+    	<height>42</height>
+	</bannerRight>
+
 	<poweredBy>
 		<logo name="Bundesministerium für Bildung und Forschung"
 			img="./images/bmbf-139x87.png"
