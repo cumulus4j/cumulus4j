@@ -11,7 +11,7 @@ Theory
 	Before data is written to the data store, it gets encrypted by Cumulus4j. 
 	Cumulus4j also decrypts data before it is used by your application. All this happens transparently to your application.
 
-[../images/overview.png] Basic Cumulus4j scheme
+[../images/schema_en_561.png] Basic Cumulus4j scheme
 
 * The Cumulus4j data structure
 

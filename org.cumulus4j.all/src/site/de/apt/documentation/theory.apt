@@ -12,7 +12,7 @@ Theorie
 	Cumulus4j entschlüsselt die Daten auch wieder, bevor sie von Ihrer Applikation benutzt werden. 
 	Die geschieht für Ihre Anwendung transparent.
 
-[../images/scheme.jpeg] Vereinfachtes Schema von Cumulus4j
+[../images/schema_de_561.png] Vereinfachtes Schema von Cumulus4j
 
 * Die Cumulus4j-Datenstruktur
 
