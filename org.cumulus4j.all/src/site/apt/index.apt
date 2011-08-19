@@ -35,7 +35,7 @@ Welcome to Cumulus4j!
 	before any application can operate on the data. And as soon as the disk is mounted, an internal adversary (e.g. a system
 	administrator) can easily grab all data via the file system.
 
-[./images/overview.png] Overview
+[./images/schema_en_261.png] Overview
 
 	Cumulus4j solves this problem and fulfills the following requirements:
 
