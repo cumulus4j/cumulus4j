@@ -1,11 +1,11 @@
 	---
-	Module org.cumulus4j.keymanager.cli
+	Modul org.cumulus4j.keymanager.cli
 	---
 	Marco หงุ่ยตระกูล-Schulze
 	---
 	2011-06-22
 
-Module org.cumulus4j.keymanager.cli
+Modul org.cumulus4j.keymanager.cli
 
 	Ein Kommandozeileneninterface um Schlüssel im Key-Store zu verwalten. Nicht zur Verwendung im Produktivbetrieb gedacht.
 	

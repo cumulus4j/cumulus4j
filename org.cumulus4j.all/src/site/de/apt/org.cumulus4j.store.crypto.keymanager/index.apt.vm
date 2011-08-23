@@ -7,7 +7,7 @@
 
 Modul org.cumulus4j.store.crypto.keymanager
 
-	Implementierung von {{{../apidocs/index.html?org/cumulus4j/store/crypto/CryptoManager.html}CryptoManager}}, arbeitet mit 		einer Schlüsselverwaltung, wie in {{{../documentation/deployment-scenarios.html}Deployment scenarios}} dargestellt.
+	Implementierung von {{{../apidocs/index.html?org/cumulus4j/store/crypto/CryptoManager.html}CryptoManager}}, arbeitet mit 		einer Schlüsselverwaltung, wie in {{{../documentation/deployment-scenarios.html}Betriebsszenarien}} dargestellt.
 
 	Dieses Modul ist ein Plugin für {{{../org.cumulus4j.store/}org.cumulus4j.store}}
 	(DataNucleus benutzt den Eclipse-Plugin-Mechanismus	und deshalb tun wir dasselbe).

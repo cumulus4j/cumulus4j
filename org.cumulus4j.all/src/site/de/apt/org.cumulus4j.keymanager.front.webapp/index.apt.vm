@@ -1,5 +1,5 @@
 	---
-	Module org.cumulus4j.keymanager.front.webapp
+	Modul org.cumulus4j.keymanager.front.webapp
 	---
 	Marco หงุ่ยตระกูล-Schulze
 	---
@@ -7,7 +7,7 @@
 
 Modul org.cumulus4j.keymanager.front.webapp
 
-	Key-Server-Verwaltung {{{../org.cumulus4j.keystore/}key-stores}} und Schlüsselprovision
+	Key-Server, der {{{../org.cumulus4j.keystore/} Keystores}} verwaltet undund Schlüsselprovision
 	für den Applikationsserver wenn angefragt (vom Applikationsserver) und erlaubt (vom Client).
 
 	Siehe {{{../documentation/deployment-scenarios.html#3-computer-scenario}Deployment scenarios / 3-computer-scenario}}
@@ -39,4 +39,3 @@ Modul org.cumulus4j.keymanager.front.webapp
 
 	Die {{{../documentation/deployment-module-location-matrix.html}module-location-matrix}} zeigt, wo dieses Modul
 	eingesetzt werden muss.
-

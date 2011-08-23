@@ -1,15 +1,14 @@
 	---
-	Module org.cumulus4j.integrationtest.withkeyserver
+	Modul org.cumulus4j.integrationtest.withkeyserver
 	---
 	Marco หงุ่ยตระกูล-Schulze
 	---
 	2011-06-02
 
-Module org.cumulus4j.integrationtest.withkeyserver
+Modul org.cumulus4j.integrationtest.withkeyserver
 
 	Ein Integrationstest, der einen zweiten Jetty-Servlet-Container als einen Key-Server startet.
 	(zusätzlich zu dem von {{{../org.cumulus4j.integrationtest.webapp/index.html}org.cumulus4j.integrationtest.webapp}})
 	Der Test wird benutzt, um das Zusammenspiel aller Teile in einer
 	kompletten Simulation des Applikationsservers (simuliert durch Jetty + Dummy-Web-Anwendung) und des Clients 
 	(Test-Klassen in /src/test) zu testen.
-	

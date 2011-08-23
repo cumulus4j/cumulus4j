@@ -7,7 +7,7 @@
 
 Modul org.cumulus4j.store
 
-	Plug-in für {{{http://www.datanucleus.org}DataNucleus}}, ermöglicht verschlüsselte Datenspeicherung.
+	Plugin für {{{http://www.datanucleus.org}DataNucleus}}, ermöglicht verschlüsselte Datenspeicherung.
 	
 	Es ist verantwortlich für die Speicherung von Daten in einer verschlüsselten Form, sowie die Abfrage der Daten
 	(dabei werden JDOQL und JPAQL unterstützt). Deshalb nutzt es einen Backend-Datenspeicher
@@ -34,13 +34,13 @@ auf die folgenden DN Erweiterungspunkte:
 	
 	Um erweiterbar zu sein, deklariert dieses Plugins selbst einige Erweiterungspunkte:
 	
-	* org.cumulus4j.store.crypto_manager (see {{{../apidocs/index.html?org/cumulus4j/store/crypto/CryptoManager.html}CryptoManager}})
+	* org.cumulus4j.store.crypto_manager (siehe {{{../apidocs/index.html?org/cumulus4j/store/crypto/CryptoManager.html}CryptoManager}})
 	
 	* Extension provided by {{{../org.cumulus4j.store.crypto.keymanager/}org.cumulus4j.store.crypto.keymanager}}
 	
-	* org.cumulus4j.store.index_mapping (see {{{../apidocs/index.html?org/cumulus4j/store/model/IndexEntry.html}IndexEntry}})
+	* org.cumulus4j.store.index_mapping (siehe {{{../apidocs/index.html?org/cumulus4j/store/model/IndexEntry.html}IndexEntry}})
 	
-	* org.cumulus4j.store.query_method (see {{{../apidocs/index.html?org/cumulus4j/store/query/method/MethodEvaluator.html}MethodEvaluator}})
+	* org.cumulus4j.store.query_method (siehe {{{../apidocs/index.html?org/cumulus4j/store/query/method/MethodEvaluator.html}MethodEvaluator}})
 	
 	[]
 	

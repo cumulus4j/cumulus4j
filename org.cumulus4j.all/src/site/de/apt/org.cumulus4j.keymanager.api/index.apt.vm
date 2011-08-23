@@ -1,15 +1,15 @@
 	---
-	Module org.cumulus4j.keymanager.api
+	Modul org.cumulus4j.keymanager.api
 	---
 	Marco หงุ่ยตระกูล-Schulze
 	---
 	2011-06-02
 
-Module org.cumulus4j.keymanager.api
+Modul org.cumulus4j.keymanager.api
 
-	API mit der der Client-Code den Key-Manager kontrollieren kann (lokal oder remote).
+	API, mit der der Client-Code den Key-Manager kontrollieren kann (lokal oder remote).
 
-	Wie in {{{../documentation/deployment-scenarios.html}deployment scenarios}} gezeigt, 
+	Wie in {{{../documentation/deployment-scenarios.html}betriebsszenatien}} gezeigt, 
 	kann {{{../org.cumulus4j.keystore/}key-store}} entweder lokal oder als remote Key-Server ausgeführt werden.
 	Diese API stellt eine einheitliche Schnittstelle zum Zugriff auf den Key-Server zu Verfügung (egal wo er läuft).
 	Der Einzige Unterschied zwsichen beiden Szenarien ist die URL des Key-Managers
@@ -39,4 +39,3 @@ Module org.cumulus4j.keymanager.api
 
 	Die {{{../documentation/deployment-module-location-matrix.html}module-location-matrix}} zeigt, wo dieses Modul
 	eingesetzt werden muss.
-

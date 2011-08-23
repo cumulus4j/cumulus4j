@@ -1,16 +1,16 @@
 	---
-	Module org.cumulus4j.keymanager.front.shared
+	Modul org.cumulus4j.keymanager.front.shared
 	---
 	Marco หงุ่ยตระกูล-Schulze
 	---
 	2011-06-02
 
-Module org.cumulus4j.keymanager.front.shared
+Modul org.cumulus4j.keymanager.front.shared
 
 	Geteilte Klassen zur Kommunikation zwischen {{{../org.cumulus4j.keymanager.api/}app-client (key manager API)}} und
 	{{{../org.cumulus4j.keymanager.front.webapp/}key-server}}.
 
-	Da die Kommunikation aud REST basiert, sind die meisten Klassen {{{http://en.wikipedia.org/wiki/Data_Transfer_Object}DTOs}}
+	Da die Kommunikation auf REST basiert, sind die meisten Klassen {{{http://en.wikipedia.org/wiki/Data_Transfer_Object}DTOs}},
     welche mittels XML oder JSON übertragen werden.
 
 
@@ -36,4 +36,3 @@ Module org.cumulus4j.keymanager.front.shared
 
 	Die {{{../documentation/deployment-module-location-matrix.html}module-location-matrix}} zeigt, wo dieses Modul
 	eingesetzt werden muss.
-
