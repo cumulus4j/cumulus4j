@@ -1,0 +1,37 @@
+	---
+	Modul org.cumulus4j.store.crypto.keymanager
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-02
+
+Modul org.cumulus4j.store.crypto.keymanager
+
+	Implementierung von {{{../apidocs/index.html?org/cumulus4j/store/crypto/CryptoManager.html}CryptoManager}}, arbeitet mit 		einer Schlüsselverwaltung, wie in {{{../documentation/deployment-scenarios.html}Deployment scenarios}} dargestellt.
+
+	Dieses Modul ist ein Plugin für {{{../org.cumulus4j.store/}org.cumulus4j.store}}
+	(DataNucleus benutzt den Eclipse-Plugin-Mechanismus	und deshalb tun wir dasselbe).
+	Es beinhaltet die REST-API-Klassen, die es der entfernten Schlüsselverwaltung (im Client oder Schlüsselserver) erlauben, eine Verbindung zum App-Server (gelber Pfeil in 'Betriebsszenarien') aufzubauen. Die Registrierung
+	dieser REST-Applikation befindet sich in <<<web.xml>>> von Modul {{{../org.cumulus4j.keymanager.back.webapp/}org.cumulus4j.keymanager.back.webapp}}.
+
+* Maven
+
+	Nach Hinzufügen der Repositories (wie auf der Seite{{{../download/index.html}Download}} beschrieben) zur Datei <<<pom.xml>>>
+	können Sie die folgende Abhängigkeit hinzufügen, um das Module nutzen zu können:
+
++------------------------------------------+
+<dependencies>
+	...
+	<dependency>
+		<groupId>org.cumulus4j</groupId>
+		<artifactId>org.cumulus4j.store.crypto.keymanager</artifactId>
+		<version>${project.version}</version>
+	</dependency>
+	...
+</dependencies>
++------------------------------------------+
+
+* Einsatzort
+
+	Die Seite {{{../documentation/deployment-module-location-matrix.html}module-location-matrix}} zeigt, wo
+	dieses Modul bereitgestellt werden muss.
