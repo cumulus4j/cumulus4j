@@ -1,0 +1,48 @@
+	---
+	Module org.cumulus4j.keymanager.cli
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-22
+
+Module org.cumulus4j.keymanager.cli
+
+	Ein Kommandozeileneninterface um Schlüssel im Key-Store zu verwalten. Nicht zur Verwendung im Produktivbetrieb gedacht.
+	
+	Nachdem Sie die JAR-Datei heruntergeladen haben, benutzen Sie bitte den folgenden Befehl für eine Anleitung:
+
++------------------------------------------+
+java -jar org.cumulus4j.keymanager.cli-${project.version}.jar help
++------------------------------------------+
+
+	Sie können sowohl lokale asl auch entferne Key-Stores verwalten.
+	Hier ein Auszug der Funktionalität:
+	
+	* Erstelle einen neuen Key-Store und initialisiere ihn mit der {{{../documentation/date-dependent-key-strategy.html}date-dependent key-strategy}}.
+	
+    * Benutzer hinzufügen/entfernen
+
+    * Passwort eines Benutzers ändern.
+
+	* Informationen über den Key-Store anzeigen.
+
+* Maven
+
+	After adding the repositories documented on the {{{../download/index.html}Download}} page
+	to your <<<pom.xml>>>, you can add the following dependency in order to use this module: 
+
++------------------------------------------+
+<dependencies>
+	...
+	<dependency>
+		<groupId>org.cumulus4j</groupId>
+		<artifactId>org.cumulus4j.keymanager.cli</artifactId>
+		<version>${project.version}</version>
+	</dependency>
+	...
+</dependencies>
++------------------------------------------+
+
+	However, as said: This module is <<not a library>> and therefore you should normally not need to
+	include it into the <<<pom.xml>>> of any of your modules. We provide these Maven coordinates merely
+	for special situations like bundling this CLI into an installation package. 
