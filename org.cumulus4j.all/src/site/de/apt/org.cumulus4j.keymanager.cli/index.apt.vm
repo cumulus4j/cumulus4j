@@ -24,12 +24,13 @@ java -jar org.cumulus4j.keymanager.cli-${project.version}.jar help
 
     * Passwort eines Benutzers ändern.
 
-	* Informationen über den Key-Store anzeigen.
+	* Informationen über den Key-Store anzeigen
 
 * Maven
 
-	After adding the repositories documented on the {{{../download/index.html}Download}} page
-	to your <<<pom.xml>>>, you can add the following dependency in order to use this module: 
+	Nachdem Sie die auf {{{../download/index.html}Download}} dokumentierten Repositories
+	zu Ihrer <<<pom.xml>>> hinzugefügt haben, können Sie die folgende Abhängigkeit hinzufügen 
+	um sie in Ihrem Modul zu benutzen:
 
 +------------------------------------------+
 <dependencies>
@@ -43,6 +44,6 @@ java -jar org.cumulus4j.keymanager.cli-${project.version}.jar help
 </dependencies>
 +------------------------------------------+
 
-	However, as said: This module is <<not a library>> and therefore you should normally not need to
-	include it into the <<<pom.xml>>> of any of your modules. We provide these Maven coordinates merely
-	for special situations like bundling this CLI into an installation package. 
+	Dieses Modul ist <<keine Bibliothek>> und es sollte deshalb nicht nötig sein es zur <<<pom.xml>>>
+	eines anderen Moduls hinzuzufügen. Wir bieten diese Maven Koordianten nur für spezielle situationen wie
+	zum Beispiel die einbindung dieses CLIs in ein Installationspaket.
