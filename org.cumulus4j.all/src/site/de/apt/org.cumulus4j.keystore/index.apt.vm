@@ -1,23 +1,21 @@
 	---
-	Module org.cumulus4j.keystore
+	Modul org.cumulus4j.keystore
 	---
 	Marco หงุ่ยตระกูล-Schulze
 	---
 	2011-06-02
 
-Module org.cumulus4j.keystore
+Modul org.cumulus4j.keystore
 
-	The {{{../apidocs/index.html?org/cumulus4j/keystore/KeyStore.html}key-store}} manages keys safely
-	in the local file system. It is similar to a
-	{{{http://download.oracle.com/javase/6/docs/api/java/security/KeyStore.html}Java-KeyStore}},
-	but	specifically serves the needs of Cumulus4j.
-
-	Continue reading about the {{{../documentation/key-store.html}key-store here}}.
+	{{{../apidocs/index.html?org/cumulus4j/keystore/KeyStore.html}key-store}} verwaltet diue Schlüssel sicher
+	im lokalen Dateisystem. Es ist {{{http://download.oracle.com/javase/6/docs/api/java/security/KeyStore.html}Java-KeyStore}}
+	ähnlich aber erfüllt die spezifischen Anforderungen von Cumulus4j.
+	
+	Lesen sie über den {{{../documentation/key-store.html}Schlüsselspeicher}} weiter.
 
 * Maven
 
-	After adding the repositories documented on the {{{../download/index.html}Download}} page
-	to your <<<pom.xml>>>, you can add the following dependency in order to use this module: 
+	Nach dem Hinzufügen des Repositories, das auf der {{{../download/index.html}Downloadseite}} dokumentiert ist zur Datei <<<pom.xml>>> können Sie die folgenden Parent-Deklaration hinzufügen, um dieses Modul nutzen zu können.
 
 +------------------------------------------+
 <dependencies>
@@ -31,7 +29,7 @@ Module org.cumulus4j.keystore
 </dependencies>
 +------------------------------------------+
 
-* Deployment location
+* Einsatzort
 
-	The {{{../documentation/deployment-module-location-matrix.html}module-location-matrix}} shows where
-	this module needs to be deployed.
+	Die {{{../documentation/deployment-module-location-matrix.html}Modul-Location-Matrix}} zeigt, wo dieses Modul
+	bereitgestellt werden muss.
