@@ -1,0 +1,42 @@
+	---
+	Module org.cumulus4j.keymanager.front.webapp
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-02
+
+Modul org.cumulus4j.keymanager.front.webapp
+
+	Key-Server-Verwaltung {{{../org.cumulus4j.keystore/}key-stores}} und Schlüsselprovision
+	für den Applikationsserver wenn angefragt (vom Applikationsserver) und erlaubt (vom Client).
+
+	Siehe {{{../documentation/deployment-scenarios.html#3-computer-scenario}Deployment scenarios / 3-computer-scenario}}
+	für weitere Details.
+	
+    Auf den Key-Server kann mittes einer auf REST-basierenden API zugegriffen werden.
+    Das Modul {{{../org.cumulus4j.keymanager.api/}org.cumulus4j.keymanager.api}} stellt einen JAVA-wrapper für
+    die REST-Services des Key-Servers zu Verfügung.
+
+* Maven
+
+	Nachdem Sie die auf {{{../download/index.html}Download}} dokumentierten Repositories
+	zu Ihrer <<<pom.xml>>> hinzugefügt haben, können Sie die folgende Abhängigkeit hinzufügen 
+	um sie in Ihrem Modul zu benutzen:
+
++------------------------------------------+
+<dependencies>
+	...
+	<dependency>
+		<groupId>org.cumulus4j</groupId>
+		<artifactId>org.cumulus4j.keymanager.front.webapp</artifactId>
+		<version>${project.version}</version>
+	</dependency>
+	...
+</dependencies>
++------------------------------------------+
+
+* Deployment location
+
+	Die {{{../documentation/deployment-module-location-matrix.html}module-location-matrix}} zeigt, wo dieses Modul
+	eingesetzt werden muss.
+
