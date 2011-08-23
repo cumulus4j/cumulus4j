@@ -1,0 +1,13 @@
+	---
+	Module org.cumulus4j.integrationtest.webapp
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-02
+
+Module org.cumulus4j.integrationtest.webapp
+
+	Dies ist ein Integrationstest, der ein Jetty-Servlet-Container mit einer Dummy-Web-Anwendung, welche 
+	DataNucleus und Cumulus4j enthält startet. Der Test wird benutzt, um das Zusammenspiel aller Teile in einer
+	kompletten Simulation des Applikationsservers (simuliert durch Jetty + Dummy-Web-Anwendung) und des Clients 
+	(Test-Klassen in /src/test) zu testen.
