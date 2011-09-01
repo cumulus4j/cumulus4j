@@ -31,3 +31,23 @@ Module org.cumulus4j.parent
 +------------------------------------------+
 
 	The <<<relativePath>>> is optional, but if you specify it, you likely have to modify it.
+
+	If you do not want to inherit from this parent, you can (and should!)
+	{{{http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Importing_Dependencies}import}}
+	the dependency-management section like this:
+
++------------------------------------------+
+<dependencyManagement>
+	<dependencies>
+		...
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.parent</artifactId>
+			<type>pom</type>
+			<version>${project.version}</version>
+			<scope>import</scope>
+		</dependency>
+		...
+	</dependencies>
+</dependencyManagement>
++------------------------------------------+

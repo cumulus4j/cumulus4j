@@ -7,7 +7,8 @@
 
 Modul org.cumulus4j.store.crypto.keymanager
 
-	Implementierung von {{{../apidocs/index.html?org/cumulus4j/store/crypto/CryptoManager.html}CryptoManager}}, arbeitet mit 		einer Schlüsselverwaltung, wie in {{{../documentation/deployment-scenarios.html}Betriebsszenarien}} dargestellt.
+	Implementierung von {{{../apidocs/index.html?org/cumulus4j/store/crypto/CryptoManager.html}CryptoManager}},
+	die mit	einer Schlüsselverwaltung arbeitet, wie in {{{../documentation/deployment-scenarios.html}Betriebsszenarien}} dargestellt.
 
 	Dieses Modul ist ein Plugin für {{{../org.cumulus4j.store/}org.cumulus4j.store}}
 	(DataNucleus benutzt den Eclipse-Plugin-Mechanismus	und deshalb tun wir dasselbe).
@@ -16,8 +17,9 @@ Modul org.cumulus4j.store.crypto.keymanager
 
 * Maven
 
-	Nach Hinzufügen der Repositories (wie auf der Seite{{{../download/index.html}Download}} beschrieben) zur Datei <<<pom.xml>>>
-	können Sie die folgende Abhängigkeit hinzufügen, um das Module nutzen zu können:
+	Nachdem Sie die auf {{{../download/index.html}Herunterladen}} dokumentierten Lager (Repositories)
+	zu Ihrer <<<pom.xml>>> hinzugefügt haben, können Sie die folgende Abhängigkeit deklarieren, 
+	um dieses Modul zu benutzen:
 
 +------------------------------------------+
 <dependencies>
@@ -25,10 +27,28 @@ Modul org.cumulus4j.store.crypto.keymanager
 	<dependency>
 		<groupId>org.cumulus4j</groupId>
 		<artifactId>org.cumulus4j.store.crypto.keymanager</artifactId>
-		<version>${project.version}</version>
 	</dependency>
 	...
 </dependencies>
++------------------------------------------+
+
+	Die obige Abhängigkeit deklariert keine Version (und sollte dies auch nicht tun!). Stattdessen empfehlen
+	wir, folgendes zu Ihrem "dependency-management" hinzuzufügen:
+
++------------------------------------------+
+<dependencyManagement>
+	<dependencies>
+		...
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.parent</artifactId>
+			<type>pom</type>
+			<version>${project.version}</version>
+			<scope>import</scope>
+		</dependency>
+		...
+	</dependencies>
+</dependencyManagement>
 +------------------------------------------+
 
 * Einsatzort

@@ -40,10 +40,28 @@ java -jar org.cumulus4j.keymanager.cli-${project.version}.jar help
 	<dependency>
 		<groupId>org.cumulus4j</groupId>
 		<artifactId>org.cumulus4j.keymanager.cli</artifactId>
-		<version>${project.version}</version>
 	</dependency>
 	...
 </dependencies>
++------------------------------------------+
+
+	The above dependency does not (and should not!) declare a version. Instead, it is recommended that
+	you add the following to your dependency-management:
+
++------------------------------------------+
+<dependencyManagement>
+	<dependencies>
+		...
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.parent</artifactId>
+			<type>pom</type>
+			<version>${project.version}</version>
+			<scope>import</scope>
+		</dependency>
+		...
+	</dependencies>
+</dependencyManagement>
 +------------------------------------------+
 
 	However, as said: This module is <<not a library>> and therefore you should normally not need to

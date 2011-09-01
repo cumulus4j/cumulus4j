@@ -19,9 +19,9 @@ Modul org.cumulus4j.keymanager.front.webapp
 
 * Maven
 
-	Nachdem Sie die auf {{{../download/index.html}Download}} dokumentierten Repositories
-	zu Ihrer <<<pom.xml>>> hinzugefügt haben, können Sie die folgende Abhängigkeit hinzufügen 
-	um sie in Ihrem Modul zu benutzen:
+	Nachdem Sie die auf {{{../download/index.html}Herunterladen}} dokumentierten Lager (Repositories)
+	zu Ihrer <<<pom.xml>>> hinzugefügt haben, können Sie die folgende Abhängigkeit deklarieren, 
+	um dieses Modul zu benutzen:
 
 +------------------------------------------+
 <dependencies>
@@ -29,10 +29,29 @@ Modul org.cumulus4j.keymanager.front.webapp
 	<dependency>
 		<groupId>org.cumulus4j</groupId>
 		<artifactId>org.cumulus4j.keymanager.front.webapp</artifactId>
-		<version>${project.version}</version>
+		<type>war</type>
 	</dependency>
 	...
 </dependencies>
++------------------------------------------+
+
+	Die obige Abhängigkeit deklariert keine Version (und sollte dies auch nicht tun!). Stattdessen empfehlen
+	wir, folgendes zu Ihrem "dependency-management" hinzuzufügen:
+
++------------------------------------------+
+<dependencyManagement>
+	<dependencies>
+		...
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.parent</artifactId>
+			<type>pom</type>
+			<version>${project.version}</version>
+			<scope>import</scope>
+		</dependency>
+		...
+	</dependencies>
+</dependencyManagement>
 +------------------------------------------+
 
 * Deployment location

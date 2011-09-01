@@ -16,7 +16,9 @@ Modul org.cumulus4j.parent
 
 * Maven
 
-	Nach dem Hinzufügen des Repositories, die auf der {{{../download/index.html}Downloadseite}} dokumentiert sind zur Datei <<<pom.xml>>>, können Sie die folgenden Parent-Deklaration hinzufügen, um die Projekt-Konfiguration zu erben:
+	Nachdem Sie die Lager (Repositories), die auf der {{{../download/index.html}Herunterladen}}-Seite dokumentiert sind,
+	zur Ihrer <<<pom.xml>>> hinzugefügt haben, können Sie die folgende Parent-Deklaration hinzufügen, um die
+	Projekt-Konfiguration zu erben:
 
 +------------------------------------------+
 	<parent>
@@ -28,3 +30,23 @@ Modul org.cumulus4j.parent
 +------------------------------------------+
 
 	Der relative Pfad <<<relativePath>>> ist optional, aber wenn Sie ihn spezifizieren, müssen sie ihn wahrscheinlich ändern.
+
+	Wenn Sie nicht von dieser Parent-POM erben möchten, können Sie (und sollten sogar!) die Dependency-Management-Sektion
+	{{{http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Importing_Dependencies}importieren}},
+	wie hier gezeigt:
+
++------------------------------------------+
+<dependencyManagement>
+	<dependencies>
+		...
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.parent</artifactId>
+			<type>pom</type>
+			<version>${project.version}</version>
+			<scope>import</scope>
+		</dependency>
+		...
+	</dependencies>
+</dependencyManagement>
++------------------------------------------+

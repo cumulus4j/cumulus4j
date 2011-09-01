@@ -15,7 +15,9 @@ Modul org.cumulus4j.keystore
 
 * Maven
 
-	Nach dem Hinzufügen des Repositories, das auf der {{{../download/index.html}Downloadseite}} dokumentiert ist zur Datei <<<pom.xml>>> können Sie die folgenden Parent-Deklaration hinzufügen, um dieses Modul nutzen zu können.
+	Nachdem Sie die auf {{{../download/index.html}Herunterladen}} dokumentierten Lager (Repositories)
+	zu Ihrer <<<pom.xml>>> hinzugefügt haben, können Sie die folgende Abhängigkeit deklarieren, 
+	um dieses Modul zu benutzen:
 
 +------------------------------------------+
 <dependencies>
@@ -23,10 +25,28 @@ Modul org.cumulus4j.keystore
 	<dependency>
 		<groupId>org.cumulus4j</groupId>
 		<artifactId>org.cumulus4j.keystore</artifactId>
-		<version>${project.version}</version>
 	</dependency>
 	...
 </dependencies>
++------------------------------------------+
+
+	Die obige Abhängigkeit deklariert keine Version (und sollte dies auch nicht tun!). Stattdessen empfehlen
+	wir, folgendes zu Ihrem "dependency-management" hinzuzufügen:
+
++------------------------------------------+
+<dependencyManagement>
+	<dependencies>
+		...
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.parent</artifactId>
+			<type>pom</type>
+			<version>${project.version}</version>
+			<scope>import</scope>
+		</dependency>
+		...
+	</dependencies>
+</dependencyManagement>
 +------------------------------------------+
 
 * Einsatzort
