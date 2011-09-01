@@ -296,11 +296,15 @@
 
 			<dependencyManagement>
 				<dependencies>
-					<groupId>org.cumulus4j</groupId>
-					<artifactId>org.cumulus4j.parent</artifactId>
-					<type>pom</type>
-					<version>1.0.0</version>
-					<scope>import</scope>
+					...
+					<dependency>
+						<groupId>org.cumulus4j</groupId>
+						<artifactId>org.cumulus4j.parent</artifactId>
+						<type>pom</type>
+						<version>1.0.0</version>
+						<scope>import</scope>
+					</dependency>
+					...
 				</dependencies>
 			</dependencyManagement>
 
