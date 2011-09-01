@@ -7,8 +7,9 @@
 
 Modul org.cumulus4j.keymanager.cli
 
-	Ein Kommandozeileneninterface um Schlüssel im Key-Store zu verwalten. Nicht zur Verwendung im Produktivbetrieb gedacht.
-	
+	Ein Kommandozeileneninterface, um Schlüssel im Key-Store zu verwalten. Es ist nicht zur Einbindung als Bibliothek in Ihre Applikation
+	gedacht, sondern es ist ein Administrationswerkzeug.
+
 	Nachdem Sie die JAR-Datei heruntergeladen haben, benutzen Sie bitte den folgenden Befehl für eine Anleitung:
 
 +------------------------------------------+
@@ -62,6 +63,6 @@ java -jar org.cumulus4j.keymanager.cli-${project.version}.jar help
 </dependencyManagement>
 +------------------------------------------+
 
-	Dieses Modul ist <<keine Bibliothek>> und es sollte deshalb nicht nötig sein es zur <<<pom.xml>>>
-	eines anderen Moduls hinzuzufügen. Wir bieten diese Maven Koordianten nur für spezielle situationen wie
-	zum Beispiel die einbindung dieses CLIs in ein Installationspaket.
+	Dieses Modul ist <<keine Bibliothek>> und es sollte deshalb nicht nötig sein, es zur <<<pom.xml>>>
+	eines anderen Moduls hinzuzufügen. Wir bieten diese Maven-Koordinaten nur für spezielle Situationen wie
+	z. B. die Einbindung dieses CLIs in ein Installationspaket.

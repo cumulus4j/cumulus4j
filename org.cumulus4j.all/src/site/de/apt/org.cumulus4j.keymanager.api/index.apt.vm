@@ -53,7 +53,7 @@ Modul org.cumulus4j.keymanager.api
 </dependencyManagement>
 +------------------------------------------+
 
-* Deployment location
+* Einsatzort
 
-	Die {{{../documentation/deployment-module-location-matrix.html}module-location-matrix}} zeigt, wo dieses Modul
-	eingesetzt werden muss.
+	Die {{{../documentation/deployment-module-location-matrix.html}Modul-Ort-Matrix}} zeigt, wo dieses Modul
+	bereitgestellt werden muss.

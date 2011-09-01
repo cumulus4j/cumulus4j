@@ -51,5 +51,5 @@ Modul org.cumulus4j.keystore
 
 * Einsatzort
 
-	Die {{{../documentation/deployment-module-location-matrix.html}Modul-Location-Matrix}} zeigt, wo dieses Modul
+	Die {{{../documentation/deployment-module-location-matrix.html}Modul-Ort-Matrix}} zeigt, wo dieses Modul
 	bereitgestellt werden muss.

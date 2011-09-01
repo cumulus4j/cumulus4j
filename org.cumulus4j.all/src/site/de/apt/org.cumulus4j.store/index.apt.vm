@@ -82,3 +82,8 @@ auf die folgenden DN Erweiterungspunkte:
 	</dependencies>
 </dependencyManagement>
 +------------------------------------------+
+
+* Einsatzort
+
+	Die {{{../documentation/deployment-module-location-matrix.html}Modul-Ort-Matrix}} zeigt, wo dieses Modul
+	bereitgestellt werden muss.

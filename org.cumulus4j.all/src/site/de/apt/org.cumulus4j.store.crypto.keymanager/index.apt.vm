@@ -53,5 +53,5 @@ Modul org.cumulus4j.store.crypto.keymanager
 
 * Einsatzort
 
-	Die Seite {{{../documentation/deployment-module-location-matrix.html}module-location-matrix}} zeigt, wo
-	dieses Modul bereitgestellt werden muss.
+	Die {{{../documentation/deployment-module-location-matrix.html}Modul-Ort-Matrix}} zeigt, wo dieses Modul
+	bereitgestellt werden muss.
