@@ -23,12 +23,10 @@
 		<dependency>
 			<groupId>org.cumulus4j</groupId>
 			<artifactId>org.cumulus4j.keymanager</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.cumulus4j</groupId>
 			<artifactId>org.cumulus4j.keymanager.front.shared</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 

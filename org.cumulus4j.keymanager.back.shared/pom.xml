@@ -20,7 +20,6 @@
 		<dependency>
 			<groupId>org.cumulus4j</groupId>
 			<artifactId>org.cumulus4j.crypto</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 

@@ -9,6 +9,46 @@
 	<name>org.cumulus4j.parent</name>
 	<description>Cumulus4j parent POM, i.e. the root-configuration from which all other POMs inherit common settings.</description>
 
+	<properties>
+		<!--
+		The property "distributionManagement.site.prefix" must be declared in the settings.xml
+		like this:
+
+		<profiles>
+			<profile>
+				<id>default</id>
+				<activation>
+					<activeByDefault>true</activeByDefault>
+				</activation>
+				<properties>
+					<distributionManagement.site.prefix>scp://webserver.domain.tld/srv/www</distributionManagement.site.prefix>
+				</properties>
+			</profile>
+        </profiles>
+		-->
+
+		<log4j.version>1.2.16</log4j.version>
+		<slf4j.version>1.6.1</slf4j.version>
+		<jersey.version>1.6</jersey.version>
+		<datanucleus.dependency.version>3.0.0-m6</datanucleus.dependency.version>
+		<datanucleus.javadoc.version>3.0</datanucleus.javadoc.version>
+		
+		<!-- Force UTF-8 for all files read (sources) and written (reports) by Maven. -->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		
+		<!-- Always aggregate. -->
+		<aggregate>true</aggregate>
+		
+		<!-- We use /src/webapp instead of /src/main/webapp following the structure of DataNucleus. -->
+		<maven.war.src>src/webapp</maven.war.src>
+
+		<!-- We do not want the build to be interrupted when a test fails. -->
+		<maven.test.failure.ignore>true</maven.test.failure.ignore>
+		
+		<cumulus4j.version>${project.version}</cumulus4j.version>
+	</properties>
+
 	<ciManagement>
 		<system>jenkins</system>
 		<url>https://dev.nightlabs.org/jenkins/job/Cumulus4j/</url>
@@ -244,6 +284,104 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<!-- BEGIN Cumulus4j -->
+			<!--
+			We declare all Cumulus4j projects here in the dependency-*MANAGEMENT* in order to not declare any version in the
+			dependencies (non-management) at all. Additionally, it allows projects which want to use Cumulus4j to use the
+			import-scope in the dependency-management in order to bulk-declare the versions of *all* Cumulus4j projects at once.
+
+			See: http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Importing_Dependencies
+
+			In downstream projects, it is thus possible to declare the following:
+
+			<dependencyManagement>
+				<dependencies>
+					<groupId>org.cumulus4j</groupId>
+					<artifactId>org.cumulus4j.parent</artifactId>
+					<type>pom</type>
+					<version>1.0.0</version>
+					<scope>import</scope>
+				</dependencies>
+			</dependencyManagement>
+
+			The separate property ${cumulus4j.version} is necessary for this feature to work (as ${project.version} would have
+			a different value, because importing behaves as if this dependencyManagement-section was copied into the other project).
+
+			Marco :-)
+			-->
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.annotation</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.crypto</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.integrationtest.webapp</artifactId>
+				<type>war</type>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.integrationtest.withkeyserver</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.keymanager</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.keymanager.api</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.keymanager.back.shared</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.keymanager.back.webapp</artifactId>
+				<type>war</type>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.keymanager.cli</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.keymanager.front.shared</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.keymanager.front.webapp</artifactId>
+				<type>war</type>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.keystore</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.parent</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.store</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.store.crypto.keymanager</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.store.test</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.store.test.jpa</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<!-- END Cumulus4j -->
+		
 			<dependency>
 				<groupId>args4j</groupId>
 		    	<artifactId>args4j</artifactId>
@@ -857,43 +995,5 @@
 		</snapshotRepository>
 	-->
 	</distributionManagement>
-
-	<properties>
-		<!--
-		The property "distributionManagement.site.prefix" must be declared in the settings.xml
-		like this:
-
-		<profiles>
-			<profile>
-				<id>default</id>
-				<activation>
-					<activeByDefault>true</activeByDefault>
-				</activation>
-				<properties>
-					<distributionManagement.site.prefix>scp://webserver.domain.tld/srv/www</distributionManagement.site.prefix>
-				</properties>
-			</profile>
-        </profiles>
-		-->
-
-		<log4j.version>1.2.16</log4j.version>
-		<slf4j.version>1.6.1</slf4j.version>
-		<jersey.version>1.6</jersey.version>
-		<datanucleus.dependency.version>3.0.0-m6</datanucleus.dependency.version>
-		<datanucleus.javadoc.version>3.0</datanucleus.javadoc.version>
-		
-		<!-- Force UTF-8 for all files read (sources) and written (reports) by Maven. -->
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		
-		<!-- Always aggregate. -->
-		<aggregate>true</aggregate>
-		
-		<!-- We use /src/webapp instead of /src/main/webapp following the structure of DataNucleus. -->
-		<maven.war.src>src/webapp</maven.war.src>
-
-		<!-- We do not want the build to be interrupted when a test fails. -->
-		<maven.test.failure.ignore>true</maven.test.failure.ignore>
-	</properties>
 
 </project>
