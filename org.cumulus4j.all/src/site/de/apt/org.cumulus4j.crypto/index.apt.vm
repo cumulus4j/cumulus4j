@@ -7,18 +7,19 @@
 
 Modul org.cumulus4j.crypto
 
-	API, die eine einheitliche Methode bietet, verschiedene kryptographische Algorithmen zu benutzen.
+	API, die eine einheitliche Schnittstelle zur Benutzung verschiedener kryptographischer Algorithmen bietet.
 
 	Zum Beispiel bietet die {{{../apidocs/index.html?org/cumulus4j/crypto/Cipher.html}Cipher}} eine
-	genirische API für {{{http://en.wikipedia.org/wiki/Symmetric_encryption}symmetric}} und
-	{{{http://en.wikipedia.org/wiki/Public-key_cryptography}asymmetric}} Ver- und Entschlüsselung.
+	generische API für {{{http://en.wikipedia.org/wiki/Symmetric_encryption}symmetrische}} und
+	{{{http://en.wikipedia.org/wiki/Public-key_cryptography}asymmetrische}} Ver-/Entschlüsselung.
 	Ein anderes Beispiel ist {{{../apidocs/index.html?org/cumulus4j/crypto/MACCalculator.html}MACCalculator}}
-	welche benutzt werden kann um {{{http://en.wikipedia.org/wiki/Message_authentication_code}message	authentication codes}}
+	welche benutzt werden kann um
+	{{{http://en.wikipedia.org/wiki/Message_authentication_code}Nachrichtenauthentifikations-Codes (message authentication codes)}}
 	zu berechnen.
-	
-	Diese API erlaubt einfache Konfiguration der Algorithmen, die in Ihrer Anwendung benutzt werden,
-	da {{{../apidocs/index.html?org/cumulus4j/crypto/CryptoRegistry.html}CryptoRegistry}} einen
-	Algorithmen-Namen (z.B. einen <<<String>>>) mit einer über die API bereit gestellen Implementierung verknüpft.
+
+	Diese API erlaubt die einfache Konfiguration der Algorithmen, die in Ihrer Anwendung benutzt werden,
+	indem die {{{../apidocs/index.html?org/cumulus4j/crypto/CryptoRegistry.html}CryptoRegistry}} einen
+	Algorithmen-Namen (d.h. einen <<<String>>>) mit einer über die API bereitgestellen Implementierung verknüpft.
 	
 * Maven
 
