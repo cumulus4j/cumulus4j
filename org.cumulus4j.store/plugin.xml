@@ -40,18 +40,18 @@
 
   <extension point="org.cumulus4j.store.index_mapping">
     <index-mapping type="double" index-entry-type="org.cumulus4j.store.model.IndexEntryDouble"/>
-    <index-mapping type="float" index-entry-type="org.cumulus4j.store.model.IndexEntryDouble"/>
+    <index-mapping type="float" index-entry-type="org.cumulus4j.store.model.IndexEntryFloat"/>
     <index-mapping type="long" index-entry-type="org.cumulus4j.store.model.IndexEntryLong"/>
-    <index-mapping type="int" index-entry-type="org.cumulus4j.store.model.IndexEntryLong"/>
-    <index-mapping type="short" index-entry-type="org.cumulus4j.store.model.IndexEntryLong"/>
-    <index-mapping type="byte" index-entry-type="org.cumulus4j.store.model.IndexEntryLong"/>
+    <index-mapping type="int" index-entry-type="org.cumulus4j.store.model.IndexEntryInteger"/>
+    <index-mapping type="short" index-entry-type="org.cumulus4j.store.model.IndexEntryShort"/>
+    <index-mapping type="byte" index-entry-type="org.cumulus4j.store.model.IndexEntryByte"/>
 
     <index-mapping type="java.lang.Long" index-entry-type="org.cumulus4j.store.model.IndexEntryLong"/>
-    <index-mapping type="java.lang.Integer" index-entry-type="org.cumulus4j.store.model.IndexEntryLong"/>
-    <index-mapping type="java.lang.Short" index-entry-type="org.cumulus4j.store.model.IndexEntryLong"/>
-    <index-mapping type="java.lang.Byte" index-entry-type="org.cumulus4j.store.model.IndexEntryLong"/>
+    <index-mapping type="java.lang.Integer" index-entry-type="org.cumulus4j.store.model.IndexEntryInteger"/>
+    <index-mapping type="java.lang.Short" index-entry-type="org.cumulus4j.store.model.IndexEntryShort"/>
+    <index-mapping type="java.lang.Byte" index-entry-type="org.cumulus4j.store.model.IndexEntryByte"/>
     <index-mapping type="java.lang.Double" index-entry-type="org.cumulus4j.store.model.IndexEntryDouble"/>
-    <index-mapping type="java.lang.Float" index-entry-type="org.cumulus4j.store.model.IndexEntryDouble"/>
+    <index-mapping type="java.lang.Float" index-entry-type="org.cumulus4j.store.model.IndexEntryFloat"/>
 
     <index-mapping type="java.util.Date" index-entry-type="org.cumulus4j.store.model.IndexEntryDate"/>
     <index-mapping type="java.util.Currency" index-entry-type="org.cumulus4j.store.model.IndexEntryCurrency"/>
