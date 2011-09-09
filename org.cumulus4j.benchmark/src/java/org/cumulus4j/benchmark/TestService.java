@@ -30,19 +30,24 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.cumulus4j.benchmark.entities.Person;
 import org.cumulus4j.store.crypto.CryptoManager;
 import org.cumulus4j.store.crypto.CryptoSession;
 import org.cumulus4j.store.test.framework.CleanupUtil;
 import org.cumulus4j.store.test.framework.TestUtil;
-import org.cumulus4j.store.test.movie.Movie;
-import org.cumulus4j.store.test.movie.Person;
-import org.cumulus4j.store.test.movie.Rating;
+import org.nightlabs.util.Stopwatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Path("Test")
 @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public class TestService
 {
+
+	private static final Logger logger = LoggerFactory
+	.getLogger(TestService.class);
+
 	private static PersistenceManagerFactory pmf;
 
 	protected static synchronized PersistenceManagerFactory getPersistenceManagerFactory()
@@ -92,109 +97,43 @@ public class TestService
 		StringBuilder resultSB = new StringBuilder();
 		PersistenceManager pm = getPersistenceManager(cryptoManagerID, cryptoSessionID);
 		try {
-			// tx1: persist some data
+
 			pm.currentTransaction().begin();
-
-			pm.getExtent(Movie.class);
-			{
-				Movie movie = new Movie();
-				movie.setName("MMM " + System.currentTimeMillis());
-				movie = pm.makePersistent(movie);
-
-				Rating rating = new Rating();
-				rating.setName("RRR " + System.currentTimeMillis());
-				rating = pm.makePersistent(rating);
-
-				movie.setRating(rating);
+			
+			Stopwatch stopwatch = new Stopwatch();
+			stopwatch.start("create 1000 persons");
+			
+			for(int i = 0; i < 40; i++){
+				pm.getExtent(Person.class);
+				Person p1 = new Person();
+				pm.makePersistent(p1);
+				logger.info("Person "+i);
 			}
+				
+				
+			stopwatch.stop("create 1000 persons");
+			logger.info("------------------------------------------------------------------------------------------------------------");
+			logger.info(stopwatch.createHumanReport(true));
+			logger.info("------------------------------------------------------------------------------------------------------------");
 
-			{
-				Movie movie = new Movie();
-				movie.setName("MMM " + System.currentTimeMillis());
-				movie = pm.makePersistent(movie);
-
-				Person person = new Person();
-				person.setName("PPP " + System.currentTimeMillis());
-				person = pm.makePersistent(person);
-
-				movie.getStarring().add(person);
-				pm.currentTransaction().commit();
-			}
+			pm.currentTransaction().commit();
 
 			pm = getPersistenceManager(cryptoManagerID, cryptoSessionID);
-			// TODO I just had this exception. Obviously the PM is closed when its tx is committed - this is IMHO wrong and a DN bug.
-			// I have to tell Andy.
-			// Marco :-)
-//				javax.jdo.JDOFatalUserException: Persistence Manager has been closed
-//					at org.datanucleus.api.jdo.JDOPersistenceManager.assertIsOpen(JDOPersistenceManager.java:2189)
-//					at org.datanucleus.api.jdo.JDOPersistenceManager.newQuery(JDOPersistenceManager.java:1286)
-//					at org.datanucleus.api.jdo.JDOPersistenceManager.newQuery(JDOPersistenceManager.java:1237)
-//					at org.datanucleus.api.jdo.JDOPersistenceManager.newQuery(JDOPersistenceManager.java:1349)
-//					at org.cumulus4j.store.query.QueryHelper.getAllPersistentObjectsForCandidateClasses(QueryHelper.java:60)
-//					at org.cumulus4j.store.query.QueryEvaluator.execute(QueryEvaluator.java:272)
-//					at org.cumulus4j.store.query.JDOQLQuery.performExecute(JDOQLQuery.java:83)
-//					at org.datanucleus.store.query.Query.executeQuery(Query.java:1744)
-//					at org.datanucleus.store.query.Query.executeWithArray(Query.java:1634)
-//					at org.datanucleus.store.query.Query.execute(Query.java:1607)
-//					at org.datanucleus.store.DefaultCandidateExtent.iterator(DefaultCandidateExtent.java:62)
-//					at org.datanucleus.api.jdo.JDOExtent.iterator(JDOExtent.java:120)
-//					at org.cumulus4j.integrationtest.webapp.TestService.testPost(TestService.java:86)
-//					at org.cumulus4j.integrationtest.webapp.TestService.testGet(TestService.java:106)
-//					at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-//					at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
-//					at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
-//					at java.lang.reflect.Method.invoke(Method.java:597)
-//					at com.sun.jersey.server.impl.model.method.dispatch.AbstractResourceMethodDispatchProvider$TypeOutInvoker._dispatch(AbstractResourceMethodDispatchProvider.java:168)
-//					at com.sun.jersey.server.impl.model.method.dispatch.ResourceJavaMethodDispatcher.dispatch(ResourceJavaMethodDispatcher.java:71)
-//					at com.sun.jersey.server.impl.uri.rules.HttpMethodRule.accept(HttpMethodRule.java:280)
-//					at com.sun.jersey.server.impl.uri.rules.RightHandPathRule.accept(RightHandPathRule.java:147)
-//					at com.sun.jersey.server.impl.uri.rules.ResourceClassRule.accept(ResourceClassRule.java:108)
-//					at com.sun.jersey.server.impl.uri.rules.RightHandPathRule.accept(RightHandPathRule.java:147)
-//					at com.sun.jersey.server.impl.uri.rules.RootResourceClassesRule.accept(RootResourceClassesRule.java:84)
-//					at com.sun.jersey.server.impl.application.WebApplicationImpl._handleRequest(WebApplicationImpl.java:1341)
-//					at com.sun.jersey.server.impl.application.WebApplicationImpl._handleRequest(WebApplicationImpl.java:1273)
-//					at com.sun.jersey.server.impl.application.WebApplicationImpl.handleRequest(WebApplicationImpl.java:1223)
-//					at com.sun.jersey.server.impl.application.WebApplicationImpl.handleRequest(WebApplicationImpl.java:1213)
-//					at com.sun.jersey.spi.container.servlet.WebComponent.service(WebComponent.java:414)
-//					at com.sun.jersey.spi.container.servlet.ServletContainer.service(ServletContainer.java:537)
-//					at com.sun.jersey.spi.container.servlet.ServletContainer.service(ServletContainer.java:699)
-//					at javax.servlet.http.HttpServlet.service(HttpServlet.java:847)
-//					at org.eclipse.jetty.servlet.ServletHolder.handle(ServletHolder.java:546)
-//					at org.eclipse.jetty.servlet.ServletHandler.doHandle(ServletHandler.java:483)
-//					at org.eclipse.jetty.server.handler.ScopedHandler.handle(ScopedHandler.java:119)
-//					at org.eclipse.jetty.security.SecurityHandler.handle(SecurityHandler.java:516)
-//					at org.eclipse.jetty.server.session.SessionHandler.doHandle(SessionHandler.java:230)
-//					at org.eclipse.jetty.server.handler.ContextHandler.doHandle(ContextHandler.java:956)
-//					at org.eclipse.jetty.servlet.ServletHandler.doScope(ServletHandler.java:411)
-//					at org.eclipse.jetty.server.session.SessionHandler.doScope(SessionHandler.java:188)
-//					at org.eclipse.jetty.server.handler.ContextHandler.doScope(ContextHandler.java:891)
-//					at org.eclipse.jetty.server.handler.ScopedHandler.handle(ScopedHandler.java:117)
-//					at org.eclipse.jetty.server.handler.ContextHandlerCollection.handle(ContextHandlerCollection.java:247)
-//					at org.eclipse.jetty.server.handler.HandlerCollection.handle(HandlerCollection.java:151)
-//					at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:114)
-//					at org.eclipse.jetty.server.Server.handle(Server.java:353)
-//					at org.eclipse.jetty.server.HttpConnection.handleRequest(HttpConnection.java:598)
-//					at org.eclipse.jetty.server.HttpConnection$RequestHandler.headerComplete(HttpConnection.java:1059)
-//					at org.eclipse.jetty.http.HttpParser.parseNext(HttpParser.java:590)
-//					at org.eclipse.jetty.http.HttpParser.parseAvailable(HttpParser.java:212)
-//					at org.eclipse.jetty.server.HttpConnection.handle(HttpConnection.java:427)
-//					at org.eclipse.jetty.io.nio.SelectChannelEndPoint.handle(SelectChannelEndPoint.java:510)
-//					at org.eclipse.jetty.io.nio.SelectChannelEndPoint.access$000(SelectChannelEndPoint.java:34)
-//					at org.eclipse.jetty.io.nio.SelectChannelEndPoint$1.run(SelectChannelEndPoint.java:40)
-//					at org.eclipse.jetty.util.thread.QueuedThreadPool$2.run(QueuedThreadPool.java:450)
-//					at java.lang.Thread.run(Thread.java:662)
 
 
-			// tx2: read some data
+			//			 tx2: read some data
 			pm.currentTransaction().begin();
 
-			for (Iterator<Movie> it = pm.getExtent(Movie.class).iterator(); it.hasNext(); ) {
-				Movie movie = it.next();
-				resultSB.append(" * ").append(movie.getName()).append('\n');
+			for (Iterator<Person> it = pm.getExtent(Person.class).iterator(); it.hasNext(); ) {
+				Person person = it.next();
+				resultSB.append(" * ").append(person.getFirstName() + " " + person.getLastName()).append('\n');
 			}
 
 			pm.currentTransaction().commit();
-			return "OK: " + this.getClass().getName() + "\n\nSome movies:\n" + resultSB;
+
+			logger.info("OK: " + this.getClass().getName() + "\n\nSome persons:\n" + resultSB);
+
+			return "OK: " + this.getClass().getName() + "\n\nSome persons:\n" + resultSB;
 		} finally {
 			if (pm.currentTransaction().isActive())
 				pm.currentTransaction().rollback();

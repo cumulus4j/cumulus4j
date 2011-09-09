@@ -16,7 +16,10 @@
 		<dependency>
 			<groupId>javax.jdo</groupId>
 			<artifactId>jdo-api</artifactId>
-			<!-- We have this dependency declared as 'provided' in the parent (which is IMHO correct), but need to package it here. -->
+			<!--
+				We have this dependency declared as 'provided' in the parent (which
+				is IMHO correct), but need to package it here.
+			-->
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -70,16 +73,17 @@
 		<plugins>
 			<plugin>
 				<!--
-				We exclude all tests here, because all the tests in this module are INTEGRATION tests which should
-				be executed only when running "mvn integration-test"
+					We exclude all tests here, because all the tests in this module are
+					INTEGRATION tests which should be executed only when running "mvn
+					integration-test"
 				-->
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>**/*</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>**/*</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
 
 			<plugin>
 				<artifactId>maven-failsafe-plugin</artifactId>
@@ -95,11 +99,24 @@
 					<execution>
 						<goals>
 							<goal>integration-test</goal>
-<!--
-We comment this out, because we don't want to fail the build, if the integration test fails. We want it
-in the reports just like every other test, too. Marco :-)
-							<goal>verify</goal>
--->
+							<!--
+								We comment this out, because we don't want to fail the build, if
+								the integration test fails. We want it in the reports just like
+								every other test, too. Marco :-) <goal>verify</goal>
+							-->
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.datanucleus</groupId>
+				<artifactId>maven-datanucleus-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>compile</phase> <!-- the default is 'process-classes', but that doesn't exist for 'war' packaging type -->
+						<goals>
+							<goal>enhance</goal>
 						</goals>
 					</execution>
 				</executions>
@@ -115,17 +132,19 @@ in the reports just like every other test, too. Marco :-)
 					<webAppConfig>
 						<contextPath>/${project.artifactId}</contextPath>
 						<!--
-							The following extraClasspath configures log4j and binds slf4j 
-							to log4j so that we have logging when running 'mvn jetty:run'. The WAR itself 
-							does NOT contain this binding and will thus fall-back to NO-OP logging (i.e. 
-							disable logging) with a warning. The log4j.properties is located in /src/test/ 
-							in order to not be packaged into the WAR so that the logging can be configured 
+							The following extraClasspath configures log4j and binds slf4j to
+							log4j so that we have logging when running 'mvn jetty:run'. The
+							WAR itself does NOT contain this binding and will thus fall-back
+							to NO-OP logging (i.e. disable logging) with a warning. The
+							log4j.properties is located in /src/test/ in order to not be
+							packaged into the WAR so that the logging can be configured
 							without any unexpected interference by the servlet container.
 
-							Even though this is only a test project, we do not package these libs into the WAR, because 
-							it may happen that someone copies this configuration for a productive project. 
-							Additionally, this way, all our web-app-projects have (more or less) the 
-							same configuration.
+							Even though this is only a test project, we do not package these
+							libs into the WAR, because it may happen that someone copies this
+							configuration for a productive project. Additionally, this way,
+							all our web-app-projects have (more or less) the same
+							configuration.
 						-->
 						<extraClasspath>${basedir}/src/test;${settings.localRepository}/org/slf4j/slf4j-log4j12/${slf4j.version}/slf4j-log4j12-${slf4j.version}.jar;${settings.localRepository}/log4j/log4j/${log4j.version}/log4j-${log4j.version}.jar</extraClasspath>
 					</webAppConfig>
@@ -158,20 +177,16 @@ in the reports just like every other test, too. Marco :-)
 							<daemon>true</daemon>
 						</configuration>
 					</execution>
-<!--
-	We do not stop jetty, because we want multiple servers to run at the same time.
-	Unfortunately, it seems to be impossible to configure multiple instances of the
-	jetty-maven-plugin in the same pom.xml. Thus, we now launch a jetty in multiple
-	projects and therefore cannot stop them here. Due to the "daemon=true", it should
-	be stopped when the build is done.
-					<execution>
-						<id>stop-jetty</id>
-						<phase>post-integration-test</phase>
-						<goals>
-							<goal>stop</goal>
-						</goals>
-					</execution>
--->
+					<!--
+						We do not stop jetty, because we want multiple servers to run at
+						the same time. Unfortunately, it seems to be impossible to
+						configure multiple instances of the jetty-maven-plugin in the same
+						pom.xml. Thus, we now launch a jetty in multiple projects and
+						therefore cannot stop them here. Due to the "daemon=true", it
+						should be stopped when the build is done. <execution>
+						<id>stop-jetty</id> <phase>post-integration-test</phase> <goals>
+						<goal>stop</goal> </goals> </execution>
+					-->
 				</executions>
 			</plugin>
 

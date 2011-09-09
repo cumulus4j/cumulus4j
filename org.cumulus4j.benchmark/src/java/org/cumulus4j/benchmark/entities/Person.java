@@ -4,117 +4,122 @@ import java.util.Date;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
-import javax.jdo.annotations.NullValue;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+
+/**
+ * 
+ * @author Jan Mortensen - jmortensen at nightlabs dot de
+ *
+ */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 public class Person {
 
 	@PrimaryKey
-	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE, nullValue=NullValue.EXCEPTION)
-	private String firstName;
+	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
+	private String firstName = "";
 	
 	@PrimaryKey
-	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE, nullValue=NullValue.EXCEPTION)
-	private String lastName;
+	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
+	private String lastName = "";
 	
 	@Persistent
-	private int age;
+	private int age = 0;
 	
 	@Persistent
-	private Date birthDate;
+	private Date birthDate = new Date();
 	
 	@Persistent
-	private long money;
+	private long money = 0;
 	
 	@Persistent
-	private short houseNumber;
+	private short houseNumber = 0;
 	
 	@Persistent
-	private float size;
+	private float size = 0;
 
 	@Persistent
-	private boolean memberA;
+	private boolean memberA = true;
 	
 	@Persistent
-	private char memberB;
+	private char memberB = 'a';
 	
 	@Persistent
-	private int[] memberC;
-	
-	@Persistent
-//	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
-	private String memberD;
+	private int[] memberC = new int[1];
 	
 	@Persistent
 //	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
-	private String memberE;
+	private String memberD = "";
 	
 	@Persistent
 //	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
-	private double memberF;
+	private String memberE = "";
 	
 	@Persistent
 //	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
-	private long memberG;
+	private double memberF = 0;
 	
 	@Persistent
 //	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
-	private int memberH;
+	private long memberG = 0;
 	
 	@Persistent
 //	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
-	private byte memberI;
+	private int memberH = 0;
 	
 	@Persistent
 //	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
-	private int memberJ;
+	private byte memberI = 0;
 	
 	@Persistent
 //	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
-	private String memberK;
+	private int memberJ = 0;
 	
 	@Persistent
 //	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
-	private short memberL;
+	private String memberK = "";
 	
 	@Persistent
 //	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
-	private Date memberM;
-
-	public Person(){
-		this("", "", 0, new Date(), (long)0, (short)0, (float)0, false, 'a', new int[0], "", "", (double)0, (long)0, 0, (byte)0, 0, "", (short)0, new Date());
-	}
+	private short memberL = 0;
 	
-	public Person(String firstName, String lastName, int age, Date birthDate,
-			long money, short houseNumber, float size, boolean memberA,
-			char memberB, int[] memberC, String memberD, String memberE,
-			double memberF, long memberG, int memberH, byte memberI,
-			int memberJ, String memberK, short memberL, Date memberM) {
-		super();
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.age = age;
-		this.birthDate = birthDate;
-		this.money = money;
-		this.houseNumber = houseNumber;
-		this.size = size;
-		this.memberA = memberA;
-		this.memberB = memberB;
-		this.memberC = memberC;
-		this.memberD = memberD;
-		this.memberE = memberE;
-		this.memberF = memberF;
-		this.memberG = memberG;
-		this.memberH = memberH;
-		this.memberI = memberI;
-		this.memberJ = memberJ;
-		this.memberK = memberK;
-		this.memberL = memberL;
-		this.memberM = memberM;
-	}
+	@Persistent
+//	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
+	private Date memberM = new Date();
+//
+//	public Person(){
+//		this("", "", 0, new Date(), (long)0, (short)0, (float)0, false, 'a', new int[0], "", "", (double)0, (long)0, 0, (byte)0, 0, "", (short)0, new Date());
+//	}
+//	
+//	public Person(String firstName, String lastName, int age, Date birthDate,
+//			long money, short houseNumber, float size, boolean memberA,
+//			char memberB, int[] memberC, String memberD, String memberE,
+//			double memberF, long memberG, int memberH, byte memberI,
+//			int memberJ, String memberK, short memberL, Date memberM) {
+//		super();
+//		this.firstName = firstName;
+//		this.lastName = lastName;
+//		this.age = age;
+//		this.birthDate = birthDate;
+//		this.money = money;
+//		this.houseNumber = houseNumber;
+//		this.size = size;
+//		this.memberA = memberA;
+//		this.memberB = memberB;
+//		this.memberC = memberC;
+//		this.memberD = memberD;
+//		this.memberE = memberE;
+//		this.memberF = memberF;
+//		this.memberG = memberG;
+//		this.memberH = memberH;
+//		this.memberI = memberI;
+//		this.memberJ = memberJ;
+//		this.memberK = memberK;
+//		this.memberL = memberL;
+//		this.memberM = memberM;
+//	}
 
 	public String getFirstName() {
 		return firstName;
