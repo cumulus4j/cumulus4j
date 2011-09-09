@@ -28,6 +28,7 @@ import java.util.StringTokenizer;
 import org.cumulus4j.store.Cumulus4jStoreManager;
 import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.metadata.AbstractMemberMetaData;
+import org.datanucleus.metadata.ArrayMetaData;
 import org.datanucleus.metadata.CollectionMetaData;
 import org.datanucleus.metadata.MapMetaData;
 import org.datanucleus.plugin.ConfigurationElement;
@@ -237,6 +238,13 @@ public class IndexEntryFactoryRegistry
 					// We can still implement it later (major refactoring, though), if DN ever supports it one day.
 					// Marco ;-)
 					fieldType = clr.classForName(cmd.getElementType());
+				}
+			}
+			break;
+			case arrayElement:{
+				ArrayMetaData amd = mmd.getArray();
+				if(amd != null){
+					fieldType = clr.classForName(amd.getElementType());
 				}
 			}
 			break;
