@@ -1,13 +1,15 @@
 package org.cumulus4j.benchmark.entities;
 
+import java.util.ArrayList;
 import java.util.Date;
 
+import javax.jdo.annotations.Extension;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
+import javax.jdo.annotations.NullValue;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
-
 
 /**
  * 
@@ -16,110 +18,126 @@ import javax.jdo.annotations.PrimaryKey;
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 public class Person {
-
-	@PrimaryKey
-	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
-	private String firstName = "";
 	
 	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
-	private String lastName = "";
-	
-	@Persistent
-	private int age = 0;
-	
-	@Persistent
-	private Date birthDate = new Date();
-	
-	@Persistent
-	private long money = 0;
-	
-	@Persistent
-	private short houseNumber = 0;
-	
-	@Persistent
-	private float size = 0;
+	private long id;
 
-	@Persistent
-	private boolean memberA = true;
+	@Persistent(nullValue=NullValue.EXCEPTION)
+	private String firstName;
 	
-	@Persistent
-	private char memberB = 'a';
+	@Persistent(nullValue=NullValue.EXCEPTION)
+	private String lastName;
 	
-	@Persistent
-	private int[] memberC = new int[1];
+	@Persistent(nullValue=NullValue.EXCEPTION)
+	private int age ;
 	
-	@Persistent
-//	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
-	private String memberD = "";
+	@Persistent(nullValue=NullValue.EXCEPTION)
+	private Date birthDate;
 	
-	@Persistent
-//	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
-	private String memberE = "";
+	@Persistent(nullValue=NullValue.EXCEPTION)
+	private long money;
 	
-	@Persistent
-//	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
-	private double memberF = 0;
+	@Persistent(nullValue=NullValue.EXCEPTION)
+	private short houseNumber;
 	
-	@Persistent
-//	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
-	private long memberG = 0;
+	@Persistent(nullValue=NullValue.EXCEPTION)
+	private float size;
+
+	@Persistent(nullValue=NullValue.EXCEPTION)
+	private boolean memberA;
 	
-	@Persistent
-//	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
-	private int memberH = 0;
+	@Persistent(nullValue=NullValue.EXCEPTION)
+	private char memberB;
 	
-	@Persistent
-//	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
-	private byte memberI = 0;
+	@Persistent(nullValue=NullValue.EXCEPTION)
+	private int[] memberC;
 	
-	@Persistent
-//	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
-	private int memberJ = 0;
+	@Persistent(nullValue=NullValue.EXCEPTION)
+	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
+	private String memberD;
 	
-	@Persistent
-//	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
-	private String memberK = "";
+	@Persistent(nullValue=NullValue.EXCEPTION)
+	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
+	private String memberE;
 	
-	@Persistent
-//	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
-	private short memberL = 0;
+	@Persistent(nullValue=NullValue.EXCEPTION)
+	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
+	private double memberF;
 	
-	@Persistent
-//	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
-	private Date memberM = new Date();
-//
-//	public Person(){
-//		this("", "", 0, new Date(), (long)0, (short)0, (float)0, false, 'a', new int[0], "", "", (double)0, (long)0, 0, (byte)0, 0, "", (short)0, new Date());
-//	}
-//	
-//	public Person(String firstName, String lastName, int age, Date birthDate,
-//			long money, short houseNumber, float size, boolean memberA,
-//			char memberB, int[] memberC, String memberD, String memberE,
-//			double memberF, long memberG, int memberH, byte memberI,
-//			int memberJ, String memberK, short memberL, Date memberM) {
-//		super();
-//		this.firstName = firstName;
-//		this.lastName = lastName;
-//		this.age = age;
-//		this.birthDate = birthDate;
-//		this.money = money;
-//		this.houseNumber = houseNumber;
-//		this.size = size;
-//		this.memberA = memberA;
-//		this.memberB = memberB;
-//		this.memberC = memberC;
-//		this.memberD = memberD;
-//		this.memberE = memberE;
-//		this.memberF = memberF;
-//		this.memberG = memberG;
-//		this.memberH = memberH;
-//		this.memberI = memberI;
-//		this.memberJ = memberJ;
-//		this.memberK = memberK;
-//		this.memberL = memberL;
-//		this.memberM = memberM;
-//	}
+	@Persistent(nullValue=NullValue.EXCEPTION)
+	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
+	private long memberG;
+	
+	@Persistent(nullValue=NullValue.EXCEPTION)
+	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
+	private int memberH;
+	
+	@Persistent(nullValue=NullValue.EXCEPTION)
+	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
+	private byte memberI;
+	
+	@Persistent(nullValue=NullValue.EXCEPTION)
+	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
+	private int memberJ;
+	
+	@Persistent(nullValue=NullValue.EXCEPTION)
+	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
+	private String memberK;
+	
+	@Persistent(nullValue=NullValue.EXCEPTION)
+	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
+	private short memberL;
+	
+	@Persistent(nullValue=NullValue.EXCEPTION)
+	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
+	private Date memberM;
+	
+	@Persistent(nullValue=NullValue.EXCEPTION)
+	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
+	private ArrayList<Person> friends;
+		
+	public Person(){
+		this("", "");
+	}
+	
+	public Person(String firstName, String lastName){
+		this(firstName, lastName,  0, new Date(), (long)0, (short)0, (float)0, false, 'a', new int[0], "", "", (double)0, (long)0, 0, (byte)0, 0, "", (short)0, new Date());
+	}
+	
+	public Person(String firstName, String lastName, int age, Date birthDate,
+			long money, short houseNumber, float size, boolean memberA,
+			char memberB, int[] memberC, String memberD, String memberE,
+			double memberF, long memberG, int memberH, byte memberI,
+			int memberJ, String memberK, short memberL, Date memberM) {
+		super();
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.age = age;
+		this.birthDate = birthDate;
+		this.money = money;
+		this.houseNumber = houseNumber;
+		this.size = size;
+		this.memberA = memberA;
+		this.memberB = memberB;
+		this.memberC = memberC;
+		this.memberD = memberD;
+		this.memberE = memberE;
+		this.memberF = memberF;
+		this.memberG = memberG;
+		this.memberH = memberH;
+		this.memberI = memberI;
+		this.memberJ = memberJ;
+		this.memberK = memberK;
+		this.memberL = memberL;
+		this.memberM = memberM;
+		friends = new ArrayList<Person>();
+		id = -1;
+	}
+	
+	public void addFriend(Person person){
+		friends.add(person);
+	}
 
 	public String getFirstName() {
 		return firstName;
@@ -281,4 +299,30 @@ public class Person {
 		this.memberM = memberM;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (id ^ (id >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Person other = (Person) obj;
+		if (id != other.id)
+			return false;
+		return true;
+	}
+	
+	public String toString(){
+		return "Person: " + firstName + " " + lastName;
+	}
+	
 }

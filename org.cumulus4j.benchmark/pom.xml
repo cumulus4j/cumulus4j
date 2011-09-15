@@ -150,18 +150,18 @@
 					</webAppConfig>
 					<connectors>
 						<connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-							<port>8585</port>
+ 							<port>8585</port>
 							<maxIdleTime>60000</maxIdleTime>
 						</connector>
 					</connectors>
 					<systemProperties>
 						<systemProperty>
 							<name>cumulus4j.MessageBrokerPMF.persistenceProperties.javax.jdo.option.ConnectionDriverName</name>
-							<value>org.apache.derby.jdbc.EmbeddedDriver</value>
+ 							<value>org.apache.derby.jdbc.EmbeddedDriver</value>
 						</systemProperty>
 						<systemProperty>
 							<name>cumulus4j.MessageBrokerPMF.persistenceProperties.javax.jdo.option.ConnectionURL</name>
-							<value>jdbc:derby:${basedir}/target/derby/messagebroker;create=true</value>
+ 							<value>jdbc:derby:${basedir}/target/derby/messagebroker;create=true</value> 
 						</systemProperty>
 					</systemProperties>
 				</configuration>

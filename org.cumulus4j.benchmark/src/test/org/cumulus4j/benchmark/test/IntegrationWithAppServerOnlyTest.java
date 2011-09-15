@@ -30,9 +30,7 @@ import org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam;
 import org.cumulus4j.keymanager.api.DefaultKeyManagerAPI;
 import org.cumulus4j.keymanager.api.KeyManagerAPI;
 import org.cumulus4j.keymanager.api.KeyManagerAPIConfiguration;
-import org.cumulus4j.store.test.framework.CleanupUtil;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.nightlabs.util.IOUtil;
 import org.slf4j.Logger;
@@ -52,17 +50,43 @@ public class IntegrationWithAppServerOnlyTest {
 	+ "/org.cumulus4j.keymanager.back.webapp";
 	private static final String URL_TEST = URL_INTEGRATIONTEST_WEBAPP + "/Test";
 
-	private static final String KEY_STORE_USER = "marco";
+	private static final String KEY_STORE_USER = "test";
 	private static final char[] KEY_STORE_PASSWORD = "abcdefg-very+secret"
 		.toCharArray();
 
+	private static final String URL_KEY_SERVER = "http://localhost:8686";
+	private static final String URL_KEY_MANAGER_FRONT_WEBAPP = URL_KEY_SERVER + "/org.cumulus4j.keymanager.front.webapp";
+	
+	private static final String KEY_SERVER_USER = "devil";
+	private static final char[] KEY_SERVER_PASSWORD = "testtesttest".toCharArray();
+	
 	private static SecureRandom random = new SecureRandom();
-
-	@BeforeClass
-	public static void clearDatabase() throws Exception {
-		logger.info("clearDatabase: Clearing database (dropping all tables).");
-		CleanupUtil.dropAllTables();
-	}
+	
+//	@BeforeClass
+//	public static void clearDatabase() throws Exception {
+//		logger.info("clearDatabase: Clearing database (dropping all tables).");
+//		CleanupUtil.dropAllTables();
+//	}
+	
+//	@Test
+//	public void simpleDataModelLocalKeyStore() throws Exception{
+//		
+//	}
+//	
+//	@Test
+//	public void simpleDataModelRemoteKeyStore() throws Exception{
+//		
+//	}
+//	
+//	@Test
+//	public void bankAccountDataModelLocalKeyStore() throws Exception{
+//		
+//	}
+//	
+//	@Test
+//	public void bankAccountDataModelRemoteKeyStore() throws Exception{
+//		
+//	}
 
 	private void invokeTestWithinServer(String cryptoSessionID)
 	throws Exception {
@@ -102,6 +126,14 @@ public class IntegrationWithAppServerOnlyTest {
 					+ url
 					+ " did not return the expected result! Instead it returned: "
 					+ result);
+		logger.info("======================================================================");
+		logger.info(result);
+		logger.info("======================================================================");
+		
+		logger.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		logger.info(client.resource(URL_TEST + "/getAllPersons" + "?cryptoSessionID="
+				+ URLEncoder.encode(cryptoSessionID, IOUtil.CHARSET_NAME_UTF_8)).accept(MediaType.TEXT_PLAIN).get(String.class));
+		logger.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 	}
 
 	@Test
@@ -137,7 +169,6 @@ public class IntegrationWithAppServerOnlyTest {
 			// Marco :-)
 			session.unlock();
 
-
 			try {
 
 				invokeTestWithinServer(session.getCryptoSessionID());
@@ -167,6 +198,41 @@ public class IntegrationWithAppServerOnlyTest {
 					logger.warn("The key-store-file could not be deleted: "
 							+ keyStoreFile.getAbsolutePath());
 			}
+		}
+	}
+		
+//	@Test
+	public void testThreeComputerScenarioWithUnifiedAPI()
+	throws Exception
+	{
+		String keyStoreID = "test-" + Long.toString(System.currentTimeMillis(), 36) + '-' + Long.toString(random.nextLong(), 36);
+
+		KeyManagerAPIConfiguration configuration = new KeyManagerAPIConfiguration();
+		configuration.setAuthUserName(KEY_SERVER_USER);
+		configuration.setAuthPassword(KEY_SERVER_PASSWORD);
+		configuration.setKeyStoreID(keyStoreID);
+		configuration.setKeyManagerBaseURL(URL_KEY_MANAGER_FRONT_WEBAPP);
+
+		KeyManagerAPI keyManagerAPI = new DefaultKeyManagerAPI();
+		keyManagerAPI.setConfiguration(configuration);
+
+		org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam param = new org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam();
+		param.setKeyActivityPeriodMSec(3600L * 1000L);
+		param.setKeyStorePeriodMSec(24L * 3600L * 1000L);
+		keyManagerAPI.initDateDependentKeyStrategy(param);
+
+		org.cumulus4j.keymanager.api.Session session = keyManagerAPI.getSession(URL_KEY_MANAGER_BACK_WEBAPP);
+
+		// It does not matter here in this test, but in real code, WE MUST ALWAYS lock() after we did unlock()!!!
+		// Hence we do it here, too, in case someone copies the code ;-)
+		// Marco :-)
+		session.unlock();
+		try {
+
+			invokeTestWithinServer(session.getCryptoSessionID());
+
+		} finally {
+			session.lock();
 		}
 	}
 }
