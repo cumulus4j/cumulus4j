@@ -1,16 +1,13 @@
-package org.cumulus4j.benchmark;
+package org.cumulus4j.benchmark.framework;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 
 import org.cumulus4j.benchmark.entities.Person;
-import org.cumulus4j.benchmark.framework.Service;
 
 public class ModelDAO extends Service{
-	
 	
 	private static ModelDAO sharedInstance = null;
 	
@@ -24,10 +21,6 @@ public class ModelDAO extends Service{
 		
 		return sharedInstance;
 	}
-	
-	private ModelDAO(){
-		super();
-	}
 
 	public Collection<Person> getAllPersons(String cryptoManagerID, String cryptoSessionID){
 		
@@ -40,10 +33,10 @@ public class ModelDAO extends Service{
 			pm.currentTransaction().begin();
 			Query q = pm.newQuery(Person.class);
 			@SuppressWarnings("unchecked")
-			Collection<Person> result = (ArrayList<Person>)q.execute();
+			Collection<Person> result = (Collection<Person>)q.execute();
 			pm.currentTransaction().commit();
 			result = pm.detachCopyAll(result);
-			return result;//.toString();
+			return result;
 		}
 		finally{
 			if (pm.currentTransaction().isActive())
@@ -84,7 +77,6 @@ public class ModelDAO extends Service{
 			pm.currentTransaction().begin();
 			pm.makePersistentAll(persons);
 			pm.currentTransaction().commit();
-				
 		}
 		finally{
 			if (pm.currentTransaction().isActive())

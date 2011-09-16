@@ -13,17 +13,9 @@ import org.cumulus4j.store.test.framework.TestUtil;
 
 public class Service {
 	
-	protected final int objectCount;
+	private PersistenceManagerFactory pmf;
 	
-	private static PersistenceManagerFactory pmf;
-	
-	public Service(){
-
-		Properties benchmarkProps = TestUtil.loadProperties("benchmark.properties");
-		objectCount = Integer.parseInt(benchmarkProps.getProperty("cumulus4j.benchmark.objectCount"));
-	}
-	
-	private static synchronized PersistenceManagerFactory getPersistenceManagerFactory()
+	private synchronized PersistenceManagerFactory getPersistenceManagerFactory()
 	{
 		if (pmf == null) {
 			try {
@@ -31,7 +23,9 @@ public class Service {
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
-			pmf = JDOHelper.getPersistenceManagerFactory(TestUtil.loadProperties("cumulus4j-test-datanucleus.properties"));
+			
+			Properties props = TestUtil.loadProperties("cumulus4j-test-datanucleus.properties");
+			pmf = JDOHelper.getPersistenceManagerFactory(props);
 		}
 
 		return pmf;
@@ -44,12 +38,6 @@ public class Service {
 
 		if (cryptoSessionID == null)
 			throw new IllegalArgumentException("cryptoSessionID == null");
-
-		// We enforce a fresh start every time, because we execute this now with different key-servers / embedded key-stores:
-//		if (pmf != null) {
-//			pmf.close();
-//			pmf = null;
-//		}
 		
 		PersistenceManager pm = getPersistenceManagerFactory().getPersistenceManager();
 		pm.setProperty(CryptoManager.PROPERTY_CRYPTO_MANAGER_ID, cryptoManagerID);

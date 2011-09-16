@@ -28,21 +28,22 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.cumulus4j.benchmark.entities.Person;
-import org.cumulus4j.benchmark.framework.Service;
+import org.cumulus4j.benchmark.framework.ModelDAO;
+import org.cumulus4j.benchmark.framework.PropertyHandler;
+import org.nightlabs.util.Stopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Path("Test")
 @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-public class TestService extends Service
+public class TestService
 {
 
-	private static final Logger logger = LoggerFactory
-	.getLogger(TestService.class);
-	
+	private Logger logger = LoggerFactory.getLogger(TestService.class);
+
 	private static SecureRandom random = new SecureRandom();
-	
+
 	public TestService(){
 		super();
 	}
@@ -53,145 +54,34 @@ public class TestService extends Service
 			@QueryParam("cryptoManagerID") String cryptoManagerID,
 			@QueryParam("cryptoSessionID") String cryptoSessionID
 	)
-	{
-//
-//		if (cryptoManagerID == null || cryptoManagerID.isEmpty())
-//			cryptoManagerID = "keyManager";
+	{		
+		Stopwatch stopwatch = new Stopwatch();
+		for(int i = 0; i < PropertyHandler.OBJECT_COUNT; i++){
+			Person p1 = new Person(System.currentTimeMillis() + "-"+ Long.toString(random.nextLong(), 36), 
+					System.currentTimeMillis() + "-" + Long.toString(random.nextLong(), 36));
 
-//		PersistenceManager pm = getPersistenceManager(cryptoManagerID, cryptoSessionID);
+			stopwatch.start("store");
+			ModelDAO.sharedInstance().storePerson(cryptoManagerID, cryptoSessionID, p1);
+			stopwatch.stop("store");
+		}
 		
-//		try {
-				
-//			Stopwatch stopwatch = new Stopwatch();
-//			stopwatch.start(PERSONS_TO_CREATE);
-//			pm.getExtent(Person.class);
-			
-//			Person person = new Person();
-			
-			for(int i = 0; i < objectCount; i++){
-				Person p1 = new Person(System.currentTimeMillis() + "-"+ Long.toString(random.nextLong(), 36), 
-						System.currentTimeMillis() + "-" + Long.toString(random.nextLong(), 36));
-				p1.setMoney(System.currentTimeMillis());
-				logger.info("---------------------------");
-				logger.info(p1.toString());
-				logger.info("---------------------------");
-//				stopwatch.start("first Person"+i);
-//				stopwatch.start("create Person");
-				ModelDAO.sharedInstance().storePerson(cryptoManagerID, cryptoSessionID, p1);
-//				pm.currentTransaction().begin();
-//				pm.makePersistent(p1);
-//				pm.currentTransaction().commit();
-//				logger.info("Person "+i);
-//				stopwatch.stop("create Person");
-//				stopwatch.stop("first Person"+i);
-				
-//				person = p1;
-			}
-			
-//			stopwatch.stop(PERSONS_TO_CREATE);
-			
-//			pm.currentTransaction().begin();
-////			pm.getExtent(Entity.class);
-//			pm.makePersistent(new Entity(random.nextInt()));
-//			pm.currentTransaction().commit();
-			
-//			pm.currentTransaction().begin();
-//			stopwatch.start("delete");
-//			pm.deletePersistent(person);
-//			stopwatch.stop("delete");
-//			pm.currentTransaction().commit();
-			
-//			pm.currentTransaction().begin();
-//			stopwatch.start("update");
-//			Person pp = pm.detachCopy(person);
-//			pp.setFirstName("Johnny");
-//			pp.setLastName("Bohnny");
-//			pm.makePersistent(pp);
-//			stopwatch.start("update");
-//			pm.currentTransaction().commit();
-			
-//			stopwatch.start("get all");
-//			pm.currentTransaction().begin();
-//			Extent<Person> e = pm.getExtent(Person.class);
-//			Iterator<Person> iter = e.iterator();
-//			if(iter.hasNext()){
-//				logger.info("---------------------------");
-//				logger.info("---------------------------");
-//				logger.info("---------------------------");
-//				logger.info("---------------------------");
-//				logger.info(((Person)iter.next()).toString());
-//				logger.info("---------------------------");
-//				logger.info("---------------------------");
-//				logger.info("---------------------------");
-//				logger.info("---------------------------");
-//			}
-//			Query q = pm.newQuery(Person.class);
-//			logger.info("---------------------------");
-//			logger.info("---------------------------");
-//			logger.info(q.execute().toString());
-//			logger.info("---------------------------");
-//			logger.info("---------------------------");
-//			pm.currentTransaction().commit();
-//			stopwatch.stop("get all");
-//			
-//			logger.info(stopwatch.createHumanReport(false));
+		logger.info(stopwatch.createHumanReport(true));
 
-//			return "OK: " + this.getClass().getName() + "\n\nSome persons:\n" + resultSB;
-			return "OK:";// + stopwatch.createHumanReport(true);
-//		} finally {
-//			if (pm.currentTransaction().isActive())
-//				pm.currentTransaction().rollback();
-//
-//			pm.close();
-//		}
+		return "OK:";
 	}
-	
+
 	@GET
 	@Path("getAllPersons")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String geAllPersons(			
+	public String getAllPersons(			
 			@QueryParam("cryptoManagerID") String cryptoManagerID,
 			@QueryParam("cryptoSessionID") String cryptoSessionID
 	)
 	{
-
-//		if (cryptoManagerID == null || cryptoManagerID.isEmpty())
-//			cryptoManagerID = "keyManager";
-//
-//		PersistenceManager pm = getPersistenceManager(cryptoManagerID, cryptoSessionID);
-//		
-////		Person p1 = new Person(System.currentTimeMillis() + "-"+ Long.toString(random.nextLong(), 36), 
-////				System.currentTimeMillis() + "-" + Long.toString(random.nextLong(), 36));
-////		pm.currentTransaction().begin();
-////		pm.makePersistent(p1);
-////		pm.currentTransaction().commit();
-////		
-////		Stopwatch stopwatch = new Stopwatch();
-////		stopwatch.start("get all");
-//		try{
-//			pm.currentTransaction().begin();
-//			Query q = pm.newQuery(Person.class);
-//			String result = q.execute().toString();
-//			logger.info("---------------------------");
-//			logger.info("---------------------------");
-//			logger.info(q.execute().toString());
-//			logger.info("---------------------------");
-//			logger.info("---------------------------");
-//			pm.currentTransaction().commit();
-////			stopwatch.stop("get all");
-//			
-//			return result;
-//		}
-//		finally{
-//			if (pm.currentTransaction().isActive())
-//				pm.currentTransaction().rollback();
-//
-//			pm.close();
-//		}
-		for(Person person : ModelDAO.sharedInstance().getAllPersons(cryptoManagerID, cryptoSessionID))
+		for(Person person : ModelDAO.sharedInstance().getAllPersons(cryptoManagerID, cryptoSessionID)){
+			person.setFirstName("Jonny");
 			ModelDAO.sharedInstance().storePerson(cryptoManagerID, cryptoSessionID, person);
+		}
 		return ModelDAO.sharedInstance().getAllPersons(cryptoManagerID, cryptoSessionID).toString();
-//		return o(cryptoManagerID, cryptoSessionID);
 	}
-	
 }

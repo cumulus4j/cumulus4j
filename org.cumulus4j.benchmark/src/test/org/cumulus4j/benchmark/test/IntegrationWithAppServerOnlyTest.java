@@ -170,9 +170,7 @@ public class IntegrationWithAppServerOnlyTest {
 			session.unlock();
 
 			try {
-
 				invokeTestWithinServer(session.getCryptoSessionID());
-
 			} finally {
 				session.lock();
 			}
@@ -182,16 +180,12 @@ public class IntegrationWithAppServerOnlyTest {
 					.getKeyStoreID()
 					+ ".keystore");
 			if (!keyStoreFile.exists()) {
-
 				logger
 				.warn("**************************************************************************");
-
 				logger.warn("*** The key-store-file does not exist: "
 						+ keyStoreFile.getAbsolutePath());
-
 				logger
 				.warn("**************************************************************************");
-
 			} else {
 				keyStoreFile.delete();
 				if (keyStoreFile.exists())
