@@ -7,28 +7,28 @@ import javax.jdo.Query;
 
 import org.cumulus4j.benchmark.entities.Person;
 
-public class ModelDAO extends Service{
-	
-	private static ModelDAO sharedInstance = null;
-	
-	public static ModelDAO sharedInstance(){
+public class PersonDAO extends BaseDAO{
+
+	private static PersonDAO sharedInstance = null;
+
+	public static PersonDAO sharedInstance(){
 		if(sharedInstance == null){
-			synchronized (ModelDAO.class) {
+			synchronized (PersonDAO.class) {
 				if(sharedInstance == null)
-					sharedInstance = new ModelDAO();	
+					sharedInstance = new PersonDAO();	
 			}
 		}
-		
+
 		return sharedInstance;
 	}
 
 	public Collection<Person> getAllPersons(String cryptoManagerID, String cryptoSessionID){
-		
+
 		if (cryptoManagerID == null || cryptoManagerID.isEmpty())
 			cryptoManagerID = "keyManager";
 
 		PersistenceManager pm = getPersistenceManager(cryptoManagerID, cryptoSessionID);
-		
+
 		try{
 			pm.currentTransaction().begin();
 			Query q = pm.newQuery(Person.class);
@@ -45,7 +45,7 @@ public class ModelDAO extends Service{
 			pm.close();
 		}
 	}
-	
+
 	public void storePerson(String cryptoManagerID, String cryptoSessionID, Person person){
 
 		if (cryptoManagerID == null || cryptoManagerID.isEmpty())
@@ -65,24 +65,24 @@ public class ModelDAO extends Service{
 			pm.close();
 		}
 	}
-	
-	public void storePersons(String cryptoManagerID, String cryptoSessionID, Collection<Person> persons){
-		
-		if (cryptoManagerID == null || cryptoManagerID.isEmpty())
-			cryptoManagerID = "keyManager";
 
-		PersistenceManager pm = getPersistenceManager(cryptoManagerID, cryptoSessionID);
-
-		try{
-			pm.currentTransaction().begin();
-			pm.makePersistentAll(persons);
-			pm.currentTransaction().commit();
-		}
-		finally{
-			if (pm.currentTransaction().isActive())
-				pm.currentTransaction().rollback();
-
-			pm.close();
-		}
-	}
+	//	public void storePersons(String cryptoManagerID, String cryptoSessionID, Collection<Person> persons){
+	//		
+	//		if (cryptoManagerID == null || cryptoManagerID.isEmpty())
+	//			cryptoManagerID = "keyManager";
+	//
+	//		PersistenceManager pm = getPersistenceManager(cryptoManagerID, cryptoSessionID);
+	//
+	//		try{
+	//			pm.currentTransaction().begin();
+	//			pm.makePersistentAll(persons);
+	//			pm.currentTransaction().commit();
+	//		}
+	//		finally{
+	//			if (pm.currentTransaction().isActive())
+	//				pm.currentTransaction().rollback();
+	//
+	//			pm.close();
+	//		}
+	//	}
 }

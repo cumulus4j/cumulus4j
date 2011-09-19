@@ -11,9 +11,15 @@ import org.cumulus4j.store.crypto.CryptoSession;
 import org.cumulus4j.store.test.framework.CleanupUtil;
 import org.cumulus4j.store.test.framework.TestUtil;
 
-public class Service {
+public abstract class BaseDAO {
 	
 	private PersistenceManagerFactory pmf;
+	
+	private boolean useCumulus4j;
+	
+	protected BaseDAO(){
+		useCumulus4j = false;
+	}
 	
 	private synchronized PersistenceManagerFactory getPersistenceManagerFactory()
 	{
@@ -42,7 +48,15 @@ public class Service {
 		PersistenceManager pm = getPersistenceManagerFactory().getPersistenceManager();
 		pm.setProperty(CryptoManager.PROPERTY_CRYPTO_MANAGER_ID, cryptoManagerID);
 		pm.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, cryptoSessionID);
+		if(useCumulus4j)
+			pm.setProperty("datanucleus.storeManagerType", "cumulus4j");
+		else 
+			pm.setProperty("datanucleus.storeManagerType", null);
 		return pm;
 	}
-
+	
+	public void reconfigure(){
+		pmf = null;
+		useCumulus4j = true;
+	}
 }

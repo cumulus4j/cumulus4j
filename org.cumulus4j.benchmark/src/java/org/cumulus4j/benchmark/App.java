@@ -32,7 +32,7 @@ public class App
 extends Application
 {
 	private static final Class<?>[] serviceClassesArray = {
-		TestService.class,
+		PersonService.class,
 	};
 
 	private static final Set<Class<?>> serviceClassesSet;

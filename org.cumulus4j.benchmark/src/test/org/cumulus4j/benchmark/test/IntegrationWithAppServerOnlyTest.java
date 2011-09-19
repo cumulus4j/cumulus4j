@@ -26,6 +26,8 @@ import java.security.SecureRandom;
 
 import javax.ws.rs.core.MediaType;
 
+import org.cumulus4j.benchmark.framework.ConsoleReport;
+import org.cumulus4j.benchmark.framework.IReport;
 import org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam;
 import org.cumulus4j.keymanager.api.DefaultKeyManagerAPI;
 import org.cumulus4j.keymanager.api.KeyManagerAPI;
@@ -48,55 +50,36 @@ public class IntegrationWithAppServerOnlyTest {
 	+ "/org.cumulus4j.benchmark";
 	private static final String URL_KEY_MANAGER_BACK_WEBAPP = URL_INTEGRATIONTEST_WEBAPP
 	+ "/org.cumulus4j.keymanager.back.webapp";
-	private static final String URL_TEST = URL_INTEGRATIONTEST_WEBAPP + "/Test";
+	private static final String URL_PERSON = URL_INTEGRATIONTEST_WEBAPP + "/Person";
 
 	private static final String KEY_STORE_USER = "test";
 	private static final char[] KEY_STORE_PASSWORD = "abcdefg-very+secret"
 		.toCharArray();
 
-	private static final String URL_KEY_SERVER = "http://localhost:8686";
-	private static final String URL_KEY_MANAGER_FRONT_WEBAPP = URL_KEY_SERVER + "/org.cumulus4j.keymanager.front.webapp";
+//	private static final String URL_KEY_SERVER = "http://localhost:8686";
+//	private static final String URL_KEY_MANAGER_FRONT_WEBAPP = URL_KEY_SERVER + "/org.cumulus4j.keymanager.front.webapp";
 	
-	private static final String KEY_SERVER_USER = "devil";
-	private static final char[] KEY_SERVER_PASSWORD = "testtesttest".toCharArray();
+//	private static final String KEY_SERVER_USER = "devil";
+//	private static final char[] KEY_SERVER_PASSWORD = "testtesttest".toCharArray();
 	
 	private static SecureRandom random = new SecureRandom();
 	
-//	@BeforeClass
-//	public static void clearDatabase() throws Exception {
-//		logger.info("clearDatabase: Clearing database (dropping all tables).");
-//		CleanupUtil.dropAllTables();
-//	}
+	private IReport consoleReport;
 	
-//	@Test
-//	public void simpleDataModelLocalKeyStore() throws Exception{
-//		
-//	}
-//	
-//	@Test
-//	public void simpleDataModelRemoteKeyStore() throws Exception{
-//		
-//	}
-//	
-//	@Test
-//	public void bankAccountDataModelLocalKeyStore() throws Exception{
-//		
-//	}
-//	
-//	@Test
-//	public void bankAccountDataModelRemoteKeyStore() throws Exception{
-//		
-//	}
-
-	private void invokeTestWithinServer(String cryptoSessionID)
-	throws Exception {
-		Client client = new Client();
-		String url = URL_TEST + "?cryptoSessionID="
+	public IntegrationWithAppServerOnlyTest(){
+		
+		consoleReport = new ConsoleReport();
+	}
+	
+	private String invokeOnServer(Client client, String cryptoSessionID, String methodName) throws Exception{
+		
+		String url = URL_PERSON + "/" + methodName + "?cryptoSessionID="
 		+ URLEncoder.encode(cryptoSessionID, IOUtil.CHARSET_NAME_UTF_8);
+			
 		String result;
+		
 		try {
-			result = client.resource(url).accept(MediaType.TEXT_PLAIN).post(
-					String.class);
+			result = client.resource(url).accept(MediaType.TEXT_PLAIN).get(String.class);
 		} catch (UniformInterfaceException x) {
 			String message = null;
 			try {
@@ -119,21 +102,35 @@ public class IntegrationWithAppServerOnlyTest {
 		if (result == null)
 			Assert.fail("The POST request on URL " + url
 					+ " did not return any result!");
-
-		if (!result.startsWith("OK:"))
-			Assert
-			.fail("The POST request on URL "
-					+ url
-					+ " did not return the expected result! Instead it returned: "
-					+ result);
-		logger.info("======================================================================");
-		logger.info(result);
-		logger.info("======================================================================");
 		
-		logger.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-		logger.info(client.resource(URL_TEST + "/getAllPersons" + "?cryptoSessionID="
-				+ URLEncoder.encode(cryptoSessionID, IOUtil.CHARSET_NAME_UTF_8)).accept(MediaType.TEXT_PLAIN).get(String.class));
-		logger.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		return result;
+	}
+
+	private void invokeTestWithinServer(String cryptoSessionID)
+	throws Exception {
+
+		Client client = new Client();
+
+//		consoleReport.setWarmupReport(invokeOnServer(client, cryptoSessionID, "warmup"));
+//		consoleReport.setStoreReport(invokeOnServer(client, cryptoSessionID, "persistPersons"));
+//		consoleReport.setReadReport(invokeOnServer(client, cryptoSessionID, "readAllPersons"));
+		
+		consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "warmup"));
+		consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "persistPersons"));
+		consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "readAllPersons"));
+		
+		consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "reconfigure"));		
+
+		ConsoleReport report2 = new ConsoleReport();
+		report2.addReport(invokeOnServer(client, cryptoSessionID, "warmup"));
+		report2.addReport(invokeOnServer(client, cryptoSessionID, "persistPersons"));
+		report2.addReport(invokeOnServer(client, cryptoSessionID, "readAllPersons"));
+
+		report2.addReport(invokeOnServer(client, cryptoSessionID, "reconfigure"));
+		
+		logger.info(consoleReport.getFullReport());
+		
+		logger.info(report2.getFullReport());
 	}
 
 	@Test
@@ -196,37 +193,37 @@ public class IntegrationWithAppServerOnlyTest {
 	}
 		
 //	@Test
-	public void testThreeComputerScenarioWithUnifiedAPI()
-	throws Exception
-	{
-		String keyStoreID = "test-" + Long.toString(System.currentTimeMillis(), 36) + '-' + Long.toString(random.nextLong(), 36);
-
-		KeyManagerAPIConfiguration configuration = new KeyManagerAPIConfiguration();
-		configuration.setAuthUserName(KEY_SERVER_USER);
-		configuration.setAuthPassword(KEY_SERVER_PASSWORD);
-		configuration.setKeyStoreID(keyStoreID);
-		configuration.setKeyManagerBaseURL(URL_KEY_MANAGER_FRONT_WEBAPP);
-
-		KeyManagerAPI keyManagerAPI = new DefaultKeyManagerAPI();
-		keyManagerAPI.setConfiguration(configuration);
-
-		org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam param = new org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam();
-		param.setKeyActivityPeriodMSec(3600L * 1000L);
-		param.setKeyStorePeriodMSec(24L * 3600L * 1000L);
-		keyManagerAPI.initDateDependentKeyStrategy(param);
-
-		org.cumulus4j.keymanager.api.Session session = keyManagerAPI.getSession(URL_KEY_MANAGER_BACK_WEBAPP);
-
-		// It does not matter here in this test, but in real code, WE MUST ALWAYS lock() after we did unlock()!!!
-		// Hence we do it here, too, in case someone copies the code ;-)
-		// Marco :-)
-		session.unlock();
-		try {
-
-			invokeTestWithinServer(session.getCryptoSessionID());
-
-		} finally {
-			session.lock();
-		}
-	}
+//	public void testThreeComputerScenarioWithUnifiedAPI()
+//	throws Exception
+//	{
+//		String keyStoreID = "test-" + Long.toString(System.currentTimeMillis(), 36) + '-' + Long.toString(random.nextLong(), 36);
+//
+//		KeyManagerAPIConfiguration configuration = new KeyManagerAPIConfiguration();
+//		configuration.setAuthUserName(KEY_SERVER_USER);
+//		configuration.setAuthPassword(KEY_SERVER_PASSWORD);
+//		configuration.setKeyStoreID(keyStoreID);
+//		configuration.setKeyManagerBaseURL(URL_KEY_MANAGER_FRONT_WEBAPP);
+//
+//		KeyManagerAPI keyManagerAPI = new DefaultKeyManagerAPI();
+//		keyManagerAPI.setConfiguration(configuration);
+//
+//		org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam param = new org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam();
+//		param.setKeyActivityPeriodMSec(3600L * 1000L);
+//		param.setKeyStorePeriodMSec(24L * 3600L * 1000L);
+//		keyManagerAPI.initDateDependentKeyStrategy(param);
+//
+//		org.cumulus4j.keymanager.api.Session session = keyManagerAPI.getSession(URL_KEY_MANAGER_BACK_WEBAPP);
+//
+//		// It does not matter here in this test, but in real code, WE MUST ALWAYS lock() after we did unlock()!!!
+//		// Hence we do it here, too, in case someone copies the code ;-)
+//		// Marco :-)
+//		session.unlock();
+//		try {
+//
+//			invokeTestWithinServer(session.getCryptoSessionID());
+//
+//		} finally {
+//			session.lock();
+//		}
+//	}
 }
