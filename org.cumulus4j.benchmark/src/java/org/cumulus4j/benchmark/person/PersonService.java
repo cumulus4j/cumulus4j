@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cumulus4j.benchmark;
+package org.cumulus4j.benchmark.person;
 
 import java.security.SecureRandom;
 
@@ -26,15 +26,19 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import org.cumulus4j.benchmark.entities.Person;
-import org.cumulus4j.benchmark.framework.PersonDAO;
+import org.cumulus4j.benchmark.framework.BaseService;
 import org.cumulus4j.benchmark.framework.PropertyHandler;
 import org.nightlabs.util.Stopwatch;
 
+/**
+ * 
+ * @author Jan Mortensen - jmortensen at nightlabs dot de
+ *
+ */
 @Path("Person")
 @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-public class PersonService
+public class PersonService extends BaseService
 {
 	
 	private static SecureRandom random = new SecureRandom();
@@ -67,8 +71,8 @@ public class PersonService
 //		PersonDAO.sharedInstance().reconfigure();
 		
 		return "Warmup with " + PropertyHandler.WARMUP_OBJECTS + " objects:" 
-		+ persistObjects(cryptoManagerID, cryptoSessionID, "warmup", PropertyHandler.WARMUP_OBJECTS) + "\n"
-;//		+ "an without cumulus4j: " + without;
+		+ persistObjects(cryptoManagerID, cryptoSessionID, "warmup", PropertyHandler.WARMUP_OBJECTS) + "\n";
+//		+ "an without cumulus4j: " + without;
 	}
 	
 	@GET
@@ -110,12 +114,12 @@ public class PersonService
 		+ stopwatch.createHumanReport(true) + "\n";
 	}
 	
-	@GET
-	@Path("reconfigure")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String reconfigure(){
-		
-		PersonDAO.sharedInstance().reconfigure();
-		return "";
-	}
+//	@GET
+//	@Path("reconfigure")
+//	@Produces(MediaType.TEXT_PLAIN)
+//	public String reconfigure(){
+//		
+//		PersonDAO.sharedInstance().reconfigure();
+//		return "";
+//	}
 }

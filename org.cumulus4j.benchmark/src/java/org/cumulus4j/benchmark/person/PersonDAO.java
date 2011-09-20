@@ -1,13 +1,18 @@
-package org.cumulus4j.benchmark.framework;
+package org.cumulus4j.benchmark.person;
 
 import java.util.Collection;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 
-import org.cumulus4j.benchmark.entities.Person;
+import org.cumulus4j.benchmark.framework.BenchmarkBaseDAO;
 
-public class PersonDAO extends BaseDAO{
+/**
+ * 
+ * @author Jan Mortensen - jmortensen at nightlabs dot de
+ *
+ */
+public class PersonDAO extends BenchmarkBaseDAO{
 
 	private static PersonDAO sharedInstance = null;
 

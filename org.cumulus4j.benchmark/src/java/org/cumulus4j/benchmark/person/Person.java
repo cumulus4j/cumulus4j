@@ -1,4 +1,4 @@
-package org.cumulus4j.benchmark.entities;
+package org.cumulus4j.benchmark.person;
 
 import java.util.ArrayList;
 import java.util.Date;

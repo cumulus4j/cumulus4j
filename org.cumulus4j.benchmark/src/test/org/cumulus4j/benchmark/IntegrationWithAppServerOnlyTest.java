@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cumulus4j.benchmark.test;
+package org.cumulus4j.benchmark;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -26,6 +26,7 @@ import java.security.SecureRandom;
 
 import javax.ws.rs.core.MediaType;
 
+import org.cumulus4j.benchmark.framework.BaseService;
 import org.cumulus4j.benchmark.framework.ConsoleReport;
 import org.cumulus4j.benchmark.framework.IReport;
 import org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam;
@@ -64,7 +65,7 @@ public class IntegrationWithAppServerOnlyTest {
 	
 	private static SecureRandom random = new SecureRandom();
 	
-	private IReport consoleReport;
+	private IReport<String> consoleReport;
 	
 	public IntegrationWithAppServerOnlyTest(){
 		
@@ -111,26 +112,21 @@ public class IntegrationWithAppServerOnlyTest {
 
 		Client client = new Client();
 
-//		consoleReport.setWarmupReport(invokeOnServer(client, cryptoSessionID, "warmup"));
-//		consoleReport.setStoreReport(invokeOnServer(client, cryptoSessionID, "persistPersons"));
-//		consoleReport.setReadReport(invokeOnServer(client, cryptoSessionID, "readAllPersons"));
-		
+		while(!invokeOnServer(client, cryptoSessionID, "getConfiguration").equals("Current properties:\n" + BaseService.CUMULUS4J_NOT_ACTIVATED)){
+			consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "getConfiguration"));
+			consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "warmup"));
+			consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "persistPersons"));
+			consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "readAllPersons"));
+			consoleReport.newStory();
+			invokeOnServer(client, cryptoSessionID, "nextConfiguration");
+		}
+		consoleReport.newStory();
+		consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "getConfiguration"));
 		consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "warmup"));
 		consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "persistPersons"));
 		consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "readAllPersons"));
-		
-		consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "reconfigure"));		
-
-		ConsoleReport report2 = new ConsoleReport();
-		report2.addReport(invokeOnServer(client, cryptoSessionID, "warmup"));
-		report2.addReport(invokeOnServer(client, cryptoSessionID, "persistPersons"));
-		report2.addReport(invokeOnServer(client, cryptoSessionID, "readAllPersons"));
-
-		report2.addReport(invokeOnServer(client, cryptoSessionID, "reconfigure"));
-		
+			
 		logger.info(consoleReport.getFullReport());
-		
-		logger.info(report2.getFullReport());
 	}
 
 	@Test

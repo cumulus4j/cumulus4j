@@ -8,6 +8,8 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+import org.cumulus4j.benchmark.person.Person;
+
 /**
  * 
  * @author Jan Mortensen - jmortensen at nightlabs dot de

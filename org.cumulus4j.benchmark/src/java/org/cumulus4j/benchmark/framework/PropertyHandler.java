@@ -1,15 +1,20 @@
 package org.cumulus4j.benchmark.framework;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Queue;
 
 import org.cumulus4j.store.test.framework.TestUtil;
 
+/**
+ * 
+ * @author Jan Mortensen - jmortensen at nightlabs dot de
+ *
+ */
 public class PropertyHandler {
-	
-	public static final int ENCRYPTION_ALGORITHM = 0;
-	public static final int MODE = 1;
-	public static final int PADDING = 2;
-	public static final int MAC_ALGORITHM = 3;
 	
 	public static final int TOTAL_OBJECTS;
 	
@@ -17,7 +22,7 @@ public class PropertyHandler {
 	
 	public static final int TEST_OBJECTS;
 	
-//	public static final String[] ENCRYPTION_ALGORITHMS;
+	private static final Queue<Map<String, String>> encryptionAlgorithms;
 	
 	static{
 		
@@ -31,14 +36,49 @@ public class PropertyHandler {
 		
 		TEST_OBJECTS = TOTAL_OBJECTS - WARMUP_OBJECTS;
 		
-//		ENCRYPTION_ALGORITHMS = calculateAlgorithms(benchmarkProps);
+		encryptionAlgorithms = calculateAlgorithms(benchmarkProps);
 	}
 	
-//	private static String[] calculateAlgorithms(Properties props){
-//		
-//	}
+	private static Queue<Map<String, String>> calculateAlgorithms(Properties props){
+		
+		int counter = 1;
+		
+		ArrayList<String> encryptionAlgorithms = new ArrayList<String>();
+		ArrayList<String> macAlgorithms = new ArrayList<String>();
+		
+		while(props.get("cumulus4j.benchmark.encryptionAlgorithm" + counter) != null){
+			encryptionAlgorithms.add("cumulus4j.benchmark.encryptionAlgorithm" + counter);
+			counter++;
+		}
+		
+		counter = 1;
+		
+		while(props.get("cumulus4j.benchmark.macAlgorithm" + counter) != null){
+			macAlgorithms.add("cumulus4j.benchmark.macAlgorithm" + counter);
+			counter++;
+		}
+		
+		Queue<Map<String, String>> result = new LinkedList<Map<String, String>>();
+		Map<String, String> configuration;
+		
+		for(String encryptionAlgorithm : encryptionAlgorithms){
+			for(String macAlgorithm : macAlgorithms){
+				configuration = new HashMap<String, String>();
+				configuration.put("cumulus4j.benchmark.encryptionAlgorithm", props.getProperty(encryptionAlgorithm));
+				configuration.put("cumulus4j.benchmark.macAlgorithm", props.getProperty(macAlgorithm));
+				result.add(configuration);
+			}
+		}
+		
+		return result;
+	}
 	
-//	public String[] getNextProperty(){
-//		
-//	}
+	public static Map<String, String> nextConfiguration(){
+		return encryptionAlgorithms.poll();
+
+	}
+	
+	public static boolean hasNext(){
+		return !encryptionAlgorithms.isEmpty();
+	}
 }

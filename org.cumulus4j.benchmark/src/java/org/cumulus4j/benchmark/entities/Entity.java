@@ -6,6 +6,11 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+/**
+ * 
+ * @author Jan Mortensen - jmortensen at nightlabs dot de
+ *
+ */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 public class Entity {
 	

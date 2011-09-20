@@ -1,59 +1,50 @@
 package org.cumulus4j.benchmark.framework;
 
-import java.util.ArrayList;
-
-public class ConsoleReport implements IReport {
+/**
+ * Implementation of {@link IReport} which provides an output 
+ * of the benchmark results on the console.
+ * 
+ * @author Jan Mortensen - jmortensen at nightlabs dot de
+ */
+public class ConsoleReport implements IReport<String> {
 	
-	private ArrayList<String> reports;
+//	private List<String> reports;
+	private StringBuilder fullReport;
 	
 	public ConsoleReport(){
 		
-		reports = new ArrayList<String>();
+//		reports = new ArrayList<String>();
+		fullReport = new StringBuilder("\n###############################BENCHMARK RESULTS###############################\n");
+		fullReport.append("-------------------------------------------------------------------------------\n");
 	}
-	
-//	private String warmupReport;
-//	
-//	private String totalReport;
-//	
-//	private String readReport;
-//	
-//	@Override
-//	public void setWarmupReport(String report){
-//	
-//		warmupReport = report;
-//	}
-//	
-//	@Override
-//	public void setStoreReport(String report){
-//		
-//		totalReport = report;
-//	}
-//	
-//	@Override
-//	public void setReadReport(String report){
-//		
-//		readReport = report;
-//	}
-	
 	
 	@Override
 	public void addReport(String report){
-		reports.add(report);
+//		reports.add(fullReport);
+		this.fullReport.append(report);
+		this.fullReport.append("\n\n");
 	}
 	
 	@Override
 	public String getFullReport(){
-		
-		String result = "\n###############################BENCHMARK RESULTS###############################\n";
-		
-		for(String report : reports)
-			result += report;
-		
-		result += "###############################################################################";
-		
-		return result;
-//		return "\n###############################BENCHMARK RESULTS###############################\n" 
-//			+ warmupReport + totalReport + readReport
-//			+ "###############################################################################";
+
+		fullReport.append("-------------------------------------------------------------------------------\n");
+		fullReport.append("###############################################################################");
+		return fullReport.toString();
+//		StringBuilder result 
+//		= new StringBuilder("\n###############################BENCHMARK RESULTS###############################\n");
+//		
+//		for(String fullReport : reports)
+//			result.append(fullReport);
+//		
+//		result.append("###############################################################################");
+//		
+//		return result.toString();
+	}
+	
+	@Override
+	public void newStory(){
+		fullReport.append("-------------------------------------------------------------------------------\n");
+		fullReport.append("-------------------------------------------------------------------------------\n");
 	}
 }

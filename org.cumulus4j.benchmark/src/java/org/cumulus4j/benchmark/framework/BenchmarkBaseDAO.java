@@ -1,5 +1,6 @@
 package org.cumulus4j.benchmark.framework;
 
+import java.util.Map;
 import java.util.Properties;
 
 import javax.jdo.JDOHelper;
@@ -11,14 +12,19 @@ import org.cumulus4j.store.crypto.CryptoSession;
 import org.cumulus4j.store.test.framework.CleanupUtil;
 import org.cumulus4j.store.test.framework.TestUtil;
 
-public abstract class BaseDAO {
+/**
+ * 
+ * @author Jan Mortensen - jmortensen at nightlabs dot de
+ *
+ */
+public abstract class BenchmarkBaseDAO {
 	
 	private PersistenceManagerFactory pmf;
 	
-	private boolean useCumulus4j;
+	private Map<String, String> currentConfiguration;
 	
-	protected BaseDAO(){
-		useCumulus4j = false;
+	protected BenchmarkBaseDAO(){
+		currentConfiguration = PropertyHandler.nextConfiguration();
 	}
 	
 	private synchronized PersistenceManagerFactory getPersistenceManagerFactory()
@@ -31,6 +37,15 @@ public abstract class BaseDAO {
 			}
 			
 			Properties props = TestUtil.loadProperties("cumulus4j-test-datanucleus.properties");
+			
+			currentConfiguration = PropertyHandler.nextConfiguration();
+			if(currentConfiguration != null){
+				props.put("datanucleus.storeManagerType", "cumulus4j");
+				for(String key : currentConfiguration.keySet()){
+					props.setProperty(key, currentConfiguration.get(key));
+				}
+			}
+			
 			pmf = JDOHelper.getPersistenceManagerFactory(props);
 		}
 
@@ -48,15 +63,21 @@ public abstract class BaseDAO {
 		PersistenceManager pm = getPersistenceManagerFactory().getPersistenceManager();
 		pm.setProperty(CryptoManager.PROPERTY_CRYPTO_MANAGER_ID, cryptoManagerID);
 		pm.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, cryptoSessionID);
-		if(useCumulus4j)
-			pm.setProperty("datanucleus.storeManagerType", "cumulus4j");
-		else 
-			pm.setProperty("datanucleus.storeManagerType", null);
+
 		return pm;
 	}
 	
-	public void reconfigure(){
+	/**
+	 * Getter method for the current configuration of the DAO class.
+	 * This means the currently selected encryption and mac algorithm. 
+	 * 
+	 * @return The current configuration of the DAO class. 
+	 */
+	public Map<String, String> currentConfiguration(){
+		return currentConfiguration;
+	}
+	
+	public void nextConfiguration(){
 		pmf = null;
-		useCumulus4j = true;
 	}
 }
