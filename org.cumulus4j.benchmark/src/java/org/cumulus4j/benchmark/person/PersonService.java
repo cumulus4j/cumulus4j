@@ -114,6 +114,47 @@ public class PersonService extends BaseService
 		+ stopwatch.createHumanReport(true) + "\n";
 	}
 	
+	@GET
+	@Path("readSomePersons")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String readSomePersons(
+			@QueryParam("cryptoManagerID") String cryptoManagerID,
+			@QueryParam("cryptoSessionID") String cryptoSessionID,
+			@QueryParam("arg") String arg)
+	{
+		
+		
+		return "Das Argument ist: " + arg;
+	}
+	
+//	@GET
+//	@Path("getBenchmarkProperties")
+//	@Produces(MediaType.TEXT_PLAIN)
+//	public String getBenchmarkProperties(){
+//		
+//		StringBuilder result = new StringBuilder();
+//		
+//		result.append(PropertyHandler.WARMUP_OBJECTS);
+//		result.append("&");
+//		result.append(PropertyHandler.TEST_OBJECTS);
+//		
+//		return result.toString();
+//	}
+	
+	@GET
+	@Path("getWarmupPersonCount")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getWarmupPersonsCount(){
+		return PropertyHandler.WARMUP_OBJECTS+"";
+	}
+	
+	@GET
+	@Path("getBenchmarkPersonCount")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getBenchmarkPersonCount(){
+		return PropertyHandler.TEST_OBJECTS+"";
+	}
+	
 //	@GET
 //	@Path("reconfigure")
 //	@Produces(MediaType.TEXT_PLAIN)

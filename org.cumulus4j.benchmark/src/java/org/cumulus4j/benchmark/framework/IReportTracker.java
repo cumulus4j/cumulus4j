@@ -5,7 +5,7 @@ package org.cumulus4j.benchmark.framework;
  * @author Jan Mortensen - jmortensen at nightlabs dot de
  *
  */
-public interface IReport<T> {
+public interface IReportTracker<T> {
 	
 	/**
 	 * Adds a new report to the list of reports.
@@ -25,5 +25,5 @@ public interface IReport<T> {
 	 * To separate different parts of the benchmark you can call this method, 
 	 * to introduce a new part.
 	 */
-	public void newStory();
+	public void newStory(T storyName);
 }

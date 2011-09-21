@@ -14,33 +14,42 @@ import org.cumulus4j.benchmark.person.PersonDAO;
  */
 public abstract class BaseService {
 	
-	public static final String CUMULUS4J_NOT_ACTIVATED = "Cumulus4j not activated!";
-	
-	@GET
-	@Path("getConfiguration")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String getConfiguration()
-	{
-		
-		StringBuilder result = new StringBuilder("Current properties:\n");
-		
-		if(PersonDAO.sharedInstance().currentConfiguration() == null)
-			return result.append(CUMULUS4J_NOT_ACTIVATED).toString();
-		else
-			return result.append(PersonDAO.sharedInstance().currentConfiguration()).toString();
-	}
+//	@GET
+//	@Path("getConfiguration")
+//	@Produces(MediaType.TEXT_PLAIN)
+//	public String getConfiguration()
+//	{
+//		
+//		StringBuilder result = new StringBuilder("Current properties:\n");
+//		
+//		if(PersonDAO.sharedInstance().currentConfiguration() == null)
+//			return result.append("Cumulus4j disabled").toString();
+//		else
+//			return result.append(PersonDAO.sharedInstance().currentConfiguration()).toString();
+//	}
 
 	@GET
 	@Path("nextConfiguration")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String nextConfiguration(){
+
 		PersonDAO.sharedInstance().nextConfiguration();
 		
-		StringBuilder result = new StringBuilder("Current properties:\n");
-		
 		if(PersonDAO.sharedInstance().currentConfiguration() == null)
-			return result.append(CUMULUS4J_NOT_ACTIVATED).toString();
+			return "Cumulus4j disabled";
 		else
-			return result.append(PersonDAO.sharedInstance().currentConfiguration()).toString();
+			return PersonDAO.sharedInstance().currentConfiguration().toString();
 	}
+	
+	@GET
+	@Path("getResults")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getResults(){
+		
+		return "";
+	}
+	
+//	public abstract String getBenchmarkProperties();
+
+	public abstract String warmup(String cryptoManagerID, String cryptiSessionID);
 }

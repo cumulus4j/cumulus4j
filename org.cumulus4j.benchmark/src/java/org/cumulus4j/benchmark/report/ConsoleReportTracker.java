@@ -1,21 +1,21 @@
-package org.cumulus4j.benchmark.framework;
+package org.cumulus4j.benchmark.report;
+
+import org.cumulus4j.benchmark.framework.IReportTracker;
 
 /**
- * Implementation of {@link IReport} which provides an output 
+ * Implementation of {@link IReportTracker} which provides an output 
  * of the benchmark results on the console.
  * 
  * @author Jan Mortensen - jmortensen at nightlabs dot de
  */
-public class ConsoleReport implements IReport<String> {
+public class ConsoleReportTracker implements IReportTracker<String> {
 	
-//	private List<String> reports;
 	private StringBuilder fullReport;
 	
-	public ConsoleReport(){
+	public ConsoleReportTracker(){
 		
-//		reports = new ArrayList<String>();
 		fullReport = new StringBuilder("\n###############################BENCHMARK RESULTS###############################\n");
-		fullReport.append("-------------------------------------------------------------------------------\n");
+//		fullReport.append("-------------------------------------------------------------------------------\n");
 	}
 	
 	@Override
@@ -43,8 +43,13 @@ public class ConsoleReport implements IReport<String> {
 	}
 	
 	@Override
-	public void newStory(){
+	public void newStory(String storyName){
+		//TODO handle case: more than 71 character in the story name
 		fullReport.append("-------------------------------------------------------------------------------\n");
-		fullReport.append("-------------------------------------------------------------------------------\n");
+		fullReport.append("Story: " + storyName);// + "-------------------------------------------------------------------------------\n");
+		for(int i = 0; i < 71 - storyName.length(); i++)
+			fullReport.append("-");
+		fullReport.append("\n");
+//		fullReport.append("-------------------------------------------------------------------------------\n");
 	}
 }

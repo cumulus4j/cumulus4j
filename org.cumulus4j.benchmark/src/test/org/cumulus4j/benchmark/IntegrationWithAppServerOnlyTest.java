@@ -26,9 +26,7 @@ import java.security.SecureRandom;
 
 import javax.ws.rs.core.MediaType;
 
-import org.cumulus4j.benchmark.framework.BaseService;
-import org.cumulus4j.benchmark.framework.ConsoleReport;
-import org.cumulus4j.benchmark.framework.IReport;
+import org.cumulus4j.benchmark.framework.PropertyHandler;
 import org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam;
 import org.cumulus4j.keymanager.api.DefaultKeyManagerAPI;
 import org.cumulus4j.keymanager.api.KeyManagerAPI;
@@ -65,17 +63,45 @@ public class IntegrationWithAppServerOnlyTest {
 	
 	private static SecureRandom random = new SecureRandom();
 	
-	private IReport<String> consoleReport;
-	
-	public IntegrationWithAppServerOnlyTest(){
-		
-		consoleReport = new ConsoleReport();
-	}
-	
 	private String invokeOnServer(Client client, String cryptoSessionID, String methodName) throws Exception{
 		
 		String url = URL_PERSON + "/" + methodName + "?cryptoSessionID="
 		+ URLEncoder.encode(cryptoSessionID, IOUtil.CHARSET_NAME_UTF_8);
+			
+		String result;
+		
+		try {
+			result = client.resource(url).accept(MediaType.TEXT_PLAIN).get(String.class);
+		} catch (UniformInterfaceException x) {
+			String message = null;
+			try {
+				InputStream in = x.getResponse().getEntityInputStream();
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				IOUtil.transferStreamData(in, out);
+				in.close();
+				message = new String(out.toByteArray(), IOUtil.CHARSET_UTF_8);
+			} catch (Exception e) {
+				logger.error("Reading error message failed: " + e, e);
+			}
+			if (message == null)
+				throw x;
+			else
+				throw new IOException("Error-code="
+						+ x.getResponse().getStatus() + " error-message="
+						+ message, x);
+		}
+
+		if (result == null)
+			Assert.fail("The POST request on URL " + url
+					+ " did not return any result!");
+		
+		return result;
+	}
+	
+	private String invokeOnServer2(Client client, String cryptoSessionID, String methodName, String arg) throws Exception{
+		
+		String url = URL_PERSON + "/" + methodName + "?cryptoSessionID="
+		+ URLEncoder.encode(cryptoSessionID, IOUtil.CHARSET_NAME_UTF_8) + "&arg=" + arg;
 			
 		String result;
 		
@@ -111,22 +137,51 @@ public class IntegrationWithAppServerOnlyTest {
 	throws Exception {
 
 		Client client = new Client();
+//		
+//		while(!invokeOnServer(client, cryptoSessionID, "nextConfiguration").equals("Cumulus4j disabled")){
+//			invokeOnServer(client, cryptoSessionID, "warmup");
+//			invokeOnServer(client, cryptoSessionID, "persistPersons");
+//			invokeOnServer(client, cryptoSessionID, "readAllPersons");
+//		}
+		
+//		int warmupCount = Integer.parseInt(invokeOnServer(client, cryptoSessionID, "getWarmupCount"));
+		int benchmarkCount = Integer.parseInt(invokeOnServer(client, cryptoSessionID, "getBenchmarkCount"));
+		
+//		invokeOnServer(client, cryptoSessionID, "warmup");
+//		
+//		int stops = benchmarkCount -(benchmarkCount % 100);
 
-		while(!invokeOnServer(client, cryptoSessionID, "getConfiguration").equals("Current properties:\n" + BaseService.CUMULUS4J_NOT_ACTIVATED)){
-			consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "getConfiguration"));
-			consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "warmup"));
-			consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "persistPersons"));
-			consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "readAllPersons"));
-			consoleReport.newStory();
-			invokeOnServer(client, cryptoSessionID, "nextConfiguration");
-		}
-		consoleReport.newStory();
-		consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "getConfiguration"));
-		consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "warmup"));
-		consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "persistPersons"));
-		consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "readAllPersons"));
-			
-		logger.info(consoleReport.getFullReport());
+		invokeOnServer(client, cryptoSessionID, "warmup");
+//		invokeOnServer(client, cryptoSessionID, "persistPersons");
+		
+//		for(int i = 0; i < PropertyHandler.TEST_OBJECTS;i++)
+//			invokeOnServer(client, cryptoSessionID, "persistPerson");
+		
+		invokeOnServer(client, cryptoSessionID, "readAllPersons");
+		
+		logger.info(invokeOnServer2(client, cryptoSessionID, "readSomePersons", "arg"));
+		
+		logger.info(invokeOnServer(client, cryptoSessionID, "getResults"));
+
+//		IReportTracker<String> consoleReport = new ConsoleReportTracker();
+//
+//		while(!invokeOnServer(client, cryptoSessionID, "getConfiguration").equals("Current properties:\n" + BaseService.CUMULUS4J_NOT_ACTIVATED)){
+////			consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "getConfiguration"));
+//			consoleReport.newStory(invokeOnServer(client, cryptoSessionID, "getConfiguration"));
+//			consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "warmup"));
+//			consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "persistPersons"));
+//			consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "readAllPersons"));
+////			consoleReport.newStory();
+//			invokeOnServer(client, cryptoSessionID, "nextConfiguration");
+//		}
+//		consoleReport.newStory(invokeOnServer(client, cryptoSessionID, "getConfiguration"));
+////		consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "getConfiguration"));
+//		consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "warmup"));
+//		consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "persistPersons"));
+//		consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "readAllPersons"));
+//			
+//		logger.info(consoleReport.getFullReport());
+//		
 	}
 
 	@Test

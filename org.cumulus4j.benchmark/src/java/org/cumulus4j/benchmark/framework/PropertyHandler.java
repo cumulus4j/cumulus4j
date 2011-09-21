@@ -3,6 +3,7 @@ package org.cumulus4j.benchmark.framework;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Queue;
@@ -17,10 +18,12 @@ import org.cumulus4j.store.test.framework.TestUtil;
 public class PropertyHandler {
 	
 	public static final int TOTAL_OBJECTS;
-	
 	public static final int WARMUP_OBJECTS;
-	
 	public static final int TEST_OBJECTS;
+	
+	public static final boolean HTML_OUTPUT_ENABLED;
+	public static final boolean XML_OUTPUT_ENABLED;
+	public static final boolean CONSOLE_OUTPUT_ENABLED;
 	
 	private static final Queue<Map<String, String>> encryptionAlgorithms;
 	
@@ -37,14 +40,18 @@ public class PropertyHandler {
 		TEST_OBJECTS = TOTAL_OBJECTS - WARMUP_OBJECTS;
 		
 		encryptionAlgorithms = calculateAlgorithms(benchmarkProps);
+		
+		HTML_OUTPUT_ENABLED = Boolean.parseBoolean(benchmarkProps.getProperty("cumulus4j.benchmark.HTMLOutput"));
+		XML_OUTPUT_ENABLED = Boolean.parseBoolean(benchmarkProps.getProperty("cumulus4j.benchmark.XMLOutput"));
+		CONSOLE_OUTPUT_ENABLED = Boolean.parseBoolean(benchmarkProps.getProperty("cumulus4j.benchmark.ConsoleOutput"));
 	}
 	
 	private static Queue<Map<String, String>> calculateAlgorithms(Properties props){
 		
 		int counter = 1;
 		
-		ArrayList<String> encryptionAlgorithms = new ArrayList<String>();
-		ArrayList<String> macAlgorithms = new ArrayList<String>();
+		List<String> encryptionAlgorithms = new ArrayList<String>();
+		List<String> macAlgorithms = new ArrayList<String>();
 		
 		while(props.get("cumulus4j.benchmark.encryptionAlgorithm" + counter) != null){
 			encryptionAlgorithms.add("cumulus4j.benchmark.encryptionAlgorithm" + counter);

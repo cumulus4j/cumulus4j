@@ -23,9 +23,9 @@ public abstract class BenchmarkBaseDAO {
 	
 	private Map<String, String> currentConfiguration;
 	
-	protected BenchmarkBaseDAO(){
-		currentConfiguration = PropertyHandler.nextConfiguration();
-	}
+//	protected BenchmarkBaseDAO(){
+//		currentConfiguration = PropertyHandler.nextConfiguration();
+//	}
 	
 	private synchronized PersistenceManagerFactory getPersistenceManagerFactory()
 	{
@@ -79,5 +79,12 @@ public abstract class BenchmarkBaseDAO {
 	
 	public void nextConfiguration(){
 		pmf = null;
+	}
+	
+	public boolean cumulus4jEnabled(){
+		if(currentConfiguration != null)
+			return true;
+		else
+			return false;
 	}
 }
