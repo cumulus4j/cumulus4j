@@ -19,9 +19,14 @@ package org.cumulus4j.store;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.jdo.PersistenceManagerFactory;
 
@@ -36,6 +41,8 @@ import org.cumulus4j.store.model.IndexEntry;
 import org.cumulus4j.store.model.IndexValue;
 import org.cumulus4j.store.model.ObjectContainer;
 import org.datanucleus.store.ExecutionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Singleton (per {@link PersistenceManagerFactory}) handling the encryption and decryption and thus the key management.
@@ -44,6 +51,34 @@ import org.datanucleus.store.ExecutionContext;
  */
 public class EncryptionHandler
 {
+	private static final Logger logger = LoggerFactory.getLogger(EncryptionHandler.class);
+
+	/**
+	 * Dump all plain texts to the system temp directory for debug reasons. Should always be <code>false</code> in productive environments!
+	 */
+	public static final boolean DEBUG_DUMP = false;
+
+	private static DateFormat debugDumpDateFormat;
+
+	private static DateFormat getDebugDumpDateFormat()
+	{
+		if (debugDumpDateFormat == null) {
+			debugDumpDateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss_SSS");
+		}
+		return debugDumpDateFormat;
+	}
+
+	private static File debugDumpDir;
+
+	private static File getDebugDumpDir() {
+		if (debugDumpDir == null) {
+			debugDumpDir = new File(new File(System.getProperty("java.io.tmpdir")), EncryptionHandler.class.getName());
+			debugDumpDir.mkdirs();
+		}
+
+		return debugDumpDir;
+	}
+
 	public EncryptionHandler() { }
 
 	private CryptoSession getCryptoSession(ExecutionContext ec)
@@ -126,6 +161,17 @@ public class EncryptionHandler
 		Plaintext plaintext = new Plaintext();
 		plaintext.setData(out.toByteArray()); out = null;
 
+		if (DEBUG_DUMP) {
+			try {
+				String fileName = dataEntry.getClass().getSimpleName() + "_" + dataEntry.getDataEntryID() + "_" + getDebugDumpDateFormat().format(new Date());
+				FileOutputStream fout = new FileOutputStream(new File(getDebugDumpDir(), fileName));
+				fout.write(plaintext.getData());
+				fout.close();
+			} catch (IOException e) {
+				logger.error("encryptDataEntry: Dumping plaintext failed: " + e, e);
+			}
+		}
+
 		CryptoSession cryptoSession = getCryptoSession(cryptoContext.getExecutionContext());
 		Ciphertext ciphertext = cryptoSession.encrypt(cryptoContext, plaintext);
 
@@ -175,6 +221,17 @@ public class EncryptionHandler
 	{
 		Plaintext plaintext = new Plaintext();
 		plaintext.setData(indexValue.toByteArray());
+
+		if (DEBUG_DUMP) {
+			try {
+				String fileName = indexEntry.getClass().getSimpleName() + "_" + indexEntry.getIndexEntryID() + "_" + getDebugDumpDateFormat().format(new Date());
+				FileOutputStream fout = new FileOutputStream(new File(getDebugDumpDir(), fileName));
+				fout.write(plaintext.getData());
+				fout.close();
+			} catch (IOException e) {
+				logger.error("encryptIndexEntry: Dumping plaintext failed: " + e, e);
+			}
+		}
 
 		CryptoSession cryptoSession = getCryptoSession(cryptoContext.getExecutionContext());
 		Ciphertext ciphertext = cryptoSession.encrypt(cryptoContext, plaintext);

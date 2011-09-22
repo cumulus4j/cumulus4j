@@ -22,6 +22,8 @@ import java.util.Map;
 
 import javax.jdo.PersistenceManager;
 
+import org.cumulus4j.store.EncryptionHandler;
+
 /**
  * <p>
  * Factory for creating (or looking up) specific {@link IndexEntry} implementations.
@@ -99,8 +101,11 @@ public abstract class IndexEntryFactory
 			// This way, there is only one INSERT instead of one INSERT AND one UPDATE for each new
 			// index entry. The MovieQueryTest.importDataCsv() is around 10% faster when using MySQL
 			// (approximately 60 sec vs. 66 sec).
+			// However, when dumping the plaintexts for debugging, we need the indexEntryID already *before*
+			// encryption. Hence, we persist here, if the DEBUG_DUMP flag is set.
 			// Marco :-)
-//			result = pm.makePersistent(result);
+			if (EncryptionHandler.DEBUG_DUMP)
+				result = pmIndex.makePersistent(result);
 		}
 
 		return result;
