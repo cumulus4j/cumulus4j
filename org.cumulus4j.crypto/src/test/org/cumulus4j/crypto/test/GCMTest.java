@@ -1,5 +1,9 @@
 package org.cumulus4j.crypto.test;
 
+import org.bouncycastle.crypto.CipherParameters;
+import org.bouncycastle.crypto.engines.TwofishEngine;
+import org.bouncycastle.crypto.modes.AEADBlockCipher;
+import org.bouncycastle.crypto.modes.GCMBlockCipher;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.cumulus4j.crypto.Cipher;
@@ -117,39 +121,70 @@ public class GCMTest {
 		}
 	}
 
-//	@Test
-//	public void testEncryptionWithBCLowLevelAPI() throws Exception
-//	{
-//		byte[] plain = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
-//		byte[] key = new byte[] {
-//				 1,  2,  3,  4,  5,  6,  7,  8,
-//				 9, 10, 11, 12, 13, 14, 15, 16,
-//				17, 18, 19, 20, 21, 22, 23, 24,
-//				25, 26, 27, 28, 29, 30, 31, 32
-//		};
-//		byte[] iv = new byte[] {
-//				 1,  2,  3,  4,  5,  6,  7,  8,
-//				 9, 10, 11, 12, 13, 14, 15, 16
-//		};
-//		byte[] firstCiphertext = null;
+	@Test
+	public void testEncryptionWithBCLowLevelAPI() throws Exception
+	{
+		byte[] plain = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
+		byte[] key = new byte[] {
+				 1,  2,  3,  4,  5,  6,  7,  8,
+				 9, 10, 11, 12, 13, 14, 15, 16,
+				17, 18, 19, 20, 21, 22, 23, 24,
+				25, 26, 27, 28, 29, 30, 31, 32
+		};
+		byte[] iv = new byte[] {
+				 1,  2,  3,  4,  5,  6,  7,  8,
+				 9, 10, 11, 12, 13, 14, 15, 16
+		};
+
+
+//		{ // first try CFB - works fine, currently (2011-09-23).
+//			CipherParameters parameters = new ParametersWithIV(new KeyParameter(key), iv);
+//			byte[] firstCiphertext = null;
+//			BufferedBlockCipher cipher = new BufferedBlockCipher(new CFBBlockCipher(new TwofishEngine(), 128));
 //
-//		Cipher cipher = CryptoRegistry.sharedInstance().createCipher("Twofish/GCM/NoPadding");
-////		Cipher cipher = CryptoRegistry.sharedInstance().createCipher("Twofish/CFB/NoPadding");
-//		cipher.init(CipherOperationMode.ENCRYPT, new ParametersWithIV(new KeyParameter(key), iv));
+//			cipher.init(true, parameters);
 //
-//		for (int i = 0; i < 10000; ++i) {
-//			System.out.println("*** " + i + " ***");
-////			Thread.sleep(50);
+//			for (int i = 0; i < 10000; ++i) {
+//				System.out.println("*** cfb " + i + " ***");
 //
-//			// Whether we re-initialise with or without key does not matter.
-//			cipher.init(CipherOperationMode.ENCRYPT, new ParametersWithIV(null, iv));
-////			cipher.init(CipherOperationMode.ENCRYPT, new ParametersWithIV(new KeyParameter(key), iv));
+//				// Whether we re-initialise with or without key does not matter.
+//				cipher.init(true, parameters);
 //
-//			byte[] ciphertext = cipher.doFinal(plain);
-//			if (firstCiphertext == null)
-//				firstCiphertext = ciphertext;
-//			else
-//				Assert.assertArrayEquals(firstCiphertext, ciphertext);
+//				byte[] ciphertext = new byte[cipher.getOutputSize(plain.length)];
+//				int encLength = cipher.processBytes(plain, 0, plain.length, ciphertext, 0);
+//				cipher.doFinal(ciphertext, encLength);
+//
+//				if (firstCiphertext == null)
+//					firstCiphertext = ciphertext;
+//				else
+//					Assert.assertArrayEquals(firstCiphertext, ciphertext);
+//			}
 //		}
-//	}
+
+
+		{ // now try GCM - fails on 'fhernhache', currently (2011-09-23).
+			CipherParameters parameters = new ParametersWithIV(new KeyParameter(key), iv);
+			byte[] firstCiphertext = null;
+//			AEADParameters parameters = new AEADParameters(new KeyParameter(key), 128, iv, plain);
+			AEADBlockCipher cipher = new GCMBlockCipher(new TwofishEngine());
+
+			cipher.init(true, parameters);
+
+			for (int i = 0; i < 10000; ++i) {
+				System.out.println("*** gcm " + i + " ***");
+
+				// Whether we re-initialise with or without key does not matter.
+				cipher.init(true, parameters);
+
+				byte[] ciphertext = new byte[cipher.getOutputSize(plain.length)];
+				int encLength = cipher.processBytes(plain, 0, plain.length, ciphertext, 0);
+				cipher.doFinal(ciphertext, encLength);
+
+				if (firstCiphertext == null)
+					firstCiphertext = ciphertext;
+				else
+					Assert.assertArrayEquals(firstCiphertext, ciphertext);
+			}
+		}
+	}
 }
