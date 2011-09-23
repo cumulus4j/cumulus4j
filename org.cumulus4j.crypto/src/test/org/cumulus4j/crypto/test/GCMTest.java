@@ -1,0 +1,155 @@
+package org.cumulus4j.crypto.test;
+
+import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.crypto.params.ParametersWithIV;
+import org.cumulus4j.crypto.Cipher;
+import org.cumulus4j.crypto.CipherOperationMode;
+import org.cumulus4j.crypto.CryptoRegistry;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GCMTest {
+
+//	private static SecureRandom random = new SecureRandom();
+
+//	private static byte[] getBytesFromResource(String resourceName) throws IOException
+//	{
+//		InputStream in = GCMTest.class.getResourceAsStream(resourceName);
+//		ByteArrayOutputStream out = new ByteArrayOutputStream();
+//		IOUtil.transferStreamData(in, out);
+//		in.close();
+//		out.close();
+//		return out.toByteArray();
+//	}
+//
+//	@Test
+//	public void testWithCipher()
+//	throws Exception
+//	{
+//		String debugDumpFileName = "IndexEntryLong_235_20110923_125513_768";
+//
+//		String transformation = "Twofish/GCM/NoPadding";
+////		String transformation = "Twofish/CBC/PKCS5Padding";
+//		Cipher encrypter = CryptoRegistry.sharedInstance().createCipher(transformation);
+//		Cipher decrypter = CryptoRegistry.sharedInstance().createCipher(transformation);
+//
+////		byte[] iv = new byte[encrypter.getIVSize()];
+////		random.nextBytes(iv);
+//		byte[] iv = getBytesFromResource(debugDumpFileName + ".iv");
+//
+////		byte[] key = new byte[256 / 8];
+////		random.nextBytes(key);
+//		byte[] key = getBytesFromResource(debugDumpFileName + ".key");
+//
+//		encrypter.init(CipherOperationMode.ENCRYPT, new ParametersWithIV(new KeyParameter(key), iv));
+//		decrypter.init(CipherOperationMode.DECRYPT, new ParametersWithIV(new KeyParameter(key), iv));
+//
+//		byte[] plain = getBytesFromResource(debugDumpFileName + ".plain");
+//		byte[] encrypted = encrypter.doFinal(plain);
+//
+////		byte[] encryptedResource = getBytesFromResource(debugDumpFileName + ".crypt");
+////		Assert.assertArrayEquals("The dumped ciphertext is different from the newly encrypted ciphertext!", encrypted, encryptedResource);
+//
+//		byte[] decrypted = decrypter.doFinal(encrypted);
+//
+//		Assert.assertArrayEquals(plain, decrypted);
+//
+//////		InputStream in = GCMTest.class.getResourceAsStream("IndexEntryInteger_6_20110922_182710_317");
+////		InputStream in2 = GCMTest.class.getResourceAsStream("IndexEntryInteger_6_20110922_182714_379");
+//////		InputStream in = GCMTest.class.getResourceAsStream("IndexEntryInteger_6_20110922_182714_458");
+////		ByteArrayOutputStream out2 = new ByteArrayOutputStream();
+////		IOUtil.transferStreamData(in2, out2);
+////		in2.close();
+////		out2.close();
+////		byte[] plain2 = out2.toByteArray();
+////		byte[] encrypted2 = encrypter.doFinal(plain2);
+////		byte[] decrypted2 = decrypter.doFinal(encrypted2);
+////
+////		Assert.assertArrayEquals(plain2, decrypted2);
+////
+//////		InputStream in = GCMTest.class.getResourceAsStream("IndexEntryInteger_6_20110922_182710_317");
+//////		InputStream in = GCMTest.class.getResourceAsStream("IndexEntryInteger_6_20110922_182714_379");
+////		InputStream in3 = GCMTest.class.getResourceAsStream("IndexEntryInteger_6_20110922_182714_458");
+////		ByteArrayOutputStream out3 = new ByteArrayOutputStream();
+////		IOUtil.transferStreamData(in3, out3);
+////		in3.close();
+////		out3.close();
+////		byte[] plain3 = out3.toByteArray();
+////		byte[] encrypted3 = encrypter.doFinal(plain3);
+////		byte[] decrypted3 = decrypter.doFinal(encrypted3);
+////
+////		Assert.assertArrayEquals(plain3, decrypted3);
+//	}
+
+	@Test
+	public void testEncryptionWithCipher() throws Exception
+	{
+		byte[] plain = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
+		byte[] key = new byte[] {
+				 1,  2,  3,  4,  5,  6,  7,  8,
+				 9, 10, 11, 12, 13, 14, 15, 16,
+				17, 18, 19, 20, 21, 22, 23, 24,
+				25, 26, 27, 28, 29, 30, 31, 32
+		};
+		byte[] iv = new byte[] {
+				 1,  2,  3,  4,  5,  6,  7,  8,
+				 9, 10, 11, 12, 13, 14, 15, 16
+		};
+		byte[] firstCiphertext = null;
+
+		Cipher cipher = CryptoRegistry.sharedInstance().createCipher("Twofish/GCM/NoPadding");
+//		Cipher cipher = CryptoRegistry.sharedInstance().createCipher("Twofish/CFB/NoPadding");
+		cipher.init(CipherOperationMode.ENCRYPT, new ParametersWithIV(new KeyParameter(key), iv));
+
+		for (int i = 0; i < 10000; ++i) {
+			System.out.println("*** " + i + " ***");
+//			Thread.sleep(50);
+
+			// Whether we re-initialise with or without key does not matter.
+			cipher.init(CipherOperationMode.ENCRYPT, new ParametersWithIV(null, iv));
+//			cipher.init(CipherOperationMode.ENCRYPT, new ParametersWithIV(new KeyParameter(key), iv));
+
+			byte[] ciphertext = cipher.doFinal(plain);
+			if (firstCiphertext == null)
+				firstCiphertext = ciphertext;
+			else
+				Assert.assertArrayEquals(firstCiphertext, ciphertext);
+		}
+	}
+
+//	@Test
+//	public void testEncryptionWithBCLowLevelAPI() throws Exception
+//	{
+//		byte[] plain = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
+//		byte[] key = new byte[] {
+//				 1,  2,  3,  4,  5,  6,  7,  8,
+//				 9, 10, 11, 12, 13, 14, 15, 16,
+//				17, 18, 19, 20, 21, 22, 23, 24,
+//				25, 26, 27, 28, 29, 30, 31, 32
+//		};
+//		byte[] iv = new byte[] {
+//				 1,  2,  3,  4,  5,  6,  7,  8,
+//				 9, 10, 11, 12, 13, 14, 15, 16
+//		};
+//		byte[] firstCiphertext = null;
+//
+//		Cipher cipher = CryptoRegistry.sharedInstance().createCipher("Twofish/GCM/NoPadding");
+////		Cipher cipher = CryptoRegistry.sharedInstance().createCipher("Twofish/CFB/NoPadding");
+//		cipher.init(CipherOperationMode.ENCRYPT, new ParametersWithIV(new KeyParameter(key), iv));
+//
+//		for (int i = 0; i < 10000; ++i) {
+//			System.out.println("*** " + i + " ***");
+////			Thread.sleep(50);
+//
+//			// Whether we re-initialise with or without key does not matter.
+//			cipher.init(CipherOperationMode.ENCRYPT, new ParametersWithIV(null, iv));
+////			cipher.init(CipherOperationMode.ENCRYPT, new ParametersWithIV(new KeyParameter(key), iv));
+//
+//			byte[] ciphertext = cipher.doFinal(plain);
+//			if (firstCiphertext == null)
+//				firstCiphertext = ciphertext;
+//			else
+//				Assert.assertArrayEquals(firstCiphertext, ciphertext);
+//		}
+//	}
+}
