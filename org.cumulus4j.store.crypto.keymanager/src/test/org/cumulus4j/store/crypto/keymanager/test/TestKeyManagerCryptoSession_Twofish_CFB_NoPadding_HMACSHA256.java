@@ -1,7 +1,7 @@
 package org.cumulus4j.store.crypto.keymanager.test;
 
 public class TestKeyManagerCryptoSession_Twofish_CFB_NoPadding_HMACSHA256
-extends AbstractKeyManagerCryptoSessionTest
+extends DefaultKeyManagerCryptoSessionTest
 {
 	@Override
 	protected String getEncryptionAlgorithm() {

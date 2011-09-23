@@ -17,7 +17,10 @@
  */
 package org.cumulus4j.store.crypto.keymanager.test;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -35,11 +38,9 @@ import javax.jdo.PersistenceManagerFactory;
 import org.cumulus4j.keymanager.back.shared.IdentifierUtil;
 import org.cumulus4j.store.EncryptionCoordinateSetManager;
 import org.cumulus4j.store.PersistenceManagerConnection;
-import org.cumulus4j.store.crypto.Ciphertext;
 import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.crypto.CryptoManager;
 import org.cumulus4j.store.crypto.CryptoManagerRegistry;
-import org.cumulus4j.store.crypto.Plaintext;
 import org.cumulus4j.store.crypto.keymanager.KeyManagerCryptoManager;
 import org.cumulus4j.store.crypto.keymanager.KeyManagerCryptoSession;
 import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBrokerRegistry;
@@ -50,12 +51,21 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
 import org.nightlabs.util.IOUtil;
 
 public abstract class AbstractKeyManagerCryptoSessionTest
 {
-	private static SecureRandom random = new SecureRandom();
+	protected static SecureRandom random = new SecureRandom();
+
+	protected static byte[] getBytesFromResource(String resourceName) throws IOException
+	{
+		InputStream in = AbstractKeyManagerCryptoSessionTest.class.getResourceAsStream(resourceName);
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		IOUtil.transferStreamData(in, out);
+		in.close();
+		out.close();
+		return out.toByteArray();
+	}
 
 	@BeforeClass
 	public static void beforeClass()
@@ -103,9 +113,9 @@ public abstract class AbstractKeyManagerCryptoSessionTest
 		CryptoManagerRegistry cryptoManagerRegistry = CryptoManagerRegistry.sharedInstance(nucleusContext);
 		KeyManagerCryptoManager cryptoManager = new KeyManagerCryptoManager();
 		cryptoManager.setCryptoManagerRegistry(cryptoManagerRegistry);
-		session = (KeyManagerCryptoSession) cryptoManager.getCryptoSession(UUID.randomUUID().toString());
-//		session.setCryptoManager(cryptoManager);
-//		session.setCryptoSessionID(UUID.randomUUID().toString());
+		cryptoSession = (KeyManagerCryptoSession) cryptoManager.getCryptoSession(UUID.randomUUID().toString());
+//		cryptoSession.setCryptoManager(cryptoManager);
+//		cryptoSession.setCryptoSessionID(UUID.randomUUID().toString());
 
 		ExecutionContext executionContext = (ExecutionContext) Proxy.newProxyInstance(
 				this.getClass().getClassLoader(),
@@ -150,81 +160,10 @@ public abstract class AbstractKeyManagerCryptoSessionTest
 
 	private static final void doNothing() { }
 
-	private CryptoContext cryptoContext;
-	private KeyManagerCryptoSession session;
+	protected CryptoContext cryptoContext;
+	protected KeyManagerCryptoSession cryptoSession;
 
-	@Test
-	public void encryptDecryptWithHelpfulDebugData()
-	{
-		Plaintext plaintext = new Plaintext();
-		{
-			byte[] data = new byte[64];
-			for (int i = 0; i < data.length; ++i)
-				data[i] = (byte)( data.length - i );
-
-			data[data.length - 1] = (byte)255;
-			data[data.length - 2] = (byte)255;
-			data[data.length - 3] = (byte)255;
-
-			plaintext.setData(data);
-		}
-
-		Ciphertext ciphertext = session.encrypt(cryptoContext, plaintext);
-		Plaintext decrypted = session.decrypt(cryptoContext, ciphertext);
-
-		Assert.assertArrayEquals(plaintext.getData(), decrypted.getData());
-	}
-
-	@Test
-	public void encryptDecryptWithRandomData()
-	{
-		Plaintext plaintext = new Plaintext();
-		{
-			byte[] data = new byte[random.nextInt(1024 * 1024)];
-			random.nextBytes(data);
-			plaintext.setData(data);
-		}
-
-		Ciphertext ciphertext = session.encrypt(cryptoContext, plaintext);
-		// NOT clearing cache in order to test the cached scenario.
-		Ciphertext ciphertext1 = session.encrypt(cryptoContext, plaintext);
-
-		// Clear cache in order to test more code (i.e. ask the MockMessageBroker with a GetKeyRequest).
-		((KeyManagerCryptoManager)session.getCryptoManager()).getCryptoCache().clear();
-
-		Ciphertext ciphertext2 = session.encrypt(cryptoContext, plaintext);
-
-		int c = countDifferentBits(ciphertext.getData(), ciphertext1.getData());
-		Assert.assertTrue("Not enough bits different between ciphertext and ciphertext1! Only " + c + " bits differ!", c > 1024);
-
-		c = countDifferentBits(ciphertext.getData(), ciphertext2.getData());
-		Assert.assertTrue("Not enough bits different between ciphertext and ciphertext2! Only " + c + " bits differ!", c > 1024);
-
-		c = countDifferentBits(ciphertext1.getData(), ciphertext2.getData());
-		Assert.assertTrue("Not enough bits different between ciphertext1 and ciphertext2! Only " + c + " bits differ!", c > 1024);
-
-		// Clear cache in order to test more code (i.e. ask the MockMessageBroker with a GetKeyRequest).
-		((KeyManagerCryptoManager)session.getCryptoManager()).getCryptoCache().clear();
-
-		Plaintext decrypted = session.decrypt(cryptoContext, ciphertext);
-
-		Assert.assertArrayEquals(plaintext.getData(), decrypted.getData());
-
-		// NOT clearing cache in order to test the cached scenario.
-		Plaintext decrypted1 = session.decrypt(cryptoContext, ciphertext1);
-
-		// Clear cache in order to test more code (i.e. ask the MockMessageBroker with a GetKeyRequest).
-		((KeyManagerCryptoManager)session.getCryptoManager()).getCryptoCache().clear();
-		Plaintext decrypted2 = session.decrypt(cryptoContext, ciphertext2);
-
-		c = countDifferentBits(decrypted.getData(), decrypted1.getData());
-		Assert.assertEquals("decrypted does not match decrypted1! " + c + " bits differ!", 0, c);
-
-		c = countDifferentBits(decrypted.getData(), decrypted2.getData());
-		Assert.assertEquals("decrypted does not match decrypted2! " + c + " bits differ!", 0, c);
-	}
-
-	private int countDifferentBits(byte[] b1, byte[] b2)
+	protected int countDifferentBits(byte[] b1, byte[] b2)
 	{
 		int length = b1.length < b2.length ? b1.length : b2.length;
 

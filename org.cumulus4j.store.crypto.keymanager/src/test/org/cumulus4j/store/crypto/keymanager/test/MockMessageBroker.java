@@ -41,9 +41,9 @@ public class MockMessageBroker extends AbstractMessageBroker
 		MessageBrokerRegistry.sharedInstance().setActiveMessageBroker(new MockMessageBroker());
 	}
 
-	private static byte[] key = new byte[128 / 8]; // testing with 128 bits is sufficient
+	private static byte[] key;
 	static {
-		new SecureRandom().nextBytes(key);
+		setKey(null);
 	}
 
 	@Override
@@ -77,5 +77,15 @@ public class MockMessageBroker extends AbstractMessageBroker
 	@Override
 	protected void _pushResponse(Response response) {
 		throw new UnsupportedOperationException("Mock does not implement this!");
+	}
+
+	public static void setKey(byte[] key)
+	{
+		if (key == null) {
+			key = new byte[128 / 8]; // testing with 128 bits is sufficient
+			new SecureRandom().nextBytes(key);
+		}
+
+		MockMessageBroker.key = key;
 	}
 }
