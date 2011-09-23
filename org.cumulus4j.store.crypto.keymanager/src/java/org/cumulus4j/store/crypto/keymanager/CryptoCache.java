@@ -27,7 +27,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -773,8 +772,8 @@ public class CryptoCache
 					continue;
 
 				synchronized (keyID2cipherEntries) {
-					for (Iterator<Entry<Long, List<CryptoCacheCipherEntry>>> it1 = keyID2cipherEntries.entrySet().iterator(); it1.hasNext(); ) {
-						Entry<Long, List<CryptoCacheCipherEntry>> me1 = it1.next();
+					for (Iterator<Map.Entry<Long, List<CryptoCacheCipherEntry>>> it1 = keyID2cipherEntries.entrySet().iterator(); it1.hasNext(); ) {
+						Map.Entry<Long, List<CryptoCacheCipherEntry>> me1 = it1.next();
 						List<CryptoCacheCipherEntry> entries = me1.getValue();
 						synchronized (entries) {
 							for (Iterator<CryptoCacheCipherEntry> it2 = entries.iterator(); it2.hasNext(); ) {
