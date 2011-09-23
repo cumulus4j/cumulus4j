@@ -85,6 +85,12 @@ public class GCMTest {
 ////		Assert.assertArrayEquals(plain3, decrypted3);
 //	}
 
+
+	/*
+	 * There was a problem with GCM encryption. The en/decryption failed with about 1500 objetcs.
+	 * The problem was not complete covered and was solved by updating the kernel and java.
+	 * Maybe this was caused by a bug in an old Java version.
+	 */
 	@Test
 	public void testEncryptionWithCipher() throws Exception
 	{
