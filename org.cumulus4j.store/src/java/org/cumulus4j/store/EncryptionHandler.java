@@ -26,6 +26,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 import javax.jdo.PersistenceManagerFactory;
@@ -58,6 +59,11 @@ public class EncryptionHandler
 	 */
 	public static final boolean DEBUG_DUMP = false;
 
+	/**
+	 * Decrypt the ciphertext immediately after encryption to verify it. Should always be <code>false</code> in productive environments!
+	 */
+	private static final boolean DEBUG_VERIFY_CIPHERTEXT = false;
+
 	private static DateFormat debugDumpDateFormat;
 
 	private static DateFormat getDebugDumpDateFormat()
@@ -70,7 +76,7 @@ public class EncryptionHandler
 
 	private static File debugDumpDir;
 
-	private static File getDebugDumpDir() {
+	public static File getDebugDumpDir() {
 		if (debugDumpDir == null) {
 			debugDumpDir = new File(new File(System.getProperty("java.io.tmpdir")), EncryptionHandler.class.getName());
 			debugDumpDir.mkdirs();
@@ -78,6 +84,8 @@ public class EncryptionHandler
 
 		return debugDumpDir;
 	}
+
+	public static ThreadLocal<String> debugDumpFileNameThreadLocal = new ThreadLocal<String>();
 
 	public EncryptionHandler() { }
 
@@ -113,30 +121,34 @@ public class EncryptionHandler
 	 */
 	public ObjectContainer decryptDataEntry(CryptoContext cryptoContext, DataEntry dataEntry)
 	{
-		Ciphertext ciphertext = new Ciphertext();
-		ciphertext.setKeyID(dataEntry.getKeyID());
-		ciphertext.setData(dataEntry.getValue());
-
-		if (ciphertext.getData() == null)
-			return null; // TODO or return an empty ObjectContainer instead?
-
-		CryptoSession cryptoSession = getCryptoSession(cryptoContext.getExecutionContext());
-		Plaintext plaintext = cryptoSession.decrypt(cryptoContext, ciphertext);
-		if (plaintext == null)
-			throw new IllegalStateException("cryptoSession.decrypt(ciphertext) returned null! cryptoManagerID=" + cryptoSession.getCryptoManager().getCryptoManagerID() + " cryptoSessionID=" + cryptoSession.getCryptoSessionID());
-
-		ObjectContainer objectContainer;
-		ByteArrayInputStream in = new ByteArrayInputStream(plaintext.getData());
 		try {
-			ObjectInputStream objIn = new DataNucleusObjectInputStream(in, cryptoContext.getExecutionContext().getClassLoaderResolver());
-			objectContainer = (ObjectContainer) objIn.readObject();
-			objIn.close();
-		} catch (IOException x) {
-			throw new RuntimeException(x);
-		} catch (ClassNotFoundException x) {
-			throw new RuntimeException(x);
+			Ciphertext ciphertext = new Ciphertext();
+			ciphertext.setKeyID(dataEntry.getKeyID());
+			ciphertext.setData(dataEntry.getValue());
+
+			if (ciphertext.getData() == null)
+				return null; // TODO or return an empty ObjectContainer instead?
+
+			CryptoSession cryptoSession = getCryptoSession(cryptoContext.getExecutionContext());
+			Plaintext plaintext = cryptoSession.decrypt(cryptoContext, ciphertext);
+			if (plaintext == null)
+				throw new IllegalStateException("cryptoSession.decrypt(ciphertext) returned null! cryptoManagerID=" + cryptoSession.getCryptoManager().getCryptoManagerID() + " cryptoSessionID=" + cryptoSession.getCryptoSessionID());
+
+			ObjectContainer objectContainer;
+			ByteArrayInputStream in = new ByteArrayInputStream(plaintext.getData());
+			try {
+				ObjectInputStream objIn = new DataNucleusObjectInputStream(in, cryptoContext.getExecutionContext().getClassLoaderResolver());
+				objectContainer = (ObjectContainer) objIn.readObject();
+				objIn.close();
+			} catch (IOException x) {
+				throw new RuntimeException(x);
+			} catch (ClassNotFoundException x) {
+				throw new RuntimeException(x);
+			}
+			return objectContainer;
+		} catch (Exception x) {
+			throw new RuntimeException("Failed to decrypt " + dataEntry.getClass().getSimpleName() + " with dataEntryID=" + dataEntry.getDataEntryID() + ": " + x, x);
 		}
-		return objectContainer;
 	}
 
 	/**
@@ -161,10 +173,12 @@ public class EncryptionHandler
 		Plaintext plaintext = new Plaintext();
 		plaintext.setData(out.toByteArray()); out = null;
 
+		String debugDumpFileName = null;
 		if (DEBUG_DUMP) {
+			debugDumpFileName = dataEntry.getClass().getSimpleName() + "_" + dataEntry.getDataEntryID() + "_" + getDebugDumpDateFormat().format(new Date());
+			debugDumpFileNameThreadLocal.set(debugDumpFileName);
 			try {
-				String fileName = dataEntry.getClass().getSimpleName() + "_" + dataEntry.getDataEntryID() + "_" + getDebugDumpDateFormat().format(new Date());
-				FileOutputStream fout = new FileOutputStream(new File(getDebugDumpDir(), fileName));
+				FileOutputStream fout = new FileOutputStream(new File(getDebugDumpDir(), debugDumpFileName + ".plain"));
 				fout.write(plaintext.getData());
 				fout.close();
 			} catch (IOException e) {
@@ -181,6 +195,26 @@ public class EncryptionHandler
 		if (ciphertext.getKeyID() < 0)
 			throw new IllegalStateException("cryptoSession.encrypt(plaintext) returned a ciphertext with keyID < 0! cryptoManagerID=" + cryptoSession.getCryptoManager().getCryptoManagerID() + " cryptoSessionID=" + cryptoSession.getCryptoSessionID());
 
+		if (DEBUG_DUMP) {
+			try {
+				FileOutputStream fout = new FileOutputStream(new File(getDebugDumpDir(), debugDumpFileName + ".crypt"));
+				fout.write(ciphertext.getData());
+				fout.close();
+			} catch (IOException e) {
+				logger.error("encryptDataEntry: Dumping ciphertext failed: " + e, e);
+			}
+		}
+
+		if (DEBUG_VERIFY_CIPHERTEXT) {
+			try {
+				Plaintext decrypted = cryptoSession.decrypt(cryptoContext, ciphertext);
+				if (!Arrays.equals(decrypted.getData(), plaintext.getData()))
+					throw new IllegalStateException("decrypted != plaintext");
+			} catch (Exception x) {
+				throw new RuntimeException("Verification of ciphertext failed (see dumps in \"" + debugDumpFileName + ".*\"): ", x);
+			}
+		}
+
 		dataEntry.setKeyID(ciphertext.getKeyID());
 		dataEntry.setValue(ciphertext.getData());
 	}
@@ -194,20 +228,24 @@ public class EncryptionHandler
 	 */
 	public IndexValue decryptIndexEntry(CryptoContext cryptoContext, IndexEntry indexEntry)
 	{
-		Ciphertext ciphertext = new Ciphertext();
-		ciphertext.setKeyID(indexEntry.getKeyID());
-		ciphertext.setData(indexEntry.getIndexValue());
+		try {
+			Ciphertext ciphertext = new Ciphertext();
+			ciphertext.setKeyID(indexEntry.getKeyID());
+			ciphertext.setData(indexEntry.getIndexValue());
 
-		Plaintext plaintext = null;
-		if (ciphertext.getData() != null) {
-			CryptoSession cryptoSession = getCryptoSession(cryptoContext.getExecutionContext());
-			plaintext = cryptoSession.decrypt(cryptoContext, ciphertext);
-			if (plaintext == null)
-				throw new IllegalStateException("cryptoSession.decrypt(ciphertext) returned null! cryptoManagerID=" + cryptoSession.getCryptoManager().getCryptoManagerID() + " cryptoSessionID=" + cryptoSession.getCryptoSessionID());
+			Plaintext plaintext = null;
+			if (ciphertext.getData() != null) {
+				CryptoSession cryptoSession = getCryptoSession(cryptoContext.getExecutionContext());
+				plaintext = cryptoSession.decrypt(cryptoContext, ciphertext);
+				if (plaintext == null)
+					throw new IllegalStateException("cryptoSession.decrypt(ciphertext) returned null! cryptoManagerID=" + cryptoSession.getCryptoManager().getCryptoManagerID() + " cryptoSessionID=" + cryptoSession.getCryptoSessionID());
+			}
+
+			IndexValue indexValue = new IndexValue(plaintext == null ? null : plaintext.getData());
+			return indexValue;
+		} catch (Exception x) {
+			throw new RuntimeException("Failed to decrypt " + indexEntry.getClass().getSimpleName() + " with indexEntryID=" + indexEntry.getIndexEntryID() + ": " + x, x);
 		}
-
-		IndexValue indexValue = new IndexValue(plaintext == null ? null : plaintext.getData());
-		return indexValue;
 	}
 
 	/**
@@ -222,10 +260,12 @@ public class EncryptionHandler
 		Plaintext plaintext = new Plaintext();
 		plaintext.setData(indexValue.toByteArray());
 
+		String debugDumpFileName = null;
 		if (DEBUG_DUMP) {
+			debugDumpFileName = indexEntry.getClass().getSimpleName() + "_" + indexEntry.getIndexEntryID() + "_" + getDebugDumpDateFormat().format(new Date());
+			debugDumpFileNameThreadLocal.set(debugDumpFileName);
 			try {
-				String fileName = indexEntry.getClass().getSimpleName() + "_" + indexEntry.getIndexEntryID() + "_" + getDebugDumpDateFormat().format(new Date());
-				FileOutputStream fout = new FileOutputStream(new File(getDebugDumpDir(), fileName));
+				FileOutputStream fout = new FileOutputStream(new File(getDebugDumpDir(), debugDumpFileName + ".plain"));
 				fout.write(plaintext.getData());
 				fout.close();
 			} catch (IOException e) {
@@ -241,6 +281,26 @@ public class EncryptionHandler
 
 		if (ciphertext.getKeyID() < 0)
 			throw new IllegalStateException("cryptoSession.encrypt(plaintext) returned a ciphertext with keyID < 0! cryptoManagerID=" + cryptoSession.getCryptoManager().getCryptoManagerID() + " cryptoSessionID=" + cryptoSession.getCryptoSessionID());
+
+		if (DEBUG_DUMP) {
+			try {
+				FileOutputStream fout = new FileOutputStream(new File(getDebugDumpDir(), debugDumpFileName + ".crypt"));
+				fout.write(ciphertext.getData());
+				fout.close();
+			} catch (IOException e) {
+				logger.error("encryptIndexEntry: Dumping ciphertext failed: " + e, e);
+			}
+		}
+
+		if (DEBUG_VERIFY_CIPHERTEXT) {
+			try {
+				Plaintext decrypted = cryptoSession.decrypt(cryptoContext, ciphertext);
+				if (!Arrays.equals(decrypted.getData(), plaintext.getData()))
+					throw new IllegalStateException("decrypted != plaintext");
+			} catch (Exception x) {
+				throw new RuntimeException("Verification of ciphertext failed (see plaintext in file \"" + debugDumpFileName + "\"): ", x);
+			}
+		}
 
 		indexEntry.setKeyID(ciphertext.getKeyID());
 		indexEntry.setIndexValue(ciphertext.getData());
