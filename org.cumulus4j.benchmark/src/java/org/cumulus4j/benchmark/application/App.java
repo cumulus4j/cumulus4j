@@ -24,7 +24,7 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
-import org.cumulus4j.benchmark.person.PersonService;
+import org.cumulus4j.benchmark.person.PersonScenarioService;
 
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
@@ -34,7 +34,7 @@ public class App
 extends Application
 {
 	private static final Class<?>[] serviceClassesArray = {
-		PersonService.class,
+		PersonScenarioService.class,
 	};
 
 	private static final Set<Class<?>> serviceClassesSet;

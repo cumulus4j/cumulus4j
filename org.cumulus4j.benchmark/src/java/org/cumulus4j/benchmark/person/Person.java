@@ -11,100 +11,102 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+import org.cumulus4j.benchmark.framework.Entity;
+
 /**
- * 
+ *
  * @author Jan Mortensen - jmortensen at nightlabs dot de
  *
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
-public class Person {
-	
+public class Person extends Entity{
+
 	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
 	private long id;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	private String firstName;
-	
+
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	private String lastName;
-	
+
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	private int age ;
-	
+
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	private Date birthDate;
-	
+
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	private long money;
-	
+
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	private short houseNumber;
-	
+
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	private float size;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	private boolean memberA;
-	
+
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	private char memberB;
-	
+
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	private int[] memberC;
-	
+
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
 	private String memberD;
-	
+
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
 	private String memberE;
-	
+
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
 	private double memberF;
-	
+
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
 	private long memberG;
-	
+
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
 	private int memberH;
-	
+
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
 	private byte memberI;
-	
+
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
 	private int memberJ;
-	
+
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
 	private String memberK;
-	
+
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
 	private short memberL;
-	
+
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
 	private Date memberM;
-	
+
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
 	private ArrayList<Person> friends;
-		
+
 	public Person(){
 		this("", "");
 	}
-	
+
 	public Person(String firstName, String lastName){
-		this(firstName, lastName,  0, new Date(), (long)0, (short)0, (float)0, false, 'a', new int[0], "", "", (double)0, (long)0, 0, (byte)0, 0, "", (short)0, new Date());
+		this(firstName, lastName,  0, new Date(), 0, (short)0, 0, false, 'a', new int[0], "", "", 0, 0, 0, (byte)0, 0, "", (short)0, new Date());
 	}
-	
+
 	public Person(String firstName, String lastName, int age, Date birthDate,
 			long money, short houseNumber, float size, boolean memberA,
 			char memberB, int[] memberC, String memberD, String memberE,
@@ -134,7 +136,7 @@ public class Person {
 		friends = new ArrayList<Person>();
 		id = -1;
 	}
-	
+
 	public void addFriend(Person person){
 		friends.add(person);
 	}
@@ -320,9 +322,16 @@ public class Person {
 			return false;
 		return true;
 	}
-	
+
+	@Override
 	public String toString(){
-		return "Person: " + firstName + " " + lastName;
+		return "Person id: " + id;
 	}
-	
+
+	@Override
+	public long getId() {
+
+		return id;
+	}
+
 }

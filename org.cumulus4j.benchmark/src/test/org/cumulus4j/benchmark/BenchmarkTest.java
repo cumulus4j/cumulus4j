@@ -26,13 +26,12 @@ import java.security.SecureRandom;
 
 import javax.ws.rs.core.MediaType;
 
-import org.cumulus4j.benchmark.framework.BaseService;
-import org.cumulus4j.benchmark.framework.PropertyHandler;
-import org.cumulus4j.benchmark.person.PersonService;
+import org.cumulus4j.benchmark.person.PersonScenarioService;
 import org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam;
 import org.cumulus4j.keymanager.api.DefaultKeyManagerAPI;
 import org.cumulus4j.keymanager.api.KeyManagerAPI;
 import org.cumulus4j.keymanager.api.KeyManagerAPIConfiguration;
+import org.cumulus4j.keymanager.api.Session;
 import org.junit.Assert;
 import org.junit.Test;
 import org.nightlabs.util.IOUtil;
@@ -42,9 +41,9 @@ import org.slf4j.LoggerFactory;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.UniformInterfaceException;
 
-public class IntegrationWithAppServerOnlyTest {
+public class BenchmarkTest {
 	private static final Logger logger = LoggerFactory
-	.getLogger(IntegrationWithAppServerOnlyTest.class);
+	.getLogger(BenchmarkTest.class);
 
 	private static final String URL_APP_SERVER = "http://localhost:8585";
 	private static final String URL_INTEGRATIONTEST_WEBAPP = URL_APP_SERVER
@@ -65,18 +64,15 @@ public class IntegrationWithAppServerOnlyTest {
 
 	private static SecureRandom random = new SecureRandom();
 
+//	private String invokeOnServer(Client client, String cryptoSessionID, String methodName) throws Exception{
+//
+//		return invokeOnServer(client, cryptoSessionID, methodName, "");
+//	}
+
 	private String invokeOnServer(Client client, String cryptoSessionID, String methodName) throws Exception{
-
-		return invokeOnServer(client, cryptoSessionID, methodName, "");
-	}
-
-	private String invokeOnServer(Client client, String cryptoSessionID, String methodName, String arg) throws Exception{
 
 		String url = URL_PERSON + "/" + methodName + "?cryptoSessionID="
 		+ URLEncoder.encode(cryptoSessionID, IOUtil.CHARSET_NAME_UTF_8);
-
-		if(arg.length() > 0)
-			url += "&arg=" + arg;
 
 		String result;
 
@@ -113,35 +109,56 @@ public class IntegrationWithAppServerOnlyTest {
 
 		Client client = new Client();
 
-		boolean lastRun = false;
-		String currentConfiguration = new String();
+//		invokeOnServer(client, cryptoSessionID, PersonScenarioService.WARMUP);
 
-		while (!lastRun){
+		invokeOnServer(client, cryptoSessionID, PersonScenarioService.BULK_STORE_OBJECTS);
+		invokeOnServer(client, cryptoSessionID, PersonScenarioService.BULK_STORE_OBJECTS);
+		invokeOnServer(client, cryptoSessionID, PersonScenarioService.BULK_STORE_OBJECTS);
+		invokeOnServer(client, cryptoSessionID, PersonScenarioService.BULK_STORE_OBJECTS);
+		invokeOnServer(client, cryptoSessionID, PersonScenarioService.BULK_STORE_OBJECTS);
 
-			if(currentConfiguration.equals("Cumulus4j disabled"))
-				lastRun = true;
+		invokeOnServer(client, cryptoSessionID, PersonScenarioService.LOAD_ALL_OBJECTS);
 
+		invokeOnServer(client, cryptoSessionID, PersonScenarioService.LOAD_SINGLE_RANDOM_OBJECT);
+		invokeOnServer(client, cryptoSessionID, PersonScenarioService.LOAD_SINGLE_RANDOM_OBJECT);
+		invokeOnServer(client, cryptoSessionID, PersonScenarioService.LOAD_SINGLE_RANDOM_OBJECT);
+		invokeOnServer(client, cryptoSessionID, PersonScenarioService.LOAD_SINGLE_RANDOM_OBJECT);
+		invokeOnServer(client, cryptoSessionID, PersonScenarioService.LOAD_SINGLE_RANDOM_OBJECT);
+		invokeOnServer(client, cryptoSessionID, PersonScenarioService.LOAD_SINGLE_RANDOM_OBJECT);
+		invokeOnServer(client, cryptoSessionID, PersonScenarioService.LOAD_SINGLE_RANDOM_OBJECT);
+
+		invokeOnServer(client, cryptoSessionID, PersonScenarioService.BULK_LOAD_OBJECTS);
+
+		invokeOnServer(client, cryptoSessionID, PersonScenarioService.STORE_SINGLE_OBJECT);
+
+//		boolean lastRun = false;
+//		String currentConfiguration = new String();
+//
+//		while (!lastRun){
+//
+//			if(currentConfiguration.equals("Cumulus4j disabled"))
+//				lastRun = true;
+//
 //			if(invokeOnServer(client, cryptoSessionID, BaseService.NEXT_CONFIGURATION).equals("Cumulus4j disabled"))
 //				lastRun = true;
-
-			for(int i = 0; i < PropertyHandler.WARMUP_OBJECTS; i++){
-				invokeOnServer(client, cryptoSessionID, BaseService.WARMUP);
-			}
-
-			for(int i = 0; i < PropertyHandler.TEST_OBJECTS; i++){
-				invokeOnServer(client, cryptoSessionID, PersonService.STORE_PERSON);
-			}
-
-			invokeOnServer(client, cryptoSessionID, PersonService.READ_ALL_PERSONS);
-
-			invokeOnServer(client, cryptoSessionID, PersonService.READ_PERSONS_STARTING_WITH, "a");
-
-			currentConfiguration = invokeOnServer(client, cryptoSessionID, "nextConfiguration");
-		}
-
+//
+//			for(int i = 0; i < PropertyHandler.WARMUP_OBJECTS; i++){
+//				invokeOnServer(client, cryptoSessionID, BaseService.WARMUP);
+//			}
+//
+//			for(int i = 0; i < PropertyHandler.TEST_OBJECTS; i++){
+//				invokeOnServer(client, cryptoSessionID, PersonService.STORE_PERSON);
+//			}
+//
+//			invokeOnServer(client, cryptoSessionID, PersonService.READ_ALL_PERSONS);
+//
+//			invokeOnServer(client, cryptoSessionID, PersonService.READ_PERSONS_STARTING_WITH, "a");
+//
+//			currentConfiguration = invokeOnServer(client, cryptoSessionID, "nextConfiguration");
+//		}
+//
 //		logger.info(invokeOnServer(client, cryptoSessionID, "getResults"));
 	}
-
 
 	/*
 	 * TODO aufspalten in eigene methode die die cryptoSession ID zurückgibt.
@@ -179,7 +196,7 @@ public class IntegrationWithAppServerOnlyTest {
 			param.setKeyStorePeriodMSec(24L * 3600L * 1000L);
 			keyManagerAPI.initDateDependentKeyStrategy(param);
 
-			org.cumulus4j.keymanager.api.Session session = keyManagerAPI
+			Session session = keyManagerAPI
 			.getSession(URL_KEY_MANAGER_BACK_WEBAPP);
 
 			// It does not matter here in this test, but in real code, WE MUST
