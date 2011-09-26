@@ -27,7 +27,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.cumulus4j.benchmark.framework.BaseService;
-import org.cumulus4j.benchmark.framework.PropertyHandler;
 import org.nightlabs.util.Stopwatch;
 
 /**
@@ -40,127 +39,80 @@ import org.nightlabs.util.Stopwatch;
 @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public class PersonService extends BaseService
 {
+	public static final String STORE_PERSON = "storePerson";
+	public static final String READ_ALL_PERSONS = "readAllPersons";
+	public static final String READ_PERSONS_STARTING_WITH = "readPersonsStartingWith";
 	
 	private static SecureRandom random = new SecureRandom();
 	
-	private String persistObjects(String cryptoManagerID, String cryptoSessionID, String action, int objects){
-		
-		Stopwatch stopwatch = new Stopwatch();
-		for(int i = 0; i < objects; i++){
-			Person person = new Person(System.currentTimeMillis() + "-"+ Long.toString(random.nextLong(), 36), 
-					System.currentTimeMillis() + "-" + Long.toString(random.nextLong(), 36));
-
-			stopwatch.start(action);
-			PersonDAO.sharedInstance().storePerson(cryptoManagerID, cryptoSessionID, person);
-			stopwatch.stop(action);
-		}		
-		
-		return stopwatch.createHumanReport(true);
-	}
-
 	@GET
-	@Path("warmup")
+	@Path(WARMUP)
 	@Produces(MediaType.TEXT_PLAIN)
 	public String warmup(
 			@QueryParam("cryptoManagerID") String cryptoManagerID,
 			@QueryParam("cryptoSessionID") String cryptoSessionID
 	)
-	{		
-//		String without = persistObjects(cryptoManagerID, cryptoSessionID, "warmup", PropertyHandler.WARMUP_OBJECTS);
+	{			
+		Stopwatch stopwatch = new Stopwatch();
+		Person person = new Person(System.currentTimeMillis() + "-"+ Long.toString(random.nextLong(), 36), 
+				System.currentTimeMillis() + "-" + Long.toString(random.nextLong(), 36));
+
+		stopwatch.start("warmup");
+		PersonDAO.sharedInstance().storePerson(cryptoManagerID, cryptoSessionID, person);
+		stopwatch.stop("warmup");
 		
-//		PersonDAO.sharedInstance().reconfigure();
-		
-		return "Warmup with " + PropertyHandler.WARMUP_OBJECTS + " objects:" 
-		+ persistObjects(cryptoManagerID, cryptoSessionID, "warmup", PropertyHandler.WARMUP_OBJECTS) + "\n";
-//		+ "an without cumulus4j: " + without;
+		return "Person " + person.getFirstName() + " " + person.getLastName() + "stored. (warmup)";
 	}
 	
 	@GET
-	@Path("persistPersons")
+	@Path(STORE_PERSON)
 	@Produces(MediaType.TEXT_PLAIN)
-	public String persistPersons(			
+	public String storePerson(			
 			@QueryParam("cryptoManagerID") String cryptoManagerID,
 			@QueryParam("cryptoSessionID") String cryptoSessionID
 	)
 	{
-		return "Saving of " + PropertyHandler.TEST_OBJECTS + " objects:" 
-		+ persistObjects(cryptoManagerID, cryptoSessionID, "save Person", PropertyHandler.TEST_OBJECTS) + "\n";
+		Stopwatch stopwatch = new Stopwatch();
+		Person person = new Person(System.currentTimeMillis() + "-"+ Long.toString(random.nextLong(), 36), 
+				System.currentTimeMillis() + "-" + Long.toString(random.nextLong(), 36));
+
+		stopwatch.start("store");
+		PersonDAO.sharedInstance().storePerson(cryptoManagerID, cryptoSessionID, person);
+		stopwatch.stop("store");
+		
+		return "Person " + person.getFirstName() + " " + person.getLastName() + "stored.";
 	}
 
-//	@GET
-//	@Path("getAllPersons")
-//	@Produces(MediaType.TEXT_PLAIN)
-//	public String getAllPersons(			
-//			@QueryParam("cryptoManagerID") String cryptoManagerID,
-//			@QueryParam("cryptoSessionID") String cryptoSessionID
-//	)
-//	{
-//		return PersonDAO.sharedInstance().getAllPersons(cryptoManagerID, cryptoSessionID).toString();
-//	}
-	
 	@GET
-	@Path("readAllPersons")
+	@Path(READ_ALL_PERSONS)
 	@Produces(MediaType.TEXT_PLAIN)
 	public String readAllPersons(
 			@QueryParam("cryptoManagerID") String cryptoManagerID,
 			@QueryParam("cryptoSessionID") String cryptoSessionID){
 		
 		Stopwatch stopwatch = new Stopwatch();
-		stopwatch.start("reading");
-		int count = PersonDAO.sharedInstance().getAllPersons(cryptoManagerID, cryptoSessionID).size();
-		stopwatch.stop("reading");
+		stopwatch.start("reading all objects");
+		PersonDAO.sharedInstance().getAllPersons(cryptoManagerID, cryptoSessionID);
+		stopwatch.stop("reading all objects");
 		
-		return "Reading of " + count + " objects:"
-		+ stopwatch.createHumanReport(true) + "\n";
+		return "Reading of " + PersonDAO.sharedInstance().getAllPersons(cryptoManagerID, cryptoSessionID).size() 
+		+ " objects:" + stopwatch.createHumanReport(true);
 	}
 	
 	@GET
-	@Path("readSomePersons")
+	@Path(READ_PERSONS_STARTING_WITH)
 	@Produces(MediaType.TEXT_PLAIN)
-	public String readSomePersons(
+	public String readPersonsStartingWith(
 			@QueryParam("cryptoManagerID") String cryptoManagerID,
 			@QueryParam("cryptoSessionID") String cryptoSessionID,
 			@QueryParam("arg") String arg)
 	{
-		
+		/*
+		 * TODO Query erzeugen die alle personen mit anfangsbuchstaben arg abfragt
+		 * 
+		 * TODO wenn arg.length() > 1 Exception thrwoen
+		 */
 		
 		return "Das Argument ist: " + arg;
 	}
-	
-//	@GET
-//	@Path("getBenchmarkProperties")
-//	@Produces(MediaType.TEXT_PLAIN)
-//	public String getBenchmarkProperties(){
-//		
-//		StringBuilder result = new StringBuilder();
-//		
-//		result.append(PropertyHandler.WARMUP_OBJECTS);
-//		result.append("&");
-//		result.append(PropertyHandler.TEST_OBJECTS);
-//		
-//		return result.toString();
-//	}
-	
-	@GET
-	@Path("getWarmupPersonCount")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String getWarmupPersonsCount(){
-		return PropertyHandler.WARMUP_OBJECTS+"";
-	}
-	
-	@GET
-	@Path("getBenchmarkPersonCount")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String getBenchmarkPersonCount(){
-		return PropertyHandler.TEST_OBJECTS+"";
-	}
-	
-//	@GET
-//	@Path("reconfigure")
-//	@Produces(MediaType.TEXT_PLAIN)
-//	public String reconfigure(){
-//		
-//		PersonDAO.sharedInstance().reconfigure();
-//		return "";
-//	}
 }

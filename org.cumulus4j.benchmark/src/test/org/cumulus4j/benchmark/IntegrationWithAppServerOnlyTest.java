@@ -26,7 +26,9 @@ import java.security.SecureRandom;
 
 import javax.ws.rs.core.MediaType;
 
+import org.cumulus4j.benchmark.framework.BaseService;
 import org.cumulus4j.benchmark.framework.PropertyHandler;
+import org.cumulus4j.benchmark.person.PersonService;
 import org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam;
 import org.cumulus4j.keymanager.api.DefaultKeyManagerAPI;
 import org.cumulus4j.keymanager.api.KeyManagerAPI;
@@ -46,7 +48,7 @@ public class IntegrationWithAppServerOnlyTest {
 
 	private static final String URL_APP_SERVER = "http://localhost:8585";
 	private static final String URL_INTEGRATIONTEST_WEBAPP = URL_APP_SERVER
-	+ "/org.cumulus4j.benchmark";
+	+ "/org.cumulus4j.benchmark.application";
 	private static final String URL_KEY_MANAGER_BACK_WEBAPP = URL_INTEGRATIONTEST_WEBAPP
 	+ "/org.cumulus4j.keymanager.back.webapp";
 	private static final String URL_PERSON = URL_INTEGRATIONTEST_WEBAPP + "/Person";
@@ -57,19 +59,27 @@ public class IntegrationWithAppServerOnlyTest {
 
 //	private static final String URL_KEY_SERVER = "http://localhost:8686";
 //	private static final String URL_KEY_MANAGER_FRONT_WEBAPP = URL_KEY_SERVER + "/org.cumulus4j.keymanager.front.webapp";
-	
+
 //	private static final String KEY_SERVER_USER = "devil";
 //	private static final char[] KEY_SERVER_PASSWORD = "testtesttest".toCharArray();
-	
+
 	private static SecureRandom random = new SecureRandom();
-	
+
 	private String invokeOnServer(Client client, String cryptoSessionID, String methodName) throws Exception{
-		
+
+		return invokeOnServer(client, cryptoSessionID, methodName, "");
+	}
+
+	private String invokeOnServer(Client client, String cryptoSessionID, String methodName, String arg) throws Exception{
+
 		String url = URL_PERSON + "/" + methodName + "?cryptoSessionID="
 		+ URLEncoder.encode(cryptoSessionID, IOUtil.CHARSET_NAME_UTF_8);
-			
+
+		if(arg.length() > 0)
+			url += "&arg=" + arg;
+
 		String result;
-		
+
 		try {
 			result = client.resource(url).accept(MediaType.TEXT_PLAIN).get(String.class);
 		} catch (UniformInterfaceException x) {
@@ -94,42 +104,7 @@ public class IntegrationWithAppServerOnlyTest {
 		if (result == null)
 			Assert.fail("The POST request on URL " + url
 					+ " did not return any result!");
-		
-		return result;
-	}
-	
-	private String invokeOnServer2(Client client, String cryptoSessionID, String methodName, String arg) throws Exception{
-		
-		String url = URL_PERSON + "/" + methodName + "?cryptoSessionID="
-		+ URLEncoder.encode(cryptoSessionID, IOUtil.CHARSET_NAME_UTF_8) + "&arg=" + arg;
-			
-		String result;
-		
-		try {
-			result = client.resource(url).accept(MediaType.TEXT_PLAIN).get(String.class);
-		} catch (UniformInterfaceException x) {
-			String message = null;
-			try {
-				InputStream in = x.getResponse().getEntityInputStream();
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				IOUtil.transferStreamData(in, out);
-				in.close();
-				message = new String(out.toByteArray(), IOUtil.CHARSET_UTF_8);
-			} catch (Exception e) {
-				logger.error("Reading error message failed: " + e, e);
-			}
-			if (message == null)
-				throw x;
-			else
-				throw new IOException("Error-code="
-						+ x.getResponse().getStatus() + " error-message="
-						+ message, x);
-		}
 
-		if (result == null)
-			Assert.fail("The POST request on URL " + url
-					+ " did not return any result!");
-		
 		return result;
 	}
 
@@ -137,53 +112,49 @@ public class IntegrationWithAppServerOnlyTest {
 	throws Exception {
 
 		Client client = new Client();
-//		
-//		while(!invokeOnServer(client, cryptoSessionID, "nextConfiguration").equals("Cumulus4j disabled")){
-//			invokeOnServer(client, cryptoSessionID, "warmup");
-//			invokeOnServer(client, cryptoSessionID, "persistPersons");
-//			invokeOnServer(client, cryptoSessionID, "readAllPersons");
-//		}
-		
-//		int warmupCount = Integer.parseInt(invokeOnServer(client, cryptoSessionID, "getWarmupCount"));
-		int benchmarkCount = Integer.parseInt(invokeOnServer(client, cryptoSessionID, "getBenchmarkCount"));
-		
-//		invokeOnServer(client, cryptoSessionID, "warmup");
-//		
-//		int stops = benchmarkCount -(benchmarkCount % 100);
 
-		invokeOnServer(client, cryptoSessionID, "warmup");
-//		invokeOnServer(client, cryptoSessionID, "persistPersons");
-		
-//		for(int i = 0; i < PropertyHandler.TEST_OBJECTS;i++)
-//			invokeOnServer(client, cryptoSessionID, "persistPerson");
-		
-		invokeOnServer(client, cryptoSessionID, "readAllPersons");
-		
-		logger.info(invokeOnServer2(client, cryptoSessionID, "readSomePersons", "arg"));
-		
-		logger.info(invokeOnServer(client, cryptoSessionID, "getResults"));
+		boolean lastRun = false;
+		String currentConfiguration = new String();
 
-//		IReportTracker<String> consoleReport = new ConsoleReportTracker();
-//
-//		while(!invokeOnServer(client, cryptoSessionID, "getConfiguration").equals("Current properties:\n" + BaseService.CUMULUS4J_NOT_ACTIVATED)){
-////			consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "getConfiguration"));
-//			consoleReport.newStory(invokeOnServer(client, cryptoSessionID, "getConfiguration"));
-//			consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "warmup"));
-//			consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "persistPersons"));
-//			consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "readAllPersons"));
-////			consoleReport.newStory();
-//			invokeOnServer(client, cryptoSessionID, "nextConfiguration");
-//		}
-//		consoleReport.newStory(invokeOnServer(client, cryptoSessionID, "getConfiguration"));
-////		consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "getConfiguration"));
-//		consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "warmup"));
-//		consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "persistPersons"));
-//		consoleReport.addReport(invokeOnServer(client, cryptoSessionID, "readAllPersons"));
-//			
-//		logger.info(consoleReport.getFullReport());
-//		
+		while (!lastRun){
+
+			if(currentConfiguration.equals("Cumulus4j disabled"))
+				lastRun = true;
+
+//			if(invokeOnServer(client, cryptoSessionID, BaseService.NEXT_CONFIGURATION).equals("Cumulus4j disabled"))
+//				lastRun = true;
+
+			for(int i = 0; i < PropertyHandler.WARMUP_OBJECTS; i++){
+				invokeOnServer(client, cryptoSessionID, BaseService.WARMUP);
+			}
+
+			for(int i = 0; i < PropertyHandler.TEST_OBJECTS; i++){
+				invokeOnServer(client, cryptoSessionID, PersonService.STORE_PERSON);
+			}
+
+			invokeOnServer(client, cryptoSessionID, PersonService.READ_ALL_PERSONS);
+
+			invokeOnServer(client, cryptoSessionID, PersonService.READ_PERSONS_STARTING_WITH, "a");
+
+			currentConfiguration = invokeOnServer(client, cryptoSessionID, "nextConfiguration");
+		}
+
+//		logger.info(invokeOnServer(client, cryptoSessionID, "getResults"));
 	}
 
+
+	/*
+	 * TODO aufspalten in eigene methode die die cryptoSession ID zurückgibt.
+	 * Dann kann man die als testcase aussehen wie:
+	 *
+	 * @Test
+	 * public void konketerTestfall(){
+	 * 		invokeTestCaseXYZ(getCryptoSessionID);
+	 * }
+	 *
+	 * (nicht so einfach, da unlock/lock aufgerufen werden muss)
+	 *
+	 */
 	@Test
 	public void testTwoComputerScenarioWithUnifiedAPI() throws Exception {
 		// We do not want to put test-key-store-files into the ~/.cumulus4j
@@ -242,7 +213,7 @@ public class IntegrationWithAppServerOnlyTest {
 			}
 		}
 	}
-		
+
 //	@Test
 //	public void testThreeComputerScenarioWithUnifiedAPI()
 //	throws Exception
@@ -263,18 +234,18 @@ public class IntegrationWithAppServerOnlyTest {
 //		param.setKeyStorePeriodMSec(24L * 3600L * 1000L);
 //		keyManagerAPI.initDateDependentKeyStrategy(param);
 //
-//		org.cumulus4j.keymanager.api.Session session = keyManagerAPI.getSession(URL_KEY_MANAGER_BACK_WEBAPP);
+//		org.cumulus4j.keymanager.api.Session cryptoSession = keyManagerAPI.getSession(URL_KEY_MANAGER_BACK_WEBAPP);
 //
 //		// It does not matter here in this test, but in real code, WE MUST ALWAYS lock() after we did unlock()!!!
 //		// Hence we do it here, too, in case someone copies the code ;-)
 //		// Marco :-)
-//		session.unlock();
+//		cryptoSession.unlock();
 //		try {
 //
-//			invokeTestWithinServer(session.getCryptoSessionID());
+//			invokeTestWithinServer(cryptoSession.getCryptoSessionID());
 //
 //		} finally {
-//			session.lock();
+//			cryptoSession.lock();
 //		}
 //	}
 }
