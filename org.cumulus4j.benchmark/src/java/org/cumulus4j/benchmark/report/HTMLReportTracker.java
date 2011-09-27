@@ -1,6 +1,5 @@
 package org.cumulus4j.benchmark.report;
 
-import org.cumulus4j.benchmark.framework.IReportTracker;
 
 public class HTMLReportTracker implements IReportTracker<String>{
 
