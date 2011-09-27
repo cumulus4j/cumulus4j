@@ -1,8 +1,9 @@
-package org.cumulus4j.benchmark.personallqueryable;
+package org.cumulus4j.benchmark.simpledatatypescenario;
 
 import java.util.Date;
 import java.util.Random;
 
+import javax.jdo.annotations.Extension;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.NullValue;
@@ -19,7 +20,7 @@ import org.cumulus4j.benchmark.framework.Entity;
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 @SuppressWarnings("unused")
-public class Person extends Entity{
+public class PersonHalfQueryable extends Entity{
 
 	private static Random random = new Random();
 
@@ -58,36 +59,46 @@ public class Person extends Entity{
 	private int[] memberC;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
+	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
 	private String memberD;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
+	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
 	private String memberE;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
+	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
 	private double memberF;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
+	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
 	private long memberG;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
+	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
 	private int memberH;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
+	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
 	private byte memberI;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
+	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
 	private int memberJ;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
+	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
 	private String memberK;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
+	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
 	private short memberL;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
+	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
 	private Date memberM;
 
-	public Person(){
+	public PersonHalfQueryable(){
 
 		firstName = System.currentTimeMillis() + "-"+ Long.toString(random.nextLong(), 36);
 		lastName = System.currentTimeMillis() + "-"+ Long.toString(random.nextLong(), 36);
@@ -131,7 +142,7 @@ public class Person extends Entity{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Person other = (Person) obj;
+		PersonHalfQueryable other = (PersonHalfQueryable) obj;
 		if (id != other.id)
 			return false;
 		return true;
@@ -139,7 +150,7 @@ public class Person extends Entity{
 
 	@Override
 	public String toString(){
-		return "Person id: " + id;
+		return "PersonAllQueryable id: " + id;
 //		+ " " + firstName + " " + lastName + " " +
 //		age + " " + birthDate + " " + memberB + " " + houseNumber + " " + memberD + " " + memberE + " " + memberF + " " + memberG + " " +
 //		memberH + " " + memberI + " " + memberJ + " " + memberK + " " + memberL + " " + money + " " + size +  " " +

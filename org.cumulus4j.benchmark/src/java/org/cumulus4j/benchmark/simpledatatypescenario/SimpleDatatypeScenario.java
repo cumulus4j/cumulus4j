@@ -1,4 +1,4 @@
-package org.cumulus4j.benchmark.framework;
+package org.cumulus4j.benchmark.simpledatatypescenario;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,6 +12,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.cumulus4j.benchmark.framework.AbstractScenario;
+import org.cumulus4j.benchmark.framework.Entity;
+import org.cumulus4j.benchmark.framework.PersistenceManagerProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,8 +81,8 @@ public abstract class SimpleDatatypeScenario<T extends Entity> extends AbstractS
 			cryptoManagerID = "keyManager";
 
 		PersistenceManager pm = PersistenceManagerProvider.sharedInstance().getPersistenceManager(cryptoManagerID, cryptoSessionID);
-//		pm.getFetchPlan().addGroup(Person.FETCH_GROUP_FRIENDS);
-//		String[] fetchGroups = new String[]{FetchPlan.DEFAULT, Person.FETCH_GROUP_FRIENDS};
+//		pm.getFetchPlan().addGroup(PersonAllQueryable.FETCH_GROUP_FRIENDS);
+//		String[] fetchGroups = new String[]{FetchPlan.DEFAULT, PersonAllQueryable.FETCH_GROUP_FRIENDS};
 //		pm.getFetchPlan().setGroups(fetchGroups);
 
 		long objectId = getRandomObjectId(cryptoManagerID, cryptoSessionID);
@@ -138,7 +141,7 @@ public abstract class SimpleDatatypeScenario<T extends Entity> extends AbstractS
 //			pm.getObjectsById(ids, true);
 
 			Query q = pm.newQuery("select from " + getObjectClass().getName() + " where :ids2.contains(id)");
-			Collection<Entity> entities = (Collection<Entity>)q.execute(ids2);
+			q.execute(ids2);
 
 //			for(Entity e : entities)
 //				logger.info("Loaded Entity has id: " + e.getId());

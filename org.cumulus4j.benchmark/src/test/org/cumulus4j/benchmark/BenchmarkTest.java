@@ -26,9 +26,9 @@ import java.security.SecureRandom;
 
 import javax.ws.rs.core.MediaType;
 
-import org.cumulus4j.benchmark.framework.SimpleDatatypeScenario;
-import org.cumulus4j.benchmark.personallqueryable.PersonAllQueryableScenarioService;
-import org.cumulus4j.benchmark.personhalfqueryable.PersonHalfQueryableScenarioService;
+import org.cumulus4j.benchmark.simpledatatypescenario.PersonAllQueryableScenarioService;
+import org.cumulus4j.benchmark.simpledatatypescenario.PersonHalfQueryableScenarioService;
+import org.cumulus4j.benchmark.simpledatatypescenario.SimpleDatatypeScenario;
 import org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam;
 import org.cumulus4j.keymanager.api.DefaultKeyManagerAPI;
 import org.cumulus4j.keymanager.api.KeyManagerAPI;

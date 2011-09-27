@@ -1,11 +1,10 @@
-package org.cumulus4j.benchmark.personhalfqueryable;
+package org.cumulus4j.benchmark.simpledatatypescenario;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.cumulus4j.benchmark.framework.SimpleDatatypeScenario;
 
 /**
 *
@@ -15,19 +14,19 @@ import org.cumulus4j.benchmark.framework.SimpleDatatypeScenario;
 @Path(PersonHalfQueryableScenarioService.PATH)
 @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-public class PersonHalfQueryableScenarioService extends SimpleDatatypeScenario<Person>{
+public class PersonHalfQueryableScenarioService extends SimpleDatatypeScenario<PersonHalfQueryable>{
 
 	public static final String PATH = "PersonHalfQueryable";
 
 	@Override
-	protected Person createNewObject() {
+	protected PersonHalfQueryable createNewObject() {
 
-		return new Person();
+		return new PersonHalfQueryable();
 	}
 
 	@Override
-	protected Class<Person> getObjectClass() {
+	protected Class<PersonHalfQueryable> getObjectClass() {
 
-		return Person.class;
+		return PersonHalfQueryable.class;
 	}
 }

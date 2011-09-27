@@ -9,7 +9,7 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 import org.cumulus4j.benchmark.framework.Entity;
-import org.cumulus4j.benchmark.personallqueryable.Person;
+import org.cumulus4j.benchmark.simpledatatypescenario.PersonAllQueryable;
 
 /**
  *
@@ -27,18 +27,18 @@ public class BankAccount extends Entity{
 	private BigInteger balance;
 
 	@Persistent
-	private Person owner;
+	private PersonAllQueryable owner;
 
-	public BankAccount(Person owner){
+	public BankAccount(PersonAllQueryable owner){
 		this.owner = owner;
 		balance = BigInteger.valueOf(0);
 	}
 
-	public Person getOwner() {
+	public PersonAllQueryable getOwner() {
 		return owner;
 	}
 
-	public void setOwner(Person owner) {
+	public void setOwner(PersonAllQueryable owner) {
 		this.owner = owner;
 	}
 

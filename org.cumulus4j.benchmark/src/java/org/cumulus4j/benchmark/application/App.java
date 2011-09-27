@@ -24,8 +24,8 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
-import org.cumulus4j.benchmark.personallqueryable.PersonAllQueryableScenarioService;
-import org.cumulus4j.benchmark.personhalfqueryable.PersonHalfQueryableScenarioService;
+import org.cumulus4j.benchmark.simpledatatypescenario.PersonAllQueryableScenarioService;
+import org.cumulus4j.benchmark.simpledatatypescenario.PersonHalfQueryableScenarioService;
 
 /**
  * @author Jan Mortensen - jmortensen at nightlabs dot de

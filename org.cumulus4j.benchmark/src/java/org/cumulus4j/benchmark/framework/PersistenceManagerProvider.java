@@ -52,7 +52,7 @@ public class PersistenceManagerProvider {
 		return pmf;
 	}
 
-	protected PersistenceManager getPersistenceManager(String cryptoManagerID, String cryptoSessionID)
+	public PersistenceManager getPersistenceManager(String cryptoManagerID, String cryptoSessionID)
 	{
 		if (cryptoManagerID == null)
 			throw new IllegalArgumentException("cryptoManagerID == null");
