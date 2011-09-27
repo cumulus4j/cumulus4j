@@ -15,8 +15,12 @@ import javax.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-public abstract class SimpleDatatypeScenario<T extends Entity> extends AbstractScenario {
+/**
+*
+* @author Jan Mortensen - jmortensen at nightlabs dot de
+*
+*/
+public abstract class SimpleDatatypeScenario<T extends Entity> extends AbstractScenario<T> {
 
 	private static Logger logger = LoggerFactory.getLogger(SimpleDatatypeScenario.class);
 
@@ -31,15 +35,6 @@ public abstract class SimpleDatatypeScenario<T extends Entity> extends AbstractS
 	public static final String BULK_STORE_OBJECTS = "bulkStoreObjetcts";
 
 	int bulkCount = 10;
-
-	/**
-	 * Creates a new (random) instance of type T.
-	 *
-	 * @return An instance of type T.
-	 */
-	protected abstract T createNewObject();
-
-	protected abstract Class<T> getObjectClass();
 
 	@GET
 	@Path(STORE_SINGLE_OBJECT)
@@ -83,6 +78,9 @@ public abstract class SimpleDatatypeScenario<T extends Entity> extends AbstractS
 			cryptoManagerID = "keyManager";
 
 		PersistenceManager pm = PersistenceManagerProvider.sharedInstance().getPersistenceManager(cryptoManagerID, cryptoSessionID);
+//		pm.getFetchPlan().addGroup(Person.FETCH_GROUP_FRIENDS);
+//		String[] fetchGroups = new String[]{FetchPlan.DEFAULT, Person.FETCH_GROUP_FRIENDS};
+//		pm.getFetchPlan().setGroups(fetchGroups);
 
 		long objectId = getRandomObjectId(cryptoManagerID, cryptoSessionID);
 
@@ -90,6 +88,7 @@ public abstract class SimpleDatatypeScenario<T extends Entity> extends AbstractS
 			pm.currentTransaction().begin();
 			T object = pm.getObjectById(getObjectClass(), objectId);
 			object = pm.detachCopy(object);
+			logger.info(object.toString());
 			pm.currentTransaction().commit();
 		}
 		finally{
@@ -133,16 +132,16 @@ public abstract class SimpleDatatypeScenario<T extends Entity> extends AbstractS
 
 		try{
 			pm.currentTransaction().begin();
-			for(int i = 0; i < bulkCount; i++){
-				logger.info("Trying to load objets with id: " + ids[i]);
-			}
+//			for(int i = 0; i < bulkCount; i++){
+//				logger.info("Trying to load objets with id: " + ids[i]);
+//			}
 //			pm.getObjectsById(ids, true);
 
 			Query q = pm.newQuery("select from " + getObjectClass().getName() + " where :ids2.contains(id)");
 			Collection<Entity> entities = (Collection<Entity>)q.execute(ids2);
 
-			for(Entity e : entities)
-				logger.info("Loaded Entity has id: " + e.getId());
+//			for(Entity e : entities)
+//				logger.info("Loaded Entity has id: " + e.getId());
 
 			pm.currentTransaction().commit();
 		}
@@ -186,7 +185,7 @@ public abstract class SimpleDatatypeScenario<T extends Entity> extends AbstractS
 			pm.close();
 		}
 
-		logger.info("After call of bulkStoreObjects the database contains the following objects: " + getAllObjects(cryptoManagerID, cryptoSessionID));
+//		logger.info("After call of bulkStoreObjects the database contains the following objects: " + getAllObjects(cryptoManagerID, cryptoSessionID));
 
 		return "";
 	}
@@ -210,7 +209,7 @@ public abstract class SimpleDatatypeScenario<T extends Entity> extends AbstractS
 	)
 	{
 		Collection<T> objects = getAllObjects(cryptoManagerID, cryptoSessionID);
-		logger.info("All objects: " + objects.toString());
+//		logger.info("All objects: " + objects.toString());
 		Entity[] allObjects = new Entity[objects.size()];
 		allObjects = objects.toArray(allObjects);
 
@@ -220,8 +219,8 @@ public abstract class SimpleDatatypeScenario<T extends Entity> extends AbstractS
 			result[i] = (allObjects[(int)(Math.random() * allObjects.length)].getId());
 		}
 
-		for(int i = 0; i < result.length; i++)
-			logger.info("The random object ids: " + result[i]);
+//		for(int i = 0; i < result.length; i++)
+//			logger.info("The random object ids: " + result[i]);
 
 		return result;
 	}
