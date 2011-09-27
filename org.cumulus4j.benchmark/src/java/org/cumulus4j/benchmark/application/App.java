@@ -24,17 +24,19 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
-import org.cumulus4j.benchmark.person.PersonScenarioService;
+import org.cumulus4j.benchmark.personallqueryable.PersonAllQueryableScenarioService;
+import org.cumulus4j.benchmark.personhalfqueryable.PersonHalfQueryableScenarioService;
 
 /**
- * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ * @author Jan Mortensen - jmortensen at nightlabs dot de
  */
 @ApplicationPath("/")
 public class App
 extends Application
 {
 	private static final Class<?>[] serviceClassesArray = {
-		PersonScenarioService.class,
+		PersonAllQueryableScenarioService.class,
+		PersonHalfQueryableScenarioService.class,
 	};
 
 	private static final Set<Class<?>> serviceClassesSet;
@@ -58,8 +60,6 @@ extends Application
 	{
 		if (singletons == null) {
 			Set<Object> s = new HashSet<Object>();
-//			s.add(new SomeSingletonProvider(someSingleton));
-//			s.add(new AnotherSingletonProvider(anotherSingleton));
 			singletons = Collections.unmodifiableSet(s);
 		}
 
