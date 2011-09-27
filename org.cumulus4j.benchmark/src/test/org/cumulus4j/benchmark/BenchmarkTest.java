@@ -26,7 +26,9 @@ import java.security.SecureRandom;
 
 import javax.ws.rs.core.MediaType;
 
-import org.cumulus4j.benchmark.person.PersonScenarioService;
+import org.cumulus4j.benchmark.framework.SimpleDatatypeScenario;
+import org.cumulus4j.benchmark.personallqueryable.PersonAllQueryableScenarioService;
+import org.cumulus4j.benchmark.personhalfqueryable.PersonHalfQueryableScenarioService;
 import org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam;
 import org.cumulus4j.keymanager.api.DefaultKeyManagerAPI;
 import org.cumulus4j.keymanager.api.KeyManagerAPI;
@@ -50,7 +52,8 @@ public class BenchmarkTest {
 	+ "/org.cumulus4j.benchmark.application";
 	private static final String URL_KEY_MANAGER_BACK_WEBAPP = URL_INTEGRATIONTEST_WEBAPP
 	+ "/org.cumulus4j.keymanager.back.webapp";
-	private static final String URL_PERSON = URL_INTEGRATIONTEST_WEBAPP + "/Person";
+	private static final String URL_PERSON_ALL_QUERYABLE = URL_INTEGRATIONTEST_WEBAPP + "/" + PersonAllQueryableScenarioService.PATH;
+	private static final String URL_PERSON_HALF_QUERYABLE = URL_INTEGRATIONTEST_WEBAPP + "/" + PersonHalfQueryableScenarioService.PATH;
 
 	private static final String KEY_STORE_USER = "test";
 	private static final char[] KEY_STORE_PASSWORD = "abcdefg-very+secret"
@@ -69,9 +72,9 @@ public class BenchmarkTest {
 //		return invokeOnServer(client, cryptoSessionID, methodName, "");
 //	}
 
-	private String invokeOnServer(Client client, String cryptoSessionID, String methodName) throws Exception{
+	private String invokeOnServer(Client client, String cryptoSessionID, String service, String methodName) throws Exception{
 
-		String url = URL_PERSON + "/" + methodName + "?cryptoSessionID="
+		String url = service + "/" + methodName + "?cryptoSessionID="
 		+ URLEncoder.encode(cryptoSessionID, IOUtil.CHARSET_NAME_UTF_8);
 
 		String result;
@@ -104,60 +107,22 @@ public class BenchmarkTest {
 		return result;
 	}
 
-	private void invokeTestWithinServer(String cryptoSessionID)
+	private void invokeSimpleDatatypeScenario(String cryptoSessionID, String service)
 	throws Exception {
 
 		Client client = new Client();
 
-//		invokeOnServer(client, cryptoSessionID, PersonScenarioService.WARMUP);
+		invokeOnServer(client, cryptoSessionID, service, SimpleDatatypeScenario.WARMUP);
 
-		invokeOnServer(client, cryptoSessionID, PersonScenarioService.BULK_STORE_OBJECTS);
-		invokeOnServer(client, cryptoSessionID, PersonScenarioService.BULK_STORE_OBJECTS);
-		invokeOnServer(client, cryptoSessionID, PersonScenarioService.BULK_STORE_OBJECTS);
-		invokeOnServer(client, cryptoSessionID, PersonScenarioService.BULK_STORE_OBJECTS);
-		invokeOnServer(client, cryptoSessionID, PersonScenarioService.BULK_STORE_OBJECTS);
+		invokeOnServer(client, cryptoSessionID, service, SimpleDatatypeScenario.BULK_STORE_OBJECTS);
 
-		invokeOnServer(client, cryptoSessionID, PersonScenarioService.LOAD_ALL_OBJECTS);
+		invokeOnServer(client, cryptoSessionID, service, SimpleDatatypeScenario.BULK_LOAD_OBJECTS);
 
-		invokeOnServer(client, cryptoSessionID, PersonScenarioService.LOAD_SINGLE_RANDOM_OBJECT);
-		invokeOnServer(client, cryptoSessionID, PersonScenarioService.LOAD_SINGLE_RANDOM_OBJECT);
-		invokeOnServer(client, cryptoSessionID, PersonScenarioService.LOAD_SINGLE_RANDOM_OBJECT);
-		invokeOnServer(client, cryptoSessionID, PersonScenarioService.LOAD_SINGLE_RANDOM_OBJECT);
-		invokeOnServer(client, cryptoSessionID, PersonScenarioService.LOAD_SINGLE_RANDOM_OBJECT);
-		invokeOnServer(client, cryptoSessionID, PersonScenarioService.LOAD_SINGLE_RANDOM_OBJECT);
-		invokeOnServer(client, cryptoSessionID, PersonScenarioService.LOAD_SINGLE_RANDOM_OBJECT);
+		invokeOnServer(client, cryptoSessionID, service, SimpleDatatypeScenario.STORE_SINGLE_OBJECT);
 
-		invokeOnServer(client, cryptoSessionID, PersonScenarioService.BULK_LOAD_OBJECTS);
+		invokeOnServer(client, cryptoSessionID, service, SimpleDatatypeScenario.LOAD_ALL_OBJECTS);
 
-		invokeOnServer(client, cryptoSessionID, PersonScenarioService.STORE_SINGLE_OBJECT);
-
-//		boolean lastRun = false;
-//		String currentConfiguration = new String();
-//
-//		while (!lastRun){
-//
-//			if(currentConfiguration.equals("Cumulus4j disabled"))
-//				lastRun = true;
-//
-//			if(invokeOnServer(client, cryptoSessionID, BaseService.NEXT_CONFIGURATION).equals("Cumulus4j disabled"))
-//				lastRun = true;
-//
-//			for(int i = 0; i < PropertyHandler.WARMUP_OBJECTS; i++){
-//				invokeOnServer(client, cryptoSessionID, BaseService.WARMUP);
-//			}
-//
-//			for(int i = 0; i < PropertyHandler.TEST_OBJECTS; i++){
-//				invokeOnServer(client, cryptoSessionID, PersonService.STORE_PERSON);
-//			}
-//
-//			invokeOnServer(client, cryptoSessionID, PersonService.READ_ALL_PERSONS);
-//
-//			invokeOnServer(client, cryptoSessionID, PersonService.READ_PERSONS_STARTING_WITH, "a");
-//
-//			currentConfiguration = invokeOnServer(client, cryptoSessionID, "nextConfiguration");
-//		}
-//
-//		logger.info(invokeOnServer(client, cryptoSessionID, "getResults"));
+		invokeOnServer(client, cryptoSessionID, service, SimpleDatatypeScenario.LOAD_SINGLE_RANDOM_OBJECT);
 	}
 
 	/*
@@ -173,7 +138,7 @@ public class BenchmarkTest {
 	 *
 	 */
 	@Test
-	public void testTwoComputerScenarioWithUnifiedAPI() throws Exception {
+	public void personHalfQueryableBenchmark() throws Exception {
 		// We do not want to put test-key-store-files into the ~/.cumulus4j
 		// folder, thus setting this to the temp dir.
 		File keyStoreDir = new File(IOUtil.getTempDir(),
@@ -206,7 +171,66 @@ public class BenchmarkTest {
 			session.unlock();
 
 			try {
-				invokeTestWithinServer(session.getCryptoSessionID());
+				invokeSimpleDatatypeScenario(session.getCryptoSessionID(), URL_PERSON_HALF_QUERYABLE);
+			} finally {
+				session.lock();
+			}
+
+		} finally {
+			File keyStoreFile = new File(keyStoreDir, configuration
+					.getKeyStoreID()
+					+ ".keystore");
+			if (!keyStoreFile.exists()) {
+				logger
+				.warn("**************************************************************************");
+				logger.warn("*** The key-store-file does not exist: "
+						+ keyStoreFile.getAbsolutePath());
+				logger
+				.warn("**************************************************************************");
+			} else {
+				keyStoreFile.delete();
+				if (keyStoreFile.exists())
+					logger.warn("The key-store-file could not be deleted: "
+							+ keyStoreFile.getAbsolutePath());
+			}
+		}
+	}
+
+	@Test
+	public void personAllQueryableBenchmark() throws Exception {
+		// We do not want to put test-key-store-files into the ~/.cumulus4j
+		// folder, thus setting this to the temp dir.
+		File keyStoreDir = new File(IOUtil.getTempDir(),
+		"cumulus4j-integration-test-key-stores");
+
+		KeyManagerAPIConfiguration configuration = new KeyManagerAPIConfiguration();
+		configuration.setAuthUserName(KEY_STORE_USER);
+		configuration.setAuthPassword(KEY_STORE_PASSWORD);
+		configuration.setKeyStoreID("test-"
+				+ Long.toString(System.currentTimeMillis(), 36) + '-'
+				+ Long.toString(random.nextLong(), 36));
+		configuration.setKeyManagerBaseURL(keyStoreDir.toURI().toString());
+
+		try {
+			KeyManagerAPI keyManagerAPI = new DefaultKeyManagerAPI();
+			keyManagerAPI.setConfiguration(configuration);
+
+			DateDependentKeyStrategyInitParam param = new DateDependentKeyStrategyInitParam();
+			param.setKeyActivityPeriodMSec(3600L * 1000L);
+			param.setKeyStorePeriodMSec(24L * 3600L * 1000L);
+			keyManagerAPI.initDateDependentKeyStrategy(param);
+
+			Session session = keyManagerAPI
+			.getSession(URL_KEY_MANAGER_BACK_WEBAPP);
+
+			// It does not matter here in this test, but in real code, WE MUST
+			// ALWAYS lock() after we did unlock()!!!
+			// Hence we do it here, too, in case someone copies the code ;-)
+			// Marco :-)
+			session.unlock();
+
+			try {
+				invokeSimpleDatatypeScenario(session.getCryptoSessionID(), URL_PERSON_ALL_QUERYABLE);
 			} finally {
 				session.lock();
 			}
