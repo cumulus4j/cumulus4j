@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.cumulus4j.benchmark.application</name>
+	<name>org.cumulus4j.benchmark.server</name>
 	<comment></comment>
 	<projects>
 	</projects>

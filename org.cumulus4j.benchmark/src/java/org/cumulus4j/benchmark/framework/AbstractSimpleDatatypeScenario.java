@@ -1,4 +1,4 @@
-package org.cumulus4j.benchmark.simpledatatypescenario;
+package org.cumulus4j.benchmark.framework;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,9 +12,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import org.cumulus4j.benchmark.framework.AbstractScenario;
-import org.cumulus4j.benchmark.framework.Entity;
-import org.cumulus4j.benchmark.framework.PersistenceManagerProvider;
+import org.nightlabs.util.Stopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,25 +21,67 @@ import org.slf4j.LoggerFactory;
 * @author Jan Mortensen - jmortensen at nightlabs dot de
 *
 */
-public abstract class SimpleDatatypeScenario<T extends Entity> extends AbstractScenario<T> {
+public abstract class AbstractSimpleDatatypeScenario<T extends Entity> implements IScenario {
 
-	private static Logger logger = LoggerFactory.getLogger(SimpleDatatypeScenario.class);
+	private static Logger logger = LoggerFactory.getLogger(AbstractSimpleDatatypeScenario.class);
 
-	public static final String STORE_SINGLE_OBJECT = "storeSingleObject";
+	private static List<String> results = new ArrayList<String>();
 
-	public static final String LOAD_SINGLE_RANDOM_OBJECT = "loadSingleObject";
+	/**
+	 * Creates a new (random) instance of type T.
+	 *
+	 * @return An instance of type T.
+	 */
+	protected abstract T createNewObject();
 
-	public static final String LOAD_ALL_OBJECTS = "loadAllObjects";
+	protected abstract Class<T> getObjectClass();
 
-	public static final String BULK_LOAD_OBJECTS = "bulkLoadObjects";
+	@GET
+	@Path(WARMUP)
+	@Produces(MediaType.TEXT_PLAIN)
+	@Override
+	public String warmup(
+			@QueryParam("cryptoManagerID") String cryptoManagerID,
+			@QueryParam("cryptoSessionID") String cryptoSessionID
+	){
+		if (cryptoManagerID == null || cryptoManagerID.isEmpty())
+			cryptoManagerID = "keyManager";
 
-	public static final String BULK_STORE_OBJECTS = "bulkStoreObjetcts";
+		PersistenceManager pm = PersistenceManagerProvider.sharedInstance().getPersistenceManager(cryptoManagerID, cryptoSessionID);
+
+		Entity[] objects = new Entity[20];
+
+		for(int i = 0; i < 20; i++){
+			objects[i] = createNewObject();
+		}
+
+		try{
+			pm.currentTransaction().begin();
+
+			Stopwatch stopwatch = new Stopwatch();
+			stopwatch.start(WARMUP);
+			pm.makePersistentAll(objects);
+			stopwatch.stop(WARMUP);
+			results.add(stopwatch.createHumanReport(true));
+
+			pm.currentTransaction().commit();
+		}
+		finally{
+			if (pm.currentTransaction().isActive())
+				pm.currentTransaction().rollback();
+
+			pm.close();
+		}
+
+		return "";
+	}
 
 	int bulkCount = 10;
 
 	@GET
 	@Path(STORE_SINGLE_OBJECT)
 	@Produces(MediaType.TEXT_PLAIN)
+	@Override
 	public String storeSingleObject(
 			@QueryParam("cryptoManagerID") String cryptoManagerID,
 			@QueryParam("cryptoSessionID") String cryptoSessionID
@@ -56,7 +96,13 @@ public abstract class SimpleDatatypeScenario<T extends Entity> extends AbstractS
 
 		try{
 			pm.currentTransaction().begin();
+
+			Stopwatch stopwatch = new Stopwatch();
+			stopwatch.start(STORE_SINGLE_OBJECT);
 			pm.makePersistent(object);
+			stopwatch.stop(STORE_SINGLE_OBJECT);
+			results.add(stopwatch.createHumanReport(true));
+
 			pm.currentTransaction().commit();
 		}
 		finally{
@@ -70,8 +116,9 @@ public abstract class SimpleDatatypeScenario<T extends Entity> extends AbstractS
 	}
 
 	@GET
-	@Path(LOAD_SINGLE_RANDOM_OBJECT)
+	@Path(LOAD_SINGLE_OBJECT)
 	@Produces(MediaType.TEXT_PLAIN)
+	@Override
 	public String loadSingleObject(
 			@QueryParam("cryptoManagerID") String cryptoManagerID,
 			@QueryParam("cryptoSessionID") String cryptoSessionID
@@ -81,17 +128,18 @@ public abstract class SimpleDatatypeScenario<T extends Entity> extends AbstractS
 			cryptoManagerID = "keyManager";
 
 		PersistenceManager pm = PersistenceManagerProvider.sharedInstance().getPersistenceManager(cryptoManagerID, cryptoSessionID);
-//		pm.getFetchPlan().addGroup(PersonAllQueryable.FETCH_GROUP_FRIENDS);
-//		String[] fetchGroups = new String[]{FetchPlan.DEFAULT, PersonAllQueryable.FETCH_GROUP_FRIENDS};
-//		pm.getFetchPlan().setGroups(fetchGroups);
 
 		long objectId = getRandomObjectId(cryptoManagerID, cryptoSessionID);
 
 		try{
 			pm.currentTransaction().begin();
-			T object = pm.getObjectById(getObjectClass(), objectId);
-			object = pm.detachCopy(object);
-			logger.info(object.toString());
+
+			Stopwatch stopwatch = new Stopwatch();
+			stopwatch.start(LOAD_SINGLE_OBJECT);
+			pm.getObjectById(getObjectClass(), objectId);
+			stopwatch.stop(LOAD_SINGLE_OBJECT);
+			results.add(stopwatch.createHumanReport(true));
+
 			pm.currentTransaction().commit();
 		}
 		finally{
@@ -107,11 +155,36 @@ public abstract class SimpleDatatypeScenario<T extends Entity> extends AbstractS
 	@GET
 	@Path(LOAD_ALL_OBJECTS)
 	@Produces(MediaType.TEXT_PLAIN)
+	@Override
 	public String loadAllObjects(
 			@QueryParam("cryptoManagerID") String cryptoManagerID,
 			@QueryParam("cryptoSessionID") String cryptoSessionID
 	){
-		logger.info("All objects the database contains: " + getAllObjects(cryptoManagerID, cryptoSessionID).toString());
+		if(cryptoManagerID == null || cryptoManagerID.isEmpty())
+			cryptoManagerID = "keyManager";
+
+		PersistenceManager pm = PersistenceManagerProvider.sharedInstance().getPersistenceManager(cryptoManagerID, cryptoSessionID);
+
+		try{
+			pm.currentTransaction().begin();
+
+			Query q = pm.newQuery(getObjectClass());
+			Stopwatch stopwatch = new Stopwatch();
+			stopwatch.start(LOAD_ALL_OBJECTS);
+			logger.info(q.execute().toString());
+			stopwatch.stop(LOAD_ALL_OBJECTS);
+			results.add(stopwatch.createHumanReport(true));
+
+			pm.currentTransaction().commit();
+		}
+		finally{
+			if (pm.currentTransaction().isActive())
+				pm.currentTransaction().rollback();
+
+			pm.close();
+		}
+
+		logger.info(getResults().toString());
 
 		return "";
 	}
@@ -119,6 +192,7 @@ public abstract class SimpleDatatypeScenario<T extends Entity> extends AbstractS
 	@GET
 	@Path(BULK_LOAD_OBJECTS)
 	@Produces(MediaType.TEXT_PLAIN)
+	@Override
 	public String bulkLoadObjects(
 			@QueryParam("cryptoManagerID") String cryptoManagerID,
 			@QueryParam("cryptoSessionID") String cryptoSessionID
@@ -135,16 +209,13 @@ public abstract class SimpleDatatypeScenario<T extends Entity> extends AbstractS
 
 		try{
 			pm.currentTransaction().begin();
-//			for(int i = 0; i < bulkCount; i++){
-//				logger.info("Trying to load objets with id: " + ids[i]);
-//			}
-//			pm.getObjectsById(ids, true);
 
 			Query q = pm.newQuery("select from " + getObjectClass().getName() + " where :ids2.contains(id)");
+			Stopwatch stopwatch = new Stopwatch();
+			stopwatch.start(BULK_LOAD_OBJECTS);
 			q.execute(ids2);
-
-//			for(Entity e : entities)
-//				logger.info("Loaded Entity has id: " + e.getId());
+			stopwatch.stop(BULK_LOAD_OBJECTS);
+			results.add(stopwatch.createHumanReport(true));
 
 			pm.currentTransaction().commit();
 		}
@@ -161,6 +232,7 @@ public abstract class SimpleDatatypeScenario<T extends Entity> extends AbstractS
 	@GET
 	@Path(BULK_STORE_OBJECTS)
 	@Produces(MediaType.TEXT_PLAIN)
+	@Override
 	public String bulkStoreObjects(
 			@QueryParam("cryptoManagerID") String cryptoManagerID,
 			@QueryParam("cryptoSessionID") String cryptoSessionID
@@ -178,7 +250,13 @@ public abstract class SimpleDatatypeScenario<T extends Entity> extends AbstractS
 
 		try{
 			pm.currentTransaction().begin();
+
+			Stopwatch stopwatch = new Stopwatch();
+			stopwatch.start(BULK_STORE_OBJECTS);
 			pm.makePersistentAll(objects);
+			stopwatch.stop(BULK_STORE_OBJECTS);
+			results.add(stopwatch.createHumanReport(true));
+
 			pm.currentTransaction().commit();
 		}
 		finally{
@@ -191,6 +269,12 @@ public abstract class SimpleDatatypeScenario<T extends Entity> extends AbstractS
 //		logger.info("After call of bulkStoreObjects the database contains the following objects: " + getAllObjects(cryptoManagerID, cryptoSessionID));
 
 		return "";
+	}
+
+	@Override
+	public List<String> getResults(){
+
+		return results;
 	}
 
 	private long getRandomObjectId(
@@ -212,7 +296,6 @@ public abstract class SimpleDatatypeScenario<T extends Entity> extends AbstractS
 	)
 	{
 		Collection<T> objects = getAllObjects(cryptoManagerID, cryptoSessionID);
-//		logger.info("All objects: " + objects.toString());
 		Entity[] allObjects = new Entity[objects.size()];
 		allObjects = objects.toArray(allObjects);
 
@@ -221,9 +304,6 @@ public abstract class SimpleDatatypeScenario<T extends Entity> extends AbstractS
 		for(int i = 0; i < count; i++){
 			result[i] = (allObjects[(int)(Math.random() * allObjects.length)].getId());
 		}
-
-//		for(int i = 0; i < result.length; i++)
-//			logger.info("The random object ids: " + result[i]);
 
 		return result;
 	}

@@ -7,10 +7,10 @@
 		<relativePath>../org.cumulus4j.parent/pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>org.cumulus4j.benchmark.application</artifactId>
+	<artifactId>org.cumulus4j.benchmark.server</artifactId>
 	<packaging>war</packaging>
 
-	<name>org.cumulus4j.benchmark.application</name>
+	<name>org.cumulus4j.benchmark.server</name>
 
 	<dependencies>
 		<dependency>

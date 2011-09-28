@@ -19,17 +19,17 @@
 
 -->
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
-  <display-name>org.cumulus4j.benchmark.application</display-name>
+  <display-name>org.cumulus4j.benchmark.server</display-name>
   <servlet>
-    <servlet-name>org.cumulus4j.benchmark.application.App</servlet-name>
+    <servlet-name>org.cumulus4j.benchmark.server.App</servlet-name>
     <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
     <init-param>
       <param-name>javax.ws.rs.Application</param-name>
-      <param-value>org.cumulus4j.benchmark.application.App</param-value>
+      <param-value>org.cumulus4j.benchmark.server.App</param-value>
     </init-param>
   </servlet>
   <servlet-mapping>
-    <servlet-name>org.cumulus4j.benchmark.application.App</servlet-name>
+    <servlet-name>org.cumulus4j.benchmark.server.App</servlet-name>
     <url-pattern>/*</url-pattern>
   </servlet-mapping>
   <servlet>

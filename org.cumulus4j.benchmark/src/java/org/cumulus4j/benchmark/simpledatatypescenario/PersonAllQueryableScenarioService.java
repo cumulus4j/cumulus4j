@@ -5,6 +5,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.cumulus4j.benchmark.framework.AbstractSimpleDatatypeScenario;
+
 
 /**
 *
@@ -14,7 +16,7 @@ import javax.ws.rs.core.MediaType;
 @Path(PersonAllQueryableScenarioService.PATH)
 @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-public class PersonAllQueryableScenarioService extends SimpleDatatypeScenario<PersonAllQueryable>{
+public class PersonAllQueryableScenarioService extends AbstractSimpleDatatypeScenario<PersonAllQueryable>{
 
 	public static final String PATH = "PersonAllQueryable";
 
