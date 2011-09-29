@@ -2,9 +2,9 @@ package org.cumulus4j.benchmark;
 
 import org.cumulus4j.benchmark.framework.IScenario;
 import org.cumulus4j.benchmark.framework.TestCase;
-import org.cumulus4j.benchmark.inheritancescenario.InheritanceScenarioService;
-import org.cumulus4j.benchmark.simpledatatypescenario.PersonAllQueryableScenarioService;
-import org.cumulus4j.benchmark.simpledatatypescenario.PersonHalfQueryableScenarioService;
+import org.cumulus4j.benchmark.scenario.inheritance.InheritanceScenarioService;
+import org.cumulus4j.benchmark.scenario.simpledatatype.PersonAllQueryableScenarioService;
+import org.cumulus4j.benchmark.scenario.simpledatatype.PersonHalfQueryableScenarioService;
 import org.junit.Test;
 
 public class BenchmarkTest {
