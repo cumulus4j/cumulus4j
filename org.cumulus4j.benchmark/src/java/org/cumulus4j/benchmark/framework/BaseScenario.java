@@ -25,7 +25,7 @@ public abstract class BaseScenario<T extends Entity> implements IScenario {
 
 	private static Logger logger = LoggerFactory.getLogger(BaseScenario.class);
 
-	private static List<String> results = new ArrayList<String>();
+	protected static List<String> results = new ArrayList<String>();
 
 	/**
 	 *
@@ -303,7 +303,7 @@ public abstract class BaseScenario<T extends Entity> implements IScenario {
 		return results;
 	}
 
-	private long getRandomObjectId(
+	protected long getRandomObjectId(
 			String cryptoManagerID,
 			String cryptoSessionID
 	)
@@ -315,7 +315,7 @@ public abstract class BaseScenario<T extends Entity> implements IScenario {
 		return allObjects[(int)(Math.random() * allObjects.length)].getId();
 	}
 
-	private long[] getRandomObjectIds(
+	protected long[] getRandomObjectIds(
 			String cryptoManagerID,
 			String cryptoSessionID,
 			int count
@@ -334,7 +334,7 @@ public abstract class BaseScenario<T extends Entity> implements IScenario {
 		return result;
 	}
 
-	private Collection<T> getAllObjects(
+	protected Collection<T> getAllObjects(
 			String cryptoManagerID,
 			String cryptoSessionID
 			){
