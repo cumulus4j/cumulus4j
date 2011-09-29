@@ -1,4 +1,4 @@
-package org.cumulus4j.benchmark.polepositionscenario;
+package org.cumulus4j.benchmark.scenario.poleposition;
 
 import org.cumulus4j.benchmark.framework.Entity;
 

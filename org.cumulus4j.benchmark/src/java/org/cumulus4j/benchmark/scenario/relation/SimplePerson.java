@@ -1,4 +1,4 @@
-package org.cumulus4j.benchmark.inheritancescenario;
+package org.cumulus4j.benchmark.scenario.relation;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
@@ -9,10 +9,22 @@ import javax.jdo.annotations.PrimaryKey;
 import org.cumulus4j.benchmark.framework.Entity;
 
 /**
- * @author Jan Mortensen - jmortensen at nightlabs dot de
+ *
+ * @author jmortensen - jmortensen at nightlabs dot de
+ *
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
-public class InheritanceObject0 extends Entity{
+public class SimplePerson extends Entity{
+
+	@PrimaryKey
+	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
+	private long id;
+
+	@Override
+	public long getId() {
+
+		return id;
+	}
 
 	@Override
 	public int hashCode() {
@@ -30,33 +42,11 @@ public class InheritanceObject0 extends Entity{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		InheritanceObject0 other = (InheritanceObject0) obj;
+		SimplePerson other = (SimplePerson) obj;
 		if (id != other.id)
 			return false;
 		return true;
 	}
 
-	@PrimaryKey
-	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
-	private long id;
 
-	private int i0;
-
-	public InheritanceObject0(int i0){
-		this.setI0(i0);
-	}
-
-	@Override
-	public long getId() {
-
-		return id;
-	}
-
-	public void setI0(int i0) {
-		this.i0 = i0;
-	}
-
-	public int getI0() {
-		return i0;
-	}
 }

@@ -1,4 +1,4 @@
-package org.cumulus4j.benchmark.inheritancescenario;
+package org.cumulus4j.benchmark.scenario.inheritance;
 
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;

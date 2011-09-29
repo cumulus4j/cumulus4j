@@ -1,4 +1,4 @@
-package org.cumulus4j.benchmark.relationscenario;
+package org.cumulus4j.benchmark.scenario.relation;
 
 import java.math.BigInteger;
 
@@ -9,7 +9,6 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 import org.cumulus4j.benchmark.framework.Entity;
-import org.cumulus4j.benchmark.simpledatatypescenario.PersonAllQueryable;
 
 /**
  *
@@ -27,18 +26,18 @@ public class BankAccount extends Entity{
 	private BigInteger balance;
 
 	@Persistent
-	private PersonAllQueryable owner;
+	private SimplePerson owner;
 
-	public BankAccount(PersonAllQueryable owner){
+	public BankAccount(SimplePerson owner){
 		this.owner = owner;
 		balance = BigInteger.valueOf(0);
 	}
 
-	public PersonAllQueryable getOwner() {
+	public SimplePerson getOwner() {
 		return owner;
 	}
 
-	public void setOwner(PersonAllQueryable owner) {
+	public void setOwner(SimplePerson owner) {
 		this.owner = owner;
 	}
 

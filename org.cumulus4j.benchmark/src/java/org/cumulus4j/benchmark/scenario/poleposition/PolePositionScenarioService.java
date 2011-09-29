@@ -1,4 +1,4 @@
-package org.cumulus4j.benchmark.polepositionscenario;
+package org.cumulus4j.benchmark.scenario.poleposition;
 
 import javax.jdo.PersistenceManager;
 import javax.ws.rs.Consumes;

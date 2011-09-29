@@ -24,9 +24,10 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
-import org.cumulus4j.benchmark.inheritancescenario.InheritanceScenarioService;
-import org.cumulus4j.benchmark.simpledatatypescenario.PersonAllQueryableScenarioService;
-import org.cumulus4j.benchmark.simpledatatypescenario.PersonHalfQueryableScenarioService;
+import org.cumulus4j.benchmark.scenario.inheritance.InheritanceScenarioService;
+import org.cumulus4j.benchmark.scenario.relation.RelationScenarioService;
+import org.cumulus4j.benchmark.scenario.simpledatatype.PersonAllQueryableScenarioService;
+import org.cumulus4j.benchmark.scenario.simpledatatype.PersonHalfQueryableScenarioService;
 
 /**
  * @author Jan Mortensen - jmortensen at nightlabs dot de
@@ -39,6 +40,7 @@ extends Application
 		PersonAllQueryableScenarioService.class,
 		PersonHalfQueryableScenarioService.class,
 		InheritanceScenarioService.class,
+		RelationScenarioService.class,
 	};
 
 	private static final Set<Class<?>> serviceClassesSet;

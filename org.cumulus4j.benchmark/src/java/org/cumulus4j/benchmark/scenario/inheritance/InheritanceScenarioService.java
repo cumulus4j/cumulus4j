@@ -1,4 +1,4 @@
-package org.cumulus4j.benchmark.inheritancescenario;
+package org.cumulus4j.benchmark.scenario.inheritance;
 
 import java.util.Random;
 
