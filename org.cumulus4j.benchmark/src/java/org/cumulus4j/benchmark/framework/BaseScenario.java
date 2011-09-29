@@ -21,19 +21,22 @@ import org.slf4j.LoggerFactory;
 * @author Jan Mortensen - jmortensen at nightlabs dot de
 *
 */
-public abstract class AbstractSimpleDatatypeScenario<T extends Entity> implements IScenario {
+public abstract class BaseScenario<T extends Entity> implements IScenario {
 
-	private static Logger logger = LoggerFactory.getLogger(AbstractSimpleDatatypeScenario.class);
+	private static Logger logger = LoggerFactory.getLogger(BaseScenario.class);
 
 	private static List<String> results = new ArrayList<String>();
 
 	/**
-	 * Creates a new (random) instance of type T.
 	 *
-	 * @return An instance of type T.
+	 * @return An new (random) instance of type T.
 	 */
 	protected abstract T createNewObject();
 
+	/**
+	 *
+	 * @return The class of type T.
+	 */
 	protected abstract Class<T> getObjectClass();
 
 	@GET
@@ -269,6 +272,29 @@ public abstract class AbstractSimpleDatatypeScenario<T extends Entity> implement
 //		logger.info("After call of bulkStoreObjects the database contains the following objects: " + getAllObjects(cryptoManagerID, cryptoSessionID));
 
 		return "";
+	}
+
+	@GET
+	@Path(NEXT_CONFIGURATION)
+	@Produces(MediaType.TEXT_PLAIN)
+	@Override
+	public String nextConfiguration(){
+
+		PersistenceManagerProvider.sharedInstance().nextConfiguration();
+
+		return "";
+	}
+
+	@GET
+	@Path(HAS_NEXT_CONFIGURATION)
+	@Produces(MediaType.TEXT_PLAIN)
+	@Override
+	public String hasNextConfiguration(){
+
+		if(PropertyHandler.hasNextConfiguration())
+			return "true";
+		else
+			return "false";
 	}
 
 	@Override

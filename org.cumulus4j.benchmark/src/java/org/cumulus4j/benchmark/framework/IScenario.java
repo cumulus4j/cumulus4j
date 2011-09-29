@@ -3,6 +3,7 @@ package org.cumulus4j.benchmark.framework;
 import java.util.List;
 
 
+
 /**
 *
 * @author Jan Mortensen - jmortensen at nightlabs dot de
@@ -22,6 +23,10 @@ public interface IScenario {
 
 	public static final String BULK_STORE_OBJECTS = "bulkStoreObjetcts";
 
+	public static final String HAS_NEXT_CONFIGURATION = "hasNextConfiguration";
+
+	public static final String NEXT_CONFIGURATION = "nextConfiguration";
+
 
 
 	public String warmup(String cryptoManagerID, String cryptoSessionID);
@@ -35,6 +40,10 @@ public interface IScenario {
 	public String bulkStoreObjects(String cryptoManagerID, String cryptoSessionID);
 
 	public String loadAllObjects(String cryptoManagerID, String cryptoSessionID);
+
+	public String nextConfiguration();
+
+	public String hasNextConfiguration();
 
 	public List<String> getResults();
 

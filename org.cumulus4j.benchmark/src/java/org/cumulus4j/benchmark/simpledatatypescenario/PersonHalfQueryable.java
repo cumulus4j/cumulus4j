@@ -148,14 +148,14 @@ public class PersonHalfQueryable extends Entity{
 		return true;
 	}
 
-	@Override
-	public String toString(){
-		return "PersonAllQueryable id: " + id;
+//	@Override
+//	public String toString(){
+//		return "PersonAllQueryable id: " + id
 //		+ " " + firstName + " " + lastName + " " +
 //		age + " " + birthDate + " " + memberB + " " + houseNumber + " " + memberD + " " + memberE + " " + memberF + " " + memberG + " " +
 //		memberH + " " + memberI + " " + memberJ + " " + memberK + " " + memberL + " " + money + " " + size +  " " +
 //		memberA+ " " + memberC + " " + memberM;
-	}
+//	}
 
 	@Override
 	public long getId() {

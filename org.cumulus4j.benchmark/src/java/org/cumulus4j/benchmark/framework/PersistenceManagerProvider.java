@@ -46,6 +46,11 @@ public class PersistenceManagerProvider {
 
 			Properties props = TestUtil.loadProperties("cumulus4j-test-datanucleus.properties");
 
+//			Map<String, String> properties = PropertyHandler.nextConfiguration();
+//			for(String key : properties.keySet()){
+//				props.setProperty(key, properties.get(key));
+//			}
+
 			pmf = JDOHelper.getPersistenceManagerFactory(props);
 		}
 
@@ -65,5 +70,9 @@ public class PersistenceManagerProvider {
 		pm.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, cryptoSessionID);
 
 		return pm;
+	}
+
+	public void nextConfiguration(){
+		pmf = null;
 	}
 }

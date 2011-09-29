@@ -9,4 +9,8 @@ public abstract class Entity {
 
 	public abstract long getId();
 
+	@Override
+	public String toString(){
+		return "PersonAllQueryable id: " + getId();
+	}
 }

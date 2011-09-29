@@ -1,4 +1,4 @@
-package org.cumulus4j.benchmark.bankaccount;
+package org.cumulus4j.benchmark.relationscenario;
 
 import java.math.BigInteger;
 

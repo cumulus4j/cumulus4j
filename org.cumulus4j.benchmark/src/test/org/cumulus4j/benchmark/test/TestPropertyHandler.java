@@ -19,7 +19,7 @@ public class TestPropertyHandler {
 		
 		List<Map<String, String>> configurations = new ArrayList<Map<String, String>>();
 		
-		while(PropertyHandler.hasNext()){
+		while(PropertyHandler.hasNextConfiguration()){
 			configurations.add(PropertyHandler.nextConfiguration());
 		}
 		

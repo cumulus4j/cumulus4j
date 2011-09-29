@@ -85,7 +85,7 @@ public class PropertyHandler {
 
 	}
 
-	public static boolean hasNext(){
+	public static boolean hasNextConfiguration(){
 		return !encryptionAlgorithms.isEmpty();
 	}
 }

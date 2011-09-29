@@ -133,8 +133,14 @@ public class BenchmarkClient {
 			try {
 				Client client = new Client();
 
-				for(String methodName : testCase.getInvokationList())
-					invokeOnServer(client, session.getCryptoSessionID(), testCase.getServiceName(), methodName);
+//				while(invokeOnServer(client, session.getCryptoSessionID(), testCase.getServiceName(), IScenario.HAS_NEXT_CONFIGURATION).equals("true")){
+					for(String methodName : testCase.getInvokationList())
+						invokeOnServer(client, session.getCryptoSessionID(), testCase.getServiceName(), methodName);
+
+//					invokeOnServer(client, session.getCryptoSessionID(), testCase.getServiceName(), IScenario.NEXT_CONFIGURATION);
+//				}
+//				for(String methodName : testCase.getInvokationList())
+//					invokeOnServer(client, session.getCryptoSessionID(), testCase.getServiceName(), methodName);
 			} finally {
 				session.lock();
 			}

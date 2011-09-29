@@ -24,6 +24,7 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
+import org.cumulus4j.benchmark.inheritancescenario.InheritanceScenarioService;
 import org.cumulus4j.benchmark.simpledatatypescenario.PersonAllQueryableScenarioService;
 import org.cumulus4j.benchmark.simpledatatypescenario.PersonHalfQueryableScenarioService;
 
@@ -37,6 +38,7 @@ extends Application
 	private static final Class<?>[] serviceClassesArray = {
 		PersonAllQueryableScenarioService.class,
 		PersonHalfQueryableScenarioService.class,
+		InheritanceScenarioService.class,
 	};
 
 	private static final Set<Class<?>> serviceClassesSet;
