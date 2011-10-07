@@ -22,6 +22,7 @@ import java.io.IOException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -151,6 +152,20 @@ public class AppServerService extends AbstractService
 //
 //		putAppServer(keyStoreID, appServer);
 //	}
+
+	/**
+	 * Compatibility for clients not supporting <code>PUT</code>. This method does the same as (it delegates to)
+	 * {@link #putAppServer(String, org.cumulus4j.keymanager.front.shared.AppServer)}. Ajax-Clients (e.g. jQuery in Firefox) seem
+	 * not to support <code>PUT</code>.
+	 */
+	@POST
+	@Path("{keyStoreID}")
+	public PutAppServerResponse postAppServer(
+			@PathParam("keyStoreID") String keyStoreID,
+			org.cumulus4j.keymanager.front.shared.AppServer appServer
+	) {
+		return putAppServer(keyStoreID, appServer);
+	}
 
 	/**
 	 * Put an <code>AppServer</code>.

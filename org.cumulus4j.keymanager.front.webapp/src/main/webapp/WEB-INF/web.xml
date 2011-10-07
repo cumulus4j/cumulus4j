@@ -18,18 +18,29 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
-  <display-name>org.cumulus4j.keymanager.front.webapp</display-name>
-  <servlet>
-    <servlet-name>Jersey Web Application</servlet-name>
-    <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
-    <init-param>
-      <param-name>javax.ws.rs.Application</param-name>
-      <param-value>org.cumulus4j.keymanager.front.webapp.KeyManagerFrontWebApp</param-value>
-    </init-param>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>Jersey Web Application</servlet-name>
-    <url-pattern>/*</url-pattern>
-  </servlet-mapping>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	version="2.5">
+	<display-name>org.cumulus4j.keymanager.front.webapp</display-name>
+	<servlet>
+		<servlet-name>Jersey Web Application</servlet-name>
+		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+		<init-param>
+			<param-name>javax.ws.rs.Application</param-name>
+			<param-value>org.cumulus4j.keymanager.front.webapp.KeyManagerFrontWebApp</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Jersey Web Application</servlet-name>
+		<url-pattern>/*</url-pattern>
+	</servlet-mapping>
+	<filter>
+		<filter-name>AjaxHeadersFilter</filter-name>
+		<filter-class>org.cumulus4j.keymanager.back.shared.AjaxHeadersFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>AjaxHeadersFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
 </web-app>

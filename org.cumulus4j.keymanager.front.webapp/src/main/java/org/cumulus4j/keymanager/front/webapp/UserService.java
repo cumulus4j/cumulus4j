@@ -24,6 +24,7 @@ import java.util.Set;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -140,6 +141,18 @@ public class UserService extends AbstractService
 //
 //		putUser(keyStoreID, userWithPassword);
 //	}
+
+	/**
+	 * Compatibility for clients not supporting <code>PUT</code>. This method does the same as (it delegates to)
+	 * {@link #putUser(String, UserWithPassword)}. Ajax-Clients (e.g. jQuery in Firefox) seem
+	 * not to support <code>PUT</code>.
+	 */
+	@POST
+	@Path("{keyStoreID}")
+	public void postUser(@PathParam("keyStoreID") String keyStoreID, UserWithPassword userWithPassword)
+	{
+		putUser(keyStoreID, userWithPassword);
+	}
 
 	/**
 	 * Put a user. If a user with the same {@link UserWithPassword#getUserName() name} already exists,

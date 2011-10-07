@@ -59,9 +59,26 @@ jQuery(document).ready(function(){
 				error: opts.error
 			});
 		}
+		
+		function appServerAjax(opts) {
+			log("app server " + opts.type + " " + opts.url);
+			headers = { "Accept": "text/plain" };
+			jQuery.ajax({
+				url: opts.url,
+				type: opts.type,
+				contentType: "application/json",
+				headers: headers,
+				processData: false,
+				data: jQuery.toJSON(opts.data),
+				success: opts.success,
+				error: opts.error
+			});
+		}
 
-		function doInUnlockedSession(opts) {
+		function demonstrateAll(opts) {
 			// ### init: ###
+			// Create a new key store with a random ID. This is usually done by an administrator via the command-line-interface
+			// or via a management web app.
 			var initData = {"keyActivityPeriodMSec":opts.keyActivityPeriodMSec,"keyStorePeriodMSec":opts.keyStorePeriodMSec};
 			jsonAjax({
 				url: opts.keyManagerUrl + "/DateDependentKeyStrategy/" + encodeURIComponent(opts.keyStoreId) + "/init",
@@ -73,6 +90,7 @@ jQuery(document).ready(function(){
 					log("Success: " + jQuery.toJSON(data));
 					
 					// ### register app server: ###
+					// This is usually done in the login procedure of the Ajax web app.
 					var appServerData = {"appServerBaseURL":opts.appServerBaseURL,"appServerID":opts.appServerID}
 					jsonAjax({
 						url: opts.keyManagerUrl + "/AppServer/" + encodeURIComponent(opts.keyStoreId),
@@ -84,6 +102,9 @@ jQuery(document).ready(function(){
 							log("Success: " + jQuery.toJSON(data));
 							
 							// ### open session: ###
+							// This should be done periodically in an optimized form (initially and after a session expired)
+							// before a request is sent to the app server. It might be done for every request to the app server,
+							// but that's not very efficient.
 							jsonAjax({
 								url: opts.keyManagerUrl + "/Session/" + encodeURIComponent(opts.keyStoreId) + "/" +encodeURIComponent(opts.appServerID) + "/open",
 								type: "POST",
@@ -93,8 +114,12 @@ jQuery(document).ready(function(){
 									log("Success: " + jQuery.toJSON(data));
 									
 									var cryptoSessionID = data.cryptoSessionID;
+									opts.cryptoSessionID = cryptoSessionID;
 	
 									// ### unlock session: ###
+									// This must be done before a request to the app server. It unlocks the session, i.e.
+									// starts the time frame within which key transfers are allowed to the app server thus enabling
+									// the app server to process the request.
 									jsonAjax({
 										url: opts.keyManagerUrl + "/Session/" + encodeURIComponent(opts.keyStoreId) + "/" +encodeURIComponent(opts.appServerID) + "/" +encodeURIComponent(cryptoSessionID) + "/unlock",
 										type: "POST",
@@ -103,8 +128,42 @@ jQuery(document).ready(function(){
 										success: function(data) {
 											log("Success: " + jQuery.toJSON(data));
 											log("Session is unlocked.");
-											opts.success.apply();									
-											log("Work done.");
+											log("Doing actual work (app server request) now...");
+
+ 											// ### actual app server request: ###
+ 											// We make the app server do some work. It will need to access the keys via the session
+ 											// we just unlocked.
+											appServerAjax({
+												url: opts.appServerTestURL + "?cryptoSessionID=" + opts.cryptoSessionID,
+												type: "POST",
+												success: function(data) {
+													log("Success: " + jQuery.toJSON(data));
+													log("Actual work (app server request) done.");
+													
+													// ### lock session: ###
+													// This must be done after a request to the app server. It locks the session again, i.e.
+													// stops the time frame within which key transfers are allowed to the app server thus disabling
+													// any further access to keys.
+													// This MUST be done in case of an error, too, in a real-life app! We don't do it here
+													// for the sake of simplicity.
+													jsonAjax({
+														url: opts.keyManagerUrl + "/Session/" + encodeURIComponent(opts.keyStoreId) + "/" +encodeURIComponent(opts.appServerID) + "/" +encodeURIComponent(cryptoSessionID) + "/lock",
+														type: "POST",
+														username: opts.username,
+														password: opts.password,
+														success: function(data) {
+															log("Success: " + jQuery.toJSON(data));
+															log("Session is locked.");
+															
+															opts.success.apply();
+														},
+														error: opts.error
+													});
+													
+												},
+												error: opts.error
+											});
+ 											
 										},
 										error: opts.error
 									});
@@ -126,22 +185,24 @@ jQuery(document).ready(function(){
 		var password = jQuery('#password').val();
 		log("Starting with username " + username);
 		unlockOpts = {
+			cryptoSessionID:"UNINITIALIZED",
 			keyActivityPeriodMSec:"3600000",
 			keyStorePeriodMSec:"86400000",
 			keyStoreId: "mykeystoreid" + Math.random(),
 			keyManagerUrl: "http://localhost:8686/org.cumulus4j.keymanager.front.webapp",
 			appServerBaseURL: "http://localhost:8585/org.cumulus4j.integrationtest.webapp/org.cumulus4j.keymanager.back.webapp",
+			appServerTestURL: "http://localhost:8585/org.cumulus4j.integrationtest.webapp/App/Test",
 			appServerID: "appServer1",
 			username: username,
 			password: password,
 			success: function() {
-				log("Do work now!");
+				log("All done successfully.");
 			},
-			error: function() {
+			error: function(jqXHR, textStatus, errorThrown) {
 				alert("Error :-(");
 			}
 		};
-		doInUnlockedSession(unlockOpts);
+		demonstrateAll(unlockOpts);
 	});
 });
 </script>

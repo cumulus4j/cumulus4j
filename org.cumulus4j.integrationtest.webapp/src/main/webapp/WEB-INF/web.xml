@@ -39,6 +39,14 @@
 		<servlet-name>org.cumulus4j.integrationtest.webapp.App</servlet-name>
 		<url-pattern>/App/*</url-pattern>
 	</servlet-mapping>
+	<filter>
+		<filter-name>AjaxHeadersFilter</filter-name>
+		<filter-class>org.cumulus4j.keymanager.back.shared.AjaxHeadersFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>AjaxHeadersFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
 
 
 	<!-- BEGIN from org.cumulus4j.keymanager.back.webapp -->
