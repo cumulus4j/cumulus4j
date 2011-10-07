@@ -18,7 +18,7 @@ Module org.cumulus4j.integrationtest.webapp
 mvn jetty:run
 +-------------------------------------------+
 
-	Btw., this WAR contains a little example Ajax client which you can try at:
+	Btw., this WAR also contains a little example Ajax client which you can try at:
 	{{http://localhost:8585/org.cumulus4j.integrationtest.webapp/jquery-test.html}}
 
 	This Ajax client only works, if both application server and key server are running, i.e. you have to

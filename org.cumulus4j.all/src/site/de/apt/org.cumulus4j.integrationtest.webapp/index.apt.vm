@@ -7,8 +7,8 @@
 
 Modul org.cumulus4j.integrationtest.webapp
 
-	Dies ist ein Integrationstest, der ein Jetty-Servlet-Container mit einer Dummy-Web-Anwendung, welche 
-	DataNucleus und Cumulus4j enthält startet. Der Test wird benutzt, um das Zusammenspiel aller Teile in einer
+	Dies ist ein Integrationstest, der einen Jetty-Servlet-Container mit einer Dummy-Web-Anwendung startet, welche 
+	DataNucleus und Cumulus4j enthält. Der Test wird benutzt, um das Zusammenspiel aller Teile in einer
 	kompletten Simulation des Applikationsservers (simuliert durch Jetty + Dummy-Web-Anwendung) und des Clients 
 	(Test-Klassen in /src/test/java) zu testen.
 
@@ -18,7 +18,7 @@ Modul org.cumulus4j.integrationtest.webapp
 mvn jetty:run
 +-------------------------------------------+
 
-	Im übrigen enthält dieses WAR einen kleinen Beispiel-Ajax-Client, den Sie hier ausprobieren können:
+	Im übrigen enthält dieses WAR auch einen kleinen Beispiel-Ajax-Client, den Sie hier ausprobieren können:
 	{{http://localhost:8585/org.cumulus4j.integrationtest.webapp/jquery-test.html}}
 
 	Dieser Ajax-Client funktioniert allerdings nur, wenn sowohl Applikationsserver als auch Schlüsselserver laufen,
