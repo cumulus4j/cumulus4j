@@ -50,8 +50,9 @@ public class IntegrationWithAppServerOnlyTest
 
 	private static final String URL_APP_SERVER = "http://localhost:8585";
 //	private static final String URL_APP_SERVER = "http://localhost:8080";
-	private static final String URL_INTEGRATIONTEST_WEBAPP = URL_APP_SERVER + "/org.cumulus4j.integrationtest.webapp";
-	private static final String URL_KEY_MANAGER_BACK_WEBAPP = URL_INTEGRATIONTEST_WEBAPP + "/org.cumulus4j.keymanager.back.webapp";
+	private static final String URL_INTEGRATIONTEST_CONTEXT = URL_APP_SERVER + "/org.cumulus4j.integrationtest.webapp";
+	private static final String URL_KEY_MANAGER_BACK_WEBAPP = URL_INTEGRATIONTEST_CONTEXT + "/org.cumulus4j.keymanager.back.webapp";
+	private static final String URL_INTEGRATIONTEST_WEBAPP = URL_INTEGRATIONTEST_CONTEXT + "/App";
 	private static final String URL_TEST = URL_INTEGRATIONTEST_WEBAPP + "/Test";
 
 	private static final String KEY_STORE_USER = "marco";

@@ -27,7 +27,6 @@
 		This web.xml merges the contents from the web.xml of org.cumulus4j.keymanager.back.webapp
 		and of this project (org.cumulus4j.integrationtest.webapp).
 	-->
-
 	<servlet>
 		<servlet-name>org.cumulus4j.integrationtest.webapp.App</servlet-name>
 		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
@@ -38,8 +37,9 @@
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>org.cumulus4j.integrationtest.webapp.App</servlet-name>
-		<url-pattern>/*</url-pattern>
+		<url-pattern>/App/*</url-pattern>
 	</servlet-mapping>
+
 
 	<!-- BEGIN from org.cumulus4j.keymanager.back.webapp -->
 	<servlet>

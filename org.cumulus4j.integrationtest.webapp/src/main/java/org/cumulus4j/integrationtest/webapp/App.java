@@ -27,7 +27,7 @@ import javax.ws.rs.core.Application;
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-@ApplicationPath("/")
+@ApplicationPath("/App")
 public class App
 extends Application
 {
