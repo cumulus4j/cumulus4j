@@ -83,6 +83,9 @@ Workspace-Setup Cumulus4j-DataNucleus-Plug-in
 
 	Maven will automatically download all dependencies (e.g. the DataNucleus nightly builds).
 
+	Alternatively, you can run Maven within your Eclipse IDE via a right-click on the project “org.cumulus4j.all”
+	and choosing "Run as..." => "Maven install" or "Maven build...".
+
 ** A: Step 4
 
 	In your Eclipse IDE, go to "Window" => "Preferences..." => "Plug-in Development" => "Target Platform" and check (enable)
@@ -90,9 +93,14 @@ Workspace-Setup Cumulus4j-DataNucleus-Plug-in
 
 ** A: Step 5
 
-	If your projects are not automatically compiled correctly and you still have error markers, select all projects,
-	right-click on them and "Refresh" them. Afterwards go to the main menu "Project" => "Clean..." and clean all
-	projects. All error markers should disappear now.
+	In the Project Explorer, select all projects, right-click and execute "Maven" => "Enable dependency management". 
+
+** A: Step 6
+
+	If your projects are not yet compiled correctly and you still have error markers, select all projects,
+	right-click them and "Refresh" them. Afterwards go to the main menu "Project" => "Clean..." and clean all
+	projects. All error markers should disappear now. If still not, you could additionally try
+	"Maven" => "Update project configuration" or "Maven" => "Update dependencies".
 
 * B: Workspace with DataNucleus sources
 
@@ -111,4 +119,8 @@ Workspace-Setup Cumulus4j-DataNucleus-Plug-in
 
 ** B: Step 4
 
-	You can optionally run the Maven build now (see "{{A: Step 3}}" above).
+	Run the Maven build as described in "{{A: Step 3}}" above.
+
+** B: Step 5
+
+	In the Project Explorer, select all projects, right-click and execute "Maven" => "Enable dependency management".
