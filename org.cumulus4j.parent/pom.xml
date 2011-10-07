@@ -40,9 +40,6 @@
 		<!-- Always aggregate. -->
 		<aggregate>true</aggregate>
 		
-		<!-- We use /src/webapp instead of /src/main/webapp following the structure of DataNucleus. -->
-		<maven.war.src>src/webapp</maven.war.src>
-
 		<!-- We do not want the build to be interrupted when a test fails. -->
 		<maven.test.failure.ignore>true</maven.test.failure.ignore>
 		
@@ -796,13 +793,6 @@
 				<plugin>
 					<artifactId>maven-war-plugin</artifactId>
 					<version>2.1.1</version>
-					<configuration>
-						<webResources>
-							<resource>
-								<directory>src/webapp</directory>
-							</resource>
-						</webResources>
-					</configuration>
 				</plugin>
 
 				<plugin>
