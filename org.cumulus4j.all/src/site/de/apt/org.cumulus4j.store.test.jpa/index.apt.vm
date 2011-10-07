@@ -8,4 +8,4 @@
 Modul org.cumulus4j.store.test.jpa
 
 	Tests für {{{../org.cumulus4j.store/}org.cumulus4j.store}}, die Persistenz- und Abfragefunktionalität prüfen.
-	Dabei kommt keine Schlüsselverwaltung zum einsatz. Die Tests in diesem Projekt benutzen die JPA-API.
+	Dabei kommt keine Schlüsselverwaltung zum Einsatz. Die Tests in diesem Projekt benutzen die JPA-API.

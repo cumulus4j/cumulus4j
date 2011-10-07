@@ -9,7 +9,7 @@ Module org.cumulus4j.integrationtest.webapp
 
 	This is an integration test launching a Jetty servlet container with a dummy web app containing
 	DataNucleus and Cumulus4j. It is used to test the cooperation of all parts in a complete simulation
-	of app server (simulated by Jetty + dummy web app) and client (test classes in /src/test of this
+	of app server (simulated by Jetty + dummy web app) and client (test classes in /src/test/java of this
 	project). 
 
 	You can start the jetty server of this project by the following command:
