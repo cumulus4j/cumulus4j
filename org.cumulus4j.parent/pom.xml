@@ -557,13 +557,12 @@
 	</dependencies>
 
 	<build>
-		<sourceDirectory>src/java</sourceDirectory>
 		<resources>
 			<resource>
-				<directory>src/resources</directory>
+				<directory>src/main/resources</directory>
 			</resource>
 			<resource>
-				<directory>src/java</directory>
+				<directory>src/main/java</directory>
 				<excludes>
 					<exclude>**/*.java</exclude>
 				</excludes>
@@ -576,10 +575,9 @@
 			</resource>
 		</resources>
 
-		<testSourceDirectory>src/test</testSourceDirectory>
 		<testResources>
 			<testResource>
-				<directory>src/test</directory>
+				<directory>src/test/java</directory>
 				<excludes>
 					<exclude>**/*.java</exclude>
 				</excludes>
