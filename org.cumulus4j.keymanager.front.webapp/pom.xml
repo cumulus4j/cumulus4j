@@ -33,6 +33,14 @@
 			<groupId>org.cumulus4j</groupId>
 			<artifactId>org.cumulus4j.keymanager.front.shared</artifactId>
 		</dependency>
+		<dependency>
+			<!--
+			This is transitively here already (via o.c.keymanager), but I added it again explicitely, because the
+			Eclipse integration otherwise generates an incorrect Eclipse-project-configuration.
+			-->
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.keymanager.back.shared</artifactId>
+		</dependency>
 	</dependencies>
 
 	<description>The key-server-web-app.</description>

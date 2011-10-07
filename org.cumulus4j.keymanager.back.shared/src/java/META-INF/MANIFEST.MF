@@ -1,4 +1,0 @@
-Manifest-Version: 1.0
-Class-Path: 
-Comment: This file was automatically created by Eclipse-WTP or m2eclipse-WTP and is NOT USED at all. Deleting it doesn't help - it's recreated.
-
