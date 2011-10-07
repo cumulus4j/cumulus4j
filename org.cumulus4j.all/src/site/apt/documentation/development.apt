@@ -69,7 +69,7 @@ Workspace-Setup Cumulus4j-DataNucleus-Plug-in
 
 	Check-out all projects starting on “org.cumulus4j.”.
 
-** {A: Step 3}
+** {A: Step 3} (optional)
 
 	Open a console (aka shell), go to the directory <<<${workspace}/org.cumulus4j.all/>>> and run one of the following commands:
 
@@ -88,19 +88,13 @@ Workspace-Setup Cumulus4j-DataNucleus-Plug-in
 
 ** A: Step 4
 
-	In your Eclipse IDE, go to "Window" => "Preferences..." => "Plug-in Development" => "Target Platform" and check (enable)
-	the "DataNucleus" target definition. Click first "Reload..." and then "OK".
+	In the Project Explorer, select all projects starting on “org.cumulus4j.”, right-click and execute
+	"Maven" => "Enable dependency management".
 
 ** A: Step 5
 
-	In the Project Explorer, select all projects, right-click and execute "Maven" => "Enable dependency management". 
-
-** A: Step 6
-
-	If your projects are not yet compiled correctly and you still have error markers, select all projects,
-	right-click them and "Refresh" them. Afterwards go to the main menu "Project" => "Clean..." and clean all
-	projects. All error markers should disappear now. If still not, you could additionally try
-	"Maven" => "Update project configuration" or "Maven" => "Update dependencies".
+	In your Eclipse IDE, go to "Window" => "Preferences..." => "Plug-in Development" => "Target Platform" and check (enable)
+	the "DataNucleus" target definition. Click "OK".
 
 * B: Workspace with DataNucleus sources
 
@@ -117,10 +111,32 @@ Workspace-Setup Cumulus4j-DataNucleus-Plug-in
 
 	Check-out all projects starting on "org.cumulus4j.".
 
-** B: Step 4
+** B: Step 4 (optional)
 
 	Run the Maven build as described in "{{A: Step 3}}" above.
 
 ** B: Step 5
 
-	In the Project Explorer, select all projects, right-click and execute "Maven" => "Enable dependency management".
+	In the Project Explorer, select all projects starting on “org.cumulus4j.”, right-click and execute
+	"Maven" => "Enable dependency management".
+
+* Troubleshooting
+
+** Projects have error markers
+
+	If your projects are not yet compiling correctly and red error markers are shown, select all projects,
+	right-click them and "Refresh" them. Afterwards go to the main menu "Project" => "Clean..." and clean all
+	projects.
+
+	If you still have error markers, you could additionally try
+	"Maven" => "Update project configuration" or "Maven" => "Update dependencies".
+
+	In some rare cases, you might even need to close and re-open all projects or restart Eclipse.
+
+** Only "Generic" available in the Eclipse extension editor
+
+	You opened your plugin.xml or MANIFEST.MF and selected the "Extensions" tab. When you right-click, the context-menu
+	shows "New" => "Generic" instead of e.g. "New" => "store-manager" or "New" => "query". That means, your target platform
+	misses the extension-point's schema files. If you used option "A", check in "Window" => "Preferences" => "Plug-in development"
+	=> "Target platform" via "Edit..." on the "DataNucleus" target platform, whether there is "0 plug-ins available" displayed
+	anywhere. If so, you likely have to fix the version number.
