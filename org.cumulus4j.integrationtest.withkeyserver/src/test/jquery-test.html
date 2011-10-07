@@ -1,7 +1,29 @@
 <html>
+<head>
+	<title>Cumulus4j - jQuery Test</title>
+	<style type="text/css">
+		body,td,a,p{font-family:arial,sans-serif}
+		p{margin: 4px;}
+		#log{font-size: smaller; margin-top: 16px}
+	</style>
+</head>
 <body>
 
-<a id="trigger" href="javascript:void(0)">Start Test.</a>
+<table>
+	<tr>
+		<td>Username: </td>
+		<td><input type="text" id="username" value="devil"/></td>
+	</tr>
+	<tr>
+		<td>Password: </td>
+		<td><input type="password" id="password" value="testtesttest"/></td>
+	</tr>
+	<tr>
+		<td colspan="2">
+			<a id="trigger" href="javascript:void(0)">Start Test.</a>
+		</td>
+</table>
+
 <div id="log">
 </div>
 
@@ -9,14 +31,14 @@
 <script type="text/javascript" src="jquery.base64.min.js"></script>
 <script type="text/javascript" src="jquery.json-2.3.min.js"></script>
 <script type="text/javascript">
-$(document).ready(function(){
-	$("#trigger").click(function(event){
+jQuery(document).ready(function(){
+	jQuery("#trigger").click(function(event){
 		function log(str) {
-			$("#log").append("<p>" + str + "</p>");
+			jQuery("#log").append("<p>" + str + "</p>");
 		}
 		function make_base_auth(user, password) {
 		  var tok = user + ':' + password;
-		  var hash = $.base64.encode(tok);
+		  var hash = jQuery.base64.encode(tok);
 		  return "Basic " + hash;
 		}
 		function jsonAjax(opts) {
@@ -25,14 +47,14 @@ $(document).ready(function(){
 			if (opts.username) {
 				headers.Authorization = make_base_auth(opts.username, opts.password);
 			}
-			$.ajax({
+			jQuery.ajax({
 				url: opts.url,
 				type: opts.type,
 				contentType: "application/json",
 				headers: headers,
 				processData: false,
 				dataType: "json",
-				data: $.toJSON(opts.data),
+				data: jQuery.toJSON(opts.data),
 				success: opts.success,
 				error: opts.error
 			});
@@ -48,7 +70,7 @@ $(document).ready(function(){
 				username: opts.username,
 				password: opts.password,
 				success: function(data) {
-					log("Success: " + $.toJSON(data));
+					log("Success: " + jQuery.toJSON(data));
 					
 					// ### register app server: ###
 					var appServerData = {"appServerBaseURL":opts.appServerBaseURL,"appServerID":opts.appServerID}
@@ -59,7 +81,7 @@ $(document).ready(function(){
 						username: opts.username,
 						password: opts.password,
 						success: function(data) {
-							log("Success: " + $.toJSON(data));
+							log("Success: " + jQuery.toJSON(data));
 							
 							// ### open session: ###
 							jsonAjax({
@@ -68,7 +90,7 @@ $(document).ready(function(){
 								username: opts.username,
 								password: opts.password,
 								success: function(data) {
-									log("Success: " + $.toJSON(data));
+									log("Success: " + jQuery.toJSON(data));
 									
 									var cryptoSessionID = data.cryptoSessionID;
 	
@@ -79,7 +101,7 @@ $(document).ready(function(){
 										username: opts.username,
 										password: opts.password,
 										success: function(data) {
-											log("Success: " + $.toJSON(data));
+											log("Success: " + jQuery.toJSON(data));
 											log("Session is unlocked.");
 											opts.success.apply();									
 											log("Work done.");
@@ -100,7 +122,9 @@ $(document).ready(function(){
 			});		
 		}
 		
-		log("Starting");
+		var username = jQuery('#username').val();
+		var password = jQuery('#password').val();
+		log("Starting with username " + username);
 		unlockOpts = {
 			keyActivityPeriodMSec:"3600000",
 			keyStorePeriodMSec:"86400000",
@@ -108,8 +132,8 @@ $(document).ready(function(){
 			keyManagerUrl: "http://localhost:8686/org.cumulus4j.keymanager.front.webapp",
 			appServerBaseURL: "http://localhost:8585/org.cumulus4j.integrationtest.webapp/org.cumulus4j.keymanager.back.webapp",
 			appServerID: "appServer1",
-			username: "devil",
-			password: "testtesttest",
+			username: username,
+			password: password,
 			success: function() {
 				log("Do work now!");
 			},
