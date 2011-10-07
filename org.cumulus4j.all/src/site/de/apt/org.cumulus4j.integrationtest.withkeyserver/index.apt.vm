@@ -12,3 +12,9 @@ Modul org.cumulus4j.integrationtest.withkeyserver
 	Der Test wird benutzt, um das Zusammenspiel aller Teile in einer
 	kompletten Simulation des Applikationsservers (simuliert durch Jetty + Dummy-Web-Anwendung) und des Clients 
 	(Test-Klassen in /src/test) zu testen.
+
+	Sie können den Jetty-Server dieses Projektes mit folgendem Befehl starten:
+
++-------------------------------------------+
+mvn jetty:deploy-war
++-------------------------------------------+
