@@ -73,9 +73,9 @@ Workspace-Setup Cumulus4j-DataNucleus-Plug-in
 
 	Open a console (aka shell), go to the directory <<<${workspace}/org.cumulus4j.all/>>> and run one of the following commands:
 
-	* <<<MAVEN_OPTS='-Xmx256M -XX:MaxPermSize=256M' mvn clean install>>>
+	* <<<MAVEN_OPTS='-Xmx256M -XX:MaxPermSize=128M -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled' mvn clean install>>>
 
-	* <<<MAVEN_OPTS='-Xmx256M -XX:MaxPermSize=256M' mvn clean install -Dmaven.test.skip=true>>>
+	* <<<MAVEN_OPTS='-Xmx256M -XX:MaxPermSize=128M -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled' mvn clean install -Dmaven.test.skip=true>>>
 	
 	[]
 
