@@ -1,0 +1,126 @@
+<html>
+<body>
+
+<a id="trigger" href="javascript:void(0)">Start Test.</a>
+<div id="log">
+</div>
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js"></script>
+<script type="text/javascript" src="jquery.base64.min.js"></script>
+<script type="text/javascript" src="jquery.json-2.3.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	$("#trigger").click(function(event){
+		function log(str) {
+			$("#log").append("<p>" + str + "</p>");
+		}
+		function make_base_auth(user, password) {
+		  var tok = user + ':' + password;
+		  var hash = $.base64.encode(tok);
+		  return "Basic " + hash;
+		}
+		function jsonAjax(opts) {
+			log(opts.type + " " + opts.url);
+			headers = { "Accept": "application/json" }; 
+			if (opts.username) {
+				headers.Authorization = make_base_auth(opts.username, opts.password);
+			}
+			$.ajax({
+				url: opts.url,
+				type: opts.type,
+				contentType: "application/json",
+				headers: headers,
+				processData: false,
+				dataType: "json",
+				data: $.toJSON(opts.data),
+				success: opts.success,
+				error: opts.error
+			});
+		}
+
+		function doInUnlockedSession(opts) {
+			// ### init: ###
+			var initData = {"keyActivityPeriodMSec":opts.keyActivityPeriodMSec,"keyStorePeriodMSec":opts.keyStorePeriodMSec};
+			jsonAjax({
+				url: opts.keyManagerUrl + "/DateDependentKeyStrategy/" + encodeURIComponent(opts.keyStoreId) + "/init",
+				type: "POST",
+				data: initData,
+				username: opts.username,
+				password: opts.password,
+				success: function(data) {
+					log("Success: " + $.toJSON(data));
+					
+					// ### register app server: ###
+					var appServerData = {"appServerBaseURL":opts.appServerBaseURL,"appServerID":opts.appServerID}
+					jsonAjax({
+						url: opts.keyManagerUrl + "/AppServer/" + encodeURIComponent(opts.keyStoreId),
+						type: "POST",
+						data: appServerData,
+						username: opts.username,
+						password: opts.password,
+						success: function(data) {
+							log("Success: " + $.toJSON(data));
+							
+							// ### open session: ###
+							jsonAjax({
+								url: opts.keyManagerUrl + "/Session/" + encodeURIComponent(opts.keyStoreId) + "/" +encodeURIComponent(opts.appServerID) + "/open",
+								type: "POST",
+								username: opts.username,
+								password: opts.password,
+								success: function(data) {
+									log("Success: " + $.toJSON(data));
+									
+									var cryptoSessionID = data.cryptoSessionID;
+	
+									// ### unlock session: ###
+									jsonAjax({
+										url: opts.keyManagerUrl + "/Session/" + encodeURIComponent(opts.keyStoreId) + "/" +encodeURIComponent(opts.appServerID) + "/" +encodeURIComponent(cryptoSessionID) + "/unlock",
+										type: "POST",
+										username: opts.username,
+										password: opts.password,
+										success: function(data) {
+											log("Success: " + $.toJSON(data));
+											log("Session is unlocked.");
+											opts.success.apply();									
+											log("Work done.");
+										},
+										error: opts.error
+									});
+									
+								},
+								error: opts.error
+							});
+							
+						},
+						error: opts.error
+					});
+					
+				},
+				error: opts.error
+			});		
+		}
+		
+		log("Starting");
+		unlockOpts = {
+			keyActivityPeriodMSec:"3600000",
+			keyStorePeriodMSec:"86400000",
+			keyStoreId: "mykeystoreid" + Math.random(),
+			keyManagerUrl: "http://localhost:8686/org.cumulus4j.keymanager.front.webapp",
+			appServerBaseURL: "http://localhost:8585/org.cumulus4j.integrationtest.webapp/org.cumulus4j.keymanager.back.webapp",
+			appServerID: "appServer1",
+			username: "devil",
+			password: "testtesttest",
+			success: function() {
+				log("Do work now!");
+			},
+			error: function() {
+				alert("Error :-(");
+			}
+		};
+		doInUnlockedSession(unlockOpts);
+	});
+});
+</script>
+
+</body>
+</html>
