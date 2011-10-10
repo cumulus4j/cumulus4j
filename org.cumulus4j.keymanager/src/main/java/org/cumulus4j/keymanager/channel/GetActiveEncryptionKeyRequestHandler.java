@@ -44,7 +44,7 @@ import org.cumulus4j.keystore.KeyStore;
  * <p>
  * If the {@link Session} is found for the given
  * {@link org.cumulus4j.keymanager.back.shared.Request#getCryptoSessionID() cryptoSessionID} and
- * it is not {@link Session#isLocked() locked}, this handler determines the currently active
+ * it is not {@link Session#isReleased() locked}, this handler determines the currently active
  * encryption key and sends it in a {@link GetKeyResponse} to the server.
  * </p>
  *
@@ -67,7 +67,7 @@ public class GetActiveEncryptionKeyRequestHandler extends AbstractRequestHandler
 		if (session == null)
 			throw new IllegalStateException("There is no session for cryptoSessionID=" + request.getCryptoSessionID() + "!");
 
-		if (session.isLocked())
+		if (session.isReleased())
 			throw new IllegalStateException("The session for cryptoSessionID=" + request.getCryptoSessionID() + " is currently locked!");
 
 		if (session.getExpiry().before(new Date()))

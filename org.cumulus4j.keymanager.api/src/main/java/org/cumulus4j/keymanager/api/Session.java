@@ -35,61 +35,42 @@ public interface Session
 	 */
 	String getAppServerBaseURL();
 
-	/**
-	 * <p>
-	 * Get the ID of the currently underlying real session.
-	 * </p><p>
-	 * Multiple calls to this method might return different values. When this method is called while there
-	 * is no underlying session active, a new real session
-	 * is created and bound to this instance. The session-ID returned by this method is valid only for a certain
-	 * time and should therefore not be kept in memory long time!
-	 * </p>
-	 * @return the crypto-session-ID to be passed via the application's main communication channel
-	 * from the client to the app server.
-	 * @throws AuthenticationException if the authentication fails. This might happen for example, when
-	 * a session was created and then the password was modified by another instance of {@link KeyManagerAPI}.
-	 * Calling {@link KeyManagerAPI#putUser(String, char[])} automatically updates the authentication information
-	 * of the current <code>KeyManagerAPI</code> if the current user's password was changed. But if the password
-	 * is changed by another instance, this instance is locked out due to its outdated password.
-	 * @throws IOException if communication with the key-store failed. This might be a socket error between
-	 * client and remote key server or it might be a problem when reading/writing data in the local file system.
-	 */
-	String getCryptoSessionID() throws AuthenticationException, IOException;
+//	/**
+//	 * <p>
+//	 * Get the ID of the underlying real session or <code>null</code>, if there is none.
+//	 * </p><p>
+//	 * Multiple calls to this method might return different values! When this method is called while there
+//	 * is no underlying session {@link #acquire() acquired}, <code>null</code> is returned. The session-ID
+//	 * returned by this method is valid
+//	 * only for a certain time (within an acquire-release-block) and should therefore not be kept in memory outside of
+//	 * an acquire-release-block!
+//	 * </p><p>
+//	 * An underlying session is only existing, if {@link #acquire()} has been called (and {@link #release()} not yet).
+//	 * </p>
+//	 * @return the crypto-session-ID to be passed via the application's main communication channel
+//	 * from the client to the app server.
+//	 * @throws AuthenticationException if the authentication fails. This might happen for example, when
+//	 * a session was created and then the password was modified by another instance of {@link KeyManagerAPI}.
+//	 * Calling {@link KeyManagerAPI#putUser(String, char[])} automatically updates the authentication information
+//	 * of the current <code>KeyManagerAPI</code> if the current user's password was changed. But if the password
+//	 * is changed by another instance, this instance is locked out due to its outdated password.
+//	 * @throws IOException if communication with the key-store failed. This might be a socket error between
+//	 * client and remote key server or it might be a problem when reading/writing data in the local file system.
+//	 */
+//	String getCryptoSessionID() throws AuthenticationException, IOException;
 
 	/**
 	 * <p>
-	 * Lock the session, after it was previously {@link #unlock() unlocked}.
+	 * Acquire an unlocked underlying real session.
 	 * </p><p>
-	 * For every call to {@link #unlock()}, there must be exactly one call to {@link #lock()}. You should
-	 * therefore use a try-finally-block!
+	 * The application server is only able to request keys from the key manager, while a crypto-session is
+	 * acquired. It thus needs to be acquired, first, before it can be used for key transfers.
 	 * </p><p>
-	 * See {@link #unlock()} for further details.
-	 * </p>
-	 *
-	 * @throws AuthenticationException if the authentication fails. This might happen for example, when
-	 * a session was created and then the password was modified by another instance of {@link KeyManagerAPI}.
-	 * Calling {@link KeyManagerAPI#putUser(String, char[])} automatically updates the authentication information
-	 * of the current <code>KeyManagerAPI</code> if the current user's password was changed. But if the password
-	 * is changed by another instance, this instance is locked out due to its outdated password.
-	 * @throws IOException if communication with the key-store failed. This might be a socket error between
-	 * client and remote key server or it might be a problem when reading/writing data in the local file system.
-	 * @see #unlock()
-	 */
-	void lock() throws AuthenticationException, IOException;
-
-	/**
-	 * <p>
-	 * Unlock the session.
-	 * </p><p>
-	 * The application server is only able to request keys from the key manager, while the crypto-session is
-	 * unlocked. When a new session is created, it is initially locked. It thus needs to be unlocked, first,
-	 * before it can be used for key transfers.
-	 * </p><p>
-	 * <b>Important:</b> It is essential that you call {@link #lock()} once for every time you called <code>unlock()</code>.
+	 * <b>Important:</b> It is essential that you call {@link #release()} once for every time you called <code>acquire()</code>.
 	 * You should therefore use a try-finally-block like this:
 	 * </p>
 	 * <pre>
-	 * session.unlock();
+	 * String cryptoSessionID = session.acquire();
 	 * try {
 	 *
 	 * 	// Do some operation that requires key access. For example
@@ -97,7 +78,7 @@ public interface Session
 	 * 	// will make your app server read/write data.
 	 *
 	 * } finally {
-	 * 	session.lock();
+	 * 	session.release();
 	 * }
 	 * </pre>
 	 * <p>
@@ -108,6 +89,28 @@ public interface Session
 	 * strategy is usually used with a remote key server (when latency makes unlocking/locking a pretty expensive
 	 * operation).
 	 * </p>
+	 * @return the cryptoSessionID to be used within the acquire-release-block for key-management. This ID must be
+	 * passed to your application server in order to allow it perform database operations.
+	 * @throws AuthenticationException if the authentication fails. This might happen for example, when
+	 * a session was created and then the password was modified by another instance of {@link KeyManagerAPI}.
+	 * Calling {@link KeyManagerAPI#putUser(String, char[])} automatically updates the authentication information
+	 * of the current <code>KeyManagerAPI</code> if the current user's password was changed. But if the password
+	 * is changed by another instance, this instance is locked out due to its outdated password.
+	 * @throws IOException if communication with the key-store failed. This might be a socket error between
+	 * client and remote key server or it might be a problem when reading/writing data in the local file system.
+	 * @see #release()
+	 */
+	String acquire() throws AuthenticationException, IOException;
+
+	/**
+	 * <p>
+	 * Lock the session, after it was previously {@link #acquire() unlocked}.
+	 * </p><p>
+	 * For every call to {@link #acquire()}, there must be exactly one call to {@link #release()}. You should
+	 * therefore use a try-finally-block!
+	 * </p><p>
+	 * See {@link #acquire()} for further details.
+	 * </p>
 	 *
 	 * @throws AuthenticationException if the authentication fails. This might happen for example, when
 	 * a session was created and then the password was modified by another instance of {@link KeyManagerAPI}.
@@ -116,9 +119,7 @@ public interface Session
 	 * is changed by another instance, this instance is locked out due to its outdated password.
 	 * @throws IOException if communication with the key-store failed. This might be a socket error between
 	 * client and remote key server or it might be a problem when reading/writing data in the local file system.
-	 * @see #lock()
+	 * @see #acquire()
 	 */
-	void unlock() throws AuthenticationException, IOException;
-
-	void close();
+	void release() throws AuthenticationException, IOException;
 }

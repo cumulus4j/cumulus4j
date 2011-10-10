@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * In order to protect the keys as well as possible, keys can only be requested from an application
  * server within the scope of a so-called crypto-session. The client controls when to open/close a crypto-session
- * and when to allow keys to be transferred. Key transfer is only possible while a session is {@link #setLocked(boolean) unlocked}.
+ * and when to allow keys to be transferred. Key transfer is only possible while a session is {@link #setReleased(boolean) unlocked}.
  * </p>
  * <p>
  * This is not API! Use the classes and interfaces provided by <code>org.cumulus4j.keymanager.api</code> instead.
@@ -45,7 +45,7 @@ public class Session
 
 	private SessionManager sessionManager;
 
-	public Session(SessionManager sessionManager, String userName, char[] password)
+	protected Session(SessionManager sessionManager, String userName, char[] password)
 	{
 		if (sessionManager == null)
 			throw new IllegalArgumentException("sessionManager == null");
@@ -77,7 +77,7 @@ public class Session
 	private char[] password;
 	private volatile Date lastUse;
 	private volatile Date expiry;
-	private volatile boolean locked = true;
+	private volatile boolean released;
 
 	/**
 	 * Get the identifier of this session.
@@ -98,7 +98,7 @@ public class Session
 		return lastUse;
 	}
 
-	public void updateLastUse(long expiryAgeMSec) {
+	protected void updateLastUse(long expiryAgeMSec) {
 		lastUse = new Date();
 		expiry = new Date(lastUse.getTime() + expiryAgeMSec);
 	}
@@ -107,17 +107,17 @@ public class Session
 		return expiry;
 	}
 
-	public void close()
+	public void destroy()
 	{
 		SessionManager sm = sessionManager;
 		if (sm == null)
 			return;
 
-		sm.onCloseSession(this);
+		sm.onDestroySession(this);
 
 		sessionManager = null;
 
-		logger.debug("close: Closing session for userName='{}' cryptoSessionID='{}'.", userName, cryptoSessionID);
+		logger.debug("destroy: Destroying session for userName='{}' cryptoSessionID='{}'.", userName, cryptoSessionID);
 
 		char[] pw = password;
 		if (pw != null) {
@@ -131,24 +131,37 @@ public class Session
 
 	/**
 	 * <p>
-	 * Set the 'locked' status.
+	 * Set the 'released' status.
 	 * </p>
 	 * <p>
-	 * The application server can only request keys from a session that is currently unlocked. That means, a session
-	 * should first be unlocked, then the app-server should be made to work (on behalf of the client) and finally,
-	 * it should be locked again.
-	 * </p>
-	 * <p>
-	 * By default, every new session is locked.
+	 * The application server can only request keys from a session that is currently acquired. That means, a session
+	 * should first be acquired, then the app-server should be made to work (on behalf of the client) and finally,
+	 * it should be released again.
 	 * </p>
 	 *
-	 * @param locked the new 'locked' status.
+	 * @param released the new 'released' status.
 	 */
-	public void setLocked(boolean locked) {
-		this.locked = locked;
+	protected void setReleased(boolean released) {
+		this.released = released;
 	}
 
-	public boolean isLocked() {
-		return locked;
+	public void release() {
+		SessionManager sm = sessionManager;
+		if (sm == null)
+			return;
+
+		sm.onReleaseSession(this);
+	}
+
+	public boolean isReleased() {
+		return released;
+	}
+
+	public void reacquire() {
+		SessionManager sm = sessionManager;
+		if (sm == null)
+			return;
+
+		sm.onReacquireSession(this);
 	}
 }

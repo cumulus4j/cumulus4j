@@ -7,10 +7,11 @@ import javax.ws.rs.core.MediaType;
 
 import org.cumulus4j.keymanager.api.AuthenticationException;
 import org.cumulus4j.keymanager.api.Session;
+import org.cumulus4j.keymanager.front.shared.AcquireSessionResponse;
 import org.cumulus4j.keymanager.front.shared.AppServer;
-import org.cumulus4j.keymanager.front.shared.OpenSessionResponse;
 
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.UniformInterface;
 import com.sun.jersey.api.client.UniformInterfaceException;
 
 /**
@@ -51,71 +52,104 @@ public class RemoteSession implements Session
 		return appServer.getAppServerBaseURL();
 	}
 
-	private Date lastOpenSessionResponseLocalTimestamp;
-	private OpenSessionResponse lastOpenSessionResponse;
+	private Date acquireSessionResponseLocalTimestamp;
+	private AcquireSessionResponse acquireSessionResponse;
 
-	@Override
-	public synchronized String getCryptoSessionID() throws AuthenticationException, IOException
-	{
-		if (
-				lastOpenSessionResponseLocalTimestamp != null &&
-				lastOpenSessionResponseLocalTimestamp.after(new Date(System.currentTimeMillis() - 10000)) // TODO make time configurable!
-		)
-			return lastOpenSessionResponse.getCryptoSessionID();
-
-		try {
-			Date now = new Date();
-			OpenSessionResponse response = getClient().resource(appendFinalSlash(getKeyManagerBaseURL()) + "Session/" + getKeyStoreID() + '/' + appServer.getAppServerID() + "/open")
-			.accept(MediaType.APPLICATION_XML_TYPE)
-			.post(OpenSessionResponse.class);
-
-			if (response == null)
-				throw new IllegalStateException("Key server returned null instead of an OpenSessionResponse when opening a session!"); // TODO nice exceptions for this API!
-
-			this.lastOpenSessionResponseLocalTimestamp = now;
-			this.lastOpenSessionResponse = response;
-
-			return response.getCryptoSessionID();
-		} catch (UniformInterfaceException x) {
-			RemoteKeyManagerAPI.throwUniformInterfaceExceptionAsAuthenticationException(x);
-			RemoteKeyManagerAPI.throwUniformInterfaceExceptionAsIOException(x);
-			throw new IOException(x);
-		}
-	}
+//	@Override
+//	public synchronized String getCryptoSessionID() throws AuthenticationException, IOException
+//	{
+//		if (
+//				acquireSessionResponseLocalTimestamp != null &&
+//				acquireSessionResponseLocalTimestamp.after(new Date(System.currentTimeMillis() - 10000)) // TODO make time configurable!
+//		)
+//			return acquireSessionResponse.getCryptoSessionID();
+//
+//		try {
+//			Date now = new Date();
+//			AcquireSessionResponse response = getClient().resource(appendFinalSlash(getKeyManagerBaseURL()) + "Session/" + getKeyStoreID() + '/' + appServer.getAppServerID() + "/open")
+//			.accept(MediaType.APPLICATION_XML_TYPE)
+//			.post(AcquireSessionResponse.class);
+//
+//			if (response == null)
+//				throw new IllegalStateException("Key server returned null instead of an AcquireSessionResponse when opening a session!"); // TODO nice exceptions for this API!
+//
+//			this.lastOpenSessionResponseLocalTimestamp = now;
+//			this.acquireSessionResponse = response;
+//
+//			return response.getCryptoSessionID();
+//		} catch (UniformInterfaceException x) {
+//			RemoteKeyManagerAPI.throwUniformInterfaceExceptionAsAuthenticationException(x);
+//			RemoteKeyManagerAPI.throwUniformInterfaceExceptionAsIOException(x);
+//			throw new IOException(x);
+//		}
+//	}
 
 	private int unlockCounter;
 
 	@Override
-	public synchronized void lock() throws AuthenticationException, IOException {
+	public synchronized void release() throws AuthenticationException, IOException
+	{
 		if (--unlockCounter < 0)
-			throw new IllegalStateException("lock() called more often than unlock()!!!");
+			throw new IllegalStateException("release() called more often than acquire()!!!");
 
 		if (unlockCounter == 0) // TODO don't immediately lock, but use a separate thread that locks with a delay (in case a new unlock comes in the next few seconds).
-			doLock();
+			doRelease();
 	}
 
-	private void doLock() throws AuthenticationException, IOException {
+	private void doRelease() throws AuthenticationException, IOException
+	{
+		if (acquireSessionResponse == null)
+			throw new IllegalStateException("acquireSessionResponse == null");
+
+		String cryptoSessionID = acquireSessionResponse.getCryptoSessionID();
+
 		try {
-			getClient().resource(appendFinalSlash(getKeyManagerBaseURL()) + "Session/" + getKeyStoreID() + '/' + appServer.getAppServerID() + '/' + getCryptoSessionID() + "/lock")
-			.post();
+			String url = (
+					appendFinalSlash(getKeyManagerBaseURL())
+					+ "Session/" + getKeyStoreID() + '/' + appServer.getAppServerID() + '/' + cryptoSessionID + "/release"
+			);
+
+			UniformInterface jui = getClient().resource(url);
+			jui.post();
+
 		} catch (UniformInterfaceException x) {
 			RemoteKeyManagerAPI.throwUniformInterfaceExceptionAsAuthenticationException(x);
 			RemoteKeyManagerAPI.throwUniformInterfaceExceptionAsIOException(x);
 			throw new IOException(x);
 		}
+
+		acquireSessionResponse = null;
+		acquireSessionResponseLocalTimestamp = null;
 	}
 
 	@Override
-	public synchronized void unlock() throws AuthenticationException, IOException
+	public synchronized String acquire() throws AuthenticationException, IOException
 	{
 		if (0 == unlockCounter++)
-			doUnlock();
+			doAcquire();
+		else if (acquireSessionResponseLocalTimestamp.getTime() + 10000L < System.currentTimeMillis()) // TODO make configurable!
+			doReacquire();
+
+		return acquireSessionResponse.getCryptoSessionID();
 	}
 
-	private void doUnlock() throws AuthenticationException, IOException {
+	private void doAcquire() throws AuthenticationException, IOException
+	{
 		try {
-			getClient().resource(appendFinalSlash(getKeyManagerBaseURL()) + "Session/" + getKeyStoreID() + '/' + appServer.getAppServerID() + '/' + getCryptoSessionID() + "/unlock")
-			.post();
+			Date now = new Date();
+			String url = (
+					appendFinalSlash(getKeyManagerBaseURL())
+					+ "Session/" + getKeyStoreID() + '/' + appServer.getAppServerID() + "/acquire"
+			);
+
+			UniformInterface jui = getClient().resource(url).accept(MediaType.APPLICATION_XML_TYPE);
+			AcquireSessionResponse response = jui.post(AcquireSessionResponse.class);
+
+			if (response == null)
+				throw new IllegalStateException("Key server returned null instead of an AcquireSessionResponse when opening a session!"); // TODO nice exceptions for this API!
+
+			this.acquireSessionResponseLocalTimestamp = now;
+			this.acquireSessionResponse = response;
 		} catch (UniformInterfaceException x) {
 			RemoteKeyManagerAPI.throwUniformInterfaceExceptionAsAuthenticationException(x);
 			RemoteKeyManagerAPI.throwUniformInterfaceExceptionAsIOException(x);
@@ -123,18 +157,47 @@ public class RemoteSession implements Session
 		}
 	}
 
-	@Override
-	public synchronized void close()
+	private void doReacquire() throws AuthenticationException, IOException
 	{
-		if (lastOpenSessionResponse == null)
-			return; // there's nothing to be closed, yet
+		if (acquireSessionResponse == null)
+			throw new IllegalStateException("acquireSessionResponse == null");
 
-		String cryptoSessionID = lastOpenSessionResponse.getCryptoSessionID();
-		getClient().resource(appendFinalSlash(getKeyManagerBaseURL()) + "Session/" + getKeyStoreID() + '/' + appServer.getAppServerID() + '/' + cryptoSessionID)
-		.delete();
+		String cryptoSessionID = acquireSessionResponse.getCryptoSessionID();
 
-		lastOpenSessionResponse = null;
-		lastOpenSessionResponseLocalTimestamp = null;
+		try {
+			Date now = new Date();
+			String url = (
+					appendFinalSlash(getKeyManagerBaseURL())
+					+ "Session/" + getKeyStoreID() + '/' + appServer.getAppServerID() + '/' + cryptoSessionID + "/reacquire"
+			);
+
+			UniformInterface jui = getClient().resource(url).accept(MediaType.APPLICATION_XML_TYPE);
+			AcquireSessionResponse response = jui.post(AcquireSessionResponse.class);
+
+			if (response == null)
+				throw new IllegalStateException("Key server returned null instead of an AcquireSessionResponse when opening a session!"); // TODO nice exceptions for this API!
+
+			this.acquireSessionResponseLocalTimestamp = now;
+			this.acquireSessionResponse = response;
+		} catch (UniformInterfaceException x) {
+			RemoteKeyManagerAPI.throwUniformInterfaceExceptionAsAuthenticationException(x);
+			RemoteKeyManagerAPI.throwUniformInterfaceExceptionAsIOException(x);
+			throw new IOException(x);
+		}
 	}
+
+//	@Override
+//	public synchronized void close()
+//	{
+//		if (acquireSessionResponse == null)
+//			return; // there's nothing to be closed, yet
+//
+//		String cryptoSessionID = acquireSessionResponse.getCryptoSessionID();
+//		getClient().resource(appendFinalSlash(getKeyManagerBaseURL()) + "Session/" + getKeyStoreID() + '/' + appServer.getAppServerID() + '/' + cryptoSessionID)
+//		.delete();
+//
+//		acquireSessionResponse = null;
+//		acquireSessionResponseLocalTimestamp = null;
+//	}
 
 }

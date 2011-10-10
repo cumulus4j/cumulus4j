@@ -1,7 +1,6 @@
 package org.cumulus4j.keymanager.api.internal.local;
 
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.cumulus4j.keymanager.AppServer;
 import org.cumulus4j.keymanager.api.AuthenticationException;
@@ -35,21 +34,46 @@ public class LocalSession implements Session
 		return appServer.getAppServerBaseURL();
 	}
 
+//	@Override
+//	public String getCryptoSessionID() throws AuthenticationException, IOException
+//	{
+//		org.cumulus4j.keymanager.Session rs = realSession;
+//		if (rs == null)
+//			return null;
+//		else
+//			return rs.getCryptoSessionID();
+////		try {
+////			return appServer.getSessionManager().openSession(localKeyManagerAPI.getAuthUserName(), localKeyManagerAPI.getAuthPassword()).getCryptoSessionID();
+////		} catch (org.cumulus4j.keystore.AuthenticationException e) {
+////			throw new AuthenticationException(e);
+////		}
+//	}
+
+	private int unlockCounter = 0;
+
+	private org.cumulus4j.keymanager.Session realSession = null;
+
 	@Override
-	public String getCryptoSessionID() throws AuthenticationException, IOException {
-		try {
-			return appServer.getSessionManager().openSession(localKeyManagerAPI.getAuthUserName(), localKeyManagerAPI.getAuthPassword()).getCryptoSessionID();
-		} catch (org.cumulus4j.keystore.AuthenticationException e) {
-			throw new AuthenticationException(e);
+	public synchronized String acquire() throws AuthenticationException, IOException
+	{
+		++unlockCounter;
+		if (realSession == null) {
+			try {
+				realSession = appServer.getSessionManager().acquireSession(localKeyManagerAPI.getAuthUserName(), localKeyManagerAPI.getAuthPassword());
+			} catch (org.cumulus4j.keystore.AuthenticationException e) {
+				throw new AuthenticationException(e);
+			}
 		}
+		else {
+			realSession.reacquire();
+		}
+		return realSession.getCryptoSessionID();
 	}
 
-	private AtomicInteger unlockCounter = new AtomicInteger();
-
 	@Override
-	public void lock() throws AuthenticationException, IOException
+	public synchronized void release() throws AuthenticationException, IOException
 	{
-		int counter = unlockCounter.decrementAndGet();
+		int counter = --unlockCounter;
 
 		if (counter < 0)
 			throw new IllegalStateException("lock() called more often than unlock()!!!");
@@ -57,35 +81,17 @@ public class LocalSession implements Session
 		if (counter > 0)
 			return;
 
-		try {
-			appServer.getSessionManager().openSession(localKeyManagerAPI.getAuthUserName(), localKeyManagerAPI.getAuthPassword()).setLocked(true);
-		} catch (org.cumulus4j.keystore.AuthenticationException e) {
-			throw new AuthenticationException(e);
-		}
+		if (realSession == null)
+			throw new IllegalStateException("unlockCounter inconsistent with realSession! realSession is null!");
+		realSession.release();
+		realSession = null;
 	}
 
-	@Override
-	public void unlock() throws AuthenticationException, IOException
-	{
-		unlockCounter.incrementAndGet();
-
-		// We do *NOT* check the result of unlockCounter.incrementAndGet(), because we 1st can't
-		// ensure without synchronisation that the session will be unlocked when this method returns
-		// and 2nd, we want openSession(...) to be called in order to update the last-usage-timestamp.
-		// Marco :-)
-
-		try {
-			appServer.getSessionManager().openSession(localKeyManagerAPI.getAuthUserName(), localKeyManagerAPI.getAuthPassword()).setLocked(false);
-		} catch (org.cumulus4j.keystore.AuthenticationException e) {
-			throw new AuthenticationException(e);
-		}
-	}
-
-	@Override
-	public void close() {
-		org.cumulus4j.keymanager.Session underlyingSession = appServer.getSessionManager().getSessionForUserName(localKeyManagerAPI.getAuthUserName());
-		if (underlyingSession != null)
-			underlyingSession.close();
-	}
+//	@Override
+//	public void close() {
+//		org.cumulus4j.keymanager.Session underlyingSession = appServer.getSessionManager().getSessionForUserName(localKeyManagerAPI.getAuthUserName());
+//		if (underlyingSession != null)
+//			underlyingSession.close();
+//	}
 
 }

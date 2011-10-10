@@ -30,7 +30,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @XmlRootElement
-public class OpenSessionResponse implements Serializable
+public class AcquireSessionResponse implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 
@@ -74,8 +74,8 @@ public class OpenSessionResponse implements Serializable
 	}
 
 	/**
-	 * Get the timestamp, when this session expires. The session expires only, if no new open-session-request
-	 * occurs that would refresh the session and thus postpone the expiry.
+	 * Get the timestamp, when this session expires. The session expires only, if it is not refreshed
+	 * before this date (refreshing postpones the expiry).
 	 * @return the timestamp, when this session expires.
 	 * @see #setExpiry(Date)
 	 */

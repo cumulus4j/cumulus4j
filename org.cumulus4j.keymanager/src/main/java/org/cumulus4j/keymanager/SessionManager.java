@@ -20,7 +20,9 @@ package org.cumulus4j.keymanager;
 import java.lang.ref.WeakReference;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -94,7 +96,7 @@ public class SessionManager
 
 				for (Session session : sessionsToExpire) {
 					logger.info("run: Expiring session: userName='{}' cryptoSessionID='{}'.", session.getUserName(), session.getCryptoSessionID());
-					session.close();
+					session.destroy();
 				}
 
 				if (logger.isDebugEnabled()) {
@@ -114,7 +116,7 @@ public class SessionManager
 	private String cryptoSessionIDPrefix;
 	private KeyStore keyStore;
 
-	private Map<String, Session> userName2Session = new HashMap<String, Session>();
+	private Map<String, List<Session>> userName2SessionList = new HashMap<String, List<Session>>();
 	private Map<String, Session> cryptoSessionID2Session = new HashMap<String, Session>();
 
 	public SessionManager(KeyStore keyStore)
@@ -142,13 +144,27 @@ public class SessionManager
 
 	private static final void doNothing() { }
 
+	protected synchronized void onReacquireSession(Session session)
+	{
+		if (session == null)
+			throw new IllegalArgumentException("session == null");
+
+		if (cryptoSessionID2Session.get(session.getCryptoSessionID()) != session)
+			throw new IllegalStateException("The session with cryptoSessionID=\"" + session.getCryptoSessionID() + "\" is not known. Dead reference already expired and destroyed?");
+
+		if (session.getExpiry().before(new Date()))
+			throw new IllegalStateException("The session with cryptoSessionID=\"" + session.getCryptoSessionID() + "\" is already expired. It is still known, but cannot be reacquired anymore!");
+
+		session.updateLastUse(EXPIRY_AGE_MSEC);
+	}
+
 	/**
-	 * Open a new or refresh an existing session.
+	 * Create a new unlocked session or open (unlock) a cached &amp; currently locked session.
 	 *
 	 * @return the {@link Session}.
 	 * @throws AuthenticationException if the login fails
 	 */
-	public synchronized Session openSession(String userName, char[] password) throws AuthenticationException
+	public synchronized Session acquireSession(String userName, char[] password) throws AuthenticationException
 	{
 		try {
 			keyStore.getKey(userName, password, Long.MAX_VALUE);
@@ -157,45 +173,93 @@ public class SessionManager
 			doNothing(); // Remove warning from PMD report: http://cumulus4j.org/latest-dev/pmd.html
 		}
 
-		Session session = userName2Session.get(userName);
+		List<Session> sessionList = userName2SessionList.get(userName);
+		if (sessionList == null) {
+			sessionList = new LinkedList<Session>();
+			userName2SessionList.put(userName, sessionList);
+		}
 
-		// We make sure we never re-use an expired session, even if it hasn't been closed by the timer yet.
-		if (session != null && session.getExpiry().before(new Date())) {
-			session.close();
-			session = null;
+		Session session = null;
+		List<Session> sessionsToClose = null;
+		for (Session s : sessionList) {
+			// We make sure we never re-use an expired session, even if it hasn't been closed by the timer yet.
+			if (s.getExpiry().before(new Date())) {
+				if (sessionsToClose == null)
+					sessionsToClose = new LinkedList<Session>();
+
+				sessionsToClose.add(s);
+				continue;
+			}
+
+			if (s.isReleased()) {
+				session = s;
+				break;
+			}
+		}
+
+		if (sessionsToClose != null) {
+			for (Session s : sessionsToClose)
+				s.destroy();
 		}
 
 		if (session == null) {
 			session = new Session(this, userName, password);
-			userName2Session.put(userName, session);
+			sessionList.add(session);
 			cryptoSessionID2Session.put(session.getCryptoSessionID(), session);
 
 			// TODO notify listeners - maybe always notify listeners (i.e. when an existing session is refreshed, too)?!
 		}
 
+		session.setReleased(false);
 		session.updateLastUse(EXPIRY_AGE_MSEC);
 
 		return session;
 	}
 
-	protected synchronized void onCloseSession(Session session)
+	protected synchronized void onDestroySession(Session session)
 	{
+		if (session == null)
+			throw new IllegalArgumentException("session == null");
+
 		// TODO notify listeners
+		List<Session> sessionList = userName2SessionList.get(session.getUserName());
+		if (sessionList == null)
+			logger.warn("onDestroySession: userName2SessionList.get(\"{}\") returned null!", session.getUserName());
+		else {
+			for (Iterator<Session> it = sessionList.iterator(); it.hasNext();) {
+				Session s = it.next();
+				if (s == session) {
+					it.remove();
+					break;
+				}
+			}
+		}
 
-		userName2Session.remove(session.getUserName());
 		cryptoSessionID2Session.remove(session.getCryptoSessionID());
-		keyStore.clearCache(session.getUserName());
+
+		if (sessionList == null || sessionList.isEmpty()) {
+			userName2SessionList.remove(session.getUserName());
+			keyStore.clearCache(session.getUserName());
+		}
 	}
 
-	public synchronized Session getSessionForUserName(String userName)
-	{
-		Session session = userName2Session.get(userName);
-		return session;
-	}
+//	public synchronized Session getSessionForUserName(String userName)
+//	{
+//		Session session = userName2Session.get(userName);
+//		return session;
+//	}
 
 	public synchronized Session getSessionForCryptoSessionID(String cryptoSessionID)
 	{
 		Session session = cryptoSessionID2Session.get(cryptoSessionID);
 		return session;
+	}
+
+	public synchronized void onReleaseSession(Session session)
+	{
+		if (session == null)
+			throw new IllegalArgumentException("session == null");
+
+		session.setReleased(true);
 	}
 }

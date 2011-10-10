@@ -191,7 +191,7 @@ public class LocalKeyManagerAPI extends AbstractKeyManagerAPI
 	@Override
 	public Session getSession(String appServerBaseURL) throws IOException, AuthenticationException
 	{
-		try {
+//		try {
 			AppServerManager appServerManager = getAppServerManager();
 			AppServer appServer;
 			synchronized (appServerBaseURL2appServerID) {
@@ -205,13 +205,13 @@ public class LocalKeyManagerAPI extends AbstractKeyManagerAPI
 					appServer = appServerManager.getAppServerForAppServerID(appServerID);
 			}
 
-			// Try to open the session already now, so that we know already here, whether this works.
-			appServer.getSessionManager().openSession(getAuthUserName(), getAuthPassword());
+//			// Try to open the session already now, so that we know already here, whether this works (but lock it immediately, again).
+//			appServer.getSessionManager().acquireSession(getAuthUserName(), getAuthPassword()).release();
 
 			return new LocalSession(this, appServer);
-		} catch (org.cumulus4j.keystore.AuthenticationException e) {
-			throw new AuthenticationException(e);
-		}
+//		} catch (org.cumulus4j.keystore.AuthenticationException e) {
+//			throw new AuthenticationException(e);
+//		}
 	}
 
 }

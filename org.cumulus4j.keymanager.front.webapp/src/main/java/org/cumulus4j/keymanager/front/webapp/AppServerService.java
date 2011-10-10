@@ -33,6 +33,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.cumulus4j.keymanager.AppServerManager;
+import org.cumulus4j.keymanager.front.shared.AppServer;
 import org.cumulus4j.keymanager.front.shared.Error;
 import org.cumulus4j.keymanager.front.shared.PutAppServerResponse;
 import org.slf4j.Logger;
@@ -170,9 +171,10 @@ public class AppServerService extends AbstractService
 	/**
 	 * Put an <code>AppServer</code>.
 	 * @param keyStoreID identifier of the key-store to work with.
-	 * @param appServer the <code>AppServer</code> to be put.
-	 * @return data that might have been created/changed during the put operation (e.g. if the <code>appServerID</code>
-	 * was <code>null</code> before, it is assigned during this method call).
+	 * @param appServer the <code>AppServer</code> to be put. Note, that its {@link AppServer#getAppServerID() appServerID}
+	 * is ignored! It will be assigned by this method.
+	 * @return data that might have been created/changed during the put operation (e.g. the <code>appServerID</code>
+	 * is assigned during this method call).
 	 */
 	@PUT
 	@Path("{keyStoreID}")
@@ -186,6 +188,10 @@ public class AppServerService extends AbstractService
 		if (appServer == null)
 			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(new Error("Missing request-entity!")).build());
 
+		// We do not allow to overwrite an existing AppServer with different data for security & stability reasons.
+		// Hence the appServerID is always assigned by this service. We enforce it. Marco :-)
+		appServer.setAppServerID(null);
+
 		Auth auth = authenticate(keyStoreID);
 		try {
 			AppServerManager appServerManager = keyStoreManager.getAppServerManager(keyStoreID);
@@ -197,7 +203,7 @@ public class AppServerService extends AbstractService
 			if (as.getAppServerID() == null) // sanity check.
 				throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(new IllegalStateException("appServer.appServerID is null after registration of appServer!"))).build());
 
-			// TODO write AppServers to a file!
+			// TODO write AppServers to a file (maybe into the keystore?!)!
 			return new PutAppServerResponse(as.getAppServerID());
 		} catch (IOException e) {
 			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(e)).build());

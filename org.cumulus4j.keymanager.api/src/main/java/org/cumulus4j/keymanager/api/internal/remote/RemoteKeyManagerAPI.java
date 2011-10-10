@@ -20,9 +20,9 @@ import org.cumulus4j.keymanager.api.KeyManagerAPIInstantiationException;
 import org.cumulus4j.keymanager.api.KeyStoreNotEmptyException;
 import org.cumulus4j.keymanager.api.Session;
 import org.cumulus4j.keymanager.api.internal.AbstractKeyManagerAPI;
+import org.cumulus4j.keymanager.front.shared.AcquireSessionResponse;
 import org.cumulus4j.keymanager.front.shared.AppServer;
 import org.cumulus4j.keymanager.front.shared.Error;
-import org.cumulus4j.keymanager.front.shared.OpenSessionResponse;
 import org.cumulus4j.keymanager.front.shared.PutAppServerResponse;
 import org.cumulus4j.keymanager.front.shared.UserWithPassword;
 
@@ -42,10 +42,10 @@ public class RemoteKeyManagerAPI extends AbstractKeyManagerAPI
 	public RemoteKeyManagerAPI()
 	throws KeyManagerAPIInstantiationException
 	{
-		// We test here, whether the OpenSessionResponse and some other classes are accessible. If they are not, it means the remote stuff is not deployed
+		// We test here, whether the AcquireSessionResponse and some other classes are accessible. If they are not, it means the remote stuff is not deployed
 		// and it should not be possible to instantiate a RemoteKeyManagerAPI.
 		try {
-			OpenSessionResponse.class.getConstructors();
+			AcquireSessionResponse.class.getConstructors();
 		} catch (NoClassDefFoundError x) {
 			throw new KeyManagerAPIInstantiationException("The RemoteKeyManagerAPI could not be instantiated! If you really want to use a key-server, make sure all required libs are deployed. If you want to use a local key-store instead of a key-server, you must specify different arguments. It seems, the module 'org.cumulus4j.keymanager.front.shared' is missing! " + x, x);
 		}
@@ -192,9 +192,9 @@ public class RemoteKeyManagerAPI extends AbstractKeyManagerAPI
 
 			RemoteSession session = new RemoteSession(this, appServer);
 
-			// Try to open the session already now, so that we know already here, whether this works
-			// (this getter will internally trigger the REST request).
-			session.getCryptoSessionID();
+//			// Try to open the session already now, so that we know already here, whether this works (but lock it immediately, again).
+//			session.acquire();
+//			session.release();
 
 			return session;
 		} catch (UniformInterfaceException x) {

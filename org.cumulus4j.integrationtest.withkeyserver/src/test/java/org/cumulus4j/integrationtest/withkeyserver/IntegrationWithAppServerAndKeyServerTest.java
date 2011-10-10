@@ -29,9 +29,10 @@ import javax.ws.rs.core.MediaType;
 import org.cumulus4j.keymanager.api.DefaultKeyManagerAPI;
 import org.cumulus4j.keymanager.api.KeyManagerAPI;
 import org.cumulus4j.keymanager.api.KeyManagerAPIConfiguration;
+import org.cumulus4j.keymanager.front.shared.AcquireSessionResponse;
 import org.cumulus4j.keymanager.front.shared.AppServer;
 import org.cumulus4j.keymanager.front.shared.DateDependentKeyStrategyInitParam;
-import org.cumulus4j.keymanager.front.shared.OpenSessionResponse;
+import org.cumulus4j.keymanager.front.shared.PutAppServerResponse;
 import org.junit.Assert;
 import org.junit.Test;
 import org.nightlabs.util.IOUtil;
@@ -104,26 +105,33 @@ public class IntegrationWithAppServerAndKeyServerTest
 
 
 		AppServer appServer = new AppServer();
-		appServer.setAppServerID("appServer1");
 		appServer.setAppServerBaseURL(URL_KEY_MANAGER_BACK_WEBAPP);
 
-		clientForKeyServer.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_APP_SERVER.replaceAll(Pattern.quote(KEY_STORE_ID_VAR), keyStoreID))
+		PutAppServerResponse putAppServerResponse = clientForKeyServer.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_APP_SERVER.replaceAll(Pattern.quote(KEY_STORE_ID_VAR), keyStoreID))
 		.type(MediaType.APPLICATION_XML_TYPE)
-		.put(appServer);
+		.put(PutAppServerResponse.class, appServer);
+
+		appServer.setAppServerID(putAppServerResponse.getAppServerID());
 
 
-		OpenSessionResponse openSessionResponse = clientForKeyServer
-		.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_SESSION.replaceAll(Pattern.quote(KEY_STORE_ID_VAR), keyStoreID) + '/' + appServer.getAppServerID() + "/open")
+		AcquireSessionResponse acquireSessionResponse = clientForKeyServer
+		.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_SESSION.replaceAll(Pattern.quote(KEY_STORE_ID_VAR), keyStoreID) + '/' + appServer.getAppServerID() + "/acquire")
 		.accept(MediaType.APPLICATION_XML_TYPE)
-		.post(OpenSessionResponse.class);
+		.post(AcquireSessionResponse.class);
 
-		String cryptoSessionID = openSessionResponse.getCryptoSessionID();
+		String cryptoSessionID = acquireSessionResponse.getCryptoSessionID();
 
-		clientForKeyServer
-		.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_SESSION.replaceAll(Pattern.quote(KEY_STORE_ID_VAR), keyStoreID) + '/' + appServer.getAppServerID() + '/' + cryptoSessionID + "/unlock")
-		.post();
+		AcquireSessionResponse acquireSessionResponse2 = clientForKeyServer
+		.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_SESSION.replaceAll(Pattern.quote(KEY_STORE_ID_VAR), keyStoreID) + '/' + appServer.getAppServerID() + '/' + cryptoSessionID + "/reacquire")
+		.post(AcquireSessionResponse.class);
+
+		Assert.assertEquals(acquireSessionResponse.getCryptoSessionID(), acquireSessionResponse2.getCryptoSessionID());
 
 		invokeTestWithinServer(cryptoSessionID);
+
+		clientForKeyServer
+		.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_SESSION.replaceAll(Pattern.quote(KEY_STORE_ID_VAR), keyStoreID) + '/' + appServer.getAppServerID() + '/' + cryptoSessionID + "/release")
+		.post();
 	}
 
 	private void invokeTestWithinServer(String cryptoSessionID)
@@ -183,13 +191,13 @@ public class IntegrationWithAppServerAndKeyServerTest
 		// It does not matter here in this test, but in real code, WE MUST ALWAYS lock() after we did unlock()!!!
 		// Hence we do it here, too, in case someone copies the code ;-)
 		// Marco :-)
-		session.unlock();
+		String cryptoSessionID = session.acquire();
 		try {
 
-			invokeTestWithinServer(session.getCryptoSessionID());
+			invokeTestWithinServer(cryptoSessionID);
 
 		} finally {
-			session.lock();
+			session.release();
 		}
 	}
 
@@ -224,13 +232,13 @@ public class IntegrationWithAppServerAndKeyServerTest
 		// It does not matter here in this test, but in real code, WE MUST ALWAYS lock() after we did unlock()!!!
 		// Hence we do it here, too, in case someone copies the code ;-)
 		// Marco :-)
-		session.unlock();
+		String cryptoSessionID = session.acquire();
 		try {
 
-			invokeTestWithinServer(session.getCryptoSessionID());
+			invokeTestWithinServer(cryptoSessionID);
 
 		} finally {
-			session.lock();
+			session.release();
 		}
 	}
 }

@@ -80,10 +80,9 @@ public class IntegrationWithAppServerOnlyTest
 			AppServerManager appServerManager = new AppServerManager(keyStore);
 			AppServer appServer = new AppServer(appServerManager, "appServer1", URL_KEY_MANAGER_BACK_WEBAPP);
 			appServerManager.putAppServer(appServer);
-			Session session = appServer.getSessionManager().openSession(KEY_STORE_USER, KEY_STORE_PASSWORD);
-			session.setLocked(false);
-
+			Session session = appServer.getSessionManager().acquireSession(KEY_STORE_USER, KEY_STORE_PASSWORD);
 			invokeTestWithinServer(session.getCryptoSessionID());
+			session.release();
 		} finally {
 			keyStoreFile.delete();
 		}
@@ -144,16 +143,16 @@ public class IntegrationWithAppServerOnlyTest
 
 			org.cumulus4j.keymanager.api.Session session = keyManagerAPI.getSession(URL_KEY_MANAGER_BACK_WEBAPP);
 
-			// It does not matter here in this test, but in real code, WE MUST ALWAYS lock() after we did unlock()!!!
-			// Hence we do it here, too, in case someone copies the code ;-)
+			// It does not matter here in this test, but in real code, WE MUST ALWAYS release() after we did acquire()!!!
+			// Hence we do it here, too, in order to be a good example and in case someone copies the code ;-)
 			// Marco :-)
-			session.unlock();
+			String cryptoSessionID = session.acquire();
 			try {
 
-				invokeTestWithinServer(session.getCryptoSessionID());
+				invokeTestWithinServer(cryptoSessionID);
 
 			} finally {
-				session.lock();
+				session.release();
 			}
 
 		} finally {
@@ -226,13 +225,13 @@ public class IntegrationWithAppServerOnlyTest
 			// It does not matter here in this test, but in real code, WE MUST ALWAYS lock() after we did unlock()!!!
 			// Hence we do it here, too, in case someone copies the code ;-)
 			// Marco :-)
-			session.unlock();
+			String cryptoSessionID = session.acquire();
 			try {
 
-				invokeTestWithinServer(session.getCryptoSessionID());
+				invokeTestWithinServer(cryptoSessionID);
 
 			} finally {
-				session.lock();
+				session.release();
 			}
 
 		} finally {
