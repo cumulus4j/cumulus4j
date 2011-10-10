@@ -13,14 +13,14 @@ import javax.ws.rs.core.Response.Status;
 
 import org.cumulus4j.keymanager.api.AuthenticationException;
 import org.cumulus4j.keymanager.api.CannotDeleteLastUserException;
+import org.cumulus4j.keymanager.api.CryptoSession;
 import org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam;
 import org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitResult;
 import org.cumulus4j.keymanager.api.KeyManagerAPIConfiguration;
 import org.cumulus4j.keymanager.api.KeyManagerAPIInstantiationException;
 import org.cumulus4j.keymanager.api.KeyStoreNotEmptyException;
-import org.cumulus4j.keymanager.api.Session;
 import org.cumulus4j.keymanager.api.internal.AbstractKeyManagerAPI;
-import org.cumulus4j.keymanager.front.shared.AcquireSessionResponse;
+import org.cumulus4j.keymanager.front.shared.AcquireCryptoSessionResponse;
 import org.cumulus4j.keymanager.front.shared.AppServer;
 import org.cumulus4j.keymanager.front.shared.Error;
 import org.cumulus4j.keymanager.front.shared.PutAppServerResponse;
@@ -42,10 +42,10 @@ public class RemoteKeyManagerAPI extends AbstractKeyManagerAPI
 	public RemoteKeyManagerAPI()
 	throws KeyManagerAPIInstantiationException
 	{
-		// We test here, whether the AcquireSessionResponse and some other classes are accessible. If they are not, it means the remote stuff is not deployed
+		// We test here, whether the AcquireCryptoSessionResponse and some other classes are accessible. If they are not, it means the remote stuff is not deployed
 		// and it should not be possible to instantiate a RemoteKeyManagerAPI.
 		try {
-			AcquireSessionResponse.class.getConstructors();
+			AcquireCryptoSessionResponse.class.getConstructors();
 		} catch (NoClassDefFoundError x) {
 			throw new KeyManagerAPIInstantiationException("The RemoteKeyManagerAPI could not be instantiated! If you really want to use a key-server, make sure all required libs are deployed. If you want to use a local key-store instead of a key-server, you must specify different arguments. It seems, the module 'org.cumulus4j.keymanager.front.shared' is missing! " + x, x);
 		}
@@ -165,7 +165,7 @@ public class RemoteKeyManagerAPI extends AbstractKeyManagerAPI
 	}
 
 	@Override
-	public Session getSession(String appServerBaseURL) throws IOException, AuthenticationException
+	public CryptoSession getCryptoSession(String appServerBaseURL) throws IOException, AuthenticationException
 	{
 		try {
 			AppServer appServer = appServerBaseURL2appServer.get(appServerBaseURL);
@@ -190,7 +190,7 @@ public class RemoteKeyManagerAPI extends AbstractKeyManagerAPI
 				appServerBaseURL2appServer.put(appServerBaseURL, appServer);
 			}
 
-			RemoteSession session = new RemoteSession(this, appServer);
+			RemoteCryptoSession session = new RemoteCryptoSession(this, appServer);
 
 //			// Try to open the session already now, so that we know already here, whether this works (but lock it immediately, again).
 //			session.acquire();

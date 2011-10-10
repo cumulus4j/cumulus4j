@@ -141,18 +141,18 @@ public class IntegrationWithAppServerOnlyTest
 			param.setKeyStorePeriodMSec(24L * 3600L * 1000L);
 			keyManagerAPI.initDateDependentKeyStrategy(param);
 
-			org.cumulus4j.keymanager.api.Session session = keyManagerAPI.getSession(URL_KEY_MANAGER_BACK_WEBAPP);
+			org.cumulus4j.keymanager.api.CryptoSession cryptoSession = keyManagerAPI.getCryptoSession(URL_KEY_MANAGER_BACK_WEBAPP);
 
 			// It does not matter here in this test, but in real code, WE MUST ALWAYS release() after we did acquire()!!!
 			// Hence we do it here, too, in order to be a good example and in case someone copies the code ;-)
 			// Marco :-)
-			String cryptoSessionID = session.acquire();
+			String cryptoSessionID = cryptoSession.acquire();
 			try {
 
 				invokeTestWithinServer(cryptoSessionID);
 
 			} finally {
-				session.release();
+				cryptoSession.release();
 			}
 
 		} finally {
@@ -220,18 +220,18 @@ public class IntegrationWithAppServerOnlyTest
 			configuration.setAuthUserName("user3");
 			configuration.setAuthPassword("password3".toCharArray());
 
-			org.cumulus4j.keymanager.api.Session session = keyManagerAPI.getSession(URL_KEY_MANAGER_BACK_WEBAPP);
+			org.cumulus4j.keymanager.api.CryptoSession cryptoSession = keyManagerAPI.getCryptoSession(URL_KEY_MANAGER_BACK_WEBAPP);
 
 			// It does not matter here in this test, but in real code, WE MUST ALWAYS lock() after we did unlock()!!!
 			// Hence we do it here, too, in case someone copies the code ;-)
 			// Marco :-)
-			String cryptoSessionID = session.acquire();
+			String cryptoSessionID = cryptoSession.acquire();
 			try {
 
 				invokeTestWithinServer(cryptoSessionID);
 
 			} finally {
-				session.release();
+				cryptoSession.release();
 			}
 
 		} finally {

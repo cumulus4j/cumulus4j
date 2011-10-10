@@ -30,7 +30,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @XmlRootElement
-public class AcquireSessionResponse implements Serializable
+public class AcquireCryptoSessionResponse implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 

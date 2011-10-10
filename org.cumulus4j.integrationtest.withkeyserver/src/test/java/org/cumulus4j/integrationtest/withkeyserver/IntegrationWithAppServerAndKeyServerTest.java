@@ -29,7 +29,7 @@ import javax.ws.rs.core.MediaType;
 import org.cumulus4j.keymanager.api.DefaultKeyManagerAPI;
 import org.cumulus4j.keymanager.api.KeyManagerAPI;
 import org.cumulus4j.keymanager.api.KeyManagerAPIConfiguration;
-import org.cumulus4j.keymanager.front.shared.AcquireSessionResponse;
+import org.cumulus4j.keymanager.front.shared.AcquireCryptoSessionResponse;
 import org.cumulus4j.keymanager.front.shared.AppServer;
 import org.cumulus4j.keymanager.front.shared.DateDependentKeyStrategyInitParam;
 import org.cumulus4j.keymanager.front.shared.PutAppServerResponse;
@@ -62,7 +62,7 @@ public class IntegrationWithAppServerAndKeyServerTest
 	private static final String URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_APP_SERVER = URL_KEY_MANAGER_FRONT_WEBAPP + "/AppServer/" + KEY_STORE_ID_VAR;
 //	private static final String URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_USER = URL_KEY_MANAGER_FRONT_WEBAPP + "/User";
 	private static final String URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_DATE_DEPENDENT_KEY_STRATEGY = URL_KEY_MANAGER_FRONT_WEBAPP + "/DateDependentKeyStrategy/" + KEY_STORE_ID_VAR;
-	private static final String URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_SESSION = URL_KEY_MANAGER_FRONT_WEBAPP + "/Session/" + KEY_STORE_ID_VAR;
+	private static final String URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_SESSION = URL_KEY_MANAGER_FRONT_WEBAPP + "/CryptoSession/" + KEY_STORE_ID_VAR;
 
 	private static final String KEY_SERVER_USER = "devil";
 	private static final char[] KEY_SERVER_PASSWORD = "testtesttest".toCharArray();
@@ -114,18 +114,18 @@ public class IntegrationWithAppServerAndKeyServerTest
 		appServer.setAppServerID(putAppServerResponse.getAppServerID());
 
 
-		AcquireSessionResponse acquireSessionResponse = clientForKeyServer
+		AcquireCryptoSessionResponse acquireCryptoSessionResponse = clientForKeyServer
 		.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_SESSION.replaceAll(Pattern.quote(KEY_STORE_ID_VAR), keyStoreID) + '/' + appServer.getAppServerID() + "/acquire")
 		.accept(MediaType.APPLICATION_XML_TYPE)
-		.post(AcquireSessionResponse.class);
+		.post(AcquireCryptoSessionResponse.class);
 
-		String cryptoSessionID = acquireSessionResponse.getCryptoSessionID();
+		String cryptoSessionID = acquireCryptoSessionResponse.getCryptoSessionID();
 
-		AcquireSessionResponse acquireSessionResponse2 = clientForKeyServer
+		AcquireCryptoSessionResponse acquireSessionResponse2 = clientForKeyServer
 		.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_SESSION.replaceAll(Pattern.quote(KEY_STORE_ID_VAR), keyStoreID) + '/' + appServer.getAppServerID() + '/' + cryptoSessionID + "/reacquire")
-		.post(AcquireSessionResponse.class);
+		.post(AcquireCryptoSessionResponse.class);
 
-		Assert.assertEquals(acquireSessionResponse.getCryptoSessionID(), acquireSessionResponse2.getCryptoSessionID());
+		Assert.assertEquals(acquireCryptoSessionResponse.getCryptoSessionID(), acquireSessionResponse2.getCryptoSessionID());
 
 		invokeTestWithinServer(cryptoSessionID);
 
@@ -186,18 +186,18 @@ public class IntegrationWithAppServerAndKeyServerTest
 		param.setKeyStorePeriodMSec(24L * 3600L * 1000L);
 		keyManagerAPI.initDateDependentKeyStrategy(param);
 
-		org.cumulus4j.keymanager.api.Session session = keyManagerAPI.getSession(URL_KEY_MANAGER_BACK_WEBAPP);
+		org.cumulus4j.keymanager.api.CryptoSession cryptoSession = keyManagerAPI.getCryptoSession(URL_KEY_MANAGER_BACK_WEBAPP);
 
 		// It does not matter here in this test, but in real code, WE MUST ALWAYS lock() after we did unlock()!!!
 		// Hence we do it here, too, in case someone copies the code ;-)
 		// Marco :-)
-		String cryptoSessionID = session.acquire();
+		String cryptoSessionID = cryptoSession.acquire();
 		try {
 
 			invokeTestWithinServer(cryptoSessionID);
 
 		} finally {
-			session.release();
+			cryptoSession.release();
 		}
 	}
 
@@ -227,18 +227,18 @@ public class IntegrationWithAppServerAndKeyServerTest
 		configuration.setAuthUserName("user3");
 		configuration.setAuthPassword("password3".toCharArray());
 
-		org.cumulus4j.keymanager.api.Session session = keyManagerAPI.getSession(URL_KEY_MANAGER_BACK_WEBAPP);
+		org.cumulus4j.keymanager.api.CryptoSession cryptoSession = keyManagerAPI.getCryptoSession(URL_KEY_MANAGER_BACK_WEBAPP);
 
 		// It does not matter here in this test, but in real code, WE MUST ALWAYS lock() after we did unlock()!!!
 		// Hence we do it here, too, in case someone copies the code ;-)
 		// Marco :-)
-		String cryptoSessionID = session.acquire();
+		String cryptoSessionID = cryptoSession.acquire();
 		try {
 
 			invokeTestWithinServer(cryptoSessionID);
 
 		} finally {
-			session.release();
+			cryptoSession.release();
 		}
 	}
 }

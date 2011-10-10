@@ -34,7 +34,7 @@ import org.cumulus4j.keymanager.AppServer;
 import org.cumulus4j.keymanager.AppServerManager;
 import org.cumulus4j.keymanager.Session;
 import org.cumulus4j.keymanager.SessionManager;
-import org.cumulus4j.keymanager.front.shared.AcquireSessionResponse;
+import org.cumulus4j.keymanager.front.shared.AcquireCryptoSessionResponse;
 import org.cumulus4j.keymanager.front.shared.Error;
 import org.cumulus4j.keystore.AuthenticationException;
 import org.cumulus4j.keystore.KeyStore;
@@ -63,12 +63,12 @@ import org.slf4j.LoggerFactory;
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-@Path("Session")
+@Path("CryptoSession")
 @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-public class SessionService extends AbstractService
+public class CryptoSessionService extends AbstractService
 {
-	private static final Logger logger = LoggerFactory.getLogger(SessionService.class);
+	private static final Logger logger = LoggerFactory.getLogger(CryptoSessionService.class);
 
 	/**
 	 * <p>
@@ -79,7 +79,7 @@ public class SessionService extends AbstractService
 	 * if they are currently in the 'released' state.
 	 * </p><p>
 	 * The session can be explicitely {@link #delete(String, String, String)deleted} or automatically disappears
-	 * after a {@link AcquireSessionResponse#getExpiry() certain time}. Thus, refreshing it is necessary to keep
+	 * after a {@link AcquireCryptoSessionResponse#getExpiry() certain time}. Thus, refreshing it is necessary to keep
 	 * it "alive".
 	 * </p>
 	 * @param keyStoreID identifier of the {@link KeyStore} to work with.
@@ -87,7 +87,7 @@ public class SessionService extends AbstractService
 	 */
 	@Path("{keyStoreID}/{appServerID}/acquire")
 	@POST
-	public AcquireSessionResponse acquire(@PathParam("keyStoreID") String keyStoreID, @PathParam("appServerID") String appServerID)
+	public AcquireCryptoSessionResponse acquire(@PathParam("keyStoreID") String keyStoreID, @PathParam("appServerID") String appServerID)
 	{
 		Auth auth = getAuth();
 		try {
@@ -102,7 +102,7 @@ public class SessionService extends AbstractService
 
 			logger.debug("open: authUserName='{}' cryptoSessionID='{}'", auth.getUserName(), session.getCryptoSessionID());
 
-			AcquireSessionResponse result = new AcquireSessionResponse();
+			AcquireCryptoSessionResponse result = new AcquireCryptoSessionResponse();
 			result.setCryptoSessionID(session.getCryptoSessionID());
 			result.setExpiry(session.getExpiry());
 			return result;
@@ -138,7 +138,7 @@ public class SessionService extends AbstractService
 	 */
 	@Path("{keyStoreID}/{appServerID}/{cryptoSessionID}/reacquire")
 	@POST
-	public AcquireSessionResponse reacquire(@PathParam("keyStoreID") String keyStoreID, @PathParam("appServerID") String appServerID, @PathParam("cryptoSessionID") String cryptoSessionID)
+	public AcquireCryptoSessionResponse reacquire(@PathParam("keyStoreID") String keyStoreID, @PathParam("appServerID") String appServerID, @PathParam("cryptoSessionID") String cryptoSessionID)
 	{
 		SessionManager sessionManager = getSessionManager(keyStoreID, appServerID);
 		Session session = sessionManager.getSessionForCryptoSessionID(cryptoSessionID);
@@ -151,7 +151,7 @@ public class SessionService extends AbstractService
 			throw new WebApplicationException(Response.status(Status.NOT_FOUND).entity(new Error(x)).build());
 		}
 
-		AcquireSessionResponse result = new AcquireSessionResponse();
+		AcquireCryptoSessionResponse result = new AcquireCryptoSessionResponse();
 		result.setCryptoSessionID(session.getCryptoSessionID());
 		result.setExpiry(session.getExpiry());
 		return result;

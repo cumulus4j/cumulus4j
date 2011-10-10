@@ -4,18 +4,18 @@ import java.io.IOException;
 
 import org.cumulus4j.keymanager.AppServer;
 import org.cumulus4j.keymanager.api.AuthenticationException;
-import org.cumulus4j.keymanager.api.Session;
+import org.cumulus4j.keymanager.api.CryptoSession;
 
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public class LocalSession implements Session
+public class LocalCryptoSession implements CryptoSession
 {
 	private LocalKeyManagerAPI localKeyManagerAPI;
 
 	private AppServer appServer;
 
-	public LocalSession(LocalKeyManagerAPI localKeyManagerAPI, AppServer appServer)
+	public LocalCryptoSession(LocalKeyManagerAPI localKeyManagerAPI, AppServer appServer)
 	{
 		if (localKeyManagerAPI == null)
 			throw new IllegalArgumentException("localKeyManagerAPI == null");

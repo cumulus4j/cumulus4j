@@ -96,6 +96,6 @@ public interface KeyManagerAPI
 	 * @throws AuthenticationException if the {@link KeyManagerAPIConfiguration#setAuthUserName(String) authUserName} or the {@link KeyManagerAPIConfiguration#setAuthPassword(char[]) authPassword} is incorrect.
 	 * @throws IOException if the communication with the key-store (either local key-store-file or remote key-server) fails.
 	 */
-	Session getSession(String appServerBaseURL) throws AuthenticationException, IOException;
+	CryptoSession getCryptoSession(String appServerBaseURL) throws AuthenticationException, IOException;
 
 }

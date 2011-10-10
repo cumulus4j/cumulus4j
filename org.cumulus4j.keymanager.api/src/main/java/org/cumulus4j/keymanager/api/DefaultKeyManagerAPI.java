@@ -101,9 +101,9 @@ public class DefaultKeyManagerAPI extends AbstractKeyManagerAPI
 	}
 
 	@Override
-	public Session getSession(String appServerBaseURL) throws AuthenticationException, IOException
+	public CryptoSession getCryptoSession(String appServerBaseURL) throws AuthenticationException, IOException
 	{
-		return getDelegate().getSession(appServerBaseURL);
+		return getDelegate().getCryptoSession(appServerBaseURL);
 	}
 
 }

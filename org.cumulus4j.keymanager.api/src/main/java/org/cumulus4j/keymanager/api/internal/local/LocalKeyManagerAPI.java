@@ -14,12 +14,12 @@ import org.cumulus4j.keymanager.AppServer;
 import org.cumulus4j.keymanager.AppServerManager;
 import org.cumulus4j.keymanager.api.AuthenticationException;
 import org.cumulus4j.keymanager.api.CannotDeleteLastUserException;
+import org.cumulus4j.keymanager.api.CryptoSession;
 import org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam;
 import org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitResult;
 import org.cumulus4j.keymanager.api.KeyManagerAPIConfiguration;
 import org.cumulus4j.keymanager.api.KeyManagerAPIInstantiationException;
 import org.cumulus4j.keymanager.api.KeyStoreNotEmptyException;
-import org.cumulus4j.keymanager.api.Session;
 import org.cumulus4j.keymanager.api.internal.AbstractKeyManagerAPI;
 import org.cumulus4j.keystore.DateDependentKeyStrategy;
 import org.cumulus4j.keystore.KeyStore;
@@ -189,7 +189,7 @@ public class LocalKeyManagerAPI extends AbstractKeyManagerAPI
 	private static final void doNothing() { }
 
 	@Override
-	public Session getSession(String appServerBaseURL) throws IOException, AuthenticationException
+	public CryptoSession getCryptoSession(String appServerBaseURL) throws IOException, AuthenticationException
 	{
 //		try {
 			AppServerManager appServerManager = getAppServerManager();
@@ -208,7 +208,7 @@ public class LocalKeyManagerAPI extends AbstractKeyManagerAPI
 //			// Try to open the session already now, so that we know already here, whether this works (but lock it immediately, again).
 //			appServer.getSessionManager().acquireSession(getAuthUserName(), getAuthPassword()).release();
 
-			return new LocalSession(this, appServer);
+			return new LocalCryptoSession(this, appServer);
 //		} catch (org.cumulus4j.keystore.AuthenticationException e) {
 //			throw new AuthenticationException(e);
 //		}

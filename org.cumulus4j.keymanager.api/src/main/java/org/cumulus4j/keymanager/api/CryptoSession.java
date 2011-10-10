@@ -6,18 +6,18 @@ import java.io.IOException;
  * <p>
  * Crypto-session in which key transfers can be performed.
  * </p><p>
- * Use {@link KeyManagerAPI#getSession(String)} to get a <code>Session</code> instance.
+ * Use {@link KeyManagerAPI#getCryptoSession(String)} to get a <code>CryptoSession</code> instance.
  * This instance is a proxy which can be kept and never expires (though the underlying real session will expire if
  * not used for some time). If the underlying real
- * session expired, a new underlying session with a new {@link #getCryptoSessionID() sessionID}
- * will be created and bound to this <code>Session</code> instance.
+ * session expired, a new underlying session with a new <code>cryptoSessionID</code>
+ * will be created and bound to this <code>CryptoSession</code> instance.
  * </p><p>
  * Sessions are thread-safe.
  * </p>
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public interface Session
+public interface CryptoSession
 {
 	/**
 	 * Get the identifier of the application server. This denotes a logical application server, which
