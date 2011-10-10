@@ -24,7 +24,7 @@ import org.datanucleus.NucleusContext;
 
 /**
  * <p>
- * A {@link CryptoSession} is a session managed by a client to decrypt/encrypt data.
+ * A <code>CryptoSession</code> is a session managed by a client to decrypt/encrypt data.
  * </p>
  * <p>
  * Data can only be decrypted (or encrypted) within the scope of a valid session. That means,

@@ -20,7 +20,13 @@
 -->
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	metadata-complete="true"
 	version="2.5">
+	<!--
+	metadata-complete="true" causes the annotations to be ignored, which speeds up the jetty startup significantly
+	(from about 30 sec to 1 sec).
+	-->
+
 	<display-name>org.cumulus4j.integrationtest.webapp</display-name>
 
 	<!--

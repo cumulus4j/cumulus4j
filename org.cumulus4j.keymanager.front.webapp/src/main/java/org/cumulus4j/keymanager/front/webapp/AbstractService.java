@@ -69,12 +69,12 @@ public abstract class AbstractService
 	{
 		String authorizationHeader = request.getHeader("Authorization");
 		if (authorizationHeader == null || authorizationHeader.isEmpty()) {
-			logger.debug("authenticate: There is no 'Authorization' header. Replying with a Status.UNAUTHORIZED response asking for 'Basic' authentication.");
+			logger.debug("getAuth: There is no 'Authorization' header. Replying with a Status.UNAUTHORIZED response asking for 'Basic' authentication.");
 
 			throw new WebApplicationException(Response.status(Status.UNAUTHORIZED).header("WWW-Authenticate", "Basic realm=\"Cumulus4jKeyServer\"").build());
 		}
 
-		logger.debug("authenticate: 'Authorization' header: {}", authorizationHeader);
+		logger.debug("getAuth: 'Authorization' header: {}", authorizationHeader);
 
 		if (!authorizationHeader.startsWith("Basic"))
 			throw new WebApplicationException(Response.status(Status.FORBIDDEN).entity(new Error("Only 'Basic' authentication is supported!")).build());
