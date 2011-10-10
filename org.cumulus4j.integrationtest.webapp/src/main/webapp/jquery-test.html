@@ -78,7 +78,7 @@ jQuery(document).ready(function(){
 		function demonstrateAll(opts) {
 			// ### init: ###
 			// Create a new key store with a random ID. This is usually done by an administrator via the command-line-interface
-			// or via a management web app.
+			// or via a management web app. And of course, it is usually not a random ID, but a meaningful naming strategy.
 			var initData = {"keyActivityPeriodMSec":opts.keyActivityPeriodMSec,"keyStorePeriodMSec":opts.keyStorePeriodMSec};
 			jsonAjax({
 				url: opts.keyManagerUrl + "/DateDependentKeyStrategy/" + encodeURIComponent(opts.keyStoreId) + "/init",
