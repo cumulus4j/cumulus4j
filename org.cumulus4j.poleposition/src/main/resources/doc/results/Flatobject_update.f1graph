@@ -1,0 +1,2 @@
+Flatobject update	commitinterval:100 objects:300 selects:10 updates:10	commitinterval:100 objects:1000 selects:10 updates:10	commitinterval:100 objects:3000 selects:10 updates:10
+JDO/Cumulus4j/DataNucleus/HSQLDB-1.8.1.2	55	1196	24

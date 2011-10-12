@@ -1,0 +1,3 @@
+Inheritancehierarchy query	objects:3000 selects:100	objects:10000 selects:100	objects:30000 selects:100
+JDO/DataNucleus/HSQLDB-1.8.1.2	1279	3737	21355
+JDO/Cumulus4j/DataNucleus/HSQLDB-1.8.1.2	141	104	142
