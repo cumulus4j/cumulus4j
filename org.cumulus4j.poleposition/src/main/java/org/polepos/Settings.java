@@ -1,4 +1,4 @@
-/* 
+/*
 This file is part of the PolePosition database benchmark
 http://www.polepos.org
 
@@ -19,21 +19,25 @@ MA  02111-1307, USA. */
 
 package org.polepos;
 
+import java.io.File;
+
 
 public class Settings {
-    
-    public static boolean DEBUG = false;
-    
-    public static final String CIRCUIT = DEBUG ? "settings/DebugCircuits.properties" : "settings/Circuits.properties" ;
-    
-    public static final String JDBC = "settings/Jdbc.properties";
-    
-    public static final String JDO = "settings/Jdo.properties";
-    
+
+    public static boolean DEBUG = true;
+
+    public static final String SETTINGS_FOLDER = "settings";
+
+    public static final String CIRCUIT = DEBUG ? SETTINGS_FOLDER + "/DebugCircuits.properties" : SETTINGS_FOLDER + File.separator + "Circuits.properties" ;
+
+    public static final String JDBC = SETTINGS_FOLDER + File.separator + "Jdbc.properties";
+
+    public static final String JDO = SETTINGS_FOLDER + File.separator + "Jdo.properties";
+
     static{
-        
+
         String className = Settings.class.getName() ;
-        
+
         if(DEBUG){
             System.out.println(className + ".DEBUG is set to true.\n");
         }

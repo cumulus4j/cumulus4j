@@ -1,4 +1,4 @@
-/* 
+/*
 This file is part of the PolePosition database benchmark
 http://www.polepos.org
 
@@ -19,17 +19,23 @@ MA  02111-1307, USA. */
 
 package org.polepos.framework;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 import java.util.StringTokenizer;
+
+import org.polepos.Settings;
 
 public class PropertiesHandler
 {
 	private final static	String		DBPROPSDIR = ".bdbench";
 	private final			String		_fileName;
 	private					Properties	_properties;
-	
-	/** 
+
+	/**
 	 * Creates a new instance of BenchmarkSettings.
 	 */
 	public PropertiesHandler( String propertiesname ){
@@ -41,11 +47,11 @@ public class PropertiesHandler
 		String home = System.getProperty( "user.home", "." );
 		return home + File.separator + DBPROPSDIR;
 	}
-	
+
 	private final String getSettingsFilename(){
-        
+
         String fileName = _fileName;
-        
+
         File file = new File(fileName);
         if(file.exists()){
             String path = file.getAbsolutePath();
@@ -56,12 +62,12 @@ public class PropertiesHandler
         reportSettingsFile(fileName);
 		return fileName;
 	}
-    
+
     private void reportSettingsFile(String path){
         System.out.println("\nUsing settings file:");
         System.out.println(path + "\n");
     }
-	
+
 	/**
 	 * Load default and custom settings.
 	 */
@@ -103,10 +109,10 @@ public class PropertiesHandler
 			// create the missing file
 			save();
 		}
-		
+
 		return true;
 	}
-	
+
 
 	/**
 	 * Persist the custom settings.
@@ -115,9 +121,15 @@ public class PropertiesHandler
 	{
 		try
 		{
-			File dir = new File( getSettingsDirectoryName() );
-			dir.mkdir();
-			FileOutputStream out = new FileOutputStream( getSettingsFilename() );
+			String settingsDirectoryName = getSettingsDirectoryName() + File.separator + Settings.SETTINGS_FOLDER;
+			if(Settings.DEBUG)
+				Log.logger.warning("Settings directory name: " + settingsDirectoryName);
+			File dir = new File( settingsDirectoryName );
+			dir.mkdirs();
+			String settingsFilename = getSettingsFilename();
+			if(Settings.DEBUG)
+				Log.logger.warning("Settings file name: " + settingsFilename);
+			FileOutputStream out = new FileOutputStream( settingsFilename );
 			_properties.store( out, "DB benchmark settings" );
 		}
 		catch ( IOException ioex )
@@ -127,8 +139,8 @@ public class PropertiesHandler
 		}
 		return true;
 	}
-	
-	
+
+
 	/**
 	 * same as <code>Properties#getProperty()</code>
 	 */
@@ -136,47 +148,47 @@ public class PropertiesHandler
 		return _properties.getProperty(key);
 	}
 
-	
+
 	/**
 	 * same as <code>Properties#getProperty()</code>
 	 */
 	public String get( String key, String defaultValue ){
 		return _properties.getProperty( key, defaultValue );
 	}
-	
-	
+
+
 	/**
 	 * same as <code>Properties#put()</code>
 	 */
 	public void put( String key, String value ){
 		_properties.put( key, value );
 	}
-	
+
 
 	/**
 	 * retrieve an array that might be formatted like 1,2,3 or [1,2,3] or 1 2 3 or 1;2;3 ...
 	 */
 	public String[] getArray( String key )
 	{
-        
+
         try{
     		String s = get( key );
-    		
+
     		StringTokenizer tokenizer = new StringTokenizer(s, "[ \t,;]" );
     		int len = tokenizer.countTokens();
     		String[] res = new String[ len ];
     		for ( int i = 0; i < len; i++ ){
     			res[i] = tokenizer.nextToken();
     		}
-    		
+
     		return res;
         }catch(Exception e){
             System.out.println("Key not available in " + _fileName +":\n" + key + "\n");
         }
         return null;
 	}
-	
-	
+
+
 	/**
 	 * retrieve an array that might be formatted like 1,2,3 or [1,2,3] or 1 2 3 or 1;2;3 ...
 	 */
@@ -185,7 +197,7 @@ public class PropertiesHandler
 		if(s == null) {
 			return null;
 		}
-		
+
 		int commentCharIdx = s.indexOf('#');
 		if(commentCharIdx >= 0) {
 			s = s.substring(0, commentCharIdx);
@@ -197,10 +209,10 @@ public class PropertiesHandler
 		{
 			res[i] = Integer.parseInt( tokenizer.nextToken() );
 		}
-		
+
 		return res;
 	}
-    
+
 	/**
 	 * retrieve a flag
 	 */
@@ -208,5 +220,5 @@ public class PropertiesHandler
 		String val = _properties.getProperty(key);
         return Boolean.valueOf( val ).booleanValue();
 	}
-	
+
 }
