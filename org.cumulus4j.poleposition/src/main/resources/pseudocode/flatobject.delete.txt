@@ -1,5 +1,0 @@
-// OO
-db.delete(indexedObject);
-
-// SQL
-delete from flatobject where _id = ?;

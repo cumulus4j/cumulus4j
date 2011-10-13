@@ -1,8 +1,0 @@
-class FlatObject {
-}
-
-// OO
-FlatObject flatObject = db.objectForId(id);
-
-// SQL
-select * from flatobject where id = ?;
