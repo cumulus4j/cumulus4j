@@ -30,6 +30,7 @@ import org.polepos.reporters.DefaultReporterFactory;
 import org.polepos.reporters.Reporter;
 import org.polepos.runner.AbstractRunner;
 import org.polepos.teams.jdo.JdoTeam;
+import org.polepos.teams.jdo.cumulus4j.Cumulus4jTeam;
 
 /**
  * This is the Main class to run PolePosition. If JDO, JPA and JVI are
@@ -76,6 +77,7 @@ public class RunSeason extends AbstractRunner {
 		return new Team[] {
 //				new Db4oTeam(),
 				new JdoTeam(),
+				new Cumulus4jTeam(),
 
 //				new Db4oClientServerTeam(),
 
