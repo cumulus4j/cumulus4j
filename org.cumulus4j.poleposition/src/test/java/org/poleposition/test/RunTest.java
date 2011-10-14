@@ -1,7 +1,7 @@
 package org.poleposition.test;
 
 import org.junit.Test;
-import org.polepos.RunSeasonAfterEnhancing;
+import org.polepos.RunSeason;
 
 
 public class RunTest {
@@ -9,7 +9,8 @@ public class RunTest {
 	 @Test
 	 public void testRun() throws Throwable{
 
-		 RunSeasonAfterEnhancing.main(null);
+//		 RunSeasonAfterEnhancing.main(null);
+		 RunSeason.main(null);
 	 }
 
 }

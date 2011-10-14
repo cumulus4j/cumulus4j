@@ -1,4 +1,4 @@
-/* 
+/*
  This file is part of the PolePosition database benchmark
  http://www.polepos.org
 
@@ -19,8 +19,10 @@
 
 package org.polepos.teams.jdo;
 
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 public class JdoEnhancer {
 
@@ -30,7 +32,7 @@ public class JdoEnhancer {
     private Object[]                 params;
 
     private final static Map<String, JdoEnhancer> enhancers = registerEnhancers();
-    
+
     private JdoEnhancer(){
     }
 
@@ -43,20 +45,20 @@ public class JdoEnhancer {
     }
 
     public static void main(String[] args) throws Exception{
-        
+
         if(args == null || args.length == 0){
             System.err.println("Supply the name of the enhancer to org.polepos.teams.jdo.JdoEnhancer#main()");
             printRegisteredEnhancers();
             return;
         }
-        
+
         JdoEnhancer enhancer = enhancers.get(args[0]);
         if(enhancer == null){
             System.err.println("Enhancer " + args[0] + " is not registered in org.polepos.teams.jdo.JdoEnhancer");
             printRegisteredEnhancers();
             return;
         }
-        
+
         if(enhancer.isRunnable()){
             enhancer.run();
         }else{
@@ -69,7 +71,7 @@ public class JdoEnhancer {
             }
         }
     }
-    
+
     private static void printRegisteredEnhancers(){
         System.err.println("The following enhancers are registered, but they are only");
         System.err.println("available if the respective Jars are present in /lib");
@@ -87,24 +89,26 @@ public class JdoEnhancer {
     }
 
     private final static Map<String, JdoEnhancer> registerEnhancers() {
-    	
+
         Map<String, JdoEnhancer> map = new HashMap<String, JdoEnhancer>();
-        
+
         JdoEnhancer vodEnhancer = new JdoEnhancer(){
- 
-        	public boolean isRunnable(){
+
+        	@Override
+			public boolean isRunnable(){
         		return true;
         	}
-        	
-        	public void run(){
-                
+
+        	@Override
+			public void run(){
+
         		try {
 					Class enhancerClass = Class.forName("com.versant.core.jdo.tools.enhancer.Enhancer");
-					
+
 					Method mainMethod = enhancerClass.getMethod("main", new Class[]{String[].class});
-					
+
 					mainMethod.invoke(null,new Object[]{new String[]{"-p","settings/versant.properties","-out","bin"}});
-					
+
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				} catch (SecurityException e) {
@@ -119,25 +123,27 @@ public class JdoEnhancer {
 					e.printStackTrace();
 				}
             }
-            
+
         };
         map.put("vod", vodEnhancer);
-        
+
         JdoEnhancer datanucleusEnhancer = new JdoEnhancer(){
-        	 
-        	public boolean isRunnable(){
+
+        	@Override
+			public boolean isRunnable(){
         		return true;
         	}
-        	
-        	public void run(){
-                
+
+        	@Override
+			public void run(){
+
         		try {
 					Class enhancerClass = Class.forName("org.datanucleus.enhancer.DataNucleusEnhancer");
-					
+
 					Method mainMethod = enhancerClass.getMethod("main", new Class[]{String[].class});
-					
+
 					mainMethod.invoke(null,new Object[]{new String[]{"-v","-d","bin","bin/org/polepos/teams/jdo/data/package.jdo"}});
-					
+
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				} catch (SecurityException e) {
@@ -152,7 +158,7 @@ public class JdoEnhancer {
 					e.printStackTrace();
 				}
             }
-            
+
         };
         map.put("datanucleus", datanucleusEnhancer);
 
@@ -160,9 +166,9 @@ public class JdoEnhancer {
     }
 
     public void run() {
-        // virtual method to override 
+        // virtual method to override
     }
-    
+
     public boolean isRunnable() {
         // virtual method to override
         return false;
