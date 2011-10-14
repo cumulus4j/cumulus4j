@@ -29,7 +29,6 @@ import org.polepos.framework.Team;
 import org.polepos.reporters.DefaultReporterFactory;
 import org.polepos.reporters.Reporter;
 import org.polepos.runner.AbstractRunner;
-import org.polepos.teams.db4o.Db4oTeam;
 import org.polepos.teams.jdo.JdoTeam;
 
 /**
@@ -75,7 +74,7 @@ public class RunSeason extends AbstractRunner {
 	@Override
 	public Team[] teams() {
 		return new Team[] {
-				new Db4oTeam(),
+//				new Db4oTeam(),
 				new JdoTeam(),
 
 //				new Db4oClientServerTeam(),

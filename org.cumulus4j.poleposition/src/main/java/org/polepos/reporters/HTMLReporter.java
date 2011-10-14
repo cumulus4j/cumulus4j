@@ -1,4 +1,4 @@
-/* 
+/*
 This file is part of the PolePosition database benchmark
 http://www.polepos.org
 
@@ -19,33 +19,45 @@ MA  02111-1307, USA. */
 
 package org.polepos.reporters;
 
-import java.awt.image.*;
-import java.io.*;
-import java.util.*;
+import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.imageio.*;
+import javax.imageio.ImageIO;
 
-import org.apache.velocity.*;
-import org.apache.velocity.app.*;
-import org.jfree.chart.*;
-import org.polepos.framework.*;
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
+import org.jfree.chart.JFreeChart;
+import org.polepos.framework.Circuit;
+import org.polepos.framework.Lap;
+import org.polepos.framework.TeamCar;
 
 
-public class HTMLReporter extends GraphReporter {	
+public class HTMLReporter extends GraphReporter {
 
 	public HTMLReporter(String path) {
 		super(path);
-		
+
 	}
 
 	public final static String ENCODING = "utf-8";
-	
+
 	private File outdir=null;
 	private List<Circuit> circuits=new ArrayList<Circuit>();
 	private List<Lap> laps=new ArrayList<Lap>();
 	private VelocityEngine engine=null;
 	private Graph graph=null;
-	
+
+	@Override
 	protected void report(Graph graph) {
 		try {
 			Circuit oldcircuit=circuit();
@@ -56,20 +68,21 @@ public class HTMLReporter extends GraphReporter {
 				renderCircuitPage();
 				circuits.add(graph.circuit());
 				laps.clear();
-			}	
+			}
 			this.graph=graph;
 			laps.add(graph.lap());
-			renderLapGraph(graph);			
+			renderLapGraph(graph);
 			renderLapPage();
 		} catch (Exception exc) {
 			exc.printStackTrace();
-		}	
+		}
 	}
 
 	private String lapFilePrefix() {
 		return circuit().internalName()+"_"+lap().name();
 	}
 
+	@Override
 	protected void finish(List <TeamCar> cars) {
 		renderOverviewGraph();
 		renderOverviewPage();
@@ -77,7 +90,7 @@ public class HTMLReporter extends GraphReporter {
 		renderIndexPage();
 		copyStylesheet();
 	}
-	
+
 	private void setup() throws Exception {
 		outdir=new File(path());
 		outdir.mkdirs();
@@ -92,7 +105,7 @@ public class HTMLReporter extends GraphReporter {
 	    String templatesDir = System.getProperty("polepos.templates.dir", "templates");
 	    return templatesDir;
 	}
-	
+
 	private void renderIndexPage() {
         List<TeamCar> distinct = new ArrayList<TeamCar>();
         for(TeamCar teamCar :graph.teamCars()){
@@ -138,17 +151,17 @@ public class HTMLReporter extends GraphReporter {
 		ImageIO.write(memoryImage, "jpg", new File(outdir, lapFilePrefix()
 				+ "_memory.jpg"));
 	}
-	
+
 	private void renderOverviewGraph() {
 		try{
 			JFreeChart timeChart = createChart(_overviewTimeDataset, ReporterConstants.TIME_OVERVIEW_LEGEND);
 			BufferedImage timeImage = timeChart.createBufferedImage(750, 500);
 			ImageIO.write(timeImage, "jpg", new File(outdir, "overview_time.jpg"));
-			
+
 			JFreeChart memoryChart = createChart(_overviewMemoryDataset, ReporterConstants.MEMORY_OVERVIEW_LEGEND);
 			BufferedImage memoryImage = memoryChart.createBufferedImage(750, 500);
 			ImageIO.write(memoryImage, "jpg", new File(outdir, "overview_memory.jpg"));
-			
+
 			JFreeChart sizeChart = createChart(_overviewSizeDataset, ReporterConstants.SIZE_OVERVIEW_LEGEND);
 			BufferedImage sizeImage = sizeChart.createBufferedImage(750, 500);
 			ImageIO.write(sizeImage, "jpg", new File(outdir, "overview_size.jpg"));
@@ -162,7 +175,7 @@ public class HTMLReporter extends GraphReporter {
 		context.put("includefile", "overview.vhtml");
 		renderPage("overview.html", context);
 	}
-	
+
 	private void renderPage(String targetName,VelocityContext context) {
 		BufferedWriter out=null;
 		try {
@@ -183,7 +196,7 @@ public class HTMLReporter extends GraphReporter {
 			}
 		}
 	}
-	
+
 	private void copyStylesheet() {
 		File sourcefile=new File(new File(getTemplatesDir()),"style.css");
 		File targetfile=new File(new File(path()),"style.css");
@@ -217,7 +230,7 @@ public class HTMLReporter extends GraphReporter {
 			}
 		}
 	}
-	
+
 	private Lap lap() {
 		return getLast(laps);
 	}
@@ -225,7 +238,7 @@ public class HTMLReporter extends GraphReporter {
 	private Circuit circuit() {
 		return getLast(circuits);
 	}
-	
+
 	private <Item> Item getLast(List<Item> list) {
 		if(list.isEmpty()) {
 			return null;

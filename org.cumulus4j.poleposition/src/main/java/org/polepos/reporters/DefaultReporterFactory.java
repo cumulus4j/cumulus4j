@@ -1,4 +1,4 @@
-/* 
+/*
 This file is part of the PolePosition database benchmark
 http://www.polepos.org
 
@@ -18,23 +18,29 @@ Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA  02111-1307, USA. */
 package org.polepos.reporters;
 
-import java.io.*;
+import java.io.File;
+
+import org.polepos.Settings;
 
 
 public class DefaultReporterFactory {
 
 	public static Reporter[] defaultReporters() {
+
+		if(Settings.DEBUG)
+			System.out.println("Default output path: " + defaultReporterOutputPath());
+
 		return new Reporter[] {
 			new CheckSumReporter(defaultReporterOutputPath()),
-			new PlainTextReporter(defaultReporterOutputPath()), 
+			new PlainTextReporter(defaultReporterOutputPath()),
 			new CustomBarPDFReporter(defaultReporterOutputPath()),
 			// new LinePDFReporter(defaultReporterOutputPath()),
-			new CSVReporter(defaultReporterOutputPath()), 
+			new CSVReporter(defaultReporterOutputPath()),
 			new HTMLReporter(subfolderPath(defaultReporterOutputPath(), "html")),
 			new XLSReporter(defaultReporterOutputPath()),
 		};
 	}
-    
+
 	public static String defaultReporterOutputPath() {
 		return new File(System.getProperty("polepos.result.dir", "doc/results")).getAbsolutePath();
 	}
