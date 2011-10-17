@@ -8,6 +8,7 @@
 	</parent>
 	<groupId>org.cumulus4j</groupId>
 	<artifactId>org.cumulus4j.poleposition</artifactId>
+	<packaging>war</packaging>
 	<version>1.0.0-SNAPSHOT</version>
 	<name>org.cumulus4j.poleposition</name>
 	<description>PolePosition benchmark with cumulus4j integrated.</description>
@@ -68,6 +69,15 @@
 			<artifactId>itext</artifactId>
 			<version>1.2.3</version>
 		</dependency>
+		
+  		<dependency>
+      		<groupId>com.sun.jersey</groupId>
+      		<artifactId>jersey-client</artifactId>
+    	</dependency>
+    	<dependency>
+    		<groupId>com.sun.jersey</groupId>
+    		<artifactId>jersey-server</artifactId>
+    	</dependency>
 
 		<dependency>
 			<groupId>dom4j</groupId>
@@ -84,7 +94,6 @@
 		<dependency>
 			<groupId>javax.jdo</groupId>
 			<artifactId>jdo-api</artifactId>
-			<version>3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>javassist</groupId>
@@ -176,8 +185,38 @@
 		</dependency>
 		
 		<dependency>
+        	<groupId>org.cumulus4j</groupId>
+            <artifactId>org.cumulus4j.keystore</artifactId>
+        </dependency>
+        <dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.keymanager</artifactId>
+		</dependency>
+ 		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.keymanager.api</artifactId>
+		</dependency>
+<!-- 		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.keymanager.back.shared</artifactId>
+		</dependency>-->
+<!--  		<dependency>
+        	<groupId>org.cumulus4j</groupId>
+        	<artifactId>org.cumulus4j.keymanager.back.webapp</artifactId>
+        	<version>1.0.0-SNAPSHOT</version>
+        	<type>war</type>
+      	</dependency>-->
+		<dependency>
 			<groupId>org.cumulus4j</groupId>
 			<artifactId>org.cumulus4j.store</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.store.test</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.store.crypto.keymanager</artifactId>
 		</dependency>
 
 		<dependency>
@@ -219,7 +258,6 @@
 		<dependency>
 			<groupId>org.datanucleus</groupId>
 			<artifactId>datanucleus-api-jpa</artifactId>
-<!-- 			<version>2.1.8</version>-->
 			<version>3.0.2</version>
 		</dependency>
 		<dependency>
@@ -238,6 +276,11 @@
 			<artifactId>hibernate</artifactId>
 			<version>3.2.1.ga</version>
 		</dependency>
+		
+		<dependency>
+        	<groupId>org.nightlabs</groupId>
+        	<artifactId>org.nightlabs.util</artifactId>
+	    </dependency>
 		
 		<dependency>
 			<groupId>org.poleposition.graph</groupId>
@@ -406,6 +449,42 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<!--
+				We exclude all tests here, because all the tests in this module are INTEGRATION tests which should
+				be executed only when running "mvn integration-test"
+				-->
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+			<plugin>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<configuration>
+					<includes>
+						<include>**/Test*.java</include>
+						<include>**/*Test.java</include>
+						<include>**/IT*.java</include>
+						<include>**/*IT.java</include>
+					</includes>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+<!--
+We comment this out, because we don't want to fail the build, if the integration test fails. We want it
+in the reports just like every other test, too. Marco :-)
+							<goal>verify</goal>
+-->
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
+	
 </project>
