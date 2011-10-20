@@ -43,6 +43,9 @@ public class TestService {
 		logger.info("Starting PolePosition benchmark.");
 		logger.info("#################################");
 
+		if (cryptoManagerID == null || cryptoManagerID.isEmpty())
+			cryptoManagerID = "keyManager";
+
 		RunSeason.main(new String[]{cryptoManagerID, cryptoSessionID});
 
 		return "OK:";

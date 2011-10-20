@@ -20,7 +20,7 @@ MA  02111-1307, USA. */
 
 package org.polepos.teams.jdo.cumulus4j.data;
 
-public class ComplexHolder1 extends ComplexHolder0 {
+public class Cumulus4jComplexHolder1 extends Cumulus4jComplexHolder0 {
 	
 	public int i1;
 	

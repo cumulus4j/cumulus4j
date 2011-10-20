@@ -188,7 +188,7 @@ public class ListHolder implements CheckSummable {
 	
 	@Override
 	public String toString() {
-		return "ListHolder " + _id;
+		return "Cumulus4jListHolder " + _id;
 	}
 	
 }

@@ -26,39 +26,39 @@ import org.polepos.framework.*;
 
 import com.db4o.foundation.*;
 
-public class ComplexHolder0 implements CheckSummable {
+public class Cumulus4jComplexHolder0 implements CheckSummable {
 	
 	private String name;
 	
-	private List<ComplexHolder0> children = new ArrayList<ComplexHolder0>();
+	private List<Cumulus4jComplexHolder0> children = new ArrayList<Cumulus4jComplexHolder0>();
 	
-	private ComplexHolder0[] array;
+	private Cumulus4jComplexHolder0[] array;
 	
-	public ComplexHolder0() {
+	public Cumulus4jComplexHolder0() {
 		
 	}
 	
-	public static ComplexHolder0 generate(int depth, int leafs){
-		ComplexHolder0 complexHolder = new ComplexHolder0();
+	public static Cumulus4jComplexHolder0 generate(int depth, int leafs){
+		Cumulus4jComplexHolder0 complexHolder = new Cumulus4jComplexHolder0();
 		complexHolder.name = "root";
 		createChildren(complexHolder, depth -1, leafs);
 		return complexHolder;
 	}
 	
-	private static void createChildren(ComplexHolder0 root, int depth, int numChildren) {
+	private static void createChildren(Cumulus4jComplexHolder0 root, int depth, int numChildren) {
 		if(depth < 1){
 			return;
 		}
 		int factoryIdx = 0;
 		int holderIdx = 0;
-		List<ComplexHolder0> parentLevel = Arrays.asList(root);
+		List<Cumulus4jComplexHolder0> parentLevel = Arrays.asList(root);
 		for (int i = 0; i < depth; i++) {
-			Closure4<ComplexHolder0> curFactory = FACTORIES[factoryIdx];
-			List<ComplexHolder0> childLevel = new ArrayList<ComplexHolder0>();
+			Closure4<Cumulus4jComplexHolder0> curFactory = FACTORIES[factoryIdx];
+			List<Cumulus4jComplexHolder0> childLevel = new ArrayList<Cumulus4jComplexHolder0>();
 
-			for (ComplexHolder0 curParent : parentLevel) {
+			for (Cumulus4jComplexHolder0 curParent : parentLevel) {
 				for (int childIdx = 0; childIdx < numChildren; childIdx++) {
-					ComplexHolder0 curChild = curFactory.run();
+					Cumulus4jComplexHolder0 curChild = curFactory.run();
 					curChild.name = String.valueOf(holderIdx);
 					curChild.array = createArray(holderIdx);
 					curChild.setSpecial(holderIdx);
@@ -78,13 +78,13 @@ public class ComplexHolder0 implements CheckSummable {
 		
 	}
 
-	private static ComplexHolder0[] createArray(int holderIdx) {
-		ComplexHolder0[] holders = new ComplexHolder0[] {
-			new ComplexHolder0(),
-			new ComplexHolder1(),
-			new ComplexHolder2(),
-			new ComplexHolder3(),
-			new ComplexHolder4(),
+	private static Cumulus4jComplexHolder0[] createArray(int holderIdx) {
+		Cumulus4jComplexHolder0[] holders = new Cumulus4jComplexHolder0[] {
+			new Cumulus4jComplexHolder0(),
+			new Cumulus4jComplexHolder1(),
+			new Cumulus4jComplexHolder2(),
+			new Cumulus4jComplexHolder3(),
+			new Cumulus4jComplexHolder4(),
 		};
 		for (int i = 0; i < holders.length; i++) {
 			holders[i].name = "a" + holderIdx + "_" + i;
@@ -92,40 +92,40 @@ public class ComplexHolder0 implements CheckSummable {
 		return holders;
 	}
 
-	public void addChild(ComplexHolder0 child) {
+	public void addChild(Cumulus4jComplexHolder0 child) {
 		children.add(child);
 	}
 
 
 	public static final Closure4[] FACTORIES = {
-		new Closure4<ComplexHolder0>(){
+		new Closure4<Cumulus4jComplexHolder0>(){
 			@Override
-			public ComplexHolder0 run() {
-				return new ComplexHolder0();
+			public Cumulus4jComplexHolder0 run() {
+				return new Cumulus4jComplexHolder0();
 			}
 		},
-		new Closure4<ComplexHolder0>(){
+		new Closure4<Cumulus4jComplexHolder0>(){
 			@Override
-			public ComplexHolder0 run() {
-				return new ComplexHolder1();
+			public Cumulus4jComplexHolder0 run() {
+				return new Cumulus4jComplexHolder1();
 			}
 		},
-		new Closure4<ComplexHolder0>(){
+		new Closure4<Cumulus4jComplexHolder0>(){
 			@Override
-			public ComplexHolder0 run() {
-				return new ComplexHolder2();
+			public Cumulus4jComplexHolder0 run() {
+				return new Cumulus4jComplexHolder2();
 			}
 		},
-		new Closure4<ComplexHolder0>(){
+		new Closure4<Cumulus4jComplexHolder0>(){
 			@Override
-			public ComplexHolder0 run() {
-				return new ComplexHolder3();
+			public Cumulus4jComplexHolder0 run() {
+				return new Cumulus4jComplexHolder3();
 			}
 		},
-		new Closure4<ComplexHolder0>(){
+		new Closure4<Cumulus4jComplexHolder0>(){
 			@Override
-			public ComplexHolder0 run() {
-				return new ComplexHolder4();
+			public Cumulus4jComplexHolder0 run() {
+				return new Cumulus4jComplexHolder4();
 			}
 		}
 	};
@@ -133,35 +133,35 @@ public class ComplexHolder0 implements CheckSummable {
 	@Override
 	public long checkSum() {
 		
-		class CheckSumVisitor implements Visitor<ComplexHolder0> {
+		class CheckSumVisitor implements Visitor<Cumulus4jComplexHolder0> {
 			
 			long checkSum;
 			
 			@Override
-			public void visit(ComplexHolder0 holder) {
+			public void visit(Cumulus4jComplexHolder0 holder) {
 				checkSum += Math.abs(holder.ownCheckSum());
 			}
 		}
 		CheckSumVisitor visitor = new CheckSumVisitor();
-		traverse(visitor, new NullVisitor<ComplexHolder0>());
+		traverse(visitor, new NullVisitor<Cumulus4jComplexHolder0>());
 		return visitor.checkSum;
 	}
 
-	public void traverse(Visitor<ComplexHolder0> preVisitor, Visitor<ComplexHolder0> postVisitor) {
-		internalTraverse(new IdentityHashMap<ComplexHolder0, ComplexHolder0>(), preVisitor, postVisitor);
+	public void traverse(Visitor<Cumulus4jComplexHolder0> preVisitor, Visitor<Cumulus4jComplexHolder0> postVisitor) {
+		internalTraverse(new IdentityHashMap<Cumulus4jComplexHolder0, Cumulus4jComplexHolder0>(), preVisitor, postVisitor);
 	}
 
-	private void internalTraverse(IdentityHashMap<ComplexHolder0, ComplexHolder0> visited, Visitor<ComplexHolder0> preVisitor, Visitor<ComplexHolder0> postVisitor) {
+	private void internalTraverse(IdentityHashMap<Cumulus4jComplexHolder0, Cumulus4jComplexHolder0> visited, Visitor<Cumulus4jComplexHolder0> preVisitor, Visitor<Cumulus4jComplexHolder0> postVisitor) {
 		if(visited.containsKey(this)) {
 			return;
 		}
 		visited.put(this, this);
 		preVisitor.visit(this);
-		for (ComplexHolder0 child : getChildren()) {
+		for (Cumulus4jComplexHolder0 child : getChildren()) {
 			child.internalTraverse(visited, preVisitor, postVisitor);
 		}
 		if(getArray() != null) {
-			for (ComplexHolder0 child : getArray()) {
+			for (Cumulus4jComplexHolder0 child : getArray()) {
 				child.internalTraverse(visited, preVisitor, postVisitor);
 			}
 		}
@@ -184,19 +184,19 @@ public class ComplexHolder0 implements CheckSummable {
 		this.name = name;
 	}
 
-	public List<ComplexHolder0> getChildren() {
+	public List<Cumulus4jComplexHolder0> getChildren() {
 		return children;
 	}
 	
-	public void setChildren(List<ComplexHolder0> children) {
+	public void setChildren(List<Cumulus4jComplexHolder0> children) {
 		this.children = children;
 	}
 	
-	public ComplexHolder0[] getArray() {
+	public Cumulus4jComplexHolder0[] getArray() {
 		return array;
 	}
 
-	public void setArray(ComplexHolder0[] array) {
+	public void setArray(Cumulus4jComplexHolder0[] array) {
 		this.array = array;
 	}
 

@@ -20,23 +20,23 @@ MA  02111-1307, USA. */
 package org.polepos.teams.jdo.cumulus4j.data;
 
 
-public class InheritanceHierarchy2 extends InheritanceHierarchy1{
+public class Cumulus4jInheritanceHierarchy0 {
     
-    private int i2;  // index this one for queries
+    private int i0;
     
-    public InheritanceHierarchy2(){
+    public Cumulus4jInheritanceHierarchy0(){
     }
     
-    public InheritanceHierarchy2(int i0, int i1, int i2) {
-        super(i0, i1);
-        this.i2 = i2;
+    public Cumulus4jInheritanceHierarchy0(int i0) {
+        this.i0 = i0;
     }
 
-    public void setI2(int i){
-        i2 = i;
+    public void setI0(int i){
+        i0 = i;
     }
     
-    public int getI2(){
-        return i2;
+    public int getI0(){
+        return i0;
     }
+
 }

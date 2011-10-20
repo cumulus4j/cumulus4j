@@ -50,11 +50,11 @@ public class ComplexHibernate extends HibernateDriver implements Complex {
 		String query = "from org.polepos.teams.hibernate.data.ComplexRoot";
 		Iterator it = db().iterate(query);
 		if(! it.hasNext()){
-			throw new IllegalStateException("no ComplexRoot found");
+			throw new IllegalStateException("no Cumulus4jComplexRoot found");
 		}
 		ComplexRoot root = (ComplexRoot) it.next();
 		if(it.hasNext()){
-			throw new IllegalStateException("More than one ComplexRoot found");
+			throw new IllegalStateException("More than one Cumulus4jComplexRoot found");
 		}
 		return root.getHolder();
 	}
@@ -69,12 +69,12 @@ public class ComplexHibernate extends HibernateDriver implements Complex {
 			String query = "from org.polepos.teams.hibernate.data.ComplexHolder2 where i2=" + currentInt;
 			Iterator it = db().iterate(query);
 			if(! it.hasNext()){
-				throw new IllegalStateException("no ComplexHolder2 found");
+				throw new IllegalStateException("no Cumulus4jComplexHolder2 found");
 			}
 			ComplexHolder2 holder = (ComplexHolder2) it.next();
 			addToCheckSum(holder.ownCheckSum());
 			if(it.hasNext()){
-				throw new IllegalStateException("More than one ComplexHolder2 found");
+				throw new IllegalStateException("More than one Cumulus4jComplexHolder2 found");
 			}
 			List<ComplexHolder0> children = holder.getChildren();
 			for (ComplexHolder0 child : children) {

@@ -115,52 +115,6 @@ public class Cumulus4jCar extends Car{
                 properties.setProperty("javax.jdo.option.ConnectionPassword", password);
             }
         }
-//****************CUMULUS4J*******************************************************************
-        properties.setProperty("datanucleus.storeManagerType", "cumulus4j");
-
-        if(Settings.CRYPTO_MANAGER_ID != null && Settings.CRYPTO_SESSION_ID != null){
-        	properties.setProperty("cumulus4j.cryptoManagerID", Settings.CRYPTO_MANAGER_ID);
-        	properties.setProperty("cumulus4j.cryptoSessionID", Settings.CRYPTO_SESSION_ID);
-        }
-        else{
-        	properties.setProperty("cumulus4j.cryptoManagerID", "dummy");
-        	properties.setProperty("cumulus4j.cryptoSessionID", "dummy");
-        }
-
-//        properties.setProperty("cumulus4j.encryptionAlgorithm", "TWOFISH/GCB/PKCS5");
-//        properties.setProperty("cumulus4j.macAlgorithm", "HMAC-SHA1");
-
-//        #cumulus4j.encryptionAlgorithm=TWOFISH/CBC/PKCS5
-//        #cumulus4j.encryptionAlgorithm=Twofish/GCM/NoPadding
-//        #cumulus4j.macAlgorithm=HMAC-SHA1
-
-//        properties.setProperty("datanucleus.rdbms.stringDefaultLength", "255");
-//        properties.setProperty("datanucleus.query.checkUnusedParameters", "false");
-//        properties.setProperty("datanucleus.store.allowReferencesWithNoImplementations", "true");
-//        properties.setProperty("datanucleus.cache.level2.type", "none");
-//        properties.setProperty("datanucleus.plugin.allowUserBundles", "true");
-//        properties.setProperty("datanucleus.persistenceByReachabilityAtCommit", "false");
-//        properties.setProperty("cumulus4j.datanucleus.storeManagerType", "rdbms");
-
-
-//        datanucleus.persistenceByReachabilityAtCommit=false
-//
-//        #cumulus4j.datanucleus.storeManagerType=rdbms
-//
-//        datanucleus.rdbms.stringDefaultLength=255
-//        #datanucleus.jpa.oneToManyUniFkRelations=true
-//
-//        datanucleus.query.checkUnusedParameters=false
-//
-//        datanucleus.store.allowReferencesWithNoImplementations=true
-//
-//        datanucleus.cache.level2.type=none
-//
-//
-//        # *** cumulus4j ***
-//        datanucleus.plugin.allowUserBundles=true
-
-//**********************************************************************************************
 
         properties.setProperty("datanucleus.autoCreateSchema", "true");
 
@@ -172,7 +126,6 @@ public class Cumulus4jCar extends Car{
         properties.setProperty("datanucleus.connectionPool.minIdle", "5");
         properties.setProperty("datanucleus.connectionPool.maxActive", "30");
 
-
         properties.setProperty("datanucleus.autoCreateConstraints", "false");
 //        properties.setProperty("datanucleus.validateColumns", "false");
 
@@ -182,17 +135,28 @@ public class Cumulus4jCar extends Car{
 		properties.setProperty("datanucleus.persistenceByReachabilityAtCommit", "false");
 		properties.setProperty("datanucleus.manageRelationships", "false");
 
+//###################################Cumulus4j#####################################################################
+		properties.setProperty("datanucleus.storeManagerType", "cumulus4j");
 
+	    if(Settings.CRYPTO_MANAGER_ID != null && Settings.CRYPTO_SESSION_ID != null){
+	    	properties.setProperty("cumulus4j.cryptoManagerID", Settings.CRYPTO_MANAGER_ID);
+	    	properties.setProperty("cumulus4j.cryptoSessionID", Settings.CRYPTO_SESSION_ID);
 
-		//###################################once more###########################################
-
-		properties.setProperty("javax.jdo.PersistenceManagerFactoryClass", "org.datanucleus.api.jdo.JDOPersistenceManagerFactory");
-		properties.setProperty("javax.jdo.option.ConnectionDriverName", "org.apache.derby.jdbc.EmbeddedDriver");
-		properties.setProperty("javax.jdo.option.ConnectionURL", "jdbc:derby:${java.io.tmpdir}/derby/cumulus4j;create=true");
-		properties.setProperty("javax.jdo.option.ServerTimeZoneID", "UTC");
-		properties.setProperty("javax.jdo.option.ConnectionUserName", "root");
-		properties.setProperty("javax.jdo.option.ConnectionPassword", "");
-		//##########################################################################################
+	    	properties.setProperty("javax.jdo.PersistenceManagerFactoryClass", "org.datanucleus.api.jdo.JDOPersistenceManagerFactory");
+//			properties.setProperty("javax.jdo.option.ConnectionDriverName", "org.apache.derby.jdbc.EmbeddedDriver");
+//			properties.setProperty("javax.jdo.option.ConnectionURL", "jdbc:derby:${java.io.tmpdir}/derby/cumulus4j;create=true");
+	    	properties.setProperty("javax.jdo.option.ConnectionDriverName", "org.hsqldb.jdbcDriver");
+	    	properties.setProperty("javax.jdo.option.ConnectionURL", "jdbc:hsqldb:mem:nucleus1;create=true");
+			properties.setProperty("javax.jdo.option.ServerTimeZoneID", "UTC");
+//			properties.setProperty("javax.jdo.option.ConnectionUserName", "root");
+			properties.setProperty("javax.jdo.option.ConnectionUserName", "sa");
+			properties.setProperty("javax.jdo.option.ConnectionPassword", "");
+	    }
+	    else{
+	        properties.setProperty("cumulus4j.cryptoManagerID", "dummy");
+	        	properties.setProperty("cumulus4j.cryptoSessionID", "dummy");
+	    }
+//##################################################################################################################
 
 
         _persistenceManagerFactory = JDOHelper.getPersistenceManagerFactory(properties, JDOHelper.class.getClassLoader());
@@ -200,16 +164,17 @@ public class Cumulus4jCar extends Car{
 
     public PersistenceManager getPersistenceManager() {
 
-        PersistenceManager persistenceManager = _persistenceManagerFactory.getPersistenceManager();
+    	return _persistenceManagerFactory.getPersistenceManager();
 
-        if(! "hsqldb".equals(mDbName)){
-        	return persistenceManager;
-        }
-
+//        PersistenceManager persistenceManager = _persistenceManagerFactory.getPersistenceManager();
+//
+//        if(! "hsqldb".equals(mDbName)){
+//        	return persistenceManager;
+//        }
 //
 //        JDOConnection dataStoreConnection = persistenceManager.getDataStoreConnection();
-//        Connection connection = (Connection) dataStoreConnection.getNativeConnection();
-////        Connection connection = (Connection)((PersistenceManagerConnection) dataStoreConnection.getNativeConnection()).getIndexPM().getDataStoreConnection();
+////        Connection connection = (Connection) dataStoreConnection.getNativeConnection();
+//        Connection connection = (Connection)((PersistenceManagerConnection) dataStoreConnection.getNativeConnection()).getIndexPM().getDataStoreConnection();
 //
 //        JdbcCar.hsqlDbWriteDelayToZero(connection);
 //        try {
@@ -222,7 +187,7 @@ public class Cumulus4jCar extends Car{
 //		} catch (SQLException e) {
 //			e.printStackTrace();
 //		}
-		return persistenceManager;
+//		return persistenceManager;
     }
 
     @Override

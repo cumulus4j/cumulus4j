@@ -8,45 +8,45 @@ import javax.jdo.Query;
 import org.polepos.circuits.nestedlists.NestedLists;
 import org.polepos.framework.Procedure;
 import org.polepos.framework.Visitor;
-import org.polepos.teams.jdo.cumulus4j.data.ListHolder;
+import org.polepos.teams.jdo.cumulus4j.data.Cumulus4jListHolder;
 
 public class NestedListsCumulus4j extends Cumulus4jDriver implements NestedLists{
 
 	@Override
 	public void create() throws Throwable {
 		begin();
-		store(ListHolder.generate(depth(), objectCount(), reuse()));
+		store(Cumulus4jListHolder.generate(depth(), objectCount(), reuse()));
 		commit();
 	}
 
 	@Override
 	public void read() throws Throwable {
-		ListHolder root = root();
-		root.accept(new Visitor<ListHolder>(){
-			public void visit(ListHolder listHolder){
-				addToCheckSum(listHolder);
+		Cumulus4jListHolder root = root();
+		root.accept(new Visitor<Cumulus4jListHolder>(){
+			public void visit(Cumulus4jListHolder cumulus4jListHolder){
+				addToCheckSum(cumulus4jListHolder);
 			}
 		});
 	}
 
-	private ListHolder root() {
+	private Cumulus4jListHolder root() {
 		beginRead();
-        Query query = db().newQuery(ListHolder.class, "this._name == '" + ListHolder.ROOT_NAME + "'");
-        Collection<ListHolder> result = (Collection<ListHolder>)query.execute();
+        Query query = db().newQuery(Cumulus4jListHolder.class, "this._name == '" + Cumulus4jListHolder.ROOT_NAME + "'");
+        Collection<Cumulus4jListHolder> result = (Collection<Cumulus4jListHolder>)query.execute();
         if(result.size() != 1){
         	throw new IllegalStateException();
         }
-        Iterator<ListHolder> it = result.iterator();
+        Iterator<Cumulus4jListHolder> it = result.iterator();
         return it.next();
 	}
 
 	@Override
 	public void update() throws Throwable {
 		begin();
-		ListHolder root = root();
-		addToCheckSum(root.update(depth(), new Procedure<ListHolder>() {
+		Cumulus4jListHolder root = root();
+		addToCheckSum(root.update(depth(), new Procedure<Cumulus4jListHolder>() {
 			@Override
-			public void apply(ListHolder obj) {
+			public void apply(Cumulus4jListHolder obj) {
 				store(obj);
 			}
 		}));
@@ -56,11 +56,11 @@ public class NestedListsCumulus4j extends Cumulus4jDriver implements NestedLists
 	@Override
 	public void delete() throws Throwable {
 		begin();
-		ListHolder root = root();
-		addToCheckSum(root.delete(depth(), new Procedure<ListHolder>() {
+		Cumulus4jListHolder root = root();
+		addToCheckSum(root.delete(depth(), new Procedure<Cumulus4jListHolder>() {
 			@Override
-			public void apply(ListHolder listHolder) {
-				delete(listHolder);
+			public void apply(Cumulus4jListHolder cumulus4jListHolder) {
+				delete(cumulus4jListHolder);
 			}
 		}));
 		commit();

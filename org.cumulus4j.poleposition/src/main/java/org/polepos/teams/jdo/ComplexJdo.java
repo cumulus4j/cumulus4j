@@ -1,4 +1,4 @@
-/* 
+/*
 This file is part of the PolePosition database benchmark
 http://www.polepos.org
 
@@ -20,17 +20,22 @@ MA  02111-1307, USA. */
 
 package org.polepos.teams.jdo;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.jdo.Query;
 
-import org.polepos.circuits.complex.*;
-import org.polepos.framework.*;
-import org.polepos.teams.jdo.data.*;
+import org.polepos.circuits.complex.Complex;
+import org.polepos.framework.NullVisitor;
+import org.polepos.framework.Visitor;
+import org.polepos.teams.jdo.data.ComplexHolder0;
+import org.polepos.teams.jdo.data.ComplexHolder2;
+import org.polepos.teams.jdo.data.ComplexRoot;
 
 
 public class ComplexJdo extends JdoDriver implements Complex {
-	
+
 	@Override
 	public void write() {
 		begin();
@@ -99,9 +104,9 @@ public class ComplexJdo extends JdoDriver implements Complex {
 				currentInt = firstInt;
 			}
 		}
-		
+
 	}
-	
+
 	@Override
 	public void update() {
 		begin();
@@ -127,7 +132,7 @@ public class ComplexJdo extends JdoDriver implements Complex {
 	public void delete() {
 		begin();
 		ComplexRoot root = root();
-		ComplexHolder0 holder = root.getHolder();		
+		ComplexHolder0 holder = root.getHolder();
 		delete(root);
 		holder.traverse(
 			new NullVisitor<ComplexHolder0>(),

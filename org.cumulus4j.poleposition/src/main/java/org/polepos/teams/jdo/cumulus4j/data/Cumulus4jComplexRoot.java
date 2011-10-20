@@ -17,26 +17,28 @@ License along with this program; if not, write to the Free
 Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA  02111-1307, USA. */
 
+
 package org.polepos.teams.jdo.cumulus4j.data;
 
+public class Cumulus4jComplexRoot {
 
-public class InheritanceHierarchy0 {
-    
-    private int i0;
-    
-    public InheritanceHierarchy0(){
-    }
-    
-    public InheritanceHierarchy0(int i0) {
-        this.i0 = i0;
-    }
+	private Cumulus4jComplexHolder0 holder;
+	
+	public Cumulus4jComplexRoot(){
+		
+	}
+	
+	public Cumulus4jComplexRoot(Cumulus4jComplexHolder0 holder) {
+		this.holder = holder;
+	}
+	
+	public Cumulus4jComplexHolder0 getHolder(){
+		return holder;
+	}
+	
+	public void setHolder(Cumulus4jComplexHolder0 holder){
+		this.holder = holder;
+	}
 
-    public void setI0(int i){
-        i0 = i;
-    }
-    
-    public int getI0(){
-        return i0;
-    }
-
+	
 }

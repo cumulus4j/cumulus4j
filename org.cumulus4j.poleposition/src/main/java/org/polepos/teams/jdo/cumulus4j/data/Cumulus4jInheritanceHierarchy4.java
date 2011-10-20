@@ -22,12 +22,12 @@ package org.polepos.teams.jdo.cumulus4j.data;
 import org.polepos.framework.*;
 
 
-public class InheritanceHierarchy4 extends InheritanceHierarchy3 implements CheckSummable{
+public class Cumulus4jInheritanceHierarchy4 extends Cumulus4jInheritanceHierarchy3 implements CheckSummable{
     
-    public InheritanceHierarchy4(){
+    public Cumulus4jInheritanceHierarchy4(){
     }
     
-    public InheritanceHierarchy4(int i0, int i1, int i2, int i3, int i4){
+    public Cumulus4jInheritanceHierarchy4(int i0, int i1, int i2, int i3, int i4){
         super(i0, i1, i2, i3);
         this.i4 = i4;
     }

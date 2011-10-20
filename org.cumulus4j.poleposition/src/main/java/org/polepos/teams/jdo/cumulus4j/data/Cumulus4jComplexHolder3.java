@@ -20,28 +20,27 @@ MA  02111-1307, USA. */
 
 package org.polepos.teams.jdo.cumulus4j.data;
 
-public class ComplexHolder2 extends ComplexHolder1 {
+public class Cumulus4jComplexHolder3 extends Cumulus4jComplexHolder2 {
 	
-	public int i2;
+	public int i3;
 	
-	public int getI2() {
-		return i2;
+	public int getI3() {
+		return i3;
 	}
 
-	public void setI2(int i2) {
-		this.i2 = i2;
+	public void setI3(int i3) {
+		this.i3 = i3;
 	}
 
 	@Override
 	public long ownCheckSum() {
-		return i2 + super.ownCheckSum();
+		return i3 + super.ownCheckSum();
 	}
 
 	@Override
 	protected void setSpecial(int value) {
 		super.setSpecial(value);
-		i2 = value;
+		i3 = value;
 	}
-
 
 }

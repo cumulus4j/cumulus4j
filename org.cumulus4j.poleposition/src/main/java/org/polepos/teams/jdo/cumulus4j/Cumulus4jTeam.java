@@ -10,11 +10,12 @@ import javax.jdo.PersistenceManager;
 import org.polepos.framework.Car;
 import org.polepos.framework.DriverBase;
 import org.polepos.framework.Team;
-import org.polepos.teams.jdo.cumulus4j.data.InheritanceHierarchy0;
-import org.polepos.teams.jdo.cumulus4j.data.InheritanceHierarchy1;
-import org.polepos.teams.jdo.cumulus4j.data.InheritanceHierarchy2;
-import org.polepos.teams.jdo.cumulus4j.data.InheritanceHierarchy3;
-import org.polepos.teams.jdo.cumulus4j.data.InheritanceHierarchy4;
+import org.polepos.teams.jdo.cumulus4j.data.Cumulus4jIndexedObject;
+import org.polepos.teams.jdo.cumulus4j.data.Cumulus4jInheritanceHierarchy0;
+import org.polepos.teams.jdo.cumulus4j.data.Cumulus4jInheritanceHierarchy1;
+import org.polepos.teams.jdo.cumulus4j.data.Cumulus4jInheritanceHierarchy2;
+import org.polepos.teams.jdo.cumulus4j.data.Cumulus4jInheritanceHierarchy3;
+import org.polepos.teams.jdo.cumulus4j.data.Cumulus4jInheritanceHierarchy4;
 
 public class Cumulus4jTeam extends Team{
 
@@ -82,10 +83,10 @@ public class Cumulus4jTeam extends Team{
     @Override
     public DriverBase[] drivers() {
         return new DriverBase[]{
-//        	new FlatObjectCumulus4j(),
+        	new FlatObjectCumulus4j(),
 //        	new NestedListsCumulus4j(),
 //        	new ComplexCumulus4j(),
-        	new InheritanceHierarchyCumulus4j(),
+//        	new InheritanceHierarchyCumulus4j(),
         };
     }
 
@@ -108,22 +109,22 @@ public class Cumulus4jTeam extends Team{
 		    Cumulus4jCar cumulus4jCar = (Cumulus4jCar)mCars[i];
 			PersistenceManager pm = cumulus4jCar.getPersistenceManager();
 
-//		    deleteAll(pm, Cumulus4jIndexedObject.class);
+		    deleteAll(pm, Cumulus4jIndexedObject.class);
 
-//		    deleteAll(pm, ListHolder.class);
+//		    deleteAll(pm, Cumulus4jListHolder.class);
+
+//		    deleteAll(pm, Cumulus4jComplexRoot.class);
+//		    deleteAll(pm, Cumulus4jComplexHolder0.class);
+//		    deleteAll(pm, Cumulus4jComplexHolder1.class);
+//		    deleteAll(pm, Cumulus4jComplexHolder2.class);
+//		    deleteAll(pm, Cumulus4jComplexHolder3.class);
+//		    deleteAll(pm, Cumulus4jComplexHolder4.class);
 //
-//		    deleteAll(pm, ComplexRoot.class);
-//		    deleteAll(pm, ComplexHolder0.class);
-//		    deleteAll(pm, ComplexHolder1.class);
-//		    deleteAll(pm, ComplexHolder2.class);
-//		    deleteAll(pm, ComplexHolder3.class);
-//		    deleteAll(pm, ComplexHolder4.class);
-//
-		    deleteAll(pm, InheritanceHierarchy4.class);
-		    deleteAll(pm, InheritanceHierarchy3.class);
-		    deleteAll(pm, InheritanceHierarchy2.class);
-		    deleteAll(pm, InheritanceHierarchy1.class);
-		    deleteAll(pm, InheritanceHierarchy0.class);
+		    deleteAll(pm, Cumulus4jInheritanceHierarchy4.class);
+		    deleteAll(pm, Cumulus4jInheritanceHierarchy3.class);
+		    deleteAll(pm, Cumulus4jInheritanceHierarchy2.class);
+		    deleteAll(pm, Cumulus4jInheritanceHierarchy1.class);
+		    deleteAll(pm, Cumulus4jInheritanceHierarchy0.class);
 
 		    pm.close();
 		}

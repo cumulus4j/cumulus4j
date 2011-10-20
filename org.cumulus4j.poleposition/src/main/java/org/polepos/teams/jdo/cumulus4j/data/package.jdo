@@ -6,55 +6,55 @@
           <field name = "_int" indexed = "true"/>
           <field name = "_string"  indexed = "true"/>
         </class>
-        <class name="ListHolder">
+        <class name="Cumulus4jListHolder">
         	<field name="_id" indexed = "true"/>
         	<field name="_name" indexed = "true"/>
         	<field name="_list">
-        		<collection element-type="ListHolder"/>
+        		<collection element-type="Cumulus4jListHolder"/>
         	</field>
         </class>														
-        <class name="ComplexRoot" />
-        <class name="ComplexHolder0">
+        <class name="Cumulus4jComplexRoot" />
+        <class name="Cumulus4jComplexHolder0">
         	<inheritance strategy="new-table"/>
         	<field name="name" />
         	<field name="array" />
             <field name="children">
-        		<collection element-type="ComplexHolder0"/>
+        		<collection element-type="Cumulus4jComplexHolder0"/>
         	</field>
         </class>
-        <class name="ComplexHolder1">
+        <class name="Cumulus4jComplexHolder1">
         	<inheritance strategy="new-table"/>
         	<field name = "i1" />
         </class>
-        <class name="ComplexHolder2">
+        <class name="Cumulus4jComplexHolder2">
         	<inheritance strategy="new-table"/>
 	        <field name = "i2" indexed = "true"/>
         </class> 
-        <class name="ComplexHolder3">
+        <class name="Cumulus4jComplexHolder3">
         	<inheritance strategy="new-table"/>
         	<field name = "i3" />
         </class>
-        <class name="ComplexHolder4">
+        <class name="Cumulus4jComplexHolder4">
         	<inheritance strategy="new-table"/>
         	<field name = "i4" />
         </class>											
-        <class name="InheritanceHierarchy0">
+        <class name="Cumulus4jInheritanceHierarchy0">
         	<inheritance strategy="new-table"/>
         	<field name = "i0" />
         </class>
-        <class name="InheritanceHierarchy1">
+        <class name="Cumulus4jInheritanceHierarchy1">
 			<inheritance strategy="new-table"/>
 			<field name = "i1" />
         </class>
-        <class name="InheritanceHierarchy2">
+        <class name="Cumulus4jInheritanceHierarchy2">
         	<inheritance strategy="new-table"/>
 	        <field name="i2" indexed="true"/>
         </class> 
-        <class name="InheritanceHierarchy3">
+        <class name="Cumulus4jInheritanceHierarchy3">
         	<inheritance strategy="new-table"/>
         	<field name = "i3" />
         </class>
-        <class name="InheritanceHierarchy4">
+        <class name="Cumulus4jInheritanceHierarchy4">
         	<inheritance strategy="new-table"/>
         	<field name = "i4" />
         </class>

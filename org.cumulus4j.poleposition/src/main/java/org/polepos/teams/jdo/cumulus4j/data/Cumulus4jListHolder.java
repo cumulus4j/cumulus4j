@@ -33,7 +33,7 @@ import org.polepos.framework.IdGenerator;
 import org.polepos.framework.Procedure;
 import org.polepos.framework.Visitor;
 
-public class ListHolder implements CheckSummable {
+public class Cumulus4jListHolder implements CheckSummable {
 
 	public static final String ROOT_NAME = "root";
 
@@ -43,26 +43,26 @@ public class ListHolder implements CheckSummable {
 
 	private String _name;
 
-	private List<ListHolder> _list;
+	private List<Cumulus4jListHolder> _list;
 
-	public static ListHolder generate(int depth, int leafs, int reuse){
-		ListHolder root = generate(new ArrayList<ListHolder>(), depth, leafs, reuse);
+	public static Cumulus4jListHolder generate(int depth, int leafs, int reuse){
+		Cumulus4jListHolder root = generate(new ArrayList<Cumulus4jListHolder>(), depth, leafs, reuse);
 		root._name = ROOT_NAME;
 		return root;
 	}
 
-	private static ListHolder generate(List<ListHolder> flatList, int depth, int leafs, int reuse){
+	private static Cumulus4jListHolder generate(List<Cumulus4jListHolder> flatList, int depth, int leafs, int reuse){
 		if(depth == 0){
 			return null;
 		}
-		ListHolder listHolder = new ListHolder();
-		listHolder.setId(_idGenerator.nextId());
+		Cumulus4jListHolder cumulus4jListHolder = new Cumulus4jListHolder();
+		cumulus4jListHolder.setId(_idGenerator.nextId());
 
-		flatList.add(listHolder);
+		flatList.add(cumulus4jListHolder);
 		if(depth == 1){
-			return listHolder;
+			return cumulus4jListHolder;
 		}
-		listHolder.setList(new ArrayList<ListHolder>());
+		cumulus4jListHolder.setList(new ArrayList<Cumulus4jListHolder>());
 		int childDepth = depth -1;
 		for (int i = leafs -1; i >= 0; i--) {
 			if(i < reuse){
@@ -70,14 +70,14 @@ public class ListHolder implements CheckSummable {
 				if(indexInList < 0){
 					indexInList = 0;
 				}
-				listHolder.getList().add(flatList.get(indexInList) );
+				cumulus4jListHolder.getList().add(flatList.get(indexInList) );
 			} else {
-				ListHolder child = generate(flatList, childDepth, leafs, reuse);
+				Cumulus4jListHolder child = generate(flatList, childDepth, leafs, reuse);
 				child._name = "child:" + depth + ":" + i;
-				listHolder.getList().add(child);
+				cumulus4jListHolder.getList().add(child);
 			}
 		}
-		return listHolder;
+		return cumulus4jListHolder;
 	}
 
 	@Override
@@ -85,12 +85,12 @@ public class ListHolder implements CheckSummable {
 		return _name.hashCode();
 	}
 
-	public void accept(Visitor<ListHolder> visitor) {
-		Set<ListHolder> visited = new HashSet<ListHolder>();
+	public void accept(Visitor<Cumulus4jListHolder> visitor) {
+		Set<Cumulus4jListHolder> visited = new HashSet<Cumulus4jListHolder>();
 		acceptInternal(visited, visitor);
 	}
 
-	private void acceptInternal(Set<ListHolder> visited, Visitor<ListHolder> visitor){
+	private void acceptInternal(Set<Cumulus4jListHolder> visited, Visitor<Cumulus4jListHolder> visitor){
 		if(visited.contains(this)){
 			return;
 		}
@@ -99,20 +99,20 @@ public class ListHolder implements CheckSummable {
 		if(getList() == null){
 			return;
 		}
-		Iterator<ListHolder> i = getList().iterator();
+		Iterator<Cumulus4jListHolder> i = getList().iterator();
 		while(i.hasNext()){
-			ListHolder child = i.next();
+			Cumulus4jListHolder child = i.next();
 			child.acceptInternal(visited, visitor);
 		}
 	}
 
-	public int update(int maxDepth, Procedure<ListHolder> storeProcedure) {
-		Set<ListHolder> visited = new HashSet<ListHolder>();
+	public int update(int maxDepth, Procedure<Cumulus4jListHolder> storeProcedure) {
+		Set<Cumulus4jListHolder> visited = new HashSet<Cumulus4jListHolder>();
 		return updateInternal(visited, maxDepth, 0, storeProcedure);
 	}
 
 
-	public int updateInternal(Set<ListHolder> visited, int maxDepth, int depth, Procedure<ListHolder> storeProcedure) {
+	public int updateInternal(Set<Cumulus4jListHolder> visited, int maxDepth, int depth, Procedure<Cumulus4jListHolder> storeProcedure) {
 		if(visited.contains(this)){
 			return 0;
 		}
@@ -124,7 +124,7 @@ public class ListHolder implements CheckSummable {
 
 		if(_list != null){
 			for (int i = 0; i < _list.size(); i++) {
-				ListHolder child = _list.get(i);
+				Cumulus4jListHolder child = _list.get(i);
 				updatedCount += child.updateInternal(visited, maxDepth, depth +  1, storeProcedure);
 			}
 		}
@@ -132,13 +132,13 @@ public class ListHolder implements CheckSummable {
 		return updatedCount;
 	}
 
-	public int delete(int maxDepth, Procedure<ListHolder> deleteProcedure) {
+	public int delete(int maxDepth, Procedure<Cumulus4jListHolder> deleteProcedure) {
 		// We use an IdentityHashMap here so hashCode is not called on deleted items.
-		Map<ListHolder, ListHolder> visited = new IdentityHashMap<ListHolder, ListHolder>();
+		Map<Cumulus4jListHolder, Cumulus4jListHolder> visited = new IdentityHashMap<Cumulus4jListHolder, Cumulus4jListHolder>();
 		return deleteInternal(visited, maxDepth, 0, deleteProcedure);
 	}
 
-	public int deleteInternal(Map<ListHolder, ListHolder> visited, int maxDepth, int depth, Procedure<ListHolder> deleteProcedure) {
+	public int deleteInternal(Map<Cumulus4jListHolder, Cumulus4jListHolder> visited, int maxDepth, int depth, Procedure<Cumulus4jListHolder> deleteProcedure) {
 		if(visited.containsKey(this)){
 			return 0;
 		}
@@ -146,7 +146,7 @@ public class ListHolder implements CheckSummable {
 		int deletedCount = 1;
 		if(_list != null){
 			for (int i = 0; i < _list.size(); i++) {
-				ListHolder child = getList().get(i);
+				Cumulus4jListHolder child = getList().get(i);
 				deletedCount += child.deleteInternal(visited, maxDepth, depth +  1, deleteProcedure);
 			}
 		}
@@ -164,12 +164,12 @@ public class ListHolder implements CheckSummable {
 	}
 
 
-	private void setList(List<ListHolder> list) {
+	private void setList(List<Cumulus4jListHolder> list) {
 		_list = list;
 	}
 
 
-	private List<ListHolder> getList() {
+	private List<Cumulus4jListHolder> getList() {
 		return _list;
 	}
 
@@ -184,7 +184,7 @@ public class ListHolder implements CheckSummable {
 		if(obj.getClass() != this.getClass()){
 			return false;
 		}
-		ListHolder other = (ListHolder) obj;
+		Cumulus4jListHolder other = (Cumulus4jListHolder) obj;
 		return _id == other._id;
 	}
 
@@ -195,7 +195,7 @@ public class ListHolder implements CheckSummable {
 
 	@Override
 	public String toString() {
-		return "ListHolder [_id=" + _id + "]";
+		return "Cumulus4jListHolder [_id=" + _id + "]";
 	}
 
 }

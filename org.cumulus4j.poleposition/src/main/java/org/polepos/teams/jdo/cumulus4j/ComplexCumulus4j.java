@@ -9,9 +9,9 @@ import javax.jdo.Query;
 import org.polepos.circuits.complex.Complex;
 import org.polepos.framework.NullVisitor;
 import org.polepos.framework.Visitor;
-import org.polepos.teams.jdo.cumulus4j.data.ComplexHolder0;
-import org.polepos.teams.jdo.cumulus4j.data.ComplexHolder2;
-import org.polepos.teams.jdo.cumulus4j.data.ComplexRoot;
+import org.polepos.teams.jdo.cumulus4j.data.Cumulus4jComplexHolder0;
+import org.polepos.teams.jdo.cumulus4j.data.Cumulus4jComplexHolder2;
+import org.polepos.teams.jdo.cumulus4j.data.Cumulus4jComplexRoot;
 
 
 public class ComplexCumulus4j extends Cumulus4jDriver implements Complex{
@@ -19,33 +19,33 @@ public class ComplexCumulus4j extends Cumulus4jDriver implements Complex{
 	@Override
 	public void write() {
 		begin();
-		ComplexHolder0 holder = ComplexHolder0.generate(depth(), objectCount());
+		Cumulus4jComplexHolder0 holder = Cumulus4jComplexHolder0.generate(depth(), objectCount());
 		addToCheckSum(holder);
-		store(new ComplexRoot(holder));
+		store(new Cumulus4jComplexRoot(holder));
 		commit();
 	}
 
 	@Override
 	public void read() {
 		beginRead();
-		ComplexHolder0 holder = rootHolder();
+		Cumulus4jComplexHolder0 holder = rootHolder();
 		addToCheckSum(holder);
 	}
 
-	private ComplexHolder0 rootHolder() {
+	private Cumulus4jComplexHolder0 rootHolder() {
         return root().getHolder();
 	}
 
-	private ComplexRoot root() {
-		Query query = db().newQuery(ComplexRoot.class);
+	private Cumulus4jComplexRoot root() {
+		Query query = db().newQuery(Cumulus4jComplexRoot.class);
         Collection result = (Collection) query.execute();
 		Iterator it = result.iterator();
 		if(! it.hasNext()){
-			throw new IllegalStateException("no ComplexRoot found");
+			throw new IllegalStateException("no Cumulus4jComplexRoot found");
 		}
-		ComplexRoot root = (ComplexRoot) it.next();
+		Cumulus4jComplexRoot root = (Cumulus4jComplexRoot) it.next();
 		if(it.hasNext()){
-			throw new IllegalStateException("More than one ComplexRoot found");
+			throw new IllegalStateException("More than one Cumulus4jComplexRoot found");
 		}
 		return root;
 	}
@@ -59,24 +59,24 @@ public class ComplexCumulus4j extends Cumulus4jDriver implements Complex{
 		int currentInt = firstInt;
 		for (int run = 0; run < selectCount; run++) {
 	        String filter = "this.i2 == param";
-	        Query query = db().newQuery(ComplexHolder2.class, filter);
+	        Query query = db().newQuery(Cumulus4jComplexHolder2.class, filter);
 	        query.declareParameters("int param");
 	        Collection result = (Collection) query.execute(currentInt);
 			Iterator it = result.iterator();
 			if(! it.hasNext()){
-				throw new IllegalStateException("no ComplexHolder2 found");
+				throw new IllegalStateException("no Cumulus4jComplexHolder2 found");
 			}
-			ComplexHolder2 holder = (ComplexHolder2) it.next();
+			Cumulus4jComplexHolder2 holder = (Cumulus4jComplexHolder2) it.next();
 			addToCheckSum(holder.ownCheckSum());
 			if(it.hasNext()){
-				throw new IllegalStateException("More than one ComplexHolder2 found");
+				throw new IllegalStateException("More than one Cumulus4jComplexHolder2 found");
 			}
-			List<ComplexHolder0> children = holder.getChildren();
-			for (ComplexHolder0 child : children) {
+			List<Cumulus4jComplexHolder0> children = holder.getChildren();
+			for (Cumulus4jComplexHolder0 child : children) {
 				addToCheckSum(child.ownCheckSum());
 			}
-			ComplexHolder0[] array = holder.getArray();
-			for (ComplexHolder0 arrayElement : array) {
+			Cumulus4jComplexHolder0[] array = holder.getArray();
+			for (Cumulus4jComplexHolder0 arrayElement : array) {
 				addToCheckSum(arrayElement.ownCheckSum());
 			}
 			currentInt++;
@@ -90,15 +90,15 @@ public class ComplexCumulus4j extends Cumulus4jDriver implements Complex{
 	@Override
 	public void update() {
 		begin();
-		ComplexHolder0 holder = rootHolder();
-		holder.traverse(new NullVisitor<ComplexHolder0>(),
-				new Visitor<ComplexHolder0>() {
+		Cumulus4jComplexHolder0 holder = rootHolder();
+		holder.traverse(new NullVisitor<Cumulus4jComplexHolder0>(),
+				new Visitor<Cumulus4jComplexHolder0>() {
 			@Override
-			public void visit(ComplexHolder0 holder) {
+			public void visit(Cumulus4jComplexHolder0 holder) {
 				addToCheckSum(holder.ownCheckSum());
 				holder.setName("updated");
-				List<ComplexHolder0> children = holder.getChildren();
-				ComplexHolder0[] array = new ComplexHolder0[children.size()];
+				List<Cumulus4jComplexHolder0> children = holder.getChildren();
+				Cumulus4jComplexHolder0[] array = new Cumulus4jComplexHolder0[children.size()];
 				for (int i = 0; i < array.length; i++) {
 					array[i] = children.get(i);
 				}
@@ -111,14 +111,14 @@ public class ComplexCumulus4j extends Cumulus4jDriver implements Complex{
 	@Override
 	public void delete() {
 		begin();
-		ComplexRoot root = root();
-		ComplexHolder0 holder = root.getHolder();
+		Cumulus4jComplexRoot root = root();
+		Cumulus4jComplexHolder0 holder = root.getHolder();
 		delete(root);
 		holder.traverse(
-			new NullVisitor<ComplexHolder0>(),
-			new Visitor<ComplexHolder0>() {
+			new NullVisitor<Cumulus4jComplexHolder0>(),
+			new Visitor<Cumulus4jComplexHolder0>() {
 			@Override
-			public void visit(ComplexHolder0 holder) {
+			public void visit(Cumulus4jComplexHolder0 holder) {
 				addToCheckSum(holder.ownCheckSum());
 				delete(holder);
 			}

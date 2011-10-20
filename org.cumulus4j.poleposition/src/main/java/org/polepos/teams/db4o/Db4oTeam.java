@@ -1,4 +1,4 @@
-/* 
+/*
 This file is part of the PolePosition database benchmark
 http://www.polepos.org
 
@@ -19,24 +19,29 @@ MA  02111-1307, USA. */
 
 package org.polepos.teams.db4o;
 
-import java.io.*;
-import java.lang.reflect.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.polepos.framework.*;
+import org.polepos.framework.Car;
+import org.polepos.framework.ConfigurationSetting;
+import org.polepos.framework.DriverBase;
+import org.polepos.framework.Team;
 
 public class Db4oTeam extends Team {
-    
-    private String _name = db4oName(); 
-    
+
+    private String _name = db4oName();
+
     private final List<DriverBase> _drivers;
 
 	private int[] _options;
-	
+
 	private ConfigurationSetting[] _configurations;
-	
+
 	private Car[] _cars;
-	
+
     public Db4oTeam(boolean loadDrivers) {
         _drivers = new ArrayList<DriverBase>();
         if(loadDrivers) {
@@ -62,18 +67,18 @@ public class Db4oTeam extends Team {
         addDriver(new NurburgringDb4o());
         addDriver(new MontrealDb4o());
     }
-    
+
     @Override
     public String name(){
 		return _name;
 	}
-    
+
     @Override
     public String description() {
         return "the open source object database for Java and .NET";
     }
-    
-    
+
+
 
     @Override
     public Car[] cars(){
@@ -82,11 +87,11 @@ public class Db4oTeam extends Team {
     	}
 		return _cars;
 	}
-    
+
     public void addDriver(DriverBase driver){
         _drivers.add(driver);
     }
-    
+
     public void addDriver(String driverName){
         try {
             Class<?> clazz = this.getClass().getClassLoader().loadClass(driverName);
@@ -113,13 +118,13 @@ public class Db4oTeam extends Team {
     	_options = options;
     	_configurations = configurations;
         _name = db4oName();
-        
+
         if(configurations != null){
         	for (int i = 0; i < configurations.length; i++) {
         		_name += " " + configurations[i].name();
 			}
         }
-        
+
         if(options != null){
             for (int i = 0; i < options.length; i++) {
                 try{
@@ -146,7 +151,7 @@ public class Db4oTeam extends Team {
                             _name += " f:B";
                             break;
                         default:
-                    
+
                     }
                 }catch (Throwable t){
                     System.err.println("db4o option not available in this version");
@@ -155,16 +160,17 @@ public class Db4oTeam extends Team {
             }
         }
     }
-    
+
     private String db4oName(){
         return "db4o";
     }
 
+	@Override
 	public void setUp() {
 		new File(Db4oCar.FOLDER).mkdirs();
 	    try {
-	    	defaultCar().deleteDatabaseFile(); 
-		} 
+	    	defaultCar().deleteDatabaseFile();
+		}
 	    catch (IOException e) {
 	    	throw new RuntimeException(e);
 		}
@@ -175,16 +181,18 @@ public class Db4oTeam extends Team {
 		return (Db4oCar) car;
 	}
 
+	@Override
 	protected void tearDown() {
 		defaultCar().stopServer();
 	}
-    
+
+	@Override
 	public final String databaseFile(){
         return defaultCar().databaseFile();
     }
-    
+
     public void setJarName(String jarName){
         _name = _name.replaceAll("db4o", jarName);
     }
-    
+
 }
