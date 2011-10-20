@@ -24,17 +24,12 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
-
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @ApplicationPath("/App")
-public class App
-extends Application
-{
-	private static final Class<?>[] serviceClassesArray = {
-		TestService.class
-	};
+public class App extends Application {
+	private static final Class<?>[] serviceClassesArray = { TestService.class };
 
 	private static final Set<Class<?>> serviceClassesSet;
 	static {
@@ -53,12 +48,11 @@ extends Application
 	private Set<Object> singletons;
 
 	@Override
-	public Set<Object> getSingletons()
-	{
+	public Set<Object> getSingletons() {
 		if (singletons == null) {
 			Set<Object> s = new HashSet<Object>();
-//			s.add(new SomeSingletonProvider(someSingleton));
-//			s.add(new AnotherSingletonProvider(anotherSingleton));
+			// s.add(new SomeSingletonProvider(someSingleton));
+			// s.add(new AnotherSingletonProvider(anotherSingleton));
 			singletons = Collections.unmodifiableSet(s);
 		}
 

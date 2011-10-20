@@ -29,7 +29,7 @@ public class ClientTest {
 
 	private static final String URL_APP_SERVER = "http://localhost:8585";
 //	private static final String URL_APP_SERVER = "http://localhost:8080";
-	private static final String URL_INTEGRATIONTEST_CONTEXT = URL_APP_SERVER + "/org.polepos";
+	private static final String URL_INTEGRATIONTEST_CONTEXT = URL_APP_SERVER + "/org.cumulus4j.poleposition";
 	private static final String URL_KEY_MANAGER_BACK_WEBAPP = URL_INTEGRATIONTEST_CONTEXT + "/org.cumulus4j.keymanager.back.webapp";
 	private static final String URL_INTEGRATIONTEST_WEBAPP = URL_INTEGRATIONTEST_CONTEXT + "/App";
 	private static final String URL_TEST = URL_INTEGRATIONTEST_WEBAPP + "/Test";
@@ -100,8 +100,8 @@ public class ClientTest {
 			// Hence we do it here, too, in order to be a good example and in case someone copies the code ;-)
 			// Marco :-)
 			String cryptoSessionID = cryptoSession.acquire();
-			try {
 
+			try {
 				invokeTestWithinServer(cryptoSessionID);
 
 			} finally {
@@ -138,7 +138,9 @@ public class ClientTest {
 			else {
 				keyStoreFile.delete();
 				if (keyStoreFile.exists())
-					logger.warn("The key-store-file could not be deleted: " + keyStoreFile.getAbsolutePath());
+					logger.warn("The key store file could not be deleted: " + keyStoreFile.getAbsolutePath());
+				else
+					logger.info("The key store file has been deleted: " + keyStoreFile.getAbsolutePath());
 			}
 		}
 	}

@@ -26,6 +26,10 @@ public class Settings {
 
     public static boolean DEBUG = true;
 
+    public static String CRYPTO_MANAGER_ID;
+
+    public static String CRYPTO_SESSION_ID;
+
     public static final String SETTINGS_FOLDER = "settings";
 
     public static final String CIRCUIT = DEBUG ? SETTINGS_FOLDER + "/DebugCircuits.properties" : SETTINGS_FOLDER + File.separator + "Circuits.properties" ;

@@ -29,8 +29,8 @@ import org.polepos.framework.Team;
 import org.polepos.reporters.DefaultReporterFactory;
 import org.polepos.reporters.Reporter;
 import org.polepos.runner.AbstractRunner;
-import org.polepos.teams.jdo.JdoTeam;
 import org.polepos.teams.jdo.cumulus4j.Cumulus4jTeam;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is the Main class to run PolePosition. If JDO, JPA and JVI are
@@ -43,7 +43,39 @@ import org.polepos.teams.jdo.cumulus4j.Cumulus4jTeam;
  */
 public class RunSeason extends AbstractRunner {
 
+	private static org.slf4j.Logger logger = LoggerFactory.getLogger(RunSeason.class);
+
 	public static void main(String[] args) {
+
+//		org.apache.log4j.Logger.getLogger(Logger.ROOT_LOGGER_NAME).removeAllAppenders();
+
+//		List<Logger> loggers = Collections.<Logger>list(LogManager.getCurrentLoggers());
+//		loggers.add(LogManager.getRootLogger());
+//		for ( Logger logger : loggers ) {
+//		    logger.setLevel(Level.OFF);
+//		}
+
+
+		logger.debug("Trying to set cryptoManagerID and cryptoSessionID.");
+		if(args != null){
+			try{
+				logger.debug("cryptoManagerID: " + args[0]);
+				Settings.CRYPTO_MANAGER_ID = args[0];
+				Settings.CRYPTO_MANAGER_ID = "keyManager";
+				logger.debug("cryptoSessionID: " + args[1]);
+				Settings.CRYPTO_SESSION_ID = args[1];
+			}
+			catch(Exception e){
+				logger.error("An error occured while reading program arguments. " +
+						"When you are trying to run PolePosition with cumulus4j the " +
+						"first argument must be the cryptoManagerID and the second " +
+						"argument must be the cryptoSessionID.", e);
+			}
+		}
+		else{
+			logger.debug("No cryptoManagerID and cryptoSessionID found.");
+		}
+
 		new RunSeason().run();
 	}
 
@@ -76,7 +108,7 @@ public class RunSeason extends AbstractRunner {
 	public Team[] teams() {
 		return new Team[] {
 //				new Db4oTeam(),
-				new JdoTeam(),
+//				new JdoTeam(),
 				new Cumulus4jTeam(),
 
 //				new Db4oClientServerTeam(),
@@ -85,8 +117,8 @@ public class RunSeason extends AbstractRunner {
 //				new HibernateTeam(),
 //				new JpaTeam(),
 
-				// new JviTeam(),
-				// new CobraTeam(),
+//				 new JviTeam(),
+//				 new CobraTeam(),
 		};
 	}
 

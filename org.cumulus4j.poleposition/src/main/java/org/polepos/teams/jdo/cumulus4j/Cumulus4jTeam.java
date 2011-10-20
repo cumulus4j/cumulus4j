@@ -10,7 +10,11 @@ import javax.jdo.PersistenceManager;
 import org.polepos.framework.Car;
 import org.polepos.framework.DriverBase;
 import org.polepos.framework.Team;
-import org.polepos.teams.jdo.cumulus4j.data.Cumulus4jIndexedObject;
+import org.polepos.teams.jdo.cumulus4j.data.InheritanceHierarchy0;
+import org.polepos.teams.jdo.cumulus4j.data.InheritanceHierarchy1;
+import org.polepos.teams.jdo.cumulus4j.data.InheritanceHierarchy2;
+import org.polepos.teams.jdo.cumulus4j.data.InheritanceHierarchy3;
+import org.polepos.teams.jdo.cumulus4j.data.InheritanceHierarchy4;
 
 public class Cumulus4jTeam extends Team{
 
@@ -78,10 +82,10 @@ public class Cumulus4jTeam extends Team{
     @Override
     public DriverBase[] drivers() {
         return new DriverBase[]{
-        	new FlatObjectCumulus4j(),
+//        	new FlatObjectCumulus4j(),
 //        	new NestedListsCumulus4j(),
 //        	new ComplexCumulus4j(),
-//        	new InheritanceHierarchyCumulus4j(),
+        	new InheritanceHierarchyCumulus4j(),
         };
     }
 
@@ -92,12 +96,19 @@ public class Cumulus4jTeam extends Team{
 
 	@Override
     public void setUp() {
+
+//		try {
+//			CleanupUtil.dropAllTables();
+//		} catch (Exception e) {
+//			throw new RuntimeException(e);
+//		}
+
 		for(int i = 0; i < mCars.length;i++){
 
 		    Cumulus4jCar cumulus4jCar = (Cumulus4jCar)mCars[i];
 			PersistenceManager pm = cumulus4jCar.getPersistenceManager();
 
-		    deleteAll(pm, Cumulus4jIndexedObject.class);
+//		    deleteAll(pm, Cumulus4jIndexedObject.class);
 
 //		    deleteAll(pm, ListHolder.class);
 //
@@ -107,12 +118,12 @@ public class Cumulus4jTeam extends Team{
 //		    deleteAll(pm, ComplexHolder2.class);
 //		    deleteAll(pm, ComplexHolder3.class);
 //		    deleteAll(pm, ComplexHolder4.class);
-
-//		    deleteAll(pm, InheritanceHierarchy4.class);
-//		    deleteAll(pm, InheritanceHierarchy3.class);
-//		    deleteAll(pm, InheritanceHierarchy2.class);
-//		    deleteAll(pm, InheritanceHierarchy1.class);
-//		    deleteAll(pm, InheritanceHierarchy0.class);
+//
+		    deleteAll(pm, InheritanceHierarchy4.class);
+		    deleteAll(pm, InheritanceHierarchy3.class);
+		    deleteAll(pm, InheritanceHierarchy2.class);
+		    deleteAll(pm, InheritanceHierarchy1.class);
+		    deleteAll(pm, InheritanceHierarchy0.class);
 
 		    pm.close();
 		}

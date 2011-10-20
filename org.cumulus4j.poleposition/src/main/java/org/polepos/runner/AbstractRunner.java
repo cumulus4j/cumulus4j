@@ -1,4 +1,4 @@
-/* 
+/*
 This file is part of the PolePosition database benchmark
 http://www.polepos.org
 
@@ -19,18 +19,26 @@ MA  02111-1307, USA. */
 
 package org.polepos.runner;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-import org.polepos.*;
-import org.polepos.framework.*;
-import org.polepos.reporters.*;
+import org.polepos.Settings;
+import org.polepos.framework.Circuit;
+import org.polepos.framework.CircuitBase;
+import org.polepos.framework.ConcurrencyCircuit;
+import org.polepos.framework.Racer;
+import org.polepos.framework.Team;
+import org.polepos.framework.TurnSetup;
+import org.polepos.framework.TurnSetupConfig;
+import org.polepos.reporters.Reporter;
 
 public abstract class AbstractRunner {
 
 	public void run() {
 		run(Settings.CIRCUIT);
 	}
-	
+
 	public void run(String propertiesFileName){
 		TurnSetupConfig turnSetupConfig = new TurnSetupConfig(propertiesFileName);
 		List<CircuitBase> distinctCircuits = Arrays.asList(circuits());
