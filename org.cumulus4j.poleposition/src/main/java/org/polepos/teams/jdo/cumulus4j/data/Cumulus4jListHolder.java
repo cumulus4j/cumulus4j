@@ -32,6 +32,8 @@ import org.polepos.framework.CheckSummable;
 import org.polepos.framework.IdGenerator;
 import org.polepos.framework.Procedure;
 import org.polepos.framework.Visitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Cumulus4jListHolder implements CheckSummable {
 
@@ -147,12 +149,22 @@ public class Cumulus4jListHolder implements CheckSummable {
 		if(_list != null){
 			for (int i = 0; i < _list.size(); i++) {
 				Cumulus4jListHolder child = getList().get(i);
+
+				logger.debug("child: " + child);
+				logger.debug("deletedCount: " + deletedCount);
+				logger.debug("visited: " + visited);
+				logger.debug("maxDepth: " + maxDepth);
+				logger.debug("depth: " + depth);
+				logger.debug("deletePrecedure: " + deleteProcedure);
+
 				deletedCount += child.deleteInternal(visited, maxDepth, depth +  1, deleteProcedure);
 			}
 		}
 		deleteProcedure.apply(this);
 		return deletedCount;
 	}
+
+	private static Logger logger = LoggerFactory.getLogger(Cumulus4jListHolder.class);
 
 	private void setId(long id) {
 		_id = id;
