@@ -8,7 +8,7 @@ import javax.jdo.Query;
 import org.polepos.circuits.inheritancehierarchy.InheritanceHierarchy;
 import org.polepos.teams.jdo.cumulus4j.data.Cumulus4jInheritanceHierarchy4;
 
-public class InheritanceHierarchyCumulus4j extends Cumulus4jDriver implements InheritanceHierarchy{
+public class InheritanceHierarchyJdoCumulus4j extends JdoCumulus4jDriver implements InheritanceHierarchy{
 
 	@Override
     public void write(){

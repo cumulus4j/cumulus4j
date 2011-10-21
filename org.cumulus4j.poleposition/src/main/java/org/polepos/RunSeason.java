@@ -29,9 +29,8 @@ import org.polepos.framework.Team;
 import org.polepos.reporters.DefaultReporterFactory;
 import org.polepos.reporters.Reporter;
 import org.polepos.runner.AbstractRunner;
-import org.polepos.teams.db4o.Db4oTeam;
 import org.polepos.teams.jdo.JdoTeam;
-import org.polepos.teams.jdo.cumulus4j.Cumulus4jTeam;
+import org.polepos.teams.jdo.cumulus4j.JdoCumulus4jTeam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,14 +100,10 @@ public class RunSeason extends AbstractRunner {
 	@Override
 	public Team[] teams() {
 		return new Team[] {
-				/*
-				 * TODO: When Cumulus4j is not in the first position of the array an error occurs.
-				 * The tests are executed in the order in which they are in the list.
-				 * Maybe a timeout problem of cumulus4j (CryptoSession)
-				 */
-				new Cumulus4jTeam(),
-				new Db4oTeam(),
+
+				new JdoCumulus4jTeam(),
 				new JdoTeam(),
+//				new Db4oTeam(),
 
 //				new Db4oClientServerTeam(),
 

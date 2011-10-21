@@ -10,7 +10,7 @@ import org.polepos.framework.Procedure;
 import org.polepos.framework.Visitor;
 import org.polepos.teams.jdo.cumulus4j.data.Cumulus4jListHolder;
 
-public class NestedListsCumulus4j extends Cumulus4jDriver implements NestedLists{
+public class NestedListsJdoCumulus4j extends JdoCumulus4jDriver implements NestedLists{
 
 	@Override
 	public void create() throws Throwable {

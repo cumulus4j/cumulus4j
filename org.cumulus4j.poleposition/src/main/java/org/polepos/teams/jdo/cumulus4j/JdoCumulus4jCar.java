@@ -12,21 +12,21 @@ import org.polepos.framework.CarMotorFailureException;
 import org.polepos.framework.Team;
 import org.polepos.teams.jdbc.Jdbc;
 
-public class Cumulus4jCar extends Car{
+public class JdoCumulus4jCar extends Car{
 
     private transient PersistenceManagerFactory _persistenceManagerFactory;
 
     private final String              mDbName;
     private final String              mName;
 
-    Cumulus4jCar(Team team, String name, String dbName, String color) throws CarMotorFailureException {
+    JdoCumulus4jCar(Team team, String name, String dbName, String color) throws CarMotorFailureException {
     	super(team, color);
 
         mName = name;
         mDbName = dbName;
 
-        _website = Cumulus4j.settings().getWebsite(name);
-        _description = Cumulus4j.settings().getDescription(name);
+        _website = JdoCumulus4j.settings().getWebsite(name);
+        _description = JdoCumulus4j.settings().getDescription(name);
 
         initialize();
 
@@ -40,7 +40,7 @@ public class Cumulus4jCar extends Car{
 
         Properties properties = new Properties();
 
-        properties.setProperty("javax.jdo.PersistenceManagerFactoryClass", Cumulus4j.settings()
+        properties.setProperty("javax.jdo.PersistenceManagerFactoryClass", JdoCumulus4j.settings()
             .getFactory(mName));
 
         // properties.setProperty("javax.jdo.option.NontransactionalRead", "true");
@@ -103,14 +103,14 @@ public class Cumulus4jCar extends Car{
             }
         } else {
 
-            properties.setProperty("javax.jdo.option.ConnectionURL", Cumulus4j.settings().getURL(mName));
+            properties.setProperty("javax.jdo.option.ConnectionURL", JdoCumulus4j.settings().getURL(mName));
 
-            String user = Cumulus4j.settings().getUsername(mName);
+            String user = JdoCumulus4j.settings().getUsername(mName);
             if (user != null) {
                 properties.setProperty("javax.jdo.option.ConnectionUserName", user);
             }
 
-            String password = Cumulus4j.settings().getPassword(mName);
+            String password = JdoCumulus4j.settings().getPassword(mName);
             if (password != null) {
                 properties.setProperty("javax.jdo.option.ConnectionPassword", password);
             }
@@ -151,13 +151,20 @@ public class Cumulus4jCar extends Car{
 //			properties.setProperty("javax.jdo.option.ConnectionUserName", "root");
 			properties.setProperty("javax.jdo.option.ConnectionUserName", "sa");
 			properties.setProperty("javax.jdo.option.ConnectionPassword", "");
+
+//			properties.setProperty("cumulus4j.cryptoSessionExpiryAge", "10000");
+//			properties.setProperty("cumulus4j.cryptoSessionExpiryTimer.enabled", "true");
+//			properties.setProperty("cumulus4j.cryptoSessionExpiryTimer.period", "10000");
+//
+//			properties.setProperty("cumulus4j.CryptoCache.cleanupTimer.enabled", "false");
+//			properties.setProperty("cumulus4j.CryptoCache.cleanupTimer.period", "10000");
+//			properties.setProperty("cumulus4j.CryptoCache.entryExpiryAge", "10000");
 	    }
 	    else{
 	        properties.setProperty("cumulus4j.cryptoManagerID", "dummy");
 	        	properties.setProperty("cumulus4j.cryptoSessionID", "dummy");
 	    }
 //##################################################################################################################
-
 
         _persistenceManagerFactory = JDOHelper.getPersistenceManagerFactory(properties, JDOHelper.class.getClassLoader());
     }
@@ -194,9 +201,9 @@ public class Cumulus4jCar extends Car{
     public String name() {
 
         if(isSQL()){
-            return Cumulus4j.settings().getName(mName) + "/" +Jdbc.settings().getName(mDbName)+"-"+Jdbc.settings().getVersion(mDbName);
+            return JdoCumulus4j.settings().getName(mName) + "/" +Jdbc.settings().getName(mDbName)+"-"+Jdbc.settings().getVersion(mDbName);
         }
-        return Cumulus4j.settings().getVendor(mName) + "/" + Cumulus4j.settings().getName(mName)+"-" + Cumulus4j.settings().getVersion(mName);
+        return JdoCumulus4j.settings().getVendor(mName) + "/" + JdoCumulus4j.settings().getName(mName)+"-" + JdoCumulus4j.settings().getVersion(mName);
 
     }
 

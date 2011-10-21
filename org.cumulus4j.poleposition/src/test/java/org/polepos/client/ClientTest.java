@@ -9,6 +9,7 @@ import java.security.SecureRandom;
 
 import javax.ws.rs.core.MediaType;
 
+import org.cumulus4j.keymanager.api.CryptoSession;
 import org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam;
 import org.cumulus4j.keymanager.api.DefaultKeyManagerAPI;
 import org.cumulus4j.keymanager.api.KeyManagerAPI;
@@ -71,6 +72,48 @@ public class ClientTest {
 			Assert.fail("The POST request on URL " + url + " did not return the expected result! Instead it returned: " + result);
 	}
 
+	private static class RefreshCryptoSessionThread extends Thread
+	{
+		private CryptoSession cryptoSession;
+		private Throwable error;
+
+		public RefreshCryptoSessionThread(CryptoSession cryptoSession)
+		{
+			this.cryptoSession = cryptoSession;
+		}
+
+		private volatile boolean interruptForced = false;
+
+		@Override
+		public void interrupt() {
+			interruptForced = true;
+			super.interrupt();
+		}
+
+		@Override
+		public boolean isInterrupted() {
+			return interruptForced || super.isInterrupted();
+		}
+
+		@Override
+		public void run() {
+			try {
+				while (!isInterrupted()) {
+					cryptoSession.acquire(); // does re-acquire, if already acquired - which is always the case in our scenario (except for the start when this thread runs in parallel and thus this might be the very first call to acquire())
+					cryptoSession.release(); // is essentially necessary to keep counters correct (every acquire() must be followed by a release()!!!)
+					Thread.sleep(10000);
+				}
+			} catch (Throwable e) {
+				logger.error("RefreshCryptoSessionThread.run:" + e, e);
+				this.error = e;
+			}
+		}
+
+		public Throwable getError() {
+			return error;
+		}
+	}
+
 	@Test
 	public void testTwoComputerScenarioWithUnifiedAPI() throws Exception
 	{
@@ -96,17 +139,27 @@ public class ClientTest {
 
 			org.cumulus4j.keymanager.api.CryptoSession cryptoSession = keyManagerAPI.getCryptoSession(URL_KEY_MANAGER_BACK_WEBAPP);
 
-			// It does not matter here in this test, but in real code, WE MUST ALWAYS release() after we did acquire()!!!
-			// Hence we do it here, too, in order to be a good example and in case someone copies the code ;-)
-			// Marco :-)
-			String cryptoSessionID = cryptoSession.acquire();
-
+			RefreshCryptoSessionThread refreshCryptoSessionThread = new RefreshCryptoSessionThread(cryptoSession);
+			refreshCryptoSessionThread.start();
 			try {
-				invokeTestWithinServer(cryptoSessionID);
+
+				// It does not matter here in this test, but in real code, WE MUST ALWAYS release() after we did acquire()!!!
+				// Hence we do it here, too, in order to be a good example and in case someone copies the code ;-)
+				// Marco :-)
+				String cryptoSessionID = cryptoSession.acquire();
+				try {
+					invokeTestWithinServer(cryptoSessionID);
+				} finally {
+					cryptoSession.release();
+				}
 
 			} finally {
-				cryptoSession.release();
+				refreshCryptoSessionThread.interrupt();
 			}
+
+			refreshCryptoSessionThread.join(10000L);
+			if (refreshCryptoSessionThread.getError() != null)
+				throw new RuntimeException("Asynchronous refreshing of CryptoSession encountered an error: " + refreshCryptoSessionThread.getError(), refreshCryptoSessionThread.getError());
 
 		} finally {
 			File keyStoreFile = new File(keyStoreDir, configuration.getKeyStoreID() + ".keystore");

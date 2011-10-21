@@ -15,7 +15,7 @@ import org.polepos.framework.CheckSummable;
 import org.polepos.framework.DriverBase;
 import org.polepos.framework.TurnSetup;
 
-public class Cumulus4jDriver extends DriverBase{
+public class JdoCumulus4jDriver extends DriverBase{
 
 	private transient PersistenceManager mPersistenceManager;
 
@@ -39,8 +39,8 @@ public class Cumulus4jDriver extends DriverBase{
 		mPersistenceManager = null;
 	}
 
-	protected Cumulus4jCar jdoCar(){
-		return (Cumulus4jCar)car();
+	protected JdoCumulus4jCar jdoCar(){
+		return (JdoCumulus4jCar)car();
 	}
 
 	protected PersistenceManager db(){

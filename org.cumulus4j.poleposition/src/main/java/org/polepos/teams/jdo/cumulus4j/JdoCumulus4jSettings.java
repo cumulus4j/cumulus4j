@@ -3,13 +3,13 @@ package org.polepos.teams.jdo.cumulus4j;
 import org.polepos.Settings;
 import org.polepos.framework.RdbmsSettings;
 
-public class Cumulus4jSettings extends RdbmsSettings{
+public class JdoCumulus4jSettings extends RdbmsSettings{
 	private final static String KEY_JDO = "jdo";
     private final static String KEY_ENHANCE = "enhance";
     private final static String KEY_ENHANCER = "enhancer";
     private final static String KEY_CONNECTURL = "javax.jdo.option.ConnectionURL";
 
-	public Cumulus4jSettings(){
+	public JdoCumulus4jSettings(){
         super(Settings.JDO);
 	}
 

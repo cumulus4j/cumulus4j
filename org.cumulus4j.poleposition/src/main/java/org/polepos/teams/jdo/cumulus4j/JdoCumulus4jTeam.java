@@ -17,16 +17,16 @@ import org.polepos.teams.jdo.cumulus4j.data.Cumulus4jInheritanceHierarchy2;
 import org.polepos.teams.jdo.cumulus4j.data.Cumulus4jInheritanceHierarchy3;
 import org.polepos.teams.jdo.cumulus4j.data.Cumulus4jInheritanceHierarchy4;
 
-public class Cumulus4jTeam extends Team{
+public class JdoCumulus4jTeam extends Team{
 
 	private final Car[] mCars;
 
-    public Cumulus4jTeam() {
+    public JdoCumulus4jTeam() {
 
-        String[] impls = Cumulus4j.settings().getJdoImplementations();
+        String[] impls = JdoCumulus4j.settings().getJdoImplementations();
 
         if(impls == null){
-            System.out.println("No JDO (with Cumulus4j) engine configured.");
+            System.out.println("No JDO (with JdoCumulus4j) engine configured.");
             mCars = new Car[0];
         }else{
 
@@ -34,19 +34,19 @@ public class Cumulus4jTeam extends Team{
 
             for (String impl : impls) {
 
-                String[] jdosqldbs = Cumulus4j.settings().getJdbc(impl);
+                String[] jdosqldbs = JdoCumulus4j.settings().getJdbc(impl);
 
                 if(jdosqldbs != null && jdosqldbs.length > 0){
                     for(String sqldb : jdosqldbs){
                         try {
-                            cars.add(new Cumulus4jCar(this, impl, sqldb, Cumulus4j.settings().color(impl)));
+                            cars.add(new JdoCumulus4jCar(this, impl, sqldb, JdoCumulus4j.settings().color(impl)));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
                 }else{
                     try {
-                        cars.add(new Cumulus4jCar(this, impl, null, Cumulus4j.settings().color(impl)));
+                        cars.add(new JdoCumulus4jCar(this, impl, null, JdoCumulus4j.settings().color(impl)));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -61,12 +61,12 @@ public class Cumulus4jTeam extends Team{
 
     @Override
 	public String name(){
-		return "JDO/Cumulus4j";
+		return "JDO/JdoCumulus4j";
 	}
 
     @Override
     public String description() {
-        return "the JDO/Cumulus4j team";
+        return "the JDO/JdoCumulus4j team";
     }
 
     @Override
@@ -83,10 +83,10 @@ public class Cumulus4jTeam extends Team{
     @Override
     public DriverBase[] drivers() {
         return new DriverBase[]{
-        	new FlatObjectCumulus4j(),
-//        	new NestedListsCumulus4j(),
-//        	new ComplexCumulus4j(),
-//        	new InheritanceHierarchyCumulus4j(),
+        	new FlatObjectJdoCumulus4j(),
+//        	new NestedListsJdoCumulus4j(),
+//        	new ComplexJdoCumulus4j(),
+        	new InheritanceHierarchyJdoCumulus4j(),
         };
     }
 
@@ -106,8 +106,8 @@ public class Cumulus4jTeam extends Team{
 
 		for(int i = 0; i < mCars.length;i++){
 
-		    Cumulus4jCar cumulus4jCar = (Cumulus4jCar)mCars[i];
-			PersistenceManager pm = cumulus4jCar.getPersistenceManager();
+		    JdoCumulus4jCar jdoCumulus4jCar = (JdoCumulus4jCar)mCars[i];
+			PersistenceManager pm = jdoCumulus4jCar.getPersistenceManager();
 
 		    deleteAll(pm, Cumulus4jIndexedObject.class);
 

@@ -3,11 +3,11 @@ package org.polepos.teams.jdo.cumulus4j;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class Cumulus4j {
+public class JdoCumulus4j {
 
-    private final static Cumulus4jSettings sSettings = new Cumulus4jSettings();
+    private final static JdoCumulus4jSettings sSettings = new JdoCumulus4jSettings();
 
-    public static Cumulus4jSettings settings() {
+    public static JdoCumulus4jSettings settings() {
         return sSettings;
     }
 

@@ -14,7 +14,7 @@ import org.polepos.teams.jdo.cumulus4j.data.Cumulus4jComplexHolder2;
 import org.polepos.teams.jdo.cumulus4j.data.Cumulus4jComplexRoot;
 
 
-public class ComplexCumulus4j extends Cumulus4jDriver implements Complex{
+public class ComplexJdoCumulus4j extends JdoCumulus4jDriver implements Complex{
 
 	@Override
 	public void write() {

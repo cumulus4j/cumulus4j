@@ -9,7 +9,7 @@ import org.polepos.circuits.flatobject.FlatObject;
 import org.polepos.data.IndexedObject;
 import org.polepos.teams.jdo.cumulus4j.data.Cumulus4jIndexedObject;
 
-public class FlatObjectCumulus4j extends Cumulus4jDriver implements FlatObject{
+public class FlatObjectJdoCumulus4j extends JdoCumulus4jDriver implements FlatObject{
 
 	public void write(){
 		begin();
