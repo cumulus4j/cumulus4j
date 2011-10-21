@@ -40,7 +40,7 @@ import org.datanucleus.store.connection.ManagedConnection;
 /**
  * Handler for all persistence calls from the StoreManager, communicating with the backend datastore(s).
  * Manages all inserts/updates/deletes/fetches/locates of the users own objects and translates them
- * into inserts/updates/deletes/fetches/locates of Cumulus4J model objects. 
+ * into inserts/updates/deletes/fetches/locates of Cumulus4J model objects.
  */
 public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 {
@@ -293,8 +293,19 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 				Object fieldValueOld = objectContainerOld.getValue(fieldMeta.getFieldID());
 				Object fieldValueNew = objectContainerNew.getValue(fieldMeta.getFieldID());
 
-				if (!fieldsEqual(fieldValueOld, fieldValueNew)) {
-					removeIndexEntry.perform(cryptoContext, dataEntryID, fieldMeta, dnMemberMetaData, fieldValueOld);
+				if (!fieldsEqual(fieldValueOld, fieldValueNew)){
+
+					/*
+					 * TODO:
+					 * Cumulus4j throws a NullPointerException at this point when running the poleposition benchmark
+					 * and using a list data type which has a null value to mark the end of the list.
+					 * This null value check solves the problem but an problem when deleting the persisted
+					 * data occurs. I have commented this out, because i have not fully analyzed this and so i am not sure
+					 * is this is right.
+					 * At the moment i have no more time to analyze this problem any more. :( Jan
+					 *
+					if(fieldValueOld != null)*/
+						removeIndexEntry.perform(cryptoContext, dataEntryID, fieldMeta, dnMemberMetaData, fieldValueOld);
 					addIndexEntry.perform(cryptoContext, dataEntryID, fieldMeta, dnMemberMetaData, fieldValueNew);
 				}
 			}
