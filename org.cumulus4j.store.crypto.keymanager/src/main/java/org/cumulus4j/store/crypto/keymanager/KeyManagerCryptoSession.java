@@ -215,7 +215,7 @@ extends AbstractCryptoSession
 				throw new IllegalStateException("macKey too long! Cannot encode length in 1 byte!");
 
 			if (macIV.length > 255)
-				throw new IllegalStateException("macKey too long! Cannot encode length in 1 byte!");
+				throw new IllegalStateException("macIV too long! Cannot encode length in 1 byte!");
 
 			if (mac.length > 255)
 				throw new IllegalStateException("mac too long! Cannot encode length in 1 byte!");
