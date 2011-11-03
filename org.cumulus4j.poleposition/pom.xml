@@ -6,10 +6,9 @@
 		<groupId>org.cumulus4j</groupId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
-	<groupId>org.cumulus4j</groupId>
+
 	<artifactId>org.cumulus4j.poleposition</artifactId>
 	<packaging>war</packaging>
-	<version>1.0.0-SNAPSHOT</version>
 	<name>org.cumulus4j.poleposition</name>
 	<description>PolePosition benchmark with cumulus4j integrated.</description>
 
@@ -116,13 +115,11 @@
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
-			<version>1.2.15</version>
 		</dependency>
 
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.12</version>
 		</dependency>
 
 		<dependency>
