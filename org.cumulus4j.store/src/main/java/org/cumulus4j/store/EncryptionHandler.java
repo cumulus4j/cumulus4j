@@ -46,7 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Singleton (per {@link PersistenceManagerFactory}) handling the encryption and decryption and thus the key management.
+ * Singleton per {@link PersistenceManagerFactory} handling the encryption and decryption and thus the key management.
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
