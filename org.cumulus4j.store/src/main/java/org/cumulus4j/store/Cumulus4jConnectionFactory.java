@@ -47,9 +47,16 @@ import org.datanucleus.util.NucleusLogger;
 import org.datanucleus.util.StringUtils;
 
 /**
- * A "connection" in Cumulus4J is a PersistenceManager for the backing datastore.
+ * <p>
+ * Connection factory implementation for Cumulus4j-connections.
+ * </p><p>
+ * A "connection" in Cumulus4J is a <code>PersistenceManager</code> for the backing datastore.
  * When the transaction in Cumulus4J is committed, the equivalent transaction is committed in the PM(s) of the
  * backing datastore(s).
+ * </p><p>
+ * How to configure a connection factory is documented on
+ * <a href="http://cumulus4j.org/${project.version}/documentation/persistence-api.html">Persistence API</a>.
+ * </p> 
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
