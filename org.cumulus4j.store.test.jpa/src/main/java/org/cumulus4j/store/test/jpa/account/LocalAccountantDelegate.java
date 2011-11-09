@@ -18,11 +18,13 @@
 package org.cumulus4j.store.test.jpa.account;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.jdo.JDOHelper;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -127,7 +129,7 @@ public class LocalAccountantDelegate implements Serializable {
 		this.description = description;
 	}
 
-	@OneToMany
+	@OneToMany(cascade={CascadeType.ALL})
 	@JoinTable(name="JFireVoucher_VoucherLocalAccountantDelegate_accounts")
 	private Map<String, Account> accounts;
 
@@ -172,6 +174,10 @@ public class LocalAccountantDelegate implements Serializable {
 			accounts.remove(currencyID);
 		else
 			accounts.put(currencyID, account);
+	}
+
+	public Map<String, Account> getAccounts() {
+		return Collections.unmodifiableMap(accounts);
 	}
 
 	public void test()
