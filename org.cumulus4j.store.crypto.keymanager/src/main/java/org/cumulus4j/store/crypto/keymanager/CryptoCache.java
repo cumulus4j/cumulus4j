@@ -948,6 +948,16 @@ public class CryptoCache
 		if (val == Long.MIN_VALUE) {
 			String propName = PROPERTY_CRYPTO_CACHE_ENTRY_EXPIRY_AGE;
 			String propVal = (String) cryptoManager.getCryptoManagerRegistry().getNucleusContext().getPersistenceConfiguration().getProperty(propName);
+			// TODO Fix NPE! Just had a NullPointerException in the above line:
+//			22:48:39,028 ERROR [Timer-3][CryptoCache$CleanupTask] run: java.lang.NullPointerException
+//			java.lang.NullPointerException
+//			        at org.cumulus4j.store.crypto.keymanager.CryptoCache.getCryptoCacheEntryExpiryAge(CryptoCache.java:950)
+//			        at org.cumulus4j.store.crypto.keymanager.CryptoCache.removeExpiredEntries(CryptoCache.java:686)
+//			        at org.cumulus4j.store.crypto.keymanager.CryptoCache.access$000(CryptoCache.java:56)
+//			        at org.cumulus4j.store.crypto.keymanager.CryptoCache$CleanupTask.run(CryptoCache.java:615)
+//			        at java.util.TimerThread.mainLoop(Timer.java:512)
+//			        at java.util.TimerThread.run(Timer.java:462)
+			// Need to check what exactly is null and if that is allowed or there is another problem.
 			propVal = propVal == null ? null : propVal.trim();
 			if (propVal != null && !propVal.isEmpty()) {
 				try {
