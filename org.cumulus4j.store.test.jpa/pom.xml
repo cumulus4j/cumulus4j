@@ -47,6 +47,51 @@
 	</dependencies>
 	
 	<build>
+		<pluginManagement>
+			<plugins>
+			<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+			<!--
+			This MUST NOT be enabled. For a reason which I do not understand, it breaks
+			the test:
+*** *** ***
+Tests in error: 
+  createData(org.cumulus4j.store.test.jpa.account.JPAPersistenceTest): The VoucherLocalAccountantDelegate does not contain an account for currencyID 'EUR'!!! id='jdo/org.cumulus4j.store.test.jpa.account.id.LocalAccountantDelegateID?organisationID=jfire.my.org&localAccountantDelegateID=0'
+
+Tests run: 3, Failures: 0, Errors: 1, Skipped: 0
+*** *** ***
+			Everything works totally fine, if I disable it. Marco :-)
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.datanucleus</groupId>
+										<artifactId>
+											maven-datanucleus-plugin
+										</artifactId>
+										<versionRange>
+											[3.0.0-release-SNAPSHOT,)
+										</versionRange>
+										<goals>
+											<goal>enhance</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			-->
+			</plugins>
+		</pluginManagement>
+	
 		<plugins>
 			<!-- In order to temporarily skip the execution of the tests
 				(e.g. when only needing the integration tests), we uncomment
