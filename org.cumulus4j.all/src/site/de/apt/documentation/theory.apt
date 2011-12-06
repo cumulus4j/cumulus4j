@@ -17,7 +17,7 @@ Theorie
 * Die Cumulus4j-Datenstruktur
 
 	Die Cumulus4j-Datenstruktur ist unten abgebildet.
-	Sie speichert Objekte in einer Weise, die Relationen von Attributswerten versteckt. Das heißt, es ist nicht ersichtlich 
+	Sie speichert Objekte in einer Weise, die Relationen von Attributwerten versteckt. Das heißt, es ist nicht ersichtlich 
 	mit welchen Werten die Variablen eines Objektes belegt sind.
 	
 [../images/c4j-datastructure.png] Die Cumulus4j-Datenstruktur
@@ -46,11 +46,11 @@ Theorie
 	Cumulus4j transformiert eingehende Datenbankanfragen um sie auf der Cumulus4j-Datenstruktur ausführen zu können.
 	Abgerufene Daten werden on-the-fly entschlüsselt. Selektionen werden effizient in den folgenden vier Schritten durchgeführt:
 
-	* Rufe IndexEntries ab, die die Bedingungen der Anfrage erfüllen. Dieser schritt involviert Entschlüsselung der Indexeinträge.
+	* Rufe IndexEntries ab, die die Bedingungen der Anfrage erfüllen. Dieser Schritt involviert Entschlüsselung der Indexeinträge.
 	
 	* Rufe die verschlüsselten Einträge in DataEntries ab, die zu den Indexeinträgen gehören.
 	
-	* Entschlüssle die Abgerufenen Einträge, projiziere und aggregiere sie entsprechend der Anfrage.
+	* Entschlüssle die abgerufenen Einträge, projiziere und aggregiere sie entsprechend der Anfrage.
 	
 	* Gebe die Resultate zurück.
 
@@ -58,7 +58,7 @@ Theorie
 
 	Cumulus4j bietet
 	{{{http://books.google.com/books?id=JxiCjJI8C_0C&pg=PA164&dq=Indistinguishability+under+Independent+Column+Permutation&hl=en&ei=ChFLTqupOYf4sgaArtnEBw&sa=X&oi=book_result&ct=result&resnum=1&ved=0CCkQ6AEwAA}Ind-ICP}}-Sicherheit
-	für Ihre Daten. Das bedeutet, dass versteckt wird, welche Attributswerte zusammen gehören.
+	für Ihre Daten. Das bedeutet, dass versteckt wird, welche Attributwerte zusammen gehören.
 	Ein Angreifer, der Ihre Daten stiehlt, kann die darin gespeicherten Objekte nicht rekonstruieren.
 
 * Kompatibilität
@@ -68,6 +68,6 @@ Theorie
 
 * Performance
 
-	Durch die Verwendung symmetrischer Verschlüsselungsverfahren und Indizes für schnelles Suchen von Einträgen liefert das 	Plugin eine gute Performance
-	Ein Ziel dieses Projektes ist die Geschwindigkeitsoptimierung des Adapters, sodass für die erhöhte Sicherheit nur noch ein 		vertretbar kleiner Mehraufwand nötig ist.
+	Durch die Verwendung symmetrischer Verschlüsselungsverfahren und Indizes für schnelles Suchen von Einträgen liefert das Plugin eine gute Performance.
+	Ein Ziel dieses Projektes ist die Geschwindigkeitsoptimierung des Adapters, sodass für die erhöhte Sicherheit nur noch ein vertretbar kleiner Mehraufwand nötig ist.
 
