@@ -11,6 +11,10 @@
 	<packaging>war</packaging>
 	<name>org.cumulus4j.keymanager.front.webapp</name>
 
+	<properties>
+		<jetty.port>8181</jetty.port>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
@@ -42,50 +46,33 @@
 				<groupId>org.mortbay.jetty</groupId>
 				<artifactId>jetty-maven-plugin</artifactId>
 				<configuration>
-<!--					<scanIntervalSeconds>10</scanIntervalSeconds> -->
+					<!-- <scanIntervalSeconds>10</scanIntervalSeconds> -->
 					<stopKey>stop.${project.artifactId}</stopKey>
 					<stopPort>9991</stopPort>
 					<webAppConfig>
 						<contextPath>/${project.artifactId}</contextPath>
-						<!--
-						The following extraClasspath configures log4j and binds slf4j to log4j so that we have logging
-						when running 'mvn jetty:run'.
-						The WAR itself does NOT contain this binding and will thus fall-back to NO-OP logging (i.e.
-						disable logging) with a warning.
-						The log4j.properties is located in /src/test/ in order to not be packaged into the WAR so that
-						the logging can be configured without any unexpected interference by the servlet container.
-						-->
+						<!-- The following extraClasspath configures log4j and binds slf4j 
+							to log4j so that we have logging when running 'mvn jetty:run'. The WAR itself 
+							does NOT contain this binding and will thus fall-back to NO-OP logging (i.e. 
+							disable logging) with a warning. The log4j.properties is located in /src/test/ 
+							in order to not be packaged into the WAR so that the logging can be configured 
+							without any unexpected interference by the servlet container. -->
 						<extraClasspath>${basedir}/src/test;${settings.localRepository}/org/slf4j/slf4j-log4j12/${slf4j.version}/slf4j-log4j12-${slf4j.version}.jar;${settings.localRepository}/log4j/log4j/${log4j.version}/log4j-${log4j.version}.jar</extraClasspath>
 					</webAppConfig>
 					<connectors>
 						<connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-							<port>8181</port>
+							<port>${jetty.port}</port>
 							<maxIdleTime>60000</maxIdleTime>
 						</connector>
 					</connectors>
 				</configuration>
-<!-- No need for automatic start during build here - we only need this in the real integration test (in another project, probably).
-				<executions>
-					<execution>
-						<id>start-jetty</id>
-						<phase>pre-integration-test</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<scanIntervalSeconds>0</scanIntervalSeconds>
-							<daemon>true</daemon>
-						</configuration>
-					</execution>
-					<execution>
-						<id>stop-jetty</id>
-						<phase>post-integration-test</phase>
-						<goals>
-							<goal>stop</goal>
-						</goals>
-					</execution>
-				</executions>
--->
+				<!-- No need for automatic start during build here - we only need this 
+					in the real integration test (in another project, probably). <executions> 
+					<execution> <id>start-jetty</id> <phase>pre-integration-test</phase> <goals> 
+					<goal>run</goal> </goals> <configuration> <scanIntervalSeconds>0</scanIntervalSeconds> 
+					<daemon>true</daemon> </configuration> </execution> <execution> <id>stop-jetty</id> 
+					<phase>post-integration-test</phase> <goals> <goal>stop</goal> </goals> </execution> 
+					</executions> -->
 			</plugin>
 
 		</plugins>
