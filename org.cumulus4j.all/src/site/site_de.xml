@@ -23,21 +23,32 @@
 	xsi:schemaLocation="http://maven.apache.org/DECORATION/1.1.0 http://maven.apache.org/xsd/decoration-1.1.0.xsd"
 	name="Cumulus4j - Securing your data in the cloud">
 
-	<bannerRight>
-		<src>../images/banner-right.png</src>
-    	<height>42</height>
-	</bannerRight>
+	<bannerLeft>
+		<name>Cumulus4j (${project.version})</name>
+		<href>http://cumulus4j.org/</href>
+	</bannerLeft>
 
 	<poweredBy>
-		<!--
-		There is a bug causing the above defined <bannerRight/>-image to be used for all powered-by-entries
-		that use a relative image path. Therefore, even the C4j-images must be declared with an absolute path.
-		Relative paths work fine, if the <bannerRight/>-element is missing in this file.
-		Marco :-)
-		-->
+		<logo name="AX Business Solutions AG"
+			img="./images/logo-ax.png" 
+			href="http://www.ax-ag.com" 
+			target="_blank" 
+			position="bannerRight"/>
+			
+		<logo name="FZI Forschungszentrum Informatik" 
+			img="./images/logo-fzi.png" 
+			href="http://www.fzi.de" 
+			target="_blank" 
+			position="bannerRight"/>
+			
+		<logo name="NightLabs Consulting GmbH"
+			img="./images/logo-nl.png" 
+			href="http://www.nightlabs.de" 
+			target="_blank" 
+			position="bannerRight"/>
 
 		<logo name="Bundesministerium für Bildung und Forschung"
-			img="http://cumulus4j.org/${project.version}/de/images/bmbf-139.png"
+			img="./images/bmbf-139.png"
 			href="http://www.bmbf.de"
 			target="_blank" />
 
@@ -47,7 +58,7 @@
 			target="_blank" />
 
 		<logo name="BouncyCastle"
-			img="http://cumulus4j.org/${project.version}/images/TheLegionOfTheBouncyCastle.png"
+			img="./images/TheLegionOfTheBouncyCastle.png"
 			href="http://www.bouncycastle.org"
 			target="_blank" />
 

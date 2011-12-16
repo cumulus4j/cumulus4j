@@ -104,6 +104,20 @@
 -->
 		</developer>
 		<developer>
+			<id>mklinger</id>
+			<name>Marc Klinger</name>
+<!--
+			<email>mklinger[at]nightlabs[dot]de</email>
+-->
+			<organization>NightLabs</organization>
+			<organizationUrl>http://nightlabs.com</organizationUrl>
+<!--
+			<roles>
+				<role>Developer</role>
+			</roles>
+-->
+		</developer>
+		<developer>
 			<id>mschulze</id>
 			<name>Marco หงุ่ยตระกูล-Schulze</name>
 <!--
@@ -767,7 +781,7 @@
 
 				<plugin>
 					<artifactId>maven-site-plugin</artifactId>
-					<version>3.0-beta-3</version>
+					<version>3.0</version>
 				</plugin>
 				
 				<plugin>

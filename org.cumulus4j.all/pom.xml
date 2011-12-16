@@ -27,13 +27,6 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>org.cumulus4j.all</artifactId>
 	<packaging>pom</packaging>
-	<!--
-		I prefer the name "org.cumulus4j.all", but unfortunately I could not
-		get the site to be generated with another name than the one declared
-		here. Thus, I replaced this here by a more end-user-oriented name.
-		Marco.
-	-->
-	<name>Cumulus4j (${project.version})</name>
 
 	<description>Cumulus4j is an encryption layer protecting your data from the hosting company.</description>
 
