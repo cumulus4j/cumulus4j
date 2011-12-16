@@ -19,6 +19,10 @@ Documentation
 
 	You want to lend a hand and help developing Cumulus4j? The {{{./development.html}Development}} page
 	explains how to start.
+	
+* Running integration tests
+
+	On the {{{./integration_tests.html}Integration Tests}} page you can find detailed instruction on running integration tests.
 
 * Supported algorithms
 
