@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to='sample'>
+	<!-- Inherit the core Web Toolkit stuff.                        -->
+ 	<inherits name='com.google.gwt.user.User'/>
+	<inherits name='com.google.gwt.json.JSON'/>
+	<inherits name='com.google.gwt.http.HTTP'/>
+	
+	<!-- Specify the app entry point class.                         -->
+	<entry-point class='org.cumulus4j.integrationtest.gwt.client.Sample'/>
+
+	<!-- Specify the paths for translatable code                    -->
+	<source path='client'/>
+	<source path='shared'/>
+</module>
