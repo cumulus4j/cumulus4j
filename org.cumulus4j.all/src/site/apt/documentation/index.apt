@@ -19,10 +19,11 @@ Documentation
 
 	You want to lend a hand and help developing Cumulus4j? The {{{./development.html}Development}} page
 	explains how to start.
-	
+
 * Running integration tests
 
-	On the {{{./integration_tests.html}Integration Tests}} page you can find detailed instruction on running integration tests.
+	On the {{{./integration-tests.html}Integration tests}} page you can find detailed instructions
+	on running integration tests.
 
 * Supported algorithms
 
@@ -33,3 +34,7 @@ Documentation
 * API documentation (Javadoc)
 
 	API documentation is available in the form of {{{../apidocs/index.html}Javadoc}}.
+
+* FAQ
+
+	You can find answers to some {{{./faq.html}frequently asked questions here}}.

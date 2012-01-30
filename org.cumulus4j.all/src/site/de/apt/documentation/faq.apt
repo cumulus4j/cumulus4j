@@ -1,0 +1,15 @@
+	---
+	Häufige Fragen (FAQ)
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2012-01-30
+
+Häufige Fragen (FAQ)
+
+* Warum nicht einfach ein verschlüsseltes Dateisystem benutzen?
+
+	An encrypted file system (e.g. {{{http://en.wikipedia.org/wiki/Linux_Unified_Key_Setup}LUKS}},
+	{{{http://en.wikipedia.org/wiki/TrueCrypt}TrueCrypt}}) uses one single key for a whole device.
+	
+	bla bla bla ...

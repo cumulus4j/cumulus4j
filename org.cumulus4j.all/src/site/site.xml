@@ -85,8 +85,10 @@
 			<item name="Usage" href="./documentation/usage.html" />
 			<item name="Theory" href="./documentation/theory.html" />
 			<item name="Development" href="./documentation/development.html" />
+			<item name="Integration tests" href="./documentation/integration-tests.html" />
 			<item name="Supported algorithms" href="./documentation/supported-algorithms.html" />
 			<item name="Javadoc" href="./apidocs/index.html" target="_blank" />
+			<item name="FAQ" href="./documentation/faq.html" />
 		</menu>
 
 		<menu name="About">

@@ -1,0 +1,84 @@
+	---
+	Integration tests
+	---
+	Jan Morlock
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-12-14
+
+Integration Tests
+
+	The software architecture of Cumulus4j allows for various client implementations.
+	This includes also {{{http://en.wikipedia.org/wiki/Ajax_%28programming%29}AJAX}} clients running in web browsers.
+	The following section describes two proof-of-concept implementations where such a client is 
+	operated as part of the {{{./deployment-scenarios.html}3-computer-scenario}}.
+
+* org.cumulus4j.integrationtest.webapp
+
+** Description
+	
+	This is a client implementation which is based on {{{http://en.wikipedia.org/wiki/JQuery}jQuery}}.
+	The remote procedure calls to both key management server and application server are achieved via the <<<jQuery.ajax(settings)>>> function.
+	Both servers use {{{http://en.wikipedia.org/wiki/Apache_Derby}Apache Derby}} for persistent storage.
+	
+** Instructions
+
+	Open your favorite shell, change into the directory <<<$workspace/org.cumulus4j.keymanager.front.webapp>>> and run the following command:
+
+	<<<mvn -D jetty.port=8686 jetty:run>>>
+	
+	This will start the key management service inside a Jetty webserver on port 8686.
+	
+	Now open <<another>> shell and change into the directory <<<$workspace/org.cumulus4j.integrationtest.webapp>>>. Here, execute the command
+	
+	<<<mvn jetty:run>>>.
+	
+	This will start the application service inside a Jetty webserver on port 8585.
+	
+	With both servers running, point the web browser of your choice to the following URL
+	
+	{{http://localhost:8585/org.cumulus4j.integrationtest.webapp/jquery-test.html}}
+	
+	This will open a web page consisting only of two text boxes for user name and password respectively and a
+	"Start Test"-link. By selecting this link, the test will be triggered. Log messages will be appended to the page explaining
+	the current test phases and their results.
+	In case of success, the message "All done successfully" will appear as final message on the screen after approximately 30 seconds.
+
+* org.cumulus4j.integrationtest.gwt
+
+** Description
+	
+	This is an implementation where the communication between the client and the key management
+	service is achieved using {{{http://en.wikipedia.org/wiki/JQuery}jQuery}} as described above.
+	However here this central part is wrapped by a {{{http://code.google.com/intl/de-DE/webtoolkit/}Google Web Toolkit}} implementation using
+	{{{http://code.google.com/intl/de-DE/webtoolkit/doc/latest/DevGuideCodingBasicsJSNI.html}JSNI}}.
+	The communication between client and application server is achieved by "normal"
+	{{{http://code.google.com/intl/de-DE/webtoolkit/doc/latest/tutorial/RPC.html}GWT-RPC}}.
+	Both servers use {{{http://en.wikipedia.org/wiki/Apache_Derby}Apache Derby}} for persistent storage.
+	The Google Plugin for Eclipse is <<not>> required for running this test.
+	
+** Instructions
+	
+	Open the file <<<messagebroker-datanucleus.properties>>> which is located inside the directory
+	<<</org.cumulus4j.store.crypto.keymanager/src/main/java/org/cumulus4j/store/crypto/keymanager/messagebroker/pmf>>>
+	and make sure that the properties <<<javax.jdo.option.ConnectionDriverName>>> and <<<javax.jdo.option.ConnectionURL>>>
+	are defined as follows:
+	
+	<<<javax.jdo.option.ConnectionDriverName=org.apache.derby.jdbc.EmbeddedDriver>>>
+	<<<javax.jdo.option.ConnectionURL=jdbc:derby:$\{java.io.tmpdir\}/derby/messagebroker;create=true>>>
+	
+	Afterwards start the key management services as described above.
+	
+	Now open <<another>> shell and change into the directory <<<$workspace/org.cumulus4j.integrationtest.gwt>>>. Here, execute the command
+	
+	<<<mvn gwt:run>>>.
+	
+	This will start the Maven GWT Plugin, which will open a control window and start an embedded Jetty webserver on port 8888.
+	Now either select "Launch Default Browser" or open the following URL in your favorite web browser:
+	
+	{{http://localhost:8888/sample.html?gwt.codesvr=127.0.0.1:9997}}
+	
+	This will open a web page consisting only of two text boxes for user name and password respectively, a
+	"Start Test"-button and a text area for log messages. By selecting this button, the test will be triggered.
+	Log messages will be appended to the text area explaining the current test phases and their results.
+	In case of success, the message "All done successfully" will appear as final message on the screen after approximately 30 seconds.
