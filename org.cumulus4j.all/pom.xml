@@ -123,17 +123,21 @@
 				<artifactId>maven-site-plugin</artifactId>
 				<dependencies>
 				<!--
+				Unfortunately, neither twiki nor confluence are usable (at least the newest versions currently available [1.2]).
+				With twiki anchors cannot be used (and it has quite a few other annoying bugs, too). And confluence doesn't
+				support images :-( Marco.
+				
 					<dependency>
 						<groupId>org.apache.maven.doxia</groupId>
 						<artifactId>doxia-module-twiki</artifactId>
 						<version>1.2</version>
 					</dependency>
-				-->
-					<dependency>
+					<dependency> 
 						<groupId>org.apache.maven.doxia</groupId>
 						<artifactId>doxia-module-confluence</artifactId>
 						<version>1.2</version>
 					</dependency>
+				-->
 				</dependencies>
 				<configuration>
 					<locales>en,de</locales>
