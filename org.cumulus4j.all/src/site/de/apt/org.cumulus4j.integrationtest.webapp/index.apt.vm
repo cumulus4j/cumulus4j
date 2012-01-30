@@ -18,6 +18,8 @@ Modul org.cumulus4j.integrationtest.webapp
 mvn jetty:run
 +-------------------------------------------+
 
+* {Ajax}
+
 	Im übrigen enthält dieses WAR auch einen kleinen Beispiel-Ajax-Client, den Sie hier ausprobieren können:
 	{{http://localhost:8585/org.cumulus4j.integrationtest.webapp/jquery-test.html}}
 

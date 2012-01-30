@@ -3,13 +3,13 @@
 	xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
 
 	<properties>
-		<title>DataNucleus compatibility matrix</title>
+		<title>DataNucleus-Kompatibilitäts-Matrix</title>
 		<author>Marco หงุ่ยตระกูล-Schulze</author>
 	</properties>
 
 	<body>
 
-		<section name="DataNucleus compatibility matrix">
+		<section name="DataNucleus-Kompatibilitäts-Matrix">
 			<p>
 				Because Cumulus4j is a plug-in to
 				<a href="http://www.datanucleus.org">DataNucleus</a>,
@@ -46,10 +46,10 @@
 			<table>
 				<thead>
 					<tr>
-						<th>Cumulus4j version</th>
-						<th>DataNucleus (core) version</th>
+						<th>Cumulus4j-Version</th>
+						<th>DataNucleus-(core)-Version</th>
 						<th>Status</th>
-						<th>Comment</th>
+						<th>Kommentar</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -93,7 +93,7 @@
 			</table>
 
 
-			<subsection name="Comments">
+			<subsection name="Kommentare">
 				<h4>
 					<a name="workaround_cumulus4j_1.0.0_datanucleus_3.0.1">Workaround for DataNucleus 3.0.1 - 3.0.6</a>
 				</h4>
