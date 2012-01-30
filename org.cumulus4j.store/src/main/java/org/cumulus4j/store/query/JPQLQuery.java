@@ -32,7 +32,6 @@ import org.cumulus4j.store.model.ClassMeta;
 import org.datanucleus.query.evaluator.JPQLEvaluator;
 import org.datanucleus.query.evaluator.JavaQueryEvaluator;
 import org.datanucleus.store.ExecutionContext;
-import org.datanucleus.store.StoreManager;
 import org.datanucleus.store.connection.ManagedConnection;
 import org.datanucleus.store.query.AbstractJPQLQuery;
 import org.datanucleus.util.NucleusLogger;
@@ -45,17 +44,33 @@ public class JPQLQuery extends AbstractJPQLQuery {
 
 	private static final long serialVersionUID = 1L;
 
-	public JPQLQuery(StoreManager storeMgr, ExecutionContext ec, AbstractJPQLQuery q) {
-		super(storeMgr, ec, q);
+// BEGIN DataNucleus 3.0.0-m6 and 3.0.0-release
+	public JPQLQuery(ExecutionContext ec, AbstractJPQLQuery q) {
+		super(ec, q);
 	}
 
-	public JPQLQuery(StoreManager storeMgr, ExecutionContext ec, String query) {
-		super(storeMgr, ec, query);
+	public JPQLQuery(ExecutionContext ec, String query) {
+		super(ec, query);
 	}
 
-	public JPQLQuery(StoreManager storeMgr, ExecutionContext ec) {
-		super(storeMgr, ec);
+	public JPQLQuery(ExecutionContext ec) {
+		super(ec);
 	}
+// END DataNucleus 3.0.0-m6 and 3.0.0-release
+
+// BEGIN DataNucleus 3.0.1 and newer
+//	public JPQLQuery(StoreManager storeMgr, ExecutionContext ec, AbstractJPQLQuery q) {
+//		super(storeMgr, ec, q);
+//	}
+//
+//	public JPQLQuery(StoreManager storeMgr, ExecutionContext ec, String query) {
+//		super(storeMgr, ec, query);
+//	}
+//
+//	public JPQLQuery(StoreManager storeMgr, ExecutionContext ec) {
+//		super(storeMgr, ec);
+//	}
+// END DataNucleus 3.0.1 and newer
 
 	@Override
 	protected Object performExecute(@SuppressWarnings("rawtypes") Map parameters) {
@@ -66,7 +81,7 @@ public class JPQLQuery extends AbstractJPQLQuery {
 
 			boolean inMemory = evaluateInMemory();
 			boolean inMemory_applyFilter = true;
-      List<Object> candidates = null;
+			List<Object> candidates = null;
 			if (this.candidateCollection != null) {
 				if (candidateCollection.isEmpty()) {
 					return Collections.EMPTY_LIST;

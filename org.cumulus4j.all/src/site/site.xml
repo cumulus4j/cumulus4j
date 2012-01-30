@@ -88,6 +88,7 @@
 			<item name="Integration tests" href="./documentation/integration-tests.html" />
 			<item name="Supported algorithms" href="./documentation/supported-algorithms.html" />
 			<item name="Javadoc" href="./apidocs/index.html" target="_blank" />
+			<item name="DataNucleus compatibility" href="./documentation/datanucleus-compatibility-matrix.html" />
 			<item name="FAQ" href="./documentation/faq.html" />
 		</menu>
 

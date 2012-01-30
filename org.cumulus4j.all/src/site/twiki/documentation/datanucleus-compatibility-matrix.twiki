@@ -1,0 +1,15 @@
+---+ DataNucleus compatibility matrix
+
+Because Cumulus4j is a plug-in to [[http://www.datanucleus.org][DataNucleus]], both products must be compatible in order to cooperate. Not every version of Cumulus4j can be used with every version of [[http://www.datanucleus.org][DataNucleus]]. Therefore, we test Cumulus4j with a few versions of [[http://www.datanucleus.org/plugins/core/][datanucleus-core]] before every release.
+
+If all our [[../surefire-report.html][tests]] run successfully, we assume Cumulus4j and [[http://www.datanucleus.org][DataNucleus]] to be fully compatible and indicate it in the following table by this symbol: <img src="../images/compatibility-yes.png" alt="Yes" />
+
+If Cumulus4j works with DataNucleus, but not all tests succeed (i.e. at least one test fails), we indicate this by a warning symbol: <img src="../images/compatibility-partial.png" alt="Partially compatible" />
+
+If a certain version of Cumulus4j cannot be used at all with a certain version of [[http://www.datanucleus.org][DataNucleus]], it is indicated by this symbol: <img src="../images/compatibility-no.png" alt="Not compatible" />
+
+| *Cumulus4j version* | *<noautolink>DataNucleus</noautolink> (core) version* |  *Status*  | *Comment* |
+| 1.0.1  | 3.0.5 - 3.0.6  |  <img src="../images/compatibility-no.png" alt="Not compatible" />  | |
+| 1.0.1  | 3.0.1 - 3.0.4  |  <img src="../images/compatibility-yes.png" alt="Fully compatible" />  | |
+| 1.0.1  | 3.0.0-release  |  <img src="../images/compatibility-yes.png" alt="Fully compatible" />  | |
+| 1.0.0  | 3.0.0-m6       |  <img src="../images/compatibility-yes.png" alt="Fully compatible" />  | |
