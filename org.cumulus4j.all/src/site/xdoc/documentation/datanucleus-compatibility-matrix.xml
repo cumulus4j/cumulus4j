@@ -46,8 +46,8 @@
 			<table>
 				<thead>
 					<tr>
-						<th>Cumulus4j version</th>
-						<th>DataNucleus (core) version</th>
+						<th>Cumulus4j<br/>version</th>
+						<th>DataNucleus<br/>(core) version</th>
 						<th>Status</th>
 						<th>Comment</th>
 					</tr>
