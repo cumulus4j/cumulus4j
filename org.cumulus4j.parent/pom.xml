@@ -30,7 +30,7 @@
 		<log4j.version>1.2.16</log4j.version>
 		<slf4j.version>1.6.1</slf4j.version>
 		<jersey.version>1.6</jersey.version>
-		<datanucleus.dependency.version>3.0.0-m6</datanucleus.dependency.version>
+		<datanucleus.dependency.version>3.0.5</datanucleus.dependency.version>
 		<datanucleus.javadoc.version>3.0</datanucleus.javadoc.version>
 		
 		<!-- Force UTF-8 for all files read (sources) and written (reports) by Maven. -->
@@ -662,7 +662,8 @@
 						<dependency>
 							<groupId>org.datanucleus</groupId>
 							<artifactId>datanucleus-enhancer</artifactId>
-							<version>${datanucleus.dependency.version}</version>
+							<!-- <version>${datanucleus.dependency.version}</version> -->
+							<version>3.0.1</version>
 						</dependency>
 					</dependencies>
 				</plugin>
@@ -847,6 +848,8 @@ Tests in error:
 Tests run: 3, Failures: 0, Errors: 1, Skipped: 0
 *** *** ***
 			Everything works totally fine, if I disable it. Marco :-)
+				-->
+
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
@@ -856,15 +859,9 @@ Tests run: 3, Failures: 0, Errors: 1, Skipped: 0
 							<pluginExecutions>
 								<pluginExecution>
 									<pluginExecutionFilter>
-										<groupId>
-											org.datanucleus
-										</groupId>
-										<artifactId>
-											maven-datanucleus-plugin
-										</artifactId>
-										<versionRange>
-											[3.0.0-release-SNAPSHOT,)
-										</versionRange>
+										<groupId>org.datanucleus</groupId>
+										<artifactId>maven-datanucleus-plugin</artifactId>
+										<versionRange>[3.0.0-release-SNAPSHOT,)</versionRange>
 										<goals>
 											<goal>enhance</goal>
 										</goals>
@@ -877,7 +874,6 @@ Tests run: 3, Failures: 0, Errors: 1, Skipped: 0
 						</lifecycleMappingMetadata>
 					</configuration>
 				</plugin>
-				-->
 			</plugins>
 		</pluginManagement>
 

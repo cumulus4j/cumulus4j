@@ -47,9 +47,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Util class to clean up the database. 
- * Its primary method is {@link #dropAllTables()} which uses the 'datanucleus.properties' to obtain a JDBC 
- * connection and then to drop all tables in it, thus ensuring that every test run finds exactly the same situation - 
+ * Util class to clean up the database.
+ * Its primary method is {@link #dropAllTables()} which uses the 'datanucleus.properties' to obtain a JDBC
+ * connection and then to drop all tables in it, thus ensuring that every test run finds exactly the same situation -
  * an empty database. Also copes with two backend datastores, and non-RDBMS datastores.
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
@@ -218,8 +218,15 @@ public class CleanupUtil
 			if (semicolonIdx >= 0)
 				path = path.substring(0, semicolonIdx);
 
-			if (!deleteDirectoryRecursively(new File(path)))
+			File derbyDatabaseDir = new File(path);
+			if (!deleteDirectoryRecursively(derbyDatabaseDir))
 				throw new IllegalStateException("Deleting Derby database \"" + path + "\" failed!");
+
+			if (derbyDatabaseDir.exists())
+				throw new IllegalStateException("Derby database \"" + path + "\" was deleted, but still exists!");
+
+			logger.info("cleanoutRDBMS: derbyDatabaseDir=\"{}\" was deleted successfully.", derbyDatabaseDir);
+
 			return;
 		}
 		else {

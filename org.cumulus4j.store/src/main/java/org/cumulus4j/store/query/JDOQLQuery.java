@@ -32,6 +32,7 @@ import org.cumulus4j.store.model.ClassMeta;
 import org.datanucleus.query.evaluator.JDOQLEvaluator;
 import org.datanucleus.query.evaluator.JavaQueryEvaluator;
 import org.datanucleus.store.ExecutionContext;
+import org.datanucleus.store.StoreManager;
 import org.datanucleus.store.connection.ManagedConnection;
 import org.datanucleus.store.query.AbstractJDOQLQuery;
 import org.datanucleus.util.NucleusLogger;
@@ -46,20 +47,20 @@ public class JDOQLQuery extends AbstractJDOQLQuery
 {
 	private static final long serialVersionUID = 1L;
 
-	public JDOQLQuery(ExecutionContext ec) {
-		super(ec);
+	public JDOQLQuery(StoreManager storeMgr, ExecutionContext ec, AbstractJDOQLQuery q) {
+		super(storeMgr, ec, q);
 	}
 
-	public JDOQLQuery(ExecutionContext ec, AbstractJDOQLQuery q) {
-		super(ec, q);
+	public JDOQLQuery(StoreManager storeMgr, ExecutionContext ec, String query) {
+		super(storeMgr, ec, query);
 	}
 
-	public JDOQLQuery(ExecutionContext ec, String query) {
-		super(ec, query);
+	public JDOQLQuery(StoreManager storeMgr, ExecutionContext ec) {
+		super(storeMgr, ec);
 	}
 
 	@Override
-	protected Object performExecute(@SuppressWarnings("unchecked")Map parameters)
+	protected Object performExecute(@SuppressWarnings("rawtypes") Map parameters)
 	{
 		ManagedConnection mconn = ec.getStoreManager().getConnection(ec);
 		try {
@@ -105,7 +106,7 @@ public class JDOQLQuery extends AbstractJDOQLQuery
 						else {
 							NucleusLogger.QUERY.debug("Query evaluation of filter in datastore was incomplete so doing further work in-memory");
 						}
-					} 
+					}
 					catch (UnsupportedOperationException uoe) {
 						// Some part of the filter is not yet supported, so fallback to in-memory evaluation
 						// Retrieve all candidates and perform all evaluation in-memory
@@ -124,4 +125,5 @@ public class JDOQLQuery extends AbstractJDOQLQuery
 			mconn.release();
 		}
 	}
+
 }

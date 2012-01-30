@@ -32,6 +32,7 @@ import org.cumulus4j.store.model.ClassMeta;
 import org.datanucleus.query.evaluator.JPQLEvaluator;
 import org.datanucleus.query.evaluator.JavaQueryEvaluator;
 import org.datanucleus.store.ExecutionContext;
+import org.datanucleus.store.StoreManager;
 import org.datanucleus.store.connection.ManagedConnection;
 import org.datanucleus.store.query.AbstractJPQLQuery;
 import org.datanucleus.util.NucleusLogger;
@@ -42,23 +43,22 @@ import org.datanucleus.util.NucleusLogger;
  */
 public class JPQLQuery extends AbstractJPQLQuery {
 
-	public JPQLQuery(ExecutionContext ec) {
-		super(ec);
+	private static final long serialVersionUID = 1L;
+
+	public JPQLQuery(StoreManager storeMgr, ExecutionContext ec, AbstractJPQLQuery q) {
+		super(storeMgr, ec, q);
 	}
 
-	public JPQLQuery(ExecutionContext ec, AbstractJPQLQuery query) {
-		super(ec, query);
+	public JPQLQuery(StoreManager storeMgr, ExecutionContext ec, String query) {
+		super(storeMgr, ec, query);
 	}
 
-	public JPQLQuery(ExecutionContext ec, String query) {
-		super(ec, query);
+	public JPQLQuery(StoreManager storeMgr, ExecutionContext ec) {
+		super(storeMgr, ec);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.datanucleus.store.query.Query#performExecute(java.util.Map)
-	 */
 	@Override
-	protected Object performExecute(Map parameters) {
+	protected Object performExecute(@SuppressWarnings("rawtypes") Map parameters) {
 		ManagedConnection mconn = ec.getStoreManager().getConnection(ec);
 		try {
 			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();

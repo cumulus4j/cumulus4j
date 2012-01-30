@@ -19,12 +19,10 @@ package org.cumulus4j.store.test.jpa.account;
 
 import java.io.IOException;
 
-import org.cumulus4j.store.test.jpa.account.Account;
-import org.cumulus4j.store.test.jpa.account.LocalAccountantDelegate;
+import org.cumulus4j.store.test.framework.CleanupUtil;
+import org.cumulus4j.store.test.jpa.AbstractJPATransactionalTest;
 import org.cumulus4j.store.test.jpa.account.id.AnchorID;
 import org.cumulus4j.store.test.jpa.account.id.LocalAccountantDelegateID;
-import org.cumulus4j.store.test.jpa.AbstractJPATransactionalTest;
-import org.cumulus4j.store.test.jpa.CleanupUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -62,11 +60,11 @@ extends AbstractJPATransactionalTest
 		commitAndBeginNewTransaction();
 
 		{
-			LocalAccountantDelegate localAccountantDelegate = 
-			    (LocalAccountantDelegate) em.find(LocalAccountantDelegate.class, LOCAL_ACCOUNTANT_DELEGATE_ID_0);
+			LocalAccountantDelegate localAccountantDelegate =
+			    em.find(LocalAccountantDelegate.class, LOCAL_ACCOUNTANT_DELEGATE_ID_0);
 			localAccountantDelegate.test();
 
-			Account account = (Account) em.find(Account.class, ACCOUNT_ID_0);
+			Account account = em.find(Account.class, ACCOUNT_ID_0);
 			account.getBalance();
 		}
 	}
@@ -112,15 +110,15 @@ extends AbstractJPATransactionalTest
         "Und wer’s nie gekonnt, der stehle\n" +
         "weinend sich aus diesem Bund!\n";
 
-        LocalAccountantDelegate localAccountantDelegate = 
-            (LocalAccountantDelegate) em.find(LocalAccountantDelegate.class, LOCAL_ACCOUNTANT_DELEGATE_ID_0);
+        LocalAccountantDelegate localAccountantDelegate =
+            em.find(LocalAccountantDelegate.class, LOCAL_ACCOUNTANT_DELEGATE_ID_0);
         localAccountantDelegate.setName(name);
         localAccountantDelegate.setDescription(description);
 
         commitAndBeginNewTransaction();
 
-        localAccountantDelegate = 
-            (LocalAccountantDelegate) em.find(LocalAccountantDelegate.class, LOCAL_ACCOUNTANT_DELEGATE_ID_0);
+        localAccountantDelegate =
+            em.find(LocalAccountantDelegate.class, LOCAL_ACCOUNTANT_DELEGATE_ID_0);
         Assert.assertEquals(name, localAccountantDelegate.getName());
         Assert.assertEquals(description, localAccountantDelegate.getDescription());
     }
@@ -128,11 +126,11 @@ extends AbstractJPATransactionalTest
     @After
     public void deleteAll() throws IOException
     {
-        LocalAccountantDelegate localAccountantDelegate = 
-            (LocalAccountantDelegate) em.find(LocalAccountantDelegate.class, LOCAL_ACCOUNTANT_DELEGATE_ID_0);
+        LocalAccountantDelegate localAccountantDelegate =
+            em.find(LocalAccountantDelegate.class, LOCAL_ACCOUNTANT_DELEGATE_ID_0);
         em.remove(localAccountantDelegate);
 
-        Account account = (Account) em.find(Account.class, ACCOUNT_ID_0);
+        Account account = em.find(Account.class, ACCOUNT_ID_0);
         em.remove(account);
     }
 }

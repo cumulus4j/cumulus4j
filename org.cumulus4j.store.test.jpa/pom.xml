@@ -28,6 +28,10 @@
 			<artifactId>org.cumulus4j.store</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.store.test</artifactId> <!-- need some framework stuff -->
+		</dependency>
+		<dependency>
 			<groupId>org.datanucleus</groupId>
 			<artifactId>datanucleus-api-jpa</artifactId>
 		</dependency>

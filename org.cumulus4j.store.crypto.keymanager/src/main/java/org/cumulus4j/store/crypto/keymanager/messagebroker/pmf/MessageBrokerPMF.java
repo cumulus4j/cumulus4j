@@ -379,8 +379,24 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 		for (Map.Entry<?, ?> me : propertiesRaw.entrySet())
 			properties.put(String.valueOf(me.getKey()), SystemPropertyUtil.resolveSystemProperties(String.valueOf(me.getValue())));
 
-		logger.info("[{}] javax.jdo.option.ConnectionDriverName={}", thisID, properties.get("javax.jdo.option.ConnectionDriverName"));
+		Object connectionDriverNameObj = properties.get("javax.jdo.option.ConnectionDriverName");
+		String connectionDriverName = connectionDriverNameObj == null ? null : connectionDriverNameObj.toString();
+		logger.info("[{}] javax.jdo.option.ConnectionDriverName={}", thisID, connectionDriverName);
 		logger.info("[{}] javax.jdo.option.ConnectionURL={}", thisID, properties.get("javax.jdo.option.ConnectionURL"));
+
+		// With JDBC 4, it is not necessary anymore to load the driver:
+		// http://onjava.com/pub/a/onjava/2006/08/02/jjdbc-4-enhancements-in-java-se-6.html
+		// And since DN might use some other class loader, anyway, it does not even make any sense at all.
+		// Hence, I commented this out, again. Marco :-)
+//		ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+//		if (contextClassLoader != null) { // I think this is never null, but better check to play safe. Marco :-)
+//			try {
+//				Class.forName(connectionDriverName, true, contextClassLoader);
+//				logger.info("[{}] Loaded class \"" + connectionDriverName + "\" with contextClassLoader=\"" + contextClassLoader + "\" successfully!");
+//			} catch (ClassNotFoundException e) {
+//				logger.warn("[{}] Loading class \"" + connectionDriverName + "\" with contextClassLoader=\"" + contextClassLoader + "\" failed: " + e, e);
+//			}
+//		}
 
 		pmf = JDOHelper.getPersistenceManagerFactory(properties);
 		// First create the structure in a separate tx (in case, the underlying DB/configuration requires this.

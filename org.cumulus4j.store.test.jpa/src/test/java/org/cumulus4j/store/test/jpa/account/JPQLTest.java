@@ -23,12 +23,10 @@ import java.util.List;
 
 import javax.persistence.Query;
 
-import org.cumulus4j.store.test.jpa.account.Account;
-import org.cumulus4j.store.test.jpa.account.LocalAccountantDelegate;
+import org.cumulus4j.store.test.framework.CleanupUtil;
+import org.cumulus4j.store.test.jpa.AbstractJPATransactionalTest;
 import org.cumulus4j.store.test.jpa.account.id.AnchorID;
 import org.cumulus4j.store.test.jpa.account.id.LocalAccountantDelegateID;
-import org.cumulus4j.store.test.jpa.AbstractJPATransactionalTest;
-import org.cumulus4j.store.test.jpa.CleanupUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -114,34 +112,34 @@ extends AbstractJPATransactionalTest
 
         // Positive test
 		q.setParameter("name", "New test bla bla bla.");
-		List<LocalAccountantDelegate> result = (List<LocalAccountantDelegate>) q.getResultList();
+		List<LocalAccountantDelegate> result = q.getResultList();
 		Assert.assertEquals("Number of results was wrong", 1, result.size());
 		LocalAccountantDelegate delegate = result.iterator().next();
 		assertDelegate0(delegate);
 
 		// Negative test
 		q.setParameter("name", "New test bla bla bla2");
-		result = (List<LocalAccountantDelegate>) q.getResultList();
+		result = q.getResultList();
 		Assert.assertEquals("Number of results was wrong", 0, result.size());
 	}
 
 	@After
 	public void deleteAll() throws IOException
 	{
-		LocalAccountantDelegate localAccountantDelegate = 
-		    (LocalAccountantDelegate) em.find(LocalAccountantDelegate.class, LOCAL_ACCOUNTANT_DELEGATE_ID_0);
+		LocalAccountantDelegate localAccountantDelegate =
+		    em.find(LocalAccountantDelegate.class, LOCAL_ACCOUNTANT_DELEGATE_ID_0);
 		em.remove(localAccountantDelegate);
 
-		Account account = (Account) em.find(Account.class, ACCOUNT_ID_0);
+		Account account = em.find(Account.class, ACCOUNT_ID_0);
 		em.remove(account);
 
-		account = (Account) em.find(Account.class, ACCOUNT_ID_1);
+		account = em.find(Account.class, ACCOUNT_ID_1);
 		em.remove(account);
 
-		localAccountantDelegate = (LocalAccountantDelegate) em.find(LocalAccountantDelegate.class, LOCAL_ACCOUNTANT_DELEGATE_ID_1);
+		localAccountantDelegate = em.find(LocalAccountantDelegate.class, LOCAL_ACCOUNTANT_DELEGATE_ID_1);
 		em.remove(localAccountantDelegate);
 
-		account = (Account) em.find(Account.class, ACCOUNT_ID_2);
+		account = em.find(Account.class, ACCOUNT_ID_2);
 		em.remove(account);
 	}
 }
