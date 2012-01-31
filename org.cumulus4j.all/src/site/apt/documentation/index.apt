@@ -35,6 +35,11 @@ Documentation
 
 	API documentation is available in the form of {{{../apidocs/index.html}Javadoc}}.
 
+* DataNucleus compatibility
+
+	Which version of Cumulus4j is compatible with which version of DataNucleus is documented
+	in the {{{./datanucleus-compatibility-matrix.html}DataNucleus compatibility matrix}}.
+
 * FAQ
 
 	You can find answers to some {{{./faq.html}frequently asked questions here}}.

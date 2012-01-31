@@ -25,6 +25,11 @@ Dokumentation
 	oder Ihren persönlichen Vorlieben bervorzugen Sie vielleicht eine andere Konfiguration. Sie können aus einer Fülle
 	von {{{./supported-algorithms.html}unterstützten Algorithmen}} auswählen.
 
+* DataNucleus-Kompatibilität
+
+	Welche Cumulus4j-Version mit welcher DataNucleus-Version kompatibel ist, ist in der
+	{{{./datanucleus-compatibility-matrix.html}DataNucleus-Kompatibilitätsmatrix}} dokumentiert.
+
 * API-Dokumentation (Javadoc)
 
 	API-Dokumentation steht in Form von {{{../../apidocs/index.html}Javadoc}} zur Verfügung.
