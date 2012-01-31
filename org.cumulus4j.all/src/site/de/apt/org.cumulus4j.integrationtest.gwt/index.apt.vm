@@ -8,18 +8,19 @@
 
 Modul org.cumulus4j.integrationtest.gwt
 
-	This is an integration test where the communication between the client and the key management
-	service is achieved using {{{http://en.wikipedia.org/wiki/JQuery}jQuery}} as described
-	in {{{../org.cumulus4j.integrationtest.webapp/index.html#Ajax}Module org.cumulus4j.integrationtest.webapp / Ajax}}.
-	However here this central part is wrapped by a {{{http://code.google.com/intl/de-DE/webtoolkit/}Google Web Toolkit}} implementation using
-	{{{http://code.google.com/intl/de-DE/webtoolkit/doc/latest/DevGuideCodingBasicsJSNI.html}JSNI}}.
-	The communication between client and application server is achieved by "normal"
+	Dies ist ein Integrationstest, in welchem die Kommunikation zwischen Client und Key-Management-Service
+	mit Hilfe von {{{http://de.wikipedia.org/wiki/JQuery}jQuery}} durchgeführt wird; wie in 
+	{{{../org.cumulus4j.integrationtest.webapp/index.html#Ajax}Modul org.cumulus4j.integrationtest.webapp / Ajax}}
+	beschrieben. Allerdings ist hier der zentrale Teil eingepackt in einer
+	{{{http://code.google.com/intl/de-DE/webtoolkit/}Google-Web-Toolkit}}-Implementation, die
+	{{{http://code.google.com/intl/de-DE/webtoolkit/doc/latest/DevGuideCodingBasicsJSNI.html}JSNI}} benutzt.
+	Die Kommunikation zwischen Client und Applikations-Server über "normales"
 	{{{http://code.google.com/intl/de-DE/webtoolkit/doc/latest/tutorial/RPC.html}GWT-RPC}}.
-	Both servers use {{{http://en.wikipedia.org/wiki/Apache_Derby}Apache Derby}} for persistent storage.
-	The Google plug-in for Eclipse is <<not>> required for running this test.
-	
-* Instructions
-	
+	Beide Server benutzen {{{http://de.wikipedia.org/wiki/Apache_Derby}Apache Derby}} als persistenten Speicher.
+	Das Google-Plugin für Eclipse wird <<nicht>> benötigt, um diesen Test auszuführen.
+
+* Instruktionen
+
 	Open the file <<<messagebroker-datanucleus.properties>>> which is located inside the directory
 	<<</org.cumulus4j.store.crypto.keymanager/src/main/java/org/cumulus4j/store/crypto/keymanager/messagebroker/pmf>>>
 	and make sure that the properties <<<javax.jdo.option.ConnectionDriverName>>> and <<<javax.jdo.option.ConnectionURL>>>

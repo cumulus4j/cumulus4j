@@ -15,15 +15,15 @@ Integration tests
 	Additionally to the automatic testing, they provide a way to manually test and analyse certain features.
 	For example, Cumulus4j allows for various client implementations which include also
 	{{{http://en.wikipedia.org/wiki/Ajax_%28programming%29}Ajax}} clients running in web browsers.
-	You can open your browser and try them out (after starting the appropriate servers).
+	You can open your browser and try our demo clients (after starting the appropriate servers).
 
 	Here is a list of our integration tests:
 
-	* {{{../org.cumulus4j.integrationtest.gwt/}org.cumulus4j.integrationtest.gwt/index.html}}
+	* {{{../org.cumulus4j.integrationtest.gwt/index.html}org.cumulus4j.integrationtest.gwt}}
 
-	* {{{../org.cumulus4j.integrationtest.webapp/}org.cumulus4j.integrationtest.webapp/index.html}}
+	* {{{../org.cumulus4j.integrationtest.webapp/index.html}org.cumulus4j.integrationtest.webapp}}
 
-	* {{{../org.cumulus4j.integrationtest.withkeyserver/}org.cumulus4j.integrationtest.withkeyserver/index.html}}
+	* {{{../org.cumulus4j.integrationtest.withkeyserver/index.html}org.cumulus4j.integrationtest.withkeyserver}}
 
 ~~	The software architecture of Cumulus4j allows for various client implementations.
 ~~	This includes also {{{http://en.wikipedia.org/wiki/Ajax_%28programming%29}Ajax}} clients running in web browsers.

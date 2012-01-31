@@ -11,10 +11,10 @@ Module org.cumulus4j.integrationtest.gwt
 	This is an integration test where the communication between the client and the key management
 	service is achieved using {{{http://en.wikipedia.org/wiki/JQuery}jQuery}} as described
 	in {{{../org.cumulus4j.integrationtest.webapp/index.html#Ajax}Module org.cumulus4j.integrationtest.webapp / Ajax}}.
-	However here this central part is wrapped by a {{{http://code.google.com/intl/de-DE/webtoolkit/}Google Web Toolkit}} implementation using
-	{{{http://code.google.com/intl/de-DE/webtoolkit/doc/latest/DevGuideCodingBasicsJSNI.html}JSNI}}.
+	However here this central part is wrapped by a {{{http://code.google.com/intl/en-GB/webtoolkit/}Google Web Toolkit}} implementation using
+	{{{http://code.google.com/intl/en-GB/webtoolkit/doc/latest/DevGuideCodingBasicsJSNI.html}JSNI}}.
 	The communication between client and application server is achieved by "normal"
-	{{{http://code.google.com/intl/de-DE/webtoolkit/doc/latest/tutorial/RPC.html}GWT-RPC}}.
+	{{{http://code.google.com/intl/en-GB/webtoolkit/doc/latest/tutorial/RPC.html}GWT-RPC}}.
 	Both servers use {{{http://en.wikipedia.org/wiki/Apache_Derby}Apache Derby}} for persistent storage.
 	The Google plug-in for Eclipse is <<not>> required for running this test.
 	
