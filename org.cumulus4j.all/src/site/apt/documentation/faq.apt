@@ -2,14 +2,54 @@
 	FAQ - Frequently asked questions
 	---
 	Marco หงุ่ยตระกูล-Schulze
+	Alexander Bieber
 	---
 	2012-01-30
 
 FAQ - Frequently asked questions
 
+* What is Cumulus4j and who is it for?
+
+	Cumulus4j provides an encryption layer that protects application-data from the access of the company 
+	that hosts the application (i.e. cloud infrastructure providers). It is a plug-in to the 
+	{{{http://en.wikipedia.org/wiki/DataNucleus}DataNucleus}} access platform. 
+	Cumulus4j targets Java developers of cloud and web-based systems that use 
+	{{{http://en.wikipedia.org/wiki/Java_Persistence_API}JPA}} or {{{http://en.wikipedia.org/wiki/Java_Data_Objects}JDO}} for persistence.
+	 
 * Why not simply use an encrypted file system?
 
 	An encrypted file system (e.g. {{{http://en.wikipedia.org/wiki/Linux_Unified_Key_Setup}LUKS}},
-	{{{http://en.wikipedia.org/wiki/TrueCrypt}TrueCrypt}}) uses one single key for a whole device.
+	{{{http://en.wikipedia.org/wiki/TrueCrypt}TrueCrypt}}) uses one single key for a whole device. 
+	Additionally, once opened, the data is accessible plain text while the application is running. 
+	Cumulus4j on the other hand uses many keys to encrypt the data, so that if one key is stolen it
+	will only reveal access to a small part of the data. Furthermore Cumulus4j keeps plain text data
+	and keys only in memory temporary, data will never be written do the datastore in plain text.
 	
-	bla bla bla ...
+* Why does Cumulus4j separate its data?
+
+	Cumulus4j keeps two types of data, the actual application-data and index-data that is kept in order 
+	to implement efficient queries. In order to increase the security of your data Cumulus4j supports 
+	the physical separation of these two, i.e. using separate infrastructure providers for each one.
+	
+* Is the encryption done on the server side?
+
+	Yes, currently Cumulus4j encrypts and decrypts the application-data while writing to and from the datastore, 
+	see {{{./theory.html}the theory section}} for more details. The decrypted data should then be transferred
+	to the client using secure techniques like https.
+
+* Isn't client-side encryption better?
+
+	Of course, the degree of data protection is much higher if keys never leave the trusted environment of the client.
+	In its first project phase the Cumulus4j project provided server-side libraries. This is to ease integration into 
+	existing applications as these libraries can be used mostly transparent to the developer. 
+	However, in the second phase of the project, starting early 2012, a possibility for client-side encryption will be provided, too.   
+	
+
+* Where are the keys kept?
+	
+	The keys Cumulus4j uses for encryption are transferred to the server-application on demand, but the keys are actually
+	kept in another physical location. This is usually the internal network of the client. Cumulus4j provides a two kinds
+	of key-storage and key-management, a command-line application and a web-service. See the {{{./key-store.html}key-store documentation}} for details.
+	
+	 
+

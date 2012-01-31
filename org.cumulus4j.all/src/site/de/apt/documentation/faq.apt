@@ -2,14 +2,55 @@
 	Häufige Fragen (FAQ)
 	---
 	Marco หงุ่ยตระกูล-Schulze
+	Alexander Bieber
 	---
 	2012-01-30
 
 Häufige Fragen (FAQ)
 
+* Was ist Cumulus4j und für wen ist es gedacht?
+
+	Cumulus4j stellt eine Verschlüsselungsschicht zur Verfügung, die Applikationsdaten vor dem Zugriff derjenigen Schützt,
+	die diese Daten speichern (Infrastrukturanbieter) und nur denjenigen zugänglich mach, die die Applikation nutzen. 
+	Die Schicht ist ein Plug-in für das {{{http://en.wikipedia.org/wiki/DataNucleus}DataNucleus}} System.
+	Demnach richtet sich Cumulus4j an Java-Entwickler, die cloud- oder webbasiert Anwendung schreiben und für die
+	Datenpersistenz entweder {{{http://de.wikipedia.org/wiki/Java_Persistence_API}JPA}} oder
+	{{{http://de.wikipedia.org/wiki/Java_Data_Objects}JDO}} nutzen.
+	 
 * Warum nicht einfach ein verschlüsseltes Dateisystem benutzen?
 
-	An encrypted file system (e.g. {{{http://en.wikipedia.org/wiki/Linux_Unified_Key_Setup}LUKS}},
-	{{{http://en.wikipedia.org/wiki/TrueCrypt}TrueCrypt}}) uses one single key for a whole device.
+	Verschlüsselte Dateisysteme, wie zum Beispiel {{{http://en.wikipedia.org/wiki/Linux_Unified_Key_Setup}LUKS}} oder
+	{{{http://de.wikipedia.org/wiki/TrueCrypt}TrueCrypt}}), nutzen lediglich einen Schlüssel pro Container. Zusätzlich
+	sind die Daten unverschlüsselt zugänglich solange der Container geöffnet ist.
+	Cumulus4j hingegen nutzt sehr viele verschiedene Schlüssel, um die Daten zu verschlüsseln. Werden also einige Schlüssel
+	gestohlen, kann sich ein Angreifer nur Zugang zu einem kleinen Teil der Daten verschaffen. Zusätzlich hält Cumulus4j
+	Schlüssel und unverschlüsselte Daten nur im Arbeitsspeicher und das nur für kurze Zeit. Es werden zu keiner Zeit Daten
+	unverschlüsselt in die Datenbank geschrieben.
 	
-	bla bla bla ...
+* Warum verteilt Cumulus4j seine Daten?
+
+	Cumulus4j verwaltet zwei Arten von Daten. Zum einen die Applikationsdaten selbst, zum anderen Indexdaten, die gespeichert
+	werden, um effiziente Abfragen möglich zu machen. Um nun den Schutz der Daten neben der Verschlüsselung weiter zu erhöhen,
+	ist es möglich die Speicherung der beiden Arten von Daten zu verteilen. So kann für die Speicherung jeweils ein anderer
+	Infrastrukturanbieter gewählt werden, der damit nur Zugriff auf einen Teil der Daten hat. 
+	
+* Wird die Verschlüsselung auf dem Server ausgeführt?
+
+	Ja, derzeit verschlüsselt und entschlüsselt Cumulus4j die Daten während es diese in die Datenbank schreibt und daraus liest ({{{./theory.html}Theorie}}).
+	Die Daten sollten dann für den Transfer an den Client wiederum verschlüsselt werden, zum Beispiel mittels https.
+
+* Verschlüsselung auf dem Client ist doch besser, oder?
+
+	Natürlich erreicht man einen besseren Schutz der Daten, wenn die Schlüssel niemals den die sichere Umgebung des Clients verlassen.
+	Bisher stellt Cumulus4j serverseitige Bibliotheken zur Verfügung. Dies wurde vor allem deswegen als erstes entwickelt, da diese
+	Bibliotheken von Entwicklern nahezu ohne Änderungen in bestehende Projekte integriert werden können.
+	In der weiteren Projektphase, die zu Beginn des Jahres 2012 startet, werden auch Möglichkeiten für clientseitige Verschlüsselung entwickelt.   
+
+* Wo speichert Cumulus4j die Schlüssel?
+	
+	Die Schlüssel, die Cumulus4j zur Ver- und Entschlüsselung benötigt, werden bei Bedarf an die Serverapplikation gesendet. 
+	Die eigentliche {{{./key-store.html}Schlüsselspeicherung}} ist davon unabhängig und es wird empfohlen, die Schlüssel im internen Netz des Clients
+	zu speichern. Lesen sie für weitere Details die Beschreibung der {{{./deployment-scenarios.html}Betriebsszenarien}}.
+	Die Schlüssel können über ein Kommandozeilenprogramm oder einen Webservice verwaltet werden.
+	 
+
