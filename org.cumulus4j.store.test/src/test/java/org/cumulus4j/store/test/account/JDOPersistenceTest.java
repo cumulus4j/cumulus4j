@@ -17,12 +17,20 @@
  */
 package org.cumulus4j.store.test.account;
 
-import org.cumulus4j.store.test.account.Account;
-import org.cumulus4j.store.test.account.LocalAccountantDelegate;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.jdo.JDOObjectNotFoundException;
+import javax.jdo.PersistenceManager;
+import javax.jdo.PersistenceManagerFactory;
+
 import org.cumulus4j.store.test.account.id.AnchorID;
 import org.cumulus4j.store.test.account.id.LocalAccountantDelegateID;
 import org.cumulus4j.store.test.framework.AbstractJDOTransactionalTest;
 import org.cumulus4j.store.test.framework.CleanupUtil;
+import org.cumulus4j.store.test.framework.JDOTransactionalRunner;
+import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -31,6 +39,8 @@ import org.slf4j.LoggerFactory;
 public class JDOPersistenceTest
 extends AbstractJDOTransactionalTest
 {
+	private static final String EUR = "EUR";
+
 	private static final Logger logger = LoggerFactory.getLogger(JDOPersistenceTest.class);
 
 	private static final String ORGANISATION_ID = "jfire.my.org";
@@ -51,7 +61,7 @@ extends AbstractJDOTransactionalTest
 		{
 			Account account = new Account(ACCOUNT_ID_0);
 			LocalAccountantDelegate localAccountantDelegate = new LocalAccountantDelegate(LOCAL_ACCOUNTANT_DELEGATE_ID_0);
-			localAccountantDelegate.setAccount("EUR", account);
+			localAccountantDelegate.setAccount(EUR, account);
 			pm.makePersistent(localAccountantDelegate); // this should implicitly persist the account
 		}
 
@@ -65,4 +75,154 @@ extends AbstractJDOTransactionalTest
 			account.getBalance();
 		}
 	}
+
+	private static <K, V> Map.Entry<K, V> iterateMapAndGetMapEntryForKey(Map<K, V> map, K key)
+	{
+		for (Map.Entry<K, V> me : map.entrySet()) {
+			if (key == null && me.getKey() == null)
+				return me;
+
+			if (key != null && key.equals(me.getKey()))
+				return me;
+		}
+
+		return null;
+	}
+
+	@Test
+	public void createData_HeisenbugAnalysis()
+	{
+		int runCounter = 0;
+		int createDataFailedCounter = 0;
+		int[] mapGetReturnedNullCounter = new int[] { 0, 0, 0 };
+		int[] mapEntryMissingCounter = new int[] { 0, 0, 0 };
+		int[] mapEntryValueIsNullCounter = new int[] { 0, 0, 0 };
+		int[] accountIsNotFoundCounter = new int[] { 0, 0, 0 };
+
+		for (int i = 0; i < 1000; ++i) {
+			++runCounter;
+			try {
+				createData();
+			} catch (Exception x) {
+				++createDataFailedCounter;
+
+				{
+					int counterIndex = 0;
+					pm.getExtent(LocalAccountantDelegate.class);
+					LocalAccountantDelegate localAccountantDelegate = (LocalAccountantDelegate) pm.getObjectById(LOCAL_ACCOUNTANT_DELEGATE_ID_0);
+
+					if (localAccountantDelegate.getAccounts().get(EUR) == null)
+						++mapGetReturnedNullCounter[counterIndex];
+
+					Entry<String, Account> mapEntry = iterateMapAndGetMapEntryForKey(localAccountantDelegate.getAccounts(), EUR);
+					if (mapEntry == null)
+						++mapEntryMissingCounter[counterIndex];
+					else if (mapEntry.getValue() == null)
+						++mapEntryValueIsNullCounter[counterIndex];
+
+					try {
+						pm.getExtent(Account.class);
+						pm.getObjectById(ACCOUNT_ID_0);
+					} catch (JDOObjectNotFoundException onfe) {
+						++accountIsNotFoundCounter[counterIndex];
+					}
+				}
+
+				commitAndBeginNewTransaction();
+
+				{
+					int counterIndex = 1;
+					pm.getExtent(LocalAccountantDelegate.class);
+					LocalAccountantDelegate localAccountantDelegate = (LocalAccountantDelegate) pm.getObjectById(LOCAL_ACCOUNTANT_DELEGATE_ID_0);
+
+					if (localAccountantDelegate.getAccounts().get(EUR) == null)
+						++mapGetReturnedNullCounter[counterIndex];
+
+					Entry<String, Account> mapEntry = iterateMapAndGetMapEntryForKey(localAccountantDelegate.getAccounts(), EUR);
+					if (mapEntry == null)
+						++mapEntryMissingCounter[counterIndex];
+					else if (mapEntry.getValue() == null)
+						++mapEntryValueIsNullCounter[counterIndex];
+
+					try {
+						pm.getExtent(Account.class);
+						pm.getObjectById(ACCOUNT_ID_0);
+					} catch (JDOObjectNotFoundException onfe) {
+						++accountIsNotFoundCounter[counterIndex];
+					}
+				}
+
+				commitAndBeginNewTransaction();
+
+
+				PersistenceManagerFactory pmf2 = JDOTransactionalRunner.createPersistenceManagerFactory();
+				PersistenceManager pm2 = pmf2.getPersistenceManager();
+				JDOTransactionalRunner.setEncryptionCoordinates(pm2);
+				pm2.currentTransaction().begin();
+
+				{
+					int counterIndex = 2;
+					pm2.getExtent(LocalAccountantDelegate.class);
+					LocalAccountantDelegate localAccountantDelegate = (LocalAccountantDelegate) pm2.getObjectById(LOCAL_ACCOUNTANT_DELEGATE_ID_0);
+
+					if (localAccountantDelegate.getAccounts().get(EUR) == null)
+						++mapGetReturnedNullCounter[counterIndex];
+
+					Entry<String, Account> mapEntry = iterateMapAndGetMapEntryForKey(localAccountantDelegate.getAccounts(), EUR);
+					if (mapEntry == null)
+						++mapEntryMissingCounter[counterIndex];
+					else if (mapEntry.getValue() == null)
+						++mapEntryValueIsNullCounter[counterIndex];
+
+					try {
+						pm2.getExtent(Account.class);
+						pm2.getObjectById(ACCOUNT_ID_0);
+					} catch (JDOObjectNotFoundException onfe) {
+						++accountIsNotFoundCounter[counterIndex];
+					}
+				}
+
+				pm2.currentTransaction().rollback();
+				pm2.close();
+				pmf2.close();
+			}
+
+			deleteAll();
+		}
+
+		if (createDataFailedCounter > 0)
+			throw new RuntimeException(
+					String.format(
+							"runCounter=%s createDataFailedCounter=%s mapGetReturnedNullCounter=%s mapEntryMissingCounter=%s mapEntryValueIsNullCounter=%s accountIsNotFoundCounter=%s",
+							runCounter,
+							createDataFailedCounter,
+							Arrays.toString(mapGetReturnedNullCounter),
+							Arrays.toString(mapEntryMissingCounter),
+							Arrays.toString(mapEntryValueIsNullCounter),
+							Arrays.toString(accountIsNotFoundCounter)
+					)
+			);
+	}
+
+	private static final void doNothing() { }
+
+	@After
+    public void deleteAll()
+    {
+		LocalAccountantDelegate localAccountantDelegate = null;
+		try {
+			localAccountantDelegate = (LocalAccountantDelegate) pm.getObjectById(LOCAL_ACCOUNTANT_DELEGATE_ID_0);
+		} catch (JDOObjectNotFoundException x) { doNothing(); }
+
+		if (localAccountantDelegate != null)
+			pm.deletePersistent(localAccountantDelegate);
+
+		Account account = null;
+		try {
+			account = (Account) pm.getObjectById(ACCOUNT_ID_0);
+		} catch (JDOObjectNotFoundException x) { doNothing(); }
+
+		if (account != null)
+			pm.deletePersistent(account);
+    }
 }

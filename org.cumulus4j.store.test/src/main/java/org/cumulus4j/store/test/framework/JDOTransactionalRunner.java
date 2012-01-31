@@ -189,6 +189,11 @@ public class JDOTransactionalRunner extends BlockJUnit4ClassRunner
 		pm.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, UUID.randomUUID().toString());
 	}
 
+	public static PersistenceManagerFactory createPersistenceManagerFactory()
+	{
+		return JDOHelper.getPersistenceManagerFactory(TestUtil.loadProperties("cumulus4j-test-datanucleus.properties"));
+	}
+
 	private void runInTransaction(Object test, Statement statement)
 	throws Throwable
 	{
@@ -199,7 +204,7 @@ public class JDOTransactionalRunner extends BlockJUnit4ClassRunner
 
 			if (pmf == null) {
 				logger.info("run: Setting up PersistenceManagerFactory.");
-				pmf = JDOHelper.getPersistenceManagerFactory(TestUtil.loadProperties("cumulus4j-test-datanucleus.properties"));
+				pmf = createPersistenceManagerFactory();
 			}
 
 			pm = pmf.getPersistenceManager();

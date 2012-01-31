@@ -18,6 +18,7 @@
 package org.cumulus4j.store.test.account;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -185,6 +186,10 @@ public class LocalAccountantDelegate implements Serializable {
 			accounts.remove(currencyID);
 		else
 			accounts.put(currencyID, account);
+	}
+
+	public Map<String, Account> getAccounts() {
+		return Collections.unmodifiableMap(accounts);
 	}
 
 	public void test()

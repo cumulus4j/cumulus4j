@@ -190,6 +190,42 @@ public class JPATransactionalRunner extends BlockJUnit4ClassRunner
 		em.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, UUID.randomUUID().toString());
 	}
 
+	private static Properties loadProperties()
+	{
+		Properties props = TestUtil.loadProperties("cumulus4j-test-datanucleus.properties");
+		// Convert JDO-standard connection props to JPA-standard connection props
+		if (props.containsKey("javax.jdo.PersistenceManagerFactoryClass")) {
+			props.remove("javax.jdo.PersistenceManagerFactoryClass");
+		}
+		if (props.containsKey("javax.jdo.option.ConnectionDriverName")) {
+			String val = props.getProperty("javax.jdo.option.ConnectionDriverName");
+			props.remove("javax.jdo.option.ConnectionDriverName");
+			props.setProperty("javax.persistence.jdbc.driver", val);
+		}
+		if (props.containsKey("javax.jdo.option.ConnectionURL")) {
+			String val = props.getProperty("javax.jdo.option.ConnectionURL");
+			props.remove("javax.jdo.option.ConnectionURL");
+			props.setProperty("javax.persistence.jdbc.url", val);
+		}
+		if (props.containsKey("javax.jdo.option.ConnectionUserName")) {
+			String val = props.getProperty("javax.jdo.option.ConnectionUserName");
+			props.remove("javax.jdo.option.ConnectionUserName");
+			props.setProperty("javax.persistence.jdbc.user", val);
+		}
+		if (props.containsKey("javax.jdo.option.ConnectionPassword")) {
+			String val = props.getProperty("javax.jdo.option.ConnectionPassword");
+			props.remove("javax.jdo.option.ConnectionPassword");
+			props.setProperty("javax.persistence.jdbc.password", val);
+		}
+		return props;
+	}
+
+	public static EntityManagerFactory createEntityManagerFactory()
+	{
+		Properties props = loadProperties();
+		return Persistence.createEntityManagerFactory("test", props);
+	}
+
 	private void runInTransaction(Object test, Statement statement)
 	throws Throwable
 	{
@@ -200,32 +236,7 @@ public class JPATransactionalRunner extends BlockJUnit4ClassRunner
 
 			if (emf == null) {
 				logger.info("run: Setting up EntityManagerFactory.");
-				Properties props = TestUtil.loadProperties("cumulus4j-test-datanucleus.properties");
-				// Convert JDO-standard connection props to JPA-standard connection props
-				if (props.containsKey("javax.jdo.PersistenceManagerFactoryClass")) {
-					props.remove("javax.jdo.PersistenceManagerFactoryClass");
-				}
-				if (props.containsKey("javax.jdo.option.ConnectionDriverName")) {
-					String val = props.getProperty("javax.jdo.option.ConnectionDriverName");
-					props.remove("javax.jdo.option.ConnectionDriverName");
-					props.setProperty("javax.persistence.jdbc.driver", val);
-				}
-				if (props.containsKey("javax.jdo.option.ConnectionURL")) {
-					String val = props.getProperty("javax.jdo.option.ConnectionURL");
-					props.remove("javax.jdo.option.ConnectionURL");
-					props.setProperty("javax.persistence.jdbc.url", val);
-				}
-				if (props.containsKey("javax.jdo.option.ConnectionUserName")) {
-					String val = props.getProperty("javax.jdo.option.ConnectionUserName");
-					props.remove("javax.jdo.option.ConnectionUserName");
-					props.setProperty("javax.persistence.jdbc.user", val);
-				}
-				if (props.containsKey("javax.jdo.option.ConnectionPassword")) {
-					String val = props.getProperty("javax.jdo.option.ConnectionPassword");
-					props.remove("javax.jdo.option.ConnectionPassword");
-					props.setProperty("javax.persistence.jdbc.password", val);
-				}
-				emf = Persistence.createEntityManagerFactory("test", props);
+				emf = createEntityManagerFactory();
 			}
 
 			em = emf.createEntityManager();
