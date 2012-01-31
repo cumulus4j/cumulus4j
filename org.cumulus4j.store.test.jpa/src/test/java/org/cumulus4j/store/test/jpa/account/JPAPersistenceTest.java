@@ -17,22 +17,13 @@
  */
 package org.cumulus4j.store.test.jpa.account;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-
 import org.cumulus4j.store.test.framework.CleanupUtil;
 import org.cumulus4j.store.test.jpa.AbstractJPATransactionalTest;
-import org.cumulus4j.store.test.jpa.JPATransactionalRunner;
 import org.cumulus4j.store.test.jpa.account.id.AnchorID;
 import org.cumulus4j.store.test.jpa.account.id.LocalAccountantDelegateID;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,119 +69,118 @@ extends AbstractJPATransactionalTest
 		}
 	}
 
-	private static <K, V> Map.Entry<K, V> iterateMapAndGetMapEntryForKey(Map<K, V> map, K key)
-	{
-		for (Map.Entry<K, V> me : map.entrySet()) {
-			if (key == null && me.getKey() == null)
-				return me;
-
-			if (key != null && key.equals(me.getKey()))
-				return me;
-		}
-
-		return null;
-	}
-
-	@Test
-	@Ignore
-	public void createData_HeisenbugAnalysis()
-	{
-		int runCounter = 0;
-		int createDataFailedCounter = 0;
-		int[] mapGetReturnedNullCounter = new int[] { 0, 0, 0 };
-		int[] mapEntryMissingCounter = new int[] { 0, 0, 0 };
-		int[] mapEntryValueIsNullCounter = new int[] { 0, 0, 0 };
-		int[] accountIsNotFoundCounter = new int[] { 0, 0, 0 };
-
-		for (int i = 0; i < 100; ++i) {
-			++runCounter;
-			try {
-				createData();
-			} catch (Exception x) {
-				++createDataFailedCounter;
-
-				{
-					int counterIndex = 0;
-					LocalAccountantDelegate localAccountantDelegate = em.find(LocalAccountantDelegate.class, LOCAL_ACCOUNTANT_DELEGATE_ID_0);
-
-					if (localAccountantDelegate.getAccounts().get(EUR) == null)
-						++mapGetReturnedNullCounter[counterIndex];
-
-					Entry<String, Account> mapEntry = iterateMapAndGetMapEntryForKey(localAccountantDelegate.getAccounts(), EUR);
-					if (mapEntry == null)
-						++mapEntryMissingCounter[counterIndex];
-					else if (mapEntry.getValue() == null)
-						++mapEntryValueIsNullCounter[counterIndex];
-
-					if (em.find(Account.class, ACCOUNT_ID_0) == null)
-						++accountIsNotFoundCounter[counterIndex];
-				}
-
-				commitAndBeginNewTransaction();
-
-				{
-					int counterIndex = 1;
-					LocalAccountantDelegate localAccountantDelegate = em.find(LocalAccountantDelegate.class, LOCAL_ACCOUNTANT_DELEGATE_ID_0);
-
-					if (localAccountantDelegate.getAccounts().get(EUR) == null)
-						++mapGetReturnedNullCounter[counterIndex];
-
-					Entry<String, Account> mapEntry = iterateMapAndGetMapEntryForKey(localAccountantDelegate.getAccounts(), EUR);
-					if (mapEntry == null)
-						++mapEntryMissingCounter[counterIndex];
-					else if (mapEntry.getValue() == null)
-						++mapEntryValueIsNullCounter[counterIndex];
-
-					if (em.find(Account.class, ACCOUNT_ID_0) == null)
-						++accountIsNotFoundCounter[counterIndex];
-				}
-
-				commitAndBeginNewTransaction();
-
-
-				EntityManagerFactory emf2 = JPATransactionalRunner.createEntityManagerFactory();
-				EntityManager em2 = emf2.createEntityManager();
-				JPATransactionalRunner.setEncryptionCoordinates(em2);
-				em2.getTransaction().begin();
-
-				{
-					int counterIndex = 2;
-					LocalAccountantDelegate localAccountantDelegate = em2.find(LocalAccountantDelegate.class, LOCAL_ACCOUNTANT_DELEGATE_ID_0);
-
-					if (localAccountantDelegate.getAccounts().get(EUR) == null)
-						++mapGetReturnedNullCounter[counterIndex];
-
-					Entry<String, Account> mapEntry = iterateMapAndGetMapEntryForKey(localAccountantDelegate.getAccounts(), EUR);
-					if (mapEntry == null)
-						++mapEntryMissingCounter[counterIndex];
-					else if (mapEntry.getValue() == null)
-						++mapEntryValueIsNullCounter[counterIndex];
-
-					if (em2.find(Account.class, ACCOUNT_ID_0) == null)
-						++accountIsNotFoundCounter[counterIndex];
-				}
-
-				em2.getTransaction().rollback();
-				em2.close();
-				emf2.close();
-			}
-
-			deleteAll();
-		}
-
-		if (createDataFailedCounter > 0)
-			throw new RuntimeException(
-					String.format(
-							"runCounter=%s createDataFailedCounter=%s mapGetReturnedNullCounter=%s mapEntryMissingCounter=%s mapEntryValueIsNullCounter=%s accountIsNotFoundCounter=%s",
-							runCounter,
-							createDataFailedCounter,
-							Arrays.toString(mapGetReturnedNullCounter),
-							Arrays.toString(mapEntryMissingCounter),
-							Arrays.toString(mapEntryValueIsNullCounter),
-							Arrays.toString(accountIsNotFoundCounter)
-					)
-			);
-	}
+//	private static <K, V> Map.Entry<K, V> iterateMapAndGetMapEntryForKey(Map<K, V> map, K key)
+//	{
+//		for (Map.Entry<K, V> me : map.entrySet()) {
+//			if (key == null && me.getKey() == null)
+//				return me;
+//
+//			if (key != null && key.equals(me.getKey()))
+//				return me;
+//		}
+//
+//		return null;
+//	}
+//
+//	@Test
+//	public void createData_HeisenbugAnalysis()
+//	{
+//		int runCounter = 0;
+//		int createDataFailedCounter = 0;
+//		int[] mapGetReturnedNullCounter = new int[] { 0, 0, 0 };
+//		int[] mapEntryMissingCounter = new int[] { 0, 0, 0 };
+//		int[] mapEntryValueIsNullCounter = new int[] { 0, 0, 0 };
+//		int[] accountIsNotFoundCounter = new int[] { 0, 0, 0 };
+//
+//		for (int i = 0; i < 100; ++i) {
+//			++runCounter;
+//			try {
+//				createData();
+//			} catch (Exception x) {
+//				++createDataFailedCounter;
+//
+//				{
+//					int counterIndex = 0;
+//					LocalAccountantDelegate localAccountantDelegate = em.find(LocalAccountantDelegate.class, LOCAL_ACCOUNTANT_DELEGATE_ID_0);
+//
+//					if (localAccountantDelegate.getAccounts().get(EUR) == null)
+//						++mapGetReturnedNullCounter[counterIndex];
+//
+//					Entry<String, Account> mapEntry = iterateMapAndGetMapEntryForKey(localAccountantDelegate.getAccounts(), EUR);
+//					if (mapEntry == null)
+//						++mapEntryMissingCounter[counterIndex];
+//					else if (mapEntry.getValue() == null)
+//						++mapEntryValueIsNullCounter[counterIndex];
+//
+//					if (em.find(Account.class, ACCOUNT_ID_0) == null)
+//						++accountIsNotFoundCounter[counterIndex];
+//				}
+//
+//				commitAndBeginNewTransaction();
+//
+//				{
+//					int counterIndex = 1;
+//					LocalAccountantDelegate localAccountantDelegate = em.find(LocalAccountantDelegate.class, LOCAL_ACCOUNTANT_DELEGATE_ID_0);
+//
+//					if (localAccountantDelegate.getAccounts().get(EUR) == null)
+//						++mapGetReturnedNullCounter[counterIndex];
+//
+//					Entry<String, Account> mapEntry = iterateMapAndGetMapEntryForKey(localAccountantDelegate.getAccounts(), EUR);
+//					if (mapEntry == null)
+//						++mapEntryMissingCounter[counterIndex];
+//					else if (mapEntry.getValue() == null)
+//						++mapEntryValueIsNullCounter[counterIndex];
+//
+//					if (em.find(Account.class, ACCOUNT_ID_0) == null)
+//						++accountIsNotFoundCounter[counterIndex];
+//				}
+//
+//				commitAndBeginNewTransaction();
+//
+//
+//				EntityManagerFactory emf2 = JPATransactionalRunner.createEntityManagerFactory();
+//				EntityManager em2 = emf2.createEntityManager();
+//				JPATransactionalRunner.setEncryptionCoordinates(em2);
+//				em2.getTransaction().begin();
+//
+//				{
+//					int counterIndex = 2;
+//					LocalAccountantDelegate localAccountantDelegate = em2.find(LocalAccountantDelegate.class, LOCAL_ACCOUNTANT_DELEGATE_ID_0);
+//
+//					if (localAccountantDelegate.getAccounts().get(EUR) == null)
+//						++mapGetReturnedNullCounter[counterIndex];
+//
+//					Entry<String, Account> mapEntry = iterateMapAndGetMapEntryForKey(localAccountantDelegate.getAccounts(), EUR);
+//					if (mapEntry == null)
+//						++mapEntryMissingCounter[counterIndex];
+//					else if (mapEntry.getValue() == null)
+//						++mapEntryValueIsNullCounter[counterIndex];
+//
+//					if (em2.find(Account.class, ACCOUNT_ID_0) == null)
+//						++accountIsNotFoundCounter[counterIndex];
+//				}
+//
+//				em2.getTransaction().rollback();
+//				em2.close();
+//				emf2.close();
+//			}
+//
+//			deleteAll();
+//		}
+//
+//		if (createDataFailedCounter > 0)
+//			throw new RuntimeException(
+//					String.format(
+//							"runCounter=%s createDataFailedCounter=%s mapGetReturnedNullCounter=%s mapEntryMissingCounter=%s mapEntryValueIsNullCounter=%s accountIsNotFoundCounter=%s",
+//							runCounter,
+//							createDataFailedCounter,
+//							Arrays.toString(mapGetReturnedNullCounter),
+//							Arrays.toString(mapEntryMissingCounter),
+//							Arrays.toString(mapEntryValueIsNullCounter),
+//							Arrays.toString(accountIsNotFoundCounter)
+//					)
+//			);
+//	}
 
     @Test
     public void updateData()

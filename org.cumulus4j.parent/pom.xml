@@ -336,6 +336,11 @@
 				<version>${cumulus4j.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.integrationtest.gwt</artifactId>
+				<type>war</type>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.integrationtest.webapp</artifactId>
 				<type>war</type>
 				<version>${cumulus4j.version}</version>
@@ -475,14 +480,14 @@
 				<groupId>org.bouncycastle</groupId>
 				<artifactId>bcprov-ext-jdk16</artifactId>
 <!--				<version>1.46</version> -->
-				<version>1.47-SNAPSHOT</version>
+				<version>1.46.1.NL</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.bouncycastle</groupId>
 				<artifactId>bcprov-jdk16</artifactId>
 <!--				<version>1.46</version> -->
-				<version>1.47-SNAPSHOT</version>
+				<version>1.46.1.NL</version>
 			</dependency>
 
 			<dependency>
@@ -1020,14 +1025,6 @@ Tests run: 3, Failures: 0, Errors: 1, Skipped: 0
 <!--			<url>${distributionManagement.site.prefix}/www.cumulus4j.org/junk/</url> -->
 			<url>file:${java.io.tmpdir}/cumulus4j-junk</url>
 		</site>
-	<!--
-		TODO auto-deployment When we release Cumulus4j as Free Software, we
-		only have to uncomment this distributionManagement block and change
-		the Jenkins configuration to call 'mvn deploy' instead of 'mvn install
-		javadoc:aggregate javadoc:aggregate-jar' (maybe we still need the
-		javadoc:aggregate-jar, but we'll see then). I just tested it and it
-		works fine. Afterwards, I immediately deleted the artifact from our
-		Artifactory again and deactivated the auto-deployment. Marco.
 
 		<repository>
 			<id>dev.nightlabs.org-libs-releases-local</id>
@@ -1039,7 +1036,6 @@ Tests run: 3, Failures: 0, Errors: 1, Skipped: 0
 			<name>dev.nightlabs.org-libs-snapshots-local</name>
 			<url>https://dev.nightlabs.org/maven-repository/libs-snapshots-local</url>
 		</snapshotRepository>
-	-->
 	</distributionManagement>
 
 </project>

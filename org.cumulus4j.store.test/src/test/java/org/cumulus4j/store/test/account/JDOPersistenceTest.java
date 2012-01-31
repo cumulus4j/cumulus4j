@@ -32,7 +32,6 @@ import org.cumulus4j.store.test.framework.CleanupUtil;
 import org.cumulus4j.store.test.framework.JDOTransactionalRunner;
 import org.junit.After;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,7 +90,6 @@ extends AbstractJDOTransactionalTest
 	}
 
 	@Test
-	@Ignore
 	public void createData_HeisenbugAnalysis()
 	{
 		int runCounter = 0;
