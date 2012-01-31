@@ -32,7 +32,6 @@ import org.cumulus4j.store.model.ClassMeta;
 import org.datanucleus.query.evaluator.JDOQLEvaluator;
 import org.datanucleus.query.evaluator.JavaQueryEvaluator;
 import org.datanucleus.store.ExecutionContext;
-import org.datanucleus.store.StoreManager;
 import org.datanucleus.store.connection.ManagedConnection;
 import org.datanucleus.store.query.AbstractJDOQLQuery;
 import org.datanucleus.util.NucleusLogger;
@@ -48,31 +47,31 @@ public class JDOQLQuery extends AbstractJDOQLQuery
 	private static final long serialVersionUID = 1L;
 
 // BEGIN DataNucleus 3.0.0-m6 and 3.0.0-release
-//	public JDOQLQuery(ExecutionContext ec, AbstractJDOQLQuery q) {
-//		super(ec, q);
-//	}
-//
-//	public JDOQLQuery(ExecutionContext ec, String query) {
-//		super(ec, query);
-//	}
-//
-//	public JDOQLQuery(ExecutionContext ec) {
-//		super(ec);
-//	}
+	public JDOQLQuery(ExecutionContext ec, AbstractJDOQLQuery q) {
+		super(ec, q);
+	}
+
+	public JDOQLQuery(ExecutionContext ec, String query) {
+		super(ec, query);
+	}
+
+	public JDOQLQuery(ExecutionContext ec) {
+		super(ec);
+	}
 // END DataNucleus 3.0.0-m6 and 3.0.0-release
 
 // BEGIN DataNucleus 3.0.1 and newer
-	public JDOQLQuery(StoreManager storeMgr, ExecutionContext ec, AbstractJDOQLQuery q) {
-		super(storeMgr, ec, q);
-	}
-
-	public JDOQLQuery(StoreManager storeMgr, ExecutionContext ec, String query) {
-		super(storeMgr, ec, query);
-	}
-
-	public JDOQLQuery(StoreManager storeMgr, ExecutionContext ec) {
-		super(storeMgr, ec);
-	}
+//	public JDOQLQuery(StoreManager storeMgr, ExecutionContext ec, AbstractJDOQLQuery q) {
+//		super(storeMgr, ec, q);
+//	}
+//
+//	public JDOQLQuery(StoreManager storeMgr, ExecutionContext ec, String query) {
+//		super(storeMgr, ec, query);
+//	}
+//
+//	public JDOQLQuery(StoreManager storeMgr, ExecutionContext ec) {
+//		super(storeMgr, ec);
+//	}
 // END DataNucleus 3.0.1 and newer
 
 	@Override
