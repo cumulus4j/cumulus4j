@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.cumulus4j</groupId>
 	<artifactId>org.cumulus4j.parent</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>org.cumulus4j.parent</name>
 	<description>Cumulus4j parent POM, i.e. the root-configuration from which all other POMs inherit common settings.</description>
@@ -49,7 +49,7 @@
 		<cumulus4j.version>${project.version}</cumulus4j.version>
 	...trying explicit 1.0.0 instead.
 -->
-		<cumulus4j.version>1.0.0</cumulus4j.version>
+		<cumulus4j.version>1.0.1-SNAPSHOT</cumulus4j.version>
 	</properties>
 
 	<ciManagement>
@@ -77,7 +77,7 @@
 	</licenses>
 
 	<scm>
-		<connection>scm:svn:https://dev.nightlabs.org/svn/public/cumulus4j/tags/org.cumulus4j.all-1.0.0/trunk</connection>
+		<connection>scm:svn:https://dev.nightlabs.org/svn/public/cumulus4j/trunk/</connection>
 	</scm>
 
 	<developers>
