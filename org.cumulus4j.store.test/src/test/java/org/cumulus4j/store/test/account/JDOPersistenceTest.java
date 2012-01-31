@@ -19,7 +19,6 @@ package org.cumulus4j.store.test.account;
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
@@ -114,7 +113,7 @@ extends AbstractJDOTransactionalTest
 					if (localAccountantDelegate.getAccounts().get(EUR) == null)
 						++mapGetReturnedNullCounter[counterIndex];
 
-					Entry<String, Account> mapEntry = iterateMapAndGetMapEntryForKey(localAccountantDelegate.getAccounts(), EUR);
+					Map.Entry<String, Account> mapEntry = iterateMapAndGetMapEntryForKey(localAccountantDelegate.getAccounts(), EUR);
 					if (mapEntry == null)
 						++mapEntryMissingCounter[counterIndex];
 					else if (mapEntry.getValue() == null)
@@ -138,7 +137,7 @@ extends AbstractJDOTransactionalTest
 					if (localAccountantDelegate.getAccounts().get(EUR) == null)
 						++mapGetReturnedNullCounter[counterIndex];
 
-					Entry<String, Account> mapEntry = iterateMapAndGetMapEntryForKey(localAccountantDelegate.getAccounts(), EUR);
+					Map.Entry<String, Account> mapEntry = iterateMapAndGetMapEntryForKey(localAccountantDelegate.getAccounts(), EUR);
 					if (mapEntry == null)
 						++mapEntryMissingCounter[counterIndex];
 					else if (mapEntry.getValue() == null)
@@ -168,7 +167,7 @@ extends AbstractJDOTransactionalTest
 					if (localAccountantDelegate.getAccounts().get(EUR) == null)
 						++mapGetReturnedNullCounter[counterIndex];
 
-					Entry<String, Account> mapEntry = iterateMapAndGetMapEntryForKey(localAccountantDelegate.getAccounts(), EUR);
+					Map.Entry<String, Account> mapEntry = iterateMapAndGetMapEntryForKey(localAccountantDelegate.getAccounts(), EUR);
 					if (mapEntry == null)
 						++mapEntryMissingCounter[counterIndex];
 					else if (mapEntry.getValue() == null)
