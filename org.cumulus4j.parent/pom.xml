@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.cumulus4j</groupId>
 	<artifactId>org.cumulus4j.parent</artifactId>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<packaging>pom</packaging>
 	<name>org.cumulus4j.parent</name>
 	<description>Cumulus4j parent POM, i.e. the root-configuration from which all other POMs inherit common settings.</description>
@@ -45,11 +45,7 @@
 		<!-- We do not want the build to be interrupted when a test fails. -->
 		<maven.test.failure.ignore>true</maven.test.failure.ignore>
 
-<!-- Maven release plugin (triggered by jenkins) fails to do a release with the following line:
 		<cumulus4j.version>${project.version}</cumulus4j.version>
-	...trying explicit 1.0.0 instead.
--->
-		<cumulus4j.version>1.0.1-SNAPSHOT</cumulus4j.version>
 	</properties>
 
 	<ciManagement>
