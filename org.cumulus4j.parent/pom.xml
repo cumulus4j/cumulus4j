@@ -30,8 +30,8 @@
 		<slf4j.version>1.6.1</slf4j.version>
 		<jersey.version>1.6</jersey.version>
 
-		<datanucleus.dependency.version>3.0.0-release</datanucleus.dependency.version>
-		<datanucleus.core.dependency.version>${datanucleus.dependency.version}</datanucleus.core.dependency.version>
+		<datanucleus.dependency.version>3.0.5</datanucleus.dependency.version>
+		<datanucleus.core.dependency.version>3.0.7-SNAPSHOT</datanucleus.core.dependency.version>
 		<datanucleus.enhancer.dependency.version>3.0.1</datanucleus.enhancer.dependency.version>
 		<datanucleus.javadoc.version>3.0</datanucleus.javadoc.version>
 
