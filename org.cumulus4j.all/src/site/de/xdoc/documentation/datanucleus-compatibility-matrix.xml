@@ -35,7 +35,7 @@
 			<p>
 				Wenn eine bestimmte Version von Cumulus4j überhaupt nicht mit einer bestimmten
 				DataNucleus-Version zusammenarbeitet, zeigen wir dies mit folgendem Symbol an:
-				<img src="../images/compatibility-no.jpg" alt="Nicht kompatibel" />
+				<img src="../images/compatibility-no.png" alt="Nicht kompatibel" />
 			</p>
 
 			<table>
@@ -58,15 +58,29 @@
 					</tr>
 					<tr>
 						<td>1.0.1</td>
-						<td>3.0.1 - 3.0.6</td>
+						<td>3.0.4 ... 3.0.6</td>
+						<td>
+							<img src="../images/compatibility-no.png" alt="Nicht kompatibel" />
+						</td>
+						<td></td>
+						<!--
 						<td>
 							<img src="../images/compatibility-partial.png" alt="Teilweise kompatibel" />
 						</td>
 						<td>
-							All tests succeed, but a
-							<a href="#workaround_cumulus4j_1.0.0_datanucleus_3.0.1">workaround</a>
-							is required.
+							Tests OK, aber
+							<a href="#workaround_cumulus4j_1.0.0_datanucleus_3.0.1">Workaround</a>
+							notwendig.
 						</td>
+						-->
+					</tr>
+					<tr>
+						<td>1.0.0</td>
+						<td>3.0.1 ... 3.0.3</td>
+						<td>
+							<img src="../images/compatibility-yes.png" alt="Vollständig kompatibel" />
+						</td>
+						<td></td>
 					</tr>
 					<tr>
 						<td>1.0.0</td>
@@ -87,7 +101,7 @@
 				</tbody>
 			</table>
 
-
+<!--
 			<subsection name="Kommentare">
 				<h4>
 					<a name="workaround_cumulus4j_1.0.0_datanucleus_3.0.1">Workaround für DataNucleus 3.0.1 - 3.0.6</a>
@@ -106,6 +120,7 @@ javax.jdo.option.ConnectionURL=cumulus4j:jdbc:mysql://127.0.0.1/cumulus4j
 				</pre></div>
 
 			</subsection>
+-->
 
 		</section>
 

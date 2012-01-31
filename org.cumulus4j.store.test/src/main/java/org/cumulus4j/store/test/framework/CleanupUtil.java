@@ -56,6 +56,8 @@ import org.slf4j.LoggerFactory;
  */
 public class CleanupUtil
 {
+	private static final String CUMULUS4J_CONNECTION_URL_PREFIX = "cumulus4j:";
+
 	private static final Logger logger = LoggerFactory.getLogger(CleanupUtil.class);
 
 	private static String[] datastoreProps = {
@@ -114,6 +116,9 @@ public class CleanupUtil
 			return;
 		}
 
+		if (connectionURL.startsWith(CUMULUS4J_CONNECTION_URL_PREFIX))
+			connectionURL = connectionURL.substring(CUMULUS4J_CONNECTION_URL_PREFIX.length());
+
 		if (connectionURL.startsWith("jdbc:")) {
 			cleanoutRDBMS(connectionURL, dataPmfProps);
 		}
@@ -132,6 +137,9 @@ public class CleanupUtil
 				logger.warn("dropAllTables: 'ConnectionURL' property is not set for index datastore! Skipping!");
 				return;
 			}
+
+			if (connectionURL.startsWith(CUMULUS4J_CONNECTION_URL_PREFIX))
+				connectionURL = connectionURL.substring(CUMULUS4J_CONNECTION_URL_PREFIX.length());
 
 			if (connectionURL.startsWith("jdbc:")) {
 				cleanoutRDBMS(connectionURL, indexPmfProps);

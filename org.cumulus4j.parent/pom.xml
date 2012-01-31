@@ -30,9 +30,12 @@
 		<log4j.version>1.2.16</log4j.version>
 		<slf4j.version>1.6.1</slf4j.version>
 		<jersey.version>1.6</jersey.version>
-		<datanucleus.dependency.version>3.0.2</datanucleus.dependency.version>
+
+		<datanucleus.dependency.version>3.0.5</datanucleus.dependency.version>
+		<datanucleus.core.dependency.version>3.0.7-SNAPSHOT</datanucleus.core.dependency.version>
+		<datanucleus.enhancer.dependency.version>3.0.1</datanucleus.enhancer.dependency.version>
 		<datanucleus.javadoc.version>3.0</datanucleus.javadoc.version>
-		
+
 		<!-- Force UTF-8 for all files read (sources) and written (reports) by Maven. -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -495,7 +498,7 @@
 			<dependency>
 				<groupId>org.datanucleus</groupId>
 				<artifactId>datanucleus-core</artifactId>
-				<version>${datanucleus.dependency.version}</version>
+				<version>${datanucleus.core.dependency.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.datanucleus</groupId>
@@ -657,13 +660,12 @@
 						<dependency>
 							<groupId>org.datanucleus</groupId>
 							<artifactId>datanucleus-core</artifactId>
-							<version>${datanucleus.dependency.version}</version>
+							<version>${datanucleus.core.dependency.version}</version>
 						</dependency>
 						<dependency>
 							<groupId>org.datanucleus</groupId>
 							<artifactId>datanucleus-enhancer</artifactId>
-							<!-- <version>${datanucleus.dependency.version}</version> -->
-							<version>3.0.1</version>
+							<version>${datanucleus.enhancer.dependency.version}</version>
 						</dependency>
 					</dependencies>
 				</plugin>
