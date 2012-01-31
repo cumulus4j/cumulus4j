@@ -48,9 +48,11 @@
 					</tr>
 				</thead>
 				<tbody>
-<!-- !!! NEWEST VERSIONS FIRST !!! -->
+<!-- !!! NEWEST VERSIONS FIRST !!!
+And only stable versions (no SNAPSHOT-versions) of DataNucleus should be listed when Cumulus4j is released!
+While Cumulus4j is in SNAPSHOT-"mode", listing SNAPSHOT-versions of DataNucleus here, is OK. Marco :-)
+-->
 
-<!--
 					<tr>
 						<td>1.0.1</td>
 						<td>3.0.7-SNAPSHOT</td>
@@ -59,7 +61,6 @@
 						</td>
 						<td></td>
 					</tr>
--->
 					<tr>
 						<td>*</td>
 						<td>3.0.4 ... 3.0.6</td>
