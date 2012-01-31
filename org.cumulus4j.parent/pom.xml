@@ -45,8 +45,12 @@
 		
 		<!-- We do not want the build to be interrupted when a test fails. -->
 		<maven.test.failure.ignore>true</maven.test.failure.ignore>
-		
+
+<!-- Maven release plugin (triggered by jenkins) fails to do a release with the following line:
 		<cumulus4j.version>${project.version}</cumulus4j.version>
+	...trying explicit 1.0.0 instead.
+-->
+		<cumulus4j.version>1.0.0</cumulus4j.version>
 	</properties>
 
 	<ciManagement>
