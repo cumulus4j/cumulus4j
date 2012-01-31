@@ -30,7 +30,7 @@
 		<log4j.version>1.2.16</log4j.version>
 		<slf4j.version>1.6.1</slf4j.version>
 		<jersey.version>1.6</jersey.version>
-		<datanucleus.dependency.version>3.0.0-release</datanucleus.dependency.version>
+		<datanucleus.dependency.version>3.0.1</datanucleus.dependency.version>
 		<datanucleus.javadoc.version>3.0</datanucleus.javadoc.version>
 		
 		<!-- Force UTF-8 for all files read (sources) and written (reports) by Maven. -->
