@@ -7,7 +7,7 @@
 
 Welcome to Cumulus4j!
 
-* The problem
+* Data privacy protection - the grand challenge of cloud-based software
 
 	In this day and age, theft of highly classified data is a real threat. For example, there have been several
 	reported cases where sensitive banking information were stolen and subsequently sold to tax authorities. Or,
@@ -20,7 +20,7 @@ Welcome to Cumulus4j!
 	as a service - is thus the lack of data security which would guarantee that not even a system administrator can dump
 	and sell data.
 
-* The solution
+* Encryption for maximized data privacy protection
 
 	To overcome this barrier, Cumulus4j aims at creating a secure architecture for trustworthy accounting software
 	in the Internet. The demands on the trustworthy database made by an accounting software are naturally very similar

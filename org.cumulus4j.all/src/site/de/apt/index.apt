@@ -7,7 +7,7 @@
 
 Willkommen bei Cumulus4j!
 
-* Das Problem
+* Datenschutz - die große Herausforderung cloud-basierter Software
 
 	Schon einige Male wurden vertrauliche Bankinformationen gestohlen und an Steuerbehörden verkauft; und auch daß
 	bösartige Hacker riesige Datenbanken von Großkonzernen kopieren, liest man immer wieder in den Medien.
@@ -20,7 +20,7 @@ Willkommen bei Cumulus4j!
 	also das Fehlen einer Datensicherheit, die Kunden garantiert, daß nicht einmal ein Systemadministrator Daten abziehen
 	und weitergeben kann.
 
-* Die Lösung
+* Verschlüsselung für größtmöglichen Datenschutz
 
 	Um diese Hürde zu überwinden, hat Cumulus4j das Ziel, eine sichere Architektur für vertrauenswürdige Rechnungswesenssoftware
 	im Internet zu erstellen. Die Anforderungen einer Rechnungswesenssoftware an eine vertrauenswürdige Datenbank
