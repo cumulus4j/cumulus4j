@@ -20,7 +20,7 @@ Häufige Fragen (FAQ)
 * Warum nicht einfach ein verschlüsseltes Dateisystem benutzen?
 
 	Verschlüsselte Dateisysteme, wie zum Beispiel {{{http://en.wikipedia.org/wiki/Linux_Unified_Key_Setup}LUKS}} oder
-	{{{http://de.wikipedia.org/wiki/TrueCrypt}TrueCrypt}}), nutzen lediglich einen Schlüssel pro Container. Zusätzlich
+	{{{http://de.wikipedia.org/wiki/TrueCrypt}TrueCrypt}}, nutzen lediglich einen Schlüssel pro Container. Zusätzlich
 	sind die Daten unverschlüsselt zugänglich, solange der Container geöffnet ist.
 	Cumulus4j hingegen nutzt sehr viele verschiedene Schlüssel, um die Daten zu verschlüsseln. Werden also einige Schlüssel
 	gestohlen, kann sich ein Angreifer nur Zugang zu einem kleinen Teil der Daten verschaffen. Zusätzlich hält Cumulus4j
