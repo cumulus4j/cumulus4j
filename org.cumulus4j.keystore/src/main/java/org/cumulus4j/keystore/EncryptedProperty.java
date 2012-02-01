@@ -96,4 +96,12 @@ extends AbstractEncryptedData
 	public Class<? extends Property<?>> getType() {
 		return type;
 	}
+
+	@Override
+	protected byte getEncryptedDataLengthHeaderSize() {
+		// TODO switch this to 4 - see https://sourceforge.net/tracker/?func=detail&aid=3453405&group_id=517465&atid=2102911
+		// BUT when doing this, we need to ensure compatibility! That means, we have to increment the file version in
+		// KeyStoreData.FILE_VERSION from 1 to 2 and to make sure that the old version (1) can still be read!!!
+		return 2;
+	}
 }

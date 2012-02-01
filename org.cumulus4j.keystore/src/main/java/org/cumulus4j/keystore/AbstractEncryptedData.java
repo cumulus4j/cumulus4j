@@ -105,6 +105,12 @@ abstract class AbstractEncryptedData
 		return encryptedData;
 	}
 
+	/**
+	 * Get the size in bytes of the header field 'length' for the encrypted data. This can be either 2 (short) or 4 (integer).
+	 * @return the size (in bytes) of the 'length' of the encrypted data. Only 2 or 4 are allowed.
+	 */
+	protected abstract byte getEncryptedDataLengthHeaderSize();
+
 	public void read(DataInputStream din, ArrayList<String> stringConstantList) throws IOException
 	{
 		int idx = din.readInt();
@@ -123,7 +129,17 @@ abstract class AbstractEncryptedData
 		macIVSize = din.readShort();
 		macSize = din.readShort();
 
-		encryptedData = KeyStoreUtil.readByteArrayWithShortLengthHeader(din);
+		byte encryptedDataLengthHeaderSize = getEncryptedDataLengthHeaderSize();
+		switch (encryptedDataLengthHeaderSize) {
+			case 2:
+				encryptedData = KeyStoreUtil.readByteArrayWithShortLengthHeader(din);
+				break;
+			case 4:
+				encryptedData = KeyStoreUtil.readByteArrayWithIntegerLengthHeader(din);
+				break;
+			default:
+				throw new IllegalStateException("Implementation error in class " + this.getClass().getName() + ": Method 'getEncryptedDataLengthHeaderSize()' returned an illegal value: " + encryptedDataLengthHeaderSize);
+		}
 	}
 
 	public void write(DataOutputStream out, Map<String, Integer> stringConstant2idMap) throws IOException
@@ -147,6 +163,16 @@ abstract class AbstractEncryptedData
 		out.writeShort(macIVSize);
 		out.writeShort(macSize);
 
-		KeyStoreUtil.writeByteArrayWithShortLengthHeader(out, encryptedData);
+		byte encryptedDataLengthHeaderSize = getEncryptedDataLengthHeaderSize();
+		switch (encryptedDataLengthHeaderSize) {
+			case 2:
+				KeyStoreUtil.writeByteArrayWithShortLengthHeader(out, encryptedData);
+				break;
+			case 4:
+				KeyStoreUtil.writeByteArrayWithIntegerLengthHeader(out, encryptedData);
+				break;
+			default:
+				throw new IllegalStateException("Implementation error in class '" + this.getClass().getName() + "': Method 'getEncryptedDataLengthHeaderSize()' returned an illegal value: " + encryptedDataLengthHeaderSize);
+		}
 	}
 }

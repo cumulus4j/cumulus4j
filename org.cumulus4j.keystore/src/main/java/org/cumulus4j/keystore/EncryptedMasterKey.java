@@ -115,4 +115,9 @@ extends AbstractEncryptedData
 		KeyStoreUtil.writeByteArrayWithShortLengthHeader(out, salt);
 		super.write(out, stringConstant2idMap);
 	}
+
+	@Override
+	protected byte getEncryptedDataLengthHeaderSize() {
+		return 2;
+	}
 }
