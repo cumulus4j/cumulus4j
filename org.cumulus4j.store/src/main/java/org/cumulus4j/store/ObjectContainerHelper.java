@@ -25,9 +25,6 @@ import org.cumulus4j.store.model.ObjectContainer;
 import org.datanucleus.identity.IdentityUtils;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.store.ExecutionContext;
-import org.datanucleus.store.ObjectProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Helper class for replacing object-references when storing a 1-1- or 1-n- or m-n-relationship
@@ -37,8 +34,6 @@ import org.slf4j.LoggerFactory;
  */
 public final class ObjectContainerHelper
 {
-	private static final Logger logger = LoggerFactory.getLogger(ObjectContainerHelper.class);
-
 	/**
 	 * If <code>false</code>, store object-ID in {@link ObjectContainer}.
 	 * If <code>true</code>, store {@link DataEntry#getDataEntryID() dataEntryID} in {@link ObjectContainer}.
@@ -53,21 +48,23 @@ public final class ObjectContainerHelper
 		if (entity == null)
 			return null;
 
-		ObjectProvider objectProvider = ec.findObjectProvider(entity);
-		if (objectProvider == null)
-			throw new IllegalStateException("ec.findObjectProvider(entity) returned null for " + entity);
-
-		logger.trace("entityToReference: BEFORE objectProvider.flush() >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-
-		objectProvider.flush();
-
-		logger.trace("entityToReference: AFTER objectProvider.flush() <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-
-		logger.trace("entityToReference: BEFORE pmData.flush() >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-
-		pmData.flush();
-
-		logger.trace("entityToReference: AFTER pmData.flush() <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+// The following does not help, because the problem is not a missing flush on the underlying datastore, but
+// the Cumulus4jStoreManager.insertObject(...) was not yet called at all for the Account.
+//		ObjectProvider objectProvider = ec.findObjectProvider(entity);
+//		if (objectProvider == null)
+//			throw new IllegalStateException("ec.findObjectProvider(entity) returned null for " + entity);
+//
+//		logger.trace("entityToReference: BEFORE objectProvider.flush() >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+//
+//		objectProvider.flush();
+//
+//		logger.trace("entityToReference: AFTER objectProvider.flush() <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+//
+//		logger.trace("entityToReference: BEFORE pmData.flush() >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+//
+//		pmData.flush();
+//
+//		logger.trace("entityToReference: AFTER pmData.flush() <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 
 		Cumulus4jStoreManager storeManager = (Cumulus4jStoreManager) ec.getStoreManager();
 		Object objectID = ec.getApiAdapter().getIdForObject(entity);
