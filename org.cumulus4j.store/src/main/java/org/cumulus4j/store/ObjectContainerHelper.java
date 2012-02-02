@@ -17,6 +17,9 @@
  */
 package org.cumulus4j.store;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.jdo.PersistenceManager;
 
 import org.cumulus4j.store.model.ClassMeta;
@@ -25,6 +28,8 @@ import org.cumulus4j.store.model.ObjectContainer;
 import org.datanucleus.identity.IdentityUtils;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.store.ExecutionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Helper class for replacing object-references when storing a 1-1- or 1-n- or m-n-relationship
@@ -34,6 +39,8 @@ import org.datanucleus.store.ExecutionContext;
  */
 public final class ObjectContainerHelper
 {
+	private static final Logger logger = LoggerFactory.getLogger(ObjectContainerHelper.class);
+
 	/**
 	 * If <code>false</code>, store object-ID in {@link ObjectContainer}.
 	 * If <code>true</code>, store {@link DataEntry#getDataEntryID() dataEntryID} in {@link ObjectContainer}.
@@ -42,29 +49,48 @@ public final class ObjectContainerHelper
 
 	private ObjectContainerHelper() { }
 
+	private static final class TemporaryReferenceDataEntry {
+		public String objectID;
+		public ClassMeta classMeta;
+	}
+
+	private static final String PM_DATA_KEY_TEMPORARY_REFERENCE_DATA_ENTRY_MAP = "temporaryReferenceDataEntryMap";
+
+	private static void registerTemporaryReferenceDataEntry(PersistenceManager pmData, DataEntry dataEntry)
+	{
+		@SuppressWarnings("unchecked")
+		Map<String, TemporaryReferenceDataEntry> objectID2tempRefMap = (Map<String, TemporaryReferenceDataEntry>) pmData.getUserObject(PM_DATA_KEY_TEMPORARY_REFERENCE_DATA_ENTRY_MAP);
+		if (objectID2tempRefMap == null) {
+			objectID2tempRefMap = new HashMap<String, TemporaryReferenceDataEntry>();
+			pmData.putUserObject(PM_DATA_KEY_TEMPORARY_REFERENCE_DATA_ENTRY_MAP, objectID2tempRefMap);
+		}
+
+		TemporaryReferenceDataEntry trde = new TemporaryReferenceDataEntry();
+		trde.objectID = dataEntry.getObjectID();
+		trde.classMeta = dataEntry.getClassMeta();
+		objectID2tempRefMap.put(trde.objectID, trde);
+	}
+
+	public static DataEntry popTemporaryReferenceDataEntry(PersistenceManager pmData, String objectIDString)
+	{
+		@SuppressWarnings("unchecked")
+		Map<String, TemporaryReferenceDataEntry> objectID2tempRefMap = (Map<String, TemporaryReferenceDataEntry>) pmData.getUserObject(PM_DATA_KEY_TEMPORARY_REFERENCE_DATA_ENTRY_MAP);
+		if (objectID2tempRefMap == null)
+			return null;
+
+		TemporaryReferenceDataEntry trde = objectID2tempRefMap.remove(objectIDString);
+		if (trde == null)
+			return null;
+
+		DataEntry dataEntry = DataEntry.getDataEntry(pmData, trde.classMeta, objectIDString);
+		return dataEntry;
+	}
+
 	@SuppressWarnings("unused")
 	public static Object entityToReference(ExecutionContext ec, PersistenceManager pmData, Object entity)
 	{
 		if (entity == null)
 			return null;
-
-// The following does not help, because the problem is not a missing flush on the underlying datastore, but
-// the Cumulus4jStoreManager.insertObject(...) was not yet called at all for the Account.
-//		ObjectProvider objectProvider = ec.findObjectProvider(entity);
-//		if (objectProvider == null)
-//			throw new IllegalStateException("ec.findObjectProvider(entity) returned null for " + entity);
-//
-//		logger.trace("entityToReference: BEFORE objectProvider.flush() >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-//
-//		objectProvider.flush();
-//
-//		logger.trace("entityToReference: AFTER objectProvider.flush() <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-//
-//		logger.trace("entityToReference: BEFORE pmData.flush() >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-//
-//		pmData.flush();
-//
-//		logger.trace("entityToReference: AFTER pmData.flush() <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 
 		Cumulus4jStoreManager storeManager = (Cumulus4jStoreManager) ec.getStoreManager();
 		Object objectID = ec.getApiAdapter().getIdForObject(entity);
@@ -75,9 +101,16 @@ public final class ObjectContainerHelper
 
 		if (USE_DATA_ENTRY_ID) {
 			ClassMeta classMeta = storeManager.getClassMeta(ec, entity.getClass());
-			Long dataEntryID = DataEntry.getDataEntryID(pmData, classMeta, objectID.toString());
-			if (dataEntryID == null)
-				throw new IllegalStateException("DataEntry.getDataEntryID(...) returned null for entity=\"" + entity + "\" with objectID=\"" + objectID +  "\"");
+			String objectIDString = objectID.toString();
+			Long dataEntryID = DataEntry.getDataEntryID(pmData, classMeta, objectIDString);
+			if (dataEntryID == null) {
+				// datastore operations deferred with optimistic tx => create empty DataEntry.
+				DataEntry dataEntry = pmData.makePersistent(new DataEntry(classMeta, objectIDString));
+				dataEntryID = dataEntry.getDataEntryID();
+				registerTemporaryReferenceDataEntry(pmData, dataEntry);
+				logger.trace("entityToReference: Created temporary-reference-DataEntry for: {}", objectIDString);
+//				throw new IllegalStateException("DataEntry.getDataEntryID(...) returned null for entity=\"" + entity + "\" with objectID=\"" + objectID +  "\"");
+			}
 
 			return dataEntryID;
 		}

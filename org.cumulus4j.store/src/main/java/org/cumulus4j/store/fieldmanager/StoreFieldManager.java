@@ -37,6 +37,8 @@ import org.datanucleus.store.ObjectProvider;
 import org.datanucleus.store.fieldmanager.AbstractFieldManager;
 import org.datanucleus.store.types.sco.SCO;
 import org.datanucleus.store.types.sco.SCOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manager for the process of persisting a user object into the datastore, handling the translation from the
@@ -45,6 +47,8 @@ import org.datanucleus.store.types.sco.SCOUtils;
  */
 public class StoreFieldManager extends AbstractFieldManager
 {
+	private static final Logger logger = LoggerFactory.getLogger(StoreFieldManager.class);
+
 	private ObjectProvider op;
 	private PersistenceManager pmData;
 	private ExecutionContext ec;
@@ -127,6 +131,13 @@ public class StoreFieldManager extends AbstractFieldManager
 	@Override
 	public void storeObjectField(int fieldNumber, Object value)
 	{
+		if (logger.isTraceEnabled()) {
+			logger.trace(
+					"storeObjectField: classMeta.className={} fieldNumber={} value={}",
+					new Object[] { classMeta.getClassName(), fieldNumber, value }
+			);
+		}
+
 		AbstractMemberMetaData mmd = dnClassMetaData.getMetaDataForManagedMemberAtAbsolutePosition(fieldNumber);
 
 		FieldMeta fieldMeta = classMeta.getFieldMeta(mmd.getClassName(), mmd.getName());
@@ -179,6 +190,8 @@ public class StoreFieldManager extends AbstractFieldManager
 		{
 			// Persistable object - persist the related object and store the identity in the cell
 			Object valuePC = ec.persistObjectInternal(value, op, fieldNumber, -1);
+			ec.flushInternal(true);
+
 			if (mmd.getMappedBy() == null) {
 				Object valueID = ObjectContainerHelper.entityToReference(ec, pmData, valuePC);
 				objectContainer.setValue(fieldMeta.getFieldID(), valueID);
@@ -194,6 +207,8 @@ public class StoreFieldManager extends AbstractFieldManager
 				int idx = -1;
 				for (Object element : collection) {
 					Object elementPC = ec.persistObjectInternal(element, op, fieldNumber, -1);
+					ec.flushInternal(true);
+
 					if (ids != null) {
 						Object elementID = ObjectContainerHelper.entityToReference(ec, pmData, elementPC);
 						ids[++idx] = elementID;
@@ -216,6 +231,7 @@ public class StoreFieldManager extends AbstractFieldManager
 
 					if (keyIsPersistent) {
 						Object kpc = ec.persistObjectInternal(k, op, fieldNumber, -1);
+						ec.flushInternal(true);
 
 						if (idMap != null)
 							k = ObjectContainerHelper.entityToReference(ec, pmData, kpc);
@@ -223,6 +239,7 @@ public class StoreFieldManager extends AbstractFieldManager
 
 					if (valueIsPersistent) {
 						Object vpc = ec.persistObjectInternal(v, op, fieldNumber, -1);
+						ec.flushInternal(true);
 
 						if (idMap != null)
 							v = ObjectContainerHelper.entityToReference(ec, pmData, vpc);
@@ -245,6 +262,8 @@ public class StoreFieldManager extends AbstractFieldManager
 				{
 					Object element = Array.get(value, i);
 					Object elementPC = ec.persistObjectInternal(element, op, fieldNumber, -1);
+					ec.flushInternal(true);
+
 					Object elementID = ObjectContainerHelper.entityToReference(ec, pmData, elementPC);
 					ids[i] = elementID;
 				}

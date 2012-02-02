@@ -188,24 +188,53 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 
 			int[] allFieldNumbers = dnClassMetaData.getAllMemberPositions();
 			ObjectContainer objectContainer = new ObjectContainer();
+			String objectIDString = objectID.toString();
 
 			// We have to persist the DataEntry before the call to provideFields(...), because the InsertFieldManager recursively
 			// persists other fields which might back-reference (=> mapped-by) and thus need this DataEntry to already exist.
-			// TODO Try to make this persistent afterwards and solve the problem by only allocating the ID before [keeping it in memory] (see Cumulus4jStoreManager#nextDataEntryID(), which is commented out currently).
+			// TO DO Try to make this persistent afterwards and solve the problem by only allocating the ID before [keeping it in memory] (see Cumulus4jStoreManager#nextDataEntryID(), which is commented out currently).
 			//   Even though reducing the INSERT + UPDATE to one single INSERT in the handling of IndexEntry made
 			//   things faster, it seems not to have a performance benefit here. But we should still look at this
 			//   again later.
 			// Marco.
-			String objectIDString = objectID.toString();
-			DataEntry dataEntry = pmData.makePersistent(new DataEntry(classMeta, objectIDString));
-			logger.trace("insertObject: Persisted DataEntry for: {}", objectIDString);
+			//
+			// 2012-02-02: Refactored this because of a Heisenbug with optimistic transactions. At the same time solved
+			// the above to do. Marco :-)
 
-			// This performs reachability on this input object so that all related objects are persisted
+//			// In case we work with deferred datastore operations, the DataEntry might already have been written by
+//			// ObjectContainerHelper.entityToReference(...). We therefore, check, if it already exists (and update it then instead of insert).
+//			DataEntry dataEntry;
+//			dataEntry = DataEntry.getDataEntry(pmData, classMeta, objectIDString);
+//			if (dataEntry != null)
+//				logger.trace("insertObject: Found existing DataEntry for: {}", objectIDString);
+//			else {
+//				dataEntry = pmData.makePersistent(new DataEntry(classMeta, objectIDString));
+//				logger.trace("insertObject: Persisted DataEntry for: {}", objectIDString);
+//			}
+
+			// This performs reachability on this input object so that all related objects are persisted.
 			op.provideFields(allFieldNumbers, new StoreFieldManager(op, pmData, classMeta, dnClassMetaData, objectContainer));
 			objectContainer.setVersion(op.getTransactionalVersion());
 
+			// The DataEntry might already have been written by ObjectContainerHelper.entityToReference(...),
+			// if it was needed for a reference. We therefore check, if it already exists (and update it then instead of insert).
+			boolean persistDataEntry = false;
+			DataEntry dataEntry = ObjectContainerHelper.popTemporaryReferenceDataEntry(pmData, objectIDString);
+			if (dataEntry != null)
+				logger.trace("insertObject: Found temporary-reference-DataEntry for: {}", objectIDString);
+			else {
+				persistDataEntry = true;
+				dataEntry = new DataEntry(classMeta, objectIDString);
+				logger.trace("insertObject: Created new DataEntry for: {}", objectIDString);
+			}
+
 			// persist data
 			encryptionHandler.encryptDataEntry(cryptoContext, dataEntry, objectContainer);
+
+			if (persistDataEntry) {
+				dataEntry = pmData.makePersistent(dataEntry);
+				logger.trace("insertObject: Persisted new DataEntry for: {}", objectIDString);
+			}
 
 			// persist index
 			for (Map.Entry<Long, ?> me : objectContainer.getFieldID2value().entrySet()) {
