@@ -28,10 +28,12 @@ public abstract class AbstractJPATransactionalTest implements JPATransactionalTe
 	protected EntityManagerFactory emf;
 	protected EntityManager em;
 
+	@Override
 	public EntityManager getEntityManager() {
 		return em;
 	}
 
+	@Override
 	public void setEntityManager(EntityManager entityManager) {
 		this.em = entityManager;
 		this.emf = em == null ? null : em.getEntityManagerFactory();
@@ -39,7 +41,8 @@ public abstract class AbstractJPATransactionalTest implements JPATransactionalTe
 
 	protected void commitAndBeginNewTransaction()
 	{
-		em.getTransaction().commit();
+		if (em.getTransaction().isActive())
+			em.getTransaction().commit();
 
 		// TODO BEGIN workaround for the em being closed :-(
 		em.close();

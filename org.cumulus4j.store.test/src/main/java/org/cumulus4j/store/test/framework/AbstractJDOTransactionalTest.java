@@ -41,7 +41,8 @@ public abstract class AbstractJDOTransactionalTest implements JDOTransactionalTe
 
 	protected void commitAndBeginNewTransaction()
 	{
-		pm.currentTransaction().commit();
+		if (pm.currentTransaction().isActive())
+			pm.currentTransaction().commit();
 
 		// TODO BEGIN workaround for the pm being closed :-(
 		pm.close();

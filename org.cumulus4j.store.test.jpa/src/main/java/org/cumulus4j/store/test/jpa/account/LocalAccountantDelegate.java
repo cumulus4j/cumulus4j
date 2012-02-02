@@ -129,7 +129,7 @@ public class LocalAccountantDelegate implements Serializable {
 		this.description = description;
 	}
 
-	@OneToMany(cascade={CascadeType.ALL})
+	@OneToMany(cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
 	@JoinTable(name="JFireVoucher_VoucherLocalAccountantDelegate_accounts")
 	private Map<String, Account> accounts;
 

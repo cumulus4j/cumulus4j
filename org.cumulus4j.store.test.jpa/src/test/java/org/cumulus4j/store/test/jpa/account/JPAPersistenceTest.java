@@ -110,6 +110,9 @@ extends AbstractJPATransactionalTest
 					int counterIndex = 0;
 					LocalAccountantDelegate localAccountantDelegate = em.find(LocalAccountantDelegate.class, LOCAL_ACCOUNTANT_DELEGATE_ID_0);
 
+					if (localAccountantDelegate == null)
+						throw new IllegalStateException("LocalAccountantDelegate instance was not persisted: " + LOCAL_ACCOUNTANT_DELEGATE_ID_0);
+
 					if (localAccountantDelegate.getAccounts().get(EUR) == null)
 						++mapGetReturnedNullCounter[counterIndex];
 
