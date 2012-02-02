@@ -36,6 +36,8 @@ import org.datanucleus.store.AbstractPersistenceHandler;
 import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.ObjectProvider;
 import org.datanucleus.store.connection.ManagedConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Handler for all persistence calls from the StoreManager, communicating with the backend datastore(s).
@@ -44,6 +46,8 @@ import org.datanucleus.store.connection.ManagedConnection;
  */
 public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 {
+	private static final Logger logger = LoggerFactory.getLogger(Cumulus4jPersistenceHandler.class);
+
 	private Cumulus4jStoreManager storeManager;
 	private EncryptionCoordinateSetManager encryptionCoordinateSetManager;
 	private EncryptionHandler encryptionHandler;
@@ -192,7 +196,9 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			//   things faster, it seems not to have a performance benefit here. But we should still look at this
 			//   again later.
 			// Marco.
-			DataEntry dataEntry = pmData.makePersistent(new DataEntry(classMeta, objectID.toString()));
+			String objectIDString = objectID.toString();
+			DataEntry dataEntry = pmData.makePersistent(new DataEntry(classMeta, objectIDString));
+			logger.trace("insertObject: Persisted DataEntry for: {}", objectIDString);
 
 			// This performs reachability on this input object so that all related objects are persisted
 			op.provideFields(allFieldNumbers, new StoreFieldManager(op, pmData, classMeta, dnClassMetaData, objectContainer));
