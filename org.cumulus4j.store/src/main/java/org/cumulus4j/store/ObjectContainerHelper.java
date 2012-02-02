@@ -104,7 +104,12 @@ public final class ObjectContainerHelper
 			String objectIDString = objectID.toString();
 			Long dataEntryID = DataEntry.getDataEntryID(pmData, classMeta, objectIDString);
 			if (dataEntryID == null) {
-				// datastore operations deferred with optimistic tx => create empty DataEntry.
+				// Referenced entity not yet persisted => Create a temporarily empty DataEntry. It should be
+				// filled later when Cumulus4jPersistenceHandler.insertObject(...) is called for this entity.
+				//
+				// TODO If we ever stumble over empty DataEntry objects in the database, we should add a sanity check,
+				// which checks at the end of a flush(...) or commit(...) whether all of the DataEntry objects created here
+				// were actually post-processed by a call to Cumulus4jPersistenceHandler.insertObject(...). Marco :-)
 				DataEntry dataEntry = pmData.makePersistent(new DataEntry(classMeta, objectIDString));
 				dataEntryID = dataEntry.getDataEntryID();
 				registerTemporaryReferenceDataEntry(pmData, dataEntry);
