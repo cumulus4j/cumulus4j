@@ -45,6 +45,9 @@ public final class ObjectContainerHelper
 	@SuppressWarnings("unused")
 	public static Object entityToReference(ExecutionContext ec, PersistenceManager pmData, Object entity)
 	{
+		if (entity == null)
+			return null;
+
 		Cumulus4jStoreManager storeManager = (Cumulus4jStoreManager) ec.getStoreManager();
 		Object objectID = ec.getApiAdapter().getIdForObject(entity);
 		if (objectID == null)
@@ -54,7 +57,11 @@ public final class ObjectContainerHelper
 
 		if (USE_DATA_ENTRY_ID) {
 			ClassMeta classMeta = storeManager.getClassMeta(ec, entity.getClass());
-			return DataEntry.getDataEntryID(pmData, classMeta, objectID.toString());
+			Long dataEntryID = DataEntry.getDataEntryID(pmData, classMeta, objectID.toString());
+			if (dataEntryID == null)
+				throw new IllegalStateException("DataEntry.getDataEntryID(...) returned null for entity=\"" + entity + "\" with objectID=\"" + objectID +  "\"");
+
+			return dataEntryID;
 		}
 
 		return objectID;
@@ -68,6 +75,9 @@ public final class ObjectContainerHelper
 
 		if (USE_DATA_ENTRY_ID) {
 			DataEntry dataEntry = DataEntry.getDataEntry(pmData, ((Long)reference).longValue());
+			if (dataEntry == null)
+				throw new IllegalStateException("DataEntry.getDataEntry(...) returned null for reference=\"" + reference + "\"!");
+
 			AbstractClassMetaData cmd = dataEntry.getClassMeta().getDataNucleusClassMetaData(ec);
 			return IdentityUtils.getObjectFromIdString(dataEntry.getObjectID(), cmd, ec, true);
 		}
