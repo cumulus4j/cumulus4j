@@ -56,7 +56,7 @@
 							disable logging) with a warning. The log4j.properties is located in /src/test/ 
 							in order to not be packaged into the WAR so that the logging can be configured 
 							without any unexpected interference by the servlet container. -->
-						<extraClasspath>${basedir}/src/test;${settings.localRepository}/org/slf4j/slf4j-log4j12/${slf4j.version}/slf4j-log4j12-${slf4j.version}.jar;${settings.localRepository}/log4j/log4j/${log4j.version}/log4j-${log4j.version}.jar</extraClasspath>
+						<extraClasspath>${basedir}/src/test/java;${settings.localRepository}/org/slf4j/slf4j-log4j12/${slf4j.version}/slf4j-log4j12-${slf4j.version}.jar;${settings.localRepository}/log4j/log4j/${log4j.version}/log4j-${log4j.version}.jar</extraClasspath>
 					</webAppConfig>
 					<connectors>
 						<connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
