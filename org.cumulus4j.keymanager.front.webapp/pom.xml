@@ -53,7 +53,7 @@
 						<!-- The following extraClasspath configures log4j and binds slf4j 
 							to log4j so that we have logging when running 'mvn jetty:run'. The WAR itself 
 							does NOT contain this binding and will thus fall-back to NO-OP logging (i.e. 
-							disable logging) with a warning. The log4j.properties is located in /src/test/ 
+							disable logging) with a warning. The log4j.properties is located in /src/test/java
 							in order to not be packaged into the WAR so that the logging can be configured 
 							without any unexpected interference by the servlet container. -->
 						<extraClasspath>${basedir}/src/test/java;${settings.localRepository}/org/slf4j/slf4j-log4j12/${slf4j.version}/slf4j-log4j12-${slf4j.version}.jar;${settings.localRepository}/log4j/log4j/${log4j.version}/log4j-${log4j.version}.jar</extraClasspath>
