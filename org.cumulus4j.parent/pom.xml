@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.cumulus4j</groupId>
 	<artifactId>org.cumulus4j.parent</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>org.cumulus4j.parent</name>
 	<description>Cumulus4j parent POM, i.e. the root-configuration from which all other POMs inherit common settings.</description>
@@ -314,7 +314,7 @@
 						<groupId>org.cumulus4j</groupId>
 						<artifactId>org.cumulus4j.parent</artifactId>
 						<type>pom</type>
-						<version>1.0.1</version>
+						<version>1.0.2-SNAPSHOT</version>
 						<scope>import</scope>
 					</dependency>
 					...
