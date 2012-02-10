@@ -60,7 +60,7 @@ While Cumulus4j is in SNAPSHOT-"mode", listing SNAPSHOT-versions of DataNucleus 
 
 					<tr>
 						<td>1.0.1</td>
-						<td>3.0.7-SNAPSHOT</td>
+						<td>3.0.7</td>
 						<td>
 							<img src="../images/compatibility-yes.png" alt="Fully compatible" />
 						</td>

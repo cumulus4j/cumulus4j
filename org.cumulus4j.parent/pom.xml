@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.cumulus4j</groupId>
 	<artifactId>org.cumulus4j.parent</artifactId>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>1.0.1</version>
 	<packaging>pom</packaging>
 	<name>org.cumulus4j.parent</name>
 	<description>Cumulus4j parent POM, i.e. the root-configuration from which all other POMs inherit common settings.</description>
@@ -31,7 +31,7 @@
 		<jersey.version>1.9</jersey.version>
 
 		<datanucleus.dependency.version>3.0.5</datanucleus.dependency.version>
-		<datanucleus.core.dependency.version>3.0.7-SNAPSHOT</datanucleus.core.dependency.version>
+		<datanucleus.core.dependency.version>3.0.7</datanucleus.core.dependency.version>
 		<datanucleus.enhancer.dependency.version>3.0.1</datanucleus.enhancer.dependency.version>
 		<datanucleus.javadoc.version>3.0</datanucleus.javadoc.version>
 
@@ -314,7 +314,7 @@
 						<groupId>org.cumulus4j</groupId>
 						<artifactId>org.cumulus4j.parent</artifactId>
 						<type>pom</type>
-						<version>1.0.1-SNAPSHOT</version>
+						<version>1.0.1</version>
 						<scope>import</scope>
 					</dependency>
 					...

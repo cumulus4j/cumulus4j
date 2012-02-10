@@ -90,6 +90,7 @@
 			<item name="Javadoc" href="./apidocs/index.html" target="_blank" />
 			<item name="DataNucleus compatibility" href="./documentation/datanucleus-compatibility-matrix.html" />
 			<item name="FAQ" href="./documentation/faq.html" />
+			<item name="What's new?" href="./documentation/whats-new.html" />
 		</menu>
 
 		<menu name="About">

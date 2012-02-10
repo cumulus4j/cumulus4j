@@ -3,7 +3,7 @@
 	<parent>
 		<artifactId>org.cumulus4j.parent</artifactId>
 		<groupId>org.cumulus4j</groupId>
-		<version>1.0.1-SNAPSHOT</version>
+		<version>1.0.1</version>
 		<relativePath>../org.cumulus4j.parent/pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>

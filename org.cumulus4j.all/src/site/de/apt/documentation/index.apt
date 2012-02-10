@@ -19,6 +19,11 @@ Dokumentation
 	Sie möchten uns bei der Entwicklung von Cumulus4j helfen? Die Seite {{{./development.html}Entwicklung}} erklärt
 	den Einstieg.
 
+* Integrationstests
+
+	Auf der Seite {{{./integration-tests.html}Integrationstests}} finden Sie detaillierte Informationen über
+	die Ausführung von Integrationstests.
+
 * Unterstützte Algorithmen
 
 	Cumulus4j verwendet standardmäßig sehr schnelle und hochsichere Algorithmen. Doch abhängig von Ihrer Hardware
@@ -37,3 +42,7 @@ Dokumentation
 * Häufige Fragen (FAQ)
 
 	Antworten auf {{{./faq.html}häufig gestellte Fragen}} finden Sie {{{./faq.html}hier}}.
+
+* Was ist neu?
+
+	{{{./whats-new.html}Was ist neu}} in der aktuellen Cumulus4j-Version?

@@ -1,0 +1,28 @@
+	---
+	Was ist neu?
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2012-02-10
+
+Was ist neu?
+
+~~* Was ist neu in 1.0.3?
+~~
+~~	Lorem ipsum bla bla bla
+~~
+~~* Was ist neu in 1.0.2?
+~~
+~~	Lorem ipsum bla bla bla
+
+* Was ist neu in 1.0.1?
+
+	Im Vergleich zu Version 1.0.0 bringt Cumulus4j 1.0.1 folgende Neuerungen:
+
+	* Fehlerbeseitigung: Ein Heisenbug, der ausschließlich bei optimistischen Transaktionen auftrat, wurde beseitigt.
+
+	* Kompatibilität: Es gab eine Änderung in DataNucleus' Plugin-API Version 3.0.0-release auf Version 3.0.1.
+	Cumulus4j 1.0.1 ist nun wieder mit den neuesten DataNucleus-Versionen kompatibel
+	(siehe {{{./datanucleus-compatibility-matrix.html}Kompatibilitätsmatrix}}).
+
+	[]
