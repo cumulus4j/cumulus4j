@@ -18,8 +18,8 @@ Was ist neu?
 	Verglichen mit Version 1.0.1 gibt es folgende Änderungen:
 
 	* Diverse Fehler wurden beseitigt. Wegen
-	{{{https://sourceforge.net/tracker/?func=detail&aid=3453405&group_id=517465&atid=2102911}eines dieser Fehler}},
-	hat sich das Schlüsselspeicherdateiformat geändert. Alte Schlüsselspeicher (key stores) können gelesen werden,
+	{{{https://sourceforge.net/tracker/?func=detail&aid=3453405&group_id=517465&atid=2102911}eines dieser Fehler}}
+	hat sich das Schlüsselspeicherdateiformat geändert. Alte Schlüsselspeicher (Key-Stores) können gelesen werden,
 	doch sie werden evtl. automatisch in das neue Dateiformat konvertiert und können dann nicht mehr von einer älteren
 	Cumulus4j-Version gelesen werden. Dies sollten Sie bei einem Upgrade berücksichtigen (Backup Ihrer Schlüsselspeicher!).
 
