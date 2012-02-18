@@ -1055,6 +1055,7 @@ public class KeyStore
 			byte[] iv = ((ParametersWithIV)cipher.getParameters()).getIV();
 
 			EncryptedMasterKey encryptedKey = new EncryptedMasterKey(
+					keyStoreData,
 					userName,
 					passwordBasedKeySize,
 					passwordBasedIterationCount,
@@ -1065,8 +1066,7 @@ public class KeyStore
 					keyStoreData.stringConstant(plaintextDataAndMAC.getMACAlgorithm()),
 					(short)plaintextDataAndMAC.getMACKey().length,
 					(short)plaintextDataAndMAC.getMACIV().length,
-					(short)plaintextDataAndMAC.getMAC().length,
-					encrypted
+					(short)plaintextDataAndMAC.getMAC().length, encrypted
 			);
 			keyStoreData.user2keyMap.put(userName, encryptedKey);
 			usersCache = null;
@@ -1274,14 +1274,14 @@ public class KeyStore
 			byte[] encrypted = cipher.doFinal(plaintextDataAndMAC.toByteArray());
 
 			EncryptedKey encryptedKey = new EncryptedKey(
+					keyStoreData,
 					keyID,
 					keyStoreData.stringConstant(cipher.getTransformation()),
 					iv,
 					plaintextDataAndMAC.getMACAlgorithm(),
 					(short)plaintextDataAndMAC.getMACKey().length,
 					(short)plaintextDataAndMAC.getMACIV().length,
-					(short)plaintextDataAndMAC.getMAC().length,
-					encrypted
+					(short)plaintextDataAndMAC.getMAC().length, encrypted
 			);
 			keyStoreData.keyID2keyMap.put(keyID, encryptedKey);
 		} catch (CryptoException e) {
@@ -1486,14 +1486,14 @@ public class KeyStore
 				@SuppressWarnings("unchecked")
 				Class<? extends Property<?>> propertyType = (Class<? extends Property<?>>) property.getClass();
 				EncryptedProperty encryptedProperty = new EncryptedProperty(
-						property.getName(), propertyType,
+						keyStoreData, property.getName(),
+						propertyType,
 						keyStoreData.stringConstant(cipher.getTransformation()),
 						iv,
 						plaintextDataAndMAC.getMACAlgorithm(),
 						(short)plaintextDataAndMAC.getMACKey().length,
 						(short)plaintextDataAndMAC.getMACIV().length,
-						(short)plaintextDataAndMAC.getMAC().length,
-						encrypted
+						(short)plaintextDataAndMAC.getMAC().length, encrypted
 				);
 				keyStoreData.name2propertyMap.put(encryptedProperty.getName(), encryptedProperty);
 			} catch (CryptoException e) {

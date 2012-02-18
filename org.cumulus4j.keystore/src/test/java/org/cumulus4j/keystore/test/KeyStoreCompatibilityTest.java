@@ -22,6 +22,7 @@ import java.io.File;
 import junit.framework.Assert;
 
 import org.cumulus4j.keystore.KeyStore;
+import org.cumulus4j.keystore.KeyStoreVersion;
 import org.cumulus4j.keystore.prop.Long2LongSortedMapProperty;
 import org.cumulus4j.keystore.prop.LongProperty;
 import org.cumulus4j.keystore.prop.StringProperty;
@@ -66,7 +67,7 @@ public class KeyStoreCompatibilityTest
 				System.setProperty(KeyStore.SYSTEM_PROPERTY_MAC_ALGORITHM, algoParts[2]);
 			}
 			try {
-				File keyStoreFile = new File(newReferenceKeyStoreDir, "reference." + algoFileNameInfix + ".keystore");
+				File keyStoreFile = new File(newReferenceKeyStoreDir, "reference." + KeyStoreVersion.VERSION_CURRENT + '.' + algoFileNameInfix + ".keystore");
 				KeyStore keyStore = new KeyStore(keyStoreFile);
 
 				keyStore.createUser(null, null, USER, PASSWORD);
@@ -135,33 +136,35 @@ public class KeyStoreCompatibilityTest
 	public void openReferenceKeyStores()
 	throws Exception
 	{
-		for (String algorithm : ALGORITHMS) {
-			String algoFileNameInfix = algorithm.replace('/', '-').replace(':', '.');
+		for (int version : KeyStoreVersion.VERSION_SUPPORTED) {
+			for (String algorithm : ALGORITHMS) {
+				String algoFileNameInfix = algorithm.replace('/', '-').replace(':', '.');
 
-			if (!"default".equals(algorithm)) {
-				String[] algoParts = algorithm.split(":");
-				System.setProperty(KeyStore.SYSTEM_PROPERTY_ENCRYPTION_ALGORITHM, algoParts[0]);
-				System.setProperty(KeyStore.SYSTEM_PROPERTY_KEY_SIZE, algoParts[1]);
-				System.setProperty(KeyStore.SYSTEM_PROPERTY_MAC_ALGORITHM, algoParts[2]);
-			}
-			try {
-				File keyStoreFile = File.createTempFile("reference." + algoFileNameInfix + '.', ".keystore");
-				IOUtil.copyResource(ResourceHelper.class, "reference." + algoFileNameInfix + ".keystore", keyStoreFile);
-				// The KeyStore reads the data immediately after creating a new instance.
-				KeyStore keyStore = new KeyStore(keyStoreFile);
+				if (!"default".equals(algorithm)) {
+					String[] algoParts = algorithm.split(":");
+					System.setProperty(KeyStore.SYSTEM_PROPERTY_ENCRYPTION_ALGORITHM, algoParts[0]);
+					System.setProperty(KeyStore.SYSTEM_PROPERTY_KEY_SIZE, algoParts[1]);
+					System.setProperty(KeyStore.SYSTEM_PROPERTY_MAC_ALGORITHM, algoParts[2]);
+				}
+				try {
+					File keyStoreFile = File.createTempFile("reference." + version + '.' + algoFileNameInfix + '.', ".keystore");
+					IOUtil.copyResource(ResourceHelper.class, "reference." + version + '.' + algoFileNameInfix + ".keystore", keyStoreFile);
+					// The KeyStore reads the data immediately after creating a new instance.
+					KeyStore keyStore = new KeyStore(keyStoreFile);
 
-				// But nevertheless, we access a key in order to make sure, it's really loaded correctly.
-				byte[] key = keyStore.getKey(USER, PASSWORD, 1);
-				Assert.assertNotNull("key must not be null!", key);
+					// But nevertheless, we access a key in order to make sure, it's really loaded correctly.
+					byte[] key = keyStore.getKey(USER, PASSWORD, 1);
+					Assert.assertNotNull("key must not be null!", key);
 
-				logger.info("openReferenceKeystore: Reference-KeyStore was successfully opened.");
-				keyStore.generateKey(USER, PASSWORD);
-				logger.info("openReferenceKeystore: New key was successfully generated.");
-				keyStoreFile.delete();
-			} finally {
-				System.clearProperty(KeyStore.SYSTEM_PROPERTY_ENCRYPTION_ALGORITHM);
-				System.clearProperty(KeyStore.SYSTEM_PROPERTY_KEY_SIZE);
-				System.clearProperty(KeyStore.SYSTEM_PROPERTY_MAC_ALGORITHM);
+					logger.info("openReferenceKeystore: Reference-KeyStore was successfully opened.");
+					keyStore.generateKey(USER, PASSWORD);
+					logger.info("openReferenceKeystore: New key was successfully generated.");
+					keyStoreFile.delete();
+				} finally {
+					System.clearProperty(KeyStore.SYSTEM_PROPERTY_ENCRYPTION_ALGORITHM);
+					System.clearProperty(KeyStore.SYSTEM_PROPERTY_KEY_SIZE);
+					System.clearProperty(KeyStore.SYSTEM_PROPERTY_MAC_ALGORITHM);
+				}
 			}
 		}
 	}

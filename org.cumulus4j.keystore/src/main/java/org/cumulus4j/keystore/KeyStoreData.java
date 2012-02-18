@@ -42,11 +42,11 @@ import java.util.zip.CheckedOutputStream;
 class KeyStoreData
 implements Serializable
 {
-	private static final int FILE_VERSION = 1;
-	private static final long serialVersionUID = FILE_VERSION;
+	private static final long serialVersionUID = KeyStoreVersion.VERSION_CURRENT;
 	private static final String FILE_HEADER = "Cumulus4jKeyStore";
 
-//	long nextKeyID = 1;
+	private int version = KeyStoreVersion.VERSION_CURRENT;
+
 	Map<String, EncryptedMasterKey> user2keyMap = new HashMap<String, EncryptedMasterKey>();
 	Map<Long, EncryptedKey> keyID2keyMap = new HashMap<Long, EncryptedKey>();
 
@@ -70,6 +70,10 @@ implements Serializable
 
 			return e;
 		}
+	}
+
+	public int getVersion() {
+		return version;
 	}
 
 	private void readObject(java.io.ObjectInputStream in)
@@ -97,9 +101,11 @@ implements Serializable
 		if (!Arrays.equals(fileHeaderCharArray, buf))
 			throw new IOException("Stream does not start with expected HEADER!");
 
-		int fileVersion = din.readInt();
-		if (FILE_VERSION != fileVersion)
-			throw new IOException("Version not supported! Stream contains a keystore of version \"" + fileVersion + "\" while version \"" + FILE_VERSION + "\" (or lower) is expected!");
+		int version = din.readInt();
+		if (!KeyStoreVersion.VERSION_SUPPORTED_SET.contains(version))
+			throw new IOException("Version not supported! Stream contains a keystore of version " + version + " while solely one of version " + KeyStoreVersion.VERSION_SUPPORTED_SET + " is accepted!");
+
+		this.version = version;
 
 		// The checksum is calculated over the complete file, but in order to know which algorithm
 		// to use, we first have to read the beginning of the file until including the version.
@@ -110,8 +116,6 @@ implements Serializable
 		CheckedInputStream cin = new CheckedInputStream(in, checksum);
 		din = new DataInputStream(cin);
 		KeyStoreUtil.readByteArrayCompletely(din, new byte[headerSizeIncludingVersion]); // We cannot use skip(...), because that would not update our checksum.
-
-//		nextKeyID = din.readLong();
 
 		int stringConstantSize = din.readInt();
 		stringConstant2idMap = new HashMap<String, Integer>(stringConstantSize);
@@ -124,21 +128,21 @@ implements Serializable
 		int user2keyMapSize = din.readInt();
 		user2keyMap = new HashMap<String, EncryptedMasterKey>(user2keyMapSize);
 		for (int i = 0; i < user2keyMapSize; ++i) {
-			EncryptedMasterKey key = new EncryptedMasterKey(din, stringConstantList);
+			EncryptedMasterKey key = new EncryptedMasterKey(this, din, stringConstantList);
 			user2keyMap.put(key.getUserName(), key);
 		}
 
 		int keyID2keyMapSize = din.readInt();
 		keyID2keyMap = new HashMap<Long, EncryptedKey>(keyID2keyMapSize);
 		for (int i = 0; i < keyID2keyMapSize; ++i) {
-			EncryptedKey key = new EncryptedKey(din, stringConstantList);
+			EncryptedKey key = new EncryptedKey(this, din, stringConstantList);
 			keyID2keyMap.put(key.getKeyID(), key);
 		}
 
 		int name2propertyMapSize = din.readInt();
 		name2propertyMap = new HashMap<String, EncryptedProperty>();
 		for (int i = 0; i < name2propertyMapSize; ++i) {
-			EncryptedProperty encryptedProperty = new EncryptedProperty(din, stringConstantList);
+			EncryptedProperty encryptedProperty = new EncryptedProperty(this, din, stringConstantList);
 			name2propertyMap.put(encryptedProperty.getName(), encryptedProperty);
 		}
 
@@ -158,6 +162,9 @@ implements Serializable
 	void writeToStream(OutputStream out)
 	throws IOException
 	{
+		// We always write the newest file version (i.e. convert to a newer version).
+		this.version = KeyStoreVersion.VERSION_CURRENT;
+
 		// We calculate the checksum over the complete file.
 		MessageDigestChecksum checksum = new MessageDigestChecksum.SHA1();
 		CheckedOutputStream cout = new CheckedOutputStream(out, checksum);
@@ -173,8 +180,7 @@ implements Serializable
 			dout.writeByte(c);
 		}
 
-		dout.writeInt(FILE_VERSION);
-//		dout.writeLong(nextKeyID);
+		dout.writeInt(this.version);
 
 		dout.writeInt(stringConstantList.size());
 		for (String stringConstant : stringConstantList) {

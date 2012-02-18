@@ -32,16 +32,16 @@ class EncryptedProperty
 extends AbstractEncryptedData
 {
 	public EncryptedProperty(
-			String name, Class<? extends Property<?>> type,
-			String encryptionAlgorithm, byte[] encryptionIV,
-			String macAlgorithm, short macKeySize, short macIVSize, short macSize,
-			byte[] data
+			KeyStoreData keyStoreData, String name,
+			Class<? extends Property<?>> type, String encryptionAlgorithm,
+			byte[] encryptionIV, String macAlgorithm, short macKeySize, short macIVSize,
+			short macSize, byte[] data
 	)
 	{
 		super(
-				encryptionAlgorithm, encryptionIV,
-				macAlgorithm, macKeySize, macIVSize, macSize,
-				data
+				keyStoreData, encryptionAlgorithm,
+				encryptionIV, macAlgorithm, macKeySize, macIVSize,
+				macSize, data
 		);
 
 		if (name == null)
@@ -54,8 +54,9 @@ extends AbstractEncryptedData
 		this.type = type;
 	}
 
-	public EncryptedProperty(DataInputStream din, ArrayList<String> stringConstantList) throws IOException
+	public EncryptedProperty(KeyStoreData keyStoreData, DataInputStream din, ArrayList<String> stringConstantList) throws IOException
 	{
+		super(keyStoreData);
 		name = din.readUTF();
 
 		int typeNameStringConstantID = din.readInt();
@@ -99,9 +100,11 @@ extends AbstractEncryptedData
 
 	@Override
 	protected byte getEncryptedDataLengthHeaderSize() {
-		// TODO switch this to 4 - see https://sourceforge.net/tracker/?func=detail&aid=3453405&group_id=517465&atid=2102911
-		// BUT when doing this, we need to ensure compatibility! That means, we have to increment the file version in
-		// KeyStoreData.FILE_VERSION from 1 to 2 and to make sure that the old version (1) can still be read!!!
-		return 2;
+		// 2012-02-18 switched to 4 - see https://sourceforge.net/tracker/?func=detail&aid=3453405&group_id=517465&atid=2102911
+		// In order to stay compatible with older versions, we check the file version (version 1 used 2 bytes instead of 4).
+		if (getKeyStoreData().getVersion() == 1)
+			return 2;
+		else
+			return 4;
 	}
 }

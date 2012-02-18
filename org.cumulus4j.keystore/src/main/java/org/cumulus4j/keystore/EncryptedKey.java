@@ -32,16 +32,16 @@ extends AbstractEncryptedData
 	private long keyID;
 
 	public EncryptedKey(
-			long keyID,
-			String encryptionAlgorithm, byte[] encryptionIV,
-			String macAlgorithm, short macKeySize, short macIVSize, short macSize,
-			byte[] data
+			KeyStoreData keyStoreData,
+			long keyID, String encryptionAlgorithm,
+			byte[] encryptionIV, String macAlgorithm, short macKeySize, short macIVSize,
+			short macSize, byte[] data
 	)
 	{
 		super(
-				encryptionAlgorithm, encryptionIV,
-				macAlgorithm, macKeySize, macIVSize, macSize,
-				data
+				keyStoreData, encryptionAlgorithm,
+				encryptionIV, macAlgorithm, macKeySize, macIVSize,
+				macSize, data
 		);
 		this.keyID = keyID;
 	}
@@ -50,8 +50,9 @@ extends AbstractEncryptedData
 		return keyID;
 	}
 
-	public EncryptedKey(DataInputStream in, ArrayList<String> stringConstantList) throws IOException
+	public EncryptedKey(KeyStoreData keyStoreData, DataInputStream in, ArrayList<String> stringConstantList) throws IOException
 	{
+		super(keyStoreData);
 		keyID = in.readLong();
 		read(in, stringConstantList);
 	}

@@ -28,14 +28,24 @@ import java.util.Map;
  */
 abstract class AbstractEncryptedData
 {
-	public AbstractEncryptedData() { }
+	private KeyStoreData keyStoreData;
+
+	public AbstractEncryptedData(KeyStoreData keyStoreData) {
+		if (keyStoreData == null)
+			throw new IllegalArgumentException("keyStoreData must not be null!");
+
+		this.keyStoreData = keyStoreData;
+	}
 
 	public AbstractEncryptedData(
-			String encryptionAlgorithm, byte[] encryptionIV,
-			String macAlgorithm, short macKeySize, short macIVSize, short macSize,
-			byte[] encryptedData
+			KeyStoreData keyStoreData, String encryptionAlgorithm,
+			byte[] encryptionIV, String macAlgorithm, short macKeySize, short macIVSize,
+			short macSize, byte[] encryptedData
 	)
 	{
+		if (keyStoreData == null)
+			throw new IllegalArgumentException("keyStoreData must not be null!");
+
 		if (encryptionAlgorithm == null)
 			throw new IllegalArgumentException("encryptionAlgorithm must not be null!");
 
@@ -54,6 +64,7 @@ abstract class AbstractEncryptedData
 		if (encryptedData == null)
 			throw new IllegalArgumentException("encryptedData must not be null!");
 
+		this.keyStoreData = keyStoreData;
 		this.encryptionAlgorithm = encryptionAlgorithm;
 		this.encryptionIV = encryptionIV;
 		this.macAlgorithm = macAlgorithm;
@@ -61,6 +72,10 @@ abstract class AbstractEncryptedData
 		this.macIVSize = macIVSize;
 		this.macSize = macSize;
 		this.encryptedData = encryptedData;
+	}
+
+	protected KeyStoreData getKeyStoreData() {
+		return keyStoreData;
 	}
 
 	private String encryptionAlgorithm;

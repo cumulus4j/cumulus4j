@@ -57,16 +57,16 @@ extends AbstractEncryptedData
 	}
 
 	public EncryptedMasterKey(
-			String userName, int passwordBasedKeySize, int passwordBasedIterationCount, String passwordBasedKeyGeneratorAlgorithm,
-			byte[] salt,
-			String encryptionAlgorithm, byte[] encryptionIV,
-			String macAlgorithm, short macKeySize, short macIVSize, short macSize,
-			byte[] data
+			KeyStoreData keyStoreData, String userName, int passwordBasedKeySize, int passwordBasedIterationCount,
+			String passwordBasedKeyGeneratorAlgorithm,
+			byte[] salt, String encryptionAlgorithm,
+			byte[] encryptionIV, String macAlgorithm, short macKeySize, short macIVSize,
+			short macSize, byte[] data
 	) {
 		super(
-				encryptionAlgorithm, encryptionIV,
-				macAlgorithm, macKeySize, macIVSize, macSize,
-				data
+				keyStoreData, encryptionAlgorithm,
+				encryptionIV, macAlgorithm, macKeySize, macIVSize,
+				macSize, data
 		);
 
 		if (userName == null)
@@ -82,8 +82,9 @@ extends AbstractEncryptedData
 		this.salt = salt;
 	}
 
-	public EncryptedMasterKey(DataInputStream in, ArrayList<String> stringConstantList) throws IOException
+	public EncryptedMasterKey(KeyStoreData keyStoreData, DataInputStream in, ArrayList<String> stringConstantList) throws IOException
 	{
+		super(keyStoreData);
 		userName = in.readUTF();
 		passwordBasedKeySize = in.readInt();
 		passwordBasedIterationCount = in.readInt();
