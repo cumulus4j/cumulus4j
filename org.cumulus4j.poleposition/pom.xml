@@ -135,20 +135,26 @@
 		
   		 <dependency>
 			<groupId>org.bluestemsoftware.open.maven.tparty</groupId>
-		  	<!-- <groupId>xerces</groupId>-->
+			<!-- <groupId>xerces</groupId>-->
 			<artifactId>xerces-impl</artifactId> 
 			<version>2.9.0</version>
 		</dependency>
 		<dependency>
-		    <groupId>xerces</groupId>
-		    <artifactId>xerces</artifactId>
-		    <version>2.4.0</version>
+			<groupId>xerces</groupId>
+			<artifactId>xerces</artifactId>
+			<version>2.4.0</version>
 		</dependency>			
 		
 		<dependency>
-		    <groupId>org.apache.derby</groupId>
-		    <artifactId>derby</artifactId>
+			<groupId>org.apache.derby</groupId>
+			<artifactId>derby</artifactId>
 <!-- 		    <version>10.5.3.0_1</version>-->
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
 			<scope>compile</scope>
 		</dependency>
 
