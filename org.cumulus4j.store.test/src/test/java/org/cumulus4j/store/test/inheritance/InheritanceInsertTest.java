@@ -38,7 +38,7 @@ extends AbstractJDOTransactionalTest
 	}
 
 	@Test
-	public void createOneMovieWithRating()
+	public void createOneInheritanceObject()
 	throws Exception
 	{
 		logger.info("createOneInheritanceObject: entered");
