@@ -19,30 +19,29 @@ MA  02111-1307, USA. */
 
 package org.cumulus4j.store.test.inheritance;
 
-import javax.jdo.annotations.IdGeneratorStrategy;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
-import javax.jdo.annotations.Persistent;
-import javax.jdo.annotations.PrimaryKey;
 
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 public class InheritanceHierarchy4 extends InheritanceHierarchy3{
 
-	private static int COUNTER = 0;
+//	private static int COUNTER = 0;
 
-    public InheritanceHierarchy4(){
-    	this(COUNTER,COUNTER,COUNTER,COUNTER,COUNTER);
-    	COUNTER++;
-    }
+//    public InheritanceHierarchy4(){
+//    	this(COUNTER,COUNTER,COUNTER,COUNTER,COUNTER);
+//    	COUNTER++;
+//    }
+//
+//    public InheritanceHierarchy4(int i0, int i1, int i2, int i3, int i4){
+//        super(i0, i1, i2, i3);
+//        this.i4 = i4;
+//    }
 
-    public InheritanceHierarchy4(int i0, int i1, int i2, int i3, int i4){
-        super(i0, i1, i2, i3);
-        this.i4 = i4;
-    }
+	private static AtomicInteger counter4 = new AtomicInteger();
 
-	@PrimaryKey
-	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
-    private int i4;
+	private int i4 = counter4.getAndIncrement();
 
     public void setI4(int i){
         i4 = i;

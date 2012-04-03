@@ -19,26 +19,25 @@ MA  02111-1307, USA. */
 
 package org.cumulus4j.store.test.inheritance;
 
-import javax.jdo.annotations.IdGeneratorStrategy;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
-import javax.jdo.annotations.Persistent;
-import javax.jdo.annotations.PrimaryKey;
 
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 public class InheritanceHierarchy2 extends InheritanceHierarchy1{
 
-	@PrimaryKey
-	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
-	private int i2;
+	private static AtomicInteger counter2 = new AtomicInteger();
 
-    public InheritanceHierarchy2(){
-    }
+	private int i2 = counter2.getAndIncrement();
 
-    public InheritanceHierarchy2(int i0, int i1, int i2) {
-        super(i0, i1);
-        this.i2 = i2;
-    }
+//    public InheritanceHierarchy2(){
+//    }
+//
+//    public InheritanceHierarchy2(int i0, int i1, int i2) {
+//        super(i0, i1);
+//        this.i2 = i2;
+//    }
 
     public void setI2(int i){
         i2 = i;

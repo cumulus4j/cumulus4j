@@ -32,12 +32,12 @@ public class InheritanceHierarchy0 {
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
     private int i0;
 
-    public InheritanceHierarchy0(){
-    }
-
-    public InheritanceHierarchy0(int i0) {
-        this.i0 = i0;
-    }
+//    public InheritanceHierarchy0(){
+//    }
+//
+//    public InheritanceHierarchy0(int i0) {
+//        this.i0 = i0;
+//    }
 
     public void setI0(int i){
         i0 = i;
