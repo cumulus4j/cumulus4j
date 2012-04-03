@@ -17,17 +17,21 @@
  */
 package org.cumulus4j.store.test.inheritance;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
+import javax.jdo.FetchPlan;
 import javax.jdo.Query;
 
 import junit.framework.Assert;
 
 import org.cumulus4j.store.test.framework.AbstractJDOTransactionalTest;
 import org.cumulus4j.store.test.framework.CleanupUtil;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -46,6 +50,15 @@ extends AbstractJDOTransactionalTest
 		CleanupUtil.dropAllTables();
 	}
 
+	@Before
+	public void deleteAllInstances()
+	{
+		for (Iterator<?> it = pm.getExtent(InheritanceHierarchy0.class).iterator(); it.hasNext(); ) {
+			Object o = it.next();
+			pm.deletePersistent(o);
+		}
+	}
+
 	@Test
 	public void persistOneInheritanceObject()
 	throws Exception
@@ -57,35 +70,45 @@ extends AbstractJDOTransactionalTest
 		inheritanceObject = pm.makePersistent(inheritanceObject);
 	}
 
-	private void persistSomeInstances()
+	private Map<Class<? extends InheritanceHierarchy0>, List<InheritanceHierarchy0>> persistSomeInstances()
 	{
-		pm.makePersistent(new InheritanceHierarchy0());
-		pm.makePersistent(new InheritanceHierarchy0());
+		Map<Class<? extends InheritanceHierarchy0>, List<InheritanceHierarchy0>> result = new HashMap<Class<? extends InheritanceHierarchy0>, List<InheritanceHierarchy0>>();
+		List<InheritanceHierarchy0> list;
 
-		pm.makePersistent(new InheritanceHierarchy1());
-		pm.makePersistent(new InheritanceHierarchy1());
-		pm.makePersistent(new InheritanceHierarchy1());
+		list = new ArrayList<InheritanceHierarchy0>(); result.put(InheritanceHierarchy0.class, list);
+		list.add(pm.makePersistent(new InheritanceHierarchy0()));
+		list.add(pm.makePersistent(new InheritanceHierarchy0()));
 
-		pm.makePersistent(new InheritanceHierarchy2());
-		pm.makePersistent(new InheritanceHierarchy2());
-		pm.makePersistent(new InheritanceHierarchy2());
-		pm.makePersistent(new InheritanceHierarchy2());
+		list = new ArrayList<InheritanceHierarchy0>(); result.put(InheritanceHierarchy1.class, list);
+		list.add(pm.makePersistent(new InheritanceHierarchy1()));
+		list.add(pm.makePersistent(new InheritanceHierarchy1()));
+		list.add(pm.makePersistent(new InheritanceHierarchy1()));
 
-		pm.makePersistent(new InheritanceHierarchy3());
-		pm.makePersistent(new InheritanceHierarchy3());
-		pm.makePersistent(new InheritanceHierarchy3());
-		pm.makePersistent(new InheritanceHierarchy3());
-		pm.makePersistent(new InheritanceHierarchy3());
-		pm.makePersistent(new InheritanceHierarchy3());
-		pm.makePersistent(new InheritanceHierarchy3());
-		pm.makePersistent(new InheritanceHierarchy3());
+		list = new ArrayList<InheritanceHierarchy0>(); result.put(InheritanceHierarchy2.class, list);
+		list.add(pm.makePersistent(new InheritanceHierarchy2()));
+		list.add(pm.makePersistent(new InheritanceHierarchy2()));
+		list.add(pm.makePersistent(new InheritanceHierarchy2()));
+		list.add(pm.makePersistent(new InheritanceHierarchy2()));
 
-		pm.makePersistent(new InheritanceHierarchy4());
-		pm.makePersistent(new InheritanceHierarchy4());
-		pm.makePersistent(new InheritanceHierarchy4());
-		pm.makePersistent(new InheritanceHierarchy4());
-		pm.makePersistent(new InheritanceHierarchy4());
-		pm.makePersistent(new InheritanceHierarchy4());
+		list = new ArrayList<InheritanceHierarchy0>(); result.put(InheritanceHierarchy3.class, list);
+		list.add(pm.makePersistent(new InheritanceHierarchy3()));
+		list.add(pm.makePersistent(new InheritanceHierarchy3()));
+		list.add(pm.makePersistent(new InheritanceHierarchy3()));
+		list.add(pm.makePersistent(new InheritanceHierarchy3()));
+		list.add(pm.makePersistent(new InheritanceHierarchy3()));
+		list.add(pm.makePersistent(new InheritanceHierarchy3()));
+		list.add(pm.makePersistent(new InheritanceHierarchy3()));
+		list.add(pm.makePersistent(new InheritanceHierarchy3()));
+
+		list = new ArrayList<InheritanceHierarchy0>(); result.put(InheritanceHierarchy4.class, list);
+		list.add(pm.makePersistent(new InheritanceHierarchy4()));
+		list.add(pm.makePersistent(new InheritanceHierarchy4()));
+		list.add(pm.makePersistent(new InheritanceHierarchy4()));
+		list.add(pm.makePersistent(new InheritanceHierarchy4()));
+		list.add(pm.makePersistent(new InheritanceHierarchy4()));
+		list.add(pm.makePersistent(new InheritanceHierarchy4()));
+
+		return result;
 	}
 
 	@Test
@@ -236,5 +259,43 @@ extends AbstractJDOTransactionalTest
 		Assert.assertEquals(Integer.valueOf(4), class2count.get(InheritanceHierarchy2.class)[0]);
 		Assert.assertEquals(Integer.valueOf(8), class2count.get(InheritanceHierarchy3.class)[0]);
 		Assert.assertEquals(Integer.valueOf(6), class2count.get(InheritanceHierarchy4.class)[0]);
+	}
+
+	@Test
+	public void persistAndQuery()
+	throws Exception
+	{
+		Map<Class<? extends InheritanceHierarchy0>, List<InheritanceHierarchy0>> map = persistSomeInstances();
+
+		pm.getFetchPlan().setMaxFetchDepth(-1);
+		pm.getFetchPlan().setGroup(FetchPlan.ALL);
+
+		List<InheritanceHierarchy0> list2 = map.get(InheritanceHierarchy2.class);
+		Collection<InheritanceHierarchy0> c2 = pm.detachCopyAll(list2);
+
+		List<InheritanceHierarchy0> list3 = map.get(InheritanceHierarchy3.class);
+		Collection<InheritanceHierarchy0> c3 = pm.detachCopyAll(list3);
+
+		commitAndBeginNewTransaction();
+
+		InheritanceHierarchy2 obj2 = (InheritanceHierarchy2) c2.iterator().next();
+		InheritanceHierarchy3 obj3 = (InheritanceHierarchy3) c3.iterator().next();
+
+		Query query = pm.newQuery(InheritanceHierarchy2.class);
+		query.setFilter("this.i2 == :arg");
+
+		Collection<?> queryResult = (Collection<?>) query.execute(obj2.getI2());
+		Assert.assertTrue(queryResult.contains(obj2));
+		for (Object object : queryResult) {
+			InheritanceHierarchy2 o = (InheritanceHierarchy2) object;
+			Assert.assertEquals(obj2.getI2(), o.getI2());
+		}
+
+		queryResult = (Collection<?>) query.execute(obj3.getI2());
+		Assert.assertTrue(queryResult.contains(obj3));
+		for (Object object : queryResult) {
+			InheritanceHierarchy2 o = (InheritanceHierarchy2) object;
+			Assert.assertEquals(obj3.getI2(), o.getI2());
+		}
 	}
 }

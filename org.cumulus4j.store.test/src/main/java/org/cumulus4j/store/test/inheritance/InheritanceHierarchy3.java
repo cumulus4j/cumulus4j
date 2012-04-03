@@ -38,28 +38,4 @@ public class InheritanceHierarchy3 extends InheritanceHierarchy2
     public int getI3(){
         return i3;
     }
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + i3;
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		InheritanceHierarchy3 other = (InheritanceHierarchy3) obj;
-		if (i3 != other.i3)
-			return false;
-		return true;
-	}
-
-
 }
