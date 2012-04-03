@@ -27,18 +27,6 @@ import javax.jdo.annotations.PersistenceCapable;
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 public class InheritanceHierarchy4 extends InheritanceHierarchy3{
 
-//	private static int COUNTER = 0;
-
-//    public InheritanceHierarchy4(){
-//    	this(COUNTER,COUNTER,COUNTER,COUNTER,COUNTER);
-//    	COUNTER++;
-//    }
-//
-//    public InheritanceHierarchy4(int i0, int i1, int i2, int i3, int i4){
-//        super(i0, i1, i2, i3);
-//        this.i4 = i4;
-//    }
-
 	private static AtomicInteger counter4 = new AtomicInteger();
 
 	private int i4 = counter4.getAndIncrement();

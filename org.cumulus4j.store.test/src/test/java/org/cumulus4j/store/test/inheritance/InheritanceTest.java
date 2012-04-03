@@ -17,9 +17,12 @@
  */
 package org.cumulus4j.store.test.inheritance;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import javax.jdo.Query;
 
 import junit.framework.Assert;
 
@@ -54,9 +57,7 @@ extends AbstractJDOTransactionalTest
 		inheritanceObject = pm.makePersistent(inheritanceObject);
 	}
 
-	@Test
-	public void persistAndIterateExtent()
-	throws Exception
+	private void persistSomeInstances()
 	{
 		pm.makePersistent(new InheritanceHierarchy0());
 		pm.makePersistent(new InheritanceHierarchy0());
@@ -85,6 +86,130 @@ extends AbstractJDOTransactionalTest
 		pm.makePersistent(new InheritanceHierarchy4());
 		pm.makePersistent(new InheritanceHierarchy4());
 		pm.makePersistent(new InheritanceHierarchy4());
+	}
+
+	@Test
+	public void persistAndQueryIncludingSubclasses()
+	throws Exception
+	{
+		persistSomeInstances();
+
+		commitAndBeginNewTransaction();
+
+		{
+			Query query = pm.newQuery(InheritanceHierarchy0.class);
+			Collection<?> result = (Collection<?>) query.execute();
+			Assert.assertEquals(23, result.size());
+		}
+
+		{
+			Query query = pm.newQuery(InheritanceHierarchy1.class);
+			Collection<?> result = (Collection<?>) query.execute();
+			Assert.assertEquals(21, result.size());
+		}
+
+		{
+			Query query = pm.newQuery(InheritanceHierarchy2.class);
+			Collection<?> result = (Collection<?>) query.execute();
+			Assert.assertEquals(18, result.size());
+		}
+
+		{
+			Query query = pm.newQuery(InheritanceHierarchy3.class);
+			Collection<?> result = (Collection<?>) query.execute();
+			Assert.assertEquals(14, result.size());
+		}
+
+		{
+			Query query = pm.newQuery(InheritanceHierarchy4.class);
+			Collection<?> result = (Collection<?>) query.execute();
+			Assert.assertEquals(6, result.size());
+		}
+	}
+
+	@Test
+	public void persistAndQueryExcludingSubclassesUsingExtent()
+	throws Exception
+	{
+		persistSomeInstances();
+
+		commitAndBeginNewTransaction();
+
+		{
+			Query query = pm.newQuery(pm.getExtent(InheritanceHierarchy0.class, false));
+			Collection<?> result = (Collection<?>) query.execute();
+			Assert.assertEquals(2, result.size());
+		}
+
+		{
+			Query query = pm.newQuery(pm.getExtent(InheritanceHierarchy1.class, false));
+			Collection<?> result = (Collection<?>) query.execute();
+			Assert.assertEquals(3, result.size());
+		}
+
+		{
+			Query query = pm.newQuery(pm.getExtent(InheritanceHierarchy2.class, false));
+			Collection<?> result = (Collection<?>) query.execute();
+			Assert.assertEquals(4, result.size());
+		}
+
+		{
+			Query query = pm.newQuery(pm.getExtent(InheritanceHierarchy3.class, false));
+			Collection<?> result = (Collection<?>) query.execute();
+			Assert.assertEquals(8, result.size());
+		}
+
+		{
+			Query query = pm.newQuery(pm.getExtent(InheritanceHierarchy4.class, false));
+			Collection<?> result = (Collection<?>) query.execute();
+			Assert.assertEquals(6, result.size());
+		}
+	}
+
+	@Test
+	public void persistAndQueryExcludingSubclassesUsingJDOQL()
+	throws Exception
+	{
+		persistSomeInstances();
+
+		commitAndBeginNewTransaction();
+
+		{
+			Query query = pm.newQuery("SELECT FROM " + InheritanceHierarchy0.class.getName() + " EXCLUDE SUBCLASSES");
+			Collection<?> result = (Collection<?>) query.execute();
+			Assert.assertEquals(2, result.size());
+		}
+
+		{
+			Query query = pm.newQuery("SELECT FROM " + InheritanceHierarchy1.class.getName() + " EXCLUDE SUBCLASSES");
+			Collection<?> result = (Collection<?>) query.execute();
+			Assert.assertEquals(3, result.size());
+		}
+
+		{
+			Query query = pm.newQuery("SELECT FROM " + InheritanceHierarchy2.class.getName() + " EXCLUDE SUBCLASSES");
+			Collection<?> result = (Collection<?>) query.execute();
+			Assert.assertEquals(4, result.size());
+		}
+
+		{
+			Query query = pm.newQuery("SELECT FROM " + InheritanceHierarchy3.class.getName() + " EXCLUDE SUBCLASSES");
+			Collection<?> result = (Collection<?>) query.execute();
+			Assert.assertEquals(8, result.size());
+		}
+
+		{
+			Query query = pm.newQuery("SELECT FROM " + InheritanceHierarchy4.class.getName() + " EXCLUDE SUBCLASSES");
+			Collection<?> result = (Collection<?>) query.execute();
+			Assert.assertEquals(6, result.size());
+		}
+	}
+
+	@Test
+	public void persistAndIterateExtent()
+	throws Exception
+	{
+		persistSomeInstances();
 
 		commitAndBeginNewTransaction();
 

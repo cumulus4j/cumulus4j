@@ -31,14 +31,6 @@ public class InheritanceHierarchy2 extends InheritanceHierarchy1{
 
 	private int i2 = counter2.getAndIncrement();
 
-//    public InheritanceHierarchy2(){
-//    }
-//
-//    public InheritanceHierarchy2(int i0, int i1, int i2) {
-//        super(i0, i1);
-//        this.i2 = i2;
-//    }
-
     public void setI2(int i){
         i2 = i;
     }
