@@ -150,12 +150,12 @@ public class Cumulus4jListHolder implements CheckSummable {
 			for (int i = 0; i < _list.size(); i++) {
 				Cumulus4jListHolder child = getList().get(i);
 
-				logger.debug("child: " + child);
-				logger.debug("deletedCount: " + deletedCount);
-				logger.debug("visited: " + visited);
-				logger.debug("maxDepth: " + maxDepth);
-				logger.debug("depth: " + depth);
-				logger.debug("deletePrecedure: " + deleteProcedure);
+//				logger.debug("child: " + child);
+//				logger.debug("deletedCount: " + deletedCount);
+//				logger.debug("visited: " + visited);
+//				logger.debug("maxDepth: " + maxDepth);
+//				logger.debug("depth: " + depth);
+//				logger.debug("deletePrecedure: " + deleteProcedure);
 
 				deletedCount += child.deleteInternal(visited, maxDepth, depth +  1, deleteProcedure);
 			}

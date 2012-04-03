@@ -1,4 +1,4 @@
-/* 
+/*
 This file is part of the PolePosition database benchmark
 http://www.polepos.org
 
@@ -19,34 +19,34 @@ MA  02111-1307, USA. */
 
 package org.polepos.framework;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Method;
 
-import org.polepos.*;
+import org.polepos.Settings;
 
 /**
  * an implementation of a circuit for a team
  */
 public abstract class DriverBase extends Driver implements Cloneable
 {
-    
+
     private Car mCar;
-    
+
     private TurnSetup mSetup;
-    
+
     private long _checkSum;
 
 	private int _bulkId;
-	
+
 	private int _testId;
 
 	private int _objectCount;
-	
+
 	private int _commitInterval;
-	
+
     protected final Car car(){
         return mCar;
     }
-    
+
 	/**
 	 * take a seat in a car.
 	 */
@@ -63,37 +63,38 @@ public abstract class DriverBase extends Driver implements Cloneable
 	 */
 	@Override
 	public abstract void prepare() throws CarMotorFailureException;
-	
-	
+
+
 	/**
      * Called after the lap so that the driver can clean up any files it
-     * created and close any resources it opened. 
+     * created and close any resources it opened.
      */
     @Override
 	public abstract void backToPit();
-    
-    
+
+
 	protected TurnSetup setup(){
         return mSetup;
     }
-	
+
 	public void addToCheckSum(CheckSummable checkSummable){
 		addToCheckSum(checkSummable.checkSum());
 	}
-    
+
     /**
-     * Collecting a checksum to make sure every team does a complete job  
+     * Collecting a checksum to make sure every team does a complete job
      */
     public synchronized void addToCheckSum(long l){
         _checkSum += l;
     }
-    
+
     @Override
 	public long checkSum(){
-        return _checkSum; 
+        return _checkSum;
     }
-    
-    public DriverBase clone(){
+
+    @Override
+	public DriverBase clone(){
         try{
             return (DriverBase) super.clone();
         }catch(CloneNotSupportedException e){
@@ -101,15 +102,16 @@ public abstract class DriverBase extends Driver implements Cloneable
         }
         return null;
     }
-    
+
 	@Override
 	public void circuitCompleted() {
 		// This method can be overridden to clean up state.
 	}
-	
+
+	@Override
 	public Runnable prepareLap(final Lap lap) {
 		return new Runnable(){
-			
+
 			private final Method method = prepareMethod();
 
 			@Override
@@ -121,12 +123,12 @@ public abstract class DriverBase extends Driver implements Cloneable
 					method.invoke(DriverBase.this, (Object[]) null);
 				} catch (Exception e) {
 				    if(Settings.DEBUG){
-				    	throw new RuntimeException(e);
+				    	throw new RuntimeException(e.getCause());
 				    }
 				    e.printStackTrace();
 				}
 			}
-			
+
 			private Method prepareMethod(){
 				try{
 					return DriverBase.this.getClass().getDeclaredMethod(lap.name(), (Class[])null);
@@ -140,7 +142,7 @@ public abstract class DriverBase extends Driver implements Cloneable
 			}
 		};
 	}
-	
+
 	@Override
 	public boolean canRunLap(Lap lap) {
 		return true;
@@ -152,28 +154,28 @@ public abstract class DriverBase extends Driver implements Cloneable
 
 	public void copyStateFrom(DriverBase masterDriver) {
 		// default: do nothing
-		
+
 		// Implement for concurrency to copy the state
-		
+
 	}
 
 	public void bulkId(int id) {
 		_bulkId = id;
 	}
-	
+
 	protected void initializeTestId(int count) {
 		_objectCount = count;
 		_testId = _bulkId * count;
 		_commitInterval = setup().getCommitInterval();
 	}
-	
+
 	protected void initializeTestIdD(int count) {
 		_objectCount = count;
 		_testId = _bulkId * count;
 		_commitInterval = setup().getCommitInterval();
 	}
 
-	
+
 	protected int nextTestId(){
 		_objectCount--;
 		if(_objectCount < 0) {
@@ -185,27 +187,27 @@ public abstract class DriverBase extends Driver implements Cloneable
 	private void outOfObjectCount() {
 		throw new IllegalStateException(" Out of _objectCount. Did you call initializeTestId ?");
 	}
-	
+
 	protected int selectCount(){
 		return setup().getSelectCount();
 	}
-	
+
 	protected int objectCount() {
 		return setup().getObjectCount();
 	}
-	
+
 	protected int updateCount() {
 		return setup().getUpdateCount();
 	}
-	
+
 	protected int depth(){
 		return setup().getDepth();
 	}
-	
+
 	protected int reuse() {
 		return setup().getReuse();
 	}
-	
+
 	protected boolean doCommit(){
 		if(_objectCount == 0){
 			return true;

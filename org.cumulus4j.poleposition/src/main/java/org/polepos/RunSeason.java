@@ -29,7 +29,6 @@ import org.polepos.framework.Team;
 import org.polepos.reporters.DefaultReporterFactory;
 import org.polepos.reporters.Reporter;
 import org.polepos.runner.AbstractRunner;
-import org.polepos.teams.db4o.Db4oTeam;
 import org.polepos.teams.jdo.JdoTeam;
 import org.polepos.teams.jdo.cumulus4j.JdoCumulus4jTeam;
 import org.slf4j.Logger;
@@ -49,7 +48,6 @@ public class RunSeason extends AbstractRunner {
 	private static Logger logger = LoggerFactory.getLogger(RunSeason.class);
 
 	public static void main(String[] args) {
-
 
 		logger.debug("Trying to set cryptoManagerID and cryptoSessionID.");
 		if(args != null){
@@ -92,7 +90,6 @@ public class RunSeason extends AbstractRunner {
 //				new Barcelona(),
 //				new Monaco(),
 //				new Montreal(),
-//				new Nurburgring(),
 		};
 	}
 
@@ -104,7 +101,7 @@ public class RunSeason extends AbstractRunner {
 
 				new JdoCumulus4jTeam(),
 				new JdoTeam(),
-				new Db4oTeam(),
+//				new Db4oTeam(),
 
 //				new Db4oClientServerTeam(),
 

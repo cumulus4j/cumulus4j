@@ -58,6 +58,8 @@
         	<inheritance strategy="new-table"/>
         	<field name = "i4" />
         </class>
+        
+        
 <!--        <class name="JB0" />
         <class name="JB1" persistence-capable-superclass="org.polepos.teams.jdo.data.JB0" />
         <class name="JB2" persistence-capable-superclass="org.polepos.teams.jdo.data.JB1">
@@ -74,6 +76,7 @@
 		</fetch-group>
 	</class>
         <class name="JdoPilot" />
+        
         <class name="JdoIndexedPilot">
           <field name = "mName" indexed = "true"/>
           <field name = "mLicenseID"  indexed = "true"/>
@@ -87,3 +90,4 @@
         <class name="JN1"/>-->
     </package>    
 </jdo>    
+
