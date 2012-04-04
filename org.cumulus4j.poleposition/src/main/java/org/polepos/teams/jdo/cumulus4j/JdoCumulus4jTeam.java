@@ -104,12 +104,6 @@ public class JdoCumulus4jTeam extends Team{
 	@Override
     public void setUp() {
 
-//		try {
-//			CleanupUtil.dropAllTables();
-//		} catch (Exception e) {
-//			throw new RuntimeException(e);
-//		}
-
 		for(int i = 0; i < mCars.length;i++){
 
 		    JdoCumulus4jCar jdoCumulus4jCar = (JdoCumulus4jCar)mCars[i];

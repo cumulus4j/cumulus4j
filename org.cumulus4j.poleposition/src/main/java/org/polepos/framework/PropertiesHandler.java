@@ -140,6 +140,9 @@ public class PropertiesHandler
 		return true;
 	}
 
+	public Properties getProperties() {
+		return _properties;
+	}
 
 	/**
 	 * same as <code>Properties#getProperty()</code>

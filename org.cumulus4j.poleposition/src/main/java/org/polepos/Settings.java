@@ -26,9 +26,9 @@ public class Settings {
 
     public static boolean DEBUG = true;
 
-    public static String CRYPTO_MANAGER_ID;
-
-    public static String CRYPTO_SESSION_ID;
+//    public static String CRYPTO_MANAGER_ID;
+//
+//    public static String CRYPTO_SESSION_ID;
 
     public static final String SETTINGS_FOLDER = "settings";
 

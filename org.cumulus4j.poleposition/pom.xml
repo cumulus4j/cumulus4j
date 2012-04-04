@@ -84,11 +84,11 @@
 			<version>1.6.1</version>
 		</dependency>
 
-		<dependency>
+		<!-- <dependency>
 			<groupId>hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
 			<version>1.8.0.10</version>
-		</dependency>
+		</dependency>-->
 
 		<dependency>
 			<groupId>javax.jdo</groupId>
@@ -231,30 +231,8 @@
 
 		<dependency>
 			<groupId>org.datanucleus</groupId>
-			<artifactId>datanucleus-cache</artifactId>
-			<!-- <version>${datanucleus.dependency.version}</version> -->
-			<version>3.0.3</version> <!-- Unfortunately, there is no newer version and we cannot use the property. -->
-		</dependency>
-		<dependency>
-			<groupId>org.datanucleus</groupId>
-			<artifactId>datanucleus-connectionpool</artifactId>
-			<version>2.0.3</version>
-		</dependency>
-		<dependency>
-			<groupId>org.datanucleus</groupId>
 			<artifactId>datanucleus-core</artifactId>
 		</dependency>
-		<!-- <dependency>
-			<groupId>org.datanucleus</groupId>
-			<artifactId>datanucleus-enhancer</artifactId>
-			<version>3.0.0-release</version>
-		</dependency>-->
-		
-		<!-- 
-		This dependency (dn.api.jdo) was not needed in the original project. But when leaving 
-		away maven will not find "JDOPersistenceManagerFactory" at runtime. I do not know yet
-		why this happens.	Jan 
-		-->
 		<dependency>
 			<groupId>org.datanucleus</groupId>
 			<artifactId>datanucleus-api-jdo</artifactId>
@@ -263,16 +241,11 @@
 		<!-- 
 		Enhancement of classes did not work with plugin datanucleus-jpa. Maybe the version was too old.
 		So I switchend to plugin datanucleus-api-jpa.	Jan
-		 -->
 		<dependency>
 			<groupId>org.datanucleus</groupId>
 			<artifactId>datanucleus-api-jpa</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.datanucleus</groupId>
-			<artifactId>datanucleus-management</artifactId>
-			<version>1.0.2</version>
-		</dependency>
+		-->
 		<dependency>
 			<groupId>org.datanucleus</groupId>
 			<artifactId>datanucleus-rdbms</artifactId>
@@ -283,12 +256,16 @@
 			<artifactId>hibernate</artifactId>
 			<version>3.2.1.ga</version>
 		</dependency>
-		
+
+		<dependency>
+        	<groupId>org.nightlabs</groupId>
+        	<artifactId>org.nightlabs.progress</artifactId>
+	    </dependency>
 		<dependency>
         	<groupId>org.nightlabs</groupId>
         	<artifactId>org.nightlabs.util</artifactId>
 	    </dependency>
-		
+
 		<dependency>
 			<groupId>org.poleposition.graph</groupId>
 			<artifactId>gnujaxp</artifactId>

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is part of the PolePosition database benchmark
 http://www.polepos.org
 
@@ -19,35 +19,52 @@ MA  02111-1307, USA. */
 
 package org.polepos.teams.jdo;
 
-import org.polepos.*;
-import org.polepos.framework.*;
+import java.io.File;
+
+import org.polepos.Settings;
+import org.polepos.framework.RdbmsSettings;
 
 /**
  * @author Herkules
  */
 public class JdoSettings extends RdbmsSettings{
-	
+
 	private final static String KEY_JDO = "jdo";
     private final static String KEY_ENHANCE = "enhance";
     private final static String KEY_ENHANCER = "enhancer";
-    private final static String KEY_CONNECTURL = "javax.jdo.option.ConnectionURL";
-	
+//    private final static String KEY_CONNECTURL = "javax.jdo.option.ConnectionURL";
+
 	public JdoSettings(){
         super(Settings.JDO);
 	}
-    
+
     public String[] getJdoImplementations(){
         return getArray( KEY_JDO );
     }
-	
-	public String getConnectUrl(){
-		return get( KEY_CONNECTURL );
-	}
-    
+
+    private JdoImplSettings[] jdoImplSettings;
+
+    public JdoImplSettings[] getJdoImplSettings() {
+    	if (jdoImplSettings == null) {
+    		String[] jdoImplementations = getJdoImplementations();
+    		JdoImplSettings[] settings = new JdoImplSettings[jdoImplementations.length];
+    		for (int idx = 0; idx < jdoImplementations.length; idx++) {
+				String jdoImpl = jdoImplementations[idx];
+				settings[idx] = new JdoImplSettings(Settings.SETTINGS_FOLDER + File.separator + jdoImpl + ".properties");
+			}
+    		jdoImplSettings = settings;
+    	}
+    	return jdoImplSettings;
+    }
+
+//	public String getConnectUrl(){
+//		return get( KEY_CONNECTURL );
+//	}
+
     public boolean enhance(){
         return getBoolean(KEY_ENHANCE);
     }
-    
+
     public String enhancer(){
         return get(KEY_ENHANCER);
     }

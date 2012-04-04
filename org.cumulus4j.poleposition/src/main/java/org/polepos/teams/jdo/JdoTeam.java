@@ -30,29 +30,12 @@ import javax.jdo.PersistenceManager;
 import org.polepos.framework.Car;
 import org.polepos.framework.DriverBase;
 import org.polepos.framework.Team;
-import org.polepos.teams.jdo.data.ComplexHolder0;
-import org.polepos.teams.jdo.data.ComplexHolder1;
-import org.polepos.teams.jdo.data.ComplexHolder2;
-import org.polepos.teams.jdo.data.ComplexHolder3;
-import org.polepos.teams.jdo.data.ComplexHolder4;
-import org.polepos.teams.jdo.data.ComplexRoot;
 import org.polepos.teams.jdo.data.InheritanceHierarchy0;
 import org.polepos.teams.jdo.data.InheritanceHierarchy1;
 import org.polepos.teams.jdo.data.InheritanceHierarchy2;
 import org.polepos.teams.jdo.data.InheritanceHierarchy3;
 import org.polepos.teams.jdo.data.InheritanceHierarchy4;
-import org.polepos.teams.jdo.data.JB0;
-import org.polepos.teams.jdo.data.JB1;
-import org.polepos.teams.jdo.data.JB2;
-import org.polepos.teams.jdo.data.JB3;
-import org.polepos.teams.jdo.data.JB4;
-import org.polepos.teams.jdo.data.JN1;
 import org.polepos.teams.jdo.data.JdoIndexedObject;
-import org.polepos.teams.jdo.data.JdoIndexedPilot;
-import org.polepos.teams.jdo.data.JdoLightObject;
-import org.polepos.teams.jdo.data.JdoListHolder;
-import org.polepos.teams.jdo.data.JdoPilot;
-import org.polepos.teams.jdo.data.JdoTree;
 import org.polepos.teams.jdo.data.ListHolder;
 
 
@@ -126,15 +109,15 @@ public class JdoTeam extends Team{
         	new FlatObjectJdo(),
         	new NestedListsJdo(),
         	new InheritanceHierarchyJdo(),
-        	new ComplexJdo(),
-            new MelbourneJdo(),
-            new SepangJdo(),
-            new BahrainJdo(),
-            new ImolaJdo(),
-            new BarcelonaJdo(),
-            new MonacoJdo(),
-            new MontrealJdo(),
-            new NurburgringJdo()
+//        	new ComplexJdo(),
+//            new MelbourneJdo(),
+//            new SepangJdo(),
+//            new BahrainJdo(),
+//            new ImolaJdo(),
+//            new BarcelonaJdo(),
+//            new MonacoJdo(),
+//            new MontrealJdo(),
+//            new NurburgringJdo()
         };
     }
 
@@ -153,12 +136,12 @@ public class JdoTeam extends Team{
 
 		    deleteAll(pm, JdoIndexedObject.class);
 		    deleteAll(pm, ListHolder.class);
-		    deleteAll(pm, ComplexRoot.class);
-		    deleteAll(pm, ComplexHolder4.class);
-		    deleteAll(pm, ComplexHolder3.class);
-		    deleteAll(pm, ComplexHolder2.class);
-		    deleteAll(pm, ComplexHolder1.class);
-		    deleteAll(pm, ComplexHolder0.class);
+//		    deleteAll(pm, ComplexRoot.class);
+//		    deleteAll(pm, ComplexHolder4.class);
+//		    deleteAll(pm, ComplexHolder3.class);
+//		    deleteAll(pm, ComplexHolder2.class);
+//		    deleteAll(pm, ComplexHolder1.class);
+//		    deleteAll(pm, ComplexHolder0.class);
 
 		    deleteAll(pm, InheritanceHierarchy4.class);
 		    deleteAll(pm, InheritanceHierarchy3.class);
@@ -166,18 +149,18 @@ public class JdoTeam extends Team{
 		    deleteAll(pm, InheritanceHierarchy1.class);
 		    deleteAll(pm, InheritanceHierarchy0.class);
 
-		    deleteAll(pm, JB0.class);
-		    deleteAll(pm, JB1.class);
-		    deleteAll(pm, JB2.class);
-		    deleteAll(pm, JB3.class);
-		    deleteAll(pm, JB4.class);
-
-		    deleteAll(pm, JdoIndexedPilot.class);
-		    deleteAll(pm, JdoPilot.class);
-		    deleteAll(pm, JdoTree.class);
-		    deleteAll(pm, JdoLightObject.class);
-		    deleteAll(pm, JdoListHolder.class);
-		    deleteAll(pm, JN1.class);
+//		    deleteAll(pm, JB0.class);
+//		    deleteAll(pm, JB1.class);
+//		    deleteAll(pm, JB2.class);
+//		    deleteAll(pm, JB3.class);
+//		    deleteAll(pm, JB4.class);
+//
+//		    deleteAll(pm, JdoIndexedPilot.class);
+//		    deleteAll(pm, JdoPilot.class);
+//		    deleteAll(pm, JdoTree.class);
+//		    deleteAll(pm, JdoLightObject.class);
+//		    deleteAll(pm, JdoListHolder.class);
+//		    deleteAll(pm, JN1.class);
 
 
 		    pm.close();

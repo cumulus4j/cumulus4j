@@ -1,4 +1,4 @@
-/* 
+/*
 This file is part of the PolePosition database benchmark
 http://www.polepos.org
 
@@ -21,12 +21,21 @@ package org.polepos.teams.hibernate;
 
 import org.hibernate.Transaction;
 import org.hibernate.classic.Session;
-import org.hsqldb.jdbc.*;
 import org.polepos.framework.Car;
-import org.polepos.framework.CarMotorFailureException;
 import org.polepos.framework.DriverBase;
 import org.polepos.framework.Team;
-import org.polepos.teams.hibernate.data.*;
+import org.polepos.teams.hibernate.data.ComplexHolder0;
+import org.polepos.teams.hibernate.data.ComplexRoot;
+import org.polepos.teams.hibernate.data.HB0;
+import org.polepos.teams.hibernate.data.HN1;
+import org.polepos.teams.hibernate.data.HibernateIndexedPilot;
+import org.polepos.teams.hibernate.data.HibernateLightObject;
+import org.polepos.teams.hibernate.data.HibernateListHolder;
+import org.polepos.teams.hibernate.data.HibernatePilot;
+import org.polepos.teams.hibernate.data.HibernateTree;
+import org.polepos.teams.hibernate.data.IndexedObject;
+import org.polepos.teams.hibernate.data.InheritanceHierarchy0;
+import org.polepos.teams.hibernate.data.ListHolder;
 import org.polepos.teams.jdbc.Jdbc;
 
 public class HibernateTeam extends Team {
@@ -42,6 +51,7 @@ public class HibernateTeam extends Team {
 		}
 	}
 
+	@Override
 	public String name() {
 		return "Hibernate";
 	}
@@ -51,15 +61,18 @@ public class HibernateTeam extends Team {
 		return "relational persistence for idiomatic Java";
 	}
 
+	@Override
 	public String databaseFile() {
 		// not needed
 		return null;
 	}
 
+	@Override
 	public Car[] cars() {
 		return _cars;
 	}
 
+	@Override
 	public DriverBase[] drivers() {
 		return new DriverBase[] {
 				new FlatObjectHibernate(),
@@ -67,13 +80,13 @@ public class HibernateTeam extends Team {
 				new InheritanceHierarchyHibernate(),
 				new ComplexHibernate(),
 				new MelbourneHibernate(),
-				new SepangHibernate(), 
+				new SepangHibernate(),
 				new BahrainHibernate(),
-				new ImolaHibernate(), 
+				new ImolaHibernate(),
 				new BarcelonaHibernate(),
-				new MonacoHibernate(), 
+				new MonacoHibernate(),
 				new MontrealHibernate(),
-				new NurburgringHibernate(), 
+				new NurburgringHibernate(),
 		};
 	}
 
@@ -86,11 +99,11 @@ public class HibernateTeam extends Team {
 	public void setUp() {
 		for(int i = 0; i < _cars.length;i++){
 			HibernateCar hibernateCar = (HibernateCar)_cars[i];
-			
+
 			hibernateCar.recreateSessionFactory();
-			
+
 			// The following fails with the Complex circuit enabled:
-			
+
 //			Session session = hibernateCar.openSession();
 //			Class[] classes = persistentClasses();
 //			for (int j = 0; j < classes.length; j++) {
@@ -107,14 +120,14 @@ public class HibernateTeam extends Team {
 	}
 
 	public static final Class[] persistentClasses() {
-		return new Class[] { 
+		return new Class[] {
 			ComplexHolder0.class,
 			ComplexRoot.class,
 			HB0.class,
-			HibernateIndexedPilot.class, 
-			HibernateLightObject.class, 
+			HibernateIndexedPilot.class,
+			HibernateLightObject.class,
 			HibernateListHolder.class,
-			HibernatePilot.class, 
+			HibernatePilot.class,
 			HibernateTree.class,
 			HN1.class,
 			IndexedObject.class,
