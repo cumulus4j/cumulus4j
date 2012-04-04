@@ -20,7 +20,10 @@ package org.cumulus4j.store;
 import java.lang.reflect.Array;
 import java.util.Map;
 
+import javax.jdo.JDOHelper;
+import javax.jdo.JDOUserException;
 import javax.jdo.PersistenceManager;
+import javax.jdo.Query;
 
 import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.FieldMeta;
@@ -33,6 +36,8 @@ import org.cumulus4j.store.model.IndexValue;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.Relation;
 import org.datanucleus.store.ExecutionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 abstract class IndexEntryAction
 {
@@ -240,6 +245,8 @@ abstract class IndexEntryAction
 
 	static class Remove extends IndexEntryAction
 	{
+		private static final Logger logger = LoggerFactory.getLogger(Remove.class);
+
 		public Remove(Cumulus4jPersistenceHandler persistenceHandler) {
 			super(persistenceHandler);
 		}
@@ -263,8 +270,49 @@ abstract class IndexEntryAction
 
 			IndexValue indexValue = encryptionHandler.decryptIndexEntry(cryptoContext, indexEntry);
 			indexValue.removeDataEntryID(dataEntryID);
-			if (indexValue.isDataEntryIDsEmpty())
-				cryptoContext.getPersistenceManagerForIndex().deletePersistent(indexEntry);
+			if (indexValue.isDataEntryIDsEmpty()) {
+				PersistenceManager pmIndex = cryptoContext.getPersistenceManagerForIndex();
+				try {
+					pmIndex.deletePersistent(indexEntry);
+					// The above line sometimes (but not always) causes the following error:
+//					org.datanucleus.exceptions.NucleusUserException: Transient instances cant be deleted.
+//			        at org.datanucleus.ObjectManagerImpl.deleteObjectInternal(ObjectManagerImpl.java:2068)
+//			        at org.datanucleus.ObjectManagerImpl.deleteObjectWork(ObjectManagerImpl.java:2019)
+//			        at org.datanucleus.ObjectManagerImpl.deleteObject(ObjectManagerImpl.java:1973)
+//			        at org.datanucleus.api.jdo.JDOPersistenceManager.jdoDeletePersistent(JDOPersistenceManager.java:815)
+//			        at org.datanucleus.api.jdo.JDOPersistenceManager.deletePersistent(JDOPersistenceManager.java:833)
+//			        at org.cumulus4j.store.IndexEntryAction$Remove._perform(IndexEntryAction.java:268)
+//			        at org.cumulus4j.store.IndexEntryAction.perform(IndexEntryAction.java:206)
+//			        at org.cumulus4j.store.Cumulus4jPersistenceHandler.updateObject(Cumulus4jPersistenceHandler.java:343)
+				} catch (JDOUserException x) {
+					logger.warn("_perform: " + x, x);
+					// If we cannot delete it, we try to store an empty value. That's not nice, but at least a consistent DB state.
+					encryptionHandler.encryptIndexEntry(cryptoContext, indexEntry, indexValue);
+					// Make sure it is persisted or we get a new exception (because we just tried to delete it).
+					pmIndex.makePersistent(indexEntry);
+					pmIndex.flush();
+					Query query = pmIndex.newQuery(IndexEntry.class);
+					query.setFilter("JDOHelper.getObjectId(this) == :indexEntryID");
+					query.setUnique(true);
+					IndexEntry persistentIndexEntry = (IndexEntry) query.execute(JDOHelper.getObjectId(indexEntry));
+					if (persistentIndexEntry == null)
+						throw new IllegalStateException("Newly persisted IndexEntry did not end up in our database! indexEntryID=" + indexEntry.getIndexEntryID());
+				}
+
+				// BEGIN workaround - this works, but is not nice.
+//				Object indexEntryID = JDOHelper.getObjectId(indexEntry);
+//				if (indexEntryID != null) {
+//					PersistenceManager pmIdx = cryptoContext.getPersistenceManagerForIndex();
+//					pmIdx.flush();
+//					Query query = pmIdx.newQuery(IndexEntry.class);
+//					query.setFilter("JDOHelper.getObjectId(this) == :indexEntryID");
+//					query.setUnique(true);
+//					IndexEntry persistentIndexEntry = (IndexEntry) query.execute(indexEntryID);
+//					if (persistentIndexEntry != null)
+//						pmIdx.deletePersistent(persistentIndexEntry);
+//				}
+				// END workaround
+			}
 			else
 				encryptionHandler.encryptIndexEntry(cryptoContext, indexEntry, indexValue);
 		}
