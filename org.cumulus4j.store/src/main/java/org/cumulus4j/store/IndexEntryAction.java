@@ -88,14 +88,16 @@ abstract class IndexEntryAction
 
 				FieldMeta subFieldMeta = fieldMeta.getSubFieldMeta(role);
 				IndexEntryFactory indexEntryFactory = indexEntryFactoryRegistry.getIndexEntryFactory(ec, subFieldMeta, false);
-				for (int idx = 0; idx < Array.getLength(fieldValue); ++idx) {
-					Object element = Array.get(fieldValue, idx);
-					IndexEntry indexEntry = getIndexEntry(indexEntryFactory, pmIndex, subFieldMeta, element);
-					_perform(cryptoContext, indexEntry, dataEntryID);
+				if (fieldValue != null) {
+					for (int idx = 0; idx < Array.getLength(fieldValue); ++idx) {
+						Object element = Array.get(fieldValue, idx);
+						IndexEntry indexEntry = getIndexEntry(indexEntryFactory, pmIndex, subFieldMeta, element);
+						_perform(cryptoContext, indexEntry, dataEntryID);
+					}
 				}
 
 				// Add entry for the collection/array size
-				int containerSize = Array.getLength(fieldValue);
+				int containerSize = fieldValue == null ? 0 : Array.getLength(fieldValue);
 				IndexEntry sizeIdxEntry =
 					indexEntryFactoryRegistry.getIndexEntryFactoryForContainerSize().createIndexEntry(pmIndex, fieldMeta, new Long(containerSize));
 				_perform(cryptoContext, sizeIdxEntry, dataEntryID);
@@ -108,12 +110,14 @@ abstract class IndexEntryAction
 				IndexEntryFactory indexEntryFactoryKey = indexEntryFactoryRegistry.getIndexEntryFactory(ec, subFieldMetaKey, false);
 				IndexEntryFactory indexEntryFactoryValue = indexEntryFactoryRegistry.getIndexEntryFactory(ec, subFieldMetaValue, false);
 
-				for (Map.Entry<?, ?> me : fieldValueMap.entrySet()) {
-					IndexEntry indexEntryKey = getIndexEntry(indexEntryFactoryKey, pmIndex, subFieldMetaKey, me.getKey());
-					_perform(cryptoContext, indexEntryKey, dataEntryID);
+				if (fieldValueMap != null) {
+					for (Map.Entry<?, ?> me : fieldValueMap.entrySet()) {
+						IndexEntry indexEntryKey = getIndexEntry(indexEntryFactoryKey, pmIndex, subFieldMetaKey, me.getKey());
+						_perform(cryptoContext, indexEntryKey, dataEntryID);
 
-					IndexEntry indexEntryValue = getIndexEntry(indexEntryFactoryValue, pmIndex, subFieldMetaValue, me.getValue());
-					_perform(cryptoContext, indexEntryValue, dataEntryID);
+						IndexEntry indexEntryValue = getIndexEntry(indexEntryFactoryValue, pmIndex, subFieldMetaValue, me.getValue());
+						_perform(cryptoContext, indexEntryValue, dataEntryID);
+					}
 				}
 
 				// Add entry for the map size
@@ -148,25 +152,27 @@ abstract class IndexEntryAction
 				IndexEntryFactory indexEntryFactoryKey = indexEntryFactoryRegistry.getIndexEntryFactory(ec, subFieldMetaKey, false);
 				IndexEntryFactory indexEntryFactoryValue = indexEntryFactoryRegistry.getIndexEntryFactory(ec, subFieldMetaValue, false);
 
-				for (Map.Entry<?, ?> me : fieldValueMap.entrySet()) {
-					if (keyIsPersistent) {
-						Long otherDataEntryID = ObjectContainerHelper.referenceToDataEntryID(ec, pmData, me.getKey());
-						IndexEntry indexEntry = getIndexEntryForObjectRelation(pmIndex, subFieldMetaKey, otherDataEntryID);
-						_perform(cryptoContext, indexEntry, dataEntryID);
-					}
-					else {
-						IndexEntry indexEntry = getIndexEntry(indexEntryFactoryKey, pmIndex, subFieldMetaKey, me.getKey());
-						_perform(cryptoContext, indexEntry, dataEntryID);
-					}
+				if (fieldValueMap != null) {
+					for (Map.Entry<?, ?> me : fieldValueMap.entrySet()) {
+						if (keyIsPersistent) {
+							Long otherDataEntryID = ObjectContainerHelper.referenceToDataEntryID(ec, pmData, me.getKey());
+							IndexEntry indexEntry = getIndexEntryForObjectRelation(pmIndex, subFieldMetaKey, otherDataEntryID);
+							_perform(cryptoContext, indexEntry, dataEntryID);
+						}
+						else {
+							IndexEntry indexEntry = getIndexEntry(indexEntryFactoryKey, pmIndex, subFieldMetaKey, me.getKey());
+							_perform(cryptoContext, indexEntry, dataEntryID);
+						}
 
-					if (valueIsPersistent) {
-						Long otherDataEntryID = ObjectContainerHelper.referenceToDataEntryID(ec, pmData, me.getValue());
-						IndexEntry indexEntry = getIndexEntryForObjectRelation(pmIndex, subFieldMetaValue, otherDataEntryID);
-						_perform(cryptoContext, indexEntry, dataEntryID);
-					}
-					else {
-						IndexEntry indexEntry = getIndexEntry(indexEntryFactoryValue, pmIndex, subFieldMetaValue, me.getValue());
-						_perform(cryptoContext, indexEntry, dataEntryID);
+						if (valueIsPersistent) {
+							Long otherDataEntryID = ObjectContainerHelper.referenceToDataEntryID(ec, pmData, me.getValue());
+							IndexEntry indexEntry = getIndexEntryForObjectRelation(pmIndex, subFieldMetaValue, otherDataEntryID);
+							_perform(cryptoContext, indexEntry, dataEntryID);
+						}
+						else {
+							IndexEntry indexEntry = getIndexEntry(indexEntryFactoryValue, pmIndex, subFieldMetaValue, me.getValue());
+							_perform(cryptoContext, indexEntry, dataEntryID);
+						}
 					}
 				}
 
@@ -185,10 +191,12 @@ abstract class IndexEntryAction
 
 				FieldMeta subFieldMeta = fieldMeta.getSubFieldMeta(role);
 				Object[] fieldValueArray = (Object[]) fieldValue;
-				for (Object element : fieldValueArray) {
-					Long otherDataEntryID = ObjectContainerHelper.referenceToDataEntryID(ec, pmData, element);
-					IndexEntry indexEntry = getIndexEntryForObjectRelation(pmIndex, subFieldMeta, otherDataEntryID);
-					_perform(cryptoContext, indexEntry, dataEntryID);
+				if (fieldValueArray != null) {
+					for (Object element : fieldValueArray) {
+						Long otherDataEntryID = ObjectContainerHelper.referenceToDataEntryID(ec, pmData, element);
+						IndexEntry indexEntry = getIndexEntryForObjectRelation(pmIndex, subFieldMeta, otherDataEntryID);
+						_perform(cryptoContext, indexEntry, dataEntryID);
+					}
 				}
 
 				// Add entry for the collection/array size
