@@ -30,6 +30,12 @@ import javax.jdo.PersistenceManager;
 import org.polepos.framework.Car;
 import org.polepos.framework.DriverBase;
 import org.polepos.framework.Team;
+import org.polepos.teams.jdo.data.ComplexHolder0;
+import org.polepos.teams.jdo.data.ComplexHolder1;
+import org.polepos.teams.jdo.data.ComplexHolder2;
+import org.polepos.teams.jdo.data.ComplexHolder3;
+import org.polepos.teams.jdo.data.ComplexHolder4;
+import org.polepos.teams.jdo.data.ComplexRoot;
 import org.polepos.teams.jdo.data.InheritanceHierarchy0;
 import org.polepos.teams.jdo.data.InheritanceHierarchy1;
 import org.polepos.teams.jdo.data.InheritanceHierarchy2;
@@ -105,11 +111,11 @@ public class JdoTeam extends Team{
 
     @Override
     public DriverBase[] drivers() {
-        return new DriverBase[]{
+        return new DriverBase[] {
         	new FlatObjectJdo(),
         	new NestedListsJdo(),
         	new InheritanceHierarchyJdo(),
-//        	new ComplexJdo(),
+        	new ComplexJdo()
 //            new MelbourneJdo(),
 //            new SepangJdo(),
 //            new BahrainJdo(),
@@ -136,12 +142,12 @@ public class JdoTeam extends Team{
 
 		    deleteAll(pm, JdoIndexedObject.class);
 		    deleteAll(pm, ListHolder.class);
-//		    deleteAll(pm, ComplexRoot.class);
-//		    deleteAll(pm, ComplexHolder4.class);
-//		    deleteAll(pm, ComplexHolder3.class);
-//		    deleteAll(pm, ComplexHolder2.class);
-//		    deleteAll(pm, ComplexHolder1.class);
-//		    deleteAll(pm, ComplexHolder0.class);
+		    deleteAll(pm, ComplexRoot.class);
+		    deleteAll(pm, ComplexHolder4.class);
+		    deleteAll(pm, ComplexHolder3.class);
+		    deleteAll(pm, ComplexHolder2.class);
+		    deleteAll(pm, ComplexHolder1.class);
+		    deleteAll(pm, ComplexHolder0.class);
 
 		    deleteAll(pm, InheritanceHierarchy4.class);
 		    deleteAll(pm, InheritanceHierarchy3.class);

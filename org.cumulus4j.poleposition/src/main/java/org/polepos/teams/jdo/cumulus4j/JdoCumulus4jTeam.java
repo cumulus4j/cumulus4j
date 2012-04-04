@@ -10,15 +10,25 @@ import javax.jdo.PersistenceManager;
 import org.polepos.framework.Car;
 import org.polepos.framework.DriverBase;
 import org.polepos.framework.Team;
-import org.polepos.teams.jdo.cumulus4j.data.Cumulus4jIndexedObject;
-import org.polepos.teams.jdo.cumulus4j.data.Cumulus4jInheritanceHierarchy0;
-import org.polepos.teams.jdo.cumulus4j.data.Cumulus4jInheritanceHierarchy1;
-import org.polepos.teams.jdo.cumulus4j.data.Cumulus4jInheritanceHierarchy2;
-import org.polepos.teams.jdo.cumulus4j.data.Cumulus4jInheritanceHierarchy3;
-import org.polepos.teams.jdo.cumulus4j.data.Cumulus4jInheritanceHierarchy4;
-import org.polepos.teams.jdo.cumulus4j.data.Cumulus4jListHolder;
+import org.polepos.teams.jdo.ComplexJdo;
+import org.polepos.teams.jdo.FlatObjectJdo;
+import org.polepos.teams.jdo.InheritanceHierarchyJdo;
+import org.polepos.teams.jdo.NestedListsJdo;
+import org.polepos.teams.jdo.data.ComplexHolder0;
+import org.polepos.teams.jdo.data.ComplexHolder1;
+import org.polepos.teams.jdo.data.ComplexHolder2;
+import org.polepos.teams.jdo.data.ComplexHolder3;
+import org.polepos.teams.jdo.data.ComplexHolder4;
+import org.polepos.teams.jdo.data.ComplexRoot;
+import org.polepos.teams.jdo.data.InheritanceHierarchy0;
+import org.polepos.teams.jdo.data.InheritanceHierarchy1;
+import org.polepos.teams.jdo.data.InheritanceHierarchy2;
+import org.polepos.teams.jdo.data.InheritanceHierarchy3;
+import org.polepos.teams.jdo.data.InheritanceHierarchy4;
+import org.polepos.teams.jdo.data.JdoIndexedObject;
+import org.polepos.teams.jdo.data.ListHolder;
 
-public class JdoCumulus4jTeam extends Team{
+public class JdoCumulus4jTeam extends Team {
 
 	private final Car[] mCars;
 
@@ -88,11 +98,11 @@ public class JdoCumulus4jTeam extends Team{
 
     @Override
     public DriverBase[] drivers() {
-        return new DriverBase[]{
-        	new FlatObjectJdoCumulus4j(),
-        	new NestedListsJdoCumulus4j(),
-//        	new ComplexJdoCumulus4j(),
-        	new InheritanceHierarchyJdoCumulus4j(),
+        return new DriverBase[] {
+        	new FlatObjectJdo(),
+        	new NestedListsJdo(),
+        	new InheritanceHierarchyJdo(),
+        	new ComplexJdo()
         };
     }
 
@@ -109,22 +119,22 @@ public class JdoCumulus4jTeam extends Team{
 		    JdoCumulus4jCar jdoCumulus4jCar = (JdoCumulus4jCar)mCars[i];
 			PersistenceManager pm = jdoCumulus4jCar.getPersistenceManager();
 
-		    deleteAll(pm, Cumulus4jIndexedObject.class);
+		    deleteAll(pm, JdoIndexedObject.class);
 
-		    deleteAll(pm, Cumulus4jListHolder.class);
+		    deleteAll(pm, ListHolder.class);
 
-//		    deleteAll(pm, Cumulus4jComplexRoot.class);
-//		    deleteAll(pm, Cumulus4jComplexHolder4.class);
-//		    deleteAll(pm, Cumulus4jComplexHolder3.class);
-//		    deleteAll(pm, Cumulus4jComplexHolder2.class);
-//		    deleteAll(pm, Cumulus4jComplexHolder1.class);
-//		    deleteAll(pm, Cumulus4jComplexHolder0.class);
+		    deleteAll(pm, ComplexRoot.class);
+		    deleteAll(pm, ComplexHolder4.class);
+		    deleteAll(pm, ComplexHolder3.class);
+		    deleteAll(pm, ComplexHolder2.class);
+		    deleteAll(pm, ComplexHolder1.class);
+		    deleteAll(pm, ComplexHolder0.class);
 
-		    deleteAll(pm, Cumulus4jInheritanceHierarchy4.class);
-		    deleteAll(pm, Cumulus4jInheritanceHierarchy3.class);
-		    deleteAll(pm, Cumulus4jInheritanceHierarchy2.class);
-		    deleteAll(pm, Cumulus4jInheritanceHierarchy1.class);
-		    deleteAll(pm, Cumulus4jInheritanceHierarchy0.class);
+		    deleteAll(pm, InheritanceHierarchy4.class);
+		    deleteAll(pm, InheritanceHierarchy3.class);
+		    deleteAll(pm, InheritanceHierarchy2.class);
+		    deleteAll(pm, InheritanceHierarchy1.class);
+		    deleteAll(pm, InheritanceHierarchy0.class);
 
 		    pm.close();
 		}
