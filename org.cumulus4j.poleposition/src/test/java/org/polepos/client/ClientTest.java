@@ -28,7 +28,7 @@ public class ClientTest {
 
 	private static Logger logger = LoggerFactory.getLogger(ClientTest.class);
 
-	private static final String URL_APP_SERVER = "http://localhost:8585";
+	private static final String URL_APP_SERVER = "http://localhost:8787";
 //	private static final String URL_APP_SERVER = "http://localhost:8080";
 	private static final String URL_INTEGRATIONTEST_CONTEXT = URL_APP_SERVER + "/org.cumulus4j.poleposition";
 	private static final String URL_KEY_MANAGER_BACK_WEBAPP = URL_INTEGRATIONTEST_CONTEXT + "/org.cumulus4j.keymanager.back.webapp";

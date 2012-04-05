@@ -352,7 +352,7 @@
 						<configuration>
 							<!-- <scanIntervalSeconds>10</scanIntervalSeconds> -->
 							<stopKey>stop.${project.artifactId}</stopKey>
-							<stopPort>9995</stopPort>
+							<stopPort>9997</stopPort>
 							<webAppConfig>
 								<contextPath>/${project.artifactId}</contextPath>
 								<!--
@@ -372,7 +372,7 @@
 							</webAppConfig>
 							<connectors>
 								<connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-									<port>8585</port>
+									<port>8787</port>
 									<maxIdleTime>60000</maxIdleTime>
 								</connector>
 							</connectors>
