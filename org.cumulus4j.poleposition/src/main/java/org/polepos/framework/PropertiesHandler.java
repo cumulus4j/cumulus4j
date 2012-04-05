@@ -31,7 +31,7 @@ import org.polepos.Settings;
 
 public class PropertiesHandler
 {
-	private final static	String		DBPROPSDIR = ".bdbench";
+	private final static	String		DBPROPSDIR = ".dbbench";
 	private final			String		_fileName;
 	private					Properties	_properties;
 
