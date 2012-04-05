@@ -86,13 +86,16 @@ public class CleanupUtil
 
 	public static void dropAllTables() throws Exception {
 		Properties properties = TestUtil.loadProperties("cumulus4j-test-datanucleus.properties");
+	}
 
+	public static void dropAllTables(Map<?, ?> properties) throws Exception
+	{
 		// Extract properties for the two possible datastores
 		Properties dataPmfProps = new Properties();
 		Properties indexPmfProps = new Properties();
-		Iterator<Map.Entry<Object, Object>> iter = properties.entrySet().iterator();
+		Iterator<?> iter = properties.entrySet().iterator();
 		while (iter.hasNext()) {
-			Map.Entry entry = iter.next();
+			Map.Entry<?, ?> entry = (Map.Entry<?, ?>) iter.next();
 			String key = (String) entry.getKey();
 			if (key.startsWith("cumulus4j.index.")) {
 				indexPmfProps.put(key.substring(16), entry.getValue());
