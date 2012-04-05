@@ -11,6 +11,7 @@ import org.cumulus4j.store.crypto.CryptoSession;
 import org.polepos.framework.CarMotorFailureException;
 import org.polepos.framework.Team;
 import org.polepos.teams.jdbc.Jdbc;
+import org.polepos.teams.jdo.Jdo;
 import org.polepos.teams.jdo.JdoCar;
 
 public class JdoCumulus4jCar extends JdoCar {
@@ -20,6 +21,8 @@ public class JdoCumulus4jCar extends JdoCar {
 //    private final String              mDbName;
 //    private final String              mName;
 
+	private JdoCumulus4jSettings cumulus4jSettings;
+
     protected JdoCumulus4jCar(Team team, String name, String dbName, String color) throws CarMotorFailureException {
     	super(team, name, dbName, color, false);
 
@@ -28,7 +31,9 @@ public class JdoCumulus4jCar extends JdoCar {
 //
 //        _website = JdoCumulus4j.settings().getWebsite(name);
 //        _description = JdoCumulus4j.settings().getDescription(name);
-//
+
+    	cumulus4jSettings = new JdoCumulus4jSettings("cumulus4j.properties");
+
         initialize();
     }
 
@@ -39,6 +44,7 @@ public class JdoCumulus4jCar extends JdoCar {
     @Override
     protected PersistenceManagerFactory createPersistenceManagerFactory() {
     	Map<String, String> properties = new HashMap<String, String>(jdoImplSettings.getFilteredProperties(mDbName));
+//    	properties.putAll(cumulus4jSettings.getProperties(mDbName));
     	properties.put("datanucleus.storeManagerType", "cumulus4j");
     	properties.put(CryptoManager.PROPERTY_CRYPTO_MANAGER_ID, "dummy");
     	properties.put(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, "dummy");
@@ -211,9 +217,9 @@ public class JdoCumulus4jCar extends JdoCar {
     public String name() {
 
         if(isSQL()){
-            return JdoCumulus4j.settings().getName(mName) + "/" +Jdbc.settings().getName(mDbName)+"-"+Jdbc.settings().getVersion(mDbName);
+            return Jdo.settings().getName(mName) + "/" +Jdbc.settings().getName(mDbName)+"-"+Jdbc.settings().getVersion(mDbName);
         }
-        return JdoCumulus4j.settings().getVendor(mName) + "/" + JdoCumulus4j.settings().getName(mName)+"-" + JdoCumulus4j.settings().getVersion(mName);
+        return Jdo.settings().getVendor(mName) + "/" + Jdo.settings().getName(mName)+"-" + Jdo.settings().getVersion(mName);
 
     }
 

@@ -1,33 +1,50 @@
 package org.polepos.teams.jdo.cumulus4j;
 
-import org.polepos.Settings;
-import org.polepos.framework.RdbmsSettings;
+import java.util.HashMap;
+import java.util.Map;
 
-public class JdoCumulus4jSettings extends RdbmsSettings{
-	private final static String KEY_JDO = "jdo";
-    private final static String KEY_ENHANCE = "enhance";
-    private final static String KEY_ENHANCER = "enhancer";
-    private final static String KEY_CONNECTURL = "javax.jdo.option.ConnectionURL";
+import org.polepos.framework.PropertiesHandler;
 
-	public JdoCumulus4jSettings(){
-        super(Settings.JDO);
+public class JdoCumulus4jSettings extends PropertiesHandler
+{
+
+	public JdoCumulus4jSettings(String propertiesname) {
+		super(propertiesname);
 	}
 
-    public String[] getJdoImplementations(){
-        return getArray( KEY_JDO );
-    }
+	private static final String[] variableNames = {
+		"cumulus4j.cryptoSessionExpiryAge",
+		"cumulus4j.cryptoSessionExpiryTimer.enabled",
+		"cumulus4j.cryptoSessionExpiryTimer.period",
+		"cumulus4j.CryptoCache.cleanupTimer.enabled",
+		"cumulus4j.CryptoCache.cleanupTimer.period",
+		"cumulus4j.CryptoCache.entryExpiryAge"
+	};
 
-	public String getConnectUrl(){
-		return get( KEY_CONNECTURL );
+	public Map<String, String> getProperties(String dbName)
+	{
+		Map<String, String> props = new HashMap<String, String>();
+		for (String variableName : variableNames)
+			props.put(variableName, nullToEmptyString(get(variableName)));
+
+
+		System.out.println("######################################");
+		System.out.println("######################################");
+		System.out.println("######################################");
+		System.out.println("######################################");
+		System.out.println("######################################");
+		System.out.println("Props: " + props);
+		System.out.println("######################################");
+		System.out.println("######################################");
+		System.out.println("######################################");
+		System.out.println("######################################");
+		System.out.println("######################################");
+
+		return props;
 	}
 
-    public boolean enhance(){
-        return getBoolean(KEY_ENHANCE);
-    }
-
-    public String enhancer(){
-        return get(KEY_ENHANCER);
-    }
-
+	private String nullToEmptyString(String s) {
+		return s == null ? "" : s;
+	}
 
 }

@@ -13,6 +13,7 @@ import org.polepos.framework.Team;
 import org.polepos.teams.jdo.ComplexJdo;
 import org.polepos.teams.jdo.FlatObjectJdo;
 import org.polepos.teams.jdo.InheritanceHierarchyJdo;
+import org.polepos.teams.jdo.Jdo;
 import org.polepos.teams.jdo.NestedListsJdo;
 import org.polepos.teams.jdo.data.ComplexHolder0;
 import org.polepos.teams.jdo.data.ComplexHolder1;
@@ -34,7 +35,7 @@ public class JdoCumulus4jTeam extends Team {
 
     public JdoCumulus4jTeam() {
 
-        String[] impls = JdoCumulus4j.settings().getJdoImplementations();
+        String[] impls = Jdo.settings().getJdoImplementations();
 
         if(impls == null){
             System.out.println("No JDO (with JdoCumulus4j) engine configured.");
@@ -45,23 +46,24 @@ public class JdoCumulus4jTeam extends Team {
 
             for (String impl : impls) {
 
-                String[] jdosqldbs = JdoCumulus4j.settings().getJdbc(impl);
+                String[] jdosqldbs = Jdo.settings().getJdbc(impl);
 
                 if(jdosqldbs != null && jdosqldbs.length > 0){
                     for(String sqldb : jdosqldbs){
                         try {
-                            cars.add(new JdoCumulus4jCar(this, impl, sqldb, JdoCumulus4j.settings().color(impl)));
+                            cars.add(new JdoCumulus4jCar(this, impl, sqldb, Jdo.settings().color(impl)));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
                 }else{
                     try {
-                        cars.add(new JdoCumulus4jCar(this, impl, null, JdoCumulus4j.settings().color(impl)));
+                        cars.add(new JdoCumulus4jCar(this, impl, null, Jdo.settings().color(impl)));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                }//				logger.debug("child: " + child);
+                }
+//				logger.debug("child: " + child);
 //				logger.debug("deletedCount: " + deletedCount);
 //				logger.debug("visited: " + visited);
 //				logger.debug("maxDepth: " + maxDepth);

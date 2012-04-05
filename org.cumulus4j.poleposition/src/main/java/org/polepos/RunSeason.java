@@ -29,7 +29,6 @@ import org.polepos.framework.Team;
 import org.polepos.reporters.DefaultReporterFactory;
 import org.polepos.reporters.Reporter;
 import org.polepos.runner.AbstractRunner;
-import org.polepos.teams.jdo.JdoTeam;
 import org.polepos.teams.jdo.cumulus4j.JdoCumulus4jTeam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,7 +99,7 @@ public class RunSeason extends AbstractRunner {
 		return new Team[] {
 
 				new JdoCumulus4jTeam(),
-				new JdoTeam(),
+//				new JdoTeam(),
 //				new Db4oTeam(),
 
 //				new Db4oClientServerTeam(),
@@ -116,6 +115,8 @@ public class RunSeason extends AbstractRunner {
 
 	@Override
 	protected Reporter[] reporters() {
+
+//		return Cumulus4jReporterFactory.getCumulus4jReporters();
 		return DefaultReporterFactory.defaultReporters();
 	}
 
