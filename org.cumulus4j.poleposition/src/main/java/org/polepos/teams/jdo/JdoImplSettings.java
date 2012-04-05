@@ -32,7 +32,10 @@ public class JdoImplSettings extends PropertiesHandler
 			for (String variableName : variableNames)
 				variables.put(variableName, nullToEmptyString(Jdbc.settings().get(dbName + "." + variableName)));
 
-			filteredProperties = Collections.unmodifiableMap(PropertiesUtil.filterProperties(getProperties(), variables));
+//			filteredProperties = Collections.unmodifiableMap(PropertiesUtil.filterProperties(getProperties(), variables));
+			// This instance of JdoImplSettings is persisted for report generation in db4o and db4o has a problem with the
+			// unmodifiable Map => don't use it! Marco :-)
+			filteredProperties = PropertiesUtil.filterProperties(getProperties(), variables);
 			dbName2filteredProperties.put(dbName, filteredProperties);
 		}
 
