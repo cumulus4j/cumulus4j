@@ -199,9 +199,11 @@ public class FetchFieldManager extends AbstractFieldManager
 				}
 
 				Object array = objectContainer.getValue(fieldMeta.getFieldID());
-				for (int idx = 0; idx < Array.getLength(array); ++idx) {
-					Object element = Array.get(array, idx);
-					collection.add(element);
+				if (array != null) {
+					for (int idx = 0; idx < Array.getLength(array); ++idx) {
+						Object element = Array.get(array, idx);
+						collection.add(element);
+					}
 				}
 				return op.wrapSCOField(fieldNumber, collection, false, false, true);
 			}
@@ -255,10 +257,12 @@ public class FetchFieldManager extends AbstractFieldManager
 				}
 				else {
 					Object ids = objectContainer.getValue(fieldMeta.getFieldID());
-					for (int idx = 0; idx < Array.getLength(ids); ++idx) {
-						Object id = Array.get(ids, idx);
-						Object element = ObjectContainerHelper.referenceToEntity(ec, pmData, id);
-						collection.add(element);
+					if (ids != null) {
+						for (int idx = 0; idx < Array.getLength(ids); ++idx) {
+							Object id = Array.get(ids, idx);
+							Object element = ObjectContainerHelper.referenceToEntity(ec, pmData, id);
+							collection.add(element);
+						}
 					}
 				}
 				return op.wrapSCOField(fieldNumber, collection, false, false, true);
@@ -306,17 +310,19 @@ public class FetchFieldManager extends AbstractFieldManager
 				}
 				else {
 					Map<?,?> idMap = (Map<?,?>) objectContainer.getValue(fieldMeta.getFieldID());
-					for (Map.Entry<?, ?> me : idMap.entrySet()) {
-						Object k = me.getKey();
-						Object v = me.getValue();
+					if (idMap != null) {
+						for (Map.Entry<?, ?> me : idMap.entrySet()) {
+							Object k = me.getKey();
+							Object v = me.getValue();
 
-						if (keyIsPersistent)
-							k = ObjectContainerHelper.referenceToEntity(ec, pmData, k);
+							if (keyIsPersistent)
+								k = ObjectContainerHelper.referenceToEntity(ec, pmData, k);
 
-						if (valueIsPersistent)
-							v = ObjectContainerHelper.referenceToEntity(ec, pmData, v);
+							if (valueIsPersistent)
+								v = ObjectContainerHelper.referenceToEntity(ec, pmData, v);
 
-						map.put(k, v);
+							map.put(k, v);
+						}
 					}
 				}
 
@@ -339,12 +345,16 @@ public class FetchFieldManager extends AbstractFieldManager
 				}
 				else {
 					Object ids = objectContainer.getValue(fieldMeta.getFieldID());
-					int arrayLength = Array.getLength(ids);
-					array = Array.newInstance(elementType, arrayLength);
-					for (int i = 0; i < arrayLength; ++i) {
-						Object id = Array.get(ids, i);
-						Object element = ObjectContainerHelper.referenceToEntity(ec, pmData, id);
-						Array.set(array, i, element);
+					if (ids == null)
+						array = null;
+					else {
+						int arrayLength = Array.getLength(ids);
+						array = Array.newInstance(elementType, arrayLength);
+						for (int i = 0; i < arrayLength; ++i) {
+							Object id = Array.get(ids, i);
+							Object element = ObjectContainerHelper.referenceToEntity(ec, pmData, id);
+							Array.set(array, i, element);
+						}
 					}
 				}
 				return array;
