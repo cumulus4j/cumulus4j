@@ -3,11 +3,6 @@ package org.polepos.teams.jdo.cumulus4j;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.jdo.JDOHelper;
-import javax.jdo.PersistenceManagerFactory;
-
-import org.cumulus4j.store.crypto.CryptoManager;
-import org.cumulus4j.store.crypto.CryptoSession;
 import org.polepos.framework.CarMotorFailureException;
 import org.polepos.framework.Team;
 import org.polepos.teams.jdbc.Jdbc;
@@ -34,7 +29,7 @@ public class JdoCumulus4jCar extends JdoCar {
 
     	cumulus4jSettings = new JdoCumulus4jSettings("cumulus4j.properties");
 
-        initialize();
+//        initialize();
     }
 
     private boolean isSQL() {
@@ -42,14 +37,21 @@ public class JdoCumulus4jCar extends JdoCar {
     }
 
     @Override
-    protected PersistenceManagerFactory createPersistenceManagerFactory() {
+    public Map<String, String> getPersistenceEngineProperties() {
     	Map<String, String> properties = new HashMap<String, String>(jdoImplSettings.getFilteredProperties(mDbName));
-//    	properties.putAll(cumulus4jSettings.getProperties(mDbName));
     	properties.put("datanucleus.storeManagerType", "cumulus4j");
-    	properties.put(CryptoManager.PROPERTY_CRYPTO_MANAGER_ID, "dummy");
-    	properties.put(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, "dummy");
-		return JDOHelper.getPersistenceManagerFactory(properties, JDOHelper.class.getClassLoader());
+    	properties.putAll((Map) ((JdoCumulus4jTeam)team()).getRuntimeProperties());
+    	return properties;
     }
+
+//    @Override
+//    protected PersistenceManagerFactory createPersistenceManagerFactory() {
+//    	Map<String, String> properties = new HashMap<String, String>(jdoImplSettings.getFilteredProperties(mDbName));
+////    	properties.putAll(cumulus4jSettings.getProperties(mDbName));
+//    	properties.put("datanucleus.storeManagerType", "cumulus4j");
+//    	properties.putAll((Map) ((JdoCumulus4jTeam)team()).getRuntimeProperties());
+//		return JDOHelper.getPersistenceManagerFactory(properties, JDOHelper.class.getClassLoader());
+//    }
 
 //    private void initialize() {
 //

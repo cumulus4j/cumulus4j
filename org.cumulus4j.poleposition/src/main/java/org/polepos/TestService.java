@@ -24,6 +24,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.cumulus4j.store.crypto.CryptoManager;
+import org.cumulus4j.store.crypto.CryptoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +48,11 @@ public class TestService {
 		if (cryptoManagerID == null || cryptoManagerID.isEmpty())
 			cryptoManagerID = "keyManager";
 
-		RunSeason.main(new String[]{cryptoManagerID, cryptoSessionID});
+//		RunSeason.main(new String[]{cryptoManagerID, cryptoSessionID});
+		RunSeason runSeason = new RunSeason();
+		runSeason.getRuntimeProperties().setProperty(CryptoManager.PROPERTY_CRYPTO_MANAGER_ID, cryptoManagerID);
+		runSeason.getRuntimeProperties().setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, cryptoSessionID);
+		runSeason.run();
 
 		return "OK:";
 	}

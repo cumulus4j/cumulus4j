@@ -20,13 +20,13 @@ MA  02111-1307, USA. */
 package org.polepos.teams.jdo;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.jdo.Extent;
 import javax.jdo.PersistenceManager;
 
+import org.cumulus4j.store.test.framework.CleanupUtil;
 import org.polepos.framework.Car;
 import org.polepos.framework.DriverBase;
 import org.polepos.framework.Team;
@@ -43,11 +43,15 @@ import org.polepos.teams.jdo.data.InheritanceHierarchy3;
 import org.polepos.teams.jdo.data.InheritanceHierarchy4;
 import org.polepos.teams.jdo.data.JdoIndexedObject;
 import org.polepos.teams.jdo.data.ListHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
-public class JdoTeam extends Team{
+public class JdoTeam extends Team
+{
+	private static final Logger logger = LoggerFactory.getLogger(JdoTeam.class);
 
-	private final Car[] mCars;
+	protected Car[] mCars;
 
     public JdoTeam() {
 
@@ -132,49 +136,64 @@ public class JdoTeam extends Team{
         return null;
     }
 
+    private boolean firstSetUp = true;
 
 	@Override
     public void setUp() {
-		for(int i = 0; i < mCars.length;i++){
+		logger.info("setUp: Entered.");
 
-		    JdoCar jdoCar = (JdoCar)mCars[i];
-			PersistenceManager pm = jdoCar.getPersistenceManager();
+		if (firstSetUp) {
+			firstSetUp = false;
 
-		    deleteAll(pm, JdoIndexedObject.class);
-		    deleteAll(pm, ListHolder.class);
-		    deleteAll(pm, ComplexRoot.class);
-		    deleteAll(pm, ComplexHolder4.class);
-		    deleteAll(pm, ComplexHolder3.class);
-		    deleteAll(pm, ComplexHolder2.class);
-		    deleteAll(pm, ComplexHolder1.class);
-		    deleteAll(pm, ComplexHolder0.class);
+			for(int i = 0; i < mCars.length;i++) {
+				JdoCar jdoCar = (JdoCar)mCars[i];
+				try {
+					CleanupUtil.dropAllTables(jdoCar.getPersistenceEngineProperties());
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+		else {
+			for(int i = 0; i < mCars.length;i++) {
+				JdoCar jdoCar = (JdoCar)mCars[i];
+				PersistenceManager pm = jdoCar.getPersistenceManager();
 
-		    deleteAll(pm, InheritanceHierarchy4.class);
-		    deleteAll(pm, InheritanceHierarchy3.class);
-		    deleteAll(pm, InheritanceHierarchy2.class);
-		    deleteAll(pm, InheritanceHierarchy1.class);
-		    deleteAll(pm, InheritanceHierarchy0.class);
+				deleteAll(pm, JdoIndexedObject.class);
+				deleteAll(pm, ListHolder.class);
+				deleteAll(pm, ComplexRoot.class);
+				deleteAll(pm, ComplexHolder4.class);
+				deleteAll(pm, ComplexHolder3.class);
+				deleteAll(pm, ComplexHolder2.class);
+				deleteAll(pm, ComplexHolder1.class);
+				deleteAll(pm, ComplexHolder0.class);
 
-//		    deleteAll(pm, JB0.class);
-//		    deleteAll(pm, JB1.class);
-//		    deleteAll(pm, JB2.class);
-//		    deleteAll(pm, JB3.class);
-//		    deleteAll(pm, JB4.class);
+				deleteAll(pm, InheritanceHierarchy4.class);
+				deleteAll(pm, InheritanceHierarchy3.class);
+				deleteAll(pm, InheritanceHierarchy2.class);
+				deleteAll(pm, InheritanceHierarchy1.class);
+				deleteAll(pm, InheritanceHierarchy0.class);
+
+//				deleteAll(pm, JB0.class);
+//				deleteAll(pm, JB1.class);
+//				deleteAll(pm, JB2.class);
+//				deleteAll(pm, JB3.class);
+//				deleteAll(pm, JB4.class);
 //
-//		    deleteAll(pm, JdoIndexedPilot.class);
-//		    deleteAll(pm, JdoPilot.class);
-//		    deleteAll(pm, JdoTree.class);
-//		    deleteAll(pm, JdoLightObject.class);
-//		    deleteAll(pm, JdoListHolder.class);
-//		    deleteAll(pm, JN1.class);
+//				deleteAll(pm, JdoIndexedPilot.class);
+//				deleteAll(pm, JdoPilot.class);
+//				deleteAll(pm, JdoTree.class);
+//				deleteAll(pm, JdoLightObject.class);
+//				deleteAll(pm, JdoListHolder.class);
+//				deleteAll(pm, JN1.class);
 
-
-		    pm.close();
+				pm.close();
+			}
 		}
 	}
 
 
-	private void deleteAll(PersistenceManager pm, Class clazz) {
+	private void deleteAll(PersistenceManager pm, Class<?> clazz) {
 
 		// Added after getting OutOfMemory issues with
 		// 3 million objects per extent.
@@ -184,39 +203,36 @@ public class JdoTeam extends Team{
 		}
 
 
-		// This didn't work in Datanucleus ....
-
-		pm.currentTransaction().begin();
-		pm.newQuery(clazz).deletePersistentAll();
-		pm.currentTransaction().commit();
-
-		// ...so delete all again like this...
-
-		pm.currentTransaction().begin();
-		pm.deletePersistentAll((Collection) pm.newQuery(clazz).execute());
-		pm.currentTransaction().commit();
+//		// This didn't work in Datanucleus ....
+//
+//		pm.currentTransaction().begin();
+//		pm.newQuery(clazz).deletePersistentAll();
+//		pm.currentTransaction().commit();
+//
+//		// ...so delete all again like this...
+//
+//		pm.currentTransaction().begin();
+//		pm.deletePersistentAll((Collection<?>) pm.newQuery(clazz).execute());
+//		pm.currentTransaction().commit();
 	}
 
 
-	private void deleteAllBatched(PersistenceManager pm, Class clazz) {
-
+	private void deleteAllBatched(PersistenceManager pm, Class<?> clazz)
+	{
 		pm.currentTransaction().begin();
 		int batchSize = 10000;
-        int commitctr = 0;
-        Extent extent = pm.getExtent(clazz, false);
-        Iterator it = extent.iterator();
+        int deletedNonCommittedCounter = 0;
+        Extent<?> extent = pm.getExtent(clazz, false);
+        Iterator<?> it = extent.iterator();
         while(it.hasNext()){
             pm.deletePersistent(it.next());
-            if ( batchSize > 0  &&  ++commitctr >= batchSize){
-                commitctr = 0;
+            if ( batchSize > 0  &&  ++deletedNonCommittedCounter >= batchSize){
+                deletedNonCommittedCounter = 0;
                 pm.currentTransaction().commit();
                 pm.currentTransaction().begin();
             }
         }
         extent.closeAll();
         pm.currentTransaction().commit();
-
 	}
-
-
 }

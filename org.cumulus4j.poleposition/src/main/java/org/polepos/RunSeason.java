@@ -19,6 +19,8 @@
 
 package org.polepos;
 
+import java.util.Properties;
+
 import org.polepos.circuits.complex.Complex;
 import org.polepos.circuits.flatobject.FlatObject;
 import org.polepos.circuits.inheritancehierarchy.InheritanceHierarchy;
@@ -70,6 +72,12 @@ public class RunSeason extends AbstractRunner {
 		new RunSeason().run();
 	}
 
+	private Properties runtimeProperties = new Properties();
+
+	public Properties getRuntimeProperties() {
+		return runtimeProperties;
+	}
+
 	@Override
 	public CircuitBase[] circuits() {
 		return new CircuitBase[] {
@@ -98,7 +106,7 @@ public class RunSeason extends AbstractRunner {
 	public Team[] teams() {
 		return new Team[] {
 
-				new JdoCumulus4jTeam(),
+				new JdoCumulus4jTeam(runtimeProperties),
 //				new JdoTeam(),
 //				new Db4oTeam(),
 
