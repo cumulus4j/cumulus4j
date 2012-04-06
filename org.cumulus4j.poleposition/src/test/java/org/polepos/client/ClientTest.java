@@ -101,7 +101,11 @@ public class ClientTest {
 				while (!isInterrupted()) {
 					cryptoSession.acquire(); // does re-acquire, if already acquired - which is always the case in our scenario (except for the start when this thread runs in parallel and thus this might be the very first call to acquire())
 					cryptoSession.release(); // is essentially necessary to keep counters correct (every acquire() must be followed by a release()!!!)
-					Thread.sleep(10000);
+					try {
+						Thread.sleep(10000);
+					} catch (InterruptedException x) {
+						// ignore
+					}
 				}
 			} catch (Throwable e) {
 				logger.error("RefreshCryptoSessionThread.run:" + e, e);
