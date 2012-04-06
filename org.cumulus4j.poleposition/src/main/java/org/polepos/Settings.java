@@ -24,7 +24,7 @@ import java.io.File;
 
 public class Settings {
 
-    public static boolean DEBUG = true;
+    public static boolean DEBUG = false;
 
 //    public static String CRYPTO_MANAGER_ID;
 //
