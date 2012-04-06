@@ -236,4 +236,11 @@ public class JdoCar extends Car
 
     }
 
+	public void closePersistenceManagerFactory() {
+		PersistenceManagerFactory pmf = _persistenceManagerFactory;
+		_persistenceManagerFactory = null;
+		if (pmf != null)
+			pmf.close();
+	}
+
 }

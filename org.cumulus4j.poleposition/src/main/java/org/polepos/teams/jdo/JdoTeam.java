@@ -30,19 +30,6 @@ import org.cumulus4j.store.test.framework.CleanupUtil;
 import org.polepos.framework.Car;
 import org.polepos.framework.DriverBase;
 import org.polepos.framework.Team;
-import org.polepos.teams.jdo.data.ComplexHolder0;
-import org.polepos.teams.jdo.data.ComplexHolder1;
-import org.polepos.teams.jdo.data.ComplexHolder2;
-import org.polepos.teams.jdo.data.ComplexHolder3;
-import org.polepos.teams.jdo.data.ComplexHolder4;
-import org.polepos.teams.jdo.data.ComplexRoot;
-import org.polepos.teams.jdo.data.InheritanceHierarchy0;
-import org.polepos.teams.jdo.data.InheritanceHierarchy1;
-import org.polepos.teams.jdo.data.InheritanceHierarchy2;
-import org.polepos.teams.jdo.data.InheritanceHierarchy3;
-import org.polepos.teams.jdo.data.InheritanceHierarchy4;
-import org.polepos.teams.jdo.data.JdoIndexedObject;
-import org.polepos.teams.jdo.data.ListHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,60 +123,70 @@ public class JdoTeam extends Team
         return null;
     }
 
-    private boolean firstSetUp = true;
+//    private boolean firstSetUp = true;
 
 	@Override
     public void setUp() {
 		logger.info("setUp: Entered.");
 
-		if (firstSetUp) {
-			firstSetUp = false;
-
-			for(int i = 0; i < mCars.length;i++) {
-				JdoCar jdoCar = (JdoCar)mCars[i];
-				try {
-					CleanupUtil.dropAllTables(jdoCar.getPersistenceEngineProperties());
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
+		for(int i = 0; i < mCars.length;i++) {
+			JdoCar jdoCar = (JdoCar)mCars[i];
+			jdoCar.closePersistenceManagerFactory(); // it might still be open from a previous turn.
+			try {
+				CleanupUtil.dropAllTables(jdoCar.getPersistenceEngineProperties());
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
 		}
-		else {
-			for(int i = 0; i < mCars.length;i++) {
-				JdoCar jdoCar = (JdoCar)mCars[i];
-				PersistenceManager pm = jdoCar.getPersistenceManager();
 
-				deleteAll(pm, JdoIndexedObject.class);
-				deleteAll(pm, ListHolder.class);
-				deleteAll(pm, ComplexRoot.class);
-				deleteAll(pm, ComplexHolder4.class);
-				deleteAll(pm, ComplexHolder3.class);
-				deleteAll(pm, ComplexHolder2.class);
-				deleteAll(pm, ComplexHolder1.class);
-				deleteAll(pm, ComplexHolder0.class);
-
-				deleteAll(pm, InheritanceHierarchy4.class);
-				deleteAll(pm, InheritanceHierarchy3.class);
-				deleteAll(pm, InheritanceHierarchy2.class);
-				deleteAll(pm, InheritanceHierarchy1.class);
-				deleteAll(pm, InheritanceHierarchy0.class);
-
-//				deleteAll(pm, JB0.class);
-//				deleteAll(pm, JB1.class);
-//				deleteAll(pm, JB2.class);
-//				deleteAll(pm, JB3.class);
-//				deleteAll(pm, JB4.class);
+//		if (firstSetUp) {
+//			firstSetUp = false;
 //
-//				deleteAll(pm, JdoIndexedPilot.class);
-//				deleteAll(pm, JdoPilot.class);
-//				deleteAll(pm, JdoTree.class);
-//				deleteAll(pm, JdoLightObject.class);
-//				deleteAll(pm, JdoListHolder.class);
-//				deleteAll(pm, JN1.class);
-
-				pm.close();
-			}
-		}
+//			for(int i = 0; i < mCars.length;i++) {
+//				JdoCar jdoCar = (JdoCar)mCars[i];
+//				try {
+//					CleanupUtil.dropAllTables(jdoCar.getPersistenceEngineProperties());
+//				} catch (Exception e) {
+//					throw new RuntimeException(e);
+//				}
+//			}
+//		}
+//		else {
+//			for(int i = 0; i < mCars.length;i++) {
+//				JdoCar jdoCar = (JdoCar)mCars[i];
+//				PersistenceManager pm = jdoCar.getPersistenceManager();
+//
+//				deleteAll(pm, JdoIndexedObject.class);
+//				deleteAll(pm, ListHolder.class);
+//				deleteAll(pm, ComplexRoot.class);
+//				deleteAll(pm, ComplexHolder4.class);
+//				deleteAll(pm, ComplexHolder3.class);
+//				deleteAll(pm, ComplexHolder2.class);
+//				deleteAll(pm, ComplexHolder1.class);
+//				deleteAll(pm, ComplexHolder0.class);
+//
+//				deleteAll(pm, InheritanceHierarchy4.class);
+//				deleteAll(pm, InheritanceHierarchy3.class);
+//				deleteAll(pm, InheritanceHierarchy2.class);
+//				deleteAll(pm, InheritanceHierarchy1.class);
+//				deleteAll(pm, InheritanceHierarchy0.class);
+//
+////				deleteAll(pm, JB0.class);
+////				deleteAll(pm, JB1.class);
+////				deleteAll(pm, JB2.class);
+////				deleteAll(pm, JB3.class);
+////				deleteAll(pm, JB4.class);
+////
+////				deleteAll(pm, JdoIndexedPilot.class);
+////				deleteAll(pm, JdoPilot.class);
+////				deleteAll(pm, JdoTree.class);
+////				deleteAll(pm, JdoLightObject.class);
+////				deleteAll(pm, JdoListHolder.class);
+////				deleteAll(pm, JN1.class);
+//
+//				pm.close();
+//			}
+//		}
 	}
 
 
