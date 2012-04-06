@@ -131,8 +131,16 @@ public final class ObjectContainerHelper
 
 		if (USE_DATA_ENTRY_ID) {
 			DataEntry dataEntry = DataEntry.getDataEntry(pmData, ((Long)reference).longValue());
-			if (dataEntry == null)
-				throw new IllegalStateException("DataEntry.getDataEntry(...) returned null for reference=\"" + reference + "\"!");
+			if (dataEntry == null) {
+				String message = String.format("DataEntry.getDataEntry(...) returned null for reference=\"%s\"!", reference);
+				if (ec.getNucleusContext().getStoreManager().getPersistenceHandler().useReferentialIntegrity())
+					throw new IllegalStateException(message);
+				else {
+					// https://sourceforge.net/tracker/?func=detail&aid=3515529&group_id=517465&atid=2102914
+					logger.warn("referenceToEntity: {} Returning null, because reference is orphaned.", message);
+					return null;
+				}
+			}
 
 			AbstractClassMetaData cmd = dataEntry.getClassMeta().getDataNucleusClassMetaData(ec);
 			return IdentityUtils.getObjectFromIdString(dataEntry.getObjectID(), cmd, ec, true);

@@ -91,8 +91,8 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 
 		logger.info("====================== Cumulus4j ======================");
 		String bundleName = "org.cumulus4j.store";
-    String version = nucleusContext.getPluginManager().getVersionForBundle(bundleName);
-    logger.info("Bundle: " + bundleName + " - Version: " + version);
+		String version = nucleusContext.getPluginManager().getVersionForBundle(bundleName);
+		logger.info("Bundle: " + bundleName + " - Version: " + version);
 		logger.info("=======================================================");
 
 		indexFactoryRegistry = new IndexEntryFactoryRegistry(this);

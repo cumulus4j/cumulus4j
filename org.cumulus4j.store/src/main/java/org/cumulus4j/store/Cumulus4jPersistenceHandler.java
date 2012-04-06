@@ -354,4 +354,10 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			return obj0 == obj1 || Arrays.equals((Object[])obj0, (Object[])obj1);
 		return obj0 == obj1 || (obj0 != null && obj0.equals(obj1));
 	}
+
+	@Override
+	public boolean useReferentialIntegrity() {
+		// https://sourceforge.net/tracker/?func=detail&aid=3515527&group_id=517465&atid=2102914
+		return super.useReferentialIntegrity();
+	}
 }

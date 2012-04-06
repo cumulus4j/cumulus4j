@@ -18,6 +18,7 @@
 package org.cumulus4j.store.fieldmanager;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -261,7 +262,8 @@ public class FetchFieldManager extends AbstractFieldManager
 						for (int idx = 0; idx < Array.getLength(ids); ++idx) {
 							Object id = Array.get(ids, idx);
 							Object element = ObjectContainerHelper.referenceToEntity(ec, pmData, id);
-							collection.add(element);
+							if (element != null) // orphaned reference - https://sourceforge.net/tracker/?func=detail&aid=3515529&group_id=517465&atid=2102914
+								collection.add(element);
 						}
 					}
 				}
@@ -315,11 +317,17 @@ public class FetchFieldManager extends AbstractFieldManager
 							Object k = me.getKey();
 							Object v = me.getValue();
 
-							if (keyIsPersistent)
+							if (keyIsPersistent) {
 								k = ObjectContainerHelper.referenceToEntity(ec, pmData, k);
+								if (k == null) // orphaned reference - https://sourceforge.net/tracker/?func=detail&aid=3515529&group_id=517465&atid=2102914
+									continue;
+							}
 
-							if (valueIsPersistent)
+							if (valueIsPersistent) {
 								v = ObjectContainerHelper.referenceToEntity(ec, pmData, v);
+								if (v == null) // orphaned reference - https://sourceforge.net/tracker/?func=detail&aid=3515529&group_id=517465&atid=2102914
+									continue;
+							}
 
 							map.put(k, v);
 						}
@@ -348,12 +356,30 @@ public class FetchFieldManager extends AbstractFieldManager
 					if (ids == null)
 						array = null;
 					else {
-						int arrayLength = Array.getLength(ids);
-						array = Array.newInstance(elementType, arrayLength);
-						for (int i = 0; i < arrayLength; ++i) {
-							Object id = Array.get(ids, i);
-							Object element = ObjectContainerHelper.referenceToEntity(ec, pmData, id);
-							Array.set(array, i, element);
+						if (ec.getStoreManager().getPersistenceHandler().useReferentialIntegrity()) {
+							// Directly fill the array.
+							int arrayLength = Array.getLength(ids);
+							array = Array.newInstance(elementType, arrayLength);
+							for (int i = 0; i < arrayLength; ++i) {
+								Object id = Array.get(ids, i);
+								Object element = ObjectContainerHelper.referenceToEntity(ec, pmData, id);
+								Array.set(array, i, element);
+							}
+						}
+						else {
+							// https://sourceforge.net/tracker/?func=detail&aid=3515529&group_id=517465&atid=2102914
+							// First fill a list and then transfer everything into an array, because there might
+							// be elements missing (orphaned references).
+							int arrayLength = Array.getLength(ids);
+							ArrayList<Object> tmpList = new ArrayList<Object>();
+							for (int i = 0; i < arrayLength; ++i) {
+								Object id = Array.get(ids, i);
+								Object element = ObjectContainerHelper.referenceToEntity(ec, pmData, id);
+								if (element != null)
+									tmpList.add(element);
+							}
+							array = Array.newInstance(elementType, tmpList.size());
+							array = tmpList.toArray((Object[]) array);
 						}
 					}
 				}
