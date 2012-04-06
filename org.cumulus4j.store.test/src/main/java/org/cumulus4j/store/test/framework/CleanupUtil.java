@@ -86,6 +86,7 @@ public class CleanupUtil
 
 	public static void dropAllTables() throws Exception {
 		Properties properties = TestUtil.loadProperties("cumulus4j-test-datanucleus.properties");
+		dropAllTables(properties);
 	}
 
 	public static void dropAllTables(Map<?, ?> properties) throws Exception
