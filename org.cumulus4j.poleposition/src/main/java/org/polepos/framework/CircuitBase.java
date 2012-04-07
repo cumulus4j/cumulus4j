@@ -1,4 +1,4 @@
-/* 
+/*
 This file is part of the PolePosition database benchmark
 http://www.polepos.org
 
@@ -19,26 +19,44 @@ MA  02111-1307, USA. */
 
 package org.polepos.framework;
 
-import java.util.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import org.polepos.util.*;
-import org.polepos.watcher.*;
+import org.polepos.util.MemoryUtil;
+import org.polepos.watcher.FileSizeWatcher;
+import org.polepos.watcher.TimeWatcher;
 
 /**
  * a set of timed test cases that work against the same data
  */
 public abstract class CircuitBase implements Circuit {
-    
+
     public static final String NUM_RUNS_PROPERTY_ID = "POLEPOS_NUM_RUNS";
     public static final String MEMORY_USAGE_PROPERTY_ID = "POLEPOS_MEMORY_USAGE";
 
 	private final int _numRuns = Integer.parseInt(System.getProperty(NUM_RUNS_PROPERTY_ID, "1"));
 	private final MemoryUsage _memoryUsage = memoryUsage();
 
+	private final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+	private String getTimestampString()
+	{
+		synchronized (dateFormat) {
+			return dateFormat.format(new Date());
+		}
+	}
+
 	private static MemoryUsage memoryUsage() {
 		try {
 			return (MemoryUsage)Class.forName(System.getProperty(MEMORY_USAGE_PROPERTY_ID, SimpleMemoryUsage.class.getName())).newInstance();
-		} 
+		}
 		catch (Exception exc) {
 			exc.printStackTrace();
 			return new SimpleMemoryUsage();
@@ -46,25 +64,25 @@ public abstract class CircuitBase implements Circuit {
 	}
 
 	private List<Lap> _laps;
-    
+
     private TurnSetup[] _turnSetups;
-        
+
     // TODO: watcher can be installed, and should be sorted, i.e. memory watcher
 	// should start before time watcher
     private TimeWatcher _timeWatcher;
-    
+
     // TODO: The effect of MemoryWatcher is too strong on the running tests.
     //       We should investigate if we can get less intrusive results with JMX
     // private MemoryWatcher _memoryWatcher;
-    
+
     private FileSizeWatcher _fileSizeWatcher;
-    
+
     private Circuit _reportTo = this;
-    
+
     protected CircuitBase(){
         initWatchers();
     }
-    
+
     @Override
 	public void setTurnSetups(TurnSetup[] turnSetups){
     	_turnSetups = turnSetups;
@@ -75,7 +93,7 @@ public abstract class CircuitBase implements Circuit {
 		// _memoryWatcher = new MemoryWatcher();
 		_fileSizeWatcher = new FileSizeWatcher();
 	}
-    
+
 	/**
      * public official name for reporting
 	 */
@@ -102,7 +120,7 @@ public abstract class CircuitBase implements Circuit {
 	protected Class<?> circuitClass() {
 		return this.getClass();
 	}
-    
+
     /**
      * describes the intent of this circuit, what it wants to test
      */
@@ -114,17 +132,17 @@ public abstract class CircuitBase implements Circuit {
      */
     @Override
 	public abstract Class<?> requiredDriver();
-    
+
     /**
-     * @return the methods that are intended to be run 
+     * @return the methods that are intended to be run
      */
     protected abstract void addLaps();
-    
+
 	protected void add(Lap lap){
         _laps.add(lap);
         lap.circuit(this);
     }
-    
+
     /**
      * setups are needed for reporting
      */
@@ -132,7 +150,7 @@ public abstract class CircuitBase implements Circuit {
 	public TurnSetup[] lapSetups(){
         return _turnSetups;
     }
-    
+
     @Override
 	public List<Lap> laps() {
     	if(_laps == null){
@@ -141,7 +159,7 @@ public abstract class CircuitBase implements Circuit {
     	}
         return _laps;
     }
-    
+
     /**
      * calling all the laps for all the lapSetups
      */
@@ -150,47 +168,47 @@ public abstract class CircuitBase implements Circuit {
         TurnResult[] results = new TurnResult[ _turnSetups.length ];
 
         int index = 0;
-        
+
         for(TurnSetup setup : _turnSetups) {
-            System.out.println("*** Turn " + index);
+            System.out.println("*** (" + getTimestampString() + ") Turn " + index);
             results[index++] = runTurn(team, car, driver, index, setup);
         }
         return results;
     }
 
 	private TurnResult runTurn(Team team, Car car, Driver driver, int index, TurnSetup setup) {
-		
+
 		Map<Lap, Set<LapReading>> lapReadings = new HashMap<Lap, Set<LapReading>>();
 		for (Lap lap : laps()) {
-			
+
 			if(lap.reportResult()) {
 				lapReadings.put(lap, new HashSet<LapReading>());
 			}
 		}
 		boolean warmUp = _numRuns > 1;
 		for (int runIdx = 0; runIdx < _numRuns; runIdx++) {
-			
-			prepareDriverToRunLaps(car, driver, setup);        
-			
+
+			prepareDriverToRunLaps(car, driver, setup);
+
 			for(Lap lap : laps()) {
-				
+
 				if(driver.canRunLap(lap)){
-					
-	            	System.out.println("*** Lap " + lap.name());
-	
+
+	            	System.out.println("*** (" + getTimestampString() + ") Lap " + lap.name());
+
 				    LapReading lapReading = runLap(team, driver, setup, lap);
 				    if(!warmUp && lap.reportResult()) {
 				    	lapReadings.get(lap).add(lapReading);
 				    }
 				}
 			}
-	
+
 			driver.backToPit();
-						
+
 			tearDownTurn(team, driver);
 			warmUp = false;
 		}
-		
+
 		TurnResult turnResult = new TurnResult();
 		for (Lap lap : laps()) {
 			if(!lap.reportResult()) {
@@ -218,13 +236,13 @@ public abstract class CircuitBase implements Circuit {
 
 	private void prepareDriverToRunLaps(Car car, Driver driver, TurnSetup setup) {
 		car.team().setUp();
-		
+
 		try {
 			driver.takeSeatIn(car, setup);
 		} catch (CarMotorFailureException e1) {
 			throw new RuntimeException("Circuit aborted", e1);
 		}
-		
+
 		try {
 			driver.prepare();
 		} catch (CarMotorFailureException e) {
@@ -238,38 +256,38 @@ public abstract class CircuitBase implements Circuit {
 	}
 
 	private LapReading runLap(Team team, Driver driver, TurnSetup setup, Lap lap) {
-		
+
 		Runnable lapRunnable = driver.prepareLap(lap);
-		
+
 		if( ! lap.hot() ){
 			driver.backToPit();
-		    
+
 		    try {
 		    	driver.prepare();
 		    } catch (CarMotorFailureException e) {
 		        e.printStackTrace();
-		    }        
+		    }
 		}
-		
+
 		MemoryUtil.gc();
-		
+
 		// _memoryWatcher.start();
-		
+
 		_timeWatcher.start();
 		_fileSizeWatcher.monitorFile(team.databaseFile());
 		_fileSizeWatcher.start();
-		
+
 		lapRunnable.run();
-		
+
 		_timeWatcher.stop();
-		
+
 		// _memoryWatcher.stop();
-		
+
 		_fileSizeWatcher.stop();
-		
+
 		return new LapReading(_timeWatcher.value(), _memoryUsage.usedMemory(), _fileSizeWatcher.value(), driver.checkSum());
 	}
-	
+
 	private final static class LapReading {
 		public final long time;
 		public final long memory;
@@ -282,52 +300,56 @@ public abstract class CircuitBase implements Circuit {
 			this.fileSize = fileSize;
 			this.checkSum = checkSum;
 		}
-		
+
 		@Override
 		public String toString() {
 			return time + " ms";
 		}
 	}
-	
+
 	public static interface MemoryUsage {
 		long usedMemory();
 	}
-	
+
 	public static class SimpleMemoryUsage implements MemoryUsage {
+		@Override
 		public long usedMemory() {
 			return MemoryUtil.usedMemory();
 		}
 	}
-	
+
 	public static class NullMemoryUsage implements MemoryUsage {
+		@Override
 		public long usedMemory() {
 			return 0;
 		}
 	}
-	
+
 	@Override
 	public String fileNamePrefix() {
 		return internalName();
 	}
-	
+
 	@Override
 	public Driver[] nominate(Team team){
 		return team.nominate(this);
 	}
-	
+
+	@Override
 	public void reportTo(Circuit circuit){
 		_reportTo = circuit;
 	}
-	
+
+	@Override
 	public boolean isConcurrency(){
 		return false;
 	}
-	
+
 	@Override
 	public TurnSetup[] getTurnSetups() {
 		return _turnSetups;
 	}
-	
+
 	@Override
 	public void runLapsBefore(Lap lap, TurnSetup turnSetup, DriverBase driver, Car car) {
 		prepareDriverToRunLaps(car, driver, turnSetup);
@@ -338,9 +360,9 @@ public abstract class CircuitBase implements Circuit {
 			if(driver.canRunLap(lap)){
 			    runLap(car.team(), driver, turnSetup, currentLap);
 			}
-			
+
 		}
 	}
-    
+
 }
 
