@@ -162,9 +162,7 @@ implements StoreCallback
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
 	private long dataEntryID = -1;
 
-	// Added 'defaultFetchGroup="true"' because of https://sourceforge.net/tracker/?func=detail&aid=3515534&group_id=517465&atid=2102911
-	// Marco :-)
-	@Persistent(nullValue=NullValue.EXCEPTION, defaultFetchGroup="true")
+	@Persistent(nullValue=NullValue.EXCEPTION)
 	private ClassMeta classMeta;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)

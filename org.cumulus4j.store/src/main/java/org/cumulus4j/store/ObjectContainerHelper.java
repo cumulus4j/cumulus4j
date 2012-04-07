@@ -20,6 +20,7 @@ package org.cumulus4j.store;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
 
 import org.cumulus4j.store.model.ClassMeta;
@@ -131,6 +132,13 @@ public final class ObjectContainerHelper
 
 		if (USE_DATA_ENTRY_ID) {
 			DataEntry dataEntry = DataEntry.getDataEntry(pmData, ((Long)reference).longValue());
+			if (dataEntry != null && JDOHelper.isDeleted(dataEntry)) {
+				// Added check for deleted state because of https://sourceforge.net/tracker/?func=detail&aid=3515534&group_id=517465&atid=2102911
+				// Marco :-)
+				logger.warn("referenceToEntity: DataEntry.getDataEntry(...) returned deleted instance for dataEntryID=\"{}\"! Setting it to null.", reference);
+				dataEntry = null;
+			}
+
 			if (dataEntry == null) {
 				String message = String.format("DataEntry.getDataEntry(...) returned null for reference=\"%s\"!", reference);
 				if (ec.getNucleusContext().getStoreManager().getPersistenceHandler().useReferentialIntegrity())
