@@ -330,17 +330,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 
 				if (!fieldsEqual(fieldValueOld, fieldValueNew)){
 
-					/*
-					 * TODO:
-					 * Cumulus4j throws a NullPointerException at this point when running the poleposition benchmark
-					 * and using a list data type which has a null value to mark the end of the list.
-					 * This null value check solves the problem but an problem when deleting the persisted
-					 * data occurs. I have commented this out, because i have not fully analyzed this and so i am not sure
-					 * is this is right.
-					 * At the moment i have no more time to analyze this problem any more. :( Jan
-					 *
-					if(fieldValueOld != null)*/
-						removeIndexEntry.perform(cryptoContext, dataEntryID, fieldMeta, dnMemberMetaData, fieldValueOld);
+					removeIndexEntry.perform(cryptoContext, dataEntryID, fieldMeta, dnMemberMetaData, fieldValueOld);
 					addIndexEntry.perform(cryptoContext, dataEntryID, fieldMeta, dnMemberMetaData, fieldValueNew);
 				}
 			}
