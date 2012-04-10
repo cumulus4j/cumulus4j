@@ -106,7 +106,7 @@ public class JdoTeam extends Team
         	new FlatObjectJdo(),
         	new NestedListsJdo(),
 //        	new InheritanceHierarchyJdo(),
-        	new ComplexJdo()
+//        	new ComplexJdo()
 //            new MelbourneJdo(),
 //            new SepangJdo(),
 //            new BahrainJdo(),
