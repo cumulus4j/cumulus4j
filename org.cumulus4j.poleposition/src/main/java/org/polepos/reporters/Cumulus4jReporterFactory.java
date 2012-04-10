@@ -13,12 +13,15 @@ public class Cumulus4jReporterFactory {
 
 		return new Reporter[]{
 				new CustomBarPDFReporter(getOutputPath()),
-				new HTMLReporter(getOutputPath())
+				new HTMLReporter(subfolderPath(getOutputPath(), "html")),
 		};
 	}
 
 	public static String getOutputPath() {
-		return new File("").getAbsolutePath();
+		return new File(System.getProperty("polepos.result.dir", "doc/results")).getAbsolutePath();
 	}
 
+	public static String subfolderPath(String root, String subfolder) {
+		return new File(new File(root), subfolder).getAbsolutePath();
+	}
 }

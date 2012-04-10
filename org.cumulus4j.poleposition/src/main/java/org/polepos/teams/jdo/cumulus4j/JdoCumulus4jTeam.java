@@ -12,8 +12,6 @@ public class JdoCumulus4jTeam extends JdoTeam {
 
 	private Properties runtimeProperties;
 
-//	private final Car[] mCars;
-
     public JdoCumulus4jTeam(Properties runtimeProperties)
     {
     	this.runtimeProperties = runtimeProperties;
@@ -74,82 +72,9 @@ public class JdoCumulus4jTeam extends JdoTeam {
         return "the JDO/Cumulus4j team";
     }
 
-//    @Override
-//	public Car[] cars(){
-//		return mCars;
-//	}
-
-    @Override
-	public String databaseFile() {
-    	// not supported yet
-    	return null;
-    }
-
-//    @Override
-//    public DriverBase[] drivers() {
-//        return new DriverBase[] {
-////        	new FlatObjectJdo(),
-////        	new NestedListsJdo(),
-////        	new InheritanceHierarchyJdo(),
-//        	new ComplexJdo()
-//        };
-//    }
 
     @Override
     public String website() {
         return "http://www.cumulus4j.org";
     }
-
-//	@Override
-//    public void setUp() {
-//
-//		for(int i = 0; i < mCars.length;i++){
-//
-//		    JdoCumulus4jCar jdoCumulus4jCar = (JdoCumulus4jCar)mCars[i];
-//			PersistenceManager pm = jdoCumulus4jCar.getPersistenceManager();
-//
-//		    deleteAll(pm, JdoIndexedObject.class);
-//
-//		    deleteAll(pm, ListHolder.class);
-//
-//		    deleteAll(pm, ComplexRoot.class);
-//		    deleteAll(pm, ComplexHolder4.class);
-//		    deleteAll(pm, ComplexHolder3.class);
-//		    deleteAll(pm, ComplexHolder2.class);
-//		    deleteAll(pm, ComplexHolder1.class);
-//		    deleteAll(pm, ComplexHolder0.class);
-//
-//		    deleteAll(pm, InheritanceHierarchy4.class);
-//		    deleteAll(pm, InheritanceHierarchy3.class);
-//		    deleteAll(pm, InheritanceHierarchy2.class);
-//		    deleteAll(pm, InheritanceHierarchy1.class);
-//		    deleteAll(pm, InheritanceHierarchy0.class);
-//
-//		    pm.close();
-//		}
-//	}
-//
-//	private void deleteAll(PersistenceManager pm, Class clazz) {
-//
-//		deleteAllBatched(pm, clazz);
-//	}
-//
-//	private void deleteAllBatched(PersistenceManager pm, Class clazz) {
-//
-//		pm.currentTransaction().begin();
-//		int batchSize = 10000;
-//        int commitctr = 0;
-//        Extent extent = pm.getExtent(clazz, false);
-//        Iterator it = extent.iterator();
-//        while(it.hasNext()){
-//            pm.deletePersistent(it.next());
-//            if ( batchSize > 0  &&  ++commitctr >= batchSize){
-//                commitctr = 0;
-//                pm.currentTransaction().commit();
-//                pm.currentTransaction().begin();
-//            }
-//        }
-//        extent.closeAll();
-//        pm.currentTransaction().commit();
-//	}
 }

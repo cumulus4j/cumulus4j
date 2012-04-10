@@ -28,10 +28,9 @@ import org.polepos.circuits.nestedlists.NestedLists;
 import org.polepos.framework.CircuitBase;
 import org.polepos.framework.ReflectiveCircuitBase;
 import org.polepos.framework.Team;
-import org.polepos.reporters.DefaultReporterFactory;
+import org.polepos.reporters.Cumulus4jReporterFactory;
 import org.polepos.reporters.Reporter;
 import org.polepos.runner.AbstractRunner;
-import org.polepos.teams.jdo.JdoTeam;
 import org.polepos.teams.jdo.cumulus4j.JdoCumulus4jTeam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,16 +117,16 @@ public class RunSeason extends AbstractRunner {
 //				 new JviTeam(),
 //				 new CobraTeam(),
 
-				new JdoCumulus4jTeam(runtimeProperties),
-				new JdoTeam()
+				new JdoCumulus4jTeam(runtimeProperties)
+//				new JdoTeam()
 		};
 	}
 
 	@Override
 	protected Reporter[] reporters() {
 
-//		return Cumulus4jReporterFactory.getCumulus4jReporters();
-		return DefaultReporterFactory.defaultReporters();
+		return Cumulus4jReporterFactory.getCumulus4jReporters();
+//		return DefaultReporterFactory.defaultReporters();
 	}
 
 }
