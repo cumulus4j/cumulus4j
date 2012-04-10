@@ -23,7 +23,7 @@
 	xsi:schemaLocation="http://maven.apache.org/DECORATION/1.0.0 http://maven.apache.org/xsd/decoration-1.0.1.xsd">
 	<skin>
 		<groupId>org.nightlabs.maven</groupId>
-		<artifactId>nightabs-maven-site-skin</artifactId>
-		<version>0.0.4</version>
+		<artifactId>nightlabs-maven-site-skin</artifactId>
+		<version>0.0.6</version>
 	</skin>
 </project>
