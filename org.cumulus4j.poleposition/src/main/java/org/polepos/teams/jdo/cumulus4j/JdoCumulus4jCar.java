@@ -41,6 +41,17 @@ public class JdoCumulus4jCar extends JdoCar {
     	Map<String, String> properties = new HashMap<String, String>(jdoImplSettings.getFilteredProperties(mDbName));
     	properties.put("datanucleus.storeManagerType", "cumulus4j");
     	properties.putAll((Map) ((JdoCumulus4jTeam)team()).getRuntimeProperties());
+
+    	//TODO  move properties to cumulus4j.config file
+    	properties.put("cumulus4j.cryptoSessionExpiryAge", "10000");
+    	properties.put("cumulus4j.cryptoSessionExpiryTimer.enabled", "true");
+    	properties.put("cumulus4j.cryptoSessionExpiryTimer.period", "10000");
+    	properties.put("cumulus4j.CryptoCache.cleanupTimer.enabled","false");
+    	properties.put("cumulus4j.CryptoCache.cleanupTimer.period", "10000");
+    	properties.put("cumulus4j.CryptoCache.entryExpiryAge", "10000");
+
+//    	properties.putAll(cumulus4jSettings.getProperties(mDbName));
+
     	return properties;
     }
 

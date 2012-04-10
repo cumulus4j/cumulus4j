@@ -53,13 +53,6 @@ public class TestService {
 		runSeason.getRuntimeProperties().setProperty(CryptoManager.PROPERTY_CRYPTO_MANAGER_ID, cryptoManagerID);
 		runSeason.getRuntimeProperties().setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, cryptoSessionID);
 
-		runSeason.getRuntimeProperties().setProperty("cumulus4j.cryptoSessionExpiryAge", "10000");
-		runSeason.getRuntimeProperties().setProperty("cumulus4j.cryptoSessionExpiryTimer.enabled", "true");
-		runSeason.getRuntimeProperties().setProperty("cumulus4j.cryptoSessionExpiryTimer.period", "10000");
-		runSeason.getRuntimeProperties().setProperty("cumulus4j.CryptoCache.cleanupTimer.enabled","false");
-		runSeason.getRuntimeProperties().setProperty("cumulus4j.CryptoCache.cleanupTimer.period", "10000");
-		runSeason.getRuntimeProperties().setProperty("cumulus4j.CryptoCache.entryExpiryAge", "10000");
-
 		runSeason.run();
 
 		return "OK:";

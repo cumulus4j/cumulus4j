@@ -27,18 +27,7 @@ public class JdoCumulus4jSettings extends PropertiesHandler
 		for (String variableName : variableNames)
 			props.put(variableName, nullToEmptyString(get(variableName)));
 
-
-		System.out.println("######################################");
-		System.out.println("######################################");
-		System.out.println("######################################");
-		System.out.println("######################################");
-		System.out.println("######################################");
 		System.out.println("Props: " + props);
-		System.out.println("######################################");
-		System.out.println("######################################");
-		System.out.println("######################################");
-		System.out.println("######################################");
-		System.out.println("######################################");
 
 		return props;
 	}

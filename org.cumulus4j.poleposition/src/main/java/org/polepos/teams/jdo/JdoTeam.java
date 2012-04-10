@@ -105,8 +105,8 @@ public class JdoTeam extends Team
         return new DriverBase[] {
         	new FlatObjectJdo(),
         	new NestedListsJdo(),
-//        	new InheritanceHierarchyJdo(),
-//        	new ComplexJdo()
+        	new InheritanceHierarchyJdo(),
+        	new ComplexJdo()
 //            new MelbourneJdo(),
 //            new SepangJdo(),
 //            new BahrainJdo(),
