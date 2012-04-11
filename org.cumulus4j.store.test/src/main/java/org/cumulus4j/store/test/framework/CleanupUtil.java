@@ -84,6 +84,10 @@ public class CleanupUtil
 			"javax.jdo.mapping.Schema"
 	};
 
+	private static String[] prostgreSQLSystemTableNames = {
+
+	};
+
 	public static void dropAllTables() throws Exception {
 		Properties properties = TestUtil.loadProperties("cumulus4j-test-datanucleus.properties");
 		dropAllTables(properties);
@@ -290,9 +294,24 @@ public class CleanupUtil
 		ArrayList<String> res = new ArrayList<String>();
 
 		ResultSet rs = con.getMetaData().getTables(null, null, null, null);
+
+		/*
+		 * PostgreSql system tables and information schema have to be ignored.
+		 */
+		Collection<String> postgresqlSchemas = new ArrayList<String>();
+		ResultSet postgreSQLInfoSchemaTables = con.getMetaData().getTables("information_schema", null, null, null);
+		while(postgreSQLInfoSchemaTables.next()){
+			postgresqlSchemas.add(postgreSQLInfoSchemaTables.getString("TABLE_NAME"));
+		}
+		ResultSet postgreSQLPgCatalogTables = con.getMetaData().getTables("pg_catalog", null, null, null);
+		while(postgreSQLInfoSchemaTables.next()){
+			postgresqlSchemas.add(postgreSQLPgCatalogTables.getString("TABLE_NAME"));
+		}
+
 		while (rs.next()) {
 			String tableName = rs.getString("TABLE_NAME");
-			if (!tableName.toLowerCase().startsWith("sys"))
+			if (! (tableName.toLowerCase().startsWith("sys") || postgresqlSchemas.contains(tableName)))
+//			if (!tableName.toLowerCase().startsWith("sys"))
 				res.add(tableName);
 		}
 
