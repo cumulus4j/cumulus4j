@@ -51,25 +51,6 @@ public class RunSeason extends AbstractRunner {
 
 	public static void main(String[] args) {
 
-//		logger.debug("Trying to set cryptoManagerID and cryptoSessionID.");
-//		if(args != null){
-//			try{
-//				logger.debug("cryptoManagerID: " + args[0]);
-//				Settings.CRYPTO_MANAGER_ID = args[0];
-//				logger.debug("cryptoSessionID: " + args[1]);
-//				Settings.CRYPTO_SESSION_ID = args[1];
-//			}
-//			catch(Exception e){
-//				logger.error("An error occured while reading program arguments. " +
-//						"When you are trying to run PolePosition with cumulus4j the " +
-//						"first argument must be the cryptoManagerID and the second " +
-//						"argument must be the cryptoSessionID.", e);
-//			}
-//		}
-//		else{
-//			logger.debug("No cryptoManagerID and cryptoSessionID found.");
-//		}
-
 		new RunSeason().run();
 	}
 

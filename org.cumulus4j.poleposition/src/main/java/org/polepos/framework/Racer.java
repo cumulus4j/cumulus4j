@@ -1,4 +1,4 @@
-/* 
+/*
  This file is part of the PolePosition database benchmark
  http://www.polepos.org
 
@@ -19,20 +19,30 @@
 
 package org.polepos.framework;
 
-import java.util.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
-
-import org.polepos.reporters.*;
+import org.polepos.reporters.Reporter;
 
 public class Racer implements Runnable {
 
     private final List<Circuit> circuits;
-    
+
     private final List<Team>    teams;
 
     private final List<Reporter> reporters;
-    
-    
+
+	private final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+	private String getTimestampString()
+	{
+		synchronized (dateFormat) {
+			return dateFormat.format(new Date());
+		}
+	}
+
     public Racer(List<Circuit> circuits_, List<Team> teams_, List<Reporter> reporters_) {
     	circuits = circuits_;
         teams = teams_;
@@ -48,55 +58,55 @@ public class Racer implements Runnable {
             for (Reporter reporter : reporters) {
                 reporter.startSeason();
             }
-            
+
 
             for (Team team : teams) {
-                
+
                 for (Car car : team.cars()) {
-                	
+
                     for (Circuit circuit : circuits) {
 
                     	Driver[] drivers = circuit.nominate(team);
-                    	
+
                     	if (drivers == null || drivers.length == 0) {
-                    		
+
                     		for (Reporter reporter : reporters) {
                     			reporter.noDriver(team, circuit);
                     		}
-                    		
+
                     		continue;
                     	}
-                    	
-                        System.out.println("\n** Racing " + team.name() + "/"
+
+                        System.out.println("\n** (" + getTimestampString() + ") Racing " + team.name() + "/"
                             + car.name() + " on " + circuit.name() + "\n");
 
                         for (Reporter reporter : reporters) {
                             reporter.sendToCircuit(circuit);
                         }
 
-    
+
                         for (Driver driver : drivers) {
-                        	
-                            System.out.println("** On track: " + team.name() + "/" + car.name());
+
+                            System.out.println("** (" + getTimestampString() + ") On track: " + team.name() + "/" + car.name());
                             long startTime = System.currentTimeMillis();
 
-    
+
                             TurnSetup[] setups = circuit.lapSetups();
                             TurnResult[] results = circuit.race(team, car, driver);
-                            
+
                             long stopTime = System.currentTimeMillis();
                             long t = stopTime - startTime;
-                            System.out.println("Time[ms]: " + t);	
-    
+                            System.out.println(" (" + getTimestampString() + ") Time[ms]: " + t);
+
                             for (Reporter reporter : reporters) {
                                 reporter.report(team, car, setups, results);
                             }
                         }
-                        
+
                     }
                 }
             }
-            
+
 
             for (Reporter reporter : reporters) {
                 reporter.endSeason();
@@ -115,6 +125,6 @@ public class Racer implements Runnable {
 			}
             this.notify();
         }
-        
+
     }
 }
