@@ -32,7 +32,8 @@ public class JdoCumulus4jTeam extends JdoTeam {
                 if(jdosqldbs != null && jdosqldbs.length > 0){
                     for(String sqldb : jdosqldbs){
                         try {
-                            cars.add(new JdoCumulus4jCar(this, impl, sqldb, Jdo.settings().color(impl)));
+                        	//TODO move color to cumulus4j properties file
+                            cars.add(new JdoCumulus4jCar(this, impl, sqldb, "#27518C"));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
