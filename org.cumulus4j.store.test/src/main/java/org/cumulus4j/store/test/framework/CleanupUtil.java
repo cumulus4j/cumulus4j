@@ -272,7 +272,7 @@ public class CleanupUtil
 				}
 
 				Collection<String> tables = getTables(con);
-				if (!tables.isEmpty()) {
+				if (!tables.isEmpty() && !getNonPublicTables(con).containsAll(tables)) {
 					StringBuilder sb = new StringBuilder();
 					for (String tableName : tables) {
 						if (sb.length() > 0)
@@ -288,6 +288,31 @@ public class CleanupUtil
 		}
 	}
 
+	/*
+	 * For PostgreSQL we need to check if the tables are system tables or not.
+	 */
+	private static Collection<String> getNonPublicTables(Connection con)
+	throws SQLException{
+
+		ArrayList<String> res = new ArrayList<String>();
+
+		ResultSet allTables = con.getMetaData().getTables("information_schema",null, null, null);
+		ResultSet publicTables = con.getMetaData().getTables(null, "public", null, null);
+
+		Collection<String> publicTableNames = new ArrayList<String>();
+
+		while(allTables.next()){
+			res.add(allTables.getString("TABLE_NAME"));
+		}
+		while(publicTables.next()){
+			publicTableNames.add(publicTables.getString("TABLE_NAME"));
+		}
+
+		res.removeAll(publicTableNames);
+
+		return res;
+	}
+
 	private static Collection<String> getTables(Connection con)
 	throws SQLException
 	{
@@ -295,23 +320,10 @@ public class CleanupUtil
 
 		ResultSet rs = con.getMetaData().getTables(null, null, null, null);
 
-		/*
-		 * PostgreSql system tables and information schema have to be ignored.
-		 */
-		Collection<String> postgresqlSchemas = new ArrayList<String>();
-		ResultSet postgreSQLInfoSchemaTables = con.getMetaData().getTables("information_schema", null, null, null);
-		while(postgreSQLInfoSchemaTables.next()){
-			postgresqlSchemas.add(postgreSQLInfoSchemaTables.getString("TABLE_NAME"));
-		}
-		ResultSet postgreSQLPgCatalogTables = con.getMetaData().getTables("pg_catalog", null, null, null);
-		while(postgreSQLInfoSchemaTables.next()){
-			postgresqlSchemas.add(postgreSQLPgCatalogTables.getString("TABLE_NAME"));
-		}
-
 		while (rs.next()) {
 			String tableName = rs.getString("TABLE_NAME");
-			if (! (tableName.toLowerCase().startsWith("sys") || postgresqlSchemas.contains(tableName)))
-//			if (!tableName.toLowerCase().startsWith("sys"))
+
+			if (!tableName.toLowerCase().startsWith("sys"))
 				res.add(tableName);
 		}
 
