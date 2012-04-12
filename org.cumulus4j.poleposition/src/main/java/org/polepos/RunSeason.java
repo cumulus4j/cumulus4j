@@ -99,8 +99,8 @@ public class RunSeason extends AbstractRunner {
 //				 new JviTeam(),
 //				 new CobraTeam(),
 
-				new JdoCumulus4jTeam(runtimeProperties),
-				new JdoTeam()
+				new JdoTeam(),
+				new JdoCumulus4jTeam(runtimeProperties)
 		};
 	}
 
