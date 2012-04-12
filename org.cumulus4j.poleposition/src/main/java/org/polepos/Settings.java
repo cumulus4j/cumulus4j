@@ -34,6 +34,8 @@ public class Settings {
 
     public static final String JDO = SETTINGS_FOLDER + File.separator + "Jdo.properties";
 
+    public static final String CUMULUS4J = SETTINGS_FOLDER + File.separator + "cumulus4j.properties";
+
     static{
 
         String className = Settings.class.getName() ;
