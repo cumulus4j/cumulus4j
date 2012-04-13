@@ -258,8 +258,10 @@ public class CleanupUtil
 						Statement delStmt = con.createStatement();
 						try {
 							logger.debug("Deleting table " + tableName);
-							delStmt.execute("drop table " + tableName);
+							System.out.println("Dropping table: " + tableName);
+							delStmt.execute("drop table " + tableName + " cascade");
 						} catch (Throwable t) {
+							System.out.println("Could not drop table " + tableName + ": " + t);
 							logger.warn("Could not drop table " + tableName + ": " + t);
 						} finally {
 							delStmt.close();
@@ -268,7 +270,6 @@ public class CleanupUtil
 				}
 
 				Collection<String> tables = getTables(con);
-				tables.removeAll(getNonPublicTables(con));
 				if (!tables.isEmpty()){
 					StringBuilder sb = new StringBuilder();
 					for (String tableName : tables) {
@@ -323,6 +324,8 @@ public class CleanupUtil
 			if (!tableName.toLowerCase().startsWith("sys"))
 				res.add(tableName);
 		}
+
+		res.removeAll(getNonPublicTables(con));
 
 		return res;
 	}
