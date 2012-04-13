@@ -258,10 +258,8 @@ public class CleanupUtil
 						Statement delStmt = con.createStatement();
 						try {
 							logger.debug("Deleting table " + tableName);
-							System.out.println("Dropping table: " + tableName);
 							delStmt.execute("drop table " + tableName + " cascade");
 						} catch (Throwable t) {
-							System.out.println("Could not drop table " + tableName + ": " + t);
 							logger.warn("Could not drop table " + tableName + ": " + t);
 						} finally {
 							delStmt.close();
