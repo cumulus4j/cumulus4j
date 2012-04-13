@@ -33,7 +33,7 @@ public class JdoCumulus4jTeam extends JdoTeam {
                     for(String sqldb : jdosqldbs){
                         try {
                         	//TODO move color to cumulus4j properties file
-                            cars.add(new JdoCumulus4jCar(this, impl, sqldb, "#27518C"));
+                            cars.add(new JdoCumulus4jCar(this, impl, sqldb, "0x27518C"));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -45,12 +45,6 @@ public class JdoCumulus4jTeam extends JdoTeam {
                         e.printStackTrace();
                     }
                 }
-//				logger.debug("child: " + child);
-//				logger.debug("deletedCount: " + deletedCount);
-//				logger.debug("visited: " + visited);
-//				logger.debug("maxDepth: " + maxDepth);
-//				logger.debug("depth: " + depth);
-//				logger.debug("deletePrecedure: " + deleteProcedure);
             }
 
             mCars = new Car[ cars.size() ];

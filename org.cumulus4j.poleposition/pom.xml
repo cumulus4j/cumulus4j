@@ -469,7 +469,7 @@
 			<plugin>
 				<artifactId>maven-failsafe-plugin</artifactId>
 				<configuration>
-        			<argLine>-Xmx4000m</argLine>		
+        			<argLine>-Xmx4096m</argLine>		
 					<includes>
 						<include>**/Test*.java</include>
 						<include>**/*Test.java</include>

@@ -27,13 +27,21 @@ public class JdoCumulus4jSettings extends PropertiesHandler
 		for (String variableName : variableNames)
 			props.put(variableName, nullToEmptyString(get(variableName)));
 
-		System.out.println("Props: " + props);
-
 		return props;
 	}
 
 	private String nullToEmptyString(String s) {
 		return s == null ? "" : s;
+	}
+
+	public String getColor(){
+
+		String color = get("cumulus4j.color");
+
+		if(color != null)
+			return color;
+		else
+			return "0x27518C";
 	}
 
 }

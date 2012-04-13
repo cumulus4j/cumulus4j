@@ -32,7 +32,6 @@ public class JdoSettings extends RdbmsSettings{
 	private final static String KEY_JDO = "jdo";
     private final static String KEY_ENHANCE = "enhance";
     private final static String KEY_ENHANCER = "enhancer";
-//    private final static String KEY_CONNECTURL = "javax.jdo.option.ConnectionURL";
 
 	public JdoSettings(){
         super(Settings.JDO);
@@ -57,10 +56,6 @@ public class JdoSettings extends RdbmsSettings{
     	return jdoImplSettings;
     }
 
-//	public String getConnectUrl(){
-//		return get( KEY_CONNECTURL );
-//	}
-
     public boolean enhance(){
         return getBoolean(KEY_ENHANCE);
     }
@@ -68,6 +63,4 @@ public class JdoSettings extends RdbmsSettings{
     public String enhancer(){
         return get(KEY_ENHANCER);
     }
-
-
 }

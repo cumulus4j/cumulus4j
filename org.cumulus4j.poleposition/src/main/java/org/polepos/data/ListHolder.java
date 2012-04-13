@@ -1,4 +1,4 @@
-/* 
+/*
 This file is part of the PolePosition database benchmark
 http://www.polepos.org
 
@@ -20,35 +20,42 @@ MA  02111-1307, USA. */
 
 package org.polepos.data;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
-import org.polepos.framework.*;
+import org.polepos.framework.CheckSummable;
+import org.polepos.framework.IdGenerator;
+import org.polepos.framework.Procedure;
+import org.polepos.framework.Visitor;
 
 public class ListHolder implements CheckSummable {
-	
+
 	public static final String ROOT_NAME = "root";
-	
+
 	private static IdGenerator _idGenerator = new IdGenerator();
-	
+
 	private long _id;
 
 	private String _name;
-	
+
 	private List<ListHolder> _list;
-	
+
 	public static ListHolder generate(int depth, int leafs, int reuse){
 		ListHolder root = generate(new ArrayList<ListHolder>(), depth, leafs, reuse);
 		root._name = ROOT_NAME;
 		return root;
 	}
-	
+
 	public static ListHolder generate(List<ListHolder> flatList, int depth, int leafs, int reuse){
 		if(depth == 0){
 			return null;
 		}
 		ListHolder listHolder = new ListHolder();
 		listHolder._id = _idGenerator.nextId();
-		
+
 		flatList.add(listHolder);
 		if(depth == 1){
 			return listHolder;
@@ -70,17 +77,17 @@ public class ListHolder implements CheckSummable {
 		}
 		return listHolder;
 	}
-	
+
 	@Override
 	public long checkSum() {
 		return name().hashCode();
 	}
-	
+
 	public void accept(Visitor<ListHolder> visitor) {
 		Set<ListHolder> visited = new HashSet<ListHolder>();
 		acceptInternal(visited, visitor);
 	}
-	
+
 	private void acceptInternal(Set<ListHolder> visited, Visitor<ListHolder> visitor){
 		if(visited.contains(this)){
 			return;
@@ -96,7 +103,7 @@ public class ListHolder implements CheckSummable {
 			child.acceptInternal(visited, visitor);
 		}
 	}
-	
+
 	public int update(int maxDepth, int depth, Procedure<ListHolder> storeProcedure) {
 		Set<ListHolder> visited = new HashSet<ListHolder>();
 		return updateInternal(visited, maxDepth, depth,storeProcedure);
@@ -120,7 +127,7 @@ public class ListHolder implements CheckSummable {
 		storeProcedure.apply(this);
 		return updatedCount;
 	}
-	
+
 	public int delete(int maxDepth, int depth, Procedure<ListHolder> deleteProcedure) {
 		Set<ListHolder> visited = new HashSet<ListHolder>();
 		return deleteInternal(visited, maxDepth, depth, deleteProcedure);
@@ -149,11 +156,11 @@ public class ListHolder implements CheckSummable {
 	public List<ListHolder> list() {
 		return _list;
 	}
-	
+
 	public long id(){
 		return _id;
 	}
-	
+
 	public void name(String name) {
 		this._name = name;
 	}
@@ -161,11 +168,11 @@ public class ListHolder implements CheckSummable {
 	public void list(List<ListHolder> list) {
 		this._list = list;
 	}
-	
+
 	public void id(long id){
 		this._id = id;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if(this == obj){
@@ -180,15 +187,14 @@ public class ListHolder implements CheckSummable {
 		ListHolder other = (ListHolder) obj;
 		return _id == other._id;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return (int)_id;
 	}
-	
+
 	@Override
 	public String toString() {
-		return "Cumulus4jListHolder " + _id;
+		return "ListHolder " + _id;
 	}
-	
 }
