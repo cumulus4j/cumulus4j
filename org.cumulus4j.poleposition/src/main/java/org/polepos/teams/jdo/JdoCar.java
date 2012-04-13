@@ -72,7 +72,6 @@ public class JdoCar extends Car
 
 	public Map<String, String> getPersistenceEngineProperties()
 	{
-		System.out.println(jdoImplSettings.getFilteredProperties(mDbName));
 		return jdoImplSettings.getFilteredProperties(mDbName);
 	}
 
