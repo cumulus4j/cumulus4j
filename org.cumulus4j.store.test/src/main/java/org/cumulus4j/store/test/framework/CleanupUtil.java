@@ -84,10 +84,6 @@ public class CleanupUtil
 			"javax.jdo.mapping.Schema"
 	};
 
-	private static String[] prostgreSQLSystemTableNames = {
-
-	};
-
 	public static void dropAllTables() throws Exception {
 		Properties properties = TestUtil.loadProperties("cumulus4j-test-datanucleus.properties");
 		dropAllTables(properties);
@@ -272,7 +268,8 @@ public class CleanupUtil
 				}
 
 				Collection<String> tables = getTables(con);
-				if (!tables.isEmpty() && !getNonPublicTables(con).containsAll(tables)) {
+				tables.removeAll(getNonPublicTables(con));
+				if (!tables.isEmpty()){
 					StringBuilder sb = new StringBuilder();
 					for (String tableName : tables) {
 						if (sb.length() > 0)
