@@ -39,8 +39,6 @@ public class JdoImplSettings extends PropertiesHandler
 			dbName2filteredProperties.put(dbName, filteredProperties);
 		}
 
-		filteredProperties.put("datanucleus.identifier.case", "LowerCase");
-
 		return filteredProperties;
 	}
 
