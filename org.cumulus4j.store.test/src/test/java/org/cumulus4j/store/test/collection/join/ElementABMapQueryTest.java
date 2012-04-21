@@ -25,9 +25,6 @@ import java.util.Set;
 
 import javax.jdo.Query;
 
-import org.cumulus4j.store.test.collection.join.ElementA;
-import org.cumulus4j.store.test.collection.join.ElementABMapOwner;
-import org.cumulus4j.store.test.collection.join.ElementB;
 import org.cumulus4j.store.test.framework.AbstractJDOTransactionalTest;
 import org.cumulus4j.store.test.framework.CleanupUtil;
 import org.junit.Assert;
