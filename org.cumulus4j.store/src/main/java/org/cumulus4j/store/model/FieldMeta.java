@@ -60,7 +60,7 @@ public class FieldMeta
 implements DetachCallback
 {
 	@PrimaryKey
-	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
+	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE, sequence="FieldMetaSequence")
 	private long fieldID = -1;
 
 	private ClassMeta classMeta;

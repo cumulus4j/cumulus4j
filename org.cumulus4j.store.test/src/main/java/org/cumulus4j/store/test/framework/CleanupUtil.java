@@ -265,6 +265,18 @@ public class CleanupUtil
 							delStmt.close();
 						}
 					}
+
+					for (String sequenceName : getSequences(con)) {
+						Statement delStmt = con.createStatement();
+						try {
+							logger.debug("Deleting sequence " + sequenceName);
+							delStmt.execute("drop sequence " + sequenceName + " cascade");
+						} catch (Throwable t) {
+							logger.warn("Could not drop sequence " + sequenceName + ": " + t);
+						} finally {
+							delStmt.close();
+						}
+					}
 				}
 
 				Collection<String> tables = getTables(con);
@@ -277,6 +289,18 @@ public class CleanupUtil
 						sb.append(tableName);
 					}
 					throw new IllegalStateException("Not all tables have been dropped! Still there: " + sb);
+				}
+
+				Collection<String> sequences = getSequences(con);
+				if (!sequences.isEmpty()){
+					StringBuilder sb = new StringBuilder();
+					for (String sequenceName : tables) {
+						if (sb.length() > 0)
+							sb.append(',');
+
+						sb.append(sequenceName);
+					}
+					throw new IllegalStateException("Not all sequences have been dropped! Still there: " + sb);
 				}
 			} finally {
 				con.close();
@@ -309,6 +333,31 @@ public class CleanupUtil
 		return res;
 	}
 
+	private static Collection<String> getSequences(Connection con)
+	throws SQLException
+	{
+		ArrayList<String> res = new ArrayList<String>();
+
+		ResultSet rs = con.getMetaData().getTables(null, null, null, null);
+
+		while (rs.next()) {
+			String tableName = rs.getString("TABLE_NAME");
+			String tableType = rs.getString("TABLE_TYPE");
+
+			if (!"SEQUENCE".equals(tableType == null ? "" : tableType.toUpperCase()))
+				continue;
+
+			if (tableName.toLowerCase().startsWith("sys"))
+				continue;
+
+			res.add(tableName);
+		}
+
+		res.removeAll(getNonPublicTables(con));
+
+		return res;
+	}
+
 	private static Collection<String> getTables(Connection con)
 	throws SQLException
 	{
@@ -318,9 +367,15 @@ public class CleanupUtil
 
 		while (rs.next()) {
 			String tableName = rs.getString("TABLE_NAME");
+			String tableType = rs.getString("TABLE_TYPE");
 
-			if (!tableName.toLowerCase().startsWith("sys"))
-				res.add(tableName);
+			if ("SEQUENCE".equals(tableType == null ? "" : tableType.toUpperCase()))
+				continue;
+
+			if (tableName.toLowerCase().startsWith("sys"))
+				continue;
+
+			res.add(tableName);
 		}
 
 		res.removeAll(getNonPublicTables(con));

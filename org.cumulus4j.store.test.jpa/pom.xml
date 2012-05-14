@@ -123,6 +123,11 @@
 					<artifactId>derby</artifactId>
 					<scope>test</scope>
 				</dependency>
+				<dependency>
+					<groupId>postgresql</groupId>
+					<artifactId>postgresql</artifactId>
+					<scope>test</scope>
+				</dependency>
 			</dependencies>
 		</profile>
 		<profile>

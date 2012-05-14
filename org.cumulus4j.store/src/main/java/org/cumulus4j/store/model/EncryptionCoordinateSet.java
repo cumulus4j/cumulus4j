@@ -138,7 +138,7 @@ public class EncryptionCoordinateSet
 	}
 
 	@PrimaryKey
-	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
+	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE, sequence="EncryptionCoordinateSetSequence")
 	private int encryptionCoordinateSetID = -1;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)

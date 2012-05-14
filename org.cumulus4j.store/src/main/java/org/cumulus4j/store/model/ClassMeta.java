@@ -88,7 +88,7 @@ public class ClassMeta
 	}
 
 	@PrimaryKey
-	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
+	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE, sequence="ClassMetaSequence")
 	private long classID = -1;
 
 	@NotPersistent

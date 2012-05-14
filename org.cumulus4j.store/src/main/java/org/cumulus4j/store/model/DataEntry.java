@@ -159,7 +159,7 @@ implements StoreCallback
 	}
 
 	@PrimaryKey
-	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
+	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE, sequence="DataEntrySequence")
 	private long dataEntryID = -1;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)

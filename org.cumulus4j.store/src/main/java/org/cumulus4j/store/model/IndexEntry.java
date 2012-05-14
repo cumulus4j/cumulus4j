@@ -89,7 +89,7 @@ public abstract class IndexEntry
 implements StoreCallback
 {
 	@PrimaryKey
-	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
+	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE, sequence="IndexEntrySequence")
 	private long indexEntryID = -1;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
