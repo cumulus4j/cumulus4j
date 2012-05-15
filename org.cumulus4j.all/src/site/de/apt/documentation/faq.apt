@@ -25,7 +25,8 @@ Häufige Fragen (FAQ)
 	Cumulus4j hingegen nutzt sehr viele verschiedene Schlüssel, um die Daten zu verschlüsseln. Werden also einige Schlüssel
 	gestohlen, kann sich ein Angreifer nur Zugang zu einem kleinen Teil der Daten verschaffen. Zusätzlich hält Cumulus4j
 	Schlüssel und unverschlüsselte Daten nur im Arbeitsspeicher und das nur für kurze Zeit. Es werden zu keiner Zeit Daten
-	unverschlüsselt in die Datenbank geschrieben.
+	unverschlüsselt in die Datenbank geschrieben. Darüber hinaus erreich man eine bessere Performance, wenn man vom Server 
+	bereit gestellte Funktionen für Indizierung und Anfragen nutzen kann.
 
 * Warum verteilt Cumulus4j seine Daten?
 
