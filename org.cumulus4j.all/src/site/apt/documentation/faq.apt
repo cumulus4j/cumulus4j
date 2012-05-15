@@ -24,6 +24,9 @@ FAQ - Frequently asked questions
 	Cumulus4j on the other hand uses many keys to encrypt the data, so that if one key is stolen it
 	will only reveal access to a small part of the data. Furthermore, Cumulus4j keeps plain text data
 	and keys only in memory temporarily; data will never be written do the datastore in plain text.
+	Additionally, using functionality for indexing and querying data provided by the server 
+	increases the performance.
+	 
 	
 * Why does Cumulus4j separate its data?
 
