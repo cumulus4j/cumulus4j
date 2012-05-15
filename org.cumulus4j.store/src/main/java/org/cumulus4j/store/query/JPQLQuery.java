@@ -93,10 +93,13 @@ public class JPQLQuery extends AbstractJPQLQuery {
 				candidates = new ArrayList<Object>(c);
 			}
 			else {
-				if (candidateExtent != null) {
-					this.setCandidateClass(candidateExtent.getCandidateClass());
-					this.setSubclasses(candidateExtent.hasSubclasses());
-				}
+				// http://sourceforge.net/tracker/?func=detail&aid=3514690&group_id=517465&atid=2102911
+				// Must NOT call this.setCandidateClass(...), because 1st it's already assigned and 2nd it clears the compilation.
+				// Marco :-)
+//				if (candidateExtent != null) {
+//					this.setCandidateClass(candidateExtent.getCandidateClass());
+//					this.setSubclasses(candidateExtent.hasSubclasses());
+//				}
 
 				if (inMemory) {
 					// Retrieve all candidates and perform all evaluation in-memory
