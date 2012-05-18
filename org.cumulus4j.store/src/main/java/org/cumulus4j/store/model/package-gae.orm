@@ -19,7 +19,13 @@ Marco :-)
 	<package name="org.cumulus4j.store.model">
 
 		<class name="ClassMeta">
-			<field name="classID" value-strategy="sequence" />
+			<field name="classID" primary-key="false" persistence-modifier="persistent">
+				<extension vendor-name="datanucleus" key="gae.pk-id" value="true" />
+			</field>
+			
+			<field name="classIDString" primary-key="true" value-strategy="sequence" persistence-modifier="persistent">
+				<extension vendor-name="datanucleus" key="gae.encoded-pk" value="true" />
+			</field>
 
 			<field name="fieldName2fieldMeta">
 				<extension vendor-name="datanucleus" key="gae.unowned" value="true"/>
@@ -33,7 +39,13 @@ Marco :-)
 
 
 		<class name="FieldMeta">
-			<field name="fieldID" value-strategy="sequence" />
+			<field name="fieldID" primary-key="false" persistence-modifier="persistent">
+				<extension vendor-name="datanucleus" key="gae.pk-id" value="true"/>
+			</field>
+			
+			<field name="fieldIDString" primary-key="true" value-strategy="sequence" persistence-modifier="persistent">
+				<extension vendor-name="datanucleus" key="gae.encoded-pk" value="true" />
+			</field>
 
 			<field name="classMeta">
 				<extension vendor-name="datanucleus" key="gae.unowned" value="true"/>
