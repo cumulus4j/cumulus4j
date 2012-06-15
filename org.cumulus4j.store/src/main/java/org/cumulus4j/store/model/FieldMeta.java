@@ -24,15 +24,18 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.jdo.JDOHelper;
+import javax.jdo.PersistenceManager;
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
-import javax.jdo.annotations.Key;
 import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.NullValue;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+import javax.jdo.annotations.Queries;
+import javax.jdo.annotations.Query;
 import javax.jdo.annotations.Unique;
 import javax.jdo.annotations.Uniques;
 import javax.jdo.annotations.Version;
@@ -43,6 +46,8 @@ import org.cumulus4j.store.Cumulus4jStoreManager;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.store.ExecutionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Persistent meta-data for a field of a persistence-capable class. Since class- and field-names are very
@@ -56,9 +61,20 @@ import org.datanucleus.store.ExecutionContext;
 @Uniques({
 	@Unique(name="FieldMeta_classMeta_ownerFieldMeta_fieldName_role", members={"classMeta", "ownerFieldMeta", "fieldName", "role"})
 })
+@Queries({
+	@Query(name=FieldMeta.NamedQueries.getFieldMetasForClassMeta, value="SELECT WHERE this.classMeta == :classMeta"),
+	@Query(name=FieldMeta.NamedQueries.getSubFieldMetasForFieldMeta, value="SELECT WHERE this.ownerFieldMeta == :ownerFieldMeta")
+})
 public class FieldMeta
 implements DetachCallback
 {
+	private static final Logger logger = LoggerFactory.getLogger(FieldMeta.class);
+
+	protected static class NamedQueries {
+		public static final String getFieldMetasForClassMeta = "getFieldMetasForClassMeta";
+		public static final String getSubFieldMetasForFieldMeta = "getSubFieldMetasForFieldMeta";
+	}
+
 	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE, sequence="FieldMetaSequence")
 	private long fieldID = -1;
@@ -77,9 +93,19 @@ implements DetachCallback
 	@NotPersistent
 	private int dataNucleusAbsoluteFieldNumber = -1;
 
-	@Persistent(mappedBy="ownerFieldMeta", dependentValue="true")
-	@Key(mappedBy="role")
-	private Map<FieldMetaRole, FieldMeta> role2subFieldMeta = new HashMap<FieldMetaRole, FieldMeta>();
+	/**
+	 * Meta data for all sub-fields of this <code>FieldMeta</code>.
+	 * <p>
+	 * This map is manually managed (e.g. lazy-loaded by {@link #getRole2SubFieldMeta()} or manually detached
+	 * in {@link #jdoPostDetach(Object)}) because of constraints in GAE. We simulate the behaviour of:
+	 * <p>
+	 * <pre>
+	 * &#64;Persistent(mappedBy="ownerFieldMeta", dependentValue="true")
+	 * &#64;Key(mappedBy="role")
+	 * </pre>
+	 */
+	@NotPersistent
+	private Map<FieldMetaRole, FieldMeta> role2SubFieldMeta;
 
 	/**
 	 * Internal constructor. This exists only for JDO and should not be used by application code!
@@ -151,6 +177,14 @@ implements DetachCallback
 		return classMeta;
 	}
 
+	protected void setClassMeta(ClassMeta classMeta) {
+		// We allow only assignment of equal arguments (e.g. during detachment).
+		if (this.classMeta != null && !this.classMeta.equals(classMeta))
+			throw new IllegalStateException("Cannot modify this this.classMeta!");
+
+		this.classMeta = classMeta;
+	}
+
 	/**
 	 * Get the {@link FieldMetaRole#primary primary} {@link FieldMeta}, to which this sub-<code>FieldMeta</code> belongs
 	 * or <code>null</code>, if this <code>FieldMeta</code> is primary.
@@ -158,6 +192,14 @@ implements DetachCallback
 	 */
 	public FieldMeta getOwnerFieldMeta() {
 		return ownerFieldMeta;
+	}
+
+	protected void setOwnerFieldMeta(FieldMeta ownerFieldMeta) {
+		// We allow only assignment of equal arguments (e.g. during detachment).
+		if (this.ownerFieldMeta != null && !this.ownerFieldMeta.equals(ownerFieldMeta))
+			throw new IllegalStateException("Cannot modify this this.ownerFieldMeta!");
+
+		this.ownerFieldMeta = ownerFieldMeta;
 	}
 
 	/**
@@ -179,6 +221,42 @@ implements DetachCallback
 	}
 
 	/**
+	 * Get the {@link PersistenceManager} assigned to <code>this</code>. If there is none, this method checks, if
+	 * <code>this</code> is new. If <code>this</code> was persisted before, it must have one or an {@link IllegalStateException}
+	 * is thrown.
+	 * @return the {@link PersistenceManager} assigned to this or <code>null</code>.
+	 */
+	protected PersistenceManager getPersistenceManager() {
+		PersistenceManager pm = JDOHelper.getPersistenceManager(this);
+		if (pm == null) {
+			if (JDOHelper.getObjectId(this) != null)
+				throw new IllegalStateException("This FieldMeta instance is not new, but JDOHelper.getPersistenceManager(this) returned null! " + this);
+		}
+		return pm;
+	}
+
+	protected Map<FieldMetaRole, FieldMeta> getRole2SubFieldMeta() {
+		Map<FieldMetaRole, FieldMeta> result = this.role2SubFieldMeta;
+
+		if (result == null) {
+			logger.debug("getRole2SubFieldMeta: this.role2SubFieldMeta == null => populating. this={}", this);
+			result = new HashMap<FieldMetaRole, FieldMeta>();
+			PersistenceManager pm = getPersistenceManager();
+			if (pm != null) {
+				Collection<FieldMeta> fieldMetas = new FieldMetaDAO(pm).getSubFieldMetasForFieldMeta(this);
+				for (FieldMeta fieldMeta : fieldMetas)
+					result.put(fieldMeta.getRole(), fieldMeta);
+			}
+
+			this.role2SubFieldMeta = result;
+		}
+		else
+			logger.trace("getRole2SubFieldMeta: this.role2SubFieldMeta != null (already populated). this={}", this);
+
+		return result;
+	}
+
+	/**
 	 * Get the non-persistent field-number in DataNucleus' meta-data. This is only a usable value,
 	 * if this <code>FieldMeta</code> was obtained via
 	 * {@link Cumulus4jStoreManager#getClassMeta(org.datanucleus.store.ExecutionContext, Class)}; otherwise
@@ -192,7 +270,7 @@ implements DetachCallback
 		this.dataNucleusAbsoluteFieldNumber = dataNucleusAbsoluteFieldNumber;
 		this.dataNucleusMemberMetaData = null;
 
-		for (FieldMeta subFM : role2subFieldMeta.values())
+		for (FieldMeta subFM : getRole2SubFieldMeta().values())
 			subFM.setDataNucleusAbsoluteFieldNumber(dataNucleusAbsoluteFieldNumber);
 	}
 
@@ -206,7 +284,7 @@ implements DetachCallback
 		if (role == null)
 			throw new IllegalArgumentException("role == null");
 
-		return role2subFieldMeta.get(role);
+		return getRole2SubFieldMeta().get(role);
 	}
 
 	/**
@@ -216,7 +294,7 @@ implements DetachCallback
 	 */
 	public Collection<FieldMeta> getSubFieldMetas()
 	{
-		return role2subFieldMeta.values();
+		return getRole2SubFieldMeta().values();
 	}
 
 	public void addSubFieldMeta(FieldMeta subFieldMeta)
@@ -231,12 +309,23 @@ implements DetachCallback
 			throw new IllegalArgumentException("There is already a subFieldMeta with role \"" + subFieldMeta.getRole() + "\"!");
 
 		subFieldMeta.setDataNucleusAbsoluteFieldNumber(dataNucleusAbsoluteFieldNumber);
-		role2subFieldMeta.put(subFieldMeta.getRole(), subFieldMeta);
+
+		PersistenceManager pm = getPersistenceManager();
+		if (pm != null)
+			subFieldMeta = pm.makePersistent(subFieldMeta);
+
+		getRole2SubFieldMeta().put(subFieldMeta.getRole(), subFieldMeta);
 	}
 
-	public void removeSubFieldMeta(FieldMeta fieldMeta)
+	public void removeSubFieldMeta(FieldMeta subFieldMeta)
 	{
-		role2subFieldMeta.remove(fieldMeta.getRole());
+		if (!this.equals(subFieldMeta.getOwnerFieldMeta()))
+			throw new IllegalArgumentException("subFieldMeta.ownerFieldMeta != this");
+
+		getRole2SubFieldMeta().remove(subFieldMeta.getRole());
+		PersistenceManager pm = getPersistenceManager();
+		if (pm != null)
+			pm.deletePersistent(subFieldMeta);
 	}
 
 	public void removeAllSubFieldMetasExcept(FieldMetaRole ... roles)
@@ -248,10 +337,15 @@ implements DetachCallback
 		for (FieldMetaRole role : roles)
 			rolesToKeep.add(role);
 
-		Collection<FieldMetaRole> oldRoles = new ArrayList<FieldMetaRole>(role2subFieldMeta.keySet());
+		PersistenceManager pm = getPersistenceManager();
+		Collection<FieldMetaRole> oldRoles = new ArrayList<FieldMetaRole>(getRole2SubFieldMeta().keySet());
 		for (FieldMetaRole role : oldRoles) {
-			if (!rolesToKeep.contains(role))
-				role2subFieldMeta.remove(role);
+			if (!rolesToKeep.contains(role)) {
+				FieldMeta subFieldMeta = getRole2SubFieldMeta().remove(role);
+
+				if (pm != null && subFieldMeta != null)
+					pm.deletePersistent(subFieldMeta);
+			}
 		}
 	}
 
@@ -351,14 +445,55 @@ implements DetachCallback
 		return mbfm;
 	}
 
+	protected static final ThreadLocal<Set<FieldMeta>> attachedFieldMetasInPostDetachThreadLocal = new ThreadLocal<Set<FieldMeta>>() {
+		@Override
+		protected Set<FieldMeta> initialValue() {
+			return new HashSet<FieldMeta>();
+		}
+	};
+
 	@Override
 	public void jdoPreDetach() { }
 
 	@Override
 	public void jdoPostDetach(Object o) {
-		FieldMeta attached = (FieldMeta) o;
-		FieldMeta detached = this;
+		final FieldMeta attached = (FieldMeta) o;
+		final FieldMeta detached = this;
+		logger.debug("jdoPostDetach: attached={}", attached);
 		detached.dataNucleusAbsoluteFieldNumber = attached.dataNucleusAbsoluteFieldNumber;
+
+		Set<FieldMeta> attachedFieldMetasInPostDetach = attachedFieldMetasInPostDetachThreadLocal.get();
+		if (!attachedFieldMetasInPostDetach.add(attached)) {
+			logger.debug("jdoPostDetach: Already in detachment => Skipping detachment of this.role2SubFieldMeta! attached={}", attached);
+			return;
+		}
+		try {
+
+			PersistenceManager pm = attached.getPersistenceManager();
+			if (pm == null)
+				throw new IllegalStateException("attached.getPersistenceManager() returned null!");
+
+			// The following field should already be null, but we better ensure that we never
+			// contain *AT*tached objects inside a *DE*tached container.
+			detached.role2SubFieldMeta = null;
+
+			Set<?> fetchGroups = pm.getFetchPlan().getGroups();
+			if (fetchGroups.contains(javax.jdo.FetchGroup.ALL)) {
+				logger.debug("jdoPostDetach: Detaching this.role2SubFieldMeta: attached={}", attached);
+
+				// if the fetch-groups say we should detach the FieldMetas, we do it.
+				HashMap<FieldMetaRole, FieldMeta> map = new HashMap<FieldMetaRole, FieldMeta>();
+				Collection<FieldMeta> detachedSubFieldMetas = pm.detachCopyAll(attached.getRole2SubFieldMeta().values());
+				for (FieldMeta detachedSubFieldMeta : detachedSubFieldMetas) {
+					detachedSubFieldMeta.setOwnerFieldMeta(this); // ensure, it's the identical (not only equal) FieldMeta.
+					map.put(detachedSubFieldMeta.getRole(), detachedSubFieldMeta);
+				}
+				detached.role2SubFieldMeta = map;
+			}
+
+		} finally {
+			attachedFieldMetasInPostDetach.remove(attached);
+		}
 	}
 
 	@Override

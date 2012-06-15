@@ -31,6 +31,7 @@ import javax.jdo.FetchPlan;
 import javax.jdo.PersistenceManager;
 
 import org.cumulus4j.store.model.ClassMeta;
+import org.cumulus4j.store.model.ClassMetaDAO;
 import org.cumulus4j.store.model.DataEntry;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.FieldMetaRole;
@@ -198,7 +199,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 		if (dnClassMetaData == null)
 			throw new IllegalArgumentException("The class " + clazz.getName() + " does not have persistence-meta-data! Is it persistence-capable? Is it enhanced?");
 
-		ClassMeta classMeta = ClassMeta.getClassMeta(pm, clazz, false);
+		ClassMeta classMeta = new ClassMetaDAO(pm).getClassMeta(clazz, false);
 		boolean classExists = (classMeta != null);
 		if (!classExists) {
 			classMeta = new ClassMeta(clazz);

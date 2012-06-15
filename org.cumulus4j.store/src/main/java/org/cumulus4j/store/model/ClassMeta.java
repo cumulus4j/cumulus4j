@@ -19,17 +19,18 @@ package org.cumulus4j.store.model;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.jdo.FetchPlan;
-import javax.jdo.JDOObjectNotFoundException;
+import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.FetchGroup;
 import javax.jdo.annotations.FetchGroups;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
-import javax.jdo.annotations.Key;
 import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.NullValue;
 import javax.jdo.annotations.PersistenceCapable;
@@ -40,9 +41,12 @@ import javax.jdo.annotations.Query;
 import javax.jdo.annotations.Unique;
 import javax.jdo.annotations.Version;
 import javax.jdo.annotations.VersionStrategy;
+import javax.jdo.listener.DetachCallback;
 
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.store.ExecutionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Persistent meta-data for a persistence-capable {@link Class}. Since class names are very long,
@@ -66,25 +70,12 @@ import org.datanucleus.store.ExecutionContext;
 	)
 })
 public class ClassMeta
+implements DetachCallback
 {
-	public static ClassMeta getClassMeta(PersistenceManager pm, String packageName, String simpleClassName, boolean throwExceptionIfNotFound)
-	{
-		javax.jdo.Query q = pm.newNamedQuery(ClassMeta.class, "getClassMetaByPackageNameAndSimpleClassName");
-		ClassMeta result = (ClassMeta) q.execute(packageName, simpleClassName);
+	private static final Logger logger = LoggerFactory.getLogger(ClassMeta.class);
 
-		if (result == null && throwExceptionIfNotFound)
-			throw new JDOObjectNotFoundException(
-					"No ClassMeta found for packageName=\"" + packageName + "\" and simpleClassName=\"" + simpleClassName + "\"!"
-			);
-
-		return result;
-	}
-
-	public static ClassMeta getClassMeta(PersistenceManager pm, Class<?> clazz, boolean throwExceptionIfNotFound)
-	{
-		String packageName = clazz.getPackage() == null ? "" : clazz.getPackage().getName();
-		String simpleClassName = clazz.getSimpleName();
-		return getClassMeta(pm, packageName, simpleClassName, throwExceptionIfNotFound);
+	protected static class NamedQueries {
+		public static final String getClassMetaByPackageNameAndSimpleClassName = "getClassMetaByPackageNameAndSimpleClassName";
 	}
 
 	@PrimaryKey
@@ -104,19 +95,28 @@ public class ClassMeta
 
 	private ClassMeta superClassMeta;
 
-	@Persistent(mappedBy="classMeta", dependentValue="true")
-	@Key(mappedBy="fieldName")
-	private Map<String, FieldMeta> fieldName2fieldMeta;
+	/**
+	 * Meta data for all persistent fields of the class referenced by this <code>ClassMeta</code>.
+	 * <p>
+	 * This map is manually managed (e.g. lazy-loaded by {@link #getFieldName2FieldMeta()} or manually detached
+	 * in {@link #jdoPostDetach(Object)}) because of constraints in GAE. We simulate the behaviour of:
+	 * <p>
+	 * <pre>
+	 * &#64;Persistent(mappedBy="classMeta", dependentValue="true")
+	 * &#64;Key(mappedBy="fieldName")
+	 * </pre>
+	 */
+	@NotPersistent
+	private Map<String, FieldMeta> fieldName2FieldMeta;
 
 	@NotPersistent
-	private Map<Long, FieldMeta> fieldID2fieldMeta;
+	private Map<Long, FieldMeta> fieldID2FieldMeta;
 
 	protected ClassMeta() { }
 
 	public ClassMeta(Class<?> clazz) {
 		this.packageName = clazz.getPackage() == null ? "" : clazz.getPackage().getName();
 		this.simpleClassName = clazz.getSimpleName();
-		this.fieldName2fieldMeta = new HashMap<String, FieldMeta>();
 	}
 
 	public long getClassID() {
@@ -166,13 +166,48 @@ public class ClassMeta
 	}
 
 	/**
+	 * Get the {@link PersistenceManager} assigned to <code>this</code>. If there is none, this method checks, if
+	 * <code>this</code> is new. If <code>this</code> was persisted before, it must have one or an {@link IllegalStateException}
+	 * is thrown.
+	 * @return the {@link PersistenceManager} assigned to this or <code>null</code>.
+	 */
+	protected PersistenceManager getPersistenceManager() {
+		PersistenceManager pm = JDOHelper.getPersistenceManager(this);
+		if (pm == null) {
+			if (JDOHelper.getObjectId(this) != null)
+				throw new IllegalStateException("This ClassMeta instance is not new, but JDOHelper.getPersistenceManager(this) returned null! " + this);
+		}
+		return pm;
+	}
+
+	public Map<String, FieldMeta> getFieldName2FieldMeta() {
+		Map<String, FieldMeta> result = this.fieldName2FieldMeta;
+
+		if (result == null) {
+			logger.debug("getFieldName2FieldMeta: this.fieldName2FieldMeta == null => populating. this={}", this);
+			result = new HashMap<String, FieldMeta>();
+			PersistenceManager pm = getPersistenceManager();
+			if (pm != null) {
+				Collection<FieldMeta> fieldMetas = new FieldMetaDAO(pm).getFieldMetasForClassMeta(this);
+				for (FieldMeta fieldMeta : fieldMetas)
+					result.put(fieldMeta.getFieldName(), fieldMeta);
+			}
+			this.fieldName2FieldMeta = result;
+		}
+		else
+			logger.trace("getFieldName2FieldMeta: this.fieldName2FieldMeta != null (already populated). this={}", this);
+
+		return result;
+	}
+
+	/**
 	 * Get all {@link FieldMeta} instances known to this instance. This is the meta-data for all fields
 	 * <b>directly declared</b> in the class referenced by this <code>ClassMeta</code> <b>not
 	 * including super-classes</b>.
 	 * @return Collection of FieldMeta objects for this class
 	 */
 	public Collection<FieldMeta> getFieldMetas() {
-		return fieldName2fieldMeta.values();
+		return getFieldName2FieldMeta().values();
 	}
 
 	/**
@@ -186,7 +221,7 @@ public class ClassMeta
 	 * @see #getFieldMeta(String, String)
 	 */
 	public FieldMeta getFieldMeta(String fieldName) {
-		return fieldName2fieldMeta.get(fieldName);
+		return getFieldName2FieldMeta().get(fieldName);
 	}
 
 	/**
@@ -241,14 +276,14 @@ public class ClassMeta
 	 */
 	public FieldMeta getFieldMeta(long fieldID)
 	{
-		Map<Long, FieldMeta> m = fieldID2fieldMeta;
+		Map<Long, FieldMeta> m = fieldID2FieldMeta;
 
 		if (m == null) {
-			m = new HashMap<Long, FieldMeta>(fieldName2fieldMeta.size());
-			for (FieldMeta fieldMeta : fieldName2fieldMeta.values())
+			m = new HashMap<Long, FieldMeta>(getFieldName2FieldMeta().size());
+			for (FieldMeta fieldMeta : getFieldName2FieldMeta().values())
 				m.put(fieldMeta.getFieldID(), fieldMeta);
 
-			fieldID2fieldMeta = m;
+			fieldID2FieldMeta = m;
 		}
 
 		FieldMeta fieldMeta = m.get(fieldID);
@@ -265,16 +300,24 @@ public class ClassMeta
 		if (!this.equals(fieldMeta.getClassMeta()))
 			throw new IllegalArgumentException("fieldMeta.classMeta != this");
 
-		fieldName2fieldMeta.put(fieldMeta.getFieldName(), fieldMeta);
-		fieldID2fieldMeta = null;
+		PersistenceManager pm = getPersistenceManager();
+		if (pm != null)
+			fieldMeta = pm.makePersistent(fieldMeta);
+
+		getFieldName2FieldMeta().put(fieldMeta.getFieldName(), fieldMeta);
+		fieldID2FieldMeta = null;
 	}
 
 	public void removeFieldMeta(FieldMeta fieldMeta) {
 		if (!this.equals(fieldMeta.getClassMeta()))
 			throw new IllegalArgumentException("fieldMeta.classMeta != this");
 
-		fieldName2fieldMeta.remove(fieldMeta.getFieldName());
-		fieldID2fieldMeta = null;
+		getFieldName2FieldMeta().remove(fieldMeta.getFieldName());
+		fieldID2FieldMeta = null;
+
+		PersistenceManager pm = getPersistenceManager();
+		if (pm != null)
+			pm.deletePersistent(fieldMeta);
 	}
 
 	@Override
@@ -315,5 +358,56 @@ public class ClassMeta
 
 		dataNucleusClassMetaData = dnClassMetaData;
 		return dnClassMetaData;
+	}
+
+	@Override
+	public void jdoPreDetach() { }
+
+	protected static final ThreadLocal<Set<ClassMeta>> attachedClassMetasInPostDetachThreadLocal = new ThreadLocal<Set<ClassMeta>>() {
+		@Override
+		protected Set<ClassMeta> initialValue() {
+			return new HashSet<ClassMeta>();
+		}
+	};
+
+	@Override
+	public void jdoPostDetach(Object o) {
+		final ClassMeta attached = (ClassMeta) o;
+		final ClassMeta detached = this;
+		logger.debug("jdoPostDetach: attached={}", attached);
+
+		Set<ClassMeta> attachedClassMetasInPostDetach = attachedClassMetasInPostDetachThreadLocal.get();
+		if (!attachedClassMetasInPostDetach.add(attached)) {
+			logger.debug("jdoPostDetach: Already in detachment => Skipping detachment of this.fieldName2FieldMeta! attached={}", attached);
+			return;
+		}
+		try {
+
+			PersistenceManager pm = attached.getPersistenceManager();
+			if (pm == null)
+				throw new IllegalStateException("attached.getPersistenceManager() returned null!");
+
+			// The following fields should already be null, but we better ensure that we never
+			// contain *AT*tached objects inside a *DE*tached container.
+			detached.fieldName2FieldMeta = null;
+			detached.fieldID2FieldMeta = null;
+
+			Set<?> fetchGroups = pm.getFetchPlan().getGroups();
+			if (fetchGroups.contains(javax.jdo.FetchGroup.ALL)) {
+				logger.debug("jdoPostDetach: Detaching this.fieldName2FieldMeta: attached={}", attached);
+
+				// if the fetch-groups say we should detach the FieldMetas, we do it.
+				HashMap<String, FieldMeta> map = new HashMap<String, FieldMeta>();
+				Collection<FieldMeta> detachedFieldMetas = pm.detachCopyAll(attached.getFieldMetas());
+				for (FieldMeta detachedFieldMeta : detachedFieldMetas) {
+					detachedFieldMeta.setClassMeta(this); // ensure, it's the identical (not only equal) ClassMeta.
+					map.put(detachedFieldMeta.getFieldName(), detachedFieldMeta);
+				}
+				detached.fieldName2FieldMeta = map;
+			}
+
+		} finally {
+			attachedClassMetasInPostDetach.remove(attached);
+		}
 	}
 }
