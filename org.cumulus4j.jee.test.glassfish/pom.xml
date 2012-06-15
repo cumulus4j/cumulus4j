@@ -8,26 +8,12 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>org.cumulus4j.jee.test.glassfish</artifactId>
 	<description>JEE test project with GlassFish + EJBs</description>
-	
+
 	<properties>
 		<glassfish.instanceRoot>${project.build.directory}/glassfish-instance</glassfish.instanceRoot>
 		<glassfish.config>${glassfish.instanceRoot}/config</glassfish.config>
 		<glassfish.autodeploy>${glassfish.instanceRoot}/autodeploy</glassfish.autodeploy>
 	</properties>
-
-	<repositories>
-		<repository>
-			<!-- for javax.persistence -->
-			<id>eclipse-sonatype</id>
-			<url>http://maven.eclipse.org/nexus/content/repositories/Sonatype/</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
 
 	<dependencies>
 		<dependency>
@@ -119,28 +105,6 @@
 							</resources>
 						</configuration>
 					</execution>
-					<!--
-					<execution>
-						<id>copy-glassfish-autodeploy</id>
-						<phase>integration-test</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-
-						<configuration>
-							<outputDirectory>${glassfish.autodeploy}</outputDirectory>
-							<resources>
-								<resource>
-									<directory>${project.build.directory}</directory>
-									<filtering>false</filtering>
-									<includes>
-										<include>${project.build.finalName}.jar</include>
-									</includes>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-					-->
 				</executions>
 			</plugin>
 			
