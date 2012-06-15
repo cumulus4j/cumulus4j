@@ -18,7 +18,7 @@
 	
 	<dependencies>
 		<dependency>
-			<groupId>org.cumulus4j</groupId>
+			<groupId>org.cumulus4j.jee.test</groupId>
 			<artifactId>org.cumulus4j.jee.test.ejb</artifactId>
 			<type>ejb</type>
 		</dependency>

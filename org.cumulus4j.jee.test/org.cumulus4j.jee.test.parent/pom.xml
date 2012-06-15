@@ -28,19 +28,19 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>org.cumulus4j</groupId>
+				<groupId>org.cumulus4j.jee.test</groupId>
 				<artifactId>org.cumulus4j.jee.test.ejb</artifactId>
 				<version>${cumulus4j.version}</version>
 				<type>ejb</type>
 			</dependency>
 			<dependency>
-				<groupId>org.cumulus4j</groupId>
+				<groupId>org.cumulus4j.jee.test</groupId>
 				<artifactId>org.cumulus4j.jee.test.ear</artifactId>
 				<version>${cumulus4j.version}</version>
 				<type>ear</type>
 			</dependency>
 			<dependency>
-				<groupId>org.cumulus4j</groupId>
+				<groupId>org.cumulus4j.jee.test</groupId>
 				<artifactId>org.cumulus4j.jee.test.glassfish</artifactId>
 				<version>${cumulus4j.version}</version>
 			</dependency>
