@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<parent>
 		<artifactId>org.cumulus4j.jee.test.parent</artifactId>
-		<groupId>org.cumulus4j</groupId>
+		<groupId>org.cumulus4j.jee.test</groupId>
 		<version>1.0.2-SNAPSHOT</version>
 		<relativePath>../org.cumulus4j.jee.test.parent/pom.xml</relativePath>
 	</parent>

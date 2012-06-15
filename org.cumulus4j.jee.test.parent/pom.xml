@@ -6,6 +6,7 @@
 		<relativePath>../org.cumulus4j.parent/pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.cumulus4j.jee.test</groupId>
 	<artifactId>org.cumulus4j.jee.test.parent</artifactId>
 	<packaging>pom</packaging>
 	<description>JEE test parent POM</description>
