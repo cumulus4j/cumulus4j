@@ -5,7 +5,7 @@
 	<artifactId>org.cumulus4j.parent</artifactId>
 	<version>1.0.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>org.cumulus4j.parent</name>
+	<name>${project.artifactId}</name>
 	<description>Cumulus4j parent POM, i.e. the root-configuration from which all other POMs inherit common settings.</description>
 
 	<properties>

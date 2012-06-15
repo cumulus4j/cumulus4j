@@ -1,0 +1,207 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<artifactId>org.cumulus4j.jee.test.parent</artifactId>
+		<groupId>org.cumulus4j</groupId>
+		<version>1.0.2-SNAPSHOT</version>
+		<relativePath>../org.cumulus4j.jee.test.parent/pom.xml</relativePath>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>org.cumulus4j.jee.test.ejb</artifactId>
+
+	<packaging>ejb</packaging>
+	<description>JEE test EJB project</description>
+
+	<properties>
+		<glassfish.instanceRoot>${project.build.directory}/glassfish-instance</glassfish.instanceRoot>
+		<glassfish.config>${glassfish.instanceRoot}/config</glassfish.config>
+		<glassfish.autodeploy>${glassfish.instanceRoot}/autodeploy</glassfish.autodeploy>
+	</properties>
+
+	<repositories>
+		<repository>
+			<!-- for javax.persistence -->
+			<id>eclipse-sonatype</id>
+			<url>http://maven.eclipse.org/nexus/content/repositories/Sonatype/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+	
+	<dependencies>
+		<dependency>
+			<groupId>org.glassfish.appclient</groupId>
+			<artifactId>gf-client</artifactId>
+			<version>3.1</version>
+			<scope>test</scope>
+			<exclusions>
+				<!--
+				<exclusion>
+					<groupId>org.eclipse.persistence</groupId>
+					<artifactId>javax.persistence</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.persistence</groupId>
+					<artifactId>org.eclipse.persistence.core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.persistence</groupId>
+					<artifactId>org.eclipse.persistence.jpa</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.persistence</groupId>
+					<artifactId>org.eclipse.persistence.jpa.modelgen</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.persistence</groupId>
+					<artifactId>org.eclipse.persistence.oracle</artifactId>
+				</exclusion>
+				<exclusion>
+					<artifactId>eclipselink-wrapper</artifactId>
+					<groupId>org.glassfish.persistence</groupId>
+				</exclusion>
+				-->
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>javax</groupId>
+			<artifactId>javaee-api</artifactId>
+			<version>6.0</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-ejb-plugin</artifactId>
+				<version>2.3</version>
+				<configuration>
+					<ejbVersion>3.0</ejbVersion>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-glassfish-config</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+
+						<configuration>
+							<outputDirectory>${glassfish.config}</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${basedir}/src/glassfish-config</directory>
+									<filtering>false</filtering>
+									<includes>
+										<include>*</include>
+									</includes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy-glassfish-autodeploy</id>
+						<phase>integration-test</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+
+						<configuration>
+							<outputDirectory>${glassfish.autodeploy}</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${project.build.directory}</directory>
+									<filtering>false</filtering>
+									<includes>
+										<include>${project.build.finalName}.jar</include>
+									</includes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.glassfish</groupId>
+				<artifactId>maven-embedded-glassfish-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<serverID>server</serverID>
+					<name>server</name>
+					<!-- the following does not work :-( it does not deploy. using the above solution via "autodeploy" folder.
+					<app>${project.build.directory}/${project.build.finalName}.jar</app>
+					-->
+					<port>8080</port>
+					<instanceRoot>${glassfish.instanceRoot}</instanceRoot>
+					<autoDelete>true</autoDelete>
+					<configFile>${glassfish.config}/domain.xml</configFile>
+				</configuration>
+				<executions>
+					<execution>
+						<id>pre-integration-test</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>start</goal>
+						</goals>
+						<inherited>false</inherited>
+					</execution>
+					<execution>
+						<id>post-integration-test</id>
+						<phase>post-integration-test</phase>
+						<goals>
+							<goal>stop</goal>
+						</goals>
+						<inherited>false</inherited>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<!--
+				We exclude all tests here, because all the tests in this module are INTEGRATION tests which should
+				be executed only when running "mvn integration-test"
+				-->
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+			<plugin>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<configuration>
+					<includes>
+						<include>**/Test*.java</include>
+						<include>**/*Test.java</include>
+						<include>**/IT*.java</include>
+						<include>**/*IT.java</include>
+					</includes>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+<!--
+We want the build to fail, if tests fail, because this whole project is about testing (and nothing else) and it is
+executed in a separate Jenkins-job. Marco :-)
+-->
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
