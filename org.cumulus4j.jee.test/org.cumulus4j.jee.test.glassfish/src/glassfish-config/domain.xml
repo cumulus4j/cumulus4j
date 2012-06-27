@@ -46,6 +46,7 @@
   <resources>
     <jdbc-resource pool-name="__TimerPool" jndi-name="jdbc/__TimerPool" object-type="system-admin" />
     <jdbc-resource pool-name="DerbyPool" jndi-name="jdbc/__default" />
+    <jdbc-resource pool-name="DerbyPoolC4j" jndi-name="jdbc/__defaultC4j" />
     <jdbc-connection-pool name="__TimerPool" datasource-classname="org.apache.derby.jdbc.EmbeddedXADataSource" res-type="javax.sql.XADataSource">
       <property value="${com.sun.aas.instanceRoot}/lib/databases/ejbtimer" name="databaseName" />
       <property value=";create=true" name="connectionAttributes" />
@@ -64,11 +65,16 @@
       <property value="${com.sun.aas.instanceRoot}/lib/databases/default" name="databaseName" />
       <property value=";create=true" name="connectionAttributes" />
     </jdbc-connection-pool>
+    <jdbc-connection-pool name="DerbyPoolC4j" datasource-classname="org.apache.derby.jdbc.EmbeddedXADataSource" res-type="javax.sql.XADataSource">
+      <property value="${com.sun.aas.instanceRoot}/lib/databases/defaultC4j" name="databaseName" />
+      <property value=";create=true" name="connectionAttributes" />
+    </jdbc-connection-pool>
   </resources>
   <servers>
     <server name="server" config-ref="server-config"> 
       <resource-ref ref="jdbc/__TimerPool" />
       <resource-ref ref="jdbc/__default" />
+      <resource-ref ref="jdbc/__defaultC4j" />
     </server>
   </servers>
   <nodes>
