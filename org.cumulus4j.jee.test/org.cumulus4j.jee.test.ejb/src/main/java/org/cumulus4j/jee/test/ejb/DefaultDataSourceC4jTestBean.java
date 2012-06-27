@@ -7,20 +7,20 @@ import javax.ejb.Stateless;
 import javax.sql.DataSource;
 
 @Stateless
-public class DefaultDataSourceTestBean
+public class DefaultDataSourceC4jTestBean
 extends AbstractPlainDataSourceTestBean
-implements DefaultDataSourceTestRemote
+implements DefaultDataSourceC4jTestRemote
 {
-	@Resource(name="jdbc/__default")
-	private DataSource defaultDataSource;
+	@Resource(name="jdbc/__defaultC4j")
+	private DataSource defaultDataSourceC4j;
 
 	@Override
 	public void test() {
 		try {
-			System.out.println(String.format("DefaultDataSourceTestBean.test: defaultDataSource=%s", defaultDataSource));
-			Connection connection = defaultDataSource.getConnection();
+			System.out.println(String.format("DefaultDataSourceTestBean.test: defaultDataSourceC4j=%s", defaultDataSourceC4j));
+			Connection connection = defaultDataSourceC4j.getConnection();
 			System.out.println(String.format("DefaultDataSourceTestBean.test: connection=%s", connection));
-			executeSomeTestSQL(connection, "plain-");
+			executeSomeTestSQL(connection, "c4j-");
 		} catch (Exception x) {
 			throw new RuntimeException(x);
 		}
