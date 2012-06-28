@@ -54,7 +54,6 @@
 		<dependency>
 			<groupId>javax</groupId>
 			<artifactId>javaee-api</artifactId>
-			<version>6.0</version>
 			<scope>provided</scope>
 		</dependency>
 		
@@ -139,6 +138,9 @@
 					<instanceRoot>${glassfish.instanceRoot}</instanceRoot>
 					<autoDelete>true</autoDelete>
 					<configFile>${glassfish.config}/domain.xml</configFile>
+					<systemProperties>
+						<property>java.util.logging.config.file=${glassfish.config}/logging.properties</property>
+					</systemProperties>
 				</configuration>
 				<executions>
 					<execution>

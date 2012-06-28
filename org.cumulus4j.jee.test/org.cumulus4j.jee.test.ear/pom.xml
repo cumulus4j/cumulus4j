@@ -18,9 +18,35 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>org.datanucleus</groupId>
+			<artifactId>datanucleus-api-jdo</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.datanucleus</groupId>
+			<artifactId>datanucleus-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.datanucleus</groupId>
+			<artifactId>datanucleus-rdbms</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>org.cumulus4j.jee.test</groupId>
 			<artifactId>org.cumulus4j.jee.test.ejb</artifactId>
 			<type>ejb</type>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.jdo</groupId>
+			<artifactId>jdo-api</artifactId>
+			<scope>compile</scope> <!-- strange but true, this transitive dependency (from org.cumulus4j.jee.test.ejb) is not making it here -->
+		</dependency>
+
+		<dependency>
+			<!-- Binding to Glassfish's native logging. -->
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-jdk14</artifactId>
+			<version>${slf4j.version}</version>
 		</dependency>
 	</dependencies>
 
@@ -37,6 +63,7 @@
 							<artifactId>org.cumulus4j.jee.test.ejb</artifactId>
 						</ejbModule>
 					</modules>
+					<defaultLibBundleDir>lib</defaultLibBundleDir>
 				</configuration>
 			</plugin>
 		</plugins>

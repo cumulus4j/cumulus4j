@@ -28,6 +28,13 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
+				<groupId>javax</groupId>
+				<artifactId>javaee-api</artifactId>
+				<version>6.0</version>
+				<scope>provided</scope>
+			</dependency>
+
+			<dependency>
 				<groupId>org.cumulus4j.jee.test</groupId>
 				<artifactId>org.cumulus4j.jee.test.ejb</artifactId>
 				<version>${cumulus4j.version}</version>
