@@ -102,7 +102,7 @@ While Cumulus4j is in SNAPSHOT-"mode", listing SNAPSHOT-versions of DataNucleus 
 						<td>
 							<img src="../images/compatibility-no.png" alt="Not compatible" />
 						</td>
-						<td>Bug <a href="http://www.datanucleus.org/servlet/jira/browse/NUCCORE-805">NUCCORE-805</a>.</td>
+						<td>Bug <a href="http://www.datanucleus.org/servlet/jira/browse/NUCCORE-805">NUCCORE-805</a></td>
 						<!--
 						<td>
 							<img src="../images/compatibility-partial.png" alt="Partially compatible" />
