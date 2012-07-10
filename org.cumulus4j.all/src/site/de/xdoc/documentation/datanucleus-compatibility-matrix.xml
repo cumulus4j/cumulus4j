@@ -42,7 +42,8 @@
 				<thead>
 					<tr>
 						<th>Cumulus4j-<br/>Version</th>
-						<th>DataNucleus-<br/>(core)-Version</th>
+						<th>DataNucleus-<br/>core-Version</th>
+						<th>DataNucleus-<br/>rdbms-Version</th>
 						<th>Status</th>
 						<th>Kommentar</th>
 					</tr>
@@ -63,6 +64,16 @@ While Cumulus4j is in SNAPSHOT-"mode", listing SNAPSHOT-versions of DataNucleus 
 					<tr>
 						<td>1.0.2</td>
 						<td>3.0.7 ... 3.0.11</td>
+						<td>3.0.8 ... 3.0.10</td>
+						<td>
+							<img src="../images/compatibility-no.png" alt="Nicht kompatibel" />
+						</td>
+						<td>Since version 3.0.8 of the DataNucleus-RDBMS module, there is a bug concerning the first </td>
+					</tr>
+					<tr>
+						<td>1.0.2</td>
+						<td>3.0.7 ... 3.0.11</td>
+						<td>3.0.7</td>
 						<td>
 							<img src="../images/compatibility-yes.png" alt="Vollständig kompatibel" />
 						</td>
@@ -71,6 +82,7 @@ While Cumulus4j is in SNAPSHOT-"mode", listing SNAPSHOT-versions of DataNucleus 
 					<tr>
 						<td>1.0.1</td>
 						<td>3.0.7 ... 3.0.11</td>
+						<td>3.0.7 ... 3.0.10</td>
 						<td>
 							<img src="../images/compatibility-yes.png" alt="Vollständig kompatibel" />
 						</td>
@@ -79,6 +91,7 @@ While Cumulus4j is in SNAPSHOT-"mode", listing SNAPSHOT-versions of DataNucleus 
 					<tr>
 						<td>*</td>
 						<td>3.0.4 ... 3.0.6</td>
+						<td>*</td>
 						<td>
 							<img src="../images/compatibility-no.png" alt="Nicht kompatibel" />
 						</td>
@@ -97,6 +110,7 @@ While Cumulus4j is in SNAPSHOT-"mode", listing SNAPSHOT-versions of DataNucleus 
 					<tr>
 						<td>1.0.1</td>
 						<td>3.0.1 ... 3.0.3</td>
+						<td>3.0.1 ... 3.0.3</td>
 						<td>
 							<img src="../images/compatibility-yes.png" alt="Vollständig kompatibel" />
 						</td>
@@ -105,6 +119,7 @@ While Cumulus4j is in SNAPSHOT-"mode", listing SNAPSHOT-versions of DataNucleus 
 					<tr>
 						<td>1.0.0</td>
 						<td>3.0.0-release</td>
+						<td>3.0.0-release</td>
 						<td>
 							<img src="../images/compatibility-yes.png" alt="Vollständig kompatibel" />
 						</td>
@@ -112,6 +127,7 @@ While Cumulus4j is in SNAPSHOT-"mode", listing SNAPSHOT-versions of DataNucleus 
 					</tr>
 					<tr>
 						<td>1.0.0</td>
+						<td>3.0.0-m6</td>
 						<td>3.0.0-m6</td>
 						<td>
 							<img src="../images/compatibility-yes.png" alt="Vollständig kompatibel" />

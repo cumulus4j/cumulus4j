@@ -8,6 +8,7 @@ import javax.jdo.PersistenceManager;
 
 import org.cumulus4j.crypto.CryptoRegistry;
 import org.cumulus4j.store.model.EncryptionCoordinateSet;
+import org.cumulus4j.store.model.EncryptionCoordinateSetDAO;
 
 /**
  * <p>
@@ -52,7 +53,7 @@ public class EncryptionCoordinateSetManager
 		EncryptionCoordinateSet encryptionCoordinateSet = encryptionCoordinateSetID2EncryptionCoordinateSet.get(encryptionCoordinateSetID);
 		if (encryptionCoordinateSet == null) {
 			PersistenceManager pm = persistenceManagerConnection.getDataPM();
-			encryptionCoordinateSet = EncryptionCoordinateSet.getEncryptionCoordinateSet(pm, encryptionCoordinateSetID);
+			encryptionCoordinateSet = new EncryptionCoordinateSetDAO(pm).getEncryptionCoordinateSet(encryptionCoordinateSetID);
 			if (encryptionCoordinateSet != null) {
 				pm.getFetchPlan().setMaxFetchDepth(-1);
 				pm.getFetchPlan().setGroup(FetchPlan.ALL);
@@ -103,9 +104,9 @@ public class EncryptionCoordinateSetManager
 			PersistenceManager pm = persistenceManagerConnection.getDataPM();
 
 			if (create)
-				encryptionCoordinateSet = EncryptionCoordinateSet.createEncryptionCoordinateSet(pm, cipherTransformation, macAlgorithm);
+				encryptionCoordinateSet = new EncryptionCoordinateSetDAO(pm).createEncryptionCoordinateSet(cipherTransformation, macAlgorithm);
 			else
-				encryptionCoordinateSet = EncryptionCoordinateSet.getEncryptionCoordinateSet(pm, cipherTransformation, macAlgorithm);
+				encryptionCoordinateSet = new EncryptionCoordinateSetDAO(pm).getEncryptionCoordinateSet(cipherTransformation, macAlgorithm);
 
 			if (encryptionCoordinateSet != null) {
 				pm.getFetchPlan().setMaxFetchDepth(-1);

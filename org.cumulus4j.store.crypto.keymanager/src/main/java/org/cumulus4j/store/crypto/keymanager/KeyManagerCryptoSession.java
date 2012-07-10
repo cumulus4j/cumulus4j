@@ -146,7 +146,7 @@ extends AbstractCryptoSession
 		String activeEncryptionAlgorithm = encryptionCoordinateSet.getCipherTransformation();
 
 		if (encryptionCoordinateSet.getEncryptionCoordinateSetID() < 0)
-			throw new IllegalStateException("The encryptionCoordinateSetID is out of range! It must be >= 0!!!");
+			throw new IllegalStateException("The encryptionCoordinateSetID = " + encryptionCoordinateSet.getEncryptionCoordinateSetID() + " is out of range! It must be >= 0!!!");
 
 		if (encryptionCoordinateSet.getEncryptionCoordinateSetID() > (2 * Short.MAX_VALUE))
 			throw new IllegalStateException("The encryptionCoordinateSetID is out of range! The maximum is " + (2 * Short.MAX_VALUE) + ", because the value is encoded as UNsigned 2-byte-number! This means, you changed the encryption algorithm or the MAC algorithm too often. Switch back to settings you already used before!");
