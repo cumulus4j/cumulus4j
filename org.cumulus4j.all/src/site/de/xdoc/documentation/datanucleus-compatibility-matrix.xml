@@ -52,7 +52,22 @@
 And only stable versions (no SNAPSHOT-versions) of DataNucleus should be listed when Cumulus4j is released!
 While Cumulus4j is in SNAPSHOT-"mode", listing SNAPSHOT-versions of DataNucleus here, is OK. Marco :-)
 -->
-
+					<tr>
+						<td>1.0.2</td>
+						<td>3.1.0-m5</td>
+						<td>
+							<img src="../images/compatibility-yes.png" alt="Vollständig kompatibel" />
+						</td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>1.0.2</td>
+						<td>3.0.7 ... 3.0.11</td>
+						<td>
+							<img src="../images/compatibility-yes.png" alt="Vollständig kompatibel" />
+						</td>
+						<td></td>
+					</tr>
 					<tr>
 						<td>1.0.1</td>
 						<td>3.0.7 ... 3.0.11</td>

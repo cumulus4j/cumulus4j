@@ -30,10 +30,36 @@
 		<slf4j.version>1.6.1</slf4j.version>
 		<jersey.version>1.9</jersey.version>
 
-		<datanucleus.dependency.version>3.0.5</datanucleus.dependency.version>
+
+		<!-- BEGIN DataNucleus versions -->
+		<!-- default version -->
+		<datanucleus.dependency.version>3.0.3</datanucleus.dependency.version>
+
+		<!-- core -->
 		<datanucleus.core.dependency.version>3.0.11</datanucleus.core.dependency.version>
+
+		<!-- api -->
+		<datanucleus.api-jdo.dependency.version>3.0.8</datanucleus.api-jdo.dependency.version>
+		<datanucleus.api-jpa.dependency.version>3.0.11</datanucleus.api-jpa.dependency.version>
+
+		<!-- rdbms -->
+		<datanucleus.rdbms.dependency.version>3.0.10</datanucleus.rdbms.dependency.version>
+
+		<!-- other storage back-ends -->
+		<datanucleus.mongodb.dependency.version>${datanucleus.dependency.version}</datanucleus.mongodb.dependency.version>
+		<datanucleus.hbase.dependency.version>${datanucleus.dependency.version}</datanucleus.hbase.dependency.version>
+		<datanucleus.excel.dependency.version>${datanucleus.dependency.version}</datanucleus.excel.dependency.version>
+		<datanucleus.odf.dependency.version>${datanucleus.dependency.version}</datanucleus.odf.dependency.version>
+
+		<!-- enhancer -->
 		<datanucleus.enhancer.dependency.version>3.0.1</datanucleus.enhancer.dependency.version>
+		<!-- maven plugin (for enhancing) -->
+		<datanucleus.maven.version>3.0.2</datanucleus.maven.version>
+
+		<!-- javadoc -->
 		<datanucleus.javadoc.version>3.0</datanucleus.javadoc.version>
+		<!-- END DataNucleus versions -->
+
 
 		<!-- Force UTF-8 for all files read (sources) and written (reports) by Maven. -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -497,12 +523,12 @@
 			<dependency>
 				<groupId>org.datanucleus</groupId>
 				<artifactId>datanucleus-api-jdo</artifactId>
-				<version>${datanucleus.dependency.version}</version>
+				<version>${datanucleus.api-jdo.dependency.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.datanucleus</groupId>
 				<artifactId>datanucleus-api-jpa</artifactId>
-				<version>${datanucleus.dependency.version}</version>
+				<version>${datanucleus.api-jpa.dependency.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.datanucleus</groupId>
@@ -512,27 +538,27 @@
 			<dependency>
 				<groupId>org.datanucleus</groupId>
 				<artifactId>datanucleus-rdbms</artifactId>
-				<version>${datanucleus.dependency.version}</version>
+				<version>${datanucleus.rdbms.dependency.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.datanucleus</groupId>
 				<artifactId>datanucleus-mongodb</artifactId>
-				<version>${datanucleus.dependency.version}</version>
+				<version>${datanucleus.mongodb.dependency.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.datanucleus</groupId>
 				<artifactId>datanucleus-hbase</artifactId>
-				<version>${datanucleus.dependency.version}</version>
+				<version>${datanucleus.hbase.dependency.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.datanucleus</groupId>
 				<artifactId>datanucleus-excel</artifactId>
-				<version>${datanucleus.dependency.version}</version>
+				<version>${datanucleus.excel.dependency.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.datanucleus</groupId>
 				<artifactId>datanucleus-odf</artifactId>
-				<version>${datanucleus.dependency.version}</version>
+				<version>${datanucleus.odf.dependency.version}</version>
 			</dependency>
 
 			<dependency>
@@ -640,7 +666,7 @@
 				<plugin>
 					<groupId>org.datanucleus</groupId>
 					<artifactId>maven-datanucleus-plugin</artifactId>
-					<version>3.0.2</version>
+					<version>${datanucleus.maven.version}</version>
 					<configuration>
 						<log4jConfiguration>${basedir}/enhancer-log4j.properties</log4jConfiguration>
 						<verbose>false</verbose>
