@@ -13,7 +13,7 @@ What's new?
 ~~
 ~~	Lorem ipsum bla bla bla
 
-* What's new in 1.0.2-SNAPSHOT?
+* What's new in 1.0.2?
 
 	Compared to version 1.0.1, there are the following changes:
 
@@ -22,6 +22,8 @@ What's new?
 	the key store's file format changed. Old key store files can be read, but they might be converted automatically
 	into the new file format and will then not be readable for older Cumulus4j versions, anymore. Bear this in mind
 	when upgrading (backup your key stores!).
+
+	* Added a few annotations for GAE compatibility (which is not yet achieved by this version).
 
 	[]
 

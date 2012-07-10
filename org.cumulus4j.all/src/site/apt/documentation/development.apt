@@ -23,16 +23,12 @@ Workspace-Setup Cumulus4j-DataNucleus-Plug-in
 
 		* You need the "Eclipse IDE for Java EE Developers".
 
-	* {{{http://m2eclipse.sonatype.org/}m2eclipse}}
+	* {{{http://www.eclipse.org/m2e/}m2eclipse}}
 
-		* Update site for core: {{http://m2eclipse.sonatype.org/sites/m2e}}
+		* {{{http://www.eclipse.org/m2e/download/}Download}}
 
-		* Update site for extras: {{http://m2eclipse.sonatype.org/sites/m2e-extras}}
+		* Update site for latest m2e release: {{http://download.eclipse.org/technology/m2e/releases}} 
 
-			* Install 1 feature: Maven Integration for <<WTP>>
-
-		* {{{http://m2eclipse.sonatype.org/installing-m2eclipse.html}Installation howto}}
-	
 	* Subclipse
 
 		* Update site: {{http://subclipse.tigris.org/update_1.6.x}}

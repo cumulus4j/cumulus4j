@@ -23,6 +23,9 @@ Was ist neu?
 	doch sie werden evtl. automatisch in das neue Dateiformat konvertiert und können dann nicht mehr von einer älteren
 	Cumulus4j-Version gelesen werden. Dies sollten Sie bei einem Upgrade berücksichtigen (Backup Ihrer Schlüsselspeicher!).
 
+	* Zwecks GAE-Kompatibilität wurden einige Annotationen hinzugefügt (die GAE wird aber von dieser Version noch nicht
+	unterstützt).
+
 	[]
 
 * Was ist neu in 1.0.1?

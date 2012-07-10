@@ -108,7 +108,7 @@
 		<menu name="Releases">
 			<item name="Latest development snapshot" href="../latest-dev/" />
 			<item name="Latest stable version" href="../latest-stable/" />
-			<item name="All releases" href="../latest-dev/releases" />
+			<item name="All releases" href="../latest-stable/releases" />
 		</menu>
 	</body>
 

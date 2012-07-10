@@ -108,7 +108,7 @@
 		<menu name="Versionen">
 			<item name="Neuester Entwicklungs-Schnappschuss" href="../../latest-dev/de/" />
 			<item name="Neueste stabile Version" href="../../latest-stable/de/" />
-			<item name="Alle Veröffentlichungen" href="../../latest-dev/de/releases" />
+			<item name="Alle Veröffentlichungen" href="../../latest-stable/de/releases" />
 		</menu>
 	</body>
 
