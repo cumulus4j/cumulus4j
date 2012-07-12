@@ -16,8 +16,7 @@ public class DataNucleusEjbInvocationIT extends AbstractGlassfishIT {
 	protected DataNucleusTestRemote remote;
 
 	@Before
-	public void before() throws Exception
-	{
+	public void before() throws Exception {
 		System.out.println("before: Entered.");
 		remote = null;
 
@@ -28,23 +27,29 @@ public class DataNucleusEjbInvocationIT extends AbstractGlassfishIT {
 			try {
 				InitialContext ic = createInitialContext();
 
-				System.out.println("dataNucleusEjbInvocation: Created InitialContext instance. Looking up EJB.");
+				System.out
+						.println("dataNucleusEjbInvocation: Created InitialContext instance. Looking up EJB.");
 
-				remote = (DataNucleusTestRemote)ic.lookup(DataNucleusTestRemote.class.getName());
+				remote = (DataNucleusTestRemote) ic
+						.lookup(DataNucleusTestRemote.class.getName());
 
-				System.out.println("dataNucleusEjbInvocation: Looked up EJB. Testing server availability.");
+				System.out
+						.println("dataNucleusEjbInvocation: Looked up EJB. Testing server availability.");
 
 				if (!remote.isAvailable())
 					throw new IllegalStateException("Server is not available!");
 
-				System.out.println("dataNucleusEjbInvocation: Server is available.");
+				System.out
+						.println("dataNucleusEjbInvocation: Server is available.");
 				successful = true;
 			} catch (Exception x) {
 				remote = null;
-				if (tryCounter >= 3) // We try it 3 times - if it fails for the 3rd time, we rethrow.
+				if (tryCounter >= 3) // We try it 3 times - if it fails for the
+										// 3rd time, we rethrow.
 					throw x;
 
-				System.out.println("dataNucleusEjbInvocation: Caught exception! Will retry.");
+				System.out
+						.println("dataNucleusEjbInvocation: Caught exception! Will retry.");
 				x.printStackTrace();
 				System.out.println("dataNucleusEjbInvocation: Sleeping...");
 				Thread.sleep(5000);
@@ -52,7 +57,8 @@ public class DataNucleusEjbInvocationIT extends AbstractGlassfishIT {
 		}
 
 		if (remote == null)
-			throw new IllegalStateException("Could not establish connection to server.");
+			throw new IllegalStateException(
+					"Could not establish connection to server.");
 	}
 
 	@Test
@@ -63,7 +69,9 @@ public class DataNucleusEjbInvocationIT extends AbstractGlassfishIT {
 		remote.test(id, false);
 
 		boolean objectExists = remote.objectExists(id);
-		Assert.assertTrue("remote.objectExists(id) == false!!! Expected object to be written into DB, but it is not there.", objectExists);
+		Assert.assertTrue(
+				"remote.objectExists(id) == false!!! Expected object to be written into DB, but it is not there.",
+				objectExists);
 	}
 
 	@Test
@@ -75,7 +83,8 @@ public class DataNucleusEjbInvocationIT extends AbstractGlassfishIT {
 		try {
 			remote.test(id, true);
 		} catch (Exception x) {
-			int index = ExceptionUtils.indexOfThrowable(x, TestRollbackException.class);
+			int index = ExceptionUtils.indexOfThrowable(x,
+					TestRollbackException.class);
 			if (index >= 0)
 				expectedExceptionThrown = true;
 			else
@@ -84,27 +93,129 @@ public class DataNucleusEjbInvocationIT extends AbstractGlassfishIT {
 
 		boolean objectExists = remote.objectExists(id);
 
-		Assert.assertTrue("TestRollbackException was not thrown!", expectedExceptionThrown);
-		Assert.assertFalse("remote.objectExists(id) == true!!! Expected object was written into DB, even though the transaction should have been rolled back.", objectExists);
+		Assert.assertTrue("TestRollbackException was not thrown!",
+				expectedExceptionThrown);
+		Assert.assertFalse(
+				"remote.objectExists(id) == true!!! Expected object was written into DB, even though the transaction should have been rolled back.",
+				objectExists);
 	}
 
-	public void mainTransactionCommitSubTransactionCommit() throws Exception
-	{
+	@Test
+	public void mainTransactionCommitSubTransactionCommit() throws Exception {
 
+		System.out
+				.println("mainTransactionCommitSubTransactionCommit: Entered.");
+
+		UUID id1 = UUID.randomUUID();
+		UUID id2 = UUID.randomUUID();
+		remote.test(id1, id2, false, false);
+
+		boolean object1Exists = remote.objectExists(id1);
+		boolean object2Exists = remote.objectExists(id2);
+
+		Assert.assertTrue(
+				"remote.objectExists(id1) == false!!! Expected object to be written into DB, but it is not there.",
+				object1Exists);
+		Assert.assertTrue(
+				"remote.objectExists(id2) == false!!! Expected object to be written into DB, but it is not there.",
+				object2Exists);
 	}
 
-	public void mainTransactionCommitSubTransactionRollback() throws Exception
-	{
+	@Test
+	public void mainTransactionCommitSubTransactionRollback() throws Exception {
 
+		System.out
+				.println("mainTransactionCommitSubTransactionRollback: Entered.");
+
+		UUID id1 = UUID.randomUUID();
+		UUID id2 = UUID.randomUUID();
+		boolean expectedExceptionThrown = false;
+		try {
+			remote.test(id1, id2, false, true);
+		} catch (Exception x) {
+			int index = ExceptionUtils.indexOfThrowable(x,
+					TestRollbackException.class);
+			if (index >= 0)
+				expectedExceptionThrown = true;
+			else
+				throw x;
+		}
+
+		boolean object1Exists = remote.objectExists(id1);
+		boolean object2Exists = remote.objectExists(id2);
+
+		Assert.assertTrue("TestRollbackException was not thrown!",
+				expectedExceptionThrown);
+		Assert.assertTrue(
+				"remote.objectExists(id1) == false!!! Expected object to be written into DB, but it is not there.",
+				object1Exists);
+		Assert.assertFalse(
+				"remote.objectExists(id2) == true!!! Expected object was written into DB, even though the transaction should have been rolled back.",
+				object2Exists);
 	}
 
-	public void mainTransactionRollbackSubTransactionRollback() throws Exception
-	{
+	@Test
+	public void mainTransactionRollbackSubTransactionRollback()
+			throws Exception {
+		System.out
+				.println("mainTransactionRollbackSubTransactionRollback: Entered.");
 
+		UUID id1 = UUID.randomUUID();
+		UUID id2 = UUID.randomUUID();
+		boolean expectedExceptionThrown = false;
+		try {
+			remote.test(id1, id2, true, true);
+		} catch (Exception x) {
+			int index = ExceptionUtils.indexOfThrowable(x,
+					TestRollbackException.class);
+			if (index >= 0)
+				expectedExceptionThrown = true;
+			else
+				throw x;
+		}
+
+		boolean object1Exists = remote.objectExists(id1);
+		boolean object2Exists = remote.objectExists(id2);
+
+		Assert.assertTrue("TestRollbackException was not thrown!",
+				expectedExceptionThrown);
+		Assert.assertFalse(
+				"remote.objectExists(id1) == true!!! Expected object was written into DB, even though the transaction should have been rolled back.",
+				object1Exists);
+		Assert.assertFalse(
+				"remote.objectExists(id2) == true!!! Expected object was written into DB, even though the transaction should have been rolled back.",
+				object2Exists);
 	}
 
-	public void mainTransactionRollbackSubTransactionCommit() throws Exception
-	{
+	@Test
+	public void mainTransactionRollbackSubTransactionCommit() throws Exception {
+		System.out
+				.println("mainTransactionRollbackSubTransactionCommit: Entered.");
 
+		UUID id1 = UUID.randomUUID();
+		UUID id2 = UUID.randomUUID();
+		boolean expectedExceptionThrown = false;
+		try {
+			remote.test(id1, id2, true, false);
+		} catch (Exception x) {
+			int index = ExceptionUtils.indexOfThrowable(x,
+					TestRollbackException.class);
+			if (index >= 0)
+				expectedExceptionThrown = true;
+			else
+				throw x;
+		}
+
+		boolean object1Exists = remote.objectExists(id1);
+		boolean object2Exists = remote.objectExists(id2);
+
+		Assert.assertTrue("TestRollbackException was not thrown!",
+				expectedExceptionThrown);
+		Assert.assertFalse(
+				"remote.objectExists(id1) == true!!! Expected object was written into DB, even though the transaction should have been rolled back.",
+				object1Exists);
+		Assert.assertTrue(
+				"remote.objectExists(id2) == false!!! Expected object to be written into DB, but it is not there.",
+				object2Exists);
 	}
 }

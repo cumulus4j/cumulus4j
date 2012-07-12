@@ -1,5 +1,7 @@
 package org.cumulus4j.jee.test.ejb;
 
+import java.util.UUID;
+
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
@@ -18,5 +20,15 @@ public class DataNucleusNewTransactionBean extends AbstractDataNucleusTestBean {
 //			pm.close();
 //		}
 //	}
+
+	public void test(UUID id, boolean throwException) throws Exception {
+
+		storeObject(id);
+
+		if (throwException)
+			throw new TestRollbackException(
+					"Legal exception for test purposes. Object "
+							+ id.toString() + " should now be deleted!");
+	}
 
 }
