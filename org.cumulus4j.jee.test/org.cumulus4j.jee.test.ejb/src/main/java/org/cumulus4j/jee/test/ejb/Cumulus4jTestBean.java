@@ -7,9 +7,9 @@ import javax.ejb.Stateless;
 import javax.sql.DataSource;
 
 @Stateless
-public class DefaultDataSourceC4jTestBean
+public class Cumulus4jTestBean
 extends AbstractPlainDataSourceTestBean
-implements DefaultDataSourceC4jTestRemote
+implements Cumulus4jTestRemote
 {
 	@Resource(name="jdbc/__defaultC4j")
 	private DataSource defaultDataSourceC4j;
