@@ -4,7 +4,9 @@ import java.util.UUID;
 
 import javax.naming.InitialContext;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.cumulus4j.jee.test.ejb.DataNucleusTestRemote;
+import org.cumulus4j.jee.test.ejb.TestRollbackException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,27 +66,27 @@ public class DataNucleusEjbInvocationIT extends AbstractGlassfishIT {
 		Assert.assertTrue("remote.objectExists(id) == false!!! Expected object to be written into DB, but it is not there.", objectExists);
 	}
 
-//	@Test
-//	public void singleTransactionRollback() throws Exception {
-//		System.out.println("singleTransactionRollback: Entered.");
-//
-//		UUID id = UUID.randomUUID();
-//		boolean expectedExceptionThrown = false;
-//		try {
-//			remote.test(id, true);
-//		} catch (Exception x) {
-//			int index = ExceptionUtils.indexOfThrowable(x, TestRollbackException.class);
-//			if (index >= 0)
-//				expectedExceptionThrown = true;
-//			else
-//				throw x;
-//		}
-//
-//		boolean objectExists = remote.objectExists(id);
-//
-//		Assert.assertTrue("TestRollbackException was not thrown!", expectedExceptionThrown);
-//		Assert.assertFalse("remote.objectExists(id) == true!!! Expected object was written into DB, even though the transaction should have been rolled back.", objectExists);
-//	}
+	@Test
+	public void singleTransactionRollback() throws Exception {
+		System.out.println("singleTransactionRollback: Entered.");
+
+		UUID id = UUID.randomUUID();
+		boolean expectedExceptionThrown = false;
+		try {
+			remote.test(id, true);
+		} catch (Exception x) {
+			int index = ExceptionUtils.indexOfThrowable(x, TestRollbackException.class);
+			if (index >= 0)
+				expectedExceptionThrown = true;
+			else
+				throw x;
+		}
+
+		boolean objectExists = remote.objectExists(id);
+
+		Assert.assertTrue("TestRollbackException was not thrown!", expectedExceptionThrown);
+		Assert.assertFalse("remote.objectExists(id) == true!!! Expected object was written into DB, even though the transaction should have been rolled back.", objectExists);
+	}
 
 	public void mainTransactionCommitSubTransactionCommit() throws Exception
 	{
