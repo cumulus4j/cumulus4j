@@ -66,7 +66,7 @@ public class DataNucleusEjbInvocationIT extends AbstractGlassfishIT {
 		System.out.println("singleTransactionCommit: Entered.");
 
 		UUID id = UUID.randomUUID();
-		remote.test(id, false);
+		remote.testRollbackOnException(id, false);
 
 		boolean objectExists = remote.objectExists(id);
 		Assert.assertTrue(
@@ -81,7 +81,7 @@ public class DataNucleusEjbInvocationIT extends AbstractGlassfishIT {
 		UUID id = UUID.randomUUID();
 		boolean expectedExceptionThrown = false;
 		try {
-			remote.test(id, true);
+			remote.testRollbackOnException(id, true);
 		} catch (Exception x) {
 			int index = ExceptionUtils.indexOfThrowable(x,
 					TestRollbackException.class);
@@ -108,7 +108,7 @@ public class DataNucleusEjbInvocationIT extends AbstractGlassfishIT {
 
 		UUID id1 = UUID.randomUUID();
 		UUID id2 = UUID.randomUUID();
-		remote.test(id1, id2, false, false);
+		remote.testRollbackOnNestedTransactionException(id1, id2, false, false);
 
 		boolean object1Exists = remote.objectExists(id1);
 		boolean object2Exists = remote.objectExists(id2);
@@ -129,23 +129,12 @@ public class DataNucleusEjbInvocationIT extends AbstractGlassfishIT {
 
 		UUID id1 = UUID.randomUUID();
 		UUID id2 = UUID.randomUUID();
-		boolean expectedExceptionThrown = false;
-		try {
-			remote.test(id1, id2, false, true);
-		} catch (Exception x) {
-			int index = ExceptionUtils.indexOfThrowable(x,
-					TestRollbackException.class);
-			if (index >= 0)
-				expectedExceptionThrown = true;
-			else
-				throw x;
-		}
+
+		remote.testRollbackOnNestedTransactionException(id1, id2, false, true);
 
 		boolean object1Exists = remote.objectExists(id1);
 		boolean object2Exists = remote.objectExists(id2);
 
-		Assert.assertTrue("TestRollbackException was not thrown!",
-				expectedExceptionThrown);
 		Assert.assertTrue(
 				"remote.objectExists(id1) == false!!! Expected object to be written into DB, but it is not there.",
 				object1Exists);
@@ -157,6 +146,7 @@ public class DataNucleusEjbInvocationIT extends AbstractGlassfishIT {
 	@Test
 	public void mainTransactionRollbackSubTransactionRollback()
 			throws Exception {
+
 		System.out
 				.println("mainTransactionRollbackSubTransactionRollback: Entered.");
 
@@ -164,7 +154,8 @@ public class DataNucleusEjbInvocationIT extends AbstractGlassfishIT {
 		UUID id2 = UUID.randomUUID();
 		boolean expectedExceptionThrown = false;
 		try {
-			remote.test(id1, id2, true, true);
+			remote.testRollbackOnNestedTransactionException(id1, id2, true,
+					true);
 		} catch (Exception x) {
 			int index = ExceptionUtils.indexOfThrowable(x,
 					TestRollbackException.class);
@@ -189,6 +180,7 @@ public class DataNucleusEjbInvocationIT extends AbstractGlassfishIT {
 
 	@Test
 	public void mainTransactionRollbackSubTransactionCommit() throws Exception {
+
 		System.out
 				.println("mainTransactionRollbackSubTransactionCommit: Entered.");
 
@@ -196,7 +188,8 @@ public class DataNucleusEjbInvocationIT extends AbstractGlassfishIT {
 		UUID id2 = UUID.randomUUID();
 		boolean expectedExceptionThrown = false;
 		try {
-			remote.test(id1, id2, true, false);
+			remote.testRollbackOnNestedTransactionException(id1, id2, true,
+					false);
 		} catch (Exception x) {
 			int index = ExceptionUtils.indexOfThrowable(x,
 					TestRollbackException.class);
@@ -216,6 +209,118 @@ public class DataNucleusEjbInvocationIT extends AbstractGlassfishIT {
 				object1Exists);
 		Assert.assertTrue(
 				"remote.objectExists(id2) == false!!! Expected object to be written into DB, but it is not there.",
+				object2Exists);
+	}
+
+	@Test
+	public void sharedTransactionCommitCommit() throws Exception {
+
+		System.out
+				.println("@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW): Entered.");
+
+		UUID id1 = UUID.randomUUID();
+		UUID id2 = UUID.randomUUID();
+
+		remote.testRollbackWithSharedTransaction(id1, id2, false, false);
+
+		boolean object1Exists = remote.objectExists(id1);
+		boolean object2Exists = remote.objectExists(id2);
+
+		Assert.assertTrue(
+				"remote.objectExists(id1) == false!!! Expected object to be written into DB, but it is not there.",
+				object1Exists);
+		Assert.assertTrue(
+				"remote.objectExists(id2) == false!!! Expected object to be written into DB, but it is not there.",
+				object2Exists);
+	}
+
+	@Test
+	public void sharedTransactionCommitRollback() throws Exception {
+
+		System.out
+				.println("sharedTransactionCommitCommit: Entered.");
+
+		UUID id1 = UUID.randomUUID();
+		UUID id2 = UUID.randomUUID();
+
+		remote.testRollbackWithSharedTransaction(id1, id2, false, true);
+
+		boolean object1Exists = remote.objectExists(id1);
+		boolean object2Exists = remote.objectExists(id2);
+
+		Assert.assertFalse(
+				"remote.objectExists(id1) == true!!! Expected object was written into DB, even though the transaction should have been rolled back.",
+				object1Exists);
+		Assert.assertFalse(
+				"remote.objectExists(id2) == true!!! Expected object was written into DB, even though the transaction should have been rolled back.",
+				object2Exists);
+	}
+
+	@Test
+	public void sharedTransactionRollbackCommit() throws Exception {
+
+		System.out
+				.println("sharedTransactionRollbackCommit: Entered.");
+
+		UUID id1 = UUID.randomUUID();
+		UUID id2 = UUID.randomUUID();
+		boolean expectedExceptionThrown = false;
+		try {
+			remote.testRollbackWithSharedTransaction(id1, id2, true,
+					false);
+		} catch (Exception x) {
+			int index = ExceptionUtils.indexOfThrowable(x,
+					TestRollbackException.class);
+			if (index >= 0)
+				expectedExceptionThrown = true;
+			else
+				throw x;
+		}
+
+		boolean object1Exists = remote.objectExists(id1);
+		boolean object2Exists = remote.objectExists(id2);
+
+		Assert.assertTrue("TestRollbackException was not thrown!",
+				expectedExceptionThrown);
+		Assert.assertFalse(
+				"remote.objectExists(id1) == true!!! Expected object was written into DB, even though the transaction should have been rolled back.",
+				object1Exists);
+		Assert.assertFalse(
+				"remote.objectExists(id2) == true!!! Expected object was written into DB, even though the transaction should have been rolled back.",
+				object2Exists);
+	}
+
+	@Test
+	public void sharedTransactionRollbackRollback() throws Exception {
+
+		System.out
+				.println("sharedTransactionRollbackRollback: Entered.");
+
+		UUID id1 = UUID.randomUUID();
+		UUID id2 = UUID.randomUUID();
+		boolean expectedExceptionThrown = false;
+		try {
+			remote.testRollbackWithSharedTransaction(id1, id2, true,
+					true);
+		} catch (Exception x) {
+			int index = ExceptionUtils.indexOfThrowable(x,
+					TestRollbackException.class);
+			if (index >= 0)
+				expectedExceptionThrown = true;
+			else
+				throw x;
+		}
+
+		boolean object1Exists = remote.objectExists(id1);
+		boolean object2Exists = remote.objectExists(id2);
+
+		Assert.assertTrue("TestRollbackException was not thrown!",
+				expectedExceptionThrown);
+		Assert.assertFalse(
+				"remote.objectExists(id1) == true!!! Expected object was written into DB, even though the transaction should have been rolled back.",
+				object1Exists);
+		Assert.assertFalse(
+				"remote.objectExists(id2) == true!!! Expected object was written into DB, even though the transaction should have been rolled back.",
 				object2Exists);
 	}
 }

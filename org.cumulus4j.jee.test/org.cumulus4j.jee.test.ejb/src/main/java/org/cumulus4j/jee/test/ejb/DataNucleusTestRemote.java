@@ -7,12 +7,19 @@ import javax.ejb.Remote;
 @Remote
 public interface DataNucleusTestRemote {
 
-	void test(UUID id, boolean throwException) throws Exception;
+	void testRollbackOnException(UUID id, boolean throwException)
+			throws Exception;
 
-	void test(UUID id1, UUID id2, boolean throwExceptionInMainTransaction, boolean throwExceptionInNestedTransaction) throws Exception;
+	void testRollbackOnNestedTransactionException(UUID id1, UUID id2,
+			boolean throwExceptionInMainTransaction,
+			boolean throwExceptionInNestedTransaction) throws Exception;
 
 	boolean objectExists(UUID id);
 
 	boolean isAvailable();
+
+	void testRollbackWithSharedTransaction(UUID id1, UUID id2,
+			boolean throwExceptionInMainTransaction,
+			boolean throwExceptionInNestedTransaction) throws Exception;
 
 }

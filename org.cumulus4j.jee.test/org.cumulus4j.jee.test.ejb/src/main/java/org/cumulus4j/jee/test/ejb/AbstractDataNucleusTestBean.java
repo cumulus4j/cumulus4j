@@ -54,6 +54,8 @@ public abstract class AbstractDataNucleusTestBean {
 			Transaction currentTransaction = pm.currentTransaction();
 			logger.info("pm.currentTransaction().isActive() = {}",
 					currentTransaction.isActive());
+			logger.info("pm.currentTransaction() {}",
+					currentTransaction);
 		} catch (Exception x) {
 			// We expect that it is not possible to access the current tx via
 			// JDO API in a transactional container (=> AS).

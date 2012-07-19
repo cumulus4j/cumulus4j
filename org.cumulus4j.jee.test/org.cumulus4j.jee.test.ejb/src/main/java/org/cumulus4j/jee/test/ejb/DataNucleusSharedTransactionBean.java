@@ -10,10 +10,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Stateless
-@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-public class DataNucleusNewTransactionBean extends AbstractDataNucleusTestBean {
+@TransactionAttribute(TransactionAttributeType.REQUIRED)
+public class DataNucleusSharedTransactionBean extends AbstractDataNucleusTestBean {
 
-	private Logger logger = LoggerFactory.getLogger(DataNucleusNewTransactionBean.class);
+	private Logger logger = LoggerFactory.getLogger(DataNucleusSharedTransactionBean.class);
 
 	public void testRollback(UUID id, boolean throwException) throws Exception {
 
