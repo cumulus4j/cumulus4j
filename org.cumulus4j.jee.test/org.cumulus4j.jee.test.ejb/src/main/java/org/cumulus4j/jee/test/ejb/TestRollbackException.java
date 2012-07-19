@@ -1,6 +1,8 @@
 package org.cumulus4j.jee.test.ejb;
 
-public class TestRollbackException extends RuntimeException {
+import javax.transaction.SystemException;
+
+public class TestRollbackException extends SystemException {
 	private static final long serialVersionUID = 1L;
 
 	public TestRollbackException() { }
