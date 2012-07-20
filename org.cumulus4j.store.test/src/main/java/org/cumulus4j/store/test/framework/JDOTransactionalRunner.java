@@ -220,7 +220,7 @@ public class JDOTransactionalRunner extends BlockJUnit4ClassRunner
 	{
 		pm.setProperty(CryptoManager.PROPERTY_CRYPTO_MANAGER_ID, "dummy");
 		String keyStoreID = "dummy" + testRunIndex;
-		pm.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, keyStoreID + ':' + UUID.randomUUID());
+		pm.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, keyStoreID + '_' + UUID.randomUUID() + '*' + UUID.randomUUID());
 	}
 
 	public static PersistenceManagerFactory createPersistenceManagerFactory()
