@@ -92,9 +92,9 @@ public abstract class AbstractCryptoSession implements CryptoSession
 
 			// Our default format for a cryptoSessionID is:
 			//
-			// "${cryptoSessionIDPrefix}.${serial}.${random1}"
+			// "${cryptoSessionIDPrefix}*${serial}*${random1}"
 			//
-			// ${cryptoSessionIDPrefix} is: "${keyStoreID}:${random2}"
+			// ${cryptoSessionIDPrefix} is: "${keyStoreID}_${random2}"
 			// The ${cryptoSessionIDPrefix} is used for routing key-request-messages to the right key manager
 			// and for determining the key-store-id.
 			//
@@ -102,9 +102,9 @@ public abstract class AbstractCryptoSession implements CryptoSession
 			//
 			// ${random1} is a random number making it much harder to guess a session-ID.
 
-			int colonIndex = cryptoSessionID.indexOf(':');
+			int colonIndex = cryptoSessionID.indexOf('_');
 			if (colonIndex < 0)
-				throw new IllegalStateException("cryptoSessionID does not contain a colon (':'): "+ cryptoSessionID);
+				throw new IllegalStateException("cryptoSessionID does not contain an underscore ('_'): "+ cryptoSessionID);
 
 			keyStoreID = cryptoSessionID.substring(0, colonIndex);
 			this.keyStoreID = keyStoreID;

@@ -28,17 +28,12 @@ import org.cumulus4j.store.test.account.id.AnchorID;
 import org.cumulus4j.store.test.account.id.LocalAccountantDelegateID;
 import org.cumulus4j.store.test.framework.AbstractJDOTransactionalTestClearingDatabase;
 import org.cumulus4j.store.test.framework.JDOTransactionalRunner;
-import org.junit.After;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class JDOPersistenceTest
 extends AbstractJDOTransactionalTestClearingDatabase
 {
 	private static final String EUR = "EUR";
-
-	private static final Logger logger = LoggerFactory.getLogger(JDOPersistenceTest.class);
 
 	private static final String ORGANISATION_ID = "jfire.my.org";
 	private static final LocalAccountantDelegateID LOCAL_ACCOUNTANT_DELEGATE_ID_0 = LocalAccountantDelegateID.create(ORGANISATION_ID, "0");
@@ -47,6 +42,8 @@ extends AbstractJDOTransactionalTestClearingDatabase
 	@Test
 	public void createData()
 	{
+		deleteAll();
+
 		{
 			Account account = new Account(ACCOUNT_ID_0);
 			LocalAccountantDelegate localAccountantDelegate = new LocalAccountantDelegate(LOCAL_ACCOUNTANT_DELEGATE_ID_0);
@@ -89,6 +86,8 @@ extends AbstractJDOTransactionalTestClearingDatabase
 		int[] accountIsNotFoundCounter = new int[] { 0, 0, 0 };
 
 		for (int i = 0; i < 100; ++i) {
+			deleteAll();
+
 			++runCounter;
 			try {
 				createData();
@@ -146,7 +145,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 
 				PersistenceManagerFactory pmf2 = JDOTransactionalRunner.createPersistenceManagerFactory();
 				PersistenceManager pm2 = pmf2.getPersistenceManager();
-				JDOTransactionalRunner.setEncryptionCoordinates(pm2);
+				JDOTransactionalRunner.setEncryptionCoordinates(pm2, getTestRunIndex());
 				pm2.currentTransaction().begin();
 
 				{
@@ -175,8 +174,6 @@ extends AbstractJDOTransactionalTestClearingDatabase
 				pm2.close();
 				pmf2.close();
 			}
-
-			deleteAll();
 		}
 
 		if (createDataFailedCounter > 0)
@@ -195,9 +192,8 @@ extends AbstractJDOTransactionalTestClearingDatabase
 
 	private static final void doNothing() { }
 
-	@After
-    public void deleteAll()
-    {
+	protected void deleteAll()
+	{
 		LocalAccountantDelegate localAccountantDelegate = null;
 		try {
 			localAccountantDelegate = (LocalAccountantDelegate) pm.getObjectById(LOCAL_ACCOUNTANT_DELEGATE_ID_0);
@@ -213,5 +209,5 @@ extends AbstractJDOTransactionalTestClearingDatabase
 
 		if (account != null)
 			pm.deletePersistent(account);
-    }
+	}
 }

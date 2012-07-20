@@ -21,19 +21,22 @@ import javax.jdo.PersistenceManager;
 
 public interface JDOTransactionalTest
 {
-	class State {
-		private static ThreadLocal<Integer> testRunIndexThreadLocal = new ThreadLocal<Integer>();
-
-		public static int getTestRunIndex() {
-			Integer testRunIndex = testRunIndexThreadLocal.get();
-			return testRunIndex == null ? -1 : testRunIndex;
-		}
-
-		public static void setTestRunIndex(int testRunIndex) {
-			testRunIndexThreadLocal.set(testRunIndex);
-		}
-	}
+//	class State {
+//		private static ThreadLocal<Integer> testRunIndexThreadLocal = new ThreadLocal<Integer>();
+//
+//		public static int getTestRunIndex() {
+//			Integer testRunIndex = testRunIndexThreadLocal.get();
+//			return testRunIndex == null ? -1 : testRunIndex;
+//		}
+//
+//		public static void setTestRunIndex(int testRunIndex) {
+//			testRunIndexThreadLocal.set(testRunIndex);
+//		}
+//	}
 
 	PersistenceManager getPersistenceManager();
 	void setPersistenceManager(PersistenceManager persistenceManager);
+
+	int getTestRunIndex();
+	void setTestRunIndex(int testRunIndex);
 }

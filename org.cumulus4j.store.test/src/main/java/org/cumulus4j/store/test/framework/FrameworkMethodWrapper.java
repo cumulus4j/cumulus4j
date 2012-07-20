@@ -9,7 +9,7 @@ import org.junit.runners.model.FrameworkMethod;
 public class FrameworkMethodWrapper extends FrameworkMethod {
 
 	private FrameworkMethod frameworkMethod;
-	private int testRunIndex;
+	private int testRunIndex = -1;
 
 	public FrameworkMethodWrapper(FrameworkMethod frameworkMethod, int testRunIndex) {
 		super(frameworkMethod.getMethod());

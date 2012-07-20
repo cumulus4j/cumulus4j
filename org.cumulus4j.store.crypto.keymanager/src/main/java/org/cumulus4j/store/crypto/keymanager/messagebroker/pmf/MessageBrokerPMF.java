@@ -418,7 +418,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 			pm.currentTransaction().begin();
 			// Testing WRITE and READ access.
 			String cryptoSessionIDPrefix = IdentifierUtil.createRandomID(50); // using a length that is not used normally to prevent collisions with absolute certainty.
-			String cryptoSessionID = cryptoSessionIDPrefix + '.' + IdentifierUtil.createRandomID(10);
+			String cryptoSessionID = cryptoSessionIDPrefix + '*' + IdentifierUtil.createRandomID(10);
 			GetKeyRequest dummyRequest = new GetKeyRequest(cryptoSessionID, 1, "RSA", new byte[16]);
 			PendingRequest pendingRequest = new PendingRequest(dummyRequest);
 			pendingRequest = pm.makePersistent(pendingRequest);

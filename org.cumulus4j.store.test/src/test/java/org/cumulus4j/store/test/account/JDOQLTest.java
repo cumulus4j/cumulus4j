@@ -17,7 +17,6 @@
  */
 package org.cumulus4j.store.test.account;
 
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.Currency;
 import java.util.HashMap;
@@ -35,7 +34,6 @@ import org.cumulus4j.store.test.account.id.LocalAccountantDelegateID;
 import org.cumulus4j.store.test.framework.AbstractJDOTransactionalTestClearingDatabase;
 import org.datanucleus.NucleusContext;
 import org.datanucleus.api.jdo.JDOPersistenceManagerFactory;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,6 +55,8 @@ extends AbstractJDOTransactionalTestClearingDatabase
 	@Before
 	public void createData()
 	{
+		deleteAll();
+
 		Account account = new Account(ACCOUNT_ID_0);
 		account.setCurrency(Currency.getInstance("EUR"));
 		LocalAccountantDelegate localAccountantDelegate = new LocalAccountantDelegate(LOCAL_ACCOUNTANT_DELEGATE_ID_0);
@@ -91,7 +91,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 	}
 
 	@Test
-	public void updateData() throws IOException
+	public void updateData()
 	{
 		String name = "Test 0000";
 		String description = "This is a very long description bla bla bla trallalala tröt tröt. And " +
@@ -134,7 +134,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 	}
 
 	@Test
-	public void extentIterator() throws IOException
+	public void extentIterator()
 	{
 		Iterator<LocalAccountantDelegate> delegateIter = pm.getExtent(LocalAccountantDelegate.class).iterator();
 		Assert.assertTrue(delegateIter.hasNext());
@@ -189,7 +189,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 	}
 
 	@Test
-	public void queryStringEquals() throws IOException
+	public void queryStringEquals()
 	{
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("this.name == :name");
@@ -212,7 +212,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 	}
 
 	@Test
-	public void queryAndWithTwoStringEquals_2shortStr() throws IOException
+	public void queryAndWithTwoStringEquals_2shortStr()
 	{
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("this.name == :pName && this.name2 == :pName2");
@@ -226,7 +226,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 	}
 
 	@Test
-	public void queryAndWithTwoStringEquals_1clob() throws IOException
+	public void queryAndWithTwoStringEquals_1clob()
 	{
 		String propClobIndexingEnabled = "cumulus4j.index.clob.enabled";
 		NucleusContext nucleusContext = ((JDOPersistenceManagerFactory)pm.getPersistenceManagerFactory()).getNucleusContext();
@@ -253,7 +253,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 	}
 
 	@Test
-	public void queryStringIndexOf() throws IOException
+	public void queryStringIndexOf()
 	{
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("this.name.indexOf(:needle) >= 0");
@@ -266,7 +266,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 	}
 
 	@Test
-	public void queryStringStartsWith() throws IOException
+	public void queryStringStartsWith()
 	{
 		// PrimaryExpression.startsWith(param)
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
@@ -291,7 +291,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 	}
 
 	@Test
-	public void queryStringEndsWith() throws IOException
+	public void queryStringEndsWith()
 	{
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("this.name.endsWith(:endStr)");
@@ -304,7 +304,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 	}
 
 	@Test
-	public void queryStringEndsWith2() throws IOException
+	public void queryStringEndsWith2()
 	{
 		// The second part here is not (currently Apr/2011) evaluatable in-datastore so tests partial evaluation
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
@@ -318,7 +318,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 	}
 
 	@Test
-	public void queryStringMatches() throws IOException
+	public void queryStringMatches()
 	{
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("this.name.matches(:endStr)");
@@ -341,7 +341,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 	}
 
 	@Test
-	public void queryStringToUpperCase() throws IOException
+	public void queryStringToUpperCase()
 	{
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("this.name.toUpperCase() == :str");
@@ -354,7 +354,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 	}
 
 	@Test
-	public void queryStringToLowerCase() throws IOException
+	public void queryStringToLowerCase()
 	{
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("this.name.toLowerCase() == :str");
@@ -367,7 +367,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 	}
 
 	@Test
-	public void queryStringSubstring() throws IOException
+	public void queryStringSubstring()
 	{
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("this.name.substring(5) == :str");
@@ -394,7 +394,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 	}
 
 	@Test
-	public void queryDateYear() throws IOException
+	public void queryDateYear()
 	{
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("this.creationDate.getYear() == :yr");
@@ -408,7 +408,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 	}
 
 	@Test
-	public void queryCollectionParameterContains() throws IOException
+	public void queryCollectionParameterContains()
 	{
 		Query q = pm.newQuery(LocalAccountantDelegate.class);
 		q.setFilter("param.contains(this.name)");
@@ -425,7 +425,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 	}
 
 	@Test
-	public void queryCurrencyEquals() throws IOException
+	public void queryCurrencyEquals()
 	{
 		Query q = pm.newQuery(Account.class);
 		q.setFilter("this.currency == :currency");
@@ -437,8 +437,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 		Assert.assertEquals(ACCOUNT_ID_2, JDOHelper.getObjectId(acct));
 	}
 
-	@After
-	public void deleteAll() throws IOException
+	protected void deleteAll()
 	{
 		LocalAccountantDelegate localAccountantDelegate = (LocalAccountantDelegate) pm.getObjectById(LOCAL_ACCOUNTANT_DELEGATE_ID_0);
 		pm.deletePersistent(localAccountantDelegate);

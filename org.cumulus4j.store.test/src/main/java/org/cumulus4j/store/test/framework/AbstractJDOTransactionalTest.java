@@ -28,6 +28,8 @@ public abstract class AbstractJDOTransactionalTest implements JDOTransactionalTe
 	protected PersistenceManagerFactory pmf;
 	protected PersistenceManager pm;
 
+	protected int testRunIndex;
+
 	@Override
 	public PersistenceManager getPersistenceManager() {
 		return pm;
@@ -47,9 +49,18 @@ public abstract class AbstractJDOTransactionalTest implements JDOTransactionalTe
 		// TODO BEGIN workaround for the pm being closed :-(
 		pm.close();
 		pm = pmf.getPersistenceManager();
-		JDOTransactionalRunner.setEncryptionCoordinates(pm);
+		JDOTransactionalRunner.setEncryptionCoordinates(pm, getTestRunIndex());
 		// END workaround
 
 		pm.currentTransaction().begin();
+	}
+
+	@Override
+	public int getTestRunIndex() {
+		return testRunIndex;
+	}
+	@Override
+	public void setTestRunIndex(int testRunIndex) {
+		this.testRunIndex = testRunIndex;
 	}
 }

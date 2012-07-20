@@ -58,11 +58,13 @@ public class Session
 
 		this.sessionManager = sessionManager;
 
+		// see org.cumulus4j.keymanager.back.shared.Request#getCryptoSessionIDPrefix()
+		// see org.cumulus4j.store.crypto.AbstractCryptoSession#getKeyStoreID()
 		this.cryptoSessionID = (
 				sessionManager.getCryptoSessionIDPrefix()
-				+ '.'
+				+ '*'
 				+ Long.toString(sessionManager.nextCryptoSessionSerial(), 36)
-				+ '.'
+				+ '*'
 				+ IdentifierUtil.createRandomID(6)
 		);
 

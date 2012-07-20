@@ -130,7 +130,9 @@ public class SessionManager
 		// these 100k randomIDs. Since we'll never have a key-server-cluster with more
 		// 100 nodes, such uniqueness should be absolutely sufficient.
 		String clusterNodeID = IdentifierUtil.createRandomID(8);
-		this.cryptoSessionIDPrefix = keyStore.getKeyStoreID() + ':' + clusterNodeID;
+
+		// see org.cumulus4j.store.crypto.AbstractCryptoSession#getKeyStoreID()
+		this.cryptoSessionIDPrefix = keyStore.getKeyStoreID() + '_' + clusterNodeID;
 		expireSessionTimer.schedule(expireSessionTimerTask, 60000, 60000); // TODO make this configurable
 	}
 

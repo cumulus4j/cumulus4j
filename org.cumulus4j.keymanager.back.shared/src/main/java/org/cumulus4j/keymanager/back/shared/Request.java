@@ -50,15 +50,22 @@ public abstract class Request extends Message
 		this.cryptoSessionID = cryptoSessionID;
 	}
 
+	/**
+	 * Get the session-id-prefix that is used for routing of messages.
+	 * <p>
+	 * See <code>org.cumulus4j.keymanager.Session</code> and <code>org.cumulus4j.keymanager.SessionManager</code>
+	 * for its creation.
+	 * @return the session-id-prefix that is used for routing of messages.
+	 */
 	public String getCryptoSessionIDPrefix()
 	{
 		String id = cryptoSessionID;
 		if (id == null)
 			return null;
 
-		int dotIdx = id.indexOf('.');
+		int dotIdx = id.indexOf('*');
 		if (dotIdx < 0)
-			throw new IllegalStateException("cryptoSessionID does not contain a dot ('.')!!!");
+			throw new IllegalStateException("cryptoSessionID does not contain a dot ('*')!!!");
 
 		return id.substring(0, dotIdx);
 	}

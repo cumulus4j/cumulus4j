@@ -161,15 +161,22 @@ public class JDOTransactionalRunner extends BlockJUnit4ClassRunner
 		}
 	}
 
+	private int testRunIndex = -1;
+
 	@Override
 	protected Statement withBefores(FrameworkMethod method, Object target, Statement statement) {
 		FrameworkMethodWrapper methodWrapper = (FrameworkMethodWrapper) method;
-		if (JDOTransactionalTest.State.getTestRunIndex() != methodWrapper.getTestRunIndex()) {
-			JDOTransactionalTest.State.setTestRunIndex(methodWrapper.getTestRunIndex());
+
+		if (testRunIndex != methodWrapper.getTestRunIndex()) {
+			testRunIndex = methodWrapper.getTestRunIndex();
 			if (pmf != null) {
 				pmf.close();
 				pmf = null;
 			}
+		}
+
+		if (target instanceof JDOTransactionalTest) {
+			((JDOTransactionalTest) target).setTestRunIndex(testRunIndex);
 		}
 
 		List<FrameworkMethod> befores = getTestClass().getAnnotatedMethods(Before.class);
@@ -209,10 +216,10 @@ public class JDOTransactionalRunner extends BlockJUnit4ClassRunner
 		});
 	}
 
-	public static void setEncryptionCoordinates(PersistenceManager pm)
+	public static void setEncryptionCoordinates(PersistenceManager pm, int testRunIndex)
 	{
 		pm.setProperty(CryptoManager.PROPERTY_CRYPTO_MANAGER_ID, "dummy");
-		String keyStoreID = "dummy" + JDOTransactionalTest.State.getTestRunIndex();
+		String keyStoreID = "dummy" + testRunIndex;
 		pm.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, keyStoreID + ':' + UUID.randomUUID());
 	}
 
@@ -235,7 +242,7 @@ public class JDOTransactionalRunner extends BlockJUnit4ClassRunner
 			}
 
 			pm = pmf.getPersistenceManager();
-			setEncryptionCoordinates(pm);
+			setEncryptionCoordinates(pm, testRunIndex);
 			transactionalTest.setPersistenceManager(pm);
 			pm.currentTransaction().begin();
 		}

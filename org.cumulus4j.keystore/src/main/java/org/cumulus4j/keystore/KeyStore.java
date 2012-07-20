@@ -24,7 +24,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
+import java.net.URLEncoder;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
@@ -712,11 +714,11 @@ public class KeyStore
 			throw new IllegalArgumentException("keyStoreID == null");
 
 		// TODO maybe be more restrictive?! E.g. allow only MIME-base64 characters?
-		if (keyStoreID.indexOf('.') > 0)
-			throw new IllegalArgumentException("keyStoreID must not contain '.'");
+		if (keyStoreID.indexOf('*') > 0)
+			throw new IllegalArgumentException("keyStoreID must not contain '*'");
 
-		if (keyStoreID.indexOf(':') > 0)
-			throw new IllegalArgumentException("keyStoreID must not contain ':'");
+		if (keyStoreID.indexOf('_') > 0)
+			throw new IllegalArgumentException("keyStoreID must not contain '_'");
 
 		if (keyStoreID.indexOf(' ') > 0)
 			throw new IllegalArgumentException("keyStoreID must not contain ' '");
@@ -745,6 +747,10 @@ public class KeyStore
 			storeToFile(); // create the file (empty) already now, if it does not exist.
 
 		expireCacheEntryTimer.schedule(expireCacheEntryTimerTask, 60000, 60000); // TODO make this configurable
+	}
+
+	public static void main(String[] args) throws UnsupportedEncodingException {
+		System.out.println(URLEncoder.encode("_*", "UTF-8"));
 	}
 
 	/**
