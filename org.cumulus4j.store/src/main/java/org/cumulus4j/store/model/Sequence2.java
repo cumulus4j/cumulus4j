@@ -25,75 +25,82 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 import org.cumulus4j.store.Cumulus4jIncrementGenerator;
+import org.cumulus4j.store.crypto.CryptoContext;
 
 /**
  * Persistent sequence entity used by {@link Cumulus4jIncrementGenerator}.
+ * <p>
+ * Objects are cached by DataNucleus via their primary key. Accessing an object via its OID therefore does not
+ * require any query, if the object is already cached. Therefore, this class encodes the
+ * {@link CryptoContext#getKeyStoreRefID() keyStoreRefID} and the <code>sequenceName</code> together in one
+ * single {@link #getSequenceID() sequenceID}, which is the (single-field) primary key for this class.
+ * <p>
+ * We do not use a composite primary key, because this is not supported by all underlying databases. The chosen
+ * strategy is thus the most portable and fastest.
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
- * @deprecated This class did not support multitenancy-in-single-database and was therefore replaced by {@link Sequence2}.
+ * @since 1.1.0
  */
-@Deprecated
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
-public class Sequence
+public class Sequence2
 {
-//	/**
-//	 * Get the <code>Sequence</code> identified by the given <code>sequenceName</code>.
-//	 * If no such <code>Sequence</code> exists, this method returns <code>null</code>.
-//	 * @param pm the backend-<code>PersistenceManager</code> used to access the underlying datastore; must not be <code>null</code>.
-//	 * @param sequenceName the name of the sequence; must not be <code>null</code>.
-//	 * @return the <code>Sequence</code> identified by the given <code>sequenceName</code> or <code>null</code>, if no such
-//	 * <code>Sequence</code> exists.
-//	 */
-//	public static Sequence getSequence(PersistenceManager pm, String sequenceName)
-//	{
-//		StringIdentity id = new StringIdentity(Sequence.class, sequenceName);
-//		Sequence sequence;
-//		try {
-//			sequence = (Sequence) pm.getObjectById(id);
-//		} catch (JDOObjectNotFoundException x) {
-//			sequence = null;
-//		}
-//		return sequence;
-//	}
-//
-//	/**
-//	 * Get the <code>Sequence</code> identified by the given <code>sequenceName</code>.
-//	 * If no such <code>Sequence</code> exists, this method creates &amp; persists one.
-//	 * @param pm the backend-<code>PersistenceManager</code> used to access the underlying datastore; must not be <code>null</code>.
-//	 * @param sequenceName the name of the sequence; must not be <code>null</code>.
-//	 * @return the <code>Sequence</code> identified by the given <code>sequenceName</code>; never <code>null</code>.
-//	 */
-//	public static Sequence createSequence(PersistenceManager pm, String sequenceName)
-//	{
-//		Sequence sequence = getSequence(pm, sequenceName);
-//		if (sequence == null)
-//			sequence = pm.makePersistent(new Sequence(sequenceName));
-//
-//		return sequence;
-//	}
-
 	@PrimaryKey
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	@Column(length=255)
-	private String sequenceName;
+	private String sequenceID;
 
 	private long nextValue = 1;
 
 	/**
 	 * Default constructor. Should never be used by actual code! It exists only to fulfill the JDO requirements.
 	 */
-	protected Sequence() { }
+	protected Sequence2() { }
+
+	protected static String createSequenceID(int keyStoreRefID, String sequenceName) {
+		return Integer.toString(keyStoreRefID) + '.' + sequenceName;
+	}
 
 	/**
 	 * Constructor creating a <code>Sequence</code> with the given primary key.
 	 * @param sequenceName the name of the sequence; must not be <code>null</code>.
 	 */
-	protected Sequence(String sequenceName)
+	protected Sequence2(int keyStoreRefID, String sequenceName)
 	{
 		if (sequenceName == null)
 			throw new IllegalArgumentException("sequenceName == null");
 
-		this.sequenceName = sequenceName;
+		this.sequenceID = createSequenceID(keyStoreRefID, sequenceName);
+	}
+
+	public String getSequenceID() {
+		return sequenceID;
+	}
+
+	protected String[] splitSequenceID() {
+		int dotIndex = sequenceID.indexOf('.');
+		if (dotIndex < 0)
+			throw new IllegalStateException(String.format("sequenceID \"%s\" does not contain a dot ('.')!", sequenceID));
+
+		String[] result = new String[2];
+		result[0] = sequenceID.substring(0, dotIndex);
+		result[1] = sequenceID.substring(dotIndex + 1);
+		return result;
+	}
+
+	public int getKeyStoreRefID() {
+		String keyStoreRefIDStr = splitSequenceID()[0];
+		try {
+			int keyStoreRefID = Integer.parseInt(keyStoreRefIDStr);
+			return keyStoreRefID;
+		} catch (NumberFormatException x) {
+			throw new IllegalStateException(
+					String.format(
+							"First part of sequenceID \"%s\" is \"%s\", which is not a valid integer: %s",
+							sequenceID, keyStoreRefIDStr, x.toString()
+					),
+					x
+			);
+		}
 	}
 
 	/**
@@ -101,7 +108,7 @@ public class Sequence
 	 * @return the name of the sequence.
 	 */
 	public String getSequenceName() {
-		return sequenceName;
+		return splitSequenceID()[1];
 	}
 
 	/**

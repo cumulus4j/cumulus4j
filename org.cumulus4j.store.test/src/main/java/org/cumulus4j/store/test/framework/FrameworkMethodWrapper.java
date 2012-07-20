@@ -30,7 +30,7 @@ public class FrameworkMethodWrapper extends FrameworkMethod {
 
 	@Override
 	public String getName() {
-		return frameworkMethod.getName() + '#' + getTestRunIndex();
+		return frameworkMethod.getName() + '.' + getTestRunIndex();
 	}
 
 	@Override

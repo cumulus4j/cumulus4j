@@ -21,8 +21,11 @@ import java.util.Properties;
 
 import javax.jdo.PersistenceManager;
 
-import org.cumulus4j.store.model.Sequence;
-import org.datanucleus.store.connection.ManagedConnection;
+import org.cumulus4j.store.Cumulus4jConnectionFactory.Cumulus4jManagedConnection;
+import org.cumulus4j.store.crypto.CryptoContext;
+import org.cumulus4j.store.model.Sequence2;
+import org.cumulus4j.store.model.Sequence2DAO;
+import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.valuegenerator.AbstractDatastoreGenerator;
 import org.datanucleus.store.valuegenerator.ValueGenerationBlock;
 import org.datanucleus.store.valuegenerator.ValueGenerator;
@@ -65,13 +68,22 @@ public class Cumulus4jIncrementGenerator extends AbstractDatastoreGenerator
 			throw new IllegalStateException("Cannot reserve a block of more than " + Integer.MAX_VALUE + " values!");
 
 		Long[] values = new Long[(int)size];
-		ManagedConnection mconn = connectionProvider.retrieveConnection();
+		Cumulus4jManagedConnection mconn = (Cumulus4jManagedConnection) connectionProvider.retrieveConnection();
 		try {
 			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
 			PersistenceManager pm = pmConn.getDataPM();
+			Cumulus4jStoreManager storeManager = (Cumulus4jStoreManager) storeMgr;
+
+			CryptoContext cryptoContext = new CryptoContext(
+					storeManager.getEncryptionCoordinateSetManager(),
+					storeManager.getKeyStoreRefManager(),
+					(ExecutionContext) mconn.getPoolKey(), // TODO find a better way! That this is the ExecutionContext is nowhere documented, but it works and unfortunately it is the only way to obtain it I found :-(
+					pmConn
+			);
+
 			pm.currentTransaction().setSerializeRead(true);
 			try {
-				Sequence sequence = Sequence.createSequence(pm, sequenceName);
+				Sequence2 sequence = new Sequence2DAO(pm, cryptoContext.getKeyStoreRefID()).createSequence2(sequenceName);
 				long nextValue = sequence.getNextValue();
 				for (int idx = 0; idx < values.length; ++idx) {
 					values[idx] = nextValue++;

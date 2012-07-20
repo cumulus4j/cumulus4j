@@ -40,7 +40,7 @@ import javax.jdo.listener.StoreCallback;
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 @Version(strategy=VersionStrategy.VERSION_NUMBER)
-@Unique(name="DataEntry_classMeta_objectID", members={"keyStoreRefID", "classMeta", "objectID"})
+@Unique(members={"keyStoreRefID", "classMeta", "objectID"})
 @Queries({
 	@Query(
 			name="getDataEntryByClassMetaAndObjectID",

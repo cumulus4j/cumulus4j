@@ -68,7 +68,7 @@ public abstract class IndexEntryFactory
 		javax.jdo.Query q = pmIndex.newQuery(indexEntryClass);
 		q.setUnique(true);
 		q.setFilter(
-				"this.keyStoreRefID == :keyStoreRefID &&" +
+				"this.keyStoreRefID == :keyStoreRefID && " +
 				"this.fieldMeta == :fieldMeta && " +
 				"this.indexKey == :indexKey"
 		);

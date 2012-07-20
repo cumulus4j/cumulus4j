@@ -34,7 +34,7 @@ import org.cumulus4j.store.model.DataEntry;
 import org.cumulus4j.store.model.EncryptionCoordinateSet;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.IndexEntryContainerSize;
-import org.cumulus4j.store.model.Sequence;
+import org.cumulus4j.store.model.Sequence2;
 import org.cumulus4j.store.resource.ResourceHelper;
 import org.datanucleus.PersistenceConfiguration;
 import org.datanucleus.plugin.ConfigurationElement;
@@ -56,7 +56,7 @@ import org.datanucleus.util.StringUtils;
  * </p><p>
  * How to configure a connection factory is documented on
  * <a href="http://cumulus4j.org/${project.version}/documentation/persistence-api.html">Persistence API</a>.
- * </p> 
+ * </p>
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
@@ -178,7 +178,7 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 			pm.getExtent(DataEntry.class);
 
 			// Sequence for ID generation
-			pm.getExtent(Sequence.class);
+			pm.getExtent(Sequence2.class);
 
 			// Mapping for encryption settings (encryption algorithm, mode, padding, MAC, etc.
 			// are mapped to a number which reduces the size of each record)
@@ -248,9 +248,12 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 		return new Cumulus4jManagedConnection(poolKey, transactionOptions);
 	}
 
-	private class Cumulus4jManagedConnection extends AbstractManagedConnection
+	/**
+	 * Cumulus4j-specific {@link ManagedConnection} implementation. Avoid to access this specific class whenever possible!
+	 * @author mschulze
+	 */
+	class Cumulus4jManagedConnection extends AbstractManagedConnection
 	{
-		@SuppressWarnings("unused")
 		private Object poolKey;
 
 		@SuppressWarnings({"unchecked","unused"})
@@ -266,6 +269,10 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 		public Cumulus4jManagedConnection(Object poolKey, @SuppressWarnings("unchecked") Map options) {
 			this.poolKey = poolKey;
 			this.options = options;
+		}
+
+		public Object getPoolKey() {
+			return poolKey;
 		}
 
 		@Override
