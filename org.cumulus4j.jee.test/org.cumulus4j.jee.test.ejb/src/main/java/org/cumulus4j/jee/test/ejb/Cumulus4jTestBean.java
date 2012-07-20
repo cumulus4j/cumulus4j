@@ -8,7 +8,7 @@ import javax.sql.DataSource;
 
 @Stateless
 public class Cumulus4jTestBean
-extends AbstractPlainDataSourceTestBean
+extends AbstractPlainDataSourceTestBean // FIXME - why does Cumulus4jTestBean subclass this class?! Shouldn't it subclass AbstractDataNucleusTestBean?!!!
 implements Cumulus4jTestRemote
 {
 	@Resource(name="jdbc/__defaultC4j")
