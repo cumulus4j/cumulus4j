@@ -175,7 +175,9 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 				if (valueID == null)
 					throw new IllegalStateException("The ApiAdapter returned null as object-ID for: " + value);
 
-				valueDataEntryID = new DataEntryDAO(getQueryEvaluator().getPersistenceManagerForData()).getDataEntryID(valueClassMeta, valueID.toString());
+				valueDataEntryID = new DataEntryDAO(
+						getQueryEvaluator().getPersistenceManagerForData(), cryptoContext.getKeyStoreRefID()
+				).getDataEntryID(valueClassMeta, valueID.toString());
 			}
 			queryParam = valueDataEntryID;
 		}
@@ -189,12 +191,15 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 		Query q = getQueryEvaluator().getPersistenceManagerForIndex().newQuery(indexEntryFactory.getIndexEntryClass());
 		q.setFilter(
+				"this.keyStoreRefID == :keyStoreRefID && " +
 				"this.fieldMeta == :fieldMeta && " +
 				"this.indexKey " + getOperatorAsJDOQLSymbol(negate) + " :value"
 		);
 
 		@SuppressWarnings("unchecked")
-		Collection<? extends IndexEntry> indexEntries = (Collection<? extends IndexEntry>) q.execute(fieldMeta, queryParam);
+		Collection<? extends IndexEntry> indexEntries = (Collection<? extends IndexEntry>) q.execute(
+				cryptoContext.getKeyStoreRefID(), fieldMeta, queryParam
+		);
 
 		Set<Long> result = new HashSet<Long>();
 		for (IndexEntry indexEntry : indexEntries) {
@@ -207,6 +212,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 	private Set<Long> queryEqualsConcreteValue(ClassMeta classMeta, Object value, boolean negate)
 	{
+		CryptoContext cryptoContext = getQueryEvaluator().getCryptoContext();
 		Operator op = getExpression().getOperator();
 		if (Expression.OP_EQ != op && Expression.OP_NOTEQ != op)
 			throw new UnsupportedOperationException("The operation \"" + getOperatorAsJDOQLSymbol(false) + "\" is not supported for object relations!");
@@ -220,10 +226,14 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 			// TODO IMHO this is incomplete - the sub-classes are probably missing. But before changing anything here,
 			// we should design a test-case first and check if my assumption is correct.
 			// Marco :-)
-			return new DataEntryDAO(getQueryEvaluator().getPersistenceManagerForData()).getDataEntryIDsNegated(classMeta, valueID.toString());
+			return new DataEntryDAO(
+					getQueryEvaluator().getPersistenceManagerForData(), cryptoContext.getKeyStoreRefID()
+			).getDataEntryIDsNegated(classMeta, valueID.toString());
 		}
 		else {
-			Long dataEntryID = new DataEntryDAO(getQueryEvaluator().getPersistenceManagerForData()).getDataEntryID(classMeta, valueID.toString());
+			Long dataEntryID = new DataEntryDAO(
+					getQueryEvaluator().getPersistenceManagerForData(), cryptoContext.getKeyStoreRefID()
+			).getDataEntryID(classMeta, valueID.toString());
 			return Collections.singleton(dataEntryID);
 		}
 	}

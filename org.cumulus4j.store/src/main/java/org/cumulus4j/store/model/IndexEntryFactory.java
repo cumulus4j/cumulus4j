@@ -23,6 +23,7 @@ import java.util.Map;
 import javax.jdo.PersistenceManager;
 
 import org.cumulus4j.store.EncryptionHandler;
+import org.cumulus4j.store.crypto.CryptoContext;
 
 /**
  * <p>
@@ -49,12 +50,13 @@ public abstract class IndexEntryFactory
 	/**
 	 * Get an {@link IndexEntry} for the specified unique key fields or <code>null</code>, if no such instance
 	 * exists.
+	 * @param cryptoContext the crypto-context.
 	 * @param pmIndex the backend-<code>PersistenceManager</code>. Must not be <code>null</code>.
 	 * @param fieldMeta the meta-data of the field to query. Must not be <code>null</code>.
 	 * @param indexKey the indexed value to search for. Might be <code>null</code> (<code>null</code> can be indexed).
 	 * @return the matching {@link IndexEntry} or <code>null</code>.
 	 */
-	public IndexEntry getIndexEntry(PersistenceManager pmIndex, FieldMeta fieldMeta, Object indexKey)
+	public IndexEntry getIndexEntry(CryptoContext cryptoContext, PersistenceManager pmIndex, FieldMeta fieldMeta, Object indexKey)
 	{
 		if (pmIndex == null)
 			throw new IllegalArgumentException("pm == null");
@@ -66,27 +68,29 @@ public abstract class IndexEntryFactory
 		javax.jdo.Query q = pmIndex.newQuery(indexEntryClass);
 		q.setUnique(true);
 		q.setFilter(
+				"this.keyStoreRefID == :keyStoreRefID &&" +
 				"this.fieldMeta == :fieldMeta && " +
 				"this.indexKey == :indexKey"
 		);
 		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("keyStoreRefID", cryptoContext.getKeyStoreRefID());
 		params.put("fieldMeta", fieldMeta);
 		params.put("indexKey", indexKey);
 		return indexEntryClass.cast(q.executeWithMap(params));
 	}
 
 	/**
-	 * Get an existing {@link IndexEntry} just like {@link #getIndexEntry(PersistenceManager, FieldMeta, Object)}
+	 * Get an existing {@link IndexEntry} just like {@link #getIndexEntry(CryptoContext, PersistenceManager, FieldMeta, Object)}
 	 * or create one, if it does not yet exist.
+	 * @param cryptoContext TODO
 	 * @param pmIndex the backend-<code>PersistenceManager</code>. Must not be <code>null</code>.
 	 * @param fieldMeta the meta-data of the field to query. Must not be <code>null</code>.
-	 * @param keyStoreRefID TODO
 	 * @param indexKey the indexed value to search for. Might be <code>null</code> (<code>null</code> can be indexed).
 	 * @return the matching {@link IndexEntry} (never <code>null</code>).
 	 */
-	public IndexEntry createIndexEntry(PersistenceManager pmIndex, FieldMeta fieldMeta, int keyStoreRefID, Object indexKey)
+	public IndexEntry createIndexEntry(CryptoContext cryptoContext, PersistenceManager pmIndex, FieldMeta fieldMeta, Object indexKey)
 	{
-		IndexEntry result = getIndexEntry(pmIndex, fieldMeta, indexKey);
+		IndexEntry result = getIndexEntry(cryptoContext, pmIndex, fieldMeta, indexKey);
 		if (result == null) {
 			try {
 				result = getIndexEntryClass().newInstance();
@@ -96,7 +100,7 @@ public abstract class IndexEntryFactory
 				throw new RuntimeException(e);
 			}
 			result.setFieldMeta(fieldMeta);
-			result.setKeyStoreRefID(keyStoreRefID);
+			result.setKeyStoreRefID(cryptoContext.getKeyStoreRefID());
 			result.setIndexKey(indexKey);
 
 			// We persist *after* setting all values, because that improves performance:

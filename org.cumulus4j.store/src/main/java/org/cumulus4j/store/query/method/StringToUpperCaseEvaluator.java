@@ -91,12 +91,13 @@ public class StringToUpperCaseEvaluator extends AbstractMethodEvaluator {
 
 		Query q = queryEval.getPersistenceManagerForIndex().newQuery(indexEntryFactory.getIndexEntryClass());
 		q.setFilter(
-				"this.fieldMeta == :fieldMeta && " +
+				"this.keyStoreRefID == :keyStoreRefID && this.fieldMeta == :fieldMeta && " +
 				"this.indexKey.toUpperCase() " +
 				ExpressionHelper.getOperatorAsJDOQLSymbol(invokeExprEval.getParent().getExpression().getOperator(), negate) +
 				" :compareToArgument"
 		);
 		Map<String, Object> params = new HashMap<String, Object>(2);
+		params.put("keyStoreRefID", cryptoContext.getKeyStoreRefID());
 		params.put("fieldMeta", fieldMeta);
 		params.put("compareToArgument", compareToArgument);
 

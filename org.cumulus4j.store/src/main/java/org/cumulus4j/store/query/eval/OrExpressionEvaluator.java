@@ -20,6 +20,7 @@ package org.cumulus4j.store.query.eval;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.query.QueryEvaluator;
 import org.cumulus4j.store.query.QueryHelper;
 import org.datanucleus.query.expression.DyadicExpression;
@@ -116,16 +117,19 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		}
 
 		if (leftEvaluated && !rightEvaluated) {
-			rightResult = QueryHelper.getAllDataEntryIdsForCandidate(getQueryEvaluator().getPersistenceManagerForData(), 
-					getQueryEvaluator().getExecutionContext(), getQueryEvaluator().getQuery().getCandidateClass(), getQueryEvaluator().getQuery().isSubclasses());
+			CryptoContext cryptoContext = getQueryEvaluator().getCryptoContext();
+			rightResult = QueryHelper.getAllDataEntryIdsForCandidate(cryptoContext,
+					getQueryEvaluator().getPersistenceManagerForData(), getQueryEvaluator().getQuery().getCandidateClass(), getQueryEvaluator().getQuery().isSubclasses());
 		}
 		else if (!leftEvaluated && rightEvaluated) {
-			leftResult = QueryHelper.getAllDataEntryIdsForCandidate(getQueryEvaluator().getPersistenceManagerForData(), 
-					getQueryEvaluator().getExecutionContext(), getQueryEvaluator().getQuery().getCandidateClass(), getQueryEvaluator().getQuery().isSubclasses());
+			CryptoContext cryptoContext = getQueryEvaluator().getCryptoContext();
+			leftResult = QueryHelper.getAllDataEntryIdsForCandidate(cryptoContext,
+					getQueryEvaluator().getPersistenceManagerForData(), getQueryEvaluator().getQuery().getCandidateClass(), getQueryEvaluator().getQuery().isSubclasses());
 		}
 		else if (!leftEvaluated && !rightEvaluated) {
-			leftResult = QueryHelper.getAllDataEntryIdsForCandidate(getQueryEvaluator().getPersistenceManagerForData(), 
-					getQueryEvaluator().getExecutionContext(), getQueryEvaluator().getQuery().getCandidateClass(), getQueryEvaluator().getQuery().isSubclasses());
+			CryptoContext cryptoContext = getQueryEvaluator().getCryptoContext();
+			leftResult = QueryHelper.getAllDataEntryIdsForCandidate(cryptoContext,
+					getQueryEvaluator().getPersistenceManagerForData(), getQueryEvaluator().getQuery().getCandidateClass(), getQueryEvaluator().getQuery().isSubclasses());
 		}
 
 		if (leftResult != null && rightResult != null) {

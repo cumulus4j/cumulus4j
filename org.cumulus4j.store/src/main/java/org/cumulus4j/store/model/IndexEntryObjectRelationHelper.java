@@ -19,6 +19,8 @@ package org.cumulus4j.store.model;
 
 import javax.jdo.PersistenceManager;
 
+import org.cumulus4j.store.crypto.CryptoContext;
+
 /**
  * Helper to find an {@link IndexEntry} for an object relation (1-1, 1-n or m-n).
  * Even though {@link DefaultIndexEntryFactory} and {@link IndexEntryLong} are used for such relations, these
@@ -39,30 +41,31 @@ public class IndexEntryObjectRelationHelper
 	 * Get an existing {@link IndexEntry} or <code>null</code>, if it does not exist.
 	 * This method looks up an <code>IndexEntry</code> for a relation to the object referenced
 	 * by the given <code>indexedDataEntryID</code> and the relation-type specified by the given <code>fieldMeta</code>.
-	 *
+	 * @param cryptoContext the crypto-context.
 	 * @param pmIndex the backend-<code>PersistenceManager</code> used to access the index-datastore.
 	 * @param fieldMeta the field pointing to the referenced object.
 	 * @param indexedDataEntryID the {@link DataEntry#getDataEntryID() DataEntry.dataEntryID} of the referenced object.
+	 *
 	 * @return the appropriate {@link IndexEntry} or <code>null</code>.
 	 */
-	public static IndexEntry getIndexEntry(PersistenceManager pmIndex, FieldMeta fieldMeta, Long indexedDataEntryID)
+	public static IndexEntry getIndexEntry(CryptoContext cryptoContext, PersistenceManager pmIndex, FieldMeta fieldMeta, Long indexedDataEntryID)
 	{
-		return indexEntryFactoryLong.getIndexEntry(pmIndex, fieldMeta, indexedDataEntryID);
+		return indexEntryFactoryLong.getIndexEntry(cryptoContext, pmIndex, fieldMeta, indexedDataEntryID);
 	}
 
 	/**
 	 * Get an existing {@link IndexEntry} or create it, if it does not yet exist. This method behaves
-	 * just like {@link #getIndexEntry(PersistenceManager, FieldMeta, Long)}, but instead of returning <code>null</code>,
+	 * just like {@link #getIndexEntry(CryptoContext, PersistenceManager, FieldMeta, Long)}, but instead of returning <code>null</code>,
 	 * it creates an <code>IndexEntry</code>, if it does not yet exist.
-	 *
+	 * @param cryptoContext the crypto-context.
 	 * @param pmIndex the backend-<code>PersistenceManager</code> used to access the index-datastore.
 	 * @param fieldMeta the field pointing to the referenced object.
-	 * @param keyStoreRefID TODO
 	 * @param indexedDataEntryID the {@link DataEntry#getDataEntryID() DataEntry.dataEntryID} of the referenced object.
+	 *
 	 * @return the appropriate {@link IndexEntry}; never <code>null</code>.
 	 */
-	public static IndexEntry createIndexEntry(PersistenceManager pmIndex, FieldMeta fieldMeta, int keyStoreRefID, Long indexedDataEntryID)
+	public static IndexEntry createIndexEntry(CryptoContext cryptoContext, PersistenceManager pmIndex, FieldMeta fieldMeta, Long indexedDataEntryID)
 	{
-		return indexEntryFactoryLong.createIndexEntry(pmIndex, fieldMeta, keyStoreRefID, indexedDataEntryID);
+		return indexEntryFactoryLong.createIndexEntry(cryptoContext, pmIndex, fieldMeta, indexedDataEntryID);
 	}
 }

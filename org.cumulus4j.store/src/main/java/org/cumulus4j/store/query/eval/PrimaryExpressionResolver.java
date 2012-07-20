@@ -22,6 +22,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import javax.jdo.PersistenceManager;
+
 import org.cumulus4j.store.Cumulus4jStoreManager;
 import org.cumulus4j.store.ObjectContainerHelper;
 import org.cumulus4j.store.crypto.CryptoContext;
@@ -137,7 +139,7 @@ public abstract class PrimaryExpressionResolver
 			if (fieldMetaForNextTuple.getDataNucleusMemberMetaData(executionContext).getMappedBy() == null) {
 				for (Long dataEntryIDForNextTuple : dataEntryIDsForNextTuple) {
 					IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(
-							queryEvaluator.getPersistenceManagerForIndex(), fieldMetaForNextTuple, dataEntryIDForNextTuple
+							cryptoContext, queryEvaluator.getPersistenceManagerForIndex(), fieldMetaForNextTuple, dataEntryIDForNextTuple
 					);
 					if (indexEntry != null) {
 						IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(
@@ -148,15 +150,17 @@ public abstract class PrimaryExpressionResolver
 				}
 			}
 			else {
+				PersistenceManager pmData = queryEvaluator.getPersistenceManagerForData();
+				int keyStoreRefID = cryptoContext.getKeyStoreRefID();
 				for (Long dataEntryIDForNextTuple : dataEntryIDsForNextTuple) {
-					DataEntry dataEntry = new DataEntryDAO(queryEvaluator.getPersistenceManagerForData()).getDataEntry(dataEntryIDForNextTuple);
+					DataEntry dataEntry = new DataEntryDAO(pmData, keyStoreRefID).getDataEntry(dataEntryIDForNextTuple);
 					if (dataEntry == null)
 						logger.warn("queryMiddle: There is no DataEntry with dataEntryID=" + dataEntryIDForNextTuple + "! " + fieldMetaForNextTuple);
 					else {
 						ObjectContainer objectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(cryptoContext, dataEntry);
 						Object value = objectContainer.getValue(fieldMetaForNextTuple.getMappedByFieldMeta(executionContext).getFieldID());
 						if (value != null)
-							result.add(ObjectContainerHelper.referenceToDataEntryID(executionContext, queryEvaluator.getPersistenceManagerForData(), value));
+							result.add(ObjectContainerHelper.referenceToDataEntryID(cryptoContext, pmData, value));
 					}
 				}
 			}

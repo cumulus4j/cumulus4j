@@ -30,6 +30,7 @@ import java.util.WeakHashMap;
 import javax.jdo.FetchPlan;
 import javax.jdo.PersistenceManager;
 
+import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.ClassMetaDAO;
 import org.cumulus4j.store.model.DataEntry;
@@ -343,11 +344,13 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 					try {
 						PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
 						PersistenceManager pmData = pmConn.getDataPM();
+						CryptoContext cryptoContext = new CryptoContext(encryptionCoordinateSetManager, keyStoreRefManager, ec, pmConn);
+
 						String objectIDString = id.toString();
 						for (AbstractClassMetaData cmd : cmds) {
 							Class<?> clazz = clr.classForName(cmd.getFullClassName());
 							ClassMeta classMeta = getClassMeta(ec, clazz);
-							DataEntry dataEntry = new DataEntryDAO(pmData).getDataEntry(classMeta, objectIDString);
+							DataEntry dataEntry = new DataEntryDAO(pmData, cryptoContext.getKeyStoreRefID()).getDataEntry(classMeta, objectIDString);
 							if (dataEntry != null) {
 								className = cmd.getFullClassName();
 							}

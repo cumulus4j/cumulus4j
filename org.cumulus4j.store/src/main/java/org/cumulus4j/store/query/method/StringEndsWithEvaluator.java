@@ -81,10 +81,11 @@ public class StringEndsWithEvaluator extends AbstractMethodEvaluator
 
 		Query q = queryEval.getPersistenceManagerForIndex().newQuery(indexEntryFactory.getIndexEntryClass());
 		q.setFilter(
-				"this.fieldMeta == :fieldMeta && " +
+				"this.keyStoreRefID == :keyStoreRefID && this.fieldMeta == :fieldMeta && " +
 				(negate ? "!this.indexKey.endsWith(:invokeArg)" : "this.indexKey.endsWith(:invokeArg) ")
 		);
 		Map<String, Object> params = new HashMap<String, Object>(3);
+		params.put("keyStoreRefID", cryptoContext.getKeyStoreRefID());
 		params.put("fieldMeta", fieldMeta);
 		params.put("invokeArg", invokeArgument);
 

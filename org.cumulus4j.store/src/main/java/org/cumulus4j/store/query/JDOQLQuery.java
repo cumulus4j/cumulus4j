@@ -28,6 +28,7 @@ import javax.jdo.PersistenceManager;
 
 import org.cumulus4j.store.Cumulus4jStoreManager;
 import org.cumulus4j.store.PersistenceManagerConnection;
+import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.ClassMeta;
 import org.datanucleus.query.evaluator.JDOQLEvaluator;
 import org.datanucleus.query.evaluator.JavaQueryEvaluator;
@@ -83,6 +84,9 @@ public class JDOQLQuery extends AbstractJDOQLQuery
 			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
 			PersistenceManager pmData = pmConn.getDataPM();
 
+			Cumulus4jStoreManager storeManager = (Cumulus4jStoreManager) ec.getStoreManager();
+			CryptoContext cryptoContext = new CryptoContext(storeManager.getEncryptionCoordinateSetManager(), storeManager.getKeyStoreRefManager(), ec, pmConn);
+
 			boolean inMemory = evaluateInMemory();
 			boolean inMemory_applyFilter = true;
 			List<Object> candidates = null;
@@ -107,9 +111,9 @@ public class JDOQLQuery extends AbstractJDOQLQuery
 
 				if (inMemory) {
 					// Retrieve all candidates and perform all evaluation in-memory
-					Set<ClassMeta> classMetas = QueryHelper.getCandidateClassMetas((Cumulus4jStoreManager) ec.getStoreManager(),
+					Set<ClassMeta> classMetas = QueryHelper.getCandidateClassMetas(storeManager,
 							ec, candidateClass, subclasses);
-					candidates = QueryHelper.getAllPersistentObjectsForCandidateClasses(pmData, ec, classMetas);
+					candidates = QueryHelper.getAllPersistentObjectsForCandidateClasses(cryptoContext, pmData, classMetas);
 				}
 				else {
 					try
@@ -117,7 +121,7 @@ public class JDOQLQuery extends AbstractJDOQLQuery
 						// Apply filter in datastore
 						@SuppressWarnings("unchecked")
 						Map<String, Object> parameterValues = parameters;
-						JDOQueryEvaluator queryEvaluator = new JDOQueryEvaluator(this, compilation, parameterValues, clr, pmConn);
+						JDOQueryEvaluator queryEvaluator = new JDOQueryEvaluator(this, compilation, parameterValues, clr, pmConn, cryptoContext);
 						candidates = queryEvaluator.execute();
 						if (queryEvaluator.isComplete()) {
 							inMemory_applyFilter = false;
@@ -130,9 +134,9 @@ public class JDOQLQuery extends AbstractJDOQLQuery
 						// Some part of the filter is not yet supported, so fallback to in-memory evaluation
 						// Retrieve all candidates and perform all evaluation in-memory
 						NucleusLogger.QUERY.info("Query filter is not totally evaluatable in-datastore using Cumulus4j currently, so evaluating in-memory : "+uoe.getMessage());
-						Set<ClassMeta> classMetas = QueryHelper.getCandidateClassMetas((Cumulus4jStoreManager) ec.getStoreManager(),
+						Set<ClassMeta> classMetas = QueryHelper.getCandidateClassMetas(storeManager,
 								ec, candidateClass, subclasses);
-						candidates = QueryHelper.getAllPersistentObjectsForCandidateClasses(pmData, ec, classMetas);
+						candidates = QueryHelper.getAllPersistentObjectsForCandidateClasses(cryptoContext, pmData, classMetas);
 					}
 				}
 			}

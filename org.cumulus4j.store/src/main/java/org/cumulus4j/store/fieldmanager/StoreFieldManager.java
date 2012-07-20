@@ -25,6 +25,7 @@ import java.util.Map;
 import javax.jdo.PersistenceManager;
 
 import org.cumulus4j.store.ObjectContainerHelper;
+import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.ObjectContainer;
@@ -50,28 +51,29 @@ public class StoreFieldManager extends AbstractFieldManager
 	private static final Logger logger = LoggerFactory.getLogger(StoreFieldManager.class);
 
 	private ObjectProvider op;
+	private CryptoContext cryptoContext;
 	private PersistenceManager pmData;
 	private ExecutionContext ec;
 	private ClassMeta classMeta;
 	private AbstractClassMetaData dnClassMetaData;
 	private ObjectContainer objectContainer;
-	private int keyStoreRefID;
 
 	public StoreFieldManager(
 			ObjectProvider op,
+			CryptoContext cryptoContext,
 			PersistenceManager pmData,
 			ClassMeta classMeta,
 			AbstractClassMetaData dnClassMetaData,
-			int keyStoreRefID,
-			ObjectContainer objectContainer // populated by this class
+			int keyStoreRefID
+, ObjectContainer objectContainer // populated by this class
 	)
 	{
 		this.op = op;
+		this.cryptoContext = cryptoContext;
 		this.pmData = pmData;
 		this.ec = op.getExecutionContext();
 		this.classMeta = classMeta;
 		this.dnClassMetaData = dnClassMetaData;
-		this.keyStoreRefID = keyStoreRefID;
 		this.objectContainer = objectContainer;
 	}
 
@@ -196,7 +198,7 @@ public class StoreFieldManager extends AbstractFieldManager
 			ec.flushInternal(true);
 
 			if (mmd.getMappedBy() == null) {
-				Object valueID = ObjectContainerHelper.entityToReference(ec, pmData, keyStoreRefID, valuePC);
+				Object valueID = ObjectContainerHelper.entityToReference(cryptoContext, pmData, valuePC);
 				objectContainer.setValue(fieldMeta.getFieldID(), valueID);
 			}
 		}
@@ -213,7 +215,7 @@ public class StoreFieldManager extends AbstractFieldManager
 					ec.flushInternal(true);
 
 					if (ids != null) {
-						Object elementID = ObjectContainerHelper.entityToReference(ec, pmData, keyStoreRefID, elementPC);
+						Object elementID = ObjectContainerHelper.entityToReference(cryptoContext, pmData, elementPC);
 						ids[++idx] = elementID;
 					}
 				}
@@ -237,7 +239,7 @@ public class StoreFieldManager extends AbstractFieldManager
 						ec.flushInternal(true);
 
 						if (idMap != null)
-							k = ObjectContainerHelper.entityToReference(ec, pmData, keyStoreRefID, kpc);
+							k = ObjectContainerHelper.entityToReference(cryptoContext, pmData, kpc);
 					}
 
 					if (valueIsPersistent) {
@@ -245,7 +247,7 @@ public class StoreFieldManager extends AbstractFieldManager
 						ec.flushInternal(true);
 
 						if (idMap != null)
-							v = ObjectContainerHelper.entityToReference(ec, pmData, keyStoreRefID, vpc);
+							v = ObjectContainerHelper.entityToReference(cryptoContext, pmData, vpc);
 					}
 
 					if (idMap != null)
@@ -267,7 +269,7 @@ public class StoreFieldManager extends AbstractFieldManager
 					Object elementPC = ec.persistObjectInternal(element, op, fieldNumber, -1);
 					ec.flushInternal(true);
 
-					Object elementID = ObjectContainerHelper.entityToReference(ec, pmData, keyStoreRefID, elementPC);
+					Object elementID = ObjectContainerHelper.entityToReference(cryptoContext, pmData, elementPC);
 					ids[i] = elementID;
 				}
 				objectContainer.setValue(fieldMeta.getFieldID(), ids);

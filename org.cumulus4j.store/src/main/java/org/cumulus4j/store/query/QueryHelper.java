@@ -27,6 +27,7 @@ import java.util.Set;
 import javax.jdo.PersistenceManager;
 
 import org.cumulus4j.store.Cumulus4jStoreManager;
+import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.DataEntry;
 import org.datanucleus.ClassLoaderResolver;
@@ -40,30 +41,35 @@ public class QueryHelper {
 
 	/**
 	 * Access the data entry ids for a candidate.
+	 * @param cryptoContext the crypto-context (containing the {@link ExecutionContext} and other context data + API).
 	 * @param pmData PersistenceManager for the backend data
-	 * @param ec ExecutionContext
 	 * @param candidateCls Candidate class
 	 * @param subclasses Whether to include subclasses
 	 * @return The data entry ids
 	 */
-	public static Set<Long> getAllDataEntryIdsForCandidate(PersistenceManager pmData, ExecutionContext ec, Class candidateCls, boolean subclasses) {
+	public static Set<Long> getAllDataEntryIdsForCandidate(CryptoContext cryptoContext, PersistenceManager pmData, Class<?> candidateCls, boolean subclasses) {
+		ExecutionContext ec = cryptoContext.getExecutionContext();
 		javax.jdo.Query q = pmData.newQuery(DataEntry.class);
 		q.setResult("this.dataEntryID");
 
-		Object queryParam;
-		Set<ClassMeta> classMetas = QueryHelper.getCandidateClassMetas((Cumulus4jStoreManager) ec.getStoreManager(), 
-				ec, candidateCls, subclasses);
+		Object queryParam_classMeta;
+		Set<ClassMeta> classMetas = QueryHelper.getCandidateClassMetas(
+				(Cumulus4jStoreManager) ec.getStoreManager(), ec, candidateCls, subclasses
+		);
+		StringBuilder filter = new StringBuilder();
+		filter.append("this.keyStoreRefID == :keyStoreRefID && ");
 		if (classMetas.size() == 1) {
-			q.setFilter("this.classMeta == :classMeta");
-			queryParam = classMetas.iterator().next();
+			filter.append("this.classMeta == :classMeta");
+			queryParam_classMeta = classMetas.iterator().next();
 		}
 		else {
-			q.setFilter(":classMetas.contains(this.classMeta)");
-			queryParam = classMetas;
+			filter.append(":classMetas.contains(this.classMeta)");
+			queryParam_classMeta = classMetas;
 		}
+		q.setFilter(filter.toString());
 
 		@SuppressWarnings("unchecked")
-		Collection<Object[]> c = (Collection<Object[]>) q.execute(queryParam);
+		Collection<Object[]> c = (Collection<Object[]>) q.execute(cryptoContext.getKeyStoreRefID(), queryParam_classMeta);
 		Set<Long> resultList = new HashSet<Long>(c.size());
 		for (Object[] oa : c) {
 			resultList.add((Long)oa[0]);
@@ -74,29 +80,33 @@ public class QueryHelper {
 
 	/**
 	 * Convenience method to return the persistent objects for the classes with the provided ClassMetas.
+	 * @param cryptoContext the crypto-context (containing the {@link ExecutionContext} and other context data + API).
 	 * @param pmData PersistenceManager for the backend data
-	 * @param ec ExecutionContext
 	 * @param candidateClassMetas The class metas defining the required classes
 	 * @return The persistent objects
 	 */
-	public static List<Object> getAllPersistentObjectsForCandidateClasses(PersistenceManager pmData, ExecutionContext ec, 
+	public static List<Object> getAllPersistentObjectsForCandidateClasses(CryptoContext cryptoContext, PersistenceManager pmData,
 			Set<ClassMeta> candidateClassMetas)
 	{
+		ExecutionContext ec = cryptoContext.getExecutionContext();
 		javax.jdo.Query q = pmData.newQuery(DataEntry.class);
 		q.setResult("this.classMeta, this.objectID");
 
-		Object queryParam;
+		Object queryParam_classMeta;
+		StringBuilder filter = new StringBuilder();
+		filter.append("this.keyStoreRefID == :keyStoreRefID && ");
 		if (candidateClassMetas.size() == 1) {
-			q.setFilter("this.classMeta == :classMeta");
-			queryParam = candidateClassMetas.iterator().next();
+			filter.append("this.classMeta == :classMeta");
+			queryParam_classMeta = candidateClassMetas.iterator().next();
 		}
 		else {
-			q.setFilter(":classMetas.contains(this.classMeta)");
-			queryParam = candidateClassMetas;
+			filter.append(":classMetas.contains(this.classMeta)");
+			queryParam_classMeta = candidateClassMetas;
 		}
+		q.setFilter(filter.toString());
 
 		@SuppressWarnings("unchecked")
-		Collection<Object[]> c = (Collection<Object[]>) q.execute(queryParam);
+		Collection<Object[]> c = (Collection<Object[]>) q.execute(cryptoContext.getKeyStoreRefID(), queryParam_classMeta);
 		List<Object> resultList = new ArrayList<Object>(c.size());
 		for (Object[] oa : c) {
 			ClassMeta classMeta = (ClassMeta) oa[0];
@@ -116,7 +126,7 @@ public class QueryHelper {
 	 * @param withSubclasses Whether to return subclasses too
 	 * @return The ClassMeta objects
 	 */
-	public static Set<ClassMeta> getCandidateClassMetas(Cumulus4jStoreManager storeMgr, ExecutionContext ec, 
+	public static Set<ClassMeta> getCandidateClassMetas(Cumulus4jStoreManager storeMgr, ExecutionContext ec,
 			Class<?> candidateClass, boolean withSubclasses)
 	{
 		Set<? extends Class<?>> candidateClasses;

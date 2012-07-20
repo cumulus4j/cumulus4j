@@ -31,12 +31,12 @@ import org.datanucleus.store.query.Query;
  * to the JDO API.
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-public class JDOQueryEvaluator extends QueryEvaluator {
+public class JPAQueryEvaluator extends QueryEvaluator {
 
-	public JDOQueryEvaluator(Query query, QueryCompilation compilation, Map<String, Object> parameterValues,
+	public JPAQueryEvaluator(Query query, QueryCompilation compilation, Map<String, Object> parameterValues,
 			ClassLoaderResolver clr, PersistenceManagerConnection pmConn, CryptoContext cryptoContext)
 	{
-		super("JDOQL", query, compilation, parameterValues, clr, pmConn, cryptoContext);
+		super("JPQL", query, compilation, parameterValues, clr, pmConn, cryptoContext);
 	}
 
 	@Override
@@ -44,7 +44,7 @@ public class JDOQueryEvaluator extends QueryEvaluator {
 			Query subquery, QueryCompilation compilation, Object outerCandidate
 	)
 	{
-		JDOQueryEvaluator evaluator = new JDOQueryEvaluator(getQuery(), compilation, getParameterValues(),
+		JPAQueryEvaluator evaluator = new JPAQueryEvaluator(getQuery(), compilation, getParameterValues(),
 				getClassLoaderResolver(), getPersistenceManagerConnection(), getCryptoContext());
 		return evaluator.execute();
 	}

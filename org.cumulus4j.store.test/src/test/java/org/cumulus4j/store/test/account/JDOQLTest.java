@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.jdo.JDOHelper;
+import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.Query;
 
 import org.cumulus4j.store.test.account.id.AnchorID;
@@ -437,21 +438,35 @@ extends AbstractJDOTransactionalTestClearingDatabase
 		Assert.assertEquals(ACCOUNT_ID_2, JDOHelper.getObjectId(acct));
 	}
 
+	protected Object getObjectByIdOrNull(Object oid) {
+		try {
+			Object object = pm.getObjectById(oid);
+			return object;
+		} catch (JDOObjectNotFoundException x) {
+			return null;
+		}
+	}
+
+	protected void deleteNonNullPersistent(Object pc) {
+		if (pc != null)
+			pm.deletePersistent(pc);
+	}
+
 	protected void deleteAll()
 	{
-		LocalAccountantDelegate localAccountantDelegate = (LocalAccountantDelegate) pm.getObjectById(LOCAL_ACCOUNTANT_DELEGATE_ID_0);
-		pm.deletePersistent(localAccountantDelegate);
+		LocalAccountantDelegate localAccountantDelegate = (LocalAccountantDelegate) getObjectByIdOrNull(LOCAL_ACCOUNTANT_DELEGATE_ID_0);
+		deleteNonNullPersistent(localAccountantDelegate);
 
-		Account account = (Account) pm.getObjectById(ACCOUNT_ID_0);
-		pm.deletePersistent(account);
+		Account account = (Account) getObjectByIdOrNull(ACCOUNT_ID_0);
+		deleteNonNullPersistent(account);
 
-		account = (Account) pm.getObjectById(ACCOUNT_ID_1);
-		pm.deletePersistent(account);
+		account = (Account) getObjectByIdOrNull(ACCOUNT_ID_1);
+		deleteNonNullPersistent(account);
 
-		localAccountantDelegate = (LocalAccountantDelegate) pm.getObjectById(LOCAL_ACCOUNTANT_DELEGATE_ID_1);
-		pm.deletePersistent(localAccountantDelegate);
+		localAccountantDelegate = (LocalAccountantDelegate) getObjectByIdOrNull(LOCAL_ACCOUNTANT_DELEGATE_ID_1);
+		deleteNonNullPersistent(localAccountantDelegate);
 
-		account = (Account) pm.getObjectById(ACCOUNT_ID_2);
-		pm.deletePersistent(account);
+		account = (Account) getObjectByIdOrNull(ACCOUNT_ID_2);
+		deleteNonNullPersistent(account);
 	}
 }

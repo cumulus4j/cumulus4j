@@ -8,16 +8,22 @@ import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
 import javax.jdo.identity.LongIdentity;
 
+import org.cumulus4j.store.crypto.CryptoContext;
+
 public class DataEntryDAO extends AbstractDAO {
+
+	private int keyStoreRefID;
 
 	public DataEntryDAO() { }
 
 	/**
 	 * Create a new instance with the backend-<code>PersistenceManager</code> used for data.
 	 * @param pmData the backend-<code>PersistenceManager</code>. Must not be <code>null</code>.
+	 * @param keyStoreRefID the key-store-reference-ID obtained usually from {@link CryptoContext#getKeyStoreRefID()}.
 	 */
-	public DataEntryDAO(PersistenceManager pmData) {
+	public DataEntryDAO(PersistenceManager pmData, int keyStoreRefID) {
 		super(pmData);
+		this.keyStoreRefID = keyStoreRefID;
 	}
 
 	/**
@@ -49,7 +55,7 @@ public class DataEntryDAO extends AbstractDAO {
 	public DataEntry getDataEntry(ClassMeta classMeta, String objectID)
 	{
 		javax.jdo.Query q = pm.newNamedQuery(DataEntry.class, "getDataEntryByClassMetaAndObjectID");
-		return (DataEntry) q.execute(classMeta, objectID);
+		return (DataEntry) q.execute(keyStoreRefID, classMeta, objectID);
 		// UNIQUE query does not need to be closed, because there is no result list lingering.
 	}
 
@@ -80,7 +86,7 @@ public class DataEntryDAO extends AbstractDAO {
 	public Long getDataEntryID(ClassMeta classMeta, String objectID)
 	{
 		javax.jdo.Query q = pm.newNamedQuery(DataEntry.class, "getDataEntryIDByClassMetaAndObjectID");
-		return (Long) q.execute(classMeta, objectID);
+		return (Long) q.execute(keyStoreRefID, classMeta, objectID);
 		// UNIQUE query does not need to be closed, because there is no result list lingering.
 	}
 
@@ -104,7 +110,7 @@ public class DataEntryDAO extends AbstractDAO {
 	{
 		javax.jdo.Query q = pm.newNamedQuery(DataEntry.class, "getDataEntryIDsByClassMetaAndObjectIDNegated");
 		@SuppressWarnings("unchecked")
-		Collection<Long> dataEntryIDsColl = (Collection<Long>) q.execute(classMeta, notThisObjectID);
+		Collection<Long> dataEntryIDsColl = (Collection<Long>) q.execute(keyStoreRefID, classMeta, notThisObjectID);
 		Set<Long> dataEntryIDsSet = new HashSet<Long>(dataEntryIDsColl);
 		q.closeAll();
 		return dataEntryIDsSet;

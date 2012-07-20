@@ -158,7 +158,7 @@ public class FetchFieldManager extends AbstractFieldManager
 	protected long getThisDataEntryID()
 	{
 		if (thisDataEntryID < 0)
-			thisDataEntryID = new DataEntryDAO(pmData).getDataEntryID(classMeta, op.getObjectId().toString());
+			thisDataEntryID = new DataEntryDAO(pmData, cryptoContext.getKeyStoreRefID()).getDataEntryID(classMeta, op.getObjectId().toString());
 
 		return thisDataEntryID;
 	}
@@ -173,7 +173,7 @@ public class FetchFieldManager extends AbstractFieldManager
 
 		Set<Long> mappedByDataEntryIDs = null;
 		if (mmd.getMappedBy() != null) {
-			IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(pmIndex, fieldMeta.getMappedByFieldMeta(ec), getThisDataEntryID());
+			IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(cryptoContext, pmIndex, fieldMeta.getMappedByFieldMeta(ec), getThisDataEntryID());
 			if (indexEntry == null)
 				mappedByDataEntryIDs = Collections.emptySet();
 			else {
@@ -232,7 +232,7 @@ public class FetchFieldManager extends AbstractFieldManager
 			}
 
 			Object valueID = objectContainer.getValue(fieldMeta.getFieldID());
-			return ObjectContainerHelper.referenceToEntity(ec, pmData, valueID);
+			return ObjectContainerHelper.referenceToEntity(cryptoContext, pmData, valueID);
 		}
 		else if (Relation.isRelationMultiValued(relationType))
 		{
@@ -261,7 +261,7 @@ public class FetchFieldManager extends AbstractFieldManager
 					if (ids != null) {
 						for (int idx = 0; idx < Array.getLength(ids); ++idx) {
 							Object id = Array.get(ids, idx);
-							Object element = ObjectContainerHelper.referenceToEntity(ec, pmData, id);
+							Object element = ObjectContainerHelper.referenceToEntity(cryptoContext, pmData, id);
 							if (element != null) // orphaned reference - https://sourceforge.net/tracker/?func=detail&aid=3515529&group_id=517465&atid=2102914
 								collection.add(element);
 						}
@@ -318,13 +318,13 @@ public class FetchFieldManager extends AbstractFieldManager
 							Object v = me.getValue();
 
 							if (keyIsPersistent) {
-								k = ObjectContainerHelper.referenceToEntity(ec, pmData, k);
+								k = ObjectContainerHelper.referenceToEntity(cryptoContext, pmData, k);
 								if (k == null) // orphaned reference - https://sourceforge.net/tracker/?func=detail&aid=3515529&group_id=517465&atid=2102914
 									continue;
 							}
 
 							if (valueIsPersistent) {
-								v = ObjectContainerHelper.referenceToEntity(ec, pmData, v);
+								v = ObjectContainerHelper.referenceToEntity(cryptoContext, pmData, v);
 								if (v == null) // orphaned reference - https://sourceforge.net/tracker/?func=detail&aid=3515529&group_id=517465&atid=2102914
 									continue;
 							}
@@ -362,7 +362,7 @@ public class FetchFieldManager extends AbstractFieldManager
 							array = Array.newInstance(elementType, arrayLength);
 							for (int i = 0; i < arrayLength; ++i) {
 								Object id = Array.get(ids, i);
-								Object element = ObjectContainerHelper.referenceToEntity(ec, pmData, id);
+								Object element = ObjectContainerHelper.referenceToEntity(cryptoContext, pmData, id);
 								Array.set(array, i, element);
 							}
 						}
@@ -374,7 +374,7 @@ public class FetchFieldManager extends AbstractFieldManager
 							ArrayList<Object> tmpList = new ArrayList<Object>();
 							for (int i = 0; i < arrayLength; ++i) {
 								Object id = Array.get(ids, i);
-								Object element = ObjectContainerHelper.referenceToEntity(ec, pmData, id);
+								Object element = ObjectContainerHelper.referenceToEntity(cryptoContext, pmData, id);
 								if (element != null)
 									tmpList.add(element);
 							}
@@ -394,7 +394,7 @@ public class FetchFieldManager extends AbstractFieldManager
 
 	private Object getObjectFromDataEntryID(long dataEntryID)
 	{
-		String idStr = new DataEntryDAO(pmData).getDataEntry(dataEntryID).getObjectID();
+		String idStr = new DataEntryDAO(pmData, cryptoContext.getKeyStoreRefID()).getDataEntry(dataEntryID).getObjectID();
 		return IdentityUtils.getObjectFromIdString(
 				idStr, classMeta.getDataNucleusClassMetaData(ec), ec, true
 		);

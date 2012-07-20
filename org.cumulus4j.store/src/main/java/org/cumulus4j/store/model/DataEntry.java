@@ -40,19 +40,19 @@ import javax.jdo.listener.StoreCallback;
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 @Version(strategy=VersionStrategy.VERSION_NUMBER)
-@Unique(name="DataEntry_classMeta_objectID", members={"classMeta", "objectID"})
+@Unique(name="DataEntry_classMeta_objectID", members={"keyStoreRefID", "classMeta", "objectID"})
 @Queries({
 	@Query(
 			name="getDataEntryByClassMetaAndObjectID",
-			value="SELECT UNIQUE WHERE this.classMeta == :classMeta && this.objectID == :objectID"
+			value="SELECT UNIQUE WHERE this.keyStoreRefID == :keyStoreRefID && this.classMeta == :classMeta && this.objectID == :objectID"
 	),
 	@Query(
 			name="getDataEntryIDByClassMetaAndObjectID",
-			value="SELECT UNIQUE this.dataEntryID WHERE this.classMeta == :classMeta && this.objectID == :objectID"
+			value="SELECT UNIQUE this.dataEntryID WHERE this.keyStoreRefID == :keyStoreRefID && this.classMeta == :classMeta && this.objectID == :objectID"
 	),
 	@Query(
 			name="getDataEntryIDsByClassMetaAndObjectIDNegated",
-			value="SELECT this.dataEntryID WHERE this.classMeta == :classMeta && this.objectID != :notThisObjectID"
+			value="SELECT this.dataEntryID WHERE this.keyStoreRefID == :keyStoreRefID && this.classMeta == :classMeta && this.objectID != :notThisObjectID"
 	)
 })
 public class DataEntry

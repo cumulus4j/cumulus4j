@@ -114,10 +114,11 @@ public abstract class QueryEvaluator
 	 * @param parameterValues Input values for the params
 	 * @param clr ClassLoader resolver
 	 * @param pmConn our <b>backend</b>-<code>PersistenceManager</code> connection(s).
+	 * @param cryptoContext TODO
 	 */
 	public QueryEvaluator(
 			String language, Query query, QueryCompilation compilation, Map<String, Object> parameterValues,
-			ClassLoaderResolver clr, PersistenceManagerConnection pmConn)
+			ClassLoaderResolver clr, PersistenceManagerConnection pmConn, CryptoContext cryptoContext)
 	{
 		this.language = language;
 		this.query = query;
@@ -127,7 +128,7 @@ public abstract class QueryEvaluator
 		this.ec = query.getExecutionContext();
 		this.storeManager = (Cumulus4jStoreManager) query.getStoreManager();
 		this.pmConn = pmConn;
-		this.cryptoContext = new CryptoContext(storeManager.getEncryptionCoordinateSetManager(), storeManager.getKeyStoreRefManager(), ec, pmConn);
+		this.cryptoContext = cryptoContext;
 		this.encryptionHandler = storeManager.getEncryptionHandler();
 
 		this.candidateAlias = (compilation.getCandidateAlias() != null ? compilation.getCandidateAlias() : this.candidateAlias);
@@ -335,7 +336,7 @@ public abstract class QueryEvaluator
 
 		if (compilation.getExprFilter() == null) {
 			// No filter - we want all that match the candidate classes.
-			return QueryHelper.getAllPersistentObjectsForCandidateClasses(getPersistenceManagerForData(), ec, candidateClassMetas);
+			return QueryHelper.getAllPersistentObjectsForCandidateClasses(cryptoContext, getPersistenceManagerForData(), candidateClassMetas);
 		}
 		else {
 			expressionEvaluator = createExpressionEvaluatorTree(compilation.getExprFilter());
@@ -439,17 +440,20 @@ public abstract class QueryEvaluator
 		q.setResult("this.dataEntryID");
 
 		Object queryParam;
+		StringBuilder filter = new StringBuilder();
+		filter.append("this.keyStoreRefID == :keyStoreRefID && ");
 		if (candidateClassMetas.size() == 1) {
-			q.setFilter("this.classMeta == :classMeta");
+			filter.append("this.classMeta == :classMeta");
 			queryParam = candidateClassMetas.iterator().next();
 		}
 		else {
-			q.setFilter(":classMetas.contains(this.classMeta)");
+			filter.append(":classMetas.contains(this.classMeta)");
 			queryParam = candidateClassMetas;
 		}
+		q.setFilter(filter.toString());
 
 		@SuppressWarnings("unchecked")
-		Collection<Long> allDataEntryIDs = (Collection<Long>) q.execute(queryParam);
+		Collection<Long> allDataEntryIDs = (Collection<Long>) q.execute(cryptoContext.getKeyStoreRefID(), queryParam);
 		Set<Long> result = new HashSet<Long>(allDataEntryIDs);
 		q.closeAll();
 		return result;

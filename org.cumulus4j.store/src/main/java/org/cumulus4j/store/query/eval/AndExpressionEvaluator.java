@@ -20,6 +20,7 @@ package org.cumulus4j.store.query.eval;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.DataEntry;
 import org.cumulus4j.store.query.QueryEvaluator;
 import org.cumulus4j.store.query.QueryHelper;
@@ -126,8 +127,9 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 
 		if (!leftEvaluated && !rightEvaluated) {
 			// Neither side evaluated so return all data entry ids
-			leftResult = QueryHelper.getAllDataEntryIdsForCandidate(getQueryEvaluator().getPersistenceManagerForData(), 
-					getQueryEvaluator().getExecutionContext(), getQueryEvaluator().getQuery().getCandidateClass(), 
+			CryptoContext cryptoContext = getQueryEvaluator().getCryptoContext();
+			leftResult = QueryHelper.getAllDataEntryIdsForCandidate(cryptoContext,
+					getQueryEvaluator().getPersistenceManagerForData(), getQueryEvaluator().getQuery().getCandidateClass(),
 					getQueryEvaluator().getQuery().isSubclasses());
 		}
 
