@@ -8,6 +8,7 @@ import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 
 import org.cumulus4j.store.crypto.CryptoContext;
+import org.cumulus4j.store.datastoreversion.AbstractDatastoreVersionCommand;
 import org.cumulus4j.store.datastoreversion.CommandApplyParam;
 import org.cumulus4j.store.model.Sequence;
 import org.cumulus4j.store.model.Sequence2;

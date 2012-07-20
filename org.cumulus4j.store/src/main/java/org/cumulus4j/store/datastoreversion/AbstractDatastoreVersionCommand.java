@@ -1,6 +1,5 @@
-package org.cumulus4j.store.datastoreversion.command;
+package org.cumulus4j.store.datastoreversion;
 
-import org.cumulus4j.store.datastoreversion.DatastoreVersionCommand;
 
 public abstract class AbstractDatastoreVersionCommand implements DatastoreVersionCommand {
 

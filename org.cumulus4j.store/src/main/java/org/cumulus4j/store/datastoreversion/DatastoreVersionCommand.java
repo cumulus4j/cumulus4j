@@ -1,7 +1,14 @@
 package org.cumulus4j.store.datastoreversion;
 
-
-
+/**
+ * Command for managing a datastore version (change).
+ * <p>
+ * Implementations should subclass {@link AbstractDatastoreVersionCommand} instead of directly implementing
+ * this interface.
+ * <p>
+ * Implementations must be manually registered in {@link org.cumulus4j.store.datastoreversion.DatastoreVersionManager}!
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
 public interface DatastoreVersionCommand {
 	String getDatastoreVersionID();
 
