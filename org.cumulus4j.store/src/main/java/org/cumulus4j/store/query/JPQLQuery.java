@@ -83,6 +83,7 @@ public class JPQLQuery extends AbstractJPQLQuery {
 
 			Cumulus4jStoreManager storeManager = (Cumulus4jStoreManager) ec.getStoreManager();
 			CryptoContext cryptoContext = new CryptoContext(storeManager.getEncryptionCoordinateSetManager(), storeManager.getKeyStoreRefManager(), ec, pmConn);
+			storeManager.getDatastoreVersionManager().applyOnce(cryptoContext);
 
 			boolean inMemory = evaluateInMemory();
 			boolean inMemory_applyFilter = true;

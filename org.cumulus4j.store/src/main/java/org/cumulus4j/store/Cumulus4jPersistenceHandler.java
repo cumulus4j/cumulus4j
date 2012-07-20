@@ -90,6 +90,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
 			PersistenceManager pmData = pmConn.getDataPM();
 			CryptoContext cryptoContext = new CryptoContext(encryptionCoordinateSetManager, keyStoreRefManager, ec, pmConn);
+			getStoreManager().getDatastoreVersionManager().applyOnce(cryptoContext);
 
 			Object object = op.getObject();
 			Object objectID = op.getExternalObjectId();
@@ -136,6 +137,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
 			PersistenceManager pmData = pmConn.getDataPM();
 			CryptoContext cryptoContext = new CryptoContext(encryptionCoordinateSetManager, keyStoreRefManager, ec, pmConn);
+			getStoreManager().getDatastoreVersionManager().applyOnce(cryptoContext);
 
 			Object object = op.getObject();
 			Object objectID = op.getExternalObjectId();
@@ -182,6 +184,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
 			PersistenceManager pmData = pmConn.getDataPM();
 			CryptoContext cryptoContext = new CryptoContext(encryptionCoordinateSetManager, keyStoreRefManager, ec, pmConn);
+			getStoreManager().getDatastoreVersionManager().applyOnce(cryptoContext);
 
 			Object object = op.getObject();
 			Object objectID = op.getExternalObjectId();
@@ -269,6 +272,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
 			PersistenceManager pmData = pmConn.getDataPM();
 			CryptoContext cryptoContext = new CryptoContext(encryptionCoordinateSetManager, keyStoreRefManager, ec, pmConn);
+			getStoreManager().getDatastoreVersionManager().applyOnce(cryptoContext);
 
 			ClassMeta classMeta = storeManager.getClassMeta(op.getExecutionContext(), op.getObject().getClass());
 			Object objectID = op.getExternalObjectId();
@@ -294,6 +298,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
 			PersistenceManager pmData = pmConn.getDataPM();
 			CryptoContext cryptoContext = new CryptoContext(encryptionCoordinateSetManager, keyStoreRefManager, ec, pmConn);
+			getStoreManager().getDatastoreVersionManager().applyOnce(cryptoContext);
 
 			Object object = op.getObject();
 			Object objectID = op.getExternalObjectId();

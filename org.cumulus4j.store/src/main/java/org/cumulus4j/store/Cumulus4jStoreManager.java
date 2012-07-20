@@ -31,6 +31,7 @@ import javax.jdo.FetchPlan;
 import javax.jdo.PersistenceManager;
 
 import org.cumulus4j.store.crypto.CryptoContext;
+import org.cumulus4j.store.datastoreversion.DatastoreVersionManager;
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.ClassMetaDAO;
 import org.cumulus4j.store.model.DataEntry;
@@ -86,6 +87,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 	private EncryptionHandler encryptionHandler;
 	private EncryptionCoordinateSetManager encryptionCoordinateSetManager;
 	private KeyStoreRefManager keyStoreRefManager;
+	private DatastoreVersionManager datastoreVersionManager = new DatastoreVersionManager();
 
 	private IndexEntryFactoryRegistry indexFactoryRegistry;
 
@@ -122,6 +124,10 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 		return indexFactoryRegistry;
 	}
 
+	public DatastoreVersionManager getDatastoreVersionManager() {
+		return datastoreVersionManager;
+	}
+
 	/**
 	 * Get the persistent meta-data of a certain class. This persistent meta-data is primarily used for efficient
 	 * mapping using long-identifiers instead of fully qualified class names.
@@ -142,7 +148,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
 			PersistenceManager pm = pmConn.getDataPM();
 
-			synchronized (this) { // Synchronise in case we have data and index backends
+			synchronized (this) { // Synchronise in case we have data and index backends // why? what about multiple instances? shouldn't the replication be safe? is this just for lower chance of exceptions (causing a rollback and being harmless)?
 				// Register the class
 				pm.getFetchPlan().setGroup(FetchPlan.ALL);
 				result = registerClass(ec, pm, clazz);
@@ -345,6 +351,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 						PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
 						PersistenceManager pmData = pmConn.getDataPM();
 						CryptoContext cryptoContext = new CryptoContext(encryptionCoordinateSetManager, keyStoreRefManager, ec, pmConn);
+						datastoreVersionManager.applyOnce(cryptoContext);
 
 						String objectIDString = id.toString();
 						for (AbstractClassMetaData cmd : cmds) {

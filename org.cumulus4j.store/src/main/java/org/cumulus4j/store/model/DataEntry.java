@@ -33,6 +33,8 @@ import javax.jdo.annotations.Version;
 import javax.jdo.annotations.VersionStrategy;
 import javax.jdo.listener.StoreCallback;
 
+import org.cumulus4j.store.datastoreversion.command.IntroduceKeyStoreRefID;
+
 /**
  * Persistent container holding an entity's data in <b>encrypted</b> form.
  *
@@ -125,8 +127,24 @@ implements StoreCallback
 		return classMeta;
 	}
 
+	/**
+	 * Get the numeric identifier of the key store. The key store's String-ID is mapped to this numeric ID
+	 * via {@link KeyStoreRef} instances.
+	 * @return the numeric identifier of the key store.
+	 */
 	public int getKeyStoreRefID() {
 		return keyStoreRefID;
+	}
+
+	/**
+	 * Set the numeric identifier of the key store.
+	 * @param keyStoreRefID the numeric identifier of the key store.
+	 * @deprecated Never call this method! It exists only for downward compatibility
+	 * (needs to be accessible by {@link IntroduceKeyStoreRefID}).
+	 */
+	@Deprecated
+	public void setKeyStoreRefID(int keyStoreRefID) {
+		this.keyStoreRefID = keyStoreRefID;
 	}
 
 	/**

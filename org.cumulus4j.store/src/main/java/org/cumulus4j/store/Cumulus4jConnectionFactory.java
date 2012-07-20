@@ -31,6 +31,7 @@ import javax.transaction.xa.Xid;
 
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.DataEntry;
+import org.cumulus4j.store.model.DatastoreVersion;
 import org.cumulus4j.store.model.EncryptionCoordinateSet;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.IndexEntryContainerSize;
@@ -184,6 +185,9 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 			// are mapped to a number which reduces the size of each record)
 			pm.getExtent(EncryptionCoordinateSet.class);
 
+			// versioning of datastore structure
+			pm.getExtent(DatastoreVersion.class);
+
 			if (backendIndexProperties == null) {
 				// Index
 				initialiseIndexMetaData(pm, storeMgr);
@@ -205,6 +209,9 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 
 				// Index
 				initialiseIndexMetaData(pmIndex, storeMgr);
+
+				// versioning of datastore structure
+				pm.getExtent(DatastoreVersion.class);
 			} finally {
 				pmIndex.close();
 			}

@@ -134,11 +134,20 @@ implements StoreCallback
 		this.fieldMeta = fieldMeta;
 	}
 
+	/**
+	 * Get the numeric identifier of the key store. The key store's String-ID is mapped to this numeric ID
+	 * via {@link KeyStoreRef} instances.
+	 * @return the numeric identifier of the key store.
+	 */
 	public int getKeyStoreRefID() {
 		return keyStoreRefID;
 	}
 
-	protected void setKeyStoreRefID(int keyStoreRefID) {
+	/**
+	 * Set the numeric identifier of the key store.
+	 * @param keyStoreRefID the numeric identifier of the key store.
+	 */
+	public void setKeyStoreRefID(int keyStoreRefID) {
 		this.keyStoreRefID = keyStoreRefID;
 	}
 

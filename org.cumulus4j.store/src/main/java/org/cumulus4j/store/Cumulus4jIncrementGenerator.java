@@ -80,6 +80,7 @@ public class Cumulus4jIncrementGenerator extends AbstractDatastoreGenerator
 					(ExecutionContext) mconn.getPoolKey(), // TODO find a better way! That this is the ExecutionContext is nowhere documented, but it works and unfortunately it is the only way to obtain it I found :-(
 					pmConn
 			);
+			storeManager.getDatastoreVersionManager().applyOnce(cryptoContext);
 
 			pm.currentTransaction().setSerializeRead(true);
 			try {
