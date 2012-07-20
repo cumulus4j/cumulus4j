@@ -188,7 +188,7 @@ public class JPATransactionalRunner extends BlockJUnit4ClassRunner
 	{
 		em.setProperty(CryptoManager.PROPERTY_CRYPTO_MANAGER_ID, "dummy");
 		String keyStoreID = "dummy";
-		em.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, keyStoreID + ':' + UUID.randomUUID());
+		em.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, keyStoreID + '_' + UUID.randomUUID() + '*' + UUID.randomUUID());
 	}
 
 	private static Properties loadProperties()
