@@ -40,6 +40,9 @@ import org.cumulus4j.crypto.Cipher;
 import org.cumulus4j.crypto.CipherOperationMode;
 import org.cumulus4j.crypto.CryptoRegistry;
 import org.cumulus4j.store.crypto.AbstractCryptoManager;
+import org.cumulus4j.store.crypto.CryptoManagerRegistry;
+import org.datanucleus.NucleusContext;
+import org.datanucleus.PersistenceConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -947,7 +950,20 @@ public class CryptoCache
 		long val = cryptoCacheEntryExpiryAge;
 		if (val == Long.MIN_VALUE) {
 			String propName = PROPERTY_CRYPTO_CACHE_ENTRY_EXPIRY_AGE;
-			String propVal = (String) cryptoManager.getCryptoManagerRegistry().getNucleusContext().getPersistenceConfiguration().getProperty(propName);
+
+			CryptoManagerRegistry cryptoManagerRegistry = cryptoManager.getCryptoManagerRegistry();
+			if (cryptoManagerRegistry == null)
+				throw new IllegalStateException("cryptoManager.getCryptoManagerRegistry() returned null!");
+
+			NucleusContext nucleusContext = cryptoManagerRegistry.getNucleusContext();
+			if (nucleusContext == null)
+				throw new IllegalStateException("cryptoManagerRegistry.getNucleusContext() returned null!");
+
+			PersistenceConfiguration persistenceConfiguration = nucleusContext.getPersistenceConfiguration();
+			if (persistenceConfiguration == null)
+				throw new IllegalStateException("nucleusContext.getPersistenceConfiguration() returned null!");
+
+			String propVal = (String) persistenceConfiguration.getProperty(propName);
 			// TODO Fix NPE! Just had a NullPointerException in the above line:
 //			22:48:39,028 ERROR [Timer-3][CryptoCache$CleanupTask] run: java.lang.NullPointerException
 //			java.lang.NullPointerException
