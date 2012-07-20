@@ -70,18 +70,30 @@ public class JDOTransactionalRunner extends BlockJUnit4ClassRunner
 
 //		logger.info("run: Setting up PersistenceManagerFactory.");
 //		pmf = JDOHelper.getPersistenceManagerFactory(TestUtil.loadProperties("cumulus4j-test-datanucleus.properties"));
-		for (int testRunIndex = 0; testRunIndex < 2; ++testRunIndex) {
-			JDOTransactionalTest.State.setTestRunIndex(testRunIndex);
-			try {
-				super.run(notifier);
-			} finally {
-				logger.info("run: Shutting down PersistenceManagerFactory.");
-				if (pmf != null) {
-					pmf.close();
-					pmf = null;
-				}
+//		for (int testRunIndex = 0; testRunIndex < 2; ++testRunIndex) {
+//			JDOTransactionalTest.State.setTestRunIndex(testRunIndex);
+		try {
+			super.run(notifier);
+		} finally {
+			logger.info("run: Shutting down PersistenceManagerFactory.");
+			if (pmf != null) {
+				pmf.close();
+				pmf = null;
 			}
 		}
+//		}
+	}
+
+	@Override
+	protected List<FrameworkMethod> getChildren() {
+		List<FrameworkMethod> children = super.getChildren();
+		List<FrameworkMethod> wrappers = new ArrayList<FrameworkMethod>(children.size() * 2);
+		for (int testRunIndex = 0; testRunIndex < 2; ++testRunIndex) {
+			for (FrameworkMethod frameworkMethod : children) {
+				wrappers.add(new FrameworkMethodWrapper(frameworkMethod, testRunIndex));
+			}
+		}
+		return wrappers;
 	}
 
 	public JDOTransactionalRunner(Class<?> testClass) throws InitializationError {
@@ -151,6 +163,15 @@ public class JDOTransactionalRunner extends BlockJUnit4ClassRunner
 
 	@Override
 	protected Statement withBefores(FrameworkMethod method, Object target, Statement statement) {
+		FrameworkMethodWrapper methodWrapper = (FrameworkMethodWrapper) method;
+		if (JDOTransactionalTest.State.getTestRunIndex() != methodWrapper.getTestRunIndex()) {
+			JDOTransactionalTest.State.setTestRunIndex(methodWrapper.getTestRunIndex());
+			if (pmf != null) {
+				pmf.close();
+				pmf = null;
+			}
+		}
+
 		List<FrameworkMethod> befores = getTestClass().getAnnotatedMethods(Before.class);
 		return befores.isEmpty() ? statement : new TxRunBefores(statement, befores, target);
 	}

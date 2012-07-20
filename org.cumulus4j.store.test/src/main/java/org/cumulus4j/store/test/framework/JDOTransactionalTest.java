@@ -26,9 +26,7 @@ public interface JDOTransactionalTest
 
 		public static int getTestRunIndex() {
 			Integer testRunIndex = testRunIndexThreadLocal.get();
-			if (testRunIndex == null)
-				throw new IllegalStateException("testRunIndex == null");
-			return testRunIndex;
+			return testRunIndex == null ? -1 : testRunIndex;
 		}
 
 		public static void setTestRunIndex(int testRunIndex) {

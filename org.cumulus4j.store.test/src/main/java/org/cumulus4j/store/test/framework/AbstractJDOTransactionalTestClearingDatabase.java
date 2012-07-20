@@ -10,12 +10,8 @@ public class AbstractJDOTransactionalTestClearingDatabase extends AbstractJDOTra
 
 	@BeforeClass
 	public static void clearDatabase() throws Exception {
-		if (State.getTestRunIndex() == 0) {
-			logger.info("clearDatabase: Clearing database (dropping all tables).");
-			CleanupUtil.dropAllTables();
-		}
-		else
-			logger.info("clearDatabase: testRunIndex={} => Skip!", State.getTestRunIndex());
+		logger.info("clearDatabase: Clearing database (dropping all tables).");
+		CleanupUtil.dropAllTables();
 	}
 
 }
