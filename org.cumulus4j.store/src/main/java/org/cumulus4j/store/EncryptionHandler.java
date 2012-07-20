@@ -33,15 +33,12 @@ import javax.jdo.PersistenceManagerFactory;
 
 import org.cumulus4j.store.crypto.Ciphertext;
 import org.cumulus4j.store.crypto.CryptoContext;
-import org.cumulus4j.store.crypto.CryptoManager;
-import org.cumulus4j.store.crypto.CryptoManagerRegistry;
 import org.cumulus4j.store.crypto.CryptoSession;
 import org.cumulus4j.store.crypto.Plaintext;
 import org.cumulus4j.store.model.DataEntry;
 import org.cumulus4j.store.model.IndexEntry;
 import org.cumulus4j.store.model.IndexValue;
 import org.cumulus4j.store.model.ObjectContainer;
-import org.datanucleus.store.ExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,28 +86,6 @@ public class EncryptionHandler
 
 	public EncryptionHandler() { }
 
-	private CryptoSession getCryptoSession(ExecutionContext ec)
-	{
-		Object cryptoManagerID = ec.getProperty(CryptoManager.PROPERTY_CRYPTO_MANAGER_ID);
-		if (cryptoManagerID == null)
-			throw new IllegalStateException("Property \"" + CryptoManager.PROPERTY_CRYPTO_MANAGER_ID + "\" is not set!");
-
-		if (!(cryptoManagerID instanceof String))
-			throw new IllegalStateException("Property \"" + CryptoManager.PROPERTY_CRYPTO_MANAGER_ID + "\" is set, but it is an instance of " + cryptoManagerID.getClass().getName() + " instead of java.lang.String!");
-
-		CryptoManager cryptoManager = CryptoManagerRegistry.sharedInstance(ec.getNucleusContext()).getCryptoManager((String) cryptoManagerID);
-
-		Object cryptoSessionID = ec.getProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID);
-		if (cryptoSessionID == null)
-			throw new IllegalStateException("Property \"" + CryptoSession.PROPERTY_CRYPTO_SESSION_ID + "\" is not set!");
-
-		if (!(cryptoSessionID instanceof String))
-			throw new IllegalStateException("Property \"" + CryptoSession.PROPERTY_CRYPTO_SESSION_ID + "\" is set, but it is an instance of " + cryptoSessionID.getClass().getName() + " instead of java.lang.String!");
-
-		CryptoSession cryptoSession = cryptoManager.getCryptoSession((String) cryptoSessionID);
-		return cryptoSession;
-	}
-
 	/**
 	 * Get a plain (unencrypted) {@link ObjectContainer} from the encrypted byte-array in
 	 * the {@link DataEntry#getValue() DataEntry.value} property.
@@ -129,7 +104,7 @@ public class EncryptionHandler
 			if (ciphertext.getData() == null)
 				return null; // TODO or return an empty ObjectContainer instead?
 
-			CryptoSession cryptoSession = getCryptoSession(cryptoContext.getExecutionContext());
+			CryptoSession cryptoSession = cryptoContext.getCryptoSession();
 			Plaintext plaintext = cryptoSession.decrypt(cryptoContext, ciphertext);
 			if (plaintext == null)
 				throw new IllegalStateException("cryptoSession.decrypt(ciphertext) returned null! cryptoManagerID=" + cryptoSession.getCryptoManager().getCryptoManagerID() + " cryptoSessionID=" + cryptoSession.getCryptoSessionID());
@@ -186,7 +161,7 @@ public class EncryptionHandler
 			}
 		}
 
-		CryptoSession cryptoSession = getCryptoSession(cryptoContext.getExecutionContext());
+		CryptoSession cryptoSession = cryptoContext.getCryptoSession();
 		Ciphertext ciphertext = cryptoSession.encrypt(cryptoContext, plaintext);
 
 		if (ciphertext == null)
@@ -235,7 +210,7 @@ public class EncryptionHandler
 
 			Plaintext plaintext = null;
 			if (ciphertext.getData() != null) {
-				CryptoSession cryptoSession = getCryptoSession(cryptoContext.getExecutionContext());
+				CryptoSession cryptoSession = cryptoContext.getCryptoSession();
 				plaintext = cryptoSession.decrypt(cryptoContext, ciphertext);
 				if (plaintext == null)
 					throw new IllegalStateException("cryptoSession.decrypt(ciphertext) returned null! cryptoManagerID=" + cryptoSession.getCryptoManager().getCryptoManagerID() + " cryptoSessionID=" + cryptoSession.getCryptoSessionID());
@@ -273,7 +248,7 @@ public class EncryptionHandler
 			}
 		}
 
-		CryptoSession cryptoSession = getCryptoSession(cryptoContext.getExecutionContext());
+		CryptoSession cryptoSession = cryptoContext.getCryptoSession();
 		Ciphertext ciphertext = cryptoSession.encrypt(cryptoContext, plaintext);
 
 		if (ciphertext == null)

@@ -35,6 +35,7 @@ public abstract class AbstractCryptoSession implements CryptoSession
 	private volatile Date lastUsageTimestamp = creationTimestamp;
 	private CryptoManager cryptoManager;
 	private String cryptoSessionID;
+	private volatile String keyStoreID;
 
 	private volatile boolean closed;
 
@@ -77,7 +78,38 @@ public abstract class AbstractCryptoSession implements CryptoSession
 			throw new IllegalStateException("this.cryptoSessionID already assigned! Cannot modify!");
 
 		this.cryptoSessionID = cryptoSessionID;
+		this.keyStoreID = null;
 		logger.trace("setCryptoSessionID: cryptoSessionID={}", cryptoSessionID);
+	}
+
+	@Override
+	public String getKeyStoreID() {
+		String keyStoreID = this.keyStoreID;
+		if (keyStoreID == null) {
+			String cryptoSessionID = getCryptoSessionID();
+			if (cryptoSessionID == null)
+				throw new IllegalStateException("cryptoSessionID == null :: setCryptoSessionID(...) was not yet called!");
+
+			// Our default format for a cryptoSessionID is:
+			//
+			// "${cryptoSessionIDPrefix}.${serial}.${random1}"
+			//
+			// ${cryptoSessionIDPrefix} is: "${keyStoreID}:${random2}"
+			// The ${cryptoSessionIDPrefix} is used for routing key-request-messages to the right key manager
+			// and for determining the key-store-id.
+			//
+			// ${serial} is a serial number to guarantee uniqueness (as ${random1} is pretty short).
+			//
+			// ${random1} is a random number making it much harder to guess a session-ID.
+
+			int colonIndex = cryptoSessionID.indexOf(':');
+			if (colonIndex < 0)
+				throw new IllegalStateException("cryptoSessionID does not contain a colon (':'): "+ cryptoSessionID);
+
+			keyStoreID = cryptoSessionID.substring(0, colonIndex);
+			this.keyStoreID = keyStoreID;
+		}
+		return keyStoreID;
 	}
 
 	@Override

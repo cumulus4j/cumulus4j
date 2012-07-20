@@ -55,12 +55,14 @@ public class StoreFieldManager extends AbstractFieldManager
 	private ClassMeta classMeta;
 	private AbstractClassMetaData dnClassMetaData;
 	private ObjectContainer objectContainer;
+	private int keyStoreRefID;
 
 	public StoreFieldManager(
 			ObjectProvider op,
 			PersistenceManager pmData,
 			ClassMeta classMeta,
 			AbstractClassMetaData dnClassMetaData,
+			int keyStoreRefID,
 			ObjectContainer objectContainer // populated by this class
 	)
 	{
@@ -69,6 +71,7 @@ public class StoreFieldManager extends AbstractFieldManager
 		this.ec = op.getExecutionContext();
 		this.classMeta = classMeta;
 		this.dnClassMetaData = dnClassMetaData;
+		this.keyStoreRefID = keyStoreRefID;
 		this.objectContainer = objectContainer;
 	}
 
@@ -193,7 +196,7 @@ public class StoreFieldManager extends AbstractFieldManager
 			ec.flushInternal(true);
 
 			if (mmd.getMappedBy() == null) {
-				Object valueID = ObjectContainerHelper.entityToReference(ec, pmData, valuePC);
+				Object valueID = ObjectContainerHelper.entityToReference(ec, pmData, keyStoreRefID, valuePC);
 				objectContainer.setValue(fieldMeta.getFieldID(), valueID);
 			}
 		}
@@ -210,7 +213,7 @@ public class StoreFieldManager extends AbstractFieldManager
 					ec.flushInternal(true);
 
 					if (ids != null) {
-						Object elementID = ObjectContainerHelper.entityToReference(ec, pmData, elementPC);
+						Object elementID = ObjectContainerHelper.entityToReference(ec, pmData, keyStoreRefID, elementPC);
 						ids[++idx] = elementID;
 					}
 				}
@@ -234,7 +237,7 @@ public class StoreFieldManager extends AbstractFieldManager
 						ec.flushInternal(true);
 
 						if (idMap != null)
-							k = ObjectContainerHelper.entityToReference(ec, pmData, kpc);
+							k = ObjectContainerHelper.entityToReference(ec, pmData, keyStoreRefID, kpc);
 					}
 
 					if (valueIsPersistent) {
@@ -242,7 +245,7 @@ public class StoreFieldManager extends AbstractFieldManager
 						ec.flushInternal(true);
 
 						if (idMap != null)
-							v = ObjectContainerHelper.entityToReference(ec, pmData, vpc);
+							v = ObjectContainerHelper.entityToReference(ec, pmData, keyStoreRefID, vpc);
 					}
 
 					if (idMap != null)
@@ -264,7 +267,7 @@ public class StoreFieldManager extends AbstractFieldManager
 					Object elementPC = ec.persistObjectInternal(element, op, fieldNumber, -1);
 					ec.flushInternal(true);
 
-					Object elementID = ObjectContainerHelper.entityToReference(ec, pmData, elementPC);
+					Object elementID = ObjectContainerHelper.entityToReference(ec, pmData, keyStoreRefID, elementPC);
 					ids[i] = elementID;
 				}
 				objectContainer.setValue(fieldMeta.getFieldID(), ids);

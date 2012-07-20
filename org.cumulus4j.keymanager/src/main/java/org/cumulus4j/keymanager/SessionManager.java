@@ -40,8 +40,9 @@ import org.slf4j.LoggerFactory;
  * Manager for {@link Session}s.
  * </p>
  * <p>
- * There is one <code>SessionManager</code> for each {@link AppServer}. It provides the functionality to
- * open and close sessions, expire them automatically after a certain time etc.
+ * There is one <code>SessionManager</code> for each {@link AppServer} and {@link KeyStore}.
+ * It provides the functionality to open and close sessions, expire them automatically after
+ * a certain time etc.
  * </p>
  * <p>
  * This is not API! Use the classes and interfaces provided by <code>org.cumulus4j.keymanager.api</code> instead.
@@ -123,7 +124,13 @@ public class SessionManager
 	{
 		logger.info("Creating instance of SessionManager.");
 		this.keyStore = keyStore;
-		this.cryptoSessionIDPrefix = IdentifierUtil.createRandomID();
+		// TODO it should be possible to configure the clusterNodeID somehow to make it shorter.
+		// This default is unique enough (see IdentifierUtilTest#simpleUniquenessTest).
+		// I tested generating 100000 IDs many many times and there was no collision in
+		// these 100k randomIDs. Since we'll never have a key-server-cluster with more
+		// 100 nodes, such uniqueness should be absolutely sufficient.
+		String clusterNodeID = IdentifierUtil.createRandomID(8);
+		this.cryptoSessionIDPrefix = keyStore.getKeyStoreID() + ':' + clusterNodeID;
 		expireSessionTimer.schedule(expireSessionTimerTask, 60000, 60000); // TODO make this configurable
 	}
 

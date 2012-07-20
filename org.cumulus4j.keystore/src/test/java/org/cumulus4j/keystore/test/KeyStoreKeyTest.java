@@ -27,6 +27,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.nightlabs.util.IOUtil;
 import org.nightlabs.util.Stopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,8 @@ public class KeyStoreKeyTest
 	throws Exception
 	{
 		keyStoreFile = File.createTempFile("test-", ".keystore");
-		keyStore = new KeyStore(keyStoreFile);
+		String keyStoreID = IOUtil.getFileNameWithoutExtension(keyStoreFile.getName());
+		keyStore = new KeyStore(keyStoreID, keyStoreFile);
 	}
 
 	@After
@@ -100,12 +102,13 @@ public class KeyStoreKeyTest
 		keyStore.createUser(null, null, USER, PASSWORD);
 
 		keyStore = null;
-		keyStore = new KeyStore(keyStoreFile);
+		String keyStoreID = IOUtil.getFileNameWithoutExtension(keyStoreFile.getName());
+		keyStore = new KeyStore(keyStoreID, keyStoreFile);
 
 		GeneratedKey generatedKey = keyStore.generateKey(USER, PASSWORD);
 
 		keyStore = null;
-		keyStore = new KeyStore(keyStoreFile);
+		keyStore = new KeyStore(keyStoreID, keyStoreFile);
 
 		byte[] key = keyStore.getKey(USER, PASSWORD, generatedKey.getKeyID());
 
@@ -145,7 +148,8 @@ public class KeyStoreKeyTest
 		stopwatch.stop("00.generateManyKeysIndividually");
 
 		stopwatch.start("07.readKeyStore");
-		keyStore = new KeyStore(keyStoreFile);
+		String keyStoreID = IOUtil.getFileNameWithoutExtension(keyStoreFile.getName());
+		keyStore = new KeyStore(keyStoreID, keyStoreFile);
 		stopwatch.stop("07.readKeyStore");
 
 		stopwatch.start("10.readManyKeys");
@@ -188,7 +192,8 @@ public class KeyStoreKeyTest
 
 
 		stopwatch.start("07.readKeyStore");
-		keyStore = new KeyStore(keyStoreFile);
+		String keyStoreID = IOUtil.getFileNameWithoutExtension(keyStoreFile.getName());
+		keyStore = new KeyStore(keyStoreID, keyStoreFile);
 		stopwatch.stop("07.readKeyStore");
 
 

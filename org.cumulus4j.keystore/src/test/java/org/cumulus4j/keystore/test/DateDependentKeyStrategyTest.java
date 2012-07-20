@@ -7,6 +7,7 @@ import org.cumulus4j.keystore.KeyStore;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.nightlabs.util.IOUtil;
 
 public class DateDependentKeyStrategyTest {
 
@@ -21,7 +22,8 @@ public class DateDependentKeyStrategyTest {
 	throws Exception
 	{
 		keyStoreFile = File.createTempFile("test-", ".keystore");
-		keyStore = new KeyStore(keyStoreFile);
+		String keyStoreID = IOUtil.getFileNameWithoutExtension(keyStoreFile.getName());
+		keyStore = new KeyStore(keyStoreID , keyStoreFile);
 	}
 
 	@After

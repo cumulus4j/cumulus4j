@@ -25,7 +25,10 @@ import org.kohsuke.args4j.Option;
  * (user + password) is used.
  * </p>
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ * @deprecated All sub-commands that currently subclass this class should instead subclass
+ * {@link SubCommandWithKeyManagerAPIWithAuth} or one of its subclasses.
  */
+@Deprecated
 public abstract class SubCommandWithKeyStoreWithAuth
 extends SubCommandWithKeyStore
 {

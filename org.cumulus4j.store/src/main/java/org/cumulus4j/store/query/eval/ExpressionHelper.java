@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.DataEntry;
+import org.cumulus4j.store.model.DataEntryDAO;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.FieldMetaRole;
 import org.cumulus4j.store.model.IndexEntry;
@@ -248,7 +249,7 @@ public class ExpressionHelper
 				Set<Long> result = new HashSet<Long>();
 				if (mmd.getMappedBy() != null) {
 					for (Long valueDataEntryID : valueDataEntryIDs) {
-						DataEntry valueDataEntry = DataEntry.getDataEntry(queryEvaluator.getPersistenceManagerForData(), valueDataEntryID);
+						DataEntry valueDataEntry = new DataEntryDAO(queryEvaluator.getPersistenceManagerForData()).getDataEntry(valueDataEntryID);
 						ObjectContainer constantObjectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(cryptoContext, valueDataEntry);
 						Object value = constantObjectContainer.getValue(
 								fieldMeta.getMappedByFieldMeta(executionContext).getFieldID()
@@ -323,7 +324,7 @@ public class ExpressionHelper
 						throw new IllegalStateException("The ApiAdapter returned null as object-ID for: " + constant);
 
 					if (mmd.getMappedBy() != null) {
-						DataEntry constantDataEntry = DataEntry.getDataEntry(queryEvaluator.getPersistenceManagerForData(),
+						DataEntry constantDataEntry = new DataEntryDAO(queryEvaluator.getPersistenceManagerForData()).getDataEntry(
 								constantClassMeta, constantID.toString());
 						ObjectContainer constantObjectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(cryptoContext, constantDataEntry);
 						Object value = constantObjectContainer.getValue(
@@ -337,7 +338,7 @@ public class ExpressionHelper
 							return negateIfNecessary(fieldMeta, Collections.singleton(mappedByDataEntryID));
 					}
 
-					constantDataEntryID = DataEntry.getDataEntryID(queryEvaluator.getPersistenceManagerForData(), constantClassMeta,
+					constantDataEntryID = new DataEntryDAO(queryEvaluator.getPersistenceManagerForData()).getDataEntryID(constantClassMeta,
 							constantID.toString());
 				}
 				IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(queryEvaluator.getPersistenceManagerForIndex(),
@@ -360,7 +361,7 @@ public class ExpressionHelper
 				IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(cryptoContext, indexEntry);
 				Set<Long> result = new HashSet<Long>(indexValue.getDataEntryIDs().size());
 				for (Long elementDataEntryID : indexValue.getDataEntryIDs()) {
-					DataEntry elementDataEntry = DataEntry.getDataEntry(queryEvaluator.getPersistenceManagerForData(), elementDataEntryID);
+					DataEntry elementDataEntry = new DataEntryDAO(queryEvaluator.getPersistenceManagerForData()).getDataEntry(elementDataEntryID);
 					ObjectContainer elementObjectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(cryptoContext, elementDataEntry);
 					Object value = elementObjectContainer.getValue(
 							fieldMeta.getMappedByFieldMeta(executionContext).getFieldID()

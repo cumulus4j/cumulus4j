@@ -21,30 +21,17 @@ import java.util.List;
 
 import javax.jdo.Query;
 
-import org.cumulus4j.store.test.framework.AbstractJDOTransactionalTest;
-import org.cumulus4j.store.test.framework.CleanupUtil;
-import org.cumulus4j.store.test.onetoone.mappedby.LevelA;
-import org.cumulus4j.store.test.onetoone.mappedby.LevelB;
-import org.cumulus4j.store.test.onetoone.mappedby.Root;
+import org.cumulus4j.store.test.framework.AbstractJDOTransactionalTestClearingDatabase;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class OneToOneMappedByQueryTest
-extends AbstractJDOTransactionalTest
+extends AbstractJDOTransactionalTestClearingDatabase
 {
 	private static final Logger logger = LoggerFactory.getLogger(OneToOneMappedByQueryTest.class);
-
-	@BeforeClass
-	public static void clearDatabase()
-	throws Exception
-	{
-		logger.info("clearDatabase: Clearing database (dropping all tables).");
-		CleanupUtil.dropAllTables();
-	}
 
 	@Before
 	public void createTestData()

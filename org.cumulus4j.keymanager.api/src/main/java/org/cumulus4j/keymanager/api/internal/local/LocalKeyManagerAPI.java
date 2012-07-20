@@ -39,7 +39,7 @@ public class LocalKeyManagerAPI extends AbstractKeyManagerAPI
 		KeyStore ks = this.keyStore;
 
 		if (ks == null) {
-			ks = new KeyStore(getKeyStoreFile());
+			ks = new KeyStore(getKeyStoreID(), getKeyStoreFile());
 			this.keyStore = ks;
 		}
 

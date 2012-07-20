@@ -32,7 +32,7 @@ import org.cumulus4j.store.EncryptionHandler;
 import org.cumulus4j.store.ObjectContainerHelper;
 import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.ClassMeta;
-import org.cumulus4j.store.model.DataEntry;
+import org.cumulus4j.store.model.DataEntryDAO;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.FieldMetaRole;
 import org.cumulus4j.store.model.IndexEntry;
@@ -158,7 +158,7 @@ public class FetchFieldManager extends AbstractFieldManager
 	protected long getThisDataEntryID()
 	{
 		if (thisDataEntryID < 0)
-			thisDataEntryID = DataEntry.getDataEntryID(pmData, classMeta, op.getObjectId().toString());
+			thisDataEntryID = new DataEntryDAO(pmData).getDataEntryID(classMeta, op.getObjectId().toString());
 
 		return thisDataEntryID;
 	}
@@ -394,7 +394,7 @@ public class FetchFieldManager extends AbstractFieldManager
 
 	private Object getObjectFromDataEntryID(long dataEntryID)
 	{
-		String idStr = DataEntry.getDataEntry(pmData, dataEntryID).getObjectID();
+		String idStr = new DataEntryDAO(pmData).getDataEntry(dataEntryID).getObjectID();
 		return IdentityUtils.getObjectFromIdString(
 				idStr, classMeta.getDataNucleusClassMetaData(ec), ec, true
 		);

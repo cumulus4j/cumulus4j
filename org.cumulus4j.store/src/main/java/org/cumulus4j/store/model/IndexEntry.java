@@ -19,6 +19,7 @@ package org.cumulus4j.store.model;
 
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
+import javax.jdo.annotations.Column;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.Inheritance;
@@ -93,6 +94,10 @@ implements StoreCallback
 	private long indexEntryID = -1;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
+	@Column(defaultValue="0")
+	private int keyStoreRefID;
+
+	@Persistent(nullValue=NullValue.EXCEPTION)
 	private FieldMeta fieldMeta;
 
 	private long keyID = -1;
@@ -127,6 +132,14 @@ implements StoreCallback
 			throw new IllegalStateException("The property fieldMeta cannot be modified after being set once!");
 
 		this.fieldMeta = fieldMeta;
+	}
+
+	public int getKeyStoreRefID() {
+		return keyStoreRefID;
+	}
+
+	protected void setKeyStoreRefID(int keyStoreRefID) {
+		this.keyStoreRefID = keyStoreRefID;
 	}
 
 	/**

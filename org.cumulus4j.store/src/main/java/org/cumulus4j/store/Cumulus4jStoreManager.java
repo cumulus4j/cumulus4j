@@ -33,6 +33,7 @@ import javax.jdo.PersistenceManager;
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.ClassMetaDAO;
 import org.cumulus4j.store.model.DataEntry;
+import org.cumulus4j.store.model.DataEntryDAO;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.FieldMetaRole;
 import org.cumulus4j.store.model.IndexEntryFactoryRegistry;
@@ -83,6 +84,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 
 	private EncryptionHandler encryptionHandler;
 	private EncryptionCoordinateSetManager encryptionCoordinateSetManager;
+	private KeyStoreRefManager keyStoreRefManager;
 
 	private IndexEntryFactoryRegistry indexFactoryRegistry;
 
@@ -99,6 +101,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 		indexFactoryRegistry = new IndexEntryFactoryRegistry(this);
 		encryptionHandler = new EncryptionHandler();
 		encryptionCoordinateSetManager = new EncryptionCoordinateSetManager();
+		keyStoreRefManager = new KeyStoreRefManager();
 		persistenceHandler = new Cumulus4jPersistenceHandler(this);
 	}
 
@@ -108,6 +111,10 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 
 	public EncryptionCoordinateSetManager getEncryptionCoordinateSetManager() {
 		return encryptionCoordinateSetManager;
+	}
+
+	public KeyStoreRefManager getKeyStoreRefManager() {
+		return keyStoreRefManager;
 	}
 
 	public IndexEntryFactoryRegistry getIndexFactoryRegistry() {
@@ -340,7 +347,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 						for (AbstractClassMetaData cmd : cmds) {
 							Class<?> clazz = clr.classForName(cmd.getFullClassName());
 							ClassMeta classMeta = getClassMeta(ec, clazz);
-							DataEntry dataEntry = DataEntry.getDataEntry(pmData, classMeta, objectIDString);
+							DataEntry dataEntry = new DataEntryDAO(pmData).getDataEntry(classMeta, objectIDString);
 							if (dataEntry != null) {
 								className = cmd.getFullClassName();
 							}

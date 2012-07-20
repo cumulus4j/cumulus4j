@@ -27,7 +27,10 @@ import org.kohsuke.args4j.Option;
  * Abstract {@link SubCommand} implementation for being subclassed when a key-store is used.
  * </p>
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ * @deprecated All sub-commands that currently subclass this class should instead subclass
+ * {@link SubCommandWithKeyManagerAPI} or one of its subclasses.
  */
+@Deprecated
 public abstract class SubCommandWithKeyStore
 extends SubCommand
 {
@@ -49,7 +52,11 @@ extends SubCommand
 	public void prepare() throws Exception
 	{
 		super.prepare();
-		keyStore = new KeyStore(keyStoreFile);
+		String keyStoreID = keyStoreFile.getName();
+		int i = keyStoreID.lastIndexOf('.');
+		if (i >= 0) {
+			keyStoreID = keyStoreID.substring(0, i);
+		}
+		keyStore = new KeyStore(keyStoreID, keyStoreFile);
 	}
-
 }

@@ -102,7 +102,7 @@ public class KeyStoreManager
 		KeyStore keyStore = keyStoreID2keyStore.get(keyStoreID);
 		if (keyStore == null) {
 			File keyStoreFile = new File(getKeyStoreDir(), keyStoreID + ".keystore");
-			keyStore = new KeyStore(keyStoreFile);
+			keyStore = new KeyStore(keyStoreID, keyStoreFile);
 			keyStoreID2keyStore.put(keyStoreID, keyStore);
 		}
 		return keyStore;

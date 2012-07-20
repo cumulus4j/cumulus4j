@@ -27,6 +27,7 @@ import org.cumulus4j.store.ObjectContainerHelper;
 import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.DataEntry;
+import org.cumulus4j.store.model.DataEntryDAO;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.IndexEntry;
 import org.cumulus4j.store.model.IndexEntryObjectRelationHelper;
@@ -148,7 +149,7 @@ public abstract class PrimaryExpressionResolver
 			}
 			else {
 				for (Long dataEntryIDForNextTuple : dataEntryIDsForNextTuple) {
-					DataEntry dataEntry = DataEntry.getDataEntry(queryEvaluator.getPersistenceManagerForData(), dataEntryIDForNextTuple);
+					DataEntry dataEntry = new DataEntryDAO(queryEvaluator.getPersistenceManagerForData()).getDataEntry(dataEntryIDForNextTuple);
 					if (dataEntry == null)
 						logger.warn("queryMiddle: There is no DataEntry with dataEntryID=" + dataEntryIDForNextTuple + "! " + fieldMetaForNextTuple);
 					else {

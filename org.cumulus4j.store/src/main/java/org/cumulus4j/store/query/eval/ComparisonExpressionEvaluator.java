@@ -26,7 +26,7 @@ import javax.jdo.Query;
 
 import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.ClassMeta;
-import org.cumulus4j.store.model.DataEntry;
+import org.cumulus4j.store.model.DataEntryDAO;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.IndexEntry;
 import org.cumulus4j.store.model.IndexEntryFactory;
@@ -175,7 +175,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 				if (valueID == null)
 					throw new IllegalStateException("The ApiAdapter returned null as object-ID for: " + value);
 
-				valueDataEntryID = DataEntry.getDataEntryID(getQueryEvaluator().getPersistenceManagerForData(), valueClassMeta, valueID.toString());
+				valueDataEntryID = new DataEntryDAO(getQueryEvaluator().getPersistenceManagerForData()).getDataEntryID(valueClassMeta, valueID.toString());
 			}
 			queryParam = valueDataEntryID;
 		}
@@ -220,10 +220,10 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 			// TODO IMHO this is incomplete - the sub-classes are probably missing. But before changing anything here,
 			// we should design a test-case first and check if my assumption is correct.
 			// Marco :-)
-			return DataEntry.getDataEntryIDsNegated(getQueryEvaluator().getPersistenceManagerForData(), classMeta, valueID.toString());
+			return new DataEntryDAO(getQueryEvaluator().getPersistenceManagerForData()).getDataEntryIDsNegated(classMeta, valueID.toString());
 		}
 		else {
-			Long dataEntryID = DataEntry.getDataEntryID(getQueryEvaluator().getPersistenceManagerForData(), classMeta, valueID.toString());
+			Long dataEntryID = new DataEntryDAO(getQueryEvaluator().getPersistenceManagerForData()).getDataEntryID(classMeta, valueID.toString());
 			return Collections.singleton(dataEntryID);
 		}
 	}

@@ -63,7 +63,7 @@ public class Session
 				+ '.'
 				+ Long.toString(sessionManager.nextCryptoSessionSerial(), 36)
 				+ '.'
-				+ IdentifierUtil.createRandomID(8)
+				+ IdentifierUtil.createRandomID(6)
 		);
 
 		this.userName = userName;

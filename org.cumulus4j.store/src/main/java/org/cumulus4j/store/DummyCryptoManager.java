@@ -17,6 +17,10 @@
  */
 package org.cumulus4j.store;
 
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -45,25 +49,75 @@ public class DummyCryptoManager extends AbstractCryptoManager
 	private static final class DummySession
 	extends AbstractCryptoSession
 	{
-		// key length: 128 bits
-		private static final byte[] dummyKey = { 'D', 'e', 'r', ' ', 'F', 'e', 'r', 'd', ' ', 'h', 'a', 't', ' ', 'v', 'i', 'e' };
+//		// key length: 128 bits
+//		private static final byte[] dummyKey = { 'D', 'e', 'r', ' ', 'F', 'e', 'r', 'd', ' ', 'h', 'a', 't', ' ', 'v', 'i', 'e' };
 		// initialization vector length: 128 bits
 		private static final IvParameterSpec iv = new IvParameterSpec(new byte[] {'b', 'l', 'a', 't', 'r', 'u', 'l', 'l', 'a', 'l', 'a', 't', 'r', 'a', 'r', 'a'});
 
 		private static final String ALGORITHM = "AES";
 		private static final String ALGORITHM_WITH_PARAMS = ALGORITHM + "/CBC/PKCS5Padding";
 
-		private Cipher encrypter;
-		private Cipher decrypter;
-		{
-			try {
-				SecretKeySpec key = new SecretKeySpec(dummyKey, ALGORITHM);
-				encrypter = Cipher.getInstance(ALGORITHM_WITH_PARAMS);
-				encrypter.init(Cipher.ENCRYPT_MODE, key, iv);
-				decrypter = Cipher.getInstance(ALGORITHM_WITH_PARAMS);
-				decrypter.init(Cipher.DECRYPT_MODE, key, iv);
-			} catch (Exception ex) {
-				throw new RuntimeException(ex);
+//		private Cipher encrypter;
+//		private Cipher decrypter;
+//		{
+//			try {
+//				SecretKeySpec key = new SecretKeySpec(dummyKey, ALGORITHM);
+//				encrypter = Cipher.getInstance(ALGORITHM_WITH_PARAMS);
+//				encrypter.init(Cipher.ENCRYPT_MODE, key, iv);
+//				decrypter = Cipher.getInstance(ALGORITHM_WITH_PARAMS);
+//				decrypter.init(Cipher.DECRYPT_MODE, key, iv);
+//			} catch (Exception ex) {
+//				throw new RuntimeException(ex);
+//			}
+//		}
+
+		private Map<Integer, Map<String, Cipher>> mode2KeyStoreID2Cipher = new HashMap<Integer, Map<String,Cipher>>();
+
+		protected Cipher getEncrypter() {
+			return getCipher(Cipher.ENCRYPT_MODE);
+		}
+
+		protected Cipher getDecrypter() {
+			return getCipher(Cipher.DECRYPT_MODE);
+		}
+
+		protected Cipher getCipher(int mode) {
+			String keyStoreID = getKeyStoreID();
+
+			synchronized (mode2KeyStoreID2Cipher) {
+				Map<String, Cipher> keyStoreID2Cipher = mode2KeyStoreID2Cipher.get(mode);
+				if (keyStoreID2Cipher == null) {
+					keyStoreID2Cipher = new HashMap<String, Cipher>();
+					mode2KeyStoreID2Cipher.put(mode, keyStoreID2Cipher);
+				}
+
+				Cipher cipher = keyStoreID2Cipher.get(keyStoreID);
+				if (cipher == null) {
+					// key length: 128 bits
+					byte[] dummyKey = { 'D', 'e', 'r', ' ', 'F', 'e', 'r', 'd', ' ', 'h', 'a', 't', ' ', 'v', 'i', 'e' };
+					try {
+						byte[] keyStoreIDBytes = keyStoreID.getBytes("UTF-8");
+						int keyIdx = -1;
+						for (int i = 0; i < keyStoreIDBytes.length; ++i) {
+							if (++keyIdx >= dummyKey.length)
+								keyIdx = 0;
+
+							dummyKey[keyIdx] ^= keyStoreIDBytes[i];
+						}
+					} catch (UnsupportedEncodingException e) {
+						throw new RuntimeException(e);
+					}
+
+					try {
+						SecretKeySpec key = new SecretKeySpec(dummyKey, ALGORITHM);
+						cipher = Cipher.getInstance(ALGORITHM_WITH_PARAMS);
+						cipher.init(mode, key, iv);
+					} catch (Exception ex) {
+						throw new RuntimeException(ex);
+					}
+					keyStoreID2Cipher.put(keyStoreID, cipher);
+				}
+				return cipher;
 			}
 		}
 
@@ -71,7 +125,7 @@ public class DummyCryptoManager extends AbstractCryptoManager
 		public Ciphertext encrypt(CryptoContext cryptoContext, Plaintext plaintext)
 		{
 			// First get the required resources (that are cleared in close()).
-			Cipher c = encrypter;
+			Cipher c = getEncrypter();
 
 			// Then assert that we are not yet closed. This makes sure that we definitely can continue
 			// even if close() is called right now simultaneously.
@@ -102,7 +156,7 @@ public class DummyCryptoManager extends AbstractCryptoManager
 				throw new IllegalArgumentException("No key with this keyID: " + ciphertext.getKeyID());
 
 			// First get the required resources (that are cleared in close()).
-			Cipher c = decrypter;
+			Cipher c = getDecrypter();
 
 			// Then assert that we are not yet closed. This makes sure that we definitely can continue
 			// even if close() is called right now simultaneously.
@@ -128,8 +182,9 @@ public class DummyCryptoManager extends AbstractCryptoManager
 		@Override
 		public void close() {
 			super.close();
-			encrypter = null;
-			decrypter = null;
+			synchronized (mode2KeyStoreID2Cipher) {
+				mode2KeyStoreID2Cipher.clear();
+			}
 		}
 	}
 

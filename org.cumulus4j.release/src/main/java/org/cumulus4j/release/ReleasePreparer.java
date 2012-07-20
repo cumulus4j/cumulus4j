@@ -21,7 +21,7 @@ public class ReleasePreparer {
 	// Set 'newMavenVersion' to the new desired  version. Then run the main method. It will update
 	// all files accordingly. See HOWTO-release.txt in project 'org.nightlabs.vestigo.all'.
 //	protected String newMavenVersion = "1.0.2";
-	protected String newMavenVersion = "1.0.3-SNAPSHOT";
+	protected String newMavenVersion = "1.1.0-SNAPSHOT";
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// DO NOT CHANGE ANYTHING BELOW THIS POINT, if you don't really want to improve this program.

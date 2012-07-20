@@ -97,6 +97,9 @@ public class EncryptionCoordinateSetDAO extends AbstractDAO {
 		EncryptionCoordinateSet encryptionCoordinateSet = getEncryptionCoordinateSet(cipherTransformation, macAlgorithm);
 		if (encryptionCoordinateSet == null) {
 			encryptionCoordinateSet = pm.makePersistent(new EncryptionCoordinateSet(cipherTransformation, macAlgorithm));
+			// It is essential that the first ID is 0 (and never a negative value), because
+			// we encode this ID into the binary data assuming that it is positive or 0!
+			// Hence, we check here, already.
 			if (encryptionCoordinateSet.getEncryptionCoordinateSetID() < 0)
 				throw new IllegalStateException("encryptionCoordinateSetID = " + encryptionCoordinateSet.getEncryptionCoordinateSetID() + " < 0!!!");
 		}

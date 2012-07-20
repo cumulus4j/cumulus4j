@@ -27,6 +27,7 @@ import org.cumulus4j.store.fieldmanager.FetchFieldManager;
 import org.cumulus4j.store.fieldmanager.StoreFieldManager;
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.DataEntry;
+import org.cumulus4j.store.model.DataEntryDAO;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.ObjectContainer;
 import org.datanucleus.exceptions.NucleusObjectNotFoundException;
@@ -50,6 +51,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 
 	private Cumulus4jStoreManager storeManager;
 	private EncryptionCoordinateSetManager encryptionCoordinateSetManager;
+	private KeyStoreRefManager keyStoreRefManager;
 	private EncryptionHandler encryptionHandler;
 
 	private IndexEntryAction addIndexEntry;
@@ -61,6 +63,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 
 		this.storeManager = storeManager;
 		this.encryptionCoordinateSetManager = storeManager.getEncryptionCoordinateSetManager();
+		this.keyStoreRefManager = storeManager.getKeyStoreRefManager();
 		this.encryptionHandler = storeManager.getEncryptionHandler();
 
 		this.addIndexEntry = new IndexEntryAction.Add(this);
@@ -86,13 +89,13 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		try {
 			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
 			PersistenceManager pmData = pmConn.getDataPM();
-			CryptoContext cryptoContext = new CryptoContext(encryptionCoordinateSetManager, ec, pmConn);
+			CryptoContext cryptoContext = new CryptoContext(encryptionCoordinateSetManager, keyStoreRefManager, ec, pmConn);
 
 			Object object = op.getObject();
 			Object objectID = op.getExternalObjectId();
 			String objectIDString = objectID.toString();
 			ClassMeta classMeta = storeManager.getClassMeta(ec, object.getClass());
-			DataEntry dataEntry = DataEntry.getDataEntry(pmData, classMeta, objectIDString);
+			DataEntry dataEntry = new DataEntryDAO(pmData).getDataEntry(classMeta, objectIDString);
 			//			if (dataEntry == null)
 			//				throw new NucleusObjectNotFoundException("Object does not exist in datastore: class=" + classMeta.getClassName() + " oid=" + objectIDString);
 
@@ -132,7 +135,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		try {
 			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
 			PersistenceManager pmData = pmConn.getDataPM();
-			CryptoContext cryptoContext = new CryptoContext(encryptionCoordinateSetManager, ec, pmConn);
+			CryptoContext cryptoContext = new CryptoContext(encryptionCoordinateSetManager, keyStoreRefManager, ec, pmConn);
 
 			Object object = op.getObject();
 			Object objectID = op.getExternalObjectId();
@@ -147,7 +150,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			// called in normal operation.
 			// Marco.
 
-			DataEntry dataEntry = DataEntry.getDataEntry(pmData, classMeta, objectIDString);
+			DataEntry dataEntry = new DataEntryDAO(pmData).getDataEntry(classMeta, objectIDString);
 			if (dataEntry == null)
 				throw new NucleusObjectNotFoundException("Object does not exist in datastore: class=" + classMeta.getClassName() + " oid=" + objectIDString);
 
@@ -178,7 +181,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		try {
 			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
 			PersistenceManager pmData = pmConn.getDataPM();
-			CryptoContext cryptoContext = new CryptoContext(encryptionCoordinateSetManager, ec, pmConn);
+			CryptoContext cryptoContext = new CryptoContext(encryptionCoordinateSetManager, keyStoreRefManager, ec, pmConn);
 
 			Object object = op.getObject();
 			Object objectID = op.getExternalObjectId();
@@ -213,7 +216,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 //			}
 
 			// This performs reachability on this input object so that all related objects are persisted.
-			op.provideFields(allFieldNumbers, new StoreFieldManager(op, pmData, classMeta, dnClassMetaData, objectContainer));
+			op.provideFields(allFieldNumbers, new StoreFieldManager(op, pmData, classMeta, dnClassMetaData, cryptoContext.getKeyStoreRefID(), objectContainer));
 			objectContainer.setVersion(op.getTransactionalVersion());
 
 			// The DataEntry might already have been written by ObjectContainerHelper.entityToReference(...),
@@ -224,7 +227,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 				logger.trace("insertObject: Found temporary-reference-DataEntry for: {}", objectIDString);
 			else {
 				persistDataEntry = true;
-				dataEntry = new DataEntry(classMeta, objectIDString);
+				dataEntry = new DataEntry(classMeta, cryptoContext.getKeyStoreRefID(), objectIDString);
 				logger.trace("insertObject: Created new DataEntry for: {}", objectIDString);
 			}
 
@@ -269,7 +272,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			Object objectID = op.getExternalObjectId();
 			String objectIDString = objectID.toString();
 
-			DataEntry dataEntry = DataEntry.getDataEntry(pmData, classMeta, objectIDString);
+			DataEntry dataEntry = new DataEntryDAO(pmData).getDataEntry(classMeta, objectIDString);
 			if (dataEntry == null)
 				throw new NucleusObjectNotFoundException("Object does not exist in datastore: class=" + classMeta.getClassName() + " oid=" + objectIDString);
 		} finally {
@@ -288,7 +291,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		try {
 			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
 			PersistenceManager pmData = pmConn.getDataPM();
-			CryptoContext cryptoContext = new CryptoContext(encryptionCoordinateSetManager, ec, pmConn);
+			CryptoContext cryptoContext = new CryptoContext(encryptionCoordinateSetManager, keyStoreRefManager, ec, pmConn);
 
 			Object object = op.getObject();
 			Object objectID = op.getExternalObjectId();
@@ -296,7 +299,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			ClassMeta classMeta = storeManager.getClassMeta(ec, object.getClass());
 			AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), ec.getClassLoaderResolver());
 
-			DataEntry dataEntry = DataEntry.getDataEntry(pmData, classMeta, objectIDString);
+			DataEntry dataEntry = new DataEntryDAO(pmData).getDataEntry(classMeta, objectIDString);
 			if (dataEntry == null)
 				throw new NucleusObjectNotFoundException("Object does not exist in datastore: class=" + classMeta.getClassName() + " oid=" + objectIDString);
 
@@ -306,7 +309,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			ObjectContainer objectContainerNew = objectContainerOld.clone();
 
 			// This performs reachability on this input object so that all related objects are persisted
-			op.provideFields(fieldNumbers, new StoreFieldManager(op, pmData, classMeta, dnClassMetaData, objectContainerNew));
+			op.provideFields(fieldNumbers, new StoreFieldManager(op, pmData, classMeta, dnClassMetaData, cryptoContext.getKeyStoreRefID(), objectContainerNew));
 			objectContainerNew.setVersion(op.getTransactionalVersion());
 
 			// update persistent data

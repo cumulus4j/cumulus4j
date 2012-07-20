@@ -24,28 +24,17 @@ import java.util.Set;
 
 import javax.jdo.Query;
 
-import org.cumulus4j.store.test.collection.join.StringStringMapOwner;
-import org.cumulus4j.store.test.framework.AbstractJDOTransactionalTest;
-import org.cumulus4j.store.test.framework.CleanupUtil;
+import org.cumulus4j.store.test.framework.AbstractJDOTransactionalTestClearingDatabase;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class StringStringMapQueryTest
-extends AbstractJDOTransactionalTest
+extends AbstractJDOTransactionalTestClearingDatabase
 {
 	private static final Logger logger = LoggerFactory.getLogger(StringStringMapQueryTest.class);
-
-	@BeforeClass
-	public static void clearDatabase()
-	throws Exception
-	{
-		logger.info("clearDatabase: Clearing database (dropping all tables).");
-		CleanupUtil.dropAllTables();
-	}
 
 	@Before
 	public void createTestData()

@@ -26,17 +26,15 @@ import javax.jdo.PersistenceManagerFactory;
 
 import org.cumulus4j.store.test.account.id.AnchorID;
 import org.cumulus4j.store.test.account.id.LocalAccountantDelegateID;
-import org.cumulus4j.store.test.framework.AbstractJDOTransactionalTest;
-import org.cumulus4j.store.test.framework.CleanupUtil;
+import org.cumulus4j.store.test.framework.AbstractJDOTransactionalTestClearingDatabase;
 import org.cumulus4j.store.test.framework.JDOTransactionalRunner;
 import org.junit.After;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JDOPersistenceTest
-extends AbstractJDOTransactionalTest
+extends AbstractJDOTransactionalTestClearingDatabase
 {
 	private static final String EUR = "EUR";
 
@@ -45,14 +43,6 @@ extends AbstractJDOTransactionalTest
 	private static final String ORGANISATION_ID = "jfire.my.org";
 	private static final LocalAccountantDelegateID LOCAL_ACCOUNTANT_DELEGATE_ID_0 = LocalAccountantDelegateID.create(ORGANISATION_ID, "0");
 	private static final AnchorID ACCOUNT_ID_0 = AnchorID.create(ORGANISATION_ID, Account.ANCHOR_TYPE_ID_ACCOUNT, "voucher.00");
-
-	@BeforeClass
-	public static void clearDatabase()
-	throws Exception
-	{
-		logger.info("clearDatabase: Clearing database (dropping all tables).");
-		CleanupUtil.dropAllTables();
-	}
 
 	@Test
 	public void createData()

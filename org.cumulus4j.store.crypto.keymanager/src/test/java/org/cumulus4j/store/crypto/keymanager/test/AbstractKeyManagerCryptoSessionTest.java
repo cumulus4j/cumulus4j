@@ -37,6 +37,7 @@ import javax.jdo.PersistenceManagerFactory;
 
 import org.cumulus4j.keymanager.back.shared.IdentifierUtil;
 import org.cumulus4j.store.EncryptionCoordinateSetManager;
+import org.cumulus4j.store.KeyStoreRefManager;
 import org.cumulus4j.store.PersistenceManagerConnection;
 import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.crypto.CryptoManager;
@@ -135,6 +136,7 @@ public abstract class AbstractKeyManagerCryptoSessionTest
 		PersistenceManagerConnection persistenceManagerConnection = new PersistenceManagerConnection(pm, null);
 		cryptoContext = new CryptoContext(
 				new EncryptionCoordinateSetManager(),
+				new KeyStoreRefManager(),
 				executionContext, persistenceManagerConnection
 		);
 	}

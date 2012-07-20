@@ -57,11 +57,12 @@ public class IndexEntryObjectRelationHelper
 	 *
 	 * @param pmIndex the backend-<code>PersistenceManager</code> used to access the index-datastore.
 	 * @param fieldMeta the field pointing to the referenced object.
+	 * @param keyStoreRefID TODO
 	 * @param indexedDataEntryID the {@link DataEntry#getDataEntryID() DataEntry.dataEntryID} of the referenced object.
 	 * @return the appropriate {@link IndexEntry}; never <code>null</code>.
 	 */
-	public static IndexEntry createIndexEntry(PersistenceManager pmIndex, FieldMeta fieldMeta, Long indexedDataEntryID)
+	public static IndexEntry createIndexEntry(PersistenceManager pmIndex, FieldMeta fieldMeta, int keyStoreRefID, Long indexedDataEntryID)
 	{
-		return indexEntryFactoryLong.createIndexEntry(pmIndex, fieldMeta, indexedDataEntryID);
+		return indexEntryFactoryLong.createIndexEntry(pmIndex, fieldMeta, keyStoreRefID, indexedDataEntryID);
 	}
 }

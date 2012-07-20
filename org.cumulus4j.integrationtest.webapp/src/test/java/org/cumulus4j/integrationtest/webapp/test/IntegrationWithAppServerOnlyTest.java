@@ -72,7 +72,10 @@ public class IntegrationWithAppServerOnlyTest
 	{
 		File keyStoreFile = File.createTempFile("test-", ".keystore");
 		try {
-			KeyStore keyStore = new KeyStore(keyStoreFile);
+			KeyStore keyStore = new KeyStore(
+					IOUtil.getFileNameWithoutExtension(keyStoreFile.getName()),
+					keyStoreFile
+			);
 			// User creation is done during the keyStrategy.init(...)
 //			keyStore.createUser(null, null, KEY_STORE_USER, KEY_STORE_PASSWORD);
 			DateDependentKeyStrategy keyStrategy = new DateDependentKeyStrategy(keyStore);

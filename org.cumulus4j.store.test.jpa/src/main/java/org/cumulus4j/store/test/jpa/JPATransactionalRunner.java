@@ -187,7 +187,8 @@ public class JPATransactionalRunner extends BlockJUnit4ClassRunner
 	public static void setEncryptionCoordinates(EntityManager em)
 	{
 		em.setProperty(CryptoManager.PROPERTY_CRYPTO_MANAGER_ID, "dummy");
-		em.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, UUID.randomUUID().toString());
+		String keyStoreID = "dummy";
+		em.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, keyStoreID + ':' + UUID.randomUUID());
 	}
 
 	private static Properties loadProperties()

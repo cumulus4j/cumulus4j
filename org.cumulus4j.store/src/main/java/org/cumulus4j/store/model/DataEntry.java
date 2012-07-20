@@ -17,12 +17,7 @@
  */
 package org.cumulus4j.store.model;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.jdo.JDOHelper;
-import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.IdGeneratorStrategy;
@@ -36,7 +31,6 @@ import javax.jdo.annotations.Query;
 import javax.jdo.annotations.Unique;
 import javax.jdo.annotations.Version;
 import javax.jdo.annotations.VersionStrategy;
-import javax.jdo.identity.LongIdentity;
 import javax.jdo.listener.StoreCallback;
 
 /**
@@ -64,103 +58,13 @@ import javax.jdo.listener.StoreCallback;
 public class DataEntry
 implements StoreCallback
 {
-	/**
-	 * Get the <code>DataEntry</code> identified by the specified {@link #getDataEntryID() dataEntryID} or
-	 * <code>null</code> if no such instance exists.
-	 * @param pmData the backend-<code>PersistenceManager</code>. Must not be <code>null</code>.
-	 * @param dataEntryID the <code>DataEntry</code>'s {@link #getDataEntryID() identifier}.
-	 * @return the <code>DataEntry</code> matching the given <code>dataEntryID</code> or <code>null</code>, if no such instance exists.
-	 */
-	public static DataEntry getDataEntry(PersistenceManager pmData, long dataEntryID)
-	{
-		DataEntry dataEntry;
-		try {
-			dataEntry = (DataEntry) pmData.getObjectById(new LongIdentity(DataEntry.class, dataEntryID));
-		} catch (JDOObjectNotFoundException x) {
-			dataEntry = null;
-		}
-		return dataEntry;
-	}
-
-	/**
-	 * Get the <code>DataEntry</code> identified by the given type and JDO/JPA-object-ID.
-	 *
-	 * @param pmData the backend-<code>PersistenceManager</code>. Must not be <code>null</code>.
-	 * @param classMeta reference to the searched <code>DataEntry</code>'s {@link #getClassMeta() classMeta} (which must match
-	 * the searched instance's concrete type - <b>not</b> the root-type of the inheritance tree!).
-	 * @param objectID the <code>String</code>-representation of the JDO/JPA-object-ID.
-	 * @return the <code>DataEntry</code> matching the given combination of <code>classMeta</code> and <code>objectID</code>;
-	 * or <code>null</code>, if no such instance exists.
-	 */
-	public static DataEntry getDataEntry(PersistenceManager pmData, ClassMeta classMeta, String objectID)
-	{
-		javax.jdo.Query q = pmData.newNamedQuery(DataEntry.class, "getDataEntryByClassMetaAndObjectID");
-		return (DataEntry) q.execute(classMeta, objectID);
-		// UNIQUE query does not need to be closed, because there is no result list lingering.
-	}
-
-	/**
-	 * <p>
-	 * Get the {@link #getDataEntryID() dataEntryID} of the <code>DataEntry</code> identified by the
-	 * given type and JDO/JPA-object-ID.
-	 * </p>
-	 * <p>
-	 * This method is equivalent to first calling
-	 * </p>
-	 * <pre>DataEntry e = {@link #getDataEntry(PersistenceManager, ClassMeta, String)}</pre>
-	 * <p>
-	 * and then
-	 * </p>
-	 * <pre>e == null ? null : Long.valueOf({@link #getDataEntryID() e.getDataEntryID()})</pre>
-	 * <p>
-	 * but faster, because it does not query unnecessary data from the underlying database.
-	 * </p>
-	 *
-	 * @param pmData the backend-<code>PersistenceManager</code>. Must not be <code>null</code>.
-	 * @param classMeta reference to the searched <code>DataEntry</code>'s {@link #getClassMeta() classMeta} (which must match
-	 * the searched instance's concrete type - <b>not</b> the root-type of the inheritance tree!).
-	 * @param objectID the <code>String</code>-representation of the JDO/JPA-object-ID.
-	 * @return the {@link #getDataEntryID() dataEntryID} of the <code>DataEntry</code> matching the
-	 * given combination of <code>classMeta</code> and <code>objectID</code>;
-	 * or <code>null</code>, if no such instance exists.
-	 */
-	public static Long getDataEntryID(PersistenceManager pmData, ClassMeta classMeta, String objectID)
-	{
-		javax.jdo.Query q = pmData.newNamedQuery(DataEntry.class, "getDataEntryIDByClassMetaAndObjectID");
-		return (Long) q.execute(classMeta, objectID);
-		// UNIQUE query does not need to be closed, because there is no result list lingering.
-	}
-
-	/**
-	 * <p>
-	 * Get the {@link #getDataEntryID() dataEntryID}s of all those <code>DataEntry</code> instances
-	 * which do <b>not</b> match the given type and JDO/JPA-object-ID.
-	 * </p>
-	 * <p>
-	 * This method is thus the negation of {@link #getDataEntryID(PersistenceManager, ClassMeta, String)}.
-	 * </p>
-	 *
-	 * @param pmData the backend-<code>PersistenceManager</code>. Must not be <code>null</code>.
-	 * @param classMeta reference to the searched <code>DataEntry</code>'s {@link #getClassMeta() classMeta} (which must match
-	 * the searched instance's concrete type - <b>not</b> the root-type of the inheritance tree!).
-	 * @param notThisObjectID the <code>String</code>-representation of the JDO/JPA-object-ID, which should be
-	 * excluded.
-	 * @return the {@link #getDataEntryID() dataEntryID}s of those <code>DataEntry</code>s which match the given
-	 * <code>classMeta</code> but have an object-ID different from the one specified as <code>notThisObjectID</code>.
-	 */
-	public static Set<Long> getDataEntryIDsNegated(PersistenceManager pmData, ClassMeta classMeta, String notThisObjectID)
-	{
-		javax.jdo.Query q = pmData.newNamedQuery(DataEntry.class, "getDataEntryIDsByClassMetaAndObjectIDNegated");
-		@SuppressWarnings("unchecked")
-		Collection<Long> dataEntryIDsColl = (Collection<Long>) q.execute(classMeta, notThisObjectID);
-		Set<Long> dataEntryIDsSet = new HashSet<Long>(dataEntryIDsColl);
-		q.closeAll();
-		return dataEntryIDsSet;
-	}
-
 	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE, sequence="DataEntrySequence")
 	private long dataEntryID = -1;
+
+	@Persistent(nullValue=NullValue.EXCEPTION)
+	@Column(defaultValue="0")
+	private int keyStoreRefID;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	private ClassMeta classMeta;
@@ -182,11 +86,13 @@ implements StoreCallback
 	 * Create an instance of <code>DataEntry</code>.
 	 * @param classMeta the type of the entity persisted in this container (which must be the entity's concrete type -
 	 * <b>not</b> the root-type of the inheritance tree!). See {@link #getClassMeta()} for further details.
+	 * @param keyStoreRefID TODO
 	 * @param objectID the <code>String</code>-representation of the entity's identifier (aka OID or object-ID).
 	 * See {@link #getObjectID()} for further details.
 	 */
-	public DataEntry(ClassMeta classMeta, String objectID) {
+	public DataEntry(ClassMeta classMeta, int keyStoreRefID, String objectID) {
 		this.classMeta = classMeta;
+		this.keyStoreRefID = keyStoreRefID;
 		this.objectID = objectID;
 	}
 
@@ -217,6 +123,10 @@ implements StoreCallback
 	 */
 	public ClassMeta getClassMeta() {
 		return classMeta;
+	}
+
+	public int getKeyStoreRefID() {
+		return keyStoreRefID;
 	}
 
 	/**

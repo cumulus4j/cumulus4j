@@ -27,6 +27,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.nightlabs.util.IOUtil;
 
 public class KeyStoreUserTest
 {
@@ -38,7 +39,8 @@ public class KeyStoreUserTest
 	throws Exception
 	{
 		keyStoreFile = File.createTempFile("test-", ".keystore");
-		keyStore = new KeyStore(keyStoreFile);
+		String keyStoreID = IOUtil.getFileNameWithoutExtension(keyStoreFile.getName());
+		keyStore = new KeyStore(keyStoreID, keyStoreFile);
 	}
 
 	@After

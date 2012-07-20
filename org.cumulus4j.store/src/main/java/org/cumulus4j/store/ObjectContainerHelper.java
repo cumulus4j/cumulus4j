@@ -25,6 +25,7 @@ import javax.jdo.PersistenceManager;
 
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.DataEntry;
+import org.cumulus4j.store.model.DataEntryDAO;
 import org.cumulus4j.store.model.ObjectContainer;
 import org.datanucleus.identity.IdentityUtils;
 import org.datanucleus.metadata.AbstractClassMetaData;
@@ -83,12 +84,12 @@ public final class ObjectContainerHelper
 		if (trde == null)
 			return null;
 
-		DataEntry dataEntry = DataEntry.getDataEntry(pmData, trde.classMeta, objectIDString);
+		DataEntry dataEntry = new DataEntryDAO(pmData).getDataEntry(trde.classMeta, objectIDString);
 		return dataEntry;
 	}
 
 	@SuppressWarnings("unused")
-	public static Object entityToReference(ExecutionContext ec, PersistenceManager pmData, Object entity)
+	public static Object entityToReference(ExecutionContext ec, PersistenceManager pmData, int keyStoreRefID, Object entity)
 	{
 		if (entity == null)
 			return null;
@@ -103,7 +104,7 @@ public final class ObjectContainerHelper
 		if (USE_DATA_ENTRY_ID) {
 			ClassMeta classMeta = storeManager.getClassMeta(ec, entity.getClass());
 			String objectIDString = objectID.toString();
-			Long dataEntryID = DataEntry.getDataEntryID(pmData, classMeta, objectIDString);
+			Long dataEntryID = new DataEntryDAO(pmData).getDataEntryID(classMeta, objectIDString);
 			if (dataEntryID == null) {
 				// Referenced entity not yet persisted => Create a temporarily empty DataEntry. It should be
 				// filled later when Cumulus4jPersistenceHandler.insertObject(...) is called for this entity.
@@ -111,7 +112,7 @@ public final class ObjectContainerHelper
 				// TODO If we ever stumble over empty DataEntry objects in the database, we should add a sanity check,
 				// which checks at the end of a flush(...) or commit(...) whether all of the DataEntry objects created here
 				// were actually post-processed by a call to Cumulus4jPersistenceHandler.insertObject(...). Marco :-)
-				DataEntry dataEntry = pmData.makePersistent(new DataEntry(classMeta, objectIDString));
+				DataEntry dataEntry = pmData.makePersistent(new DataEntry(classMeta, keyStoreRefID, objectIDString));
 				dataEntryID = dataEntry.getDataEntryID();
 				registerTemporaryReferenceDataEntry(pmData, dataEntry);
 				logger.trace("entityToReference: Created temporary-reference-DataEntry for: {}", objectIDString);
@@ -131,7 +132,7 @@ public final class ObjectContainerHelper
 			return null;
 
 		if (USE_DATA_ENTRY_ID) {
-			DataEntry dataEntry = DataEntry.getDataEntry(pmData, ((Long)reference).longValue());
+			DataEntry dataEntry = new DataEntryDAO(pmData).getDataEntry(((Long)reference).longValue());
 			if (dataEntry != null && JDOHelper.isDeleted(dataEntry)) {
 				// Added check for deleted state because of https://sourceforge.net/tracker/?func=detail&aid=3515534&group_id=517465&atid=2102911
 				// Marco :-)
@@ -170,6 +171,6 @@ public final class ObjectContainerHelper
 		String clazzName = storeManager.getClassNameForObjectID(reference, ec.getClassLoaderResolver(), ec);
 		Class<?> clazz = ec.getClassLoaderResolver().classForName(clazzName);
 		ClassMeta classMeta = storeManager.getClassMeta(ec, clazz);
-		return DataEntry.getDataEntryID(pmData, classMeta, reference.toString());
+		return new DataEntryDAO(pmData).getDataEntryID(classMeta, reference.toString());
 	}
 }

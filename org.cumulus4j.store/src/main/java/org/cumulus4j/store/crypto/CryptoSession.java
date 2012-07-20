@@ -109,6 +109,8 @@ public interface CryptoSession
 
 	String getCryptoSessionID();
 
+	String getKeyStoreID();
+
 	Date getCreationTimestamp();
 
 	/**

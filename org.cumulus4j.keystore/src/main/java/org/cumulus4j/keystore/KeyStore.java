@@ -684,6 +684,7 @@ public class KeyStore
 //		);
 	}
 
+	private String keyStoreID;
 	private File keyStoreFile;
 
 	/**
@@ -694,16 +695,33 @@ public class KeyStore
 	 * If the file specified by <code>keyStoreFile</code> exists, it is read into memory. If it does not exist,
 	 * an empty <code>KeyStore</code> is created and written to this file.
 	 * </p>
-	 *
+	 * @param keyStoreID the identifier that is used to reference this key-store. Usually, this is the simple file name
+	 * without path and without extension. The <code>keyStoreID</code> is currently not stored in the key-store-file -
+	 * it is transient.
 	 * @param keyStoreFile the file to be read (if existing) or created. Note that temporary files (and later maybe backup files, too)
 	 * are created in the same directory (i.e. in {@link File#getParentFile() keyStoreFile.getParentFile()}).
+	 *
 	 * @throws IOException if reading from or writing to the local file-system failed.
 	 */
-	public KeyStore(File keyStoreFile) throws IOException
+	public KeyStore(String keyStoreID, File keyStoreFile) throws IOException
 	{
 		if (keyStoreFile == null)
 			throw new IllegalArgumentException("keyStoreFile == null");
 
+		if (keyStoreID == null)
+			throw new IllegalArgumentException("keyStoreID == null");
+
+		// TODO maybe be more restrictive?! E.g. allow only MIME-base64 characters?
+		if (keyStoreID.indexOf('.') > 0)
+			throw new IllegalArgumentException("keyStoreID must not contain '.'");
+
+		if (keyStoreID.indexOf(':') > 0)
+			throw new IllegalArgumentException("keyStoreID must not contain ':'");
+
+		if (keyStoreID.indexOf(' ') > 0)
+			throw new IllegalArgumentException("keyStoreID must not contain ' '");
+
+		this.keyStoreID = keyStoreID;
 		this.keyStoreFile = keyStoreFile;
 
 		if (!keyStoreFile.getParentFile().isDirectory())
@@ -727,6 +745,16 @@ public class KeyStore
 			storeToFile(); // create the file (empty) already now, if it does not exist.
 
 		expireCacheEntryTimer.schedule(expireCacheEntryTimerTask, 60000, 60000); // TODO make this configurable
+	}
+
+	/**
+	 * Get the identifier that is used to reference this key-store. Usually, this is the simple file name
+	 * without path and without extension. The <code>keyStoreID</code> is currently not stored in the key-store-file -
+	 * it is transient. Note, though, that it is used persistently inside the actual database!
+	 * @return the identifier that is used to reference this key-store.
+	 */
+	public String getKeyStoreID() {
+		return keyStoreID;
 	}
 
 	File getNewKeyStoreFile()

@@ -17,28 +17,15 @@
  */
 package org.cumulus4j.store.test.movie;
 
-import org.cumulus4j.store.test.framework.AbstractJDOTransactionalTest;
-import org.cumulus4j.store.test.framework.CleanupUtil;
-import org.cumulus4j.store.test.movie.Movie;
-import org.cumulus4j.store.test.movie.Person;
-import org.cumulus4j.store.test.movie.Rating;
-import org.junit.BeforeClass;
+import org.cumulus4j.store.test.framework.AbstractJDOTransactionalTestClearingDatabase;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MovieInsertTest
-extends AbstractJDOTransactionalTest
+extends AbstractJDOTransactionalTestClearingDatabase
 {
 	private static final Logger logger = LoggerFactory.getLogger(MovieInsertTest.class);
-
-	@BeforeClass
-	public static void clearDatabase()
-	throws Exception
-	{
-		logger.info("clearDatabase: Clearing database (dropping all tables).");
-		CleanupUtil.dropAllTables();
-	}
 
 	@Test
 	public void createOneMovieWithRating()

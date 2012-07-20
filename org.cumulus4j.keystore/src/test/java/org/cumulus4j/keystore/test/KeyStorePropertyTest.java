@@ -29,6 +29,7 @@ import org.cumulus4j.keystore.prop.StringProperty;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.nightlabs.util.IOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +48,8 @@ public class KeyStorePropertyTest
 	throws Exception
 	{
 		keyStoreFile = File.createTempFile("test-", ".keystore");
-		keyStore = new KeyStore(keyStoreFile);
+		String keyStoreID = IOUtil.getFileNameWithoutExtension(keyStoreFile.getName());
+		keyStore = new KeyStore(keyStoreID, keyStoreFile);
 		keyStore.createUser(USER, PASSWORD, USER, PASSWORD);
 	}
 
@@ -101,7 +103,8 @@ public class KeyStorePropertyTest
 		property.setValue(value);
 		keyStore.setProperty(USER, PASSWORD, property);
 
-		keyStore = new KeyStore(keyStoreFile);
+		String keyStoreID = IOUtil.getFileNameWithoutExtension(keyStoreFile.getName());
+		keyStore = new KeyStore(keyStoreID, keyStoreFile);
 		property = keyStore.getProperty(USER, PASSWORD, LongProperty.class, propertyName);
 		Assert.assertEquals(value, property.getValue());
 	}
@@ -116,7 +119,8 @@ public class KeyStorePropertyTest
 		property.setValue(value);
 		keyStore.setProperty(USER, PASSWORD, property);
 
-		keyStore = new KeyStore(keyStoreFile);
+		String keyStoreID = IOUtil.getFileNameWithoutExtension(keyStoreFile.getName());
+		keyStore = new KeyStore(keyStoreID, keyStoreFile);
 		property = keyStore.getProperty(USER, PASSWORD, StringProperty.class, propertyName);
 		Assert.assertEquals(value, property.getValue());
 	}
@@ -134,7 +138,8 @@ public class KeyStorePropertyTest
 		property.getValue().put(System.currentTimeMillis() + 2 * 24 * 3600 * 1000, 375438972L);
 		keyStore.setProperty(USER, PASSWORD, property);
 
-		keyStore = new KeyStore(keyStoreFile);
+		String keyStoreID = IOUtil.getFileNameWithoutExtension(keyStoreFile.getName());
+		keyStore = new KeyStore(keyStoreID, keyStoreFile);
 		Long2LongSortedMapProperty property2 = keyStore.getProperty(USER, PASSWORD, Long2LongSortedMapProperty.class, propertyName);
 		if (property.getValue().size() != property2.getValue().size())
 			Assert.fail("Map sizes are not equal");

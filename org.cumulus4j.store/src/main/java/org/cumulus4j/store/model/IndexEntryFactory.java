@@ -80,10 +80,11 @@ public abstract class IndexEntryFactory
 	 * or create one, if it does not yet exist.
 	 * @param pmIndex the backend-<code>PersistenceManager</code>. Must not be <code>null</code>.
 	 * @param fieldMeta the meta-data of the field to query. Must not be <code>null</code>.
+	 * @param keyStoreRefID TODO
 	 * @param indexKey the indexed value to search for. Might be <code>null</code> (<code>null</code> can be indexed).
 	 * @return the matching {@link IndexEntry} (never <code>null</code>).
 	 */
-	public IndexEntry createIndexEntry(PersistenceManager pmIndex, FieldMeta fieldMeta, Object indexKey)
+	public IndexEntry createIndexEntry(PersistenceManager pmIndex, FieldMeta fieldMeta, int keyStoreRefID, Object indexKey)
 	{
 		IndexEntry result = getIndexEntry(pmIndex, fieldMeta, indexKey);
 		if (result == null) {
@@ -95,6 +96,7 @@ public abstract class IndexEntryFactory
 				throw new RuntimeException(e);
 			}
 			result.setFieldMeta(fieldMeta);
+			result.setKeyStoreRefID(keyStoreRefID);
 			result.setIndexKey(indexKey);
 
 			// We persist *after* setting all values, because that improves performance:

@@ -32,20 +32,18 @@ import javax.jdo.Query;
 
 import org.cumulus4j.store.test.account.id.AnchorID;
 import org.cumulus4j.store.test.account.id.LocalAccountantDelegateID;
-import org.cumulus4j.store.test.framework.AbstractJDOTransactionalTest;
-import org.cumulus4j.store.test.framework.CleanupUtil;
+import org.cumulus4j.store.test.framework.AbstractJDOTransactionalTestClearingDatabase;
 import org.datanucleus.NucleusContext;
 import org.datanucleus.api.jdo.JDOPersistenceManagerFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JDOQLTest
-extends AbstractJDOTransactionalTest
+extends AbstractJDOTransactionalTestClearingDatabase
 {
 	private static final Logger logger = LoggerFactory.getLogger(JDOQLTest.class);
 
@@ -55,14 +53,6 @@ extends AbstractJDOTransactionalTest
 	private static final AnchorID ACCOUNT_ID_1 = AnchorID.create(ORGANISATION_ID, Account.ANCHOR_TYPE_ID_ACCOUNT, "voucher.01");
 	private static final LocalAccountantDelegateID LOCAL_ACCOUNTANT_DELEGATE_ID_1 = LocalAccountantDelegateID.create(ORGANISATION_ID, "1");
 	private static final AnchorID ACCOUNT_ID_2 = AnchorID.create(ORGANISATION_ID, Account.ANCHOR_TYPE_ID_ACCOUNT, "voucher.02");
-
-	@BeforeClass
-	public static void clearDatabase()
-	throws Exception
-	{
-		logger.info("clearDatabase: Clearing database (dropping all tables).");
-		CleanupUtil.dropAllTables();
-	}
 
 	@Before
 	public void createData()

@@ -127,7 +127,7 @@ public abstract class QueryEvaluator
 		this.ec = query.getExecutionContext();
 		this.storeManager = (Cumulus4jStoreManager) query.getStoreManager();
 		this.pmConn = pmConn;
-		this.cryptoContext = new CryptoContext(storeManager.getEncryptionCoordinateSetManager(), ec, pmConn);
+		this.cryptoContext = new CryptoContext(storeManager.getEncryptionCoordinateSetManager(), storeManager.getKeyStoreRefManager(), ec, pmConn);
 		this.encryptionHandler = storeManager.getEncryptionHandler();
 
 		this.candidateAlias = (compilation.getCandidateAlias() != null ? compilation.getCandidateAlias() : this.candidateAlias);

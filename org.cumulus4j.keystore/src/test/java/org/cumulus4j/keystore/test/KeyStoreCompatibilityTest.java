@@ -68,7 +68,8 @@ public class KeyStoreCompatibilityTest
 			}
 			try {
 				File keyStoreFile = new File(newReferenceKeyStoreDir, "reference." + KeyStoreVersion.VERSION_CURRENT + '.' + algoFileNameInfix + ".keystore");
-				KeyStore keyStore = new KeyStore(keyStoreFile);
+				String keyStoreID = IOUtil.getFileNameWithoutExtension(keyStoreFile.getName());
+				KeyStore keyStore = new KeyStore(keyStoreID, keyStoreFile);
 
 				keyStore.createUser(null, null, USER, PASSWORD);
 				keyStore.createUser(USER, PASSWORD, "eddie", "da-pass".toCharArray());
@@ -150,7 +151,8 @@ public class KeyStoreCompatibilityTest
 					File keyStoreFile = File.createTempFile("reference." + version + '.' + algoFileNameInfix + '.', ".keystore");
 					IOUtil.copyResource(ResourceHelper.class, "reference." + version + '.' + algoFileNameInfix + ".keystore", keyStoreFile);
 					// The KeyStore reads the data immediately after creating a new instance.
-					KeyStore keyStore = new KeyStore(keyStoreFile);
+					String keyStoreID = IOUtil.getFileNameWithoutExtension(keyStoreFile.getName());
+					KeyStore keyStore = new KeyStore(keyStoreID, keyStoreFile);
 
 					// But nevertheless, we access a key in order to make sure, it's really loaded correctly.
 					byte[] key = keyStore.getKey(USER, PASSWORD, 1);

@@ -70,12 +70,17 @@ public class JDOTransactionalRunner extends BlockJUnit4ClassRunner
 
 //		logger.info("run: Setting up PersistenceManagerFactory.");
 //		pmf = JDOHelper.getPersistenceManagerFactory(TestUtil.loadProperties("cumulus4j-test-datanucleus.properties"));
-		try {
-			super.run(notifier);
-		} finally {
-			logger.info("run: Shutting down PersistenceManagerFactory.");
-			if (pmf != null)
-				pmf.close();
+		for (int testRunIndex = 0; testRunIndex < 2; ++testRunIndex) {
+			JDOTransactionalTest.State.setTestRunIndex(testRunIndex);
+			try {
+				super.run(notifier);
+			} finally {
+				logger.info("run: Shutting down PersistenceManagerFactory.");
+				if (pmf != null) {
+					pmf.close();
+					pmf = null;
+				}
+			}
 		}
 	}
 
@@ -186,7 +191,8 @@ public class JDOTransactionalRunner extends BlockJUnit4ClassRunner
 	public static void setEncryptionCoordinates(PersistenceManager pm)
 	{
 		pm.setProperty(CryptoManager.PROPERTY_CRYPTO_MANAGER_ID, "dummy");
-		pm.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, UUID.randomUUID().toString());
+		String keyStoreID = "dummy" + JDOTransactionalTest.State.getTestRunIndex();
+		pm.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, keyStoreID + ':' + UUID.randomUUID());
 	}
 
 	public static PersistenceManagerFactory createPersistenceManagerFactory()
