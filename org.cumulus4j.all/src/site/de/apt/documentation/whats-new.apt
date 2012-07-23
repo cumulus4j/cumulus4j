@@ -9,9 +9,18 @@ Was ist neu?
 
 ~~ !!! NEWEST VERSIONS FIRST !!! NEUESTE VERSIONEN ZUERST !!!
 
-~~* Was ist neu in 1.0.3?
-~~
-~~	Lorem ipsum bla bla bla
+* Was ist neu in 1.1.0?
+
+	Verglichen mit Version 1.0.2 gibt es folgende Änderungen:
+
+	* Neues Feature: Unterstützung mehrerer Mandanten in einer einzigen zugrundeliegenden Datenbank. Es war zwar
+	bereits zuvor möglich, eine Cumulus4j-basierte Applikation in einem Mehr-Mandanten-Szenario einzusetzen, indem
+	jedem Mandanten eine separate Datenbank zugewiesen wurde; aber es gibt Anwendungsfälle, in denen dies nicht
+	möglich ist (z.B. hat in der GAE jede Applikation nur genau eine Datenbank). Cumulus4j versteckt nun die
+	(ohnehin unlesbaren, weil nicht entschlüsselbaren) Daten anderer Mandanten und erlaubt so die gemeinsame
+	Nutzung einer einzigen Datenbank durch mehrere Mandanten.
+
+	[]
 
 * Was ist neu in 1.0.2?
 
