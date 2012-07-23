@@ -2,7 +2,7 @@ package org.cumulus4j.jee.test.glassfish;
 
 import javax.naming.InitialContext;
 
-import org.cumulus4j.jee.test.ejb.Cumulus4jTestRemote;
+import org.cumulus4j.jee.test.ejb.cumulus4j.Cumulus4jTestRemote;
 import org.junit.Test;
 
 public class DefaultDataSourceC4jEjbInvocationIT extends AbstractGlassfishIT {

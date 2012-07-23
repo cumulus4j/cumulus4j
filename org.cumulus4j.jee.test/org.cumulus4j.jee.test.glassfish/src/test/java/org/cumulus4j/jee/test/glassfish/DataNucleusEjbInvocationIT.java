@@ -5,8 +5,8 @@ import java.util.UUID;
 import javax.naming.InitialContext;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.cumulus4j.jee.test.ejb.DataNucleusTestRemote;
 import org.cumulus4j.jee.test.ejb.TestRollbackException;
+import org.cumulus4j.jee.test.ejb.datanucleus.DataNucleusTestRemote;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,19 +28,19 @@ public class DataNucleusEjbInvocationIT extends AbstractGlassfishIT {
 				InitialContext ic = createInitialContext();
 
 				System.out
-						.println("dataNucleusEjbInvocation: Created InitialContext instance. Looking up EJB.");
+						.println("before: Created InitialContext instance. Looking up EJB.");
 
 				remote = (DataNucleusTestRemote) ic
 						.lookup(DataNucleusTestRemote.class.getName());
 
 				System.out
-						.println("dataNucleusEjbInvocation: Looked up EJB. Testing server availability.");
+						.println("before: Looked up EJB. Testing server availability.");
 
 				if (!remote.isAvailable())
 					throw new IllegalStateException("Server is not available!");
 
 				System.out
-						.println("dataNucleusEjbInvocation: Server is available.");
+						.println("before: Server is available.");
 				successful = true;
 			} catch (Exception x) {
 				remote = null;
@@ -49,9 +49,9 @@ public class DataNucleusEjbInvocationIT extends AbstractGlassfishIT {
 					throw x;
 
 				System.out
-						.println("dataNucleusEjbInvocation: Caught exception! Will retry.");
+						.println("before: Caught exception! Will retry.");
 				x.printStackTrace();
-				System.out.println("dataNucleusEjbInvocation: Sleeping...");
+				System.out.println("before: Sleeping...");
 				Thread.sleep(5000);
 			}
 		}
@@ -101,10 +101,10 @@ public class DataNucleusEjbInvocationIT extends AbstractGlassfishIT {
 	}
 
 	@Test
-	public void mainTransactionCommitSubTransactionCommit() throws Exception {
+	public void nestedTransactionMainTransactionCommitSubTransactionCommit() throws Exception {
 
 		System.out
-				.println("mainTransactionCommitSubTransactionCommit: Entered.");
+				.println("nestedTransactionMainTransactionCommitSubTransactionCommit: Entered.");
 
 		UUID id1 = UUID.randomUUID();
 		UUID id2 = UUID.randomUUID();
@@ -122,10 +122,10 @@ public class DataNucleusEjbInvocationIT extends AbstractGlassfishIT {
 	}
 
 	@Test
-	public void mainTransactionCommitSubTransactionRollback() throws Exception {
+	public void nestedTransactionMainTransactionCommitSubTransactionRollback() throws Exception {
 
 		System.out
-				.println("mainTransactionCommitSubTransactionRollback: Entered.");
+				.println("nestedTransactionMainTransactionCommitSubTransactionRollback: Entered.");
 
 		UUID id1 = UUID.randomUUID();
 		UUID id2 = UUID.randomUUID();
@@ -144,11 +144,11 @@ public class DataNucleusEjbInvocationIT extends AbstractGlassfishIT {
 	}
 
 	@Test
-	public void mainTransactionRollbackSubTransactionRollback()
+	public void nestedTransactionMainTransactionRollbackSubTransactionRollback()
 			throws Exception {
 
 		System.out
-				.println("mainTransactionRollbackSubTransactionRollback: Entered.");
+				.println("nestedTransactionMainTransactionRollbackSubTransactionRollback: Entered.");
 
 		UUID id1 = UUID.randomUUID();
 		UUID id2 = UUID.randomUUID();
@@ -179,10 +179,10 @@ public class DataNucleusEjbInvocationIT extends AbstractGlassfishIT {
 	}
 
 	@Test
-	public void mainTransactionRollbackSubTransactionCommit() throws Exception {
+	public void nestedTransactionMainTransactionRollbackSubTransactionCommit() throws Exception {
 
 		System.out
-				.println("mainTransactionRollbackSubTransactionCommit: Entered.");
+				.println("nestedTransactionMainTransactionRollbackSubTransactionCommit: Entered.");
 
 		UUID id1 = UUID.randomUUID();
 		UUID id2 = UUID.randomUUID();
@@ -216,7 +216,7 @@ public class DataNucleusEjbInvocationIT extends AbstractGlassfishIT {
 	public void sharedTransactionCommitCommit() throws Exception {
 
 		System.out
-				.println("@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW): Entered.");
+				.println("sharedTransactionCommitCommit: Entered.");
 
 		UUID id1 = UUID.randomUUID();
 		UUID id2 = UUID.randomUUID();

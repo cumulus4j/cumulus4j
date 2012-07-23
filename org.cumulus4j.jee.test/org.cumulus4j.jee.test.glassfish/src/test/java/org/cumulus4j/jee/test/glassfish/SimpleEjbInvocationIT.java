@@ -2,7 +2,7 @@ package org.cumulus4j.jee.test.glassfish;
 
 import javax.naming.InitialContext;
 
-import org.cumulus4j.jee.test.ejb.SimpleTestRemote;
+import org.cumulus4j.jee.test.ejb.ConnectionTestRemote;
 import org.junit.Test;
 
 public class SimpleEjbInvocationIT extends AbstractGlassfishIT {
@@ -19,7 +19,7 @@ public class SimpleEjbInvocationIT extends AbstractGlassfishIT {
 
 				System.out.println("simpleEjbInvocation: Created InitialContext instance. Looking up EJB.");
 
-				SimpleTestRemote remote = (SimpleTestRemote)ic.lookup(SimpleTestRemote.class.getName());
+				ConnectionTestRemote remote = (ConnectionTestRemote)ic.lookup(ConnectionTestRemote.class.getName());
 
 				System.out.println("simpleEjbInvocation: Looked up EJB. Invoking remote method.");
 
