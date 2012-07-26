@@ -97,7 +97,7 @@ public class DefaultDataSourceTestBean extends AbstractPlainDataSourceTestBean
 
 		boolean expectedExceptionThrown = false;
 		try {
-			plainDataSourceNewTransactionBean.testRollback(connection, id2,
+			plainDataSourceNewTransactionBean.testRollback(id2,
 					throwExceptionInNestedTransaction);
 		} catch (Exception x) {
 			int index = ExceptionUtils.indexOfThrowable(x,
@@ -130,6 +130,7 @@ public class DefaultDataSourceTestBean extends AbstractPlainDataSourceTestBean
 				.format("SELECT * FROM %s WHERE name='%s'", tableName,
 						id.toString()));
 		ResultSet resultSet = queryStatement.executeQuery();
+
 		return resultSet.next();
 
 	}

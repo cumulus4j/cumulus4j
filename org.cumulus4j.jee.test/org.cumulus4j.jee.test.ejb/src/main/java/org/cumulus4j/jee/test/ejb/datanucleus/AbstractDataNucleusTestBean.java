@@ -65,7 +65,9 @@ public abstract class AbstractDataNucleusTestBean {
 
 		String movieName = id.toString();
 
-		pm.deletePersistentAll(getMoviesByName(pm, movieName));
+		Collection<Movie> moviesBefore = getMoviesByName(pm, movieName);
+		if (!moviesBefore.isEmpty())
+			throw new IllegalStateException("There is already a Movie with this ID! ID should be unique!!! ID=" + movieName);
 
 		Movie movie = new Movie();
 		movie.setName(movieName);

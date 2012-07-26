@@ -4,9 +4,11 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.UUID;
 
+import javax.annotation.Resource;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.sql.DataSource;
 
 import org.cumulus4j.jee.test.ejb.TestRollbackException;
 import org.slf4j.Logger;
@@ -19,7 +21,12 @@ public class PlainDataSourceNewTransactionBean extends AbstractPlainDataSourceTe
 	private static final Logger logger = LoggerFactory
 			.getLogger(PlainDataSourceNewTransactionBean.class);
 
-	public void testRollback(Connection connection, UUID id, boolean throwException) throws SQLException{
+	@Resource(name = "jdbc/__default")
+	protected DataSource defaultDataSource;
+
+	public void testRollback(UUID id, boolean throwException) throws SQLException{
+
+		Connection connection = defaultDataSource.getConnection();
 
 		storeId(connection, id);
 
