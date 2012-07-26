@@ -21,6 +21,7 @@ public class DefaultDataSourceEjbInvocationIT extends AbstractGlassfishIT {
 	public void before() throws Exception {
 
 		System.out.println("before: Entered.");
+		remote = null;
 
 		boolean successful = false;
 		int tryCounter = 0;
