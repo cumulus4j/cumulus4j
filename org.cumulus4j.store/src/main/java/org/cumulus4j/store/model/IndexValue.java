@@ -32,7 +32,7 @@ import java.util.Set;
 public class IndexValue
 {
 	private static final boolean OPTIMIZED_ENCODING = false;
-	private Set<Long> dataEntryIDs = new HashSet<Long>(); // A HashSet is faster than a TreeSet and I don't see a need for the sorting.
+	private Set<Long> dataEntryIDs;
 
 	/**
 	 * Create an empty instance of <code>IndexValue</code>. This is equivalent to
@@ -50,8 +50,12 @@ public class IndexValue
 	 * (<code>null</code> is equivalent to an empty byte-array). This byte-array is what is created by {@link #toByteArray()}.
 	 */
 	public IndexValue(byte[] indexValueByteArray) {
-		if (indexValueByteArray != null) {
+		if (indexValueByteArray == null)
+			dataEntryIDs = new HashSet<Long>(); // A HashSet is faster than a TreeSet and I don't see a need for the sorting.
+		else {
 			if (OPTIMIZED_ENCODING) {
+//				dataEntryIDs = new HashSet<Long>(); // A HashSet is faster than a TreeSet and I don't see a need for the sorting.
+				dataEntryIDs = new HashSet<Long>(indexValueByteArray.length / 4);
 				if (indexValueByteArray.length > 0) {
 					// The first byte (index 0) is the version. Currently only version 1 is supported.
 					int version = (indexValueByteArray[0] & 0xff);
@@ -59,7 +63,7 @@ public class IndexValue
 						case 1: {
 							for (int i = 1; i < indexValueByteArray.length; ++i) {
 								// take the first 3 bits and shift them to the right; add 1 (because we have 1 to 8 following - not 0 to 7)
-								int bytesFollowing = ((indexValueByteArray[i] & 0xe0) >> 5) + 1;
+								int bytesFollowing = (indexValueByteArray[i] >> 5) + 1;
 								// take all but the first 3 bits (if 8 bytes follow, we don't need this, because these 8 bytes are a full long, already).
 								int payloadFromFirstByte = bytesFollowing == 8 ? 0 : (indexValueByteArray[i] & 0x1f);
 								long dataEntryID = payloadFromFirstByte;
@@ -78,6 +82,8 @@ public class IndexValue
 			else {
 				if ((indexValueByteArray.length % 8) != 0)
 					throw new IllegalArgumentException("indexValueByteArray.length is not dividable by 8!");
+
+				dataEntryIDs = new HashSet<Long>(indexValueByteArray.length / 8);
 
 				for (int i = 0; i < indexValueByteArray.length / 8; ++i) {
 					long dataEntryID =
@@ -110,18 +116,38 @@ public class IndexValue
 
 			// write dataEntryIDs
 			byte[] va = new byte[8];
-			for (Long dataEntryID : dataEntryIDs) {
-				long v = dataEntryID;
-				int bytesFollowingMinus1 = -1;
+			for (long dataEntryID : dataEntryIDs) {
+				if (dataEntryID < 0)
+					throw new IllegalStateException("dataEntryID < 0!!!");
+
+				int firstNonNullIndex = -1;
 				for (int n = 0; n < 8; ++n) {
-					va[n] = (byte)(v >>> (8 * n));
-					if (va[n] != 0 && (va[n] & 0xff) <= 0x1f)
-						bytesFollowingMinus1 = n;
+					va[n] = (byte)(dataEntryID >>> (8 * (7 - n)));
+					if (firstNonNullIndex < 0 && va[n] != 0)
+						firstNonNullIndex = n;
 				}
-				int firstByte = (bytesFollowingMinus1 << 5) | va[bytesFollowingMinus1];
+				if (firstNonNullIndex < 0)
+					firstNonNullIndex = 7;
+
+				int idx;
+				int firstByte;
+				if (firstNonNullIndex < 7 && (0xff & va[firstNonNullIndex]) <= 0x1f) {
+					// Merge first non-null byte with meta-byte.
+					idx = firstNonNullIndex + 1;
+					firstByte = va[firstNonNullIndex];
+				}
+				else {
+					// Value too high or minimum of 1 following byte.
+					// NOT merge first non-null byte with meta-byte!
+					idx = firstNonNullIndex;
+					firstByte = 0;
+				}
+
+				int bytesFollowingMinus1 = 7 - idx;
+				firstByte |= bytesFollowingMinus1 << 5;
 				out.write(firstByte);
-				for (int n = bytesFollowingMinus1 - 1; n >= 0; --n) {
-					out.write(va[n]);
+				while (idx < 8) {
+					out.write(va[idx++]);
 				}
 			}
 			return out.toByteArray();
