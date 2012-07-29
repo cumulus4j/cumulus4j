@@ -89,7 +89,6 @@ public final class ObjectContainerHelper
 		return dataEntry;
 	}
 
-	@SuppressWarnings("unused")
 	public static Object entityToReference(CryptoContext cryptoContext, PersistenceManager pmData, Object entity)
 	{
 		if (entity == null)
@@ -127,7 +126,6 @@ public final class ObjectContainerHelper
 		return objectID;
 	}
 
-	@SuppressWarnings("unused")
 	public static Object referenceToEntity(CryptoContext cryptoContext, PersistenceManager pmData, Object reference)
 	{
 		if (reference == null)
@@ -162,7 +160,6 @@ public final class ObjectContainerHelper
 		return ec.findObject(reference, true, true, null);
 	}
 
-	@SuppressWarnings("unused")
 	public static Long referenceToDataEntryID(CryptoContext cryptoContext, PersistenceManager pmData, Object reference)
 	{
 		if (reference == null)

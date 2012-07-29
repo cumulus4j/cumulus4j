@@ -1,6 +1,5 @@
 package org.cumulus4j.store.datastoreversion.command;
 
-
 import java.util.Collection;
 
 import javax.jdo.PersistenceManager;
@@ -31,6 +30,7 @@ public class IntroduceKeyStoreRefID extends AbstractDatastoreVersionCommand
 			applyToIndex(commandApplyParam, pm);
 	}
 
+	@SuppressWarnings("deprecation")
 	protected void applyToData(CommandApplyParam commandApplyParam, PersistenceManager pm) {
 		Collection<DataEntry> dataEntries = getAll(pm, DataEntry.class);
 		for (DataEntry dataEntry : dataEntries) {

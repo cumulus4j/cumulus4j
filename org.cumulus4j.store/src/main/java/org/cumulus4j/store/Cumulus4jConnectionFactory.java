@@ -250,7 +250,7 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 	}
 
 	@Override
-	public ManagedConnection createManagedConnection(Object poolKey, @SuppressWarnings("unchecked") Map transactionOptions)
+	public ManagedConnection createManagedConnection(Object poolKey, @SuppressWarnings("rawtypes") Map transactionOptions)
 	{
 		return new Cumulus4jManagedConnection(poolKey, transactionOptions);
 	}
@@ -263,7 +263,7 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 	{
 		private Object poolKey;
 
-		@SuppressWarnings({"unchecked","unused"})
+		@SuppressWarnings({"rawtypes","unused"})
 		private Map options;
 
 		PersistenceManagerConnection pmConnection;
@@ -273,7 +273,7 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 			return new Cumulus4jXAResource((PersistenceManagerConnection)getConnection());
 		}
 
-		public Cumulus4jManagedConnection(Object poolKey, @SuppressWarnings("unchecked") Map options) {
+		public Cumulus4jManagedConnection(Object poolKey, @SuppressWarnings("rawtypes") Map options) {
 			this.poolKey = poolKey;
 			this.options = options;
 		}

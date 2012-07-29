@@ -262,9 +262,10 @@ NucleusLogger.GENERAL.info(">> result="+ resultElement.getName());
 		Query q = pm.newQuery(ElementASetOwner.class);
 		q.setFilter(":paramCollection.contains(this.name)");
 
-		Collection<String> inputColl = new HashSet();
+		Collection<String> inputColl = new HashSet<String>();
 		inputColl.add("Owner 2");
 
+		@SuppressWarnings("unchecked")
 		List<ElementASetOwner> resultList = (List<ElementASetOwner>) q.execute(inputColl);
 		Assert.assertNotNull("Query returned null as result when a List was expected!", resultList);
 	}

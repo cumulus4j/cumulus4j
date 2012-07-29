@@ -112,6 +112,7 @@ extends AbstractJPATransactionalTest
 
         // Positive test
 		q.setParameter("name", "New test bla bla bla.");
+		@SuppressWarnings("unchecked")
 		List<LocalAccountantDelegate> result = q.getResultList();
 		Assert.assertEquals("Number of results was wrong", 1, result.size());
 		LocalAccountantDelegate delegate = result.iterator().next();
@@ -119,7 +120,9 @@ extends AbstractJPATransactionalTest
 
 		// Negative test
 		q.setParameter("name", "New test bla bla bla2");
-		result = q.getResultList();
+		@SuppressWarnings("unchecked")
+		List<LocalAccountantDelegate> l = q.getResultList();
+		result = l;
 		Assert.assertEquals("Number of results was wrong", 0, result.size());
 	}
 

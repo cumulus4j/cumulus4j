@@ -28,8 +28,6 @@ import org.cumulus4j.store.query.MemberNotQueryableException;
 import org.cumulus4j.store.test.framework.AbstractJDOTransactionalTestClearingDatabase;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
@@ -37,8 +35,6 @@ import org.slf4j.LoggerFactory;
 public class MetaDataTest
 extends AbstractJDOTransactionalTestClearingDatabase
 {
-	private static final Logger logger = LoggerFactory.getLogger(MetaDataTest.class);
-
 	@Before
 	public void createTestData()
 	{

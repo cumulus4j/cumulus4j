@@ -285,7 +285,9 @@ extends AbstractJDOTransactionalTestClearingDatabase
 		q.declareParameters("java.lang.String param");
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("param", "Some other test extra characters");
-		result = (List<LocalAccountantDelegate>) q.executeWithMap(params);
+		@SuppressWarnings("unchecked")
+		List<LocalAccountantDelegate> l = (List<LocalAccountantDelegate>) q.executeWithMap(params);
+		result = l;
 		Assert.assertEquals("Number of results was wrong", 1, result.size());
 		delegate = result.iterator().next();
 		assertDelegate1(delegate);

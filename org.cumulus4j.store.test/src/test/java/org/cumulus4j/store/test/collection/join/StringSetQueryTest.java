@@ -189,6 +189,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 		Query q = pm.newQuery(StringSetOwner.class);
 		q.setFilter("this.set.isEmpty()");
 
+		@SuppressWarnings("unchecked")
 		List<StringSetOwner> resultList = (List<StringSetOwner>) q.execute();
 		Assert.assertNotNull("Query returned null as result when a List was expected!", resultList);
 		Assert.assertEquals("Number of results is incorrect", 1, resultList.size());

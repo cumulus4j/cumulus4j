@@ -42,8 +42,6 @@ import org.cumulus4j.keymanager.channel.KeyManagerChannelManager;
  */
 public class AppServer
 {
-	private static final long serialVersionUID = 1L;
-
 	private AppServerManager appServerManager;
 	private String appServerID;
 	private String appServerBaseURL;

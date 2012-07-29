@@ -22,7 +22,9 @@ import org.datanucleus.exceptions.NucleusUserException;
 /**
  * Exception thrown when a field/property is being accessed in a Query and is (marked as) not queryable.
  */
-public class MemberNotQueryableException extends NucleusUserException {
+public class MemberNotQueryableException extends NucleusUserException
+{
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * @param message The message

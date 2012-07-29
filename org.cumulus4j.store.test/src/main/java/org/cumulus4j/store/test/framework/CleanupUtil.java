@@ -37,7 +37,7 @@ import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.DataEntry;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.IndexEntryContainerSize;
-import org.cumulus4j.store.model.Sequence;
+import org.cumulus4j.store.model.Sequence2;
 import org.datanucleus.api.jdo.JDOPersistenceManagerFactory;
 import org.datanucleus.plugin.ConfigurationElement;
 import org.datanucleus.plugin.PluginManager;
@@ -170,7 +170,7 @@ public class CleanupUtil
 
 			if (includeData) {
 				schemaClassNames.add(DataEntry.class.getName());
-				schemaClassNames.add(Sequence.class.getName());
+				schemaClassNames.add(Sequence2.class.getName());
 			}
 
 			if (includeIndex) {

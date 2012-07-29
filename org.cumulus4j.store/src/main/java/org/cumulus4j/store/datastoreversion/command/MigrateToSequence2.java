@@ -14,6 +14,7 @@ import org.cumulus4j.store.model.Sequence;
 import org.cumulus4j.store.model.Sequence2;
 import org.cumulus4j.store.model.Sequence2DAO;
 
+@SuppressWarnings("deprecation")
 public class MigrateToSequence2 extends AbstractDatastoreVersionCommand
 {
 	@Override
@@ -33,7 +34,7 @@ public class MigrateToSequence2 extends AbstractDatastoreVersionCommand
 		Sequence2DAO sequence2DAO = new Sequence2DAO(pm, cryptoContext.getKeyStoreRefID());
 
 		Query q = pm.newQuery(Sequence.class);
-		@SuppressWarnings("deprecation")
+		@SuppressWarnings("unchecked")
 		Collection<Sequence> c = (Collection<Sequence>) q.execute();
 		for (Sequence sequence : new ArrayList<Sequence>(c)) { // should work without the 'new ArrayList...', but I can't test and it doesn't harm
 			Sequence2 sequence2 = sequence2DAO.createSequence2(sequence.getSequenceName());
