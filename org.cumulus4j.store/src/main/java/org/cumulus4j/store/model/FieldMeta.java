@@ -429,10 +429,11 @@ implements DetachCallback
 						throw new IllegalStateException("The map's key is persistent via mappedBy (without @Join), but there is no @Value(mappedBy=\"...\")! This is invalid! " + mmd);
 					break;
 
-//				case arrayElement:
-//				case collectionElement:
-//					// TODO doesn't this need implementation?
-//					break;
+				case arrayElement:
+				case collectionElement:
+					// TODO doesn't this need implementation?
+					// Seems to work this way, but why? Marco :-)
+					break;
 
 				default:
 					throw new IllegalStateException("Unexpected role: " + role);
