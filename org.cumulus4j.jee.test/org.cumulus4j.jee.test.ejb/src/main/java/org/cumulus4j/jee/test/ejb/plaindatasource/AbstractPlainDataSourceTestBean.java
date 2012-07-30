@@ -15,8 +15,6 @@ public abstract class AbstractPlainDataSourceTestBean {
 
 	protected void executeSomeTestSQL(Connection connection, String prefix) throws SQLException, IllegalStateException
 	{
-
-
 		Statement statement = connection.createStatement();
 		statement.execute(String.format("INSERT INTO %s VALUES ('%saaa')", tableName, prefix));
 		statement.execute(String.format("INSERT INTO %s VALUES ('%sbbb')", tableName, prefix));

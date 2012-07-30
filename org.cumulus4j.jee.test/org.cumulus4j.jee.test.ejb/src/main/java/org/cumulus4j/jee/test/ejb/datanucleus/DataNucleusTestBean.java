@@ -1,5 +1,6 @@
 package org.cumulus4j.jee.test.ejb.datanucleus;
 
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -19,9 +20,9 @@ import org.slf4j.LoggerFactory;
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class DataNucleusTestBean extends AbstractDataNucleusTestBean implements
 		DataNucleusTestRemote {
+
 	private static final Logger logger = LoggerFactory
 			.getLogger(DataNucleusTestBean.class);
-
 
 	@EJB
 	private DataNucleusNewTransactionBean dataNucleusNewTransactionBean;
@@ -47,48 +48,35 @@ public class DataNucleusTestBean extends AbstractDataNucleusTestBean implements
 
 	@Override
 	public void testRollbackOnNestedTransactionException(UUID id1, UUID id2,
-			boolean throwExceptionInMainTransaction,
-			boolean throwExceptionInNestedTransaction) throws Exception {
+			boolean throwExceptionInMainBean,
+			boolean throwExceptionInNestedBeanCall) throws Exception {
 
-		storeObject(id1);
-
-		boolean expectedExceptionThrown = false;
-		try {
-			dataNucleusNewTransactionBean.testRollback(id2,
-					throwExceptionInNestedTransaction);
-		}
-		catch (Exception x) {
-			int index = ExceptionUtils.indexOfThrowable(x,
-					TestRollbackException.class);
-			if (index >= 0)
-				expectedExceptionThrown = true;
-			else
-				throw x;
-		}
-
-		if(throwExceptionInNestedTransaction && !expectedExceptionThrown)
-			logger.error("TestRollbackException was not thrown!",
-					expectedExceptionThrown);
-
-		if (throwExceptionInMainTransaction)
-			throw new TestRollbackException(
-					"Legal exception in main transaction for test purposes. Object "
-							+ id1.toString() + " should now be deleted!");
-		else
-			logger.info("Main transaction ended without throwing an exception!");
+		testRollback(id1, id2, throwExceptionInMainBean, throwExceptionInNestedBeanCall, true);
 	}
 
 	@Override
 	public void testRollbackWithSharedTransaction(UUID id1, UUID id2,
-			boolean throwExceptionInMainTransaction,
-			boolean throwExceptionInNestedTransaction) throws Exception {
+			boolean throwExceptionInMainBean,
+			boolean throwExceptionInNestedBeanCall) throws Exception {
+
+		testRollback(id1, id2, throwExceptionInMainBean, throwExceptionInNestedBeanCall, false);
+	}
+
+	private void testRollback(UUID id1, UUID id2,
+	boolean throwExceptionInMainBean,
+	boolean throwExceptionInNestedBeanCall,
+	boolean nestedTransaction) throws Exception{
 
 		storeObject(id1);
 
 		boolean expectedExceptionThrown = false;
 		try {
-			dataNucleusSharedTransactionBean.testRollback(id2,
-					throwExceptionInNestedTransaction);
+			if(nestedTransaction)
+				dataNucleusNewTransactionBean.testRollback(id2,
+						throwExceptionInNestedBeanCall);
+			else
+				dataNucleusSharedTransactionBean.testRollback(id2,
+						throwExceptionInNestedBeanCall);
 		}
 		catch (Exception x) {
 			int index = ExceptionUtils.indexOfThrowable(x,
@@ -99,17 +87,16 @@ public class DataNucleusTestBean extends AbstractDataNucleusTestBean implements
 				throw x;
 		}
 
-		if(throwExceptionInNestedTransaction && !expectedExceptionThrown)
+		if(throwExceptionInNestedBeanCall && !expectedExceptionThrown)
 			logger.error("TestRollbackException was not thrown!",
 					expectedExceptionThrown);
 
-		if (throwExceptionInMainTransaction)
+		if (throwExceptionInMainBean)
 			throw new TestRollbackException(
-					"Legal exception in main transaction for test purposes. Object "
+					"Legal exception in main bean for test purposes. Object "
 							+ id1.toString() + " should now be deleted!");
 		else
-			logger.info("Main transaction ended without throwing an exception!");
-
+			logger.info("Main bean ended without throwing an exception!");
 	}
 
 	@Override
@@ -129,4 +116,13 @@ public class DataNucleusTestBean extends AbstractDataNucleusTestBean implements
 
 		return objectExists;
 	}
+
+//	@Override
+//	public boolean testDataStoreConnection() throws SQLException {
+//		// TODO Auto-generated method stub
+//		return false;
+//	}
+
+	@Override
+	public void init() throws SQLException {}
 }

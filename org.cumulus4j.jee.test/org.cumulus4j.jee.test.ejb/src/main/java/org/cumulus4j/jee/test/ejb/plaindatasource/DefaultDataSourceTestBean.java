@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 @Stateless
 public class DefaultDataSourceTestBean extends AbstractPlainDataSourceTestBean
 		implements DefaultDataSourceTestRemote {
+
 	private static final Logger logger = LoggerFactory
 			.getLogger(DefaultDataSourceTestBean.class);
 
@@ -32,26 +33,29 @@ public class DefaultDataSourceTestBean extends AbstractPlainDataSourceTestBean
 	@EJB
 	private PlainDataSourceNewTransactionBean plainDataSourceNewTransactionBean;
 
-	@Override
-	public boolean testDataStoreConnection() throws SQLException {
+	@EJB
+	private PlainDataSourceSharedTransactionBean plainDataSourceSharedTransactionBean;
 
-		Connection connection = defaultDataSource.getConnection();
-
-		try {
-			logger.trace("test: *** TRACE *** TRACE *** TRACE *** TRACE *** TRACE *** TRACE ***");
-			logger.debug("test: *** DEBUG *** DEBUG *** DEBUG *** DEBUG *** DEBUG *** DEBUG ***");
-			logger.info("test: *** INFO *** INFO *** INFO *** INFO *** INFO *** INFO ***");
-			logger.warn("test: *** WARN *** WARN *** WARN *** WARN *** WARN *** WARN ***");
-			logger.error("test: *** ERROR *** ERROR *** ERROR *** ERROR *** ERROR *** ERROR ***");
-
-			logger.info("test: connection={}");
-			executeSomeTestSQL(connection, "plain-");
-		} catch (Exception x) {
-			throw new RuntimeException(x);
-		}
-
-		return true;
-	}
+//	@Override
+//	public boolean testDataStoreConnection() throws SQLException {
+//
+//		Connection connection = defaultDataSource.getConnection();
+//
+//		try {
+//			logger.trace("test: *** TRACE *** TRACE *** TRACE *** TRACE *** TRACE *** TRACE ***");
+//			logger.debug("test: *** DEBUG *** DEBUG *** DEBUG *** DEBUG *** DEBUG *** DEBUG ***");
+//			logger.info("test: *** INFO *** INFO *** INFO *** INFO *** INFO *** INFO ***");
+//			logger.warn("test: *** WARN *** WARN *** WARN *** WARN *** WARN *** WARN ***");
+//			logger.error("test: *** ERROR *** ERROR *** ERROR *** ERROR *** ERROR *** ERROR ***");
+//
+//			logger.info("test: connection={}");
+//			executeSomeTestSQL(connection, "plain-");
+//		} catch (Exception x) {
+//			throw new RuntimeException(x);
+//		}
+//
+//		return true;
+//	}
 
 	@Override
 	public void init() throws SQLException {
@@ -88,8 +92,26 @@ public class DefaultDataSourceTestBean extends AbstractPlainDataSourceTestBean
 
 	@Override
 	public void testRollbackOnNestedTransactionException(UUID id1, UUID id2,
-			boolean throwExceptionInMainTransaction,
-			boolean throwExceptionInNestedTransaction) throws Exception {
+			boolean throwExceptionInMainBean,
+			boolean throwExceptionInNestedBeanCall) throws Exception {
+
+		testRollback(id1, id2, throwExceptionInMainBean,
+				throwExceptionInNestedBeanCall, true);
+	}
+
+	@Override
+	public void testRollbackWithSharedTransaction(UUID id1, UUID id2,
+			boolean throwExceptionInMainBean,
+			boolean throwExceptionInNestedBeanCall) throws Exception {
+
+		testRollback(id1, id2, throwExceptionInMainBean,
+				throwExceptionInNestedBeanCall, false);
+	}
+
+	private void testRollback(UUID id1, UUID id2,
+			boolean throwExceptionInMainBean,
+			boolean throwExceptionInNestedBeanCall, boolean nestedTransaction)
+			throws Exception {
 
 		Connection connection = defaultDataSource.getConnection();
 
@@ -97,8 +119,12 @@ public class DefaultDataSourceTestBean extends AbstractPlainDataSourceTestBean
 
 		boolean expectedExceptionThrown = false;
 		try {
-			plainDataSourceNewTransactionBean.testRollback(id2,
-					throwExceptionInNestedTransaction);
+			if (nestedTransaction)
+				plainDataSourceNewTransactionBean.testRollback(id2,
+						throwExceptionInNestedBeanCall);
+			else
+				plainDataSourceSharedTransactionBean.testRollback(id2,
+						throwExceptionInNestedBeanCall);
 		} catch (Exception x) {
 			int index = ExceptionUtils.indexOfThrowable(x,
 					TestRollbackException.class);
@@ -108,21 +134,20 @@ public class DefaultDataSourceTestBean extends AbstractPlainDataSourceTestBean
 				throw x;
 		}
 
-		if (throwExceptionInNestedTransaction && !expectedExceptionThrown)
+		if (throwExceptionInNestedBeanCall && !expectedExceptionThrown)
 			logger.error("TestRollbackException was not thrown!",
 					expectedExceptionThrown);
 
-		if (throwExceptionInMainTransaction)
+		if (throwExceptionInMainBean)
 			throw new TestRollbackException(
 					"Legal exception in main transaction for test purposes. Object "
 							+ id1.toString() + " should now be deleted!");
 		else
 			logger.info("Main transaction ended without throwing an exception!");
-
 	}
 
 	@Override
-	public boolean keyExists(UUID id) throws SQLException {
+	public boolean objectExists(UUID id) throws SQLException {
 
 		Connection connection = defaultDataSource.getConnection();
 
@@ -132,7 +157,6 @@ public class DefaultDataSourceTestBean extends AbstractPlainDataSourceTestBean
 		ResultSet resultSet = queryStatement.executeQuery();
 
 		return resultSet.next();
-
 	}
 
 	@Override
