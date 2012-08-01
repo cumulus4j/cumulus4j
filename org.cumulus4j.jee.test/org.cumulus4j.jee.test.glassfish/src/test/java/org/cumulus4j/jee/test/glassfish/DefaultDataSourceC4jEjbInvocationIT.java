@@ -1,38 +1,85 @@
 package org.cumulus4j.jee.test.glassfish;
 
+import javax.naming.InitialContext;
 
-public class DefaultDataSourceC4jEjbInvocationIT{// extends AbstractGlassfishIT {
+import org.cumulus4j.jee.test.ejb.RollbackTestRemote;
+import org.cumulus4j.jee.test.ejb.cumulus4j.Cumulus4jTestRemote;
+
+public class DefaultDataSourceC4jEjbInvocationIT extends AbstractGlassfishIT {
+
+//	private static final Logger logger = LoggerFactory
+//			.getLogger(DefaultDataSourceC4jEjbInvocationIT.class);
 //
-//	@Test
-//	public void defaultDataSourceC4jEjbInvocation() throws Exception {
-//		System.out.println("defaultDataSourceC4jEjbInvocation: Entered.");
-//		boolean successful = false;
-//		int tryCounter = 0;
-//		while (!successful) {
-//			++tryCounter;
+//	private static final String KEY_STORE_USER = "test";
+//	private static final char[] KEY_STORE_PASSWORD = "abcdefg-very+secret"
+//			.toCharArray();
+//
+//	private static SecureRandom random = new SecureRandom();
+
+	@Override
+	protected RollbackTestRemote getRemote() throws Exception {
+
+		InitialContext ic = createInitialContext();
+
+		return (Cumulus4jTestRemote) ic.lookup(Cumulus4jTestRemote.class
+				.getName());
+
+	}
+
+//	private void init() {
+//
+//		File keyStoreDir = new File(IOUtil.getTempDir(),
+//				"cumulus4j-benchmark-key-stores");
+//
+//		logger.debug("Key store file directory: "
+//				+ keyStoreDir.getAbsolutePath());
+//
+//		KeyManagerAPIConfiguration configuration = new KeyManagerAPIConfiguration();
+//		configuration.setAuthUserName(KEY_STORE_USER);
+//		configuration.setAuthPassword(KEY_STORE_PASSWORD);
+//		configuration.setKeyStoreID("test-"
+//				+ Long.toString(System.currentTimeMillis(), 36) + '-'
+//				+ Long.toString(random.nextLong(), 36));
+//		configuration.setKeyManagerBaseURL(keyStoreDir.toURI().toString());
+//
+//		try {
+//			KeyManagerAPI keyManagerAPI = new DefaultKeyManagerAPI();
+//			keyManagerAPI.setConfiguration(configuration);
+//
+//			DateDependentKeyStrategyInitParam param = new DateDependentKeyStrategyInitParam();
+//			param.setKeyActivityPeriodMSec(3600L * 1000L);
+//			param.setKeyStorePeriodMSec(24L * 3600L * 1000L);
+//			keyManagerAPI.initDateDependentKeyStrategy(param);
+//
+//			org.cumulus4j.keymanager.api.CryptoSession cryptoSession = keyManagerAPI
+//					.getCryptoSession(URL_KEY_MANAGER_BACK_WEBAPP);
+//
+//			// RefreshCryptoSessionThread refreshCryptoSessionThread = new
+//			// RefreshCryptoSessionThread(cryptoSession);
+//			// refreshCryptoSessionThread.start();
+//
+//			String cryptoSessionID = cryptoSession.acquire();
 //			try {
-//				InitialContext ic = createInitialContext();
+//				// invokeTestWithinServer(cryptoSessionID);
+//			} finally {
+//				cryptoSession.release();
+//			}
 //
-//				System.out.println("defaultDataSourceC4jEjbInvocation: Created InitialContext instance. Looking up EJB.");
-//
-//				Cumulus4jTestRemote remote = (Cumulus4jTestRemote)ic.lookup(Cumulus4jTestRemote.class.getName());
-//
-//				System.out.println("defaultDataSourceC4jEjbInvocation: Looked up EJB. Invoking remote method.");
-//
-//				remote.test();
-//
-//				System.out.println("defaultDataSourceC4jEjbInvocation: Invoked remote method successfully.");
-//				successful = true;
-//			} catch (Exception x) {
-//				if (tryCounter >= 3) // We try it 3 times - if it fails for the 3rd time, we rethrow.
-//					throw x;
-//
-//				System.out.println("defaultDataSourceC4jEjbInvocation: Caught exception! Will retry.");
-//				x.printStackTrace();
-//				System.out.println("defaultDataSourceC4jEjbInvocation: Sleeping...");
-//				Thread.sleep(5000);
+//		} finally {
+//			File keyStoreFile = new File(keyStoreDir,
+//					configuration.getKeyStoreID() + ".keystore");
+//			if (!keyStoreFile.exists()) {
+//				logger.warn("*** The key-store-file does not exist: "
+//						+ keyStoreFile.getAbsolutePath());
+//			} else {
+//				keyStoreFile.delete();
+//				if (keyStoreFile.exists())
+//					logger.warn("The key store file could not be deleted: "
+//							+ keyStoreFile.getAbsolutePath());
+//				else
+//					logger.info("The key store file has been deleted: "
+//							+ keyStoreFile.getAbsolutePath());
 //			}
 //		}
 //	}
-
 }
