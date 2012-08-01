@@ -10,10 +10,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.UUID;
 
-import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.sql.DataSource;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.cumulus4j.jee.test.ejb.TestRollbackException;
@@ -21,14 +19,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Stateless
-public class DefaultDataSourceTestBean extends AbstractPlainDataSourceTestBean
-		implements DefaultDataSourceTestRemote {
+public class PlainDataSourceTestBean extends AbstractPlainDataSourceTestBean
+		implements PlainDataSourceTestRemote {
 
 	private static final Logger logger = LoggerFactory
-			.getLogger(DefaultDataSourceTestBean.class);
-
-	@Resource(name = "jdbc/__default")
-	protected DataSource defaultDataSource;
+			.getLogger(PlainDataSourceTestBean.class);
 
 	@EJB
 	private PlainDataSourceNewTransactionBean plainDataSourceNewTransactionBean;
@@ -80,9 +75,7 @@ public class DefaultDataSourceTestBean extends AbstractPlainDataSourceTestBean
 	public void testRollbackOnException(UUID id, boolean throwException)
 			throws Exception {
 
-		Connection connection = defaultDataSource.getConnection();
-
-		storeId(connection, id);
+		storeId(id);
 
 		if (throwException)
 			throw new TestRollbackException(
@@ -113,9 +106,7 @@ public class DefaultDataSourceTestBean extends AbstractPlainDataSourceTestBean
 			boolean throwExceptionInNestedBeanCall, boolean nestedTransaction)
 			throws Exception {
 
-		Connection connection = defaultDataSource.getConnection();
-
-		storeId(connection, id1);
+		storeId(id1);
 
 		boolean expectedExceptionThrown = false;
 		try {

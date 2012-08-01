@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractDataNucleusTestBean {
 
-	private Logger logger = LoggerFactory.getLogger(AbstractDataNucleusTestBean.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractDataNucleusTestBean.class);
 
 	private static PersistenceManagerFactory pmf = null;
 

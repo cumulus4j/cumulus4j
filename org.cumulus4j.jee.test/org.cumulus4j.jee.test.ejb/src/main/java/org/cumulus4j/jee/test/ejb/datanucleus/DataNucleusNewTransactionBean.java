@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 public class DataNucleusNewTransactionBean extends AbstractDataNucleusTestBean {
 
-	private Logger logger = LoggerFactory.getLogger(DataNucleusNewTransactionBean.class);
+	private static final Logger logger = LoggerFactory.getLogger(DataNucleusNewTransactionBean.class);
 
 	public void testRollback(UUID id, boolean throwException) throws Exception {
 

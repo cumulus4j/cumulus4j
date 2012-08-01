@@ -5,6 +5,6 @@ import javax.ejb.Remote;
 import org.cumulus4j.jee.test.ejb.IJeeTest;
 
 @Remote
-public interface DefaultDataSourceTestRemote extends IJeeTest{
+public interface PlainDataSourceTestRemote extends IJeeTest{
 
 }

@@ -5,8 +5,6 @@ import java.util.UUID;
 
 public interface IJeeTest {
 
-//	public boolean testDataStoreConnection() throws SQLException;
-
 	public void init() throws SQLException;
 
 	public void testRollbackOnException(UUID id, boolean throwException)

@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 public class DataNucleusSharedTransactionBean extends
 		AbstractDataNucleusTestBean {
 
-	private Logger logger = LoggerFactory
+	private static final Logger logger = LoggerFactory
 			.getLogger(DataNucleusSharedTransactionBean.class);
 
 	public void testRollback(UUID id, boolean throwException) throws Exception {

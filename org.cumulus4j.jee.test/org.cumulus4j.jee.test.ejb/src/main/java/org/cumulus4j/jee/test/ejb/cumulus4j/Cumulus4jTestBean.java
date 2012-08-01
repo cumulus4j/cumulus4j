@@ -19,9 +19,9 @@ implements Cumulus4jTestRemote
 	@Override
 	public void test() {
 		try {
-			System.out.println(String.format("DefaultDataSourceTestBean.test: defaultDataSourceC4j=%s", defaultDataSourceC4j));
+			System.out.println(String.format("PlainDataSourceTestBean.test: defaultDataSourceC4j=%s", defaultDataSourceC4j));
 			Connection connection = defaultDataSourceC4j.getConnection();
-			System.out.println(String.format("DefaultDataSourceTestBean.test: connection=%s", connection));
+			System.out.println(String.format("PlainDataSourceTestBean.test: connection=%s", connection));
 //			executeSomeTestSQL(connection, "c4j-");
 		} catch (Exception x) {
 			throw new RuntimeException(x);
