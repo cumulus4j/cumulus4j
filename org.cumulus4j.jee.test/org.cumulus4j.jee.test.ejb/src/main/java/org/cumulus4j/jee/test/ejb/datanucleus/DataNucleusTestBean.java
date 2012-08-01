@@ -1,6 +1,5 @@
 package org.cumulus4j.jee.test.ejb.datanucleus;
 
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -32,11 +31,13 @@ public class DataNucleusTestBean extends AbstractDataNucleusTestBean implements
 
 	@Override
 	public boolean isAvailable() {
+
 		return true;
 	}
 
 	@Override
-	public void testRollbackOnException(UUID id, boolean throwException) throws Exception {
+	public void testRollbackOnException(UUID id, boolean throwException)
+			throws Exception {
 
 		storeObject(id);
 
@@ -51,7 +52,8 @@ public class DataNucleusTestBean extends AbstractDataNucleusTestBean implements
 			boolean throwExceptionInMainBean,
 			boolean throwExceptionInNestedBeanCall) throws Exception {
 
-		testRollback(id1, id2, throwExceptionInMainBean, throwExceptionInNestedBeanCall, true);
+		testRollback(id1, id2, throwExceptionInMainBean,
+				throwExceptionInNestedBeanCall, true);
 	}
 
 	@Override
@@ -59,26 +61,26 @@ public class DataNucleusTestBean extends AbstractDataNucleusTestBean implements
 			boolean throwExceptionInMainBean,
 			boolean throwExceptionInNestedBeanCall) throws Exception {
 
-		testRollback(id1, id2, throwExceptionInMainBean, throwExceptionInNestedBeanCall, false);
+		testRollback(id1, id2, throwExceptionInMainBean,
+				throwExceptionInNestedBeanCall, false);
 	}
 
 	private void testRollback(UUID id1, UUID id2,
-	boolean throwExceptionInMainBean,
-	boolean throwExceptionInNestedBeanCall,
-	boolean nestedTransaction) throws Exception{
+			boolean throwExceptionInMainBean,
+			boolean throwExceptionInNestedBeanCall, boolean nestedTransaction)
+			throws Exception {
 
 		storeObject(id1);
 
 		boolean expectedExceptionThrown = false;
 		try {
-			if(nestedTransaction)
+			if (nestedTransaction)
 				dataNucleusNewTransactionBean.testRollback(id2,
 						throwExceptionInNestedBeanCall);
 			else
 				dataNucleusSharedTransactionBean.testRollback(id2,
 						throwExceptionInNestedBeanCall);
-		}
-		catch (Exception x) {
+		} catch (Exception x) {
 			int index = ExceptionUtils.indexOfThrowable(x,
 					TestRollbackException.class);
 			if (index >= 0)
@@ -87,7 +89,7 @@ public class DataNucleusTestBean extends AbstractDataNucleusTestBean implements
 				throw x;
 		}
 
-		if(throwExceptionInNestedBeanCall && !expectedExceptionThrown)
+		if (throwExceptionInNestedBeanCall && !expectedExceptionThrown)
 			logger.error("TestRollbackException was not thrown!",
 					expectedExceptionThrown);
 
@@ -106,17 +108,18 @@ public class DataNucleusTestBean extends AbstractDataNucleusTestBean implements
 		logger.info("Searching for object with id {}", movieName);
 
 		Collection<Movie> movies = getMoviesByName(pm, movieName);
-		for(Movie movie : movies)
+		for (Movie movie : movies)
 			logger.info("Id of movie object in db: {}", movie.getName());
 
 		boolean objectExists = !movies.isEmpty();
 
-		if(!objectExists)
+		if (!objectExists)
 			logger.info("Object with id {} not found", movieName);
 
 		return objectExists;
 	}
 
 	@Override
-	public void init() throws SQLException {}
+	public void init() {
+	}
 }

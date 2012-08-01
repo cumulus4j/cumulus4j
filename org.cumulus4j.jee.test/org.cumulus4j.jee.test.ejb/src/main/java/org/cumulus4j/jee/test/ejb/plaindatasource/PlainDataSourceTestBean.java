@@ -12,6 +12,8 @@ import java.util.UUID;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.cumulus4j.jee.test.ejb.TestRollbackException;
@@ -19,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Stateless
+@TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class PlainDataSourceTestBean extends AbstractPlainDataSourceTestBean
 		implements PlainDataSourceTestRemote {
 

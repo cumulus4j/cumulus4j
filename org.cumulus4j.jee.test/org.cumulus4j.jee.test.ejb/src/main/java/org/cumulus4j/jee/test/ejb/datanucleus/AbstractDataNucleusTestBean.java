@@ -28,20 +28,24 @@ public abstract class AbstractDataNucleusTestBean {
 		return getPersistenceManagerFactory().getPersistenceManager();
 	}
 
+	protected Properties getProperties(){
+
+		InputStream propertiesStream = getClass().getResourceAsStream("datanucleus.properties");
+		Properties propsFile = new Properties();
+		try {
+			propsFile.load(propertiesStream);
+			propertiesStream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return propsFile;
+	}
+
 	private PersistenceManagerFactory getPersistenceManagerFactory(){
 
-		if(pmf == null){
-
-			InputStream propertiesStream = getClass().getResourceAsStream("datanucleus.properties");
-			Properties propsFile = new Properties();
-			try {
-				propsFile.load(propertiesStream);
-				propertiesStream.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			pmf = JDOHelper.getPersistenceManagerFactory(propsFile);
-		}
+		if(pmf == null)
+			pmf = JDOHelper.getPersistenceManagerFactory(getProperties());
 
 		return pmf;
 	}

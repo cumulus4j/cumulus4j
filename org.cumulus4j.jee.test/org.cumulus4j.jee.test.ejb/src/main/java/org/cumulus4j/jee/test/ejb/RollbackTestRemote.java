@@ -5,6 +5,7 @@ import java.util.UUID;
 
 public interface RollbackTestRemote {
 
+//	public void init(String cryptoSeccionID, String cryptoManagerID) throws SQLException;
 	public void init() throws SQLException;
 
 	public void testRollbackOnException(UUID id, boolean throwException)
