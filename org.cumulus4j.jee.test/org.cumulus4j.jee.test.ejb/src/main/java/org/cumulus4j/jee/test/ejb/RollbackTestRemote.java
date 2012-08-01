@@ -3,7 +3,7 @@ package org.cumulus4j.jee.test.ejb;
 import java.sql.SQLException;
 import java.util.UUID;
 
-public interface IJeeTest {
+public interface RollbackTestRemote {
 
 	public void init() throws SQLException;
 

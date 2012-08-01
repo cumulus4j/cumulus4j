@@ -31,27 +31,6 @@ public class PlainDataSourceTestBean extends AbstractPlainDataSourceTestBean
 	@EJB
 	private PlainDataSourceSharedTransactionBean plainDataSourceSharedTransactionBean;
 
-//	@Override
-//	public boolean testDataStoreConnection() throws SQLException {
-//
-//		Connection connection = defaultDataSource.getConnection();
-//
-//		try {
-//			logger.trace("test: *** TRACE *** TRACE *** TRACE *** TRACE *** TRACE *** TRACE ***");
-//			logger.debug("test: *** DEBUG *** DEBUG *** DEBUG *** DEBUG *** DEBUG *** DEBUG ***");
-//			logger.info("test: *** INFO *** INFO *** INFO *** INFO *** INFO *** INFO ***");
-//			logger.warn("test: *** WARN *** WARN *** WARN *** WARN *** WARN *** WARN ***");
-//			logger.error("test: *** ERROR *** ERROR *** ERROR *** ERROR *** ERROR *** ERROR ***");
-//
-//			logger.info("test: connection={}");
-//			executeSomeTestSQL(connection, "plain-");
-//		} catch (Exception x) {
-//			throw new RuntimeException(x);
-//		}
-//
-//		return true;
-//	}
-
 	@Override
 	public void init() throws SQLException {
 

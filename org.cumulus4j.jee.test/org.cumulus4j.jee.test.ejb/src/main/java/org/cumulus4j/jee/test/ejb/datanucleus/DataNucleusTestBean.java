@@ -117,12 +117,6 @@ public class DataNucleusTestBean extends AbstractDataNucleusTestBean implements
 		return objectExists;
 	}
 
-//	@Override
-//	public boolean testDataStoreConnection() throws SQLException {
-//		// TODO Auto-generated method stub
-//		return false;
-//	}
-
 	@Override
 	public void init() throws SQLException {}
 }
