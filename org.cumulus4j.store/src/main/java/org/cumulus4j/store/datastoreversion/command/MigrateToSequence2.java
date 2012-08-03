@@ -1,6 +1,5 @@
 package org.cumulus4j.store.datastoreversion.command;
 
-
 import java.util.ArrayList;
 import java.util.Collection;
 

@@ -223,6 +223,10 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 		// While it is not necessary to initialise the meta-data now (can be done lazily,
 		// when the index is used), it is still better as it prevents delays when the
 		// data is persisted.
+		// Furthermore, if the underlying database uses transactional DDL (like PostgreSQL, MSSQL
+		// and others), and a separate JDBC connection is used for DDL (like it must be in
+		// a JEE server), it is essentially required to initialise the meta-data in a separate
+		// transaction before actually using the tables.
 		pm.getExtent(IndexEntryContainerSize.class);
 
 		PluginManager pluginMgr = storeMgr.getNucleusContext().getPluginManager();

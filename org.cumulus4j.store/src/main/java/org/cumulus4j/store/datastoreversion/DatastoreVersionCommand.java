@@ -3,6 +3,10 @@ package org.cumulus4j.store.datastoreversion;
 /**
  * Command for managing a datastore version (change).
  * <p>
+ * A new instance of a class implementing this interface is created for each run of
+ * {@link DatastoreVersionManager#applyOnce(org.cumulus4j.store.crypto.CryptoContext)}. Therefore, implementations
+ * do not need to be thread-safe and can share data in fields across implementation methods.
+ * <p>
  * Implementations should subclass {@link AbstractDatastoreVersionCommand} instead of directly implementing
  * this interface.
  * <p>

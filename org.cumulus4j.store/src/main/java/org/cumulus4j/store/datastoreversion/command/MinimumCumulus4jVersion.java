@@ -44,7 +44,7 @@ public class MinimumCumulus4jVersion extends AbstractDatastoreVersionCommand {
 		int major   =  01;
 		int minor   =  01;
 		int release =  00;
-		int serial  = 000;
+		int serial  = 001;
 		// END
 
 		// Calculate version number from elements.

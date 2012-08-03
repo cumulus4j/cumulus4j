@@ -4,11 +4,13 @@ import java.util.Map;
 
 import javax.jdo.PersistenceManager;
 
+import org.cumulus4j.store.Cumulus4jStoreManager;
 import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.DatastoreVersion;
 
 public class CommandApplyParam
 {
+	private Cumulus4jStoreManager storeManager;
 	private CryptoContext cryptoContext;
 	private PersistenceManager persistenceManager;
 	private DatastoreVersion datastoreVersion;
@@ -16,6 +18,7 @@ public class CommandApplyParam
 
 	/**
 	 *
+	 * @param storeManager TODO
 	 * @param cryptoContext the context; must not be <code>null</code>.
 	 * @param persistenceManager the persistence-manager; must not be <code>null</code>.
 	 * @param datastoreVersion the current datastore-version (representing the last execution of the same command
@@ -24,10 +27,13 @@ public class CommandApplyParam
 	 * @param datastoreVersionID2DatastoreVersionMap
 	 */
 	public CommandApplyParam(
-			CryptoContext cryptoContext, PersistenceManager persistenceManager, DatastoreVersion datastoreVersion,
-			Map<String, DatastoreVersion> datastoreVersionID2DatastoreVersionMap
+			Cumulus4jStoreManager storeManager, CryptoContext cryptoContext, PersistenceManager persistenceManager,
+			DatastoreVersion datastoreVersion, Map<String, DatastoreVersion> datastoreVersionID2DatastoreVersionMap
 	)
 	{
+		if (storeManager == null)
+			throw new IllegalArgumentException("storeManager == null");
+
 		if (cryptoContext == null)
 			throw new IllegalArgumentException("cryptoContext == null");
 
@@ -37,10 +43,15 @@ public class CommandApplyParam
 		if (datastoreVersionID2DatastoreVersionMap == null)
 			throw new IllegalArgumentException("datastoreVersionID2DatastoreVersionMap == null");
 
+		this.storeManager = storeManager;
 		this.cryptoContext = cryptoContext;
 		this.persistenceManager = persistenceManager;
 		this.datastoreVersion = datastoreVersion;
 		this.datastoreVersionID2DatastoreVersionMap = datastoreVersionID2DatastoreVersionMap;
+	}
+
+	public Cumulus4jStoreManager getStoreManager() {
+		return storeManager;
 	}
 
 	public CryptoContext getCryptoContext() {

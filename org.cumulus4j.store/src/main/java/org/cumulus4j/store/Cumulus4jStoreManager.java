@@ -87,7 +87,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 	private EncryptionHandler encryptionHandler;
 	private EncryptionCoordinateSetManager encryptionCoordinateSetManager;
 	private KeyStoreRefManager keyStoreRefManager;
-	private DatastoreVersionManager datastoreVersionManager = new DatastoreVersionManager();
+	private DatastoreVersionManager datastoreVersionManager = new DatastoreVersionManager(this);
 
 	private IndexEntryFactoryRegistry indexFactoryRegistry;
 
@@ -470,5 +470,10 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 			}
 			schemaMgr.validateSchema(cumulus4jClassNames, new Properties());
 		}
+	}
+
+	@Override
+	public Cumulus4jPersistenceHandler getPersistenceHandler() {
+		return (Cumulus4jPersistenceHandler) super.getPersistenceHandler();
 	}
 }

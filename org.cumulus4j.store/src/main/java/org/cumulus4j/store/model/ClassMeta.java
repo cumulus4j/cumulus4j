@@ -83,7 +83,7 @@ implements DetachCallback
 	private long classID = -1;
 
 	@NotPersistent
-	private transient String className;
+	private transient volatile String className;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	@Column(length=255)
@@ -142,15 +142,22 @@ implements DetachCallback
 	public String getClassName()
 	{
 		String cn = className;
-		if (cn == null) {
-			if (packageName.isEmpty())
-				cn = simpleClassName;
-			else
-				cn = packageName + '.' + simpleClassName;
+		if (cn == null)
+			className = cn = getClassName(packageName, simpleClassName);
 
-			className = cn;
-		}
 		return cn;
+	}
+
+	public static String getClassName(String packageName, String simpleClassName) {
+		if (packageName == null)
+			throw new IllegalArgumentException("packageName == null");
+		if (simpleClassName == null)
+			throw new IllegalArgumentException("simpleClassName == null");
+
+		if (packageName.isEmpty())
+			return simpleClassName;
+		else
+			return packageName + '.' + simpleClassName;
 	}
 
 	/**

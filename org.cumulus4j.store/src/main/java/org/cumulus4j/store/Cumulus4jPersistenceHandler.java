@@ -54,8 +54,8 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 	private KeyStoreRefManager keyStoreRefManager;
 	private EncryptionHandler encryptionHandler;
 
-	private IndexEntryAction addIndexEntry;
-	private IndexEntryAction removeIndexEntry;
+	private IndexEntryAction addIndexEntryAction;
+	private IndexEntryAction removeIndexEntryAction;
 
 	public Cumulus4jPersistenceHandler(Cumulus4jStoreManager storeManager) {
 		if (storeManager == null)
@@ -66,8 +66,8 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		this.keyStoreRefManager = storeManager.getKeyStoreRefManager();
 		this.encryptionHandler = storeManager.getEncryptionHandler();
 
-		this.addIndexEntry = new IndexEntryAction.Add(this);
-		this.removeIndexEntry = new IndexEntryAction.Remove(this);
+		this.addIndexEntryAction = new IndexEntryAction.Add(this);
+		this.removeIndexEntryAction = new IndexEntryAction.Remove(this);
 	}
 
 	public Cumulus4jStoreManager getStoreManager() {
@@ -118,7 +118,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 					if (!fieldMeta.getFieldName().equals(dnMemberMetaData.getName()))
 						throw new IllegalStateException("Meta data inconsistency!!! class == \"" + classMeta.getClassName() + "\" fieldMeta.dataNucleusAbsoluteFieldNumber == " + fieldMeta.getDataNucleusAbsoluteFieldNumber() + " fieldMeta.fieldName == \"" + fieldMeta.getFieldName() + "\" != dnMemberMetaData.name == \"" + dnMemberMetaData.getName() + "\"");
 
-					removeIndexEntry.perform(cryptoContext, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, fieldValue);
+					removeIndexEntryAction.perform(cryptoContext, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, fieldValue);
 				}
 				pmData.deletePersistent(dataEntry);
 			}
@@ -256,7 +256,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 				if (!fieldMeta.getFieldName().equals(dnMemberMetaData.getName()))
 					throw new IllegalStateException("Meta data inconsistency!!! class == \"" + classMeta.getClassName() + "\" fieldMeta.dataNucleusAbsoluteFieldNumber == " + fieldMeta.getDataNucleusAbsoluteFieldNumber() + " fieldMeta.fieldName == \"" + fieldMeta.getFieldName() + "\" != dnMemberMetaData.name == \"" + dnMemberMetaData.getName() + "\"");
 
-				addIndexEntry.perform(cryptoContext, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, fieldValue);
+				addIndexEntryAction.perform(cryptoContext, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, fieldValue);
 			}
 		} finally {
 			mconn.release();
@@ -340,8 +340,8 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 
 				if (!fieldsEqual(fieldValueOld, fieldValueNew)){
 
-					removeIndexEntry.perform(cryptoContext, dataEntryID, fieldMeta, dnMemberMetaData, fieldValueOld);
-					addIndexEntry.perform(cryptoContext, dataEntryID, fieldMeta, dnMemberMetaData, fieldValueNew);
+					removeIndexEntryAction.perform(cryptoContext, dataEntryID, fieldMeta, dnMemberMetaData, fieldValueOld);
+					addIndexEntryAction.perform(cryptoContext, dataEntryID, fieldMeta, dnMemberMetaData, fieldValueNew);
 				}
 			}
 		} finally {
@@ -359,5 +359,21 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 	public boolean useReferentialIntegrity() {
 		// https://sourceforge.net/tracker/?func=detail&aid=3515527&group_id=517465&atid=2102914
 		return super.useReferentialIntegrity();
+	}
+
+	/**
+	 * Get the {@link IndexEntryAction} used to add an index-entry.
+	 * @return the {@link IndexEntryAction} used to add an index-entry. Never <code>null</code>.
+	 */
+	public IndexEntryAction getAddIndexEntryAction() {
+		return addIndexEntryAction;
+	}
+
+	/**
+	 * Get the {@link IndexEntryAction} used to remove an index-entry.
+	 * @return the {@link IndexEntryAction} used to remove an index-entry. Never <code>null</code>.
+	 */
+	public IndexEntryAction getRemoveIndexEntryAction() {
+		return removeIndexEntryAction;
 	}
 }

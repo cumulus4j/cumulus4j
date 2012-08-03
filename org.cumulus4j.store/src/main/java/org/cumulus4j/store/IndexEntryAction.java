@@ -39,7 +39,13 @@ import org.datanucleus.store.ExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-abstract class IndexEntryAction
+/**
+ * Logic to add or remove an index entry.
+ * <p>
+ * This class is thread-safe. You should normally never need to instantiate this class.
+ * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
+ */
+public abstract class IndexEntryAction
 {
 	protected Cumulus4jPersistenceHandler persistenceHandler;
 	protected Cumulus4jStoreManager storeManager;

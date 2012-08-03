@@ -10,10 +10,12 @@ import java.util.Map;
 import javax.jdo.FetchPlan;
 import javax.jdo.PersistenceManager;
 
+import org.cumulus4j.store.Cumulus4jStoreManager;
 import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.datastoreversion.command.IntroduceKeyStoreRefID;
 import org.cumulus4j.store.datastoreversion.command.MigrateToSequence2;
 import org.cumulus4j.store.datastoreversion.command.MinimumCumulus4jVersion;
+import org.cumulus4j.store.datastoreversion.command.RecreateIndex;
 import org.cumulus4j.store.model.DatastoreVersion;
 import org.cumulus4j.store.model.DatastoreVersionDAO;
 
@@ -26,9 +28,12 @@ public class DatastoreVersionManager {
 	public static final int MANAGER_VERSION = 1;
 
 	private static final Class<?>[] datastoreVersionCommandClasses = {
+		// MinimumCumulus4jVersion should be the very first entry!
 		MinimumCumulus4jVersion.class,
+
 		IntroduceKeyStoreRefID.class,
-		MigrateToSequence2.class
+		MigrateToSequence2.class,
+		RecreateIndex.class
 	};
 
 	private static final List<Class<? extends DatastoreVersionCommand>> datastoreVersionCommandClassList;
@@ -46,7 +51,15 @@ public class DatastoreVersionManager {
 		datastoreVersionCommandClassList = Collections.unmodifiableList(list);
 	}
 
+	private Cumulus4jStoreManager storeManager;
 	private volatile boolean performed = false;
+
+	public DatastoreVersionManager(Cumulus4jStoreManager storeManager) {
+		if (storeManager == null)
+			throw new IllegalArgumentException("storeManager == null");
+
+		this.storeManager = storeManager;
+	}
 
 	public void applyOnce(CryptoContext cryptoContext) {
 		if (performed)
@@ -150,7 +163,7 @@ public class DatastoreVersionManager {
 		{
 			DatastoreVersion datastoreVersionCopy = detachDatastoreVersion(pm, datastoreVersion);
 			Map<String, DatastoreVersion> datastoreVersionID2DatastoreVersionMapCopy = detachDatastoreVersionID2DatastoreVersionMap(cryptoContext, pm, datastoreVersionID2DatastoreVersionMap);
-			datastoreVersionCommand.apply(new CommandApplyParam(cryptoContext, pm, datastoreVersionCopy, datastoreVersionID2DatastoreVersionMapCopy));
+			datastoreVersionCommand.apply(new CommandApplyParam(storeManager, cryptoContext, pm, datastoreVersionCopy, datastoreVersionID2DatastoreVersionMapCopy));
 			if (datastoreVersion == null)
 				datastoreVersion = new DatastoreVersion(datastoreVersionID);
 
