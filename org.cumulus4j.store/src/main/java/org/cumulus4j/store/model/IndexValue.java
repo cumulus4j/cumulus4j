@@ -31,7 +31,7 @@ import java.util.Set;
  */
 public class IndexValue
 {
-	private static final boolean OPTIMIZED_ENCODING = false;
+	private static final boolean OPTIMIZED_ENCODING = true;
 	private Set<Long> dataEntryIDs;
 
 	/**
@@ -63,9 +63,9 @@ public class IndexValue
 						case 1: {
 							for (int i = 1; i < indexValueByteArray.length; ++i) {
 								// take the first 3 bits and shift them to the right; add 1 (because we have 1 to 8 following - not 0 to 7)
-								int bytesFollowing = (indexValueByteArray[i] >> 5) + 1;
+								final int bytesFollowing = (7 & (indexValueByteArray[i] >>> 5)) + 1;
 								// take all but the first 3 bits (if 8 bytes follow, we don't need this, because these 8 bytes are a full long, already).
-								int payloadFromFirstByte = bytesFollowing == 8 ? 0 : (indexValueByteArray[i] & 0x1f);
+								final int payloadFromFirstByte = bytesFollowing == 8 ? 0 : (indexValueByteArray[i] & 0x1f);
 								long dataEntryID = payloadFromFirstByte;
 								for (int n = 0; n < bytesFollowing; ++n) {
 									dataEntryID = (dataEntryID << 8) | (indexValueByteArray[++i] & 0xff);
@@ -115,40 +115,76 @@ public class IndexValue
 			out.write(1);
 
 			// write dataEntryIDs
-			byte[] va = new byte[8];
 			for (long dataEntryID : dataEntryIDs) {
 				if (dataEntryID < 0)
 					throw new IllegalStateException("dataEntryID < 0!!!");
 
+// first implementation (replaced by a slightly faster one below)
+//				byte[] va = new byte[8];
+//				int firstNonNullIndex = -1;
+//				int m = 8;
+//				for (int n = 0; n < 8; ++n) {
+//					--m;
+//					va[n] = (byte)(dataEntryID >>> (8 * m));
+//					if (firstNonNullIndex < 0 && va[n] != 0)
+//						firstNonNullIndex = n;
+//				}
+//				if (firstNonNullIndex < 0)
+//					firstNonNullIndex = 7;
+//
+//				int idx;
+//				int firstByte;
+//				if (firstNonNullIndex < 7 && (0xff & va[firstNonNullIndex]) <= 0x1f) {
+//					// Merge first non-null byte with meta-byte.
+//					idx = firstNonNullIndex + 1;
+//					firstByte = va[firstNonNullIndex];
+//				}
+//				else {
+//					// Value too high or minimum of 1 following byte.
+//					// NOT merge first non-null byte with meta-byte!
+//					idx = firstNonNullIndex;
+//					firstByte = 0;
+//				}
+//
+//				int bytesFollowingMinus1 = 7 - idx;
+//				firstByte |= bytesFollowingMinus1 << 5;
+//				out.write(firstByte);
+//				while (idx < 8) {
+//					out.write(va[idx++]);
+//				}
+
+				// slightly faster implementation (harder to read, though)
 				int firstNonNullIndex = -1;
+				int m = 8;
 				for (int n = 0; n < 8; ++n) {
-					va[n] = (byte)(dataEntryID >>> (8 * (7 - n)));
-					if (firstNonNullIndex < 0 && va[n] != 0)
-						firstNonNullIndex = n;
-				}
-				if (firstNonNullIndex < 0)
-					firstNonNullIndex = 7;
+					--m;
+					int v = ((byte)(dataEntryID >>> (8 * m))) & 0xff;
+					if (firstNonNullIndex >= 0 || v != 0 || n == 7) {
+						if (firstNonNullIndex < 0 || (firstNonNullIndex < 0 && n == 7)) {
+							firstNonNullIndex = n;
+							// Meta-byte was not yet written - handle size header now.
 
-				int idx;
-				int firstByte;
-				if (firstNonNullIndex < 7 && (0xff & va[firstNonNullIndex]) <= 0x1f) {
-					// Merge first non-null byte with meta-byte.
-					idx = firstNonNullIndex + 1;
-					firstByte = va[firstNonNullIndex];
-				}
-				else {
-					// Value too high or minimum of 1 following byte.
-					// NOT merge first non-null byte with meta-byte!
-					idx = firstNonNullIndex;
-					firstByte = 0;
+							int bytesFollowingMinus1 = 7 - firstNonNullIndex;
+							if (firstNonNullIndex < 7 && v <= 0x1f) {
+								--bytesFollowingMinus1;
+								// Merge first non-null byte with meta-byte.
+								v |= bytesFollowingMinus1 << 5;
+								out.write(v);
+							}
+							else {
+								// Value too high or minimum of 1 following byte.
+								// NOT merge first non-null byte with meta-byte!
+								out.write(bytesFollowingMinus1 << 5);
+								out.write(v);
+							}
+						}
+						else {
+							// Meta-byte was already written - simply write payload
+							out.write(v);
+						}
+					}
 				}
 
-				int bytesFollowingMinus1 = 7 - idx;
-				firstByte |= bytesFollowingMinus1 << 5;
-				out.write(firstByte);
-				while (idx < 8) {
-					out.write(va[idx++]);
-				}
 			}
 			return out.toByteArray();
 		}

@@ -22,6 +22,11 @@ import javax.jdo.annotations.VersionStrategy;
 	@Query(name="getKeyStoreRefByKeyStoreID", value="SELECT UNIQUE WHERE this.keyStoreID == :keyStoreID")
 })
 public class KeyStoreRef {
+	/**
+	 * Reserved value for {@link #getKeyStoreRefID() keyStoreRefID} meaning that the object referencing this <code>keyStoreRefID</code>
+	 * is not related to any key-store, at all, but global.
+	 */
+	public static final int GLOBAL_KEY_STORE_REF_ID = -1;
 
 	/**
 	 * Internal constructor. This exists only for JDO and should not be used by application code!
@@ -38,7 +43,7 @@ public class KeyStoreRef {
 
 	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE, sequence="KeyStoreRefSequence")
-	private int keyStoreRefID = -1;
+	private int keyStoreRefID = -666;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	@Unique(name="KeyStoreRef_keyStoreID")

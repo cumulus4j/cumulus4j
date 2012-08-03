@@ -28,6 +28,8 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.annotations.Queries;
 import javax.jdo.annotations.Query;
+import javax.jdo.annotations.Sequence;
+import javax.jdo.annotations.SequenceStrategy;
 import javax.jdo.annotations.Unique;
 import javax.jdo.annotations.Version;
 import javax.jdo.annotations.VersionStrategy;
@@ -42,6 +44,7 @@ import org.cumulus4j.store.datastoreversion.command.IntroduceKeyStoreRefID;
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 @Version(strategy=VersionStrategy.VERSION_NUMBER)
+@Sequence(name="DataEntrySequence", datastoreSequence="DataEntrySequence", initialValue=0, strategy=SequenceStrategy.CONTIGUOUS)
 @Unique(members={"keyStoreRefID", "classMeta", "objectID"})
 @Queries({
 	@Query(

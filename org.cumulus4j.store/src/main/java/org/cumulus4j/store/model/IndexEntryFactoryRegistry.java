@@ -20,9 +20,11 @@ package org.cumulus4j.store.model;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.cumulus4j.store.Cumulus4jStoreManager;
@@ -50,6 +52,8 @@ import org.datanucleus.util.StringUtils;
  */
 public class IndexEntryFactoryRegistry
 {
+	private Cumulus4jStoreManager storeManager;
+
 	/** Cache of factory for use with each java-type+jdbc+sql */
 	private Map<String, IndexEntryFactory> factoryByKey = new HashMap<String, IndexEntryFactory>();
 
@@ -98,6 +102,8 @@ public class IndexEntryFactoryRegistry
 	 */
 	public IndexEntryFactoryRegistry(Cumulus4jStoreManager storeMgr)
 	{
+		this.storeManager = storeMgr;
+
 		// Load up plugin information
 		ClassLoaderResolver clr = storeMgr.getNucleusContext().getClassLoaderResolver(storeMgr.getClass().getClassLoader());
 		PluginManager pluginMgr = storeMgr.getNucleusContext().getPluginManager();
@@ -307,5 +313,26 @@ public class IndexEntryFactoryRegistry
 	 */
 	public IndexEntryFactory getIndexEntryFactoryForContainerSize() {
 		return indexEntryFactoryContainerSize;
+	}
+
+	public Set<Class<? extends IndexEntry>> getIndexEntryClasses() {
+		Set<Class<? extends IndexEntry>> result = new HashSet<Class<? extends IndexEntry>>();
+		Class<? extends IndexEntry> indexEntryClass = getIndexEntryFactoryForContainerSize().getIndexEntryClass();
+		if (indexEntryClass == null)
+			throw new IllegalStateException("indexEntryClass == null");
+
+		result.add(indexEntryClass);
+
+		for (IndexMapping indexMapping : indexMappings) {
+			if (indexMapping.factory == null) // indexing for this type explicitely disabled => no factory.
+				continue;
+
+			indexEntryClass = indexMapping.factory.getIndexEntryClass();
+			if (indexEntryClass == null)
+				throw new IllegalStateException("indexEntryClass == null");
+
+			result.add(indexEntryClass);
+		}
+		return result;
 	}
 }

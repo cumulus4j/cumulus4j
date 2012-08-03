@@ -4,7 +4,7 @@ package org.cumulus4j.store.datastoreversion;
 public abstract class AbstractDatastoreVersionCommand implements DatastoreVersionCommand {
 
 	@Override
-	public String getDatastoreVersionID() {
+	public String getCommandID() {
 		return this.getClass().getSimpleName();
 	}
 
@@ -13,4 +13,8 @@ public abstract class AbstractDatastoreVersionCommand implements DatastoreVersio
 		return true;
 	}
 
+	@Override
+	public boolean isKeyStoreDependent() {
+		return false;
+	}
 }

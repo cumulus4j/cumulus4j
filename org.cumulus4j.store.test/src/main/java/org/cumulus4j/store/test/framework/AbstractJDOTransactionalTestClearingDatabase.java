@@ -11,7 +11,7 @@ public class AbstractJDOTransactionalTestClearingDatabase extends AbstractJDOTra
 	@BeforeClass
 	public static void clearDatabase() throws Exception {
 		logger.info("clearDatabase: Clearing database (dropping all tables).");
-		CleanupUtil.dropAllTables();
+//		CleanupUtil.dropAllTables();
 	}
 
 }

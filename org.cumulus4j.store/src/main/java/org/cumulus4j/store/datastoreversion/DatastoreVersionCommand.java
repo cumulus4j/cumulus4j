@@ -1,5 +1,9 @@
 package org.cumulus4j.store.datastoreversion;
 
+import javax.jdo.PersistenceManager;
+
+import org.cumulus4j.store.model.KeyStoreRef;
+
 /**
  * Command for managing a datastore version (change).
  * <p>
@@ -14,7 +18,7 @@ package org.cumulus4j.store.datastoreversion;
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 public interface DatastoreVersionCommand {
-	String getDatastoreVersionID();
+	String getCommandID();
 
 	/**
 	 * Get the version of this command.
@@ -40,4 +44,13 @@ public interface DatastoreVersionCommand {
 	 * @return <code>true</code>, if this command is final; <code>false</code> otherwise.
 	 */
 	boolean isFinal();
+
+	/**
+	 * Is this command dependent on the key-store? If yes, it is applied separately for every key-store, i.e. with different
+	 * {@link KeyStoreRef#getKeyStoreRefID() keyStoreRefID}s. If no, it is applied only once
+	 * {@link KeyStoreRef#GLOBAL_KEY_STORE_REF_ID globally}.
+	 * @return <code>true</code>, if this command should be applied once per key-store (and per underlying {@link PersistenceManager}
+	 * [there might be two if data and index is stored separately]); <code>false</code> otherwise.
+	 */
+	boolean isKeyStoreDependent();
 }

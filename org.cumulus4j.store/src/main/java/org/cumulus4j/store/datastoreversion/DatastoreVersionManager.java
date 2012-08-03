@@ -1,16 +1,22 @@
 package org.cumulus4j.store.datastoreversion;
 
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 import javax.jdo.FetchPlan;
 import javax.jdo.PersistenceManager;
 
 import org.cumulus4j.store.Cumulus4jStoreManager;
+import org.cumulus4j.store.WorkInProgressException;
 import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.datastoreversion.command.IntroduceKeyStoreRefID;
 import org.cumulus4j.store.datastoreversion.command.MigrateToSequence2;
@@ -18,6 +24,7 @@ import org.cumulus4j.store.datastoreversion.command.MinimumCumulus4jVersion;
 import org.cumulus4j.store.datastoreversion.command.RecreateIndex;
 import org.cumulus4j.store.model.DatastoreVersion;
 import org.cumulus4j.store.model.DatastoreVersionDAO;
+import org.cumulus4j.store.model.KeyStoreRef;
 
 /**
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
@@ -52,7 +59,8 @@ public class DatastoreVersionManager {
 	}
 
 	private Cumulus4jStoreManager storeManager;
-	private volatile boolean performed = false;
+	private Set<Integer> performedKeyStoreRefIDs = Collections.synchronizedSet(new HashSet<Integer>());
+	private volatile boolean performedGlobally = false;
 
 	public DatastoreVersionManager(Cumulus4jStoreManager storeManager) {
 		if (storeManager == null)
@@ -62,22 +70,29 @@ public class DatastoreVersionManager {
 	}
 
 	public void applyOnce(CryptoContext cryptoContext) {
-		if (performed)
+		final Integer keyStoreRefID = cryptoContext.getKeyStoreRefID();
+		if (performedKeyStoreRefIDs.contains(keyStoreRefID))
 			return;
 
 		synchronized (this) {
-			if (performed)
+			if (performedKeyStoreRefIDs.contains(keyStoreRefID))
 				return;
 
-			apply(cryptoContext);
+			if (!performedGlobally) {
+				apply(cryptoContext, KeyStoreRef.GLOBAL_KEY_STORE_REF_ID);
 
-			// only set performed, if we didn't encounter an exception => after perform(...)!
-			performed = true;
+				// only set performed, if we didn't encounter an exception => after apply(...)!
+				performedGlobally = true;
+			}
+
+			apply(cryptoContext, keyStoreRefID);
+
+			// only set performed, if we didn't encounter an exception => after apply(...)!
+			performedKeyStoreRefIDs.add(keyStoreRefID);
 		}
 	}
 
-	protected void apply(CryptoContext cryptoContext) {
-		List<DatastoreVersionCommand> datastoreVersionCommands = createDatastoreVersionCommands();
+	protected void apply(CryptoContext cryptoContext, int keyStoreRefID) {
 
 		List<PersistenceManager> persistenceManagers = new ArrayList<PersistenceManager>(2);
 		persistenceManagers.add(cryptoContext.getPersistenceManagerForData());
@@ -85,16 +100,26 @@ public class DatastoreVersionManager {
 			persistenceManagers.add(cryptoContext.getPersistenceManagerForIndex());
 
 		for (PersistenceManager pm : persistenceManagers) {
+			List<DatastoreVersionCommand> datastoreVersionCommands = createDatastoreVersionCommands();
+
 			DatastoreVersionDAO datastoreVersionDAO = new DatastoreVersionDAO(pm);
 			Map<String, DatastoreVersion> datastoreVersionID2DatastoreVersionMap = check(
-					cryptoContext, pm, datastoreVersionDAO, datastoreVersionCommands
+					cryptoContext, keyStoreRefID, pm, datastoreVersionDAO, datastoreVersionCommands
 			);
 			for (DatastoreVersionCommand datastoreVersionCommand : datastoreVersionCommands) {
+				if (KeyStoreRef.GLOBAL_KEY_STORE_REF_ID == keyStoreRefID && datastoreVersionCommand.isKeyStoreDependent())
+					continue;
+
+				if (KeyStoreRef.GLOBAL_KEY_STORE_REF_ID != keyStoreRefID && !datastoreVersionCommand.isKeyStoreDependent())
+					continue;
+
 				try {
-					applyOneCommand(cryptoContext, pm, datastoreVersionDAO, datastoreVersionID2DatastoreVersionMap, datastoreVersionCommand);
+					applyOneCommand(cryptoContext, keyStoreRefID, pm, datastoreVersionDAO, datastoreVersionID2DatastoreVersionMap, datastoreVersionCommand);
+				} catch (WorkInProgressException x) {
+					throw x;
 				} catch (Exception x) {
 					throw new CommandApplyException(
-							String.format("Applying command failed: datastoreVersionID='%s': %s", datastoreVersionCommand.getDatastoreVersionID(), x.toString()),
+							String.format("Applying command failed: commandID='%s': %s", datastoreVersionCommand.getCommandID(), x.toString()),
 							x
 					);
 				}
@@ -117,16 +142,16 @@ public class DatastoreVersionManager {
 		return datastoreVersionCommands;
 	}
 
-	protected Map<String, DatastoreVersion> check(CryptoContext cryptoContext, PersistenceManager pm, DatastoreVersionDAO datastoreVersionDAO, List<DatastoreVersionCommand> datastoreVersionCommands) {
-		Map<String, DatastoreVersion> datastoreVersionID2DatastoreVersionMap = datastoreVersionDAO.getDatastoreVersionID2DatastoreVersionMap();
+	protected Map<String, DatastoreVersion> check(CryptoContext cryptoContext, int keyStoreRefID, PersistenceManager pm, DatastoreVersionDAO datastoreVersionDAO, List<DatastoreVersionCommand> datastoreVersionCommands) {
+		Map<String, DatastoreVersion> datastoreVersionID2DatastoreVersionMap = datastoreVersionDAO.getCommandID2DatastoreVersionMap(keyStoreRefID);
 
 		for (DatastoreVersionCommand datastoreVersionCommand : datastoreVersionCommands) {
-			DatastoreVersion datastoreVersion = datastoreVersionID2DatastoreVersionMap.get(datastoreVersionCommand.getDatastoreVersionID());
+			DatastoreVersion datastoreVersion = datastoreVersionID2DatastoreVersionMap.get(datastoreVersionCommand.getCommandID());
 			if (datastoreVersionCommand.isFinal()) {
 				if (datastoreVersion != null && datastoreVersion.getCommandVersion() != datastoreVersionCommand.getCommandVersion()) {
 					throw new IllegalStateException(String.format(
 							"Final command class version does not match persistent version! datastoreVersionID='%s' datastoreVersionCommand.class='%s' datastoreVersionCommand.commandVersion=%s persistentDatastoreVersion.commandVersion=%s",
-							datastoreVersionCommand.getDatastoreVersionID(),
+							datastoreVersionCommand.getCommandID(),
 							datastoreVersionCommand.getClass().getName(),
 							datastoreVersionCommand.getCommandVersion(),
 							datastoreVersion.getCommandVersion()
@@ -136,7 +161,7 @@ public class DatastoreVersionManager {
 			else if (datastoreVersion != null && datastoreVersion.getCommandVersion() > datastoreVersionCommand.getCommandVersion()) {
 				throw new IllegalStateException(String.format(
 						"Non-final command class version is lower than persistent version! Downgrading is not supported! datastoreVersionID='%s' datastoreVersionCommand.class='%s' datastoreVersionCommand.commandVersion=%s persistentDatastoreVersion.commandVersion=%s",
-						datastoreVersionCommand.getDatastoreVersionID(),
+						datastoreVersionCommand.getCommandID(),
 						datastoreVersionCommand.getClass().getName(),
 						datastoreVersionCommand.getCommandVersion(),
 						datastoreVersion.getCommandVersion()
@@ -148,11 +173,11 @@ public class DatastoreVersionManager {
 	}
 
 	protected void applyOneCommand(
-			CryptoContext cryptoContext, PersistenceManager pm, DatastoreVersionDAO datastoreVersionDAO,
-			Map<String, DatastoreVersion> datastoreVersionID2DatastoreVersionMap, DatastoreVersionCommand datastoreVersionCommand
-	)
+			CryptoContext cryptoContext, int keyStoreRefID, PersistenceManager pm,
+			DatastoreVersionDAO datastoreVersionDAO, Map<String, DatastoreVersion> datastoreVersionID2DatastoreVersionMap, DatastoreVersionCommand datastoreVersionCommand
+	) throws Exception
 	{
-		String datastoreVersionID = datastoreVersionCommand.getDatastoreVersionID();
+		String datastoreVersionID = datastoreVersionCommand.getCommandID();
 		DatastoreVersion datastoreVersion = datastoreVersionID2DatastoreVersionMap.get(datastoreVersionID);
 		if (datastoreVersion == null ||
 				(
@@ -162,14 +187,38 @@ public class DatastoreVersionManager {
 		)
 		{
 			DatastoreVersion datastoreVersionCopy = detachDatastoreVersion(pm, datastoreVersion);
-			Map<String, DatastoreVersion> datastoreVersionID2DatastoreVersionMapCopy = detachDatastoreVersionID2DatastoreVersionMap(cryptoContext, pm, datastoreVersionID2DatastoreVersionMap);
-			datastoreVersionCommand.apply(new CommandApplyParam(storeManager, cryptoContext, pm, datastoreVersionCopy, datastoreVersionID2DatastoreVersionMapCopy));
+//			Map<String, DatastoreVersion> datastoreVersionID2DatastoreVersionMapCopy = detachDatastoreVersionID2DatastoreVersionMap(cryptoContext, pm, datastoreVersionID2DatastoreVersionMap);
+
+			Properties workInProgressStateProperties = new Properties();
 			if (datastoreVersion == null)
-				datastoreVersion = new DatastoreVersion(datastoreVersionID);
+				datastoreVersion = new DatastoreVersion(datastoreVersionID, keyStoreRefID);
+			else {
+				if (datastoreVersion.getWorkInProgressStateProperties() != null)
+					workInProgressStateProperties.load(new StringReader(datastoreVersion.getWorkInProgressStateProperties()));
+			}
+
+			// apply
+			try {
+				datastoreVersionCommand.apply(new CommandApplyParam(
+						storeManager, cryptoContext, pm, datastoreVersionCopy, workInProgressStateProperties
+				));
+			} catch (WorkInProgressException x) {
+				datastoreVersion.setApplyTimestamp(new Date());
+				datastoreVersion.setWorkInProgressCommandVersion(datastoreVersionCommand.getCommandVersion());
+				datastoreVersion.setWorkInProgressManagerVersion(MANAGER_VERSION);
+				StringWriter writer = new StringWriter();
+				workInProgressStateProperties.store(writer, null);
+				datastoreVersion.setWorkInProgressStateProperties(writer.toString());
+				pm.flush();
+				throw x;
+			}
 
 			datastoreVersion.setApplyTimestamp(new Date());
 			datastoreVersion.setCommandVersion(datastoreVersionCommand.getCommandVersion());
 			datastoreVersion.setManagerVersion(MANAGER_VERSION);
+			datastoreVersion.setWorkInProgressCommandVersion(null);
+			datastoreVersion.setWorkInProgressManagerVersion(null);
+			datastoreVersion.setWorkInProgressStateProperties(""); // field does not accept null (no need for this extra info in the DB)
 			pm.makePersistent(datastoreVersion); // just in case, it's new - otherwise doesn't hurt
 			pm.flush(); // provoke early failure
 		}

@@ -101,7 +101,6 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 		logger.info("Bundle: " + bundleName + " - Version: " + version);
 		logger.info("=======================================================");
 
-		indexFactoryRegistry = new IndexEntryFactoryRegistry(this);
 		encryptionHandler = new EncryptionHandler();
 		encryptionCoordinateSetManager = new EncryptionCoordinateSetManager();
 		keyStoreRefManager = new KeyStoreRefManager();
@@ -121,6 +120,9 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 	}
 
 	public IndexEntryFactoryRegistry getIndexFactoryRegistry() {
+		if (indexFactoryRegistry == null)
+			indexFactoryRegistry = new IndexEntryFactoryRegistry(this);
+
 		return indexFactoryRegistry;
 	}
 

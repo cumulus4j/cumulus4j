@@ -1,9 +1,12 @@
 package org.cumulus4j.store.datastoreversion.command;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
@@ -12,6 +15,8 @@ import org.cumulus4j.store.Cumulus4jPersistenceHandler;
 import org.cumulus4j.store.Cumulus4jStoreManager;
 import org.cumulus4j.store.EncryptionHandler;
 import org.cumulus4j.store.IndexEntryAction;
+import org.cumulus4j.store.ProgressInfo;
+import org.cumulus4j.store.WorkInProgressException;
 import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.datastoreversion.AbstractDatastoreVersionCommand;
 import org.cumulus4j.store.datastoreversion.CommandApplyParam;
@@ -48,11 +53,19 @@ public class RecreateIndex extends AbstractDatastoreVersionCommand
 		return false;
 	}
 
+	@Override
+	public boolean isKeyStoreDependent() {
+		return true;
+	}
+
 	private CommandApplyParam commandApplyParam;
+	private Properties workInProgressStateProperties;
 	private CryptoContext cryptoContext;
 	private PersistenceManager pmIndex;
 	private PersistenceManager pmData;
 	private long keyStoreRefID;
+
+	private Set<Class<? extends IndexEntry>> indexEntryClasses;
 
 	@Override
 	public void apply(CommandApplyParam commandApplyParam) {
@@ -67,25 +80,54 @@ public class RecreateIndex extends AbstractDatastoreVersionCommand
 		keyStoreRefID = cryptoContext.getKeyStoreRefID();
 		pmIndex = commandApplyParam.getCryptoContext().getPersistenceManagerForIndex();
 		pmData = commandApplyParam.getCryptoContext().getPersistenceManagerForData();
+		workInProgressStateProperties = commandApplyParam.getWorkInProgressStateProperties();
 
 		deleteIndex();
 		createIndex();
 	}
 
+	protected static final String PROPERTY_DELETE_COMPLETE = "delete.complete";
+	protected static final String PROPERTY_DELETE_FROM_INDEX_ENTRY_ID = "delete.fromIndexEntryID";
+	protected static final String PROPERTY_CREATE_FROM_DATA_ENTRY_ID = "create.fromDataEntryID";
+
 	protected void deleteIndex() {
 		logger.debug("deleteIndex: Entered.");
-		final long indexEntryBlockSize = 1000;
-		final long minIndexEntryID = getMinIndexEntryID();
-		final long maxIndexEntryID = getMaxIndexEntryID();
-		logger.info("deleteIndex: minIndexEntryID={} maxIndexEntryID={}", minIndexEntryID, maxIndexEntryID);
-		long fromIndexEntryID = minIndexEntryID;
-		while (fromIndexEntryID <= maxIndexEntryID - indexEntryBlockSize) {
-			long toIndexEntryIDExcl = fromIndexEntryID + indexEntryBlockSize;
-			deleteIndexForRange(fromIndexEntryID, toIndexEntryIDExcl);
-			fromIndexEntryID = toIndexEntryIDExcl;
+		if (Boolean.parseBoolean(workInProgressStateProperties.getProperty(PROPERTY_DELETE_COMPLETE))) {
+			logger.debug("deleteIndex: PROPERTY_DELETE_COMPLETE == true => quit.");
+			return;
 		}
-		deleteIndexForRange(fromIndexEntryID, null);
 
+		final long indexEntryBlockSize = 100;
+		Long maxIndexEntryIDObj = getMaxIndexEntryID();
+		if (maxIndexEntryIDObj == null) {
+			logger.debug("deleteIndex: There are no IndexEntry instances in the database => quit.");
+		}
+		else {
+			final long maxIndexEntryID = maxIndexEntryIDObj;
+			String fromIndexEntryStr = workInProgressStateProperties.getProperty(PROPERTY_DELETE_FROM_INDEX_ENTRY_ID);
+			long fromIndexEntryID;
+			if (fromIndexEntryStr != null) {
+				logger.info("deleteIndex: previous incomplete run found: fromIndexEntryStr={}", fromIndexEntryStr);
+				fromIndexEntryID = Long.parseLong(fromIndexEntryStr);
+			}
+			else {
+				final long minIndexEntryID = getMinIndexEntryID();
+				logger.info("deleteIndex: first run: minIndexEntryID={} maxIndexEntryID={}", minIndexEntryID, maxIndexEntryID);
+				fromIndexEntryID = minIndexEntryID;
+			}
+			while (fromIndexEntryID <= maxIndexEntryID - indexEntryBlockSize) {
+				long toIndexEntryIDExcl = fromIndexEntryID + indexEntryBlockSize;
+				deleteIndexForRange(fromIndexEntryID, toIndexEntryIDExcl);
+				fromIndexEntryID = toIndexEntryIDExcl;
+				if (commandApplyParam.isDatastoreVersionCommandApplyWorkInProgressTimeoutExceeded()) {
+					workInProgressStateProperties.setProperty(PROPERTY_DELETE_FROM_INDEX_ENTRY_ID, Long.toString(fromIndexEntryID));
+					throw new WorkInProgressException(new ProgressInfo());
+				}
+			}
+			deleteIndexForRange(fromIndexEntryID, null);
+		}
+
+		workInProgressStateProperties.setProperty(PROPERTY_DELETE_COMPLETE, Boolean.TRUE.toString());
 		logger.debug("deleteIndex: Leaving.");
 	}
 
@@ -97,7 +139,15 @@ public class RecreateIndex extends AbstractDatastoreVersionCommand
 	}
 
 	protected List<IndexEntry> getIndexEntries(long fromIndexEntryIDIncl, Long toIndexEntryIDExcl) {
-		Query q = pmIndex.newQuery(DataEntry.class);
+		List<IndexEntry> result = new ArrayList<IndexEntry>();
+		for (Class<? extends IndexEntry> indexEntryClass : getIndexEntryClasses()) {
+			result.addAll(getIndexEntries(indexEntryClass, fromIndexEntryIDIncl, toIndexEntryIDExcl));
+		}
+		return result;
+	}
+
+	protected List<IndexEntry> getIndexEntries(Class<? extends IndexEntry> indexEntryClass, long fromIndexEntryIDIncl, Long toIndexEntryIDExcl) {
+		Query q = pmIndex.newQuery(indexEntryClass);
 		StringBuilder filter = new StringBuilder();
 		Map<String, Object> params = new HashMap<String, Object>(2);
 
@@ -120,15 +170,28 @@ public class RecreateIndex extends AbstractDatastoreVersionCommand
 		return result;
 	}
 
-	protected void createIndex() {
-		final long dataEntryBlockSize = 1000;
-		final long minDataEntryID = getMinDataEntryID();
+	protected void createIndex()
+	{
+		final long dataEntryBlockSize = 100;
+		long fromDataEntryID;
+		String fromDataEntryIDStr = workInProgressStateProperties.getProperty(PROPERTY_CREATE_FROM_DATA_ENTRY_ID);
 		final long maxDataEntryID = getMaxDataEntryID();
-		long fromDataEntryID = minDataEntryID;
+		if (fromDataEntryIDStr != null) {
+			fromDataEntryID = Long.parseLong(fromDataEntryIDStr);
+		}
+		else {
+			final long minDataEntryID = getMinDataEntryID();
+			fromDataEntryID = minDataEntryID;
+		}
 		while (fromDataEntryID <= maxDataEntryID - dataEntryBlockSize) {
 			long toDataEntryIDExcl = fromDataEntryID + dataEntryBlockSize;
 			createIndexForRange(fromDataEntryID, toDataEntryIDExcl);
 			fromDataEntryID = toDataEntryIDExcl;
+
+			if (commandApplyParam.isDatastoreVersionCommandApplyWorkInProgressTimeoutExceeded()) {
+				workInProgressStateProperties.setProperty(PROPERTY_CREATE_FROM_DATA_ENTRY_ID, Long.toString(fromDataEntryID));
+				throw new WorkInProgressException(new ProgressInfo());
+			}
 		}
 		createIndexForRange(fromDataEntryID, null);
 	}
@@ -220,40 +283,67 @@ public class RecreateIndex extends AbstractDatastoreVersionCommand
 	}
 
 	protected long getMinDataEntryID() {
-		return getMinMaxDataEntryID("min");
+		Long result = getMinMaxDataEntryID("min");
+		if (result == null)
+			return 0;
+		return result;
 	}
 
 	protected long getMaxDataEntryID() {
-		return getMinMaxDataEntryID("max");
+		Long result = getMinMaxDataEntryID("max");
+		if (result == null)
+			return 0;
+		return result;
 	}
 
-	protected long getMinMaxDataEntryID(String minMax) {
+	protected Long getMinMaxDataEntryID(String minMax) {
 		Query q = pmData.newQuery(DataEntry.class);
 		q.setResult(minMax + "(this.dataEntryID)");
 		Long result = (Long) q.execute();
-		// BEGIN WORKAROUND
-		if (result == null)
-			return 0;
-		// END WORKAROUND
 		return result;
 	}
 
-	protected long getMinIndexEntryID() {
-		return getMinMaxIndexEntryID("min");
+	protected Long getMinIndexEntryID() {
+		return getMinMaxIndexEntryID("min", new Comparator<Long>() {
+			@Override
+			public int compare(Long o1, Long o2) {
+				return o2.compareTo(o1);
+			}
+		});
 	}
 
-	protected long getMaxIndexEntryID() {
-		return getMinMaxIndexEntryID("max");
+	protected Long getMaxIndexEntryID() {
+		return getMinMaxIndexEntryID("max", new Comparator<Long>() {
+			@Override
+			public int compare(Long o1, Long o2) {
+				return o1.compareTo(o2);
+			}
+		});
 	}
 
-	protected long getMinMaxIndexEntryID(String minMax) {
-		Query q = pmIndex.newQuery(IndexEntry.class);
+	protected Long getMinMaxIndexEntryID(String minMax, Comparator<Long> comparator) {
+		Long result = null;
+		for (Class<? extends IndexEntry> indexEntryClass : getIndexEntryClasses()) {
+			Long minMaxIndexEntryID = getMinMaxIndexEntryID(indexEntryClass, minMax);
+			if (minMaxIndexEntryID != null) {
+				if (result == null || comparator.compare(result, minMaxIndexEntryID) < 0)
+					result = minMaxIndexEntryID;
+			}
+		}
+		return result;
+	}
+
+	protected Long getMinMaxIndexEntryID(Class<? extends IndexEntry> indexEntryClass, String minMax) {
+		Query q = pmIndex.newQuery(indexEntryClass);
 		q.setResult(minMax + "(this.indexEntryID)");
 		Long result = (Long) q.execute();
-		// BEGIN WORKAROUND
-		if (result == null)
-			return 0;
-		// END WORKAROUND
 		return result;
+	}
+
+	protected Set<Class<? extends IndexEntry>> getIndexEntryClasses() {
+		if (indexEntryClasses == null)
+			indexEntryClasses = ((Cumulus4jStoreManager)cryptoContext.getExecutionContext().getStoreManager()).getIndexFactoryRegistry().getIndexEntryClasses();
+
+		return indexEntryClasses;
 	}
 }
