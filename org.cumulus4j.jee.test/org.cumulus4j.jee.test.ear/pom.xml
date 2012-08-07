@@ -29,7 +29,12 @@
 			<groupId>org.datanucleus</groupId>
 			<artifactId>datanucleus-rdbms</artifactId>
 		</dependency>
-
+<!--   		<dependency>
+ 			<groupId>org.datanucleus</groupId>
+			<artifactId>datanucleus-jca</artifactId>
+			<type>rar</type>
+		</dependency> -->
+		
 		<dependency>
 			<groupId>org.cumulus4j.jee.test</groupId>
 			<artifactId>org.cumulus4j.jee.test.ejb</artifactId>
