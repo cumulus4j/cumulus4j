@@ -38,6 +38,12 @@
 				<artifactId>commons-lang</artifactId>
 				<version>2.6</version>
 			</dependency>
+			 <dependency>
+	 			<groupId>org.datanucleus</groupId>
+				<artifactId>datanucleus-jca</artifactId>
+				<type>rar</type>
+				<version>3.1.0-release</version>
+			</dependency>
 			<dependency>
 				<groupId>org.cumulus4j.jee.test</groupId>
 				<artifactId>org.cumulus4j.jee.test.ejb</artifactId>
