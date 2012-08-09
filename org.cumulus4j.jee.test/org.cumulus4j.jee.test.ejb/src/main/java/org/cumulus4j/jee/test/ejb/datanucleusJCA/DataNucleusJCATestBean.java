@@ -48,7 +48,7 @@ public class DataNucleusJCATestBean extends AbstractDataNucleusJCATestBean imple
 	}
 
 	@Override
-	public void testRollbackOnNestedTransactionException(UUID id1, UUID id2,
+	public void testRollbackOnExceptionWithNestedTransaction(UUID id1, UUID id2,
 			boolean throwExceptionInMainBean,
 			boolean throwExceptionInNestedBeanCall) throws Exception {
 
@@ -57,7 +57,7 @@ public class DataNucleusJCATestBean extends AbstractDataNucleusJCATestBean imple
 	}
 
 	@Override
-	public void testRollbackWithSharedTransaction(UUID id1, UUID id2,
+	public void testRollbackOnExceptionWithSharedTransaction(UUID id1, UUID id2,
 			boolean throwExceptionInMainBean,
 			boolean throwExceptionInNestedBeanCall) throws Exception {
 
@@ -120,6 +120,6 @@ public class DataNucleusJCATestBean extends AbstractDataNucleusJCATestBean imple
 	}
 
 	@Override
-	public void init() {
+	public void init(String... args) {
 	}
 }

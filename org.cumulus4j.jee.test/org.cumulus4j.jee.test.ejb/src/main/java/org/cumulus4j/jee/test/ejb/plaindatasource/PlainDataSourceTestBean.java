@@ -35,7 +35,9 @@ public class PlainDataSourceTestBean extends AbstractPlainDataSourceTestBean
 	private PlainDataSourceSharedTransactionBean plainDataSourceSharedTransactionBean;
 
 	@Override
-	public void init() throws SQLException {
+	public void init(String... args) throws SQLException {
+
+		logger.info("Creating test tables");
 
 		Connection connection = defaultDataSource.getConnection();
 
@@ -54,6 +56,11 @@ public class PlainDataSourceTestBean extends AbstractPlainDataSourceTestBean
 	}
 
 	@Override
+	public boolean isAvailable() {
+		return true;
+	}
+
+	@Override
 	public void testRollbackOnException(UUID id, boolean throwException)
 			throws Exception {
 
@@ -66,7 +73,7 @@ public class PlainDataSourceTestBean extends AbstractPlainDataSourceTestBean
 	}
 
 	@Override
-	public void testRollbackOnNestedTransactionException(UUID id1, UUID id2,
+	public void testRollbackOnExceptionWithNestedTransaction(UUID id1, UUID id2,
 			boolean throwExceptionInMainBean,
 			boolean throwExceptionInNestedBeanCall) throws Exception {
 
@@ -75,7 +82,7 @@ public class PlainDataSourceTestBean extends AbstractPlainDataSourceTestBean
 	}
 
 	@Override
-	public void testRollbackWithSharedTransaction(UUID id1, UUID id2,
+	public void testRollbackOnExceptionWithSharedTransaction(UUID id1, UUID id2,
 			boolean throwExceptionInMainBean,
 			boolean throwExceptionInNestedBeanCall) throws Exception {
 
@@ -132,8 +139,4 @@ public class PlainDataSourceTestBean extends AbstractPlainDataSourceTestBean
 		return resultSet.next();
 	}
 
-	@Override
-	public boolean isAvailable() {
-		return true;
-	}
 }

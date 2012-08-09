@@ -22,24 +22,9 @@ implements Cumulus4jTestRemote
 		return props;
 	}
 
-//	@Override
-//	public void init(String cryptoManagerID, String cryptoSessionID){
-//
-//
-//	}
+	@Override
+	public void init(String... args){
 
-//	@Resource(name="jdbc/__defaultC4j")
-//	private DataSource defaultDataSourceC4j;
-//
-//	@Override
-//	public void test() {
-//		try {
-//			System.out.println(String.format("PlainDataSourceTestBean.test: defaultDataSourceC4j=%s", defaultDataSourceC4j));
-//			Connection connection = defaultDataSourceC4j.getConnection();
-//			System.out.println(String.format("PlainDataSourceTestBean.test: connection=%s", connection));
-////			executeSomeTestSQL(connection, "c4j-");
-//		} catch (Exception x) {
-//			throw new RuntimeException(x);
-//		}
-//	}
+
+	}
 }

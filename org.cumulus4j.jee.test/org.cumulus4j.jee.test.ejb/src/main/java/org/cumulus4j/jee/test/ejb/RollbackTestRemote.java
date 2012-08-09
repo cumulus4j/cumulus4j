@@ -6,16 +6,16 @@ import java.util.UUID;
 public interface RollbackTestRemote {
 
 //	public void init(String cryptoSeccionID, String cryptoManagerID) throws SQLException;
-	public void init() throws SQLException;
+	public void init(String... args) throws Exception;
 
 	public void testRollbackOnException(UUID id, boolean throwException)
 			throws Exception;
 
-	public void testRollbackOnNestedTransactionException(UUID id1, UUID id2,
+	public void testRollbackOnExceptionWithNestedTransaction(UUID id1, UUID id2,
 			boolean throwExceptionInMainBean,
 			boolean throwExceptionInNestedBeanCall) throws Exception;
 
-	public void testRollbackWithSharedTransaction(UUID id1, UUID id2,
+	public void testRollbackOnExceptionWithSharedTransaction(UUID id1, UUID id2,
 			boolean throwExceptionInMainBean,
 			boolean throwExceptionInNestedBeanCall) throws Exception;
 

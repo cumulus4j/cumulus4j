@@ -30,8 +30,15 @@ public class DataNucleusTestBean extends AbstractDataNucleusTestBean implements
 	private DataNucleusSharedTransactionBean dataNucleusSharedTransactionBean;
 
 	@Override
-	public boolean isAvailable() {
+	public void init(String... args) throws Exception{
 
+		logger.info("Store test object to make sure that PersistenceManagerFactory is initialized");
+
+		storeObject(UUID.randomUUID());
+	}
+
+	@Override
+	public boolean isAvailable() {
 		return true;
 	}
 
@@ -48,7 +55,7 @@ public class DataNucleusTestBean extends AbstractDataNucleusTestBean implements
 	}
 
 	@Override
-	public void testRollbackOnNestedTransactionException(UUID id1, UUID id2,
+	public void testRollbackOnExceptionWithNestedTransaction(UUID id1, UUID id2,
 			boolean throwExceptionInMainBean,
 			boolean throwExceptionInNestedBeanCall) throws Exception {
 
@@ -57,7 +64,7 @@ public class DataNucleusTestBean extends AbstractDataNucleusTestBean implements
 	}
 
 	@Override
-	public void testRollbackWithSharedTransaction(UUID id1, UUID id2,
+	public void testRollbackOnExceptionWithSharedTransaction(UUID id1, UUID id2,
 			boolean throwExceptionInMainBean,
 			boolean throwExceptionInNestedBeanCall) throws Exception {
 
@@ -117,9 +124,5 @@ public class DataNucleusTestBean extends AbstractDataNucleusTestBean implements
 			logger.info("Object with id {} not found", movieName);
 
 		return objectExists;
-	}
-
-	@Override
-	public void init() {
 	}
 }
