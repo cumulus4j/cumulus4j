@@ -42,7 +42,6 @@ public abstract class AbstractGlassfishIT {
 				if (!remote.isAvailable())
 					throw new IllegalStateException("Server is not available!");
 
-//				remote.init();
 				init(remote);
 
 				System.out
