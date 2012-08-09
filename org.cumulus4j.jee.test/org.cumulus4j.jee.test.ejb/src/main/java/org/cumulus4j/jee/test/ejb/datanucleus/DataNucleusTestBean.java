@@ -30,10 +30,11 @@ public class DataNucleusTestBean extends AbstractDataNucleusTestBean implements
 	private DataNucleusSharedTransactionBean dataNucleusSharedTransactionBean;
 
 	@Override
-	public void init(String... args) throws Exception{
+	public void init(String... args) throws Exception {
+
+		resetPMF();
 
 		logger.info("Store test object to make sure that PersistenceManagerFactory is initialized");
-
 		storeObject(UUID.randomUUID());
 	}
 
@@ -55,8 +56,8 @@ public class DataNucleusTestBean extends AbstractDataNucleusTestBean implements
 	}
 
 	@Override
-	public void testRollbackOnExceptionWithNestedTransaction(UUID id1, UUID id2,
-			boolean throwExceptionInMainBean,
+	public void testRollbackOnExceptionWithNestedTransaction(UUID id1,
+			UUID id2, boolean throwExceptionInMainBean,
 			boolean throwExceptionInNestedBeanCall) throws Exception {
 
 		testRollback(id1, id2, throwExceptionInMainBean,
@@ -64,8 +65,8 @@ public class DataNucleusTestBean extends AbstractDataNucleusTestBean implements
 	}
 
 	@Override
-	public void testRollbackOnExceptionWithSharedTransaction(UUID id1, UUID id2,
-			boolean throwExceptionInMainBean,
+	public void testRollbackOnExceptionWithSharedTransaction(UUID id1,
+			UUID id2, boolean throwExceptionInMainBean,
 			boolean throwExceptionInNestedBeanCall) throws Exception {
 
 		testRollback(id1, id2, throwExceptionInMainBean,

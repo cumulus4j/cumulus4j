@@ -19,18 +19,25 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractDataNucleusTestBean {
 
-	private static final Logger logger = LoggerFactory.getLogger(AbstractDataNucleusTestBean.class);
+	private static final Logger logger = LoggerFactory
+			.getLogger(AbstractDataNucleusTestBean.class);
 
 	private static PersistenceManagerFactory pmf = null;
+
+	protected static void resetPMF() {
+		pmf = null;
+	}
 
 	protected PersistenceManager getPersistenceManager() {
 
 		return getPersistenceManagerFactory().getPersistenceManager();
 	}
 
-	protected Properties getProperties(){
+	protected Properties getProperties() {
 
-		InputStream propertiesStream = getClass().getResourceAsStream("datanucleus.properties");
+		InputStream propertiesStream = getClass()
+				.getResourceAsStream(
+						"/org/cumulus4j/jee/test/ejb/datanucleus/datanucleus.properties");
 		Properties propsFile = new Properties();
 		try {
 			propsFile.load(propertiesStream);
@@ -42,15 +49,15 @@ public abstract class AbstractDataNucleusTestBean {
 		return propsFile;
 	}
 
-	private PersistenceManagerFactory getPersistenceManagerFactory(){
+	private PersistenceManagerFactory getPersistenceManagerFactory() {
 
-		if(pmf == null)
+		if (pmf == null)
 			pmf = JDOHelper.getPersistenceManagerFactory(getProperties());
 
 		return pmf;
 	}
 
-	protected void storeObject(UUID id) throws Exception{
+	protected void storeObject(UUID id) throws Exception {
 
 		PersistenceManager pm = getPersistenceManager();
 
@@ -58,8 +65,7 @@ public abstract class AbstractDataNucleusTestBean {
 			Transaction currentTransaction = pm.currentTransaction();
 			logger.info("pm.currentTransaction().isActive() = {}",
 					currentTransaction.isActive());
-			logger.info("pm.currentTransaction() {}",
-					currentTransaction);
+			logger.info("pm.currentTransaction() {}", currentTransaction);
 		} catch (Exception x) {
 			// We expect that it is not possible to access the current tx via
 			// JDO API in a transactional container (=> AS).
@@ -71,7 +77,9 @@ public abstract class AbstractDataNucleusTestBean {
 
 		Collection<Movie> moviesBefore = getMoviesByName(pm, movieName);
 		if (!moviesBefore.isEmpty())
-			throw new IllegalStateException("There is already a Movie with this ID! ID should be unique!!! ID=" + movieName);
+			throw new IllegalStateException(
+					"There is already a Movie with this ID! ID should be unique!!! ID="
+							+ movieName);
 
 		Movie movie = new Movie();
 		movie.setName(movieName);
