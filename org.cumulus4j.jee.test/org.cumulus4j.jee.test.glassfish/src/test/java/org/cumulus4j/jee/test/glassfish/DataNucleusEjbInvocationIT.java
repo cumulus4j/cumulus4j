@@ -9,6 +9,12 @@ import org.cumulus4j.jee.test.ejb.datanucleus.DataNucleusTestRemote;
 public class DataNucleusEjbInvocationIT extends AbstractGlassfishIT {
 
 	@Override
+	protected void init(RollbackTestRemote remote) throws Exception{
+
+		remote.init();
+	}
+
+	@Override
 	protected RollbackTestRemote getRemote() throws Exception{
 
 		InitialContext ic = createInitialContext();

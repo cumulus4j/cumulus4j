@@ -5,11 +5,10 @@ import java.util.UUID;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import junit.framework.Assert;
-
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.cumulus4j.jee.test.ejb.RollbackTestRemote;
 import org.cumulus4j.jee.test.ejb.TestRollbackException;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,6 +17,8 @@ public abstract class AbstractGlassfishIT {
 	protected RollbackTestRemote remote;
 
 	protected abstract RollbackTestRemote getRemote() throws Exception;
+
+	protected abstract void init(RollbackTestRemote remote) throws Exception;
 
 	@Before
 	public void before() throws Exception {
@@ -41,7 +42,8 @@ public abstract class AbstractGlassfishIT {
 				if (!remote.isAvailable())
 					throw new IllegalStateException("Server is not available!");
 
-				remote.init();
+//				remote.init();
+				init(remote);
 
 				System.out
 						.println("before: Server is available and initialized.");
@@ -132,7 +134,7 @@ public abstract class AbstractGlassfishIT {
 
 		UUID id1 = UUID.randomUUID();
 		UUID id2 = UUID.randomUUID();
-		remote.testRollbackOnNestedTransactionException(id1, id2, false, false);
+		remote.testRollbackOnExceptionWithNestedTransaction(id1, id2, false, false);
 
 		boolean object1Exists = remote.objectExists(id1);
 		boolean object2Exists = remote.objectExists(id2);
@@ -154,7 +156,7 @@ public abstract class AbstractGlassfishIT {
 		UUID id1 = UUID.randomUUID();
 		UUID id2 = UUID.randomUUID();
 
-		remote.testRollbackOnNestedTransactionException(id1, id2, false, true);
+		remote.testRollbackOnExceptionWithNestedTransaction(id1, id2, false, true);
 
 		boolean object1Exists = remote.objectExists(id1);
 		boolean object2Exists = remote.objectExists(id2);
@@ -178,7 +180,7 @@ public abstract class AbstractGlassfishIT {
 		UUID id2 = UUID.randomUUID();
 		boolean expectedExceptionThrown = false;
 		try {
-			remote.testRollbackOnNestedTransactionException(id1, id2, true,
+			remote.testRollbackOnExceptionWithNestedTransaction(id1, id2, true,
 					true);
 		} catch (Exception x) {
 			int index = ExceptionUtils.indexOfThrowable(x,
@@ -212,7 +214,7 @@ public abstract class AbstractGlassfishIT {
 		UUID id2 = UUID.randomUUID();
 		boolean expectedExceptionThrown = false;
 		try {
-			remote.testRollbackOnNestedTransactionException(id1, id2, true,
+			remote.testRollbackOnExceptionWithNestedTransaction(id1, id2, true,
 					false);
 		} catch (Exception x) {
 			int index = ExceptionUtils.indexOfThrowable(x,
@@ -245,7 +247,7 @@ public abstract class AbstractGlassfishIT {
 		UUID id1 = UUID.randomUUID();
 		UUID id2 = UUID.randomUUID();
 
-		remote.testRollbackWithSharedTransaction(id1, id2, false, false);
+		remote.testRollbackOnExceptionWithSharedTransaction(id1, id2, false, false);
 
 		boolean object1Exists = remote.objectExists(id1);
 		boolean object2Exists = remote.objectExists(id2);
@@ -267,7 +269,7 @@ public abstract class AbstractGlassfishIT {
 		UUID id1 = UUID.randomUUID();
 		UUID id2 = UUID.randomUUID();
 
-		remote.testRollbackWithSharedTransaction(id1, id2, false, true);
+		remote.testRollbackOnExceptionWithSharedTransaction(id1, id2, false, true);
 
 		boolean object1Exists = remote.objectExists(id1);
 		boolean object2Exists = remote.objectExists(id2);
@@ -290,7 +292,7 @@ public abstract class AbstractGlassfishIT {
 		UUID id2 = UUID.randomUUID();
 		boolean expectedExceptionThrown = false;
 		try {
-			remote.testRollbackWithSharedTransaction(id1, id2, true,
+			remote.testRollbackOnExceptionWithSharedTransaction(id1, id2, true,
 					false);
 		} catch (Exception x) {
 			int index = ExceptionUtils.indexOfThrowable(x,
@@ -324,7 +326,7 @@ public abstract class AbstractGlassfishIT {
 		UUID id2 = UUID.randomUUID();
 		boolean expectedExceptionThrown = false;
 		try {
-			remote.testRollbackWithSharedTransaction(id1, id2, true,
+			remote.testRollbackOnExceptionWithSharedTransaction(id1, id2, true,
 					true);
 		} catch (Exception x) {
 			int index = ExceptionUtils.indexOfThrowable(x,
