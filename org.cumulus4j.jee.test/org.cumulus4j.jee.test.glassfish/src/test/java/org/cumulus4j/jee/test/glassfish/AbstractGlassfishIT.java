@@ -10,6 +10,7 @@ import org.cumulus4j.jee.test.ejb.RollbackTestRemote;
 import org.cumulus4j.jee.test.ejb.TestRollbackException;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public abstract class AbstractGlassfishIT {
@@ -87,6 +88,7 @@ public abstract class AbstractGlassfishIT {
 	}
 
 	@Test
+	@Ignore("not needed for debug session - TODO RE-ENABLE THIS TEST!") // TODO re-enable
 	public void singleTransactionCommit() throws Exception {
 		System.out.println("singleTransactionCommit: Entered.");
 
@@ -100,6 +102,7 @@ public abstract class AbstractGlassfishIT {
 	}
 
 	@Test
+	@Ignore("not needed for debug session - TODO RE-ENABLE THIS TEST!") // TODO re-enable
 	public void singleTransactionRollback() throws Exception {
 		System.out.println("singleTransactionRollback: Entered.");
 
@@ -126,6 +129,7 @@ public abstract class AbstractGlassfishIT {
 	}
 
 	@Test
+	@Ignore("not needed for debug session - TODO RE-ENABLE THIS TEST!") // TODO re-enable
 	public void nestedTransactionMainTransactionCommitSubTransactionCommit() throws Exception {
 
 		System.out
@@ -169,6 +173,7 @@ public abstract class AbstractGlassfishIT {
 	}
 
 	@Test
+	@Ignore("not needed for debug session - TODO RE-ENABLE THIS TEST!") // TODO re-enable
 	public void nestedTransactionMainTransactionRollbackSubTransactionRollback()
 			throws Exception {
 
@@ -204,6 +209,7 @@ public abstract class AbstractGlassfishIT {
 	}
 
 	@Test
+	@Ignore("not needed for debug session - TODO RE-ENABLE THIS TEST!") // TODO re-enable
 	public void nestedTransactionMainTransactionRollbackSubTransactionCommit() throws Exception {
 
 		System.out
@@ -238,6 +244,7 @@ public abstract class AbstractGlassfishIT {
 	}
 
 	@Test
+	@Ignore("not needed for debug session - TODO RE-ENABLE THIS TEST!") // TODO re-enable
 	public void sharedTransactionCommitCommit() throws Exception {
 
 		System.out
@@ -260,6 +267,7 @@ public abstract class AbstractGlassfishIT {
 	}
 
 	@Test
+	@Ignore("not needed for debug session - TODO RE-ENABLE THIS TEST!") // TODO re-enable
 	public void sharedTransactionCommitRollback() throws Exception {
 
 		System.out
@@ -282,6 +290,7 @@ public abstract class AbstractGlassfishIT {
 	}
 
 	@Test
+	@Ignore("not needed for debug session - TODO RE-ENABLE THIS TEST!") // TODO re-enable
 	public void sharedTransactionRollbackCommit() throws Exception {
 
 		System.out
@@ -316,6 +325,7 @@ public abstract class AbstractGlassfishIT {
 	}
 
 	@Test
+	@Ignore("not needed for debug session - TODO RE-ENABLE THIS TEST!") // TODO re-enable
 	public void sharedTransactionRollbackRollback() throws Exception {
 
 		System.out

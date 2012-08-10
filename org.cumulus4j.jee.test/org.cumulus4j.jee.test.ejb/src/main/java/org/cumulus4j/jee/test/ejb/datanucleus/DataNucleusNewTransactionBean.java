@@ -5,6 +5,7 @@ import java.util.UUID;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.jdo.PersistenceManager;
 
 import org.cumulus4j.jee.test.ejb.TestRollbackException;
 import org.slf4j.Logger;
@@ -18,7 +19,8 @@ public class DataNucleusNewTransactionBean extends AbstractDataNucleusTestBean {
 
 	public void testRollback(UUID id, boolean throwException) throws Exception {
 
-		storeObject(id);
+	    PersistenceManager pm = getPersistenceManager();
+		storeObject(pm, id);
 
 		if (throwException)
 			throw new TestRollbackException(

@@ -10,7 +10,6 @@ import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 import javax.jdo.Query;
-import javax.jdo.Transaction;
 import javax.resource.spi.IllegalStateException;
 
 import org.cumulus4j.store.test.movie.Movie;
@@ -19,25 +18,29 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractDataNucleusTestBean {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(AbstractDataNucleusTestBean.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractDataNucleusTestBean.class);
 
 	private static PersistenceManagerFactory pmf = null;
 
-	protected static void resetPMF() {
+	protected static synchronized void resetPMF() {
+		PersistenceManagerFactory _pmf = pmf;
 		pmf = null;
+		if (_pmf != null) {
+			try {
+				_pmf.close();
+			} catch (Exception x) {
+				logger.info("resetPMF: pmf.close() failed: " + x, x);
+			}
+		}
 	}
 
 	protected PersistenceManager getPersistenceManager() {
-
+	    logger.info("getPersistenceManager: Entered.");
 		return getPersistenceManagerFactory().getPersistenceManager();
 	}
 
 	protected Properties getProperties() {
-
-		InputStream propertiesStream = getClass()
-				.getResourceAsStream(
-						"/org/cumulus4j/jee/test/ejb/datanucleus/datanucleus.properties");
+		InputStream propertiesStream = AbstractDataNucleusTestBean.class.getResourceAsStream("/org/cumulus4j/jee/test/ejb/datanucleus/datanucleus.properties");
 		Properties propsFile = new Properties();
 		try {
 			propsFile.load(propertiesStream);
@@ -50,28 +53,28 @@ public abstract class AbstractDataNucleusTestBean {
 	}
 
 	private PersistenceManagerFactory getPersistenceManagerFactory() {
+		synchronized (AbstractDataNucleusTestBean.class) {
+			if (pmf == null)
+				pmf = JDOHelper.getPersistenceManagerFactory(getProperties());
 
-		if (pmf == null)
-			pmf = JDOHelper.getPersistenceManagerFactory(getProperties());
-
-		return pmf;
+			return pmf;
+		}
 	}
 
-	protected void storeObject(UUID id) throws Exception {
+	protected void storeObject(PersistenceManager pm, UUID id) throws Exception {
+	    logger.info("storeObject: Entered.");
 
-		PersistenceManager pm = getPersistenceManager();
-
-		try {
-			Transaction currentTransaction = pm.currentTransaction();
-			logger.info("pm.currentTransaction().isActive() = {}",
-					currentTransaction.isActive());
-			logger.info("pm.currentTransaction() {}", currentTransaction);
-		} catch (Exception x) {
-			// We expect that it is not possible to access the current tx via
-			// JDO API in a transactional container (=> AS).
-			logger.debug("pm.currentTransaction() failed (as expected): {}",
-					x.toString());
-		}
+//		try {
+//			Transaction currentTransaction = pm.currentTransaction();
+//			logger.info("pm.currentTransaction().isActive() = {}",
+//					currentTransaction.isActive());
+//			logger.info("pm.currentTransaction() {}", currentTransaction);
+//		} catch (Exception x) {
+//			// We expect that it is not possible to access the current tx via
+//			// JDO API in a transactional container (=> AS).
+//			logger.debug("pm.currentTransaction() failed (as expected): {}",
+//					x.toString());
+//		}
 
 		String movieName = id.toString();
 
@@ -93,7 +96,7 @@ public abstract class AbstractDataNucleusTestBean {
 			throw new IllegalStateException(String.format(
 					"movies.size == %s != 1", movies.size()));
 
-		logger.info("Object {} successfully stored in the database!", movieName);
+		logger.info("storeObject: Object {} successfully stored in the database!", movieName);
 	}
 
 	protected Collection<Movie> getMoviesByName(PersistenceManager pm,

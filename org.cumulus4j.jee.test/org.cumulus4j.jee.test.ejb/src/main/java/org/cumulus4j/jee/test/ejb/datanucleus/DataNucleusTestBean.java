@@ -31,11 +31,15 @@ public class DataNucleusTestBean extends AbstractDataNucleusTestBean implements
 
 	@Override
 	public void init(String... args) throws Exception {
-
 		resetPMF();
 
-		logger.info("Store test object to make sure that PersistenceManagerFactory is initialized");
-		storeObject(UUID.randomUUID());
+		PersistenceManager pm = getPersistenceManager();
+		pm.getExtent(Movie.class);
+
+		// The test fails with the following code being uncommented. With the above - meta-data-initialisation only - it works fine.
+//		Movie m = new Movie();
+//		m.setName("init_" + Long.toString(System.currentTimeMillis(), 36));
+//		pm.makePersistent(m);
 	}
 
 	@Override
@@ -47,7 +51,8 @@ public class DataNucleusTestBean extends AbstractDataNucleusTestBean implements
 	public void testRollbackOnException(UUID id, boolean throwException)
 			throws Exception {
 
-		storeObject(id);
+	    PersistenceManager pm = getPersistenceManager();
+		storeObject(pm, id);
 
 		if (throwException)
 			throw new TestRollbackException(
@@ -78,7 +83,8 @@ public class DataNucleusTestBean extends AbstractDataNucleusTestBean implements
 			boolean throwExceptionInNestedBeanCall, boolean nestedTransaction)
 			throws Exception {
 
-		storeObject(id1);
+	    PersistenceManager pm = getPersistenceManager();
+		storeObject(pm, id1);
 
 		boolean expectedExceptionThrown = false;
 		try {
@@ -89,8 +95,7 @@ public class DataNucleusTestBean extends AbstractDataNucleusTestBean implements
 				dataNucleusSharedTransactionBean.testRollback(id2,
 						throwExceptionInNestedBeanCall);
 		} catch (Exception x) {
-			int index = ExceptionUtils.indexOfThrowable(x,
-					TestRollbackException.class);
+			int index = ExceptionUtils.indexOfThrowable(x, TestRollbackException.class);
 			if (index >= 0)
 				expectedExceptionThrown = true;
 			else
@@ -98,8 +103,7 @@ public class DataNucleusTestBean extends AbstractDataNucleusTestBean implements
 		}
 
 		if (throwExceptionInNestedBeanCall && !expectedExceptionThrown)
-			logger.error("TestRollbackException was not thrown!",
-					expectedExceptionThrown);
+			logger.error("TestRollbackException was not thrown!");
 
 		if (throwExceptionInMainBean)
 			throw new TestRollbackException(

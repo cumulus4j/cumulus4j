@@ -11,6 +11,20 @@
 	<packaging>pom</packaging>
 	<description>JEE test parent POM</description>
 
+<!--
+	<properties>
+		<datanucleus.rdbms.dependency.version>3.1.1-SNAPSHOT</datanucleus.rdbms.dependency.version>
+		<datanucleus.core.dependency.version>3.1.1-SNAPSHOT</datanucleus.core.dependency.version>
+		<datanucleus.dependency.version>3.1.1-SNAPSHOT</datanucleus.dependency.version>
+		<datanucleus.api-jpa.dependency.version>3.1.1-SNAPSHOT</datanucleus.api-jpa.dependency.version>
+		<datanucleus.odf.dependency.version>3.1.1-SNAPSHOT</datanucleus.odf.dependency.version>
+		<datanucleus.hbase.dependency.version>3.1.1-SNAPSHOT</datanucleus.hbase.dependency.version>
+		<datanucleus.api-jdo.dependency.version>3.1.1-SNAPSHOT</datanucleus.api-jdo.dependency.version>
+		<datanucleus.enhancer.dependency.version>3.1.1-SNAPSHOT</datanucleus.enhancer.dependency.version>
+		<datanucleus.maven.version>3.1.1-SNAPSHOT</datanucleus.maven.version>
+	</properties>
+-->
+
 	<repositories>
 		<repository>
 			<!-- for javax.persistence -->

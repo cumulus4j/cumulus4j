@@ -15,8 +15,7 @@ import org.slf4j.LoggerFactory;
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 public class PlainDataSourceNewTransactionBean extends AbstractPlainDataSourceTestBean{
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(PlainDataSourceNewTransactionBean.class);
+	private static final Logger logger = LoggerFactory.getLogger(PlainDataSourceNewTransactionBean.class);
 
 	public void testRollback(UUID id, boolean throwException) throws SQLException{
 

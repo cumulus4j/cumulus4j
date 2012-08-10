@@ -45,9 +45,14 @@
   <applications />
   <resources>
     <jdbc-resource pool-name="__TimerPool" jndi-name="jdbc/__TimerPool" object-type="system-admin" />
+    <!--
     <jdbc-resource pool-name="DerbyPool" jndi-name="jdbc/__default" />
-    <jdbc-resource pool-name="DerbyPoolC4j" jndi-name="jdbc/__defaultC4j" />
     <jdbc-resource pool-name="DerbyPoolNoXa" jndi-name="jdbc/__defaultNoXa" />
+    -->
+    <jdbc-resource pool-name="MysqlPool" jndi-name="jdbc/__default" />
+    <jdbc-resource pool-name="MysqlPoolNoXa" jndi-name="jdbc/__defaultNoXa" />
+
+    <jdbc-resource pool-name="DerbyPoolC4j" jndi-name="jdbc/__defaultC4j" />
 <!--    <jdbc-resource pool-name="DerbyPoolC4jNoXa" jndi-name="jdbc/__defaultC4jNoXa" />-->
     <jdbc-connection-pool name="__TimerPool" datasource-classname="org.apache.derby.jdbc.EmbeddedXADataSource" res-type="javax.sql.XADataSource">
       <property value="${com.sun.aas.instanceRoot}/lib/databases/ejbtimer" name="databaseName" />
@@ -63,16 +68,31 @@
       <property value=";create=true" name="connectionAttributes" />
     </jdbc-connection-pool>
     -->
+
+    <jdbc-connection-pool name="MysqlPool" datasource-classname="com.mysql.jdbc.jdbc2.optional.MysqlXADataSource" res-type="javax.sql.XADataSource">
+      <property value="localhost" name="serverName" />
+      <property value="cumulus4j" name="databaseName" />
+      <property value="root" name="User" />
+      <property value="" name="Password" />
+    </jdbc-connection-pool>
+    <jdbc-connection-pool name="MysqlPoolNoXa" datasource-classname="com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource" res-type="javax.sql.DataSource">
+      <property value="localhost" name="serverName" />
+      <property value="cumulus4j" name="databaseName" />
+      <property value="root" name="User" />
+      <property value="" name="Password" />
+    </jdbc-connection-pool>
+
     <jdbc-connection-pool name="DerbyPool" datasource-classname="org.apache.derby.jdbc.EmbeddedXADataSource" res-type="javax.sql.XADataSource">
       <property value="${com.sun.aas.instanceRoot}/lib/databases/default" name="databaseName" />
       <property value=";create=true" name="connectionAttributes" />
     </jdbc-connection-pool>
-    <jdbc-connection-pool name="DerbyPoolC4j" datasource-classname="org.apache.derby.jdbc.EmbeddedXADataSource" res-type="javax.sql.XADataSource">
-      <property value="${com.sun.aas.instanceRoot}/lib/databases/defaultC4j" name="databaseName" />
+    <jdbc-connection-pool name="DerbyPoolNoXa" datasource-classname="org.apache.derby.jdbc.EmbeddedDataSource40" res-type="javax.sql.DataSource">
+      <property value="${com.sun.aas.instanceRoot}/lib/databases/default" name="databaseName" />
       <property value=";create=true" name="connectionAttributes" />
     </jdbc-connection-pool>
-     <jdbc-connection-pool name="DerbyPoolNoXa" datasource-classname="org.apache.derby.jdbc.EmbeddedDataSource40" res-type="javax.sql.DataSource">
-      <property value="${com.sun.aas.instanceRoot}/lib/databases/default" name="databaseName" />
+
+    <jdbc-connection-pool name="DerbyPoolC4j" datasource-classname="org.apache.derby.jdbc.EmbeddedXADataSource" res-type="javax.sql.XADataSource">
+      <property value="${com.sun.aas.instanceRoot}/lib/databases/defaultC4j" name="databaseName" />
       <property value=";create=true" name="connectionAttributes" />
     </jdbc-connection-pool>
 <!--    <jdbc-connection-pool name="DerbyPoolC4jNoXa" datasource-classname="org.apache.derby.jdbc.EmbeddedDataSource40" res-type="javax.sql.DataSource">

@@ -10,16 +10,12 @@ public class DataNucleusEjbInvocationIT extends AbstractGlassfishIT {
 
 	@Override
 	protected void init(RollbackTestRemote remote) throws Exception{
-
 		remote.init();
 	}
 
 	@Override
 	protected RollbackTestRemote getRemote() throws Exception{
-
 		InitialContext ic = createInitialContext();
-
-		return (DataNucleusTestRemote) ic
-		.lookup(DataNucleusTestRemote.class.getName());
+		return (DataNucleusTestRemote) ic.lookup(DataNucleusTestRemote.class.getName());
 	}
 }

@@ -25,8 +25,7 @@ import org.slf4j.LoggerFactory;
 public class PlainDataSourceTestBean extends AbstractPlainDataSourceTestBean
 		implements PlainDataSourceTestRemote {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(PlainDataSourceTestBean.class);
+	private static final Logger logger = LoggerFactory.getLogger(PlainDataSourceTestBean.class);
 
 	@EJB
 	private PlainDataSourceNewTransactionBean plainDataSourceNewTransactionBean;
@@ -39,7 +38,7 @@ public class PlainDataSourceTestBean extends AbstractPlainDataSourceTestBean
 
 		logger.info("Creating test tables");
 
-		Connection connection = defaultDataSource.getConnection();
+		Connection connection = getDefaultDataSourceNoXa().getConnection();
 
 		DatabaseMetaData md = connection.getMetaData();
 		ResultSet rs = md.getTables(null, null, "%", null);
@@ -53,6 +52,9 @@ public class PlainDataSourceTestBean extends AbstractPlainDataSourceTestBean
 			statement.execute(String.format(
 					"CREATE TABLE %s (name VARCHAR(255))", tableName));
 		}
+
+		// Obtain a connection to the XA-DS to make things symmetric with the DN test.
+		getDefaultDataSourceXa().getConnection();
 	}
 
 	@Override
@@ -129,14 +131,18 @@ public class PlainDataSourceTestBean extends AbstractPlainDataSourceTestBean
 	@Override
 	public boolean objectExists(UUID id) throws SQLException {
 
-		Connection connection = defaultDataSource.getConnection();
+		Connection connection = getDefaultDataSourceXa().getConnection();
 
-		PreparedStatement queryStatement = connection.prepareStatement(String
-				.format("SELECT * FROM %s WHERE name='%s'", tableName,
-						id.toString()));
+		PreparedStatement queryStatement = connection.prepareStatement(
+				String.format("SELECT COUNT(*) FROM %s WHERE name='%s'", tableName, id.toString())
+		);
 		ResultSet resultSet = queryStatement.executeQuery();
+		resultSet.next();
+		long count = resultSet.getLong(1);
+		if (count < 0 || count > 1)
+			throw new IllegalStateException("count == " + count + " out of range [0, 1]!!!");
 
-		return resultSet.next();
+		return count != 0;
 	}
 
 }
