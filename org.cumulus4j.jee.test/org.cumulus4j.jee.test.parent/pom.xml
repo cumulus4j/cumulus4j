@@ -25,6 +25,10 @@
 	</properties>
 -->
 
+	<properties>
+		<version.org.jboss.jbossas>6.0.0.20100429-M3</version.org.jboss.jbossas>
+	</properties>
+
 	<repositories>
 		<repository>
 			<!-- for javax.persistence -->
@@ -37,6 +41,16 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
+ 		<repository>
+			<id>jboss-public-repository</id>
+			<url>http://repository.jboss.org/nexus/content/groups/public-jboss/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository> 
 	</repositories>
 
 	<dependencyManagement>
@@ -75,6 +89,13 @@
 				<artifactId>org.cumulus4j.jee.test.glassfish</artifactId>
 				<version>${cumulus4j.version}</version>
 			</dependency>
+ 			<dependency>
+			     <groupId>org.jboss.jbossas</groupId>
+			     <artifactId>jboss-as-depchain</artifactId>
+			     <version>${version.org.jboss.jbossas}</version>
+			     <type>pom</type>
+ 			     <scope>import</scope> 
+			 </dependency> 
 		</dependencies>
 	</dependencyManagement>
 </project>
