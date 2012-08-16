@@ -1,4 +1,5 @@
-//package org.cumulus4j.jee.test.glassfish;
+package org.cumulus4j.jee.test.jboss;
+//package org.cumulus4j.jee.test.jboss;
 //
 //import javax.naming.InitialContext;
 //
@@ -6,7 +7,7 @@
 //import org.cumulus4j.jee.test.ejb.datanucleusJCA.DataNucleusJCATestRemote;
 //
 //
-//public class DataNucleusJCAEjbInvocationIT extends AbstractGlassfishIT {
+//public class DataNucleusJCAEjbInvocationIT extends AbstractJBossIT {
 //
 //	@Override
 //	protected RollbackTestRemote getRemote() throws Exception{

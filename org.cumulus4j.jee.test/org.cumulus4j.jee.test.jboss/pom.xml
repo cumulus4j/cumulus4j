@@ -76,12 +76,6 @@
 				</configuration>
 			</plugin>
 
-			<!-- <plugin> <artifactId>maven-resources-plugin</artifactId> <executions> 
-				<execution> <id>copy-glassfish-config</id> <phase>generate-resources</phase> 
-				<resources> <resource> <directory>${basedir}/src/jboss-config</directory> 
-				<filtering>false</filtering> <includes> <include>*</include> </includes> 
-				</resource> </resources> </configuration> </execution> </executions> </plugin> -->
-
 			<!-- Get AS and put into "target" -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -110,16 +104,33 @@
 			</plugin>
 			
 			<plugin>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>populate-jboss-deploy</id>
+						<phase>integration-test</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${JBOSS_HOME}/server/default/deploy</outputDirectory>
+							<includeArtifactIds>org.cumulus4j.jee.test.ear</includeArtifactIds>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<version>1.6</version>
 				<executions>
 					<execution>
-						<id>process-test-resources</id>
-						<phase>process-test-resources</phase>
+						<id>set-jboss-permissions</id>
+						<phase>pre-integration-test</phase>
 						<configuration>
 							<target>
-								<chmod file="target/jboss/bin/run.sh" perm="755"/>
+								<chmod file="${JBOSS_HOME}/bin/run.sh" perm="755"/>
 							</target>
 						</configuration>
 						<goals>
@@ -129,7 +140,33 @@
 				</executions>
 			</plugin>
 			
-			<plugin>
+			<!-- <plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-jboss-config</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+
+						<configuration>
+							<outputDirectory>${JBOSS_HOME}/server/default/conf</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${basedir}/src/jboss-config</directory>
+									<filtering>false</filtering>
+									<includes>
+										<include>*</include>
+									</includes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin> -->
+			
+ 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>jboss-maven-plugin</artifactId>
 				<version>1.5.0</version>
@@ -220,6 +257,9 @@
 										<goals>
 											<goal>
 												copy-dependencies
+											</goal>
+											<goal>
+												unpack
 											</goal>
 										</goals>
 									</pluginExecutionFilter>

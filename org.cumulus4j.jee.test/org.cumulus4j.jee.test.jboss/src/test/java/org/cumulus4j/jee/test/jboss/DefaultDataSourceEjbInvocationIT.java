@@ -1,4 +1,4 @@
-package org.cumulus4j.jee.test.glassfish;
+package org.cumulus4j.jee.test.jboss;
 
 import javax.naming.InitialContext;
 
@@ -6,7 +6,7 @@ import org.cumulus4j.jee.test.ejb.RollbackTestRemote;
 import org.cumulus4j.jee.test.ejb.plaindatasource.PlainDataSourceTestRemote;
 
 
-public class DefaultDataSourceEjbInvocationIT extends AbstractGlassfishIT {
+public class DefaultDataSourceEjbInvocationIT extends AbstractJBossIT {
 
 	@Override
 	protected void init(RollbackTestRemote remote) throws Exception{

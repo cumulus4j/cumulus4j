@@ -1,4 +1,5 @@
-//package org.cumulus4j.jee.test.glassfish;
+package org.cumulus4j.jee.test.jboss;
+//package org.cumulus4j.jee.test.jboss;
 //
 //import java.security.SecureRandom;
 //
@@ -9,7 +10,7 @@
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
 //
-//public class DefaultDataSourceC4jEjbInvocationIT extends AbstractGlassfishIT {
+//public class DefaultDataSourceC4jEjbInvocationIT extends AbstractJBossIT {
 //
 //	private static final String URL_APP_SERVER = "http://localhost:8080";
 //	private static final String URL_INTEGRATIONTEST_CONTEXT = URL_APP_SERVER + "/autodeploy/org.cumulus4j.jee.test.ear-1.1.0-SNAPSHOT";

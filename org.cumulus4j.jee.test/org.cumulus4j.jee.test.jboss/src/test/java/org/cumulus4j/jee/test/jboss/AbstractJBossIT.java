@@ -1,4 +1,4 @@
-package org.cumulus4j.jee.test.glassfish;
+package org.cumulus4j.jee.test.jboss;
 
 import java.util.Properties;
 import java.util.UUID;
@@ -13,7 +13,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public abstract class AbstractGlassfishIT {
+public abstract class AbstractJBossIT {
 
 	protected RollbackTestRemote remote;
 
@@ -57,7 +57,7 @@ public abstract class AbstractGlassfishIT {
 				System.out.println("before: Caught exception! Will retry.");
 				x.printStackTrace();
 				System.out.println("before: Sleeping...");
-				Thread.sleep(5000);
+				Thread.sleep(25000);
 			}
 
 		}
@@ -69,22 +69,23 @@ public abstract class AbstractGlassfishIT {
 
 	public InitialContext createInitialContext() throws NamingException {
 	Properties props = new Properties();
-	props.setProperty("java.naming.factory.initial", "org.jnp.interfaces.LocalOnlyContextFactory");
-	props.setProperty("java.naming.factory.url.pkgs", "org.jboss.naming:org.jnp.interfaces");
-	props.setProperty("java.naming.factory.state", "com.sun.corba.ee.impl.presentation.rmi.JNDIStateFactoryImpl");
-
-	// optional.  Defaults to localhost.  Only needed if web server is running
-	// on a different host than the appserver
-//	props.setProperty("org.omg.CORBA.ORBInitialHost", "127.0.0.1");
-	props.setProperty("ejb.java.naming.provider.url", "127.0.0.1");
-//	// optional.  Defaults to 3700.  Only needed if target orb port is not 3700.
+	props.setProperty("java.naming.factory.initial", "org.jnp.interfaces.NamingContextFactory");
+	props.setProperty("java.naming.factory.url.pkgs", "org.jboss.naming rg.jnp.interfaces");
+//	props.setProperty("java.naming.factory.state", "com.sun.corba.ee.impl.presentation.rmi.JNDIStateFactoryImpl");
+//
+//	// optional.  Defaults to localhost.  Only needed if web server is running
+//	// on a different host than the appserver
+//	props.setProperty("org.omg.CORBA.ORBInitialHost", "jnp://localhost:1199");
+	props.setProperty("java.naming.provider.url", "jnp://localhost:1099");
+////	// optional.  Defaults to 3700.  Only needed if target orb port is not 3700.
 //	props.setProperty("org.omg.CORBA.ORBInitialPort", "3700");
-
+//
 	InitialContext ic = new InitialContext(props);
 
 //		// It's recommended according to http://glassfish.java.net/javaee5/ejb/EJB_FAQ.html#StandaloneRemoteEJB
 //		// to use the no-arg constructor of InitialContext().
 //		InitialContext ic = new InitialContext();
+
 		return ic;
 	}
 
