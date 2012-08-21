@@ -19,7 +19,8 @@ public class DataNucleusEjbInvocationIT extends AbstractJBossIT {
 
 		InitialContext ic = createInitialContext();
 
-		return (DataNucleusTestRemote) ic
-		.lookup(DataNucleusTestRemote.class.getName());
+//		return (DataNucleusTestRemote) ic
+//		.lookup(DataNucleusTestRemote.class.getName());
+		return (DataNucleusTestRemote) ic.lookup("org.cumulus4j.jee.test.ear-1.1.0-SNAPSHOT/DataNucleusTestBean/remote");
 	}
 }

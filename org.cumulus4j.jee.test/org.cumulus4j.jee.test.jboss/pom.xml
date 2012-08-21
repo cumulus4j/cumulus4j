@@ -114,23 +114,6 @@
 				</executions>
 			</plugin>
 			
-			<!-- <plugin>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>populate-jboss-deploy</id>
-						<phase>integration-test</phase>
-						<goals>
-							<goal>copy-dependencies</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${JBOSS_HOME}/server/default/deploy</outputDirectory>
-							<includeArtifactIds>org.cumulus4j.jee.test.ear</includeArtifactIds>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin> -->
-			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>
@@ -151,7 +134,7 @@
 				</executions>
 			</plugin>
 			
-			<!-- <plugin>
+			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
 				<executions>
 					<execution>
@@ -162,7 +145,7 @@
 						</goals>
 
 						<configuration>
-							<outputDirectory>${JBOSS_HOME}/server/default/conf</outputDirectory>
+							<outputDirectory>${JBOSS_HOME}/server/default/deploy</outputDirectory>
 							<resources>
 								<resource>
 									<directory>${basedir}/src/jboss-config</directory>
@@ -175,7 +158,7 @@
 						</configuration>
 					</execution>
 				</executions>
-			</plugin> -->
+			</plugin>
 			
  			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
