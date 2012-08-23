@@ -1,4 +1,3 @@
-package org.cumulus4j.jee.test.jboss;
 //package org.cumulus4j.jee.test.jboss;
 //
 //import java.security.SecureRandom;
