@@ -24,10 +24,10 @@ public abstract class AbstractPlainDataSourceTestBean {
 	private static final String JNDI_NAME_XA = "jdbc/__default";
 	private static final String JNDI_NAME_NO_XA = "jdbc/__defaultNoXa";
 
-	@Resource(name = JNDI_NAME_XA)
+	@Resource(name = JNDI_NAME_XA, mappedName="jdbc/__default")
 	private DataSource _ds_xa;
 
-	@Resource(name = JNDI_NAME_NO_XA)
+	@Resource(name = JNDI_NAME_NO_XA, mappedName="jdbc/__defaultNoXa")
 	private DataSource _ds_no_xa;
 
 	private static DataSource defaultDataSourceXa;
