@@ -421,6 +421,10 @@
 				<version>${cumulus4j.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.store.localkeystoremessagebroker</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.store.test</artifactId>
 				<version>${cumulus4j.version}</version>
 			</dependency>
