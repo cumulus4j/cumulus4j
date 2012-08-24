@@ -79,6 +79,16 @@ public class LocalKeyStoreMessageBroker extends AbstractMessageBroker
 	protected synchronized Response _query(Class<? extends Response> responseClass, Request request)
 	throws TimeoutException, ErrorResponseException
 	{
+	    if (getKeyStore() == null) {
+	        throw new IllegalStateException("getKeyStore() == null :: setKeyStore(...) must be called before!");
+	    }
+	    if (getUserName() == null) {
+            throw new IllegalStateException("getUserName() == null :: setUserName(...) must be called before!");
+        }
+	    if (getPassword() == null) {
+            throw new IllegalStateException("getPassword() == null :: setPassword(...) must be called before!");
+        }
+
 		try {
 			if (request instanceof GetActiveEncryptionKeyRequest) {
 				return handle((GetActiveEncryptionKeyRequest) request);
