@@ -56,7 +56,7 @@ public class SessionManager
 
 	private static final long EXPIRY_AGE_MSEC = 3L * 60L * 1000L; // TODO make configurable
 
-	private static Timer expireSessionTimer = new Timer();
+	private static Timer expireSessionTimer = new Timer(SessionManager.class.getSimpleName(), true);
 
 	private TimerTask expireSessionTimerTask = new ExpireSessionTimerTask(this);
 

@@ -352,7 +352,7 @@ public abstract class AbstractCryptoManager implements CryptoManager
 			synchronized (AbstractCryptoManager.class) {
 				if (!closeExpiredSessionsTimerInitialised) {
 					if (getCryptoSessionExpiryTimerEnabled())
-						closeExpiredSessionsTimer = new Timer();
+						closeExpiredSessionsTimer = new Timer(AbstractCryptoManager.class.getSimpleName(), true);
 
 					closeExpiredSessionsTimerInitialised = true;
 				}

@@ -522,7 +522,7 @@ public class KeyStore
 
 	private SecureRandom secureRandom = new SecureRandom();
 
-	private static Timer expireCacheEntryTimer = new Timer(true);
+	private static Timer expireCacheEntryTimer = new Timer(KeyStore.class.getSimpleName(), true);
 
 	private TimerTask expireCacheEntryTimerTask = new ExipreCacheEntryTimerTask(this);
 

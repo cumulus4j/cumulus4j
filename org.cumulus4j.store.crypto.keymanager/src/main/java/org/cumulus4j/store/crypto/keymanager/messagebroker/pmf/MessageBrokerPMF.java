@@ -256,7 +256,7 @@ public class MessageBrokerPMF extends AbstractMessageBroker
 			synchronized (AbstractCryptoManager.class) {
 				if (!cleanupTimerInitialised) {
 					if (getCleanupTimerEnabled())
-						cleanupTimer = new Timer();
+						cleanupTimer = new Timer(MessageBrokerPMF.class.getSimpleName(), true);
 
 					cleanupTimerInitialised = true;
 				}

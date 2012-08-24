@@ -642,7 +642,7 @@ public class CryptoCache
 			synchronized (AbstractCryptoManager.class) {
 				if (!cleanupTimerInitialised) {
 					if (getCleanupTimerEnabled())
-						cleanupTimer = new Timer();
+						cleanupTimer = new Timer(CryptoCache.class.getSimpleName(), true);
 
 					cleanupTimerInitialised = true;
 				}
