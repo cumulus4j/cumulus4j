@@ -157,6 +157,27 @@
 							</resources>
 						</configuration>
 					</execution>
+					<execution>
+						<id>copy-derby</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+
+						<configuration>
+							<outputDirectory>${JBOSS_HOME}/lib</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${basedir}/src/derby</directory>
+									<filtering>false</filtering>
+									<includes>
+										<include>*</include>
+									</includes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+					
 				</executions>
 			</plugin>
 			
