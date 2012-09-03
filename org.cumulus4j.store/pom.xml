@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<artifactId>org.cumulus4j.parent</artifactId>
+		<groupId>org.cumulus4j</groupId>
+		<version>1.1.0-SNAPSHOT</version>
+		<relativePath>../org.cumulus4j.parent/pom.xml</relativePath>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>org.cumulus4j.store</artifactId>
+	<name>org.cumulus4j.store</name>
+	<description>DataNucleus-store-plugin providing Cumulus4j encrypted data storage.</description>
+	<packaging>bundle</packaging>
+
+	<dependencies>
+		<dependency>
+			<groupId>javax.jdo</groupId>
+			<artifactId>jdo-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.annotation</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.crypto</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.datanucleus</groupId>
+			<artifactId>datanucleus-api-jdo</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.datanucleus</groupId>
+			<artifactId>datanucleus-core</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.nightlabs</groupId>
+			<artifactId>org.nightlabs.progress</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.nightlabs</groupId>
+			<artifactId>org.nightlabs.util</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-clean-plugin</artifactId>
+				<configuration>
+					<filesets>
+						<fileset>
+							<directory>${basedir}</directory>
+							<includes>
+								<include>*.log</include>
+							</includes>
+						</fileset>
+					</filesets>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.datanucleus</groupId>
+				<artifactId>maven-datanucleus-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<configuration>
+					<instructions>
+						<!-- We don't export anything. The API is in javax.jdo/javax.persistence, 
+							as well as org.cumulus4j.annotation and org.cumulus4j.keymanager.*. -->
+						<Export-Package>!${project.artifactId}</Export-Package>
+						<Private-Package>${project.artifactId}.*</Private-Package>
+
+						<!-- The required *optional* dependency onto org.cumulus4j.annotation is not added
+						automatically, because there is no code reference (only referenced via plugin.xml).
+						Hence, we add this dependency manually. -->
+						<Import-Package>*,org.cumulus4j.annotation;resolution:=optional</Import-Package>
+
+<!-- We currently don't have an activator.
+						<Bundle-Activator>com.my.company.Activator</Bundle-Activator>
+-->
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

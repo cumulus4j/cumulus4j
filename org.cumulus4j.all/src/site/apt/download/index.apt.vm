@@ -1,0 +1,91 @@
+	---
+	Download
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-04-07
+
+Download
+
+	There are multiple ways to download Cumulus4j:
+
+* {Manual}
+
+	{{{https://sourceforge.net/projects/cumulus4j/files/}Browse all released files}}. These contain binary
+	and {{{Source}source}} releases.
+
+* Maven
+
+** Repositories
+
+	To integrate Cumulus4j into your {{{http://maven.apache.org}Maven}} build process,
+	you first have to add at least one of the following repositories
+	(depending on the versions you want) to your <<<pom.xml>>>:
+
+*** Release repository
+
+	This repository contains releases (recommended):
+
++------------------------------------------+
+<repositories>
+	...
+	<repository>
+		<id>dev.nightlabs.org-libs-releases-local</id>
+		<url>http://dev.nightlabs.org/maven-repository/libs-releases-local/</url>
+		<snapshots>
+			<enabled>false</enabled>
+		</snapshots>
+		<releases>
+			<enabled>true</enabled>
+		</releases>
+	</repository>
+	...
+</repositories>
++------------------------------------------+
+
+*** Snapshot repository
+
+	For development purposes, you might want to use the snapshot repository. It is, however, recommended
+	to use only the release repository (see above).
+
++------------------------------------------+
+<repositories>
+	...
+	<repository>
+		<id>dev.nightlabs.org-libs-snapshots-local</id>
+		<url>http://dev.nightlabs.org/maven-repository/libs-snapshots-local/</url>
+		<snapshots>
+			<enabled>true</enabled>
+		</snapshots>
+		<releases>
+			<enabled>false</enabled>
+		</releases>
+	</repository>
+	...
+</repositories>
++------------------------------------------+
+
+	Because snapshot versions are automatically deployed (after changes occured, maybe even multiple times per day),
+	they might contain ugly bugs. Don't use them in productive environments!
+
+** Dependencies
+
+	Cumulus4j consists of several {{{../modules.html}modules}}. Their Maven coordinates are documented separately
+	for each module.
+
+	Note, that you'll additionally need to package all required
+	{{{http://www.datanucleus.org/plugins/core/index.html}DataNucleus modules}}, too.
+	Which ones depends on your environment (e.g. the
+	{{{http://www.datanucleus.org/products/accessplatform_3_0/datastores.html}database backend}} you want to use,
+	as well as the
+	{{{http://www.datanucleus.org/products/accessplatform_3_0/api.html}API}} [JDO or JPA] against which you wrote
+	your application).
+
+* {Source} code
+
+	Consult the {{{../documentation/development.html}Development}} page for information about how to obtain
+	the source code and to set up a development workspace.
+	
+	Though you can download the source code JARs from the {{{Manual}manual}} download location, it is urgently
+	recommended that you follow the instructions of the 'Development' page.
+ 

@@ -1,0 +1,60 @@
+	---
+	Modul org.cumulus4j.keymanager.front.webapp
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-02
+
+Modul org.cumulus4j.keymanager.front.webapp
+
+	Key-Server, der {{{../org.cumulus4j.keystore/} Keystores}} verwaltet undund Schlüsselprovision
+	für den Applikationsserver wenn angefragt (vom Applikationsserver) und erlaubt (vom Client).
+
+	Siehe {{{../documentation/deployment-scenarios.html#3-computer-scenario}Deployment scenarios / 3-computer-scenario}}
+	für weitere Details.
+	
+    Auf den Key-Server kann mittes einer auf REST-basierenden API zugegriffen werden.
+    Das Modul {{{../org.cumulus4j.keymanager.api/}org.cumulus4j.keymanager.api}} stellt einen JAVA-wrapper für
+    die REST-Services des Key-Servers zu Verfügung.
+
+* Maven
+
+	Nachdem Sie die auf {{{../download/index.html}Herunterladen}} dokumentierten Lager (Repositories)
+	zu Ihrer <<<pom.xml>>> hinzugefügt haben, können Sie die folgende Abhängigkeit deklarieren, 
+	um dieses Modul zu benutzen:
+
++------------------------------------------+
+<dependencies>
+	...
+	<dependency>
+		<groupId>org.cumulus4j</groupId>
+		<artifactId>org.cumulus4j.keymanager.front.webapp</artifactId>
+		<type>war</type>
+	</dependency>
+	...
+</dependencies>
++------------------------------------------+
+
+	Die obige Abhängigkeit deklariert keine Version (und sollte dies auch nicht tun!). Stattdessen empfehlen
+	wir, folgendes zu Ihrem "dependency-management" hinzuzufügen:
+
++------------------------------------------+
+<dependencyManagement>
+	<dependencies>
+		...
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.parent</artifactId>
+			<type>pom</type>
+			<version>${project.version}</version>
+			<scope>import</scope>
+		</dependency>
+		...
+	</dependencies>
+</dependencyManagement>
++------------------------------------------+
+
+* Einsatzort
+
+	Die {{{../documentation/deployment-module-location-matrix.html}Modul-Ort-Matrix}} zeigt, wo dieses Modul
+	bereitgestellt werden muss.

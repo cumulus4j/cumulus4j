@@ -1,0 +1,27 @@
+	---
+	Integrationstests
+	---
+	Jan Morlock
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2012-01-31
+
+Integrationstests
+
+	Es gibt mehrere Integrationstest-Module, die dazu dienen, ganze Cumulus4j-Setups automatisiert zu testen.
+	Diese Tests werden (zusätzlich zu den Unit-Tests) immer dann automatisch ausgeführt, wenn die Quelltexte
+	sich ändern. Siehe {{{../surefire-report.html}hier den Test-Bericht}}.
+
+	Zusätzlich zu den automatisierten Tests bieten sie auch einen Weg, manuell bestimmte Features zu probieren
+	und zu analysieren. Zum Beispiel unterstützt Cumulus4j verschiedene Client-Implementationen, was auch
+	{{{http://de.wikipedia.org/wiki/Ajax_%28Programmierung%29}Ajax}}-Clients einschließt, die in einem Web-Browser
+	laufen. Sie können somit Ihren Browser öffnen und unsere Demo-Clients ausprobieren (nachdem Sie die entsprechenden Server
+	gestartet haben).
+	
+	Hier ist eine Liste unserer Integrationstests:
+
+	* {{{../org.cumulus4j.integrationtest.gwt/index.html}org.cumulus4j.integrationtest.gwt}}
+
+	* {{{../org.cumulus4j.integrationtest.webapp/index.html}org.cumulus4j.integrationtest.webapp}}
+
+	* {{{../org.cumulus4j.integrationtest.withkeyserver/index.html}org.cumulus4j.integrationtest.withkeyserver}}

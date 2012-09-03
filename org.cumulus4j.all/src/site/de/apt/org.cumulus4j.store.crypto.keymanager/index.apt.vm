@@ -1,0 +1,57 @@
+	---
+	Modul org.cumulus4j.store.crypto.keymanager
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-02
+
+Modul org.cumulus4j.store.crypto.keymanager
+
+	Implementierung von {{{../apidocs/index.html?org/cumulus4j/store/crypto/CryptoManager.html}CryptoManager}},
+	die mit	einer Schlüsselverwaltung arbeitet, wie in {{{../documentation/deployment-scenarios.html}Betriebsszenarien}} dargestellt.
+
+	Dieses Modul ist ein Plugin für {{{../org.cumulus4j.store/}org.cumulus4j.store}}
+	(DataNucleus benutzt den Eclipse-Plugin-Mechanismus	und deshalb tun wir dasselbe).
+	Es beinhaltet die REST-API-Klassen, die es der entfernten Schlüsselverwaltung (im Client oder Schlüsselserver) erlauben, eine Verbindung zum App-Server (gelber Pfeil in 'Betriebsszenarien') aufzubauen. Die Registrierung
+	dieser REST-Applikation befindet sich in <<<web.xml>>> von Modul {{{../org.cumulus4j.keymanager.back.webapp/}org.cumulus4j.keymanager.back.webapp}}.
+
+* Maven
+
+	Nachdem Sie die auf {{{../download/index.html}Herunterladen}} dokumentierten Lager (Repositories)
+	zu Ihrer <<<pom.xml>>> hinzugefügt haben, können Sie die folgende Abhängigkeit deklarieren, 
+	um dieses Modul zu benutzen:
+
++------------------------------------------+
+<dependencies>
+	...
+	<dependency>
+		<groupId>org.cumulus4j</groupId>
+		<artifactId>org.cumulus4j.store.crypto.keymanager</artifactId>
+	</dependency>
+	...
+</dependencies>
++------------------------------------------+
+
+	Die obige Abhängigkeit deklariert keine Version (und sollte dies auch nicht tun!). Stattdessen empfehlen
+	wir, folgendes zu Ihrem "dependency-management" hinzuzufügen:
+
++------------------------------------------+
+<dependencyManagement>
+	<dependencies>
+		...
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.parent</artifactId>
+			<type>pom</type>
+			<version>${project.version}</version>
+			<scope>import</scope>
+		</dependency>
+		...
+	</dependencies>
+</dependencyManagement>
++------------------------------------------+
+
+* Einsatzort
+
+	Die {{{../documentation/deployment-module-location-matrix.html}Modul-Ort-Matrix}} zeigt, wo dieses Modul
+	bereitgestellt werden muss.

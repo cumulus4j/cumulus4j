@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Cumulus4j - Securing your data in the cloud - http://cumulus4j.org
+    Copyright (C) 2011 NightLabs Consulting GmbH
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<project xmlns="http://maven.apache.org/DECORATION/1.1.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/DECORATION/1.1.0 http://maven.apache.org/xsd/decoration-1.1.0.xsd"
+	name="Cumulus4j - Securing your data in the cloud">
+
+	<bannerLeft>
+		<name>Cumulus4j (${project.version})</name>
+		<href>http://cumulus4j.org/</href>
+	</bannerLeft>
+
+	<poweredBy>
+		<logo name="AX Business Solutions AG"
+			img="./images/logo-ax.png" 
+			href="http://www.ax-ag.com" 
+			target="_blank" 
+			position="bannerRight"/>
+			
+		<logo name="FZI Forschungszentrum Informatik" 
+			img="./images/logo-fzi.png" 
+			href="http://www.fzi.de" 
+			target="_blank" 
+			position="bannerRight"/>
+			
+		<logo name="NightLabs Consulting GmbH"
+			img="./images/logo-nl.png" 
+			href="http://www.nightlabs.com" 
+			target="_blank" 
+			position="bannerRight"/>
+	
+		<logo name="Federal Ministry of Education and Research"
+			img="./images/bmbf-139x87.png"
+			href="http://www.bmbf.de/en"
+			target="_blank" />
+
+		<logo name="DataNucleus"
+			img="http://www.datanucleus.com/images/logos/DataNucleus_AccessPlatform_32.jpg"
+			href="http://www.datanucleus.org"
+			target="_blank" />
+
+		<logo name="BouncyCastle"
+			img="./images/TheLegionOfTheBouncyCastle.png"
+			href="http://www.bouncycastle.org"
+			target="_blank" />
+
+		<logo name="SourceForge" href="http://sourceforge.net/projects/cumulus4j"
+			img="http://sflogo.sourceforge.net/sflogo.php?group_id=517465&amp;type=12"
+			width="120" height="30" alt="Get cumulus4j at SourceForge.net. Fast, secure and Free Open Source software downloads"
+			target="_blank" />
+
+		<logo name="Maven" href="http://maven.apache.org/"
+			img="http://maven.apache.org/images/logos/maven-feather.png"
+			target="_blank" />
+	</poweredBy>
+
+	<body>
+		<links>
+			<item name="Home" href="./index.html" />
+			<item name="Documentation" href="./documentation/index.html" />
+			<item name="Forum" href="http://forum.cumulus4j.org" target="_blank" />
+			<item name="Tracker" href="http://tracker.cumulus4j.org" target="_blank" />
+			<item name="Download" href="./download/index.html" />
+		</links>
+
+		<menu name="Documentation">
+			<item name="Usage" href="./documentation/usage.html" />
+			<item name="Theory" href="./documentation/theory.html" />
+			<item name="Development" href="./documentation/development.html" />
+			<item name="Integration tests" href="./documentation/integration-tests.html" />
+			<item name="Supported algorithms" href="./documentation/supported-algorithms.html" />
+			<item name="Javadoc" href="./apidocs/index.html" target="_blank" />
+			<item name="DataNucleus compatibility" href="./documentation/datanucleus-compatibility-matrix.html" />
+			<item name="FAQ" href="./documentation/faq.html" />
+			<item name="What's new?" href="./documentation/whats-new.html" />
+		</menu>
+
+		<menu name="About">
+			<item name="Contact" href="./about/contact.html" />
+			<item name="Imprint" href="./about/imprint.html" />
+			<item name="Licence" href="./license.html" />
+		</menu>
+
+		<menu ref="reports" inherit="bottom" />
+
+		<menu name="Babel">
+			<item name="Deutsch" href="./de/index.html" img="images/de.png" />
+		</menu>
+
+		<menu name="Releases">
+			<item name="Latest development snapshot" href="../latest-dev/" />
+			<item name="Latest stable version" href="../latest-stable/" />
+			<item name="All releases" href="../latest-stable/releases" />
+		</menu>
+	</body>
+
+</project>

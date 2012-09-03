@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<datasources>
+	<xa-datasource>
+		<jndi-name>jdbc/__default</jndi-name>
+		<rar-name>jboss-xa-jdbc.rar</rar-name>
+		<use-java-context>true</use-java-context>
+		<connection-definition>javax.sql.DataSource</connection-definition>
+		<jmx-invoker-name>jboss:service=invoker,type=jrmp</jmx-invoker-name>
+		<min-pool-size>0</min-pool-size>
+		<max-pool-size>10</max-pool-size>
+		<blocking-timeout-millis>30000</blocking-timeout-millis>
+		<idle-timeout-minutes>30</idle-timeout-minutes>
+		<prefill>false</prefill>
+		<background-validation>false</background-validation>
+		<background-validation-millis>0</background-validation-millis>
+		<validate-on-match>true</validate-on-match>
+		<statistics-formatter>org.jboss.resource.statistic.pool.JBossDefaultSubPoolStatisticFormatter
+		</statistics-formatter>
+		<isSameRM-override-value>false</isSameRM-override-value>
+		<allocation-retry>0</allocation-retry>
+		<allocation-retry-wait-millis>5000</allocation-retry-wait-millis>
+		<application-managed-security xsi:type="securityMetaData"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<metadata />
+		<prepared-statement-cache-size>0</prepared-statement-cache-size>
+		<share-prepared-statements>false</share-prepared-statements>
+		<set-tx-query-timeout>false</set-tx-query-timeout>
+		<query-timeout>0</query-timeout>
+		<use-try-lock>0</use-try-lock>
+		<url-delimiter>|</url-delimiter>
+		<xa-datasource-class>org.apache.derby.jdbc.EmbeddedXADataSource
+		</xa-datasource-class>
+		<xa-resource-timeout>0</xa-resource-timeout>
+	</xa-datasource>
+</datasources>

@@ -1,0 +1,68 @@
+	---
+	Modul org.cumulus4j.keymanager.cli
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-22
+
+Modul org.cumulus4j.keymanager.cli
+
+	Ein Kommandozeileneninterface, um Schlüssel im Key-Store zu verwalten. Es ist nicht zur Einbindung als Bibliothek in Ihre Applikation
+	gedacht, sondern es ist ein Administrationswerkzeug.
+
+	Nachdem Sie die JAR-Datei heruntergeladen haben, benutzen Sie bitte den folgenden Befehl für eine Anleitung:
+
++------------------------------------------+
+java -jar org.cumulus4j.keymanager.cli-${project.version}.jar help
++------------------------------------------+
+
+	Sie können sowohl lokale asl auch entferne Key-Stores verwalten.
+	Hier ein Auszug der Funktionalität:
+	
+	* Erstelle einen neuen Key-Store und initialisiere ihn mit der {{{../documentation/date-dependent-key-strategy.html}date-dependent key-strategy}}.
+	
+    * Benutzer hinzufügen/entfernen
+
+    * Passwort eines Benutzers ändern.
+
+	* Informationen über den Key-Store anzeigen
+
+* Maven
+
+	Nachdem Sie die auf {{{../download/index.html}Herunterladen}} dokumentierten Lager (Repositories)
+	zu Ihrer <<<pom.xml>>> hinzugefügt haben, können Sie die folgende Abhängigkeit deklarieren, 
+	um dieses Modul zu benutzen:
+
++------------------------------------------+
+<dependencies>
+	...
+	<dependency>
+		<groupId>org.cumulus4j</groupId>
+		<artifactId>org.cumulus4j.keymanager.cli</artifactId>
+	</dependency>
+	...
+</dependencies>
++------------------------------------------+
+
+	Die obige Abhängigkeit deklariert keine Version (und sollte dies auch nicht tun!). Stattdessen empfehlen
+	wir, folgendes zu Ihrem "dependency-management" hinzuzufügen:
+
++------------------------------------------+
+<dependencyManagement>
+	<dependencies>
+		...
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.parent</artifactId>
+			<type>pom</type>
+			<version>${project.version}</version>
+			<scope>import</scope>
+		</dependency>
+		...
+	</dependencies>
+</dependencyManagement>
++------------------------------------------+
+
+	Dieses Modul ist <<keine Bibliothek>> und es sollte deshalb nicht nötig sein, es zur <<<pom.xml>>>
+	eines anderen Moduls hinzuzufügen. Wir bieten diese Maven-Koordinaten nur für spezielle Situationen wie
+	z. B. die Einbindung dieses CLIs in ein Installationspaket.

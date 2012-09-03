@@ -1,0 +1,112 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<artifactId>org.cumulus4j.jee.test.parent</artifactId>
+		<groupId>org.cumulus4j.jee.test</groupId>
+		<version>1.1.0-SNAPSHOT</version>
+		<relativePath>../org.cumulus4j.jee.test.parent/pom.xml</relativePath>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>org.cumulus4j.jee.test.ear</artifactId>
+	<packaging>ear</packaging>
+	<description>JEE test EAR project</description>
+
+	<properties>
+		<glassfish.instanceRoot>${project.build.directory}/glassfish-instance</glassfish.instanceRoot>
+		<glassfish.config>${glassfish.instanceRoot}/config</glassfish.config>
+		<glassfish.autodeploy>${glassfish.instanceRoot}/autodeploy</glassfish.autodeploy>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.datanucleus</groupId>
+			<artifactId>datanucleus-api-jdo</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.datanucleus</groupId>
+			<artifactId>datanucleus-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.datanucleus</groupId>
+			<artifactId>datanucleus-rdbms</artifactId>
+		</dependency>
+<!--   		<dependency>
+ 			<groupId>org.datanucleus</groupId>
+			<artifactId>datanucleus-jca</artifactId>
+			<type>rar</type>
+		</dependency> -->
+		
+		<dependency>
+			<groupId>org.cumulus4j.jee.test</groupId>
+			<artifactId>org.cumulus4j.jee.test.ejb</artifactId>
+			<type>ejb</type>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.jdo</groupId>
+			<artifactId>jdo-api</artifactId>
+			<scope>compile</scope> <!-- strange but true, this transitive dependency (from org.cumulus4j.jee.test.ejb) is not making it here -->
+		</dependency>
+
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<!-- Binding to Glassfish's native logging. -->
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-jdk14</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-ear-plugin</artifactId>
+				<version>2.7</version>
+				<configuration>
+					<applicationName>${project.artifactId}</applicationName>
+					<modules>
+						<ejbModule>
+							<groupId>org.cumulus4j.jee.test</groupId>
+							<artifactId>org.cumulus4j.jee.test.ejb</artifactId>
+						</ejbModule>
+					</modules>
+					<defaultLibBundleDir>lib</defaultLibBundleDir>
+				</configuration>
+			</plugin>
+		</plugins>
+
+		<pluginManagement>
+			<plugins>
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.apache.maven.plugins</groupId>
+										<artifactId>maven-ear-plugin</artifactId>
+										<versionRange>[2.7,)</versionRange>
+										<goals>
+											<goal>generate-application-xml</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+</project>

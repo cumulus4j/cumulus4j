@@ -1,0 +1,112 @@
+	---
+	Betrieb: Modul-Ort-Matrix
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-02
+
+Betrieb: Modul-Ort-Matrix
+
+	Cumulus4j besteht aus mehreren Modulen, die an verschiedenen Orten installiert werden müssen.
+	Welche Orte das sind, hängt von Ihrem {{{./deployment-scenarios.html}Betriebsszenario}} ab:
+
+* {2-Computer-Szenario} (ohne Schlüssel-Server)
+
+	Hinweis: Das Cumulus4j-Projekt stellt noch keine JavaScript-Bibliotheken für dieses Szenario
+	zur Verfügung. Daher ist es noch nicht für Thin-Clients (die in einem Browser laufen) unterstützt.
+
+** Applikations-Server
+
+	Hinweis: Dies ist identisch mit dem {{3-Computer-Szenario}} (siehe unten).
+
+	* javax.jdo:jdo-api
+		
+	* org.datanucleus.core
+		
+	* org.datanucleus.* (DB-/API-dependent plugins)
+		
+	* {{{../org.cumulus4j.annotation/}org.cumulus4j.annotation}}
+		
+	* {{{../org.cumulus4j.store/}org.cumulus4j.store}}
+		
+	* {{{../org.cumulus4j.store.crypto.keymanager/}org.cumulus4j.store.crypto.keymanager}}
+		
+	* {{{../org.cumulus4j.keymanager.back.shared/}org.cumulus4j.keymanager.back.shared}}
+	
+	* {{{../org.cumulus4j.keymanager.back.webapp/}org.cumulus4j.keymanager.back.webapp}}
+	
+	[]
+
+** Client
+
+	* javax.jdo:jdo-api (not necessary when using DTOs)
+
+	* {{{../org.cumulus4j.annotation/}org.cumulus4j.annotation}} (not necessary when using DTOs)
+
+	* {{{../org.cumulus4j.keystore/}org.cumulus4j.keystore}}
+
+	* {{{../org.cumulus4j.keymanager/}org.cumulus4j.keymanager}}
+
+	* {{{../org.cumulus4j.keymanager.api/}org.cumulus4j.keymanager.api}}
+
+	* {{{../org.cumulus4j.keymanager.back.shared/}org.cumulus4j.keymanager.back.shared}}
+
+	[]	
+
+* {3-Computer-Szenario} (mit Schlüssel-Server)
+
+** Applikations-Server
+
+	Hinweis: Dies ist identisch mit dem {{2-Computer-Szenario}} (siehe oben).
+
+	* javax.jdo:jdo-api
+		
+	* org.datanucleus.core
+		
+	* org.datanucleus.* (DB-/API-dependent plugins)
+		
+	* {{{../org.cumulus4j.annotation/}org.cumulus4j.annotation}}
+		
+	* {{{../org.cumulus4j.store/}org.cumulus4j.store}}
+		
+	* {{{../org.cumulus4j.store.crypto.keymanager/}org.cumulus4j.store.crypto.keymanager}}
+		
+	* {{{../org.cumulus4j.keymanager.back.shared/}org.cumulus4j.keymanager.back.shared}}
+	
+	* {{{../org.cumulus4j.keymanager.back.webapp/}org.cumulus4j.keymanager.back.webapp}}
+	
+	[]
+
+** Schlüssel-Server
+
+	* {{{../org.cumulus4j.keystore/}org.cumulus4j.keystore}}
+
+	* {{{../org.cumulus4j.keymanager/}org.cumulus4j.keymanager}}
+
+	* {{{../org.cumulus4j.keymanager.api/}org.cumulus4j.keymanager.api}}
+
+	* {{{../org.cumulus4j.keymanager.back.shared/}org.cumulus4j.keymanager.back.shared}}
+
+	* {{{../org.cumulus4j.keymanager.front.shared/}org.cumulus4j.keymanager.front.shared}}
+
+	* {{{../org.cumulus4j.keymanager.front.webapp/}org.cumulus4j.keymanager.front.webapp}}
+	
+	[]
+
+** Client
+
+	Wenn Ihr Client in einem Browser läuft (nicht als Java-Applet, sondern als normale Web-App),
+	dann müssen Sie natürlich die JavaScript- anstatt der folgenden Java-Bibliotheken verwenden.
+	Wenn Ihr Client jedoch ein Java-Programm ist, werden die folgenden Module benötigt (JDO + C4J-Annotationen
+	werden benötigt, wenn Datenmodell-Klassen direkt verwendet werden - kommen stattdessen DTOs zum Einsatz,
+	sind diese Abhängigkeiten unnötig).
+
+	* javax.jdo:jdo-api (nicht nötig, wenn nur DTOs verwendet werden)
+
+	* {{{../org.cumulus4j.annotation/}org.cumulus4j.annotation}} (nicht nötig, wenn nur DTOs verwendet werden)
+
+	* {{{../org.cumulus4j.keymanager.api/}org.cumulus4j.keymanager.api}}
+
+	* {{{../org.cumulus4j.keymanager.front.shared/}org.cumulus4j.keymanager.front.shared}}
+
+	[]

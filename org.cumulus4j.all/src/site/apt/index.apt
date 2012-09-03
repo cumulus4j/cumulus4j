@@ -1,0 +1,66 @@
+	---
+	Home
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-29
+
+Welcome to Cumulus4j!
+
+* Data privacy protection: the grand challenge for cloud software
+
+	In this day and age, theft of highly classified data is a real threat. For example, there have been several
+	reported cases where sensitive banking information were stolen and subsequently sold to tax authorities. Or,
+	evidences in the media pointing to incidents where malicious hackers were able to get away with pilfered
+	copies of huge databases from multinational companies. It is understandable that customers are worried about
+	the security of their data and, as a result, most companies refrain from transmitting business-relevant data
+	over the Internet to a service provider for outsourcing operational services (like invoicing or accounting).
+
+	One of the most important barriers for the success of business-operational services via the Internet - software
+	as a service - is thus the lack of data security which would guarantee that not even a system administrator can dump
+	and sell data.
+
+* Encryption for maximized data privacy protection
+
+	To overcome this barrier, Cumulus4j aims at creating a secure architecture for trustworthy accounting software
+	in the Internet. The demands on the trustworthy database made by an accounting software are naturally very similar
+	to those of other enterprise applications. Therefore, Cumulus4j is an interesting solution to a multitude of
+	applications.
+
+	In order to provide a trustworthy data management, all data must be stored in an encrypted form in the cloud.
+	Though this can already be achieved by a disk encryption software (e.g.
+	{{{http://en.wikipedia.org/wiki/Linux_Unified_Key_Setup}LUKS}}
+	or {{{http://en.wikipedia.org/wiki/TrueCrypt}TrueCrypt}}), this solution requires
+	the hard disk to be {{{http://en.wikipedia.org/wiki/Mount_%28computing%29}mounted}} onto the operating system
+	before any application can operate on the data. And as soon as the disk is mounted, an internal adversary (e.g. a system
+	administrator) can easily grab all data via the file system.
+
+[./images/schema_en_561.png] Overview
+
+	Cumulus4j solves this problem and fulfills the following requirements:
+
+	* <<Security>>: State-of-the-art encryption algorithms protect your data. All data are decrypted in the volatile memory only.
+	There is - unlike when using disk encryption - not only one single key for all data, but multiple ten-thousands of keys.
+	Additionally, the en-/decryption is done inside the application and not as a drive on the operating-system-level. This makes
+	it nearly impossible for an internal adversary to steal more than a small number of data records (by RAM-dumping).
+
+	* <<Easy integration>>: In order to ease the integration of Cumulus4j into an application, it has been designed as a plug-in
+	to {{{http://en.wikipedia.org/wiki/DataNucleus}DataNucleus}}. This way, modern persistence APIs like
+	{{{http://en.wikipedia.org/wiki/Java_Data_Objects}Java Data Objects (JDO)}} or
+	{{{http://en.wikipedia.org/wiki/Java_Persistence_API}Java Persistence API (JPA)}} are made available, which facilitates the
+	almost transparent integration of Cumulus4j into a cloud application (only very few lines of Cumulus4j-specific code are
+	necessary for the key management).
+
+	* <<Query-ability>>: Though all records are stored in encrypted forms, they can be queried efficiently via the query languages
+	JDOQL and JPQL.
+
+	* <<Portablility>>: Cumulus4j can be used with many common databases as backend (e.g. MySQL, Google BigTable,
+	Hadoop HBase, MongoDB, {{{http://www.datanucleus.org/products/accessplatform_3_0/datastores.html}etc.}}). It has been written
+	in Java and runs both in OSGi and in classic environments (JavaSE, JavaEE).
+
+	[]
+
+	The Cumulus4j project is sponsored by the German {{{http://www.bmbf.de/en/}Federal Ministry of Education and Research (BMBF)}}
+	within the scope of the initiative {{{http://www.hightech-strategie.de/de/kmu-innovativ.php}KMU-innovativ}}.
+	
+	Cumulus4j is free software under the conditions of the {{{./license.html}AGPL}}.

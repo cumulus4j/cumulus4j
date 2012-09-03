@@ -1,0 +1,46 @@
+	---
+	Benutzung
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-04-07
+
+Benutzung
+
+* Persistenz-Zuordnung
+
+	Sie definieren die Persistenz-Zuordnung für Ihre Datenmodell-Klassen wie es für JDO/JPA üblich ist, also mittels
+	Annotationen oder XML (wie beschrieben in der DataNucleus-Dokumentation in
+	{{{http://www.datanucleus.org/products/accessplatform_3_0/jdo/mapping.html}JDO Mapping}}
+	oder {{{http://www.datanucleus.org/products/accessplatform_3_0/jpa/mapping.html}JPA Mapping}}).
+
+	Neben Standard-Annotationen & -XML bietet Cumulus4j auch zusätzliche Zuordnungs-Features.
+	{{{./persistence-mapping.html}Lesen Sie hier mehr über die Persistenz-Zuordnung.}}
+
+* Persistenz-API
+
+	Jeder, der eine der beiden standardisierten Java-Persistenz-APIs (JDO, JPA) kennt, sollte kein Problem damit
+	haben, Cumulus4j zur Verschlüsselung seiner Daten einzusetzen. Wie oben beschrieben wird zunächst die
+	Persistenz-Zuordnung vorgenommen und danach kann man eine API wählen, um den Persistenz-Prozeß zu verwenden.
+
+	{{{./persistence-api.html}Lesen Sie hier mehr über die Persistenz-API.}}
+
+* Datenspeicher-Schema
+
+	Cumulus4j hat sein eigenes Datenbank-Schema (in der zugrunde liegenden Back-End-Datenbank) um die sichere
+	und effiziente Datenablage zu ermöglichen. Sie finden die Dokumentation zur aktuellen Schema-Definition
+	{{{./schema.html}hier}}.
+
+* Schlüsselspeicher (Key-Store)
+
+	Cumulus4j speichert alle Schlüssel, die zur Verschlüsselung der Datenbank benutzt werden, in einem gut gesicherten
+	{{{./key-store.html}Key-Store}}.
+
+* Betrieb
+
+    Cumulus4j wurde getestet zum Betrieb mit den folgenden Back-End-Datenspeichern: RDBMS, HBase, MongoDB, ODF, Excel.
+    Für den jeweiligen Datenbank-Typ wird das entsprechende "Store-Plugin" für DataNucleus benötigt.
+
+	Sie finden Dokumentation zu den derzeit unterstützten {{{./deployment-scenarios.html}Betriebsszenarien hier}}.
+	Für Details darüber, welche Module wo installiert werden müssen, konsultieren Sie bitte die
+    {{{./deployment-module-location-matrix.html}Modul-Ort-Matrix}}.

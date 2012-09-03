@@ -1,0 +1,493 @@
+	---
+	Unterstützte Algorithmen
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-14
+
+Unterstützte Algorithmen
+
+	Cumulus4j verwendet standardmäßig sehr schnelle und hochsichere Algorithmen. Daher empfehlen wir Ihnen,
+	einfach die Standardeinstellungen zu verwenden. Doch abhängig von Ihrer Hardware oder Ihren persönlichen
+	Vorlieben bervorzugen Sie vielleicht eine andere Konfiguration.
+
+	Zum Beispiel verwendet Cumulus4j standardmäßig <<<TWOFISH>>> mit einer Schlüssellänge von 256 Bit. Diese
+	Schlüssellänge grenzt an Paranoia und vielleicht möchten Sie ja auf nur 128 Bit wechseln, um etwas mehr Leistung
+	zu gewinnen. 
+
+	Mit 256-Bit-Schlüsseln ist <<<TWOFISH>>> sicherer als <<<AES>>>. Außerdem ist Twofish auf der meisten Hardware
+	schneller. Mit bestimmten CPUs jedoch oder mit nur 128 Bit Schlüssellänge ist AES etwas schneller als Twofish.
+	Und bei nur 128 Bit Schlüssellänge sind beide Algorithmen auch etwa gleich sicher.
+
+	Im Folgenden finden Sie eine Liste aller unterstützten Möglichkeiten. Aber:
+
+	<<Wichtig: Änderungen an den Einstellungen der Verschlüsselung können dazu führen, daß Cumulus4j nicht mehr
+	funktioniert oder - noch viel schlimmer - daß es nicht mehr sicher ist!!! Ändern Sie daher nur dann die Einstellungen,
+	wenn Sie wirklich verstehen, was Sie da tun!>>
+	
+	Wenn Sie unsicher sind, bleiben Sie besser bei den "{{{Empfohlene Möglichkeiten}empfohlenen Möglichkeiten}}"!
+
+* Symmetrische Verschlüsselung
+
+	{{{http://en.wikipedia.org/wiki/Symmetric_encryption}Symmetrische Verschlüsselung}} wird verwendet, um die Daten
+	in Ihrer Datenbank sicher abzulegen. Da hierfür geheime Schlüssel notwendig sind, bietet Cumulus4j einen Schlüsselspeicher
+	(auch "Key-Store" genannt), der seinerseits wiederum mittels symmetrischer Verschlüsselung die geheimen Schlüssel
+	geschützt abspeichert (für den Fall, daß Sie Ihren Key-Store verlieren - z.B. auf einem USB-Speicher-Stick - oder
+	daß jemand ihn stiehlt).
+
+** {Empfohlene Möglichkeiten}
+
+	Obgleich Sie aus zahlreichen Algorithmen für Verschlüsselung, Block-Modus, Füllung (auch "Padding" genannt)
+	und Nachrichtenauthentifizierungs-Code (auch "MAC" genannt)
+	wählen können, funktionieren nicht alle Kombinationen mit Cumulus4j. Einige funktionieren vielleicht, ergeben jedoch keinen
+	Sinn; z.B. einen authentifizierenden Block-Modus mit einer MAC gemeinsam zu verwenden, bedeutet
+	2 (redundante!) Nachrichtenauthenfikationen zu benutzen, was das System nur unnötig ausbremst, ohne zusätzliche Sicherheit
+	zu bringen.
+
+	Daher bieten wir Ihnen hier eine kleine Auswahl von sinnvollen Möglichkeiten, die Sie vielleicht gegenüber den
+	Standardeinstellungen bevorzugen:
+
+*-------------------------------+-----------------+-------------+------------+
+| <<Verschlüsselungsverfahren>> | <<Block-Modus>> | <<Füllung>> | <<MAC>>    |
+*-------------------------------+-----------------+-------------+------------+
+| AES                           | GCM             | NoPadding   | None       |
+*-------------------------------+-----------------+-------------+------------+
+| AES                           | CFB             | NoPadding   | HMAC-SHA1  |
+*-------------------------------+-----------------+-------------+------------+
+| AES                           | CBC             | PKCS5       | HMAC-SHA1  |
+*-------------------------------+-----------------+-------------+------------+
+| Twofish                       | GCM             | NoPadding   | None       |
+*-------------------------------+-----------------+-------------+------------+
+| Twofish                       | CFB             | NoPadding   | HMAC-SHA1  |
+*-------------------------------+-----------------+-------------+------------+
+| Twofish                       | CBC             | PKCS5       | HMAC-SHA1  |
+*-------------------------------+-----------------+-------------+------------+
+
+	"Verschlüsselungsverfahren", "Block-Modus" and "Füllung" werden üblicherweise zusammen in eine Zeichenkette
+	wie "AES/GCM/NoPadding" geschrieben (also mittels "/" separiert). Der Nachrichtenauthentifizierungs-Code (MAC)
+	wird meist separat konfiguriert.
+
+	Auf der Seite {{{./persistence-api.html}Persistenz-API}} ist dokumentiert, wie Sie dies für den eigentlichen
+	Datenspeicher konfigurieren und auf {{{./key-store.html}Schlüsselspeicher}} sehen Sie, wie Sie die verschiedenen
+	Verschlüsselungs-/MAC-Einstellungen auf den Key-Store anwenden.
+
+** Blockchiffre-Verfahren
+
+	{{{http://en.wikipedia.org/wiki/Block_cipher}Blockchiffren}} sind die meist-verwendeten Verschlüsselungsalgorithmen.
+	Sie kombinieren sehr hohe Sicherheit mit guter Leistung.
+
+	* <<<NULL>>>
+	
+		* Bedeutet, überhaupt KEINE Verschlüsselung zu verwenden. Sie sollten dies niemals - außer für Tests & Fehlersuche - benutzen!
+
+	* <<<AES>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Advanced_Encryption_Standard}Wikipedia: Advanced Encryption Standard}}
+	
+	* <<<AES.FAST>>>
+	 
+	 	* Dies ist der gleiche Algorithmus wie <<<AES>>>, jedoch eine Implementation mit höherem Speichervebrauch bei dadurch schnellerem Durchsatz.
+	
+	* <<<AES.LIGHT>>> 
+	
+		* Dies ist der gleiche Algorithmus wie <<<AES>>>, jedoch eine Implementation mit niedrigerem Speichervebrauch bei dadurch geringerer Geschwindigkeit.
+
+	* <<<BLOWFISH>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Blowfish_%28cipher%29}Wikipedia: Blowfish (cipher)}}
+
+	* <<<CAMELLIA>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Camellia_%28cipher%29}Wikipedia: Camellia (cipher)}}
+	
+	* <<<CAMELLIA.LIGHT>>>
+
+		* Dies ist der gleiche Algorithmus wie <<<CAMELLIA>>>, jedoch eine Implementation mit niedrigerem Speichervebrauch bei dadurch geringerer Geschwindigkeit.
+	
+	* <<<CAST5>>>
+
+		* {{{http://en.wikipedia.org/wiki/CAST-128}Wikipedia: CAST-128}}
+	
+	* <<<CAST6>>>
+
+		* {{{http://en.wikipedia.org/wiki/CAST-256}Wikipedia: CAST-256}}
+	
+	* <<<DES>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Data_Encryption_Standard}Wikipedia: Data Encryption Standard}}
+	
+	* <<<DESEDE>>>
+	
+	* <<<GOST28147>>>
+	
+	* <<<NOEKEON>>>
+	
+		* {{{http://en.wikipedia.org/wiki/NOEKEON}Wikipedia: NOEKEON}}
+		
+	* <<<RC2>>>
+	
+		* {{{http://en.wikipedia.org/wiki/RC2}Wikipedia: RC2}}
+	
+	* <<<RC5-32>>>
+	
+		* {{{http://en.wikipedia.org/wiki/RC5}Wikipedia: RC5}}
+	
+	* <<<RC5-64>>>
+	
+	* <<<RC6>>>
+	
+		* {{{http://en.wikipedia.org/wiki/RC6}Wikipedia: RC6}}
+	
+	* <<<RIJNDAEL>>>
+	
+	* <<<SEED>>>
+	
+		* {{{http://en.wikipedia.org/wiki/SEED}Wikipedia: SEED}}
+	
+	* <<<SERPENT>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Serpent_%28cipher%29}Wikipedia: Serpent (cipher)}}
+	
+	* <<<SKIPJACK>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Skipjack_%28cipher%29}Wikipedia: Skipjack (cipher)}}
+	
+	* <<<TEA>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Tiny_Encryption_Algorithm}Wikipedia: Tiny Encryption Algorithm}}
+	
+	* <<<TWOFISH>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Twofish}Wikipedia: Twofish}}
+	
+	* <<<XTEA>>>
+	
+		* {{{http://en.wikipedia.org/wiki/XTEA}Wikipedia: XTEA}}
+	
+	[]
+
+** Stromchiffre-Verfahren
+
+	{{{http://en.wikipedia.org/wiki/Stream_cipher}Stromchiffren}} können anstelle von Blockchiffren verwendet werden. Sie sind
+	üblicherweise schneller, jedoch auch anfälliger für ernste Sicherheitsprobleme, wenn sie inkorrekt verwendet werden.
+	Allerdings glauben wir, daß Cumulus4j sie korrekt verwendet - z.B. indem lange IVs zur Anwendung kommen - und Sie können
+	sie daher gern ausprobieren, wenn hohe Leistungen essentiell für Sie sind (wenn Sie Leistungsmessungen vornehmen, senden
+	Sie sie uns bitte!).
+	
+	Der Hauptgrund, weshalb wir sie (noch) nicht empfehlen, ist, daß wir die Vielzahl an unterstützten Algorithmen nicht
+	intensiv testen und untersuchen können. Wenn Sie uns dabei behilflich sein möchten, dann bitte probieren Sie sie!
+	Hier sind die derzeit unterstützten Stromchiffren:
+
+	* <<<GRAIN-128>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Grain_%28cipher%29}Wikipedia: Grain (cipher)}}
+	
+	* <<<GRAIN-V1>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Grain_%28cipher%29}Wikipedia: Grain (cipher)}}
+
+	* <<<HC-128>>>
+	
+		* {{{http://en.wikipedia.org/wiki/HC-128}Wikipedia: HC-128}}
+	
+	* <<<HC-256>>>
+
+		* {{{http://en.wikipedia.org/wiki/HC-256}Wikipedia: HC-256}}	
+
+	* <<<ISAAC>>>
+	
+		* {{{http://en.wikipedia.org/wiki/ISAAC_%28cipher%29}Wikipedia: ISAAC (cipher)}}
+	
+	* <<<RC4>>>
+	
+		* {{{http://en.wikipedia.org/wiki/RC4}Wikipedia: RC4}}
+	
+	* <<<SALSA20>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Salsa20}Wikipedia: Salsa20}}
+	
+	[]
+
+* Asymmetrische Verschlüsselung
+
+	{{{http://en.wikipedia.org/wiki/Asymmetric_encryption}Asymmetrische Verschlüsselung}} wird verwendet,
+	um den Austausch der geheimen Schlüssel (die von der symmetrischen Verschlüsselung benutzt werden) zu
+	schützen.
+
+	Der {{{./key-store.html}Schlüsselspeicher}} liegt auf dem Client oder auf einem separaten Schlüssel-Server
+	(siehe {{{./deployment-scenarios.html}Deployment-Szenarien}}), aber die geheimen Schlüssel werden auf dem
+	Applikations-Server benötigt, um dort die eigentlichen Daten zu ent- bzw. zu verschlüsseln. Das bedeutet,
+	Schlüssel-Transfers sind notwendig. 
+
+	Die Schlüssel werden auf ihrem Weg vom Key-Store durch das offene Internet zum Applikations-Server
+	üblicherweise durch eine HTTPS-Verbindung geschützt. Wenn sie jedoch ein Applikations-Server-Knoten
+	an einen anderen Knoten (in einer gängigen Cluster-/Cloud-Umgebung) weiterleitet, werden sie u.U.
+	temporär in einer Datenbank gespeichert. Um die Schlüssel in diesen Situationen zu schützen, kommt
+	asymmetrische Verschlüsselung zur Anwendung.
+
+	Jeder Knoten des (ggf. geclusterten) Applikations-Servers erzeugt ein Schlüsselpaar bestehend aus einem
+	öffentlichen und einem privaten Schlüssel. Wann immer er einen geheimen Schlüssel (für die symmetrische
+	Verschlüsselung) benötigt, sendet er seinen öffentlichen Schlüssel zusammen mit der Anforderung nach
+	einem geheimen Schlüssel an den Schlüssel-Verwalter. Der geheime Schlüssel wird dann mit diesem öffentlichen
+	Schlüssel verschlüsselt und das Ergebnis zurück geschickt. Nur der originale Applikations-Server-Knoten kann
+	(mit seinem privaten Schlüssel) den geheimen Schlüssel entschlüsseln. Ein Administrator, der das Medium ausliest,
+	welches für die Knoten-zu-Knoten-Kommunikation genutzt wird, kann mit den ausgelesenen Daten nichts anfangen.
+
+	<<<RSA//OAEPWITHSHA1ANDMGF1PADDING>>> wird standardmäßig verwendet. Momentan gibt es noch keine Einstellung,
+	mit der dies umkonfiguriert werden kann. Doch diese Konfigurationsmöglichkeit wird in absehbarer Zeit geschaffen.
+
+** Asymmetrische Verfahren
+
+	Die folgenden Verfahren stehen zur Verfügung:
+
+	* <<<ELGAMAL>>>
+	
+		* {{{http://en.wikipedia.org/wiki/ElGamal_encryption}Wikipedia: ElGamal encryption}}
+
+	* <<<NACCACHESTERN>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Naccache%E2%80%93Stern_cryptosystem}Wikipedia: Naccache–Stern cryptosystem}}
+
+	* <<<RSA>>>
+	
+		* {{{http://en.wikipedia.org/wiki/RSA}Wikipedia: RSA}}
+	
+	[]
+
+* {Blockchiffre-Modi}
+
+	Blockchiffren arbeiten - wie der Name sagt - mit einem Datenblock fester Länge (normalerweise 64 oder 128 Bit).
+	Jedoch sind die zu verschlüsselnden Daten meist länger als nur ein Block. Daher werden Blockchiffren immer mit
+	einem {{{http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation}Operations-Modus}} kombiniert. Der Modus
+	implementiert einen sicheren Weg, mehr Daten als nur einen Block zu ver- bzw. zu entschlüsseln.
+	
+	Cumulus4j unterstützt die folgenden Modi:
+	
+	* <<<ECB>>>
+	
+		* Dieser Modus sollte NICHT benutzt werden!!! Er ist äußerst unsicher!!!
+	
+		* {{{http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Electronic_codebook_.28ECB.29}Wikipedia: Electronic_codebook (ECB)}}
+	
+	* <<<CBC>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29}Wikipedia: Cipher-block chaining (CBC)}}
+	
+	* <<<CBC-CTS>>>
+
+		* {{{http://en.wikipedia.org/wiki/Ciphertext_stealing#CBC_ciphertext_stealing}Wikipedia: CBC ciphertext stealing}}
+
+	* <<<CCM>>>
+	
+		* {{{http://en.wikipedia.org/wiki/CCM_mode}Wikipedia: CCM mode}}
+	
+	* <<<CFB>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher_feedback_.28CFB.29}Wikipedia: Cipher feedback (CFB)}}
+	
+	* <<<CFB8>>>, <<<CFB16>>>, <<<CFB24>>> ... <<<CFB256>>>
+	
+	* <<<CTS>>> (do NOT use this - use <<<CBC-CTS>>> instead!)
+
+	* <<<EAX>>>
+	
+		* {{{http://en.wikipedia.org/wiki/EAX_mode}Wikipedia: EAX mode}}
+	
+	* <<<GCM>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Galois/Counter_Mode}Wikipedia: Galois/Counter Mode}}
+	
+	* <<<GOFB>>>
+	
+	* <<<OFB>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Output_feedback}Wikipedia: Output feedback}}
+	
+	* <<<OFB8>>>, <<<OFB16>>>, <<<OFB24>>> ... <<<OFB256>>>
+	
+	* <<<SIC>>>
+	
+	[]
+
+* Füllung (Padding)
+
+** Symmetrisch
+
+	Bei der Verschlüsselung mit einem symmetrischen Blockchiffre-Verfahren paßt die Größe der zu verarbeitenden Daten
+	meist nicht genau auf die feste Block-Größe. Daher muß bei den meisten Blockchiffre-Operations-Modi der letzte
+	Datenblock mit so vielen zusätzlichen Bytes aufgefüllt werden, daß er die benötigte Größe erreicht.
+
+	* <<<NOPADDING>>>
+	
+		* Bedeutet, keine Füllung zu verwenden. Dies funktioniert nur mit Stromchiffren oder mit Blockchiffre-Modi, die
+		den Blockchiffre-Algorithmus wie einen Stromchiffre verwenden (wie es beispielsweise CFB tut).
+
+	* <<<ISO10126>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Padding_%28cryptography%29#Byte_padding}Wikipedia: Padding (cryptography) / Byte padding}}
+
+	* <<<ISO10126-2>>>
+
+		* {{{http://en.wikipedia.org/wiki/Padding_%28cryptography%29#Byte_padding}Wikipedia: Padding (cryptography) / Byte padding}}
+
+	* <<<ISO7816-4>>>
+
+	* <<<PKCS5>>>
+	
+		* {{{http://en.wikipedia.org/wiki/PKCS}Wikipedia: PKCS}}
+
+	* <<<PKCS7>>>
+
+		* {{{http://en.wikipedia.org/wiki/Padding_%28cryptography%29#Byte_padding}Wikipedia: Padding (cryptography) / Byte padding}}
+
+	* <<<TBC>>>
+
+	* <<<X9.23>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Padding_%28cryptography%29#Byte_padding}Wikipedia: Padding (cryptography) / Byte padding}}	
+
+	* <<<ZEROBYTE>>>
+
+		* {{{http://en.wikipedia.org/wiki/Padding_%28cryptography%29#Byte_padding}Wikipedia: Padding (cryptography) / Byte padding}}
+	
+	[]
+	
+** Asymmetrisch
+
+	Bei asymmetrischer Kryptographie bedeutet Padding (Füllung) die Vorbereitung der Daten für die Verschlüsselung durch einen
+	ausgefeilten Algorithmus. Ursprünglich war die "Füllung" tatsächlich nicht mehr als das Auffüllen der Nachricht mit zufälligen
+	Bytes. Da dies jedoch eine unsichere Form des Paddings ist, wird sie nicht mehr verwendet. Moderne Füllungsalgorithmen sind
+	weiter fortgeschritten und bieten Schutz gegen zahlreiche mögliche Angriffe.
+
+	* <<<NOPADDING>>>
+
+		* Bedeutet, keine Füllung zu verwenden. Dies funktioniert nur, wenn die Eingabedaten exakt den Anforderungen des
+		asymmetrischen Kryptographieverfahrens entsprechen.
+
+	* <<<ISO9796-1>>>
+
+	* <<<OAEP>>>
+
+		* {{{http://en.wikipedia.org/wiki/Optimal_asymmetric_encryption_padding}Wikipedia: Optimal asymmetric encryption padding}}
+
+	* <<<OAEPWITHSHA1ANDMGF1>>>
+
+		* {{{http://en.wikipedia.org/wiki/Optimal_asymmetric_encryption_padding}Wikipedia: Optimal asymmetric encryption padding}}
+
+		* {{{http://en.wikipedia.org/wiki/SHA-1}Wikipedia: SHA-1}}
+		
+		* {{{http://www.ietf.org/rfc/rfc2437.txt}RFC 2437: Chapter 10.2 (Mask Generation Functions) and 10.2.1 (MGF1)}}
+
+	* <<<PKCS1>>>
+	
+		* {{{http://en.wikipedia.org/wiki/PKCS1}Wikipedia: PKCS1}}
+
+	[]
+
+* Nachrichtenauthentifizierungs-Code (MAC)
+
+	Ein {{{http://en.wikipedia.org/wiki/Message_authentication_code}Nachrichtenauthentifizierungs-Code}} (oder MAC
+	von "Message authentication code") dient dazu, Datenmanipulation oder -korruption zu erkennen. Er ist daher einer
+	Prüfsumme ähnlich, jedoch kann ein Angreifer im Gegensatz zu einer einfachen Prüfsumme nicht einfach ein paar weitere
+	Bits ändern, um wieder die gleiche Summe wie die der originalen Nachricht zu erreichen.
+
+	* <<<NONE>>>
+	
+		* Bedeutet, überhaupt KEINEN MAC zu verwenden. Dies ist nur empfohlen, wenn der {{{Blockchiffre-Modi}Blockchiffre-Modus}}
+		bereits Authentifikation mitbringt. Ansonsten ist es dringend empfohlen, einen Nachrichtenauthentifizierungs-Code zu benutzen.
+	
+	* <<<DES>>>
+	
+		* {{{http://en.wikipedia.org/wiki/Data_Encryption_Standard}Wikipedia: Data Encryption Standard}}
+	
+	* <<<DES/CFB8>>>
+	
+	* <<<DES64>>>
+	
+	* <<<DESWITHISO9797>>>
+	
+	* <<<GOST28147>>>
+	
+		* {{{http://en.wikipedia.org/wiki/GOST_%28block_cipher%29}Wikipedia: GOST (block cipher)}}
+	
+	* <<<HMAC-MD2>>>
+	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+		
+		* {{{http://en.wikipedia.org/wiki/MD2_%28cryptography%29}Wikipedia: MD2 (cryptography)}}
+	
+	* <<<HMAC-MD4>>>
+	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+
+		* {{{http://en.wikipedia.org/wiki/MD4}Wikipedia: MD4}}
+	
+	* <<<HMAC-MD5>>>
+	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+		
+		* {{{http://en.wikipedia.org/wiki/MD5}Wikipedia: MD5}}
+	
+	* <<<HMAC-RIPEMD128>>>
+	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+
+		* {{{http://en.wikipedia.org/wiki/RIPEMD}Wikipedia: RIPEMD}}
+	
+	* <<<HMAC-RIPEMD160>>>
+	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+		
+		* {{{http://en.wikipedia.org/wiki/RIPEMD}Wikipedia: RIPEMD}}
+	
+	* <<<HMAC-SHA1>>>
+	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+				
+		* {{{http://en.wikipedia.org/wiki/SHA-1}Wikipedia: SHA-1}}		
+	
+	* <<<HMAC-SHA224>>>
+	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+		
+		* {{{http://en.wikipedia.org/wiki/SHA-2}Wikipedia: SHA-2}}
+	
+	* <<<HMAC-SHA256>>>
+	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+		
+		* {{{http://en.wikipedia.org/wiki/SHA-2}Wikipedia: SHA-2}}
+	
+	* <<<HMAC-SHA384>>>
+	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+		
+		* {{{http://en.wikipedia.org/wiki/SHA-2}Wikipedia: SHA-2}}
+	
+	* <<<HMAC-SHA512>>>
+	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+		
+		* {{{http://en.wikipedia.org/wiki/SHA-2}Wikipedia: SHA-2}}
+	
+	* <<<HMAC-TIGER>>>
+	
+		* {{{http://en.wikipedia.org/wiki/HMAC}Wikipedia: HMAC}}
+		
+		* {{{http://en.wikipedia.org/wiki/Tiger_%28cryptography%29}Wikipedia: Tiger (cryptography)}}
+	
+	* <<<ISO9797ALG3>>>
+	
+	* <<<ISO9797ALG3WITHISO7816-4PADDING>>>
+	
+	* <<<OLDHMACSHA384>>>
+	
+	* <<<OLDHMACSHA512>>>
+	
+	* <<<RC2>>>
+	
+		* {{{http://en.wikipedia.org/wiki/RC2}Wikipedia: RC2}}
+	
+	* <<<RC2/CFB8>>>
+	
+	[]

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Cumulus4j - Securing your data in the cloud - http://cumulus4j.org
+    Copyright (C) 2011 NightLabs Consulting GmbH
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<?eclipse version="3.4"?>
+<plugin>
+  <extension-point id="crypto_manager" name="Crypto Manager" schema="schema/crypto_manager.exsd"/>
+  <extension-point id="query_method" name="Query Methods" schema="schema/query_method.exsd"/>
+  <extension-point id="index_mapping" name="Index Mappings" schema="schema/index_mapping.exsd"/>
+
+  <extension point="org.datanucleus.store_manager">
+    <store-manager class-name="org.cumulus4j.store.Cumulus4jStoreManager" key="cumulus4j" url-key="cumulus4j"/>
+  </extension>
+
+  <extension point="org.datanucleus.store_connectionfactory">
+    <connectionfactory name="cumulus4j" class-name="org.cumulus4j.store.Cumulus4jConnectionFactory"
+          datastore="cumulus4j" transactional="true"/>
+  </extension>
+
+  <extension point="org.datanucleus.store_query_query">
+    <query name="JDOQL" class-name="org.cumulus4j.store.query.JDOQLQuery" datastore="cumulus4j"/>
+    <query name="JPQL" class-name="org.cumulus4j.store.query.JPQLQuery" datastore="cumulus4j"/>
+  </extension>
+
+  <extension point="org.cumulus4j.store.index_mapping">
+    <index-mapping type="double" index-entry-type="org.cumulus4j.store.model.IndexEntryDouble"/>
+    <index-mapping type="float" index-entry-type="org.cumulus4j.store.model.IndexEntryFloat"/>
+    <index-mapping type="long" index-entry-type="org.cumulus4j.store.model.IndexEntryLong"/>
+    <index-mapping type="int" index-entry-type="org.cumulus4j.store.model.IndexEntryInteger"/>
+    <index-mapping type="short" index-entry-type="org.cumulus4j.store.model.IndexEntryShort"/>
+    <index-mapping type="byte" index-entry-type="org.cumulus4j.store.model.IndexEntryByte"/>
+
+    <index-mapping type="java.lang.Long" index-entry-type="org.cumulus4j.store.model.IndexEntryLong"/>
+    <index-mapping type="java.lang.Integer" index-entry-type="org.cumulus4j.store.model.IndexEntryInteger"/>
+    <index-mapping type="java.lang.Short" index-entry-type="org.cumulus4j.store.model.IndexEntryShort"/>
+    <index-mapping type="java.lang.Byte" index-entry-type="org.cumulus4j.store.model.IndexEntryByte"/>
+    <index-mapping type="java.lang.Double" index-entry-type="org.cumulus4j.store.model.IndexEntryDouble"/>
+    <index-mapping type="java.lang.Float" index-entry-type="org.cumulus4j.store.model.IndexEntryFloat"/>
+
+    <index-mapping type="java.util.Date" index-entry-type="org.cumulus4j.store.model.IndexEntryDate"/>
+    <index-mapping type="java.util.Currency" index-entry-type="org.cumulus4j.store.model.IndexEntryCurrency"/>
+    <index-mapping type="java.util.UUID" index-entry-type="org.cumulus4j.store.model.IndexEntryUUID"/>
+
+    <index-mapping type="java.net.URI" index-entry-type="org.cumulus4j.store.model.IndexEntryURI"/>
+    <index-mapping type="java.net.URL" index-entry-type="org.cumulus4j.store.model.IndexEntryURL"/>
+
+    <!-- Ordering of these is important, with the jdbc-type/sql-type restrictions first -->
+    <index-mapping type="java.lang.String" jdbc-types="CLOB" sql-types="CLOB,TEXT"
+        index-entry-type="org.cumulus4j.store.model.IndexEntryStringLong"/>
+    <index-mapping type="java.lang.String" index-entry-type="org.cumulus4j.store.model.IndexEntryStringShort"/>
+  </extension>
+
+  <extension point="org.cumulus4j.store.query_method">
+    <query-method class="java.util.Collection" method="contains"
+      evaluator="org.cumulus4j.store.query.method.CollectionContainsEvaluator"/>
+    <query-method class="java.util.Collection" method="isEmpty"
+      evaluator="org.cumulus4j.store.query.method.CollectionIsEmptyEvaluator"/>
+    <query-method class="java.util.Collection" method="size"
+      evaluator="org.cumulus4j.store.query.method.CollectionSizeEvaluator"/>
+
+    <query-method class="java.util.Map" method="containsKey"
+      evaluator="org.cumulus4j.store.query.method.MapContainsKeyEvaluator"/>
+    <query-method class="java.util.Map" method="containsValue"
+      evaluator="org.cumulus4j.store.query.method.MapContainsValueEvaluator"/>
+    <query-method class="java.util.Map" method="isEmpty"
+      evaluator="org.cumulus4j.store.query.method.MapIsEmptyEvaluator"/>
+    <query-method class="java.util.Map" method="size"
+      evaluator="org.cumulus4j.store.query.method.MapSizeEvaluator"/>
+
+    <query-method class="java.util.Date" method="getDay"
+      evaluator="org.cumulus4j.store.query.method.DateGetDayEvaluator"/>
+    <query-method class="java.util.Date" method="getHour"
+      evaluator="org.cumulus4j.store.query.method.DateGetHourEvaluator"/>
+    <query-method class="java.util.Date" method="getMinute"
+      evaluator="org.cumulus4j.store.query.method.DateGetMinuteEvaluator"/>
+    <query-method class="java.util.Date" method="getMonth"
+      evaluator="org.cumulus4j.store.query.method.DateGetMonthEvaluator"/>
+    <query-method class="java.util.Date" method="getSecond"
+      evaluator="org.cumulus4j.store.query.method.DateGetSecondEvaluator"/>
+    <query-method class="java.util.Date" method="getYear"
+      evaluator="org.cumulus4j.store.query.method.DateGetYearEvaluator"/>
+
+    <query-method class="java.lang.String" method="endsWith" 
+      evaluator="org.cumulus4j.store.query.method.StringEndsWithEvaluator"/>
+    <query-method class="java.lang.String" method="equals"
+      evaluator="org.cumulus4j.store.query.method.StringEqualsEvaluator"/>
+    <query-method class="java.lang.String" method="equalsIgnoreCase"
+      evaluator="org.cumulus4j.store.query.method.StringEqualsIgnoreCaseEvaluator"/>
+    <query-method class="java.lang.String" method="indexOf" 
+      evaluator="org.cumulus4j.store.query.method.StringIndexOfEvaluator"/>
+    <query-method class="java.lang.String" method="length"
+      evaluator="org.cumulus4j.store.query.method.StringLengthEvaluator"/>
+    <query-method class="java.lang.String" method="matches"
+      evaluator="org.cumulus4j.store.query.method.StringMatchesEvaluator"/>
+    <query-method class="java.lang.String" method="startsWith" 
+      evaluator="org.cumulus4j.store.query.method.StringStartsWithEvaluator"/>
+    <query-method class="java.lang.String" method="substring"
+      evaluator="org.cumulus4j.store.query.method.StringSubstringEvaluator"/>
+    <query-method class="java.lang.String" method="toLowerCase"
+      evaluator="org.cumulus4j.store.query.method.StringToLowerCaseEvaluator"/>
+    <query-method class="java.lang.String" method="toUpperCase"
+      evaluator="org.cumulus4j.store.query.method.StringToUpperCaseEvaluator"/>
+  </extension>
+
+  <extension point="org.datanucleus.store_valuegenerator">
+    <valuegenerator name="increment" class-name="org.cumulus4j.store.Cumulus4jIncrementGenerator" datastore="cumulus4j"/>
+    <valuegenerator name="sequence" class-name="org.cumulus4j.store.Cumulus4jIncrementGenerator" datastore="cumulus4j"/>
+  </extension>
+
+  <extension point="org.cumulus4j.store.crypto_manager">
+    <crypto-manager class="org.cumulus4j.store.DummyCryptoManager" crypto-manager-id="dummy"/>
+  </extension>
+
+  <extension point="org.datanucleus.persistence_properties">
+    <persistence-property name="cumulus4j.cryptoManagerID" manager-overrideable="true"/>
+    <persistence-property name="cumulus4j.cryptoSessionID" manager-overrideable="true"/>
+  </extension>
+  
+  <extension point="org.datanucleus.member_annotation_handler">
+    <member-annotation-handler annotation-class="org.cumulus4j.annotation.NotQueryable" 
+          handler="org.cumulus4j.store.annotation.datanucleus.NotQueryableHandler"/>
+  </extension>
+</plugin>

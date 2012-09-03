@@ -1,0 +1,10 @@
+	---
+	Module org.cumulus4j.all
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-02
+
+Modul org.cumulus4j.all
+
+	Dies ist ein Maven-Aggregator-Projekt, welches benutzt wird, um alle Cumulus4j-Module zu kompilieren.

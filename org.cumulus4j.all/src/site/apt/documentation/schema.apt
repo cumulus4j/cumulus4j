@@ -1,0 +1,376 @@
+	---
+	Schema
+	---
+	Andy Jefferson
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-08
+
+Schema
+
+	Whilst a users model of their classes implies a traditional datastore schema, with Cumulus4J, to achieve
+	highly secure data, we utilise our own data schema. We have the following parts to the schema:
+
+* Key store
+
+	To allow the sharing of one single underlying database among multiple tenants, the key store is referenced
+	in many tables. In order to keep these references efficient, the pretty long <<<keyStoreID>>> is mapped to the
+	integer <<<keyStoreRefID>>> (the application should still aim at keeping the <<<keyStoreID>>> as short as
+	possible!) by a table like this:
+
++------------------------------------------+
+CREATE TABLE keystoreref
+(
+  keystorerefid serial NOT NULL,
+  keystoreid character varying(255) NOT NULL,
+  "version" bigint NOT NULL,
+  CONSTRAINT keystoreref_pk PRIMARY KEY (keystorerefid),
+  CONSTRAINT keystoreref_keystoreid UNIQUE (keystoreid)
+)
++------------------------------------------+
+
+* Encryption algorithms
+
+	To support multiple encryption algorithms and allow changing them without loosing previously stored data,
+	Cumulus4j stores the used algorithms in each encrypted record (BLOB of <<<dataentry>>> [see below]). To do so
+	efficiently, the <<<String>>>-identifiers for the
+	various algorithms are mapped to a short number (currently an unsigned 2-byte-value is encoded into every
+	<<<dataentry>>>). The mapping is stored in a table like this:
+
++------------------------------------------+
+CREATE TABLE encryptioncoordinateset
+(
+  encryptioncoordinatesetid serial NOT NULL,
+  ciphertransformation character varying(255) NOT NULL,
+  macalgorithm character varying(255) NOT NULL,
+  "version" bigint NOT NULL,
+  CONSTRAINT encryptioncoordinateset_pk PRIMARY KEY (encryptioncoordinatesetid),
+  CONSTRAINT encryptioncoordinateset_allalgorithms UNIQUE (ciphertransformation, macalgorithm)
+)
++------------------------------------------+
+
+* Class structure information
+
+	Each class being persisted has to be recorded the first time it is encountered. Cumulus4J stores the
+	class information and field/property information. Something like this:
+
++------------------------------------------+
+CREATE TABLE classmeta
+(
+  classid serial NOT NULL,
+  packagename character varying(255) NOT NULL,
+  simpleclassname character varying(255) NOT NULL,
+  superclassmeta_classid_oid bigint,
+  "version" bigint NOT NULL,
+  CONSTRAINT classmeta_pk PRIMARY KEY (classid),
+  CONSTRAINT classmeta_fk1 FOREIGN KEY (superclassmeta_classid_oid)
+      REFERENCES classmeta (classid) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT classmeta_fullyqualifiedclassname UNIQUE (packagename, simpleclassname)
+)
+
+CREATE TABLE fieldmeta
+(
+  fieldid serial NOT NULL,
+  classmeta_classid_oid bigint,
+  fieldname character varying(255) NOT NULL,
+  ownerfieldmeta_fieldid_oid bigint,
+  "role" character varying(255) NOT NULL,
+  "version" bigint NOT NULL,
+  CONSTRAINT fieldmeta_pk PRIMARY KEY (fieldid),
+  CONSTRAINT fieldmeta_fk1 FOREIGN KEY (classmeta_classid_oid)
+      REFERENCES classmeta (classid) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT fieldmeta_fk2 FOREIGN KEY (ownerfieldmeta_fieldid_oid)
+      REFERENCES fieldmeta (fieldid) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT fieldmeta_classmeta_ownerfieldmeta_fieldname_role UNIQUE (classmeta_classid_oid, ownerfieldmeta_fieldid_oid, fieldname, role)
+)
++------------------------------------------+
+
+* Data
+    
+	The raw data representing the users objects is stored encrypted in a DataEntry table (or equivalent for
+	non-RDBMS datastores). Something like this:
+
++------------------------------------------+    
+CREATE TABLE dataentry
+(
+  dataentryid serial NOT NULL,
+  classmeta_classid_oid bigint NOT NULL,
+  keyid bigint NOT NULL,
+  keystorerefid integer NOT NULL DEFAULT 0,
+  objectid character varying(255) NOT NULL,
+  "value" bytea,
+  "version" bigint NOT NULL,
+  CONSTRAINT dataentry_pk PRIMARY KEY (dataentryid),
+  CONSTRAINT dataentry_fk1 FOREIGN KEY (classmeta_classid_oid)
+      REFERENCES classmeta (classid) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT dataentry_u1 UNIQUE (keystorerefid, classmeta_classid_oid, objectid)
+)
++------------------------------------------+
+
+* Index information
+	
+	To provide in-datastore querying for the contents of fields, Cumulus4J has to store an amount of index
+	information. A table exists for the type of data being stored, linking to the records possessing this
+	value for the specified field. The schema is like this:
+	
++------------------------------------------+
+CREATE TABLE indexentrybyte
+(
+  indexentryid serial NOT NULL,
+  indexkey smallint,
+  fieldmeta_fieldid_oid bigint NOT NULL,
+  indexvalue bytea,
+  keyid bigint NOT NULL,
+  keystorerefid integer NOT NULL DEFAULT 0,
+  "version" bigint NOT NULL,
+  CONSTRAINT indexentrybyte_pk PRIMARY KEY (indexentryid),
+  CONSTRAINT indexentrybyte_fk1 FOREIGN KEY (fieldmeta_fieldid_oid)
+      REFERENCES fieldmeta (fieldid) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT indexentrybyte_u1 UNIQUE (keystorerefid, fieldmeta_fieldid_oid, indexkey)
+)
+
+CREATE TABLE indexentrycontainersize
+(
+  indexentryid serial NOT NULL,
+  indexkey bigint,
+  fieldmeta_fieldid_oid bigint NOT NULL,
+  indexvalue bytea,
+  keyid bigint NOT NULL,
+  keystorerefid integer NOT NULL DEFAULT 0,
+  "version" bigint NOT NULL,
+  CONSTRAINT indexentrycontainersize_pk PRIMARY KEY (indexentryid),
+  CONSTRAINT indexentrycontainersize_fk1 FOREIGN KEY (fieldmeta_fieldid_oid)
+      REFERENCES fieldmeta (fieldid) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT indexentrycontainersize_u1 UNIQUE (keystorerefid, fieldmeta_fieldid_oid, indexkey)
+)
+
+CREATE TABLE indexentrycurrency
+(
+  indexentryid serial NOT NULL,
+  indexkey character varying(3),
+  fieldmeta_fieldid_oid bigint NOT NULL,
+  indexvalue bytea,
+  keyid bigint NOT NULL,
+  keystorerefid integer NOT NULL DEFAULT 0,
+  "version" bigint NOT NULL,
+  CONSTRAINT indexentrycurrency_pk PRIMARY KEY (indexentryid),
+  CONSTRAINT indexentrycurrency_fk1 FOREIGN KEY (fieldmeta_fieldid_oid)
+      REFERENCES fieldmeta (fieldid) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT indexentrycurrency_u1 UNIQUE (keystorerefid, fieldmeta_fieldid_oid, indexkey)
+)
+
+CREATE TABLE indexentrydate
+(
+  indexentryid serial NOT NULL,
+  indexkey timestamp with time zone,
+  fieldmeta_fieldid_oid bigint NOT NULL,
+  indexvalue bytea,
+  keyid bigint NOT NULL,
+  keystorerefid integer NOT NULL DEFAULT 0,
+  "version" bigint NOT NULL,
+  CONSTRAINT indexentrydate_pk PRIMARY KEY (indexentryid),
+  CONSTRAINT indexentrydate_fk1 FOREIGN KEY (fieldmeta_fieldid_oid)
+      REFERENCES fieldmeta (fieldid) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT indexentrydate_u1 UNIQUE (keystorerefid, fieldmeta_fieldid_oid, indexkey)
+)
+
+CREATE TABLE indexentrydouble
+(
+  indexentryid serial NOT NULL,
+  indexkey double precision,
+  fieldmeta_fieldid_oid bigint NOT NULL,
+  indexvalue bytea,
+  keyid bigint NOT NULL,
+  keystorerefid integer NOT NULL DEFAULT 0,
+  "version" bigint NOT NULL,
+  CONSTRAINT indexentrydouble_pk PRIMARY KEY (indexentryid),
+  CONSTRAINT indexentrydouble_fk1 FOREIGN KEY (fieldmeta_fieldid_oid)
+      REFERENCES fieldmeta (fieldid) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT indexentrydouble_u1 UNIQUE (keystorerefid, fieldmeta_fieldid_oid, indexkey)
+)
+
+CREATE TABLE indexentryfloat
+(
+  indexentryid serial NOT NULL,
+  indexkey double precision,
+  fieldmeta_fieldid_oid bigint NOT NULL,
+  indexvalue bytea,
+  keyid bigint NOT NULL,
+  keystorerefid integer NOT NULL DEFAULT 0,
+  "version" bigint NOT NULL,
+  CONSTRAINT indexentryfloat_pk PRIMARY KEY (indexentryid),
+  CONSTRAINT indexentryfloat_fk1 FOREIGN KEY (fieldmeta_fieldid_oid)
+      REFERENCES fieldmeta (fieldid) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT indexentryfloat_u1 UNIQUE (keystorerefid, fieldmeta_fieldid_oid, indexkey)
+)
+
+CREATE TABLE indexentryinteger
+(
+  indexentryid serial NOT NULL,
+  indexkey integer,
+  fieldmeta_fieldid_oid bigint NOT NULL,
+  indexvalue bytea,
+  keyid bigint NOT NULL,
+  keystorerefid integer NOT NULL DEFAULT 0,
+  "version" bigint NOT NULL,
+  CONSTRAINT indexentryinteger_pk PRIMARY KEY (indexentryid),
+  CONSTRAINT indexentryinteger_fk1 FOREIGN KEY (fieldmeta_fieldid_oid)
+      REFERENCES fieldmeta (fieldid) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT indexentryinteger_u1 UNIQUE (keystorerefid, fieldmeta_fieldid_oid, indexkey)
+)
+
+CREATE TABLE indexentrylong
+(
+  indexentryid serial NOT NULL,
+  indexkey bigint,
+  fieldmeta_fieldid_oid bigint NOT NULL,
+  indexvalue bytea,
+  keyid bigint NOT NULL,
+  keystorerefid integer NOT NULL DEFAULT 0,
+  "version" bigint NOT NULL,
+  CONSTRAINT indexentrylong_pk PRIMARY KEY (indexentryid),
+  CONSTRAINT indexentrylong_fk1 FOREIGN KEY (fieldmeta_fieldid_oid)
+      REFERENCES fieldmeta (fieldid) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT indexentrylong_u1 UNIQUE (keystorerefid, fieldmeta_fieldid_oid, indexkey)
+)
+
+CREATE TABLE indexentryshort
+(
+  indexentryid serial NOT NULL,
+  indexkey smallint,
+  fieldmeta_fieldid_oid bigint NOT NULL,
+  indexvalue bytea,
+  keyid bigint NOT NULL,
+  keystorerefid integer NOT NULL DEFAULT 0,
+  "version" bigint NOT NULL,
+  CONSTRAINT indexentryshort_pk PRIMARY KEY (indexentryid),
+  CONSTRAINT indexentryshort_fk1 FOREIGN KEY (fieldmeta_fieldid_oid)
+      REFERENCES fieldmeta (fieldid) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT indexentryshort_u1 UNIQUE (keystorerefid, fieldmeta_fieldid_oid, indexkey)
+)
+
+CREATE TABLE indexentrystringlong
+(
+  indexentryid serial NOT NULL,
+  indexkey text,
+  fieldmeta_fieldid_oid bigint NOT NULL,
+  indexvalue bytea,
+  keyid bigint NOT NULL,
+  keystorerefid integer NOT NULL DEFAULT 0,
+  "version" bigint NOT NULL,
+  CONSTRAINT indexentrystringlong_pk PRIMARY KEY (indexentryid),
+  CONSTRAINT indexentrystringlong_fk1 FOREIGN KEY (fieldmeta_fieldid_oid)
+      REFERENCES fieldmeta (fieldid) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED
+)
+
+CREATE TABLE indexentrystringshort
+(
+  indexentryid serial NOT NULL,
+  indexkey character varying(255),
+  fieldmeta_fieldid_oid bigint NOT NULL,
+  indexvalue bytea,
+  keyid bigint NOT NULL,
+  keystorerefid integer NOT NULL DEFAULT 0,
+  "version" bigint NOT NULL,
+  CONSTRAINT indexentrystringshort_pk PRIMARY KEY (indexentryid),
+  CONSTRAINT indexentrystringshort_fk1 FOREIGN KEY (fieldmeta_fieldid_oid)
+      REFERENCES fieldmeta (fieldid) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT indexentrystringshort_u1 UNIQUE (keystorerefid, fieldmeta_fieldid_oid, indexkey)
+)
+
+CREATE TABLE indexentryuri
+(
+  indexentryid serial NOT NULL,
+  indexkey character varying(255),
+  fieldmeta_fieldid_oid bigint NOT NULL,
+  indexvalue bytea,
+  keyid bigint NOT NULL,
+  keystorerefid integer NOT NULL DEFAULT 0,
+  "version" bigint NOT NULL,
+  CONSTRAINT indexentryuri_pk PRIMARY KEY (indexentryid),
+  CONSTRAINT indexentryuri_fk1 FOREIGN KEY (fieldmeta_fieldid_oid)
+      REFERENCES fieldmeta (fieldid) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT indexentryuri_u1 UNIQUE (keystorerefid, fieldmeta_fieldid_oid, indexkey)
+)
+
+CREATE TABLE indexentryurl
+(
+  indexentryid serial NOT NULL,
+  indexkey character varying(255),
+  fieldmeta_fieldid_oid bigint NOT NULL,
+  indexvalue bytea,
+  keyid bigint NOT NULL,
+  keystorerefid integer NOT NULL DEFAULT 0,
+  "version" bigint NOT NULL,
+  CONSTRAINT indexentryurl_pk PRIMARY KEY (indexentryid),
+  CONSTRAINT indexentryurl_fk1 FOREIGN KEY (fieldmeta_fieldid_oid)
+      REFERENCES fieldmeta (fieldid) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT indexentryurl_u1 UNIQUE (keystorerefid, fieldmeta_fieldid_oid, indexkey)
+)
+
+CREATE TABLE indexentryuuid
+(
+  indexentryid serial NOT NULL,
+  indexkey character varying(255),
+  fieldmeta_fieldid_oid bigint NOT NULL,
+  indexvalue bytea,
+  keyid bigint NOT NULL,
+  keystorerefid integer NOT NULL DEFAULT 0,
+  "version" bigint NOT NULL,
+  CONSTRAINT indexentryuuid_pk PRIMARY KEY (indexentryid),
+  CONSTRAINT indexentryuuid_fk1 FOREIGN KEY (fieldmeta_fieldid_oid)
+      REFERENCES fieldmeta (fieldid) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT indexentryuuid_u1 UNIQUE (keystorerefid, fieldmeta_fieldid_oid, indexkey)
+)
++------------------------------------------+
+
+* Sequence
+
+	Cumulus4j supports sequence generation (see 
+	{{{http://www.datanucleus.org/products/accessplatform_3_1/jdo/value_generation.html#sequence}JDO}} /
+	{{{http://www.datanucleus.org/products/accessplatform_3_1/jpa/value_generation.html#sequence}JPA}} docs)
+	and uses a table like this for this purpose:
+
++------------------------------------------+
+CREATE TABLE sequence2
+(
+  sequenceid character varying(255) NOT NULL,
+  nextvalue bigint NOT NULL,
+  CONSTRAINT sequence2_pk PRIMARY KEY (sequenceid)
+)
++------------------------------------------+
+
+* Versioning
+
+	To ensure compatibility between different Cumulus4j versions (for upgrades) as well as detection
+	of incompatibility (downgrades are generally not supported), there is the following table,
+	in which Cumulu4j manages transformations of its datastore structure:
+
++------------------------------------------+
+CREATE TABLE datastoreversion
+(
+  datastoreversionid character varying(255) NOT NULL,
+  applytimestamp timestamp with time zone NOT NULL,
+  commandversion integer NOT NULL,
+  managerversion integer NOT NULL,
+  CONSTRAINT datastoreversion_pk PRIMARY KEY (datastoreversionid)
+)
++------------------------------------------+

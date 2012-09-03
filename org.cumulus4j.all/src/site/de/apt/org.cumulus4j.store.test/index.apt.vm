@@ -1,0 +1,11 @@
+	---
+	Modul org.cumulus4j.store.test
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-02
+
+Modul org.cumulus4j.store.test
+
+	Tests für {{{../org.cumulus4j.store/}org.cumulus4j.store}}, die Persistenz- und Abfragefunktionalität prüfen.
+	Dabei kommt keine Schlüsselverwaltung zum Einsatz. Die Tests in diesem Projekt benutzen die JDO-API.

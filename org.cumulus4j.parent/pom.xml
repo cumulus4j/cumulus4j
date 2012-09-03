@@ -1,0 +1,1082 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.cumulus4j</groupId>
+	<artifactId>org.cumulus4j.parent</artifactId>
+	<version>1.1.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>${project.artifactId}</name>
+	<description>Cumulus4j parent POM, i.e. the root-configuration from which all other POMs inherit common settings.</description>
+
+	<properties>
+		<!--
+		The property "distributionManagement.site.prefix" must be declared in the settings.xml
+		like this:
+
+		<profiles>
+			<profile>
+				<id>default</id>
+				<activation>
+					<activeByDefault>true</activeByDefault>
+				</activation>
+				<properties>
+					<distributionManagement.site.prefix>scp://webserver.domain.tld/srv/www</distributionManagement.site.prefix>
+				</properties>
+			</profile>
+        </profiles>
+		-->
+
+		<log4j.version>1.2.16</log4j.version>
+		<slf4j.version>1.6.1</slf4j.version>
+		<jersey.version>1.9</jersey.version>
+
+
+		<!-- BEGIN DataNucleus versions -->
+		<!-- default version -->
+		<datanucleus.dependency.version>3.1.0-m3</datanucleus.dependency.version>
+
+		<!-- core -->
+		<datanucleus.core.dependency.version>3.1.0-m5</datanucleus.core.dependency.version>
+
+		<!-- api -->
+		<datanucleus.api-jdo.dependency.version>${datanucleus.dependency.version}</datanucleus.api-jdo.dependency.version>
+		<datanucleus.api-jpa.dependency.version>${datanucleus.dependency.version}</datanucleus.api-jpa.dependency.version>
+
+		<!-- rdbms -->
+		<datanucleus.rdbms.dependency.version>3.1.0-m5</datanucleus.rdbms.dependency.version>
+
+		<!-- other storage back-ends -->
+		<datanucleus.mongodb.dependency.version>${datanucleus.dependency.version}</datanucleus.mongodb.dependency.version>
+		<datanucleus.hbase.dependency.version>${datanucleus.dependency.version}</datanucleus.hbase.dependency.version>
+		<datanucleus.excel.dependency.version>${datanucleus.dependency.version}</datanucleus.excel.dependency.version>
+		<datanucleus.odf.dependency.version>${datanucleus.dependency.version}</datanucleus.odf.dependency.version>
+
+		<!-- enhancer -->
+		<datanucleus.enhancer.dependency.version>3.1.0-m2</datanucleus.enhancer.dependency.version>
+		<!-- maven plugin (for enhancing) -->
+		<datanucleus.maven.version>3.1.0-m3</datanucleus.maven.version>
+
+		<!-- javadoc -->
+		<datanucleus.javadoc.version>3.1</datanucleus.javadoc.version>
+		<!-- END DataNucleus versions -->
+
+
+		<!-- Force UTF-8 for all files read (sources) and written (reports) by Maven. -->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		
+		<!-- Always aggregate. -->
+		<aggregate>true</aggregate>
+		
+		<!-- We do not want the build to be interrupted when a test fails. -->
+		<maven.test.failure.ignore>true</maven.test.failure.ignore>
+
+		<cumulus4j.version>${project.version}</cumulus4j.version>
+	</properties>
+
+	<ciManagement>
+		<system>jenkins</system>
+		<url>https://dev.nightlabs.org/jenkins/job/Cumulus4j/</url>
+	</ciManagement>
+
+	<issueManagement>
+		<system>SourceForge</system>
+		<url>http://tracker.cumulus4j.org</url>
+	</issueManagement>
+
+	<organization>
+		<name>NightLabs Consulting GmbH</name>
+		<url>http://www.nightlabs.de</url>
+	</organization>
+
+	<licenses>
+		<license>
+			<name>GNU Affero General Public License</name>
+			<distribution>repo</distribution>
+			<!-- <url>http://www.gnu.org/licenses/agpl.html</url> -->
+			<url>http://www.gnu.org/licenses/agpl-3.0-standalone.html</url>
+		</license>
+	</licenses>
+
+	<scm>
+		<connection>scm:svn:https://dev.nightlabs.org/svn/public/cumulus4j/trunk/</connection>
+	</scm>
+
+	<developers>
+		<developer>
+			<id>abieber</id>
+			<name>Alexander Bieber</name>
+<!--
+			<email>bieber[at]nightlabs[dot]de</email>
+-->
+			<organization>NightLabs</organization>
+			<organizationUrl>http://nightlabs.com</organizationUrl>
+<!--
+			<roles>
+				<role>Developer</role>
+			</roles>
+-->
+		</developer>
+		<developer>
+			<id>ajefferson</id>
+			<name>Andy Jefferson</name>
+<!--
+			<email>andy[at]datanucleus[dot]org</email>
+-->
+			<organization>DataNucleus</organization>
+			<organizationUrl>http://datanucleus.org</organizationUrl>
+<!--
+			<roles>
+				<role>Developer</role>
+			</roles>
+-->
+		</developer>
+		<developer>
+			<id>mklinger</id>
+			<name>Marc Klinger</name>
+<!--
+			<email>mklinger[at]nightlabs[dot]de</email>
+-->
+			<organization>NightLabs</organization>
+			<organizationUrl>http://nightlabs.com</organizationUrl>
+<!--
+			<roles>
+				<role>Developer</role>
+			</roles>
+-->
+		</developer>
+		<developer>
+			<id>mschulze</id>
+			<name>Marco หงุ่ยตระกูล-Schulze</name>
+<!--
+			<email>marco[at]nightlabs[dot]de</email>
+-->
+			<organization>NightLabs</organization>
+			<organizationUrl>http://nightlabs.com</organizationUrl>
+<!--
+			<roles>
+				<role>Architect</role>
+				<role>Developer</role>
+			</roles>
+-->
+		</developer>
+	</developers>
+
+	<contributors>
+		<contributor>
+			<name>David Hook</name>
+<!--
+			<email>dgh[at]lockboxlabs[dot]com</email>
+-->
+			<organization>Lock Box Labs</organization>
+			<organizationUrl>http://lockboxlabs.com</organizationUrl>
+<!--
+			<roles>
+				<role>Security consultant</role>
+			</roles>
+-->
+		</contributor>
+	</contributors>
+
+	<repositories>
+		<repository>
+			<id>www.datanucleus.org-maven2</id>
+			<url>http://www.datanucleus.org/downloads/maven2</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
+
+		<repository>
+			<id>www.datanucleus.org-maven2-nightly</id>
+			<url>http://www.datanucleus.org/downloads/maven2-nightly</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</repository>
+
+		<repository>
+			<id>dev.nightlabs.org-libs-releases-local</id>
+			<url>http://dev.nightlabs.org/maven-repository/libs-releases-local/</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
+		<repository>
+			<id>dev.nightlabs.org-libs-snapshots-local</id>
+			<url>http://dev.nightlabs.org/maven-repository/libs-snapshots-local/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</repository>
+		<repository>
+			<id>dev.nightlabs.org-ext-releases-local</id>
+			<url>http://dev.nightlabs.org/maven-repository/ext-releases-local/</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
+		<repository>
+			<id>dev.nightlabs.org-ext-snapshots-local</id>
+			<url>http://dev.nightlabs.org/maven-repository/ext-snapshots-local/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</repository>
+		
+		<repository>
+			<id>download.java.net</id>
+			<url>http://download.java.net/maven/2/</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>dev.nightlabs.org-plugins-releases-local</id>
+			<url>http://dev.nightlabs.org/maven-repository/plugins-releases-local/</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</pluginRepository>
+		<pluginRepository>
+			<id>dev.nightlabs.org-plugins-snapshots-local</id>
+			<url>http://dev.nightlabs.org/maven-repository/plugins-snapshots-local/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</pluginRepository>
+
+		<pluginRepository>
+			<id>www.datanucleus.org-maven2</id>
+			<url>http://www.datanucleus.org/downloads/maven2/</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</pluginRepository>
+
+		<pluginRepository>
+			<id>www.datanucleus.org-maven2-nightly</id>
+			<url>http://www.datanucleus.org/downloads/maven2-nightly</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</pluginRepository>
+
+		<pluginRepository>
+			<id>onejar-maven-plugin.googlecode.com</id>
+            <url>http://onejar-maven-plugin.googlecode.com/svn/mavenrepo</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</pluginRepository>
+
+		<pluginRepository>
+			<id>mc-repo.googlecode.com</id>
+			<url>http://mc-repo.googlecode.com/svn/maven2/releases</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- BEGIN Cumulus4j -->
+			<!--
+			We declare all Cumulus4j projects here in the dependency-*MANAGEMENT* in order to not declare any version in the
+			dependencies (non-management) at all. Additionally, it allows projects which want to use Cumulus4j to use the
+			import-scope in the dependency-management in order to bulk-declare the versions of *all* Cumulus4j projects at once.
+
+			See: http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Importing_Dependencies
+
+			In downstream projects, it is thus possible to declare the following:
+
+			<dependencyManagement>
+				<dependencies>
+					...
+					<dependency>
+						<groupId>org.cumulus4j</groupId>
+						<artifactId>org.cumulus4j.parent</artifactId>
+						<type>pom</type>
+						<version>1.0.2-SNAPSHOT</version>
+						<scope>import</scope>
+					</dependency>
+					...
+				</dependencies>
+			</dependencyManagement>
+
+			The separate property ${cumulus4j.version} is necessary for this feature to work (as ${project.version} would have
+			a different value, because importing behaves as if this dependencyManagement-section was copied into the other project).
+
+			Marco :-)
+			-->
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.annotation</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.crypto</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.integrationtest.gwt</artifactId>
+				<type>war</type>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.integrationtest.webapp</artifactId>
+				<type>war</type>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.integrationtest.withkeyserver</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.keymanager</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.keymanager.api</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.keymanager.back.shared</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.keymanager.back.webapp</artifactId>
+				<type>war</type>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.keymanager.cli</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.keymanager.front.shared</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.keymanager.front.webapp</artifactId>
+				<type>war</type>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.keystore</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.parent</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.store</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.store.crypto.keymanager</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.store.localkeystoremessagebroker</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.store.test</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.store.test.jpa</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<!-- END Cumulus4j -->
+		
+			<dependency>
+				<groupId>args4j</groupId>
+		    	<artifactId>args4j</artifactId>
+		    	<version>2.0.16</version>
+	    	</dependency>
+
+			<dependency>
+				<groupId>com.sun.jersey</groupId>
+				<artifactId>jersey-client</artifactId>
+				<version>${jersey.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sun.jersey</groupId>
+				<artifactId>jersey-core</artifactId>
+				<version>${jersey.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sun.jersey</groupId>
+				<artifactId>jersey-json</artifactId>
+				<version>${jersey.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sun.jersey</groupId>
+				<artifactId>jersey-server</artifactId>
+				<version>${jersey.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>javax.jdo</groupId>
+				<artifactId>jdo-api</artifactId>
+				<version>[3.0, )</version>
+				<scope>provided</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>servlet-api</artifactId>
+				<version>2.5</version>
+				<scope>provided</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.8.1</version>
+				<scope>test</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>log4j</groupId>
+				<artifactId>log4j</artifactId>
+				<version>${log4j.version}</version>
+				<scope>provided</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>mysql</groupId>
+				<artifactId>mysql-connector-java</artifactId>
+				<version>5.1.12</version>
+				<scope>provided</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.derby</groupId>
+				<artifactId>derby</artifactId>
+				<version>10.7.1.1</version>
+				<scope>provided</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.geronimo.specs</groupId>
+				<artifactId>geronimo-jpa_2.0_spec</artifactId>
+				<version>1.0</version>
+				<scope>provided</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.bouncycastle</groupId>
+				<artifactId>bcprov-ext-jdk16</artifactId>
+<!--				<version>1.46</version> -->
+				<version>1.46.1.NL</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.bouncycastle</groupId>
+				<artifactId>bcprov-jdk16</artifactId>
+<!--				<version>1.46</version> -->
+				<version>1.46.1.NL</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.datanucleus</groupId>
+				<artifactId>datanucleus-api-jdo</artifactId>
+				<version>${datanucleus.api-jdo.dependency.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.datanucleus</groupId>
+				<artifactId>datanucleus-api-jpa</artifactId>
+				<version>${datanucleus.api-jpa.dependency.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.datanucleus</groupId>
+				<artifactId>datanucleus-core</artifactId>
+				<version>${datanucleus.core.dependency.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.datanucleus</groupId>
+				<artifactId>datanucleus-rdbms</artifactId>
+				<version>${datanucleus.rdbms.dependency.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.datanucleus</groupId>
+				<artifactId>datanucleus-mongodb</artifactId>
+				<version>${datanucleus.mongodb.dependency.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.datanucleus</groupId>
+				<artifactId>datanucleus-hbase</artifactId>
+				<version>${datanucleus.hbase.dependency.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.datanucleus</groupId>
+				<artifactId>datanucleus-excel</artifactId>
+				<version>${datanucleus.excel.dependency.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.datanucleus</groupId>
+				<artifactId>datanucleus-odf</artifactId>
+				<version>${datanucleus.odf.dependency.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.nightlabs</groupId>
+				<artifactId>org.nightlabs.progress</artifactId>
+				<version>1.3.0-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>org.nightlabs</groupId>
+				<artifactId>org.nightlabs.util</artifactId>
+				<version>1.3.0-SNAPSHOT</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${slf4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-log4j12</artifactId>
+				<version>${slf4j.version}</version>
+				<scope>provided</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>postgresql</groupId>
+				<artifactId>postgresql</artifactId>
+				<version>9.1-901-1.jdbc4</version>
+				<scope>provided</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+			<resource>
+				<directory>src/main/java</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</resource>
+			<resource>
+				<directory>.</directory>
+				<includes>
+					<include>plugin.xml</include>
+				</includes>
+			</resource>
+		</resources>
+
+		<testResources>
+			<testResource>
+				<directory>src/test/java</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</testResource>
+		</testResources>
+
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>com.mycila.maven-license-plugin</groupId>
+        			<artifactId>maven-license-plugin</artifactId>
+        			<version>1.9.0</version>
+				</plugin>
+			
+				<plugin>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>2.3.2</version>
+					<configuration>
+						<!--
+							Version 6 works fine with Maven, but m2eclipse doesn't understand
+							it (and sets Eclipse to version 1.4). Hence I switched to 1.6
+							instead of 6. Marco.
+						-->
+						<source>1.6</source>
+						<target>1.6</target>
+						<encoding>UTF-8</encoding>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.datanucleus</groupId>
+					<artifactId>maven-datanucleus-plugin</artifactId>
+					<version>${datanucleus.maven.version}</version>
+					<configuration>
+						<log4jConfiguration>${basedir}/enhancer-log4j.properties</log4jConfiguration>
+						<verbose>false</verbose>
+						<fork>false</fork>
+						<!--
+					    <props>${basedir}/datanucleus.properties</props>
+					    -->
+					</configuration>
+					<executions>
+						<execution>
+							<phase>process-classes</phase>
+							<goals>
+								<goal>enhance</goal>
+							</goals>
+						</execution>
+					</executions>
+					<dependencies>
+						<!--
+							The maven-datanucleus-plugin declares the dependencies onto other DN-libs via a range
+							which causes problems when Cumulus4j does not declare a dependency onto exactly the same
+							DN version (usually the newest one). In this case, two versions of the same DN jar are
+							loaded into the class-path and cause the build to fail with an error like this:
+
+								[ERROR] Failed to execute goal org.datanucleus:maven-datanucleus-plugin:3.0.0-m2:enhance
+								(default) on project org.cumulus4j.store: Error executing enhancer: InvocationTargetException:
+								Plugin (Bundle) "org.datanucleus" is already registered. Ensure you dont have multiple JAR
+								versions of the same plugin in the classpath.
+
+							To prevent this problem, we overwrite the dependencies of the maven-datanucleus-plugin here.
+
+							Marco :-) 
+						-->
+						<dependency>
+							<groupId>org.datanucleus</groupId>
+							<artifactId>datanucleus-core</artifactId>
+							<version>${datanucleus.core.dependency.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>org.datanucleus</groupId>
+							<artifactId>datanucleus-enhancer</artifactId>
+							<version>${datanucleus.enhancer.dependency.version}</version>
+						</dependency>
+					</dependencies>
+				</plugin>
+				
+				<plugin>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>2.4.1</version>
+				</plugin>
+				
+				<plugin>
+					<artifactId>maven-failsafe-plugin</artifactId>
+					<version>2.8.1</version>
+				</plugin>
+				
+				<plugin>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>2.3.1</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>2.7</version>
+					<configuration>
+						<detectLinks>true</detectLinks>
+						<doctitle><![CDATA[<a target="_blank" href="http://www.cumulus4j.org/${project.version}/">Cumulus4j</a> API (version ${project.version})]]></doctitle>
+            			<excludePackageNames>org.cumulus4j.store.test*:org.cumulus4j.integrationtest*</excludePackageNames>
+						<groups>
+							<group>
+            					<title><![CDATA[<a target="_blank" href="../org.cumulus4j.annotation/">org.cumulus4j.annotation</a>]]></title>
+            					<packages>org.cumulus4j.annotation:org.cumulus4j.annotation.*</packages>
+            				</group>
+							<group>
+            					<title><![CDATA[<a target="_blank" href="../org.cumulus4j.crypto/">org.cumulus4j.crypto</a>]]></title>
+            					<packages>org.cumulus4j.crypto:org.cumulus4j.crypto.*</packages>
+            				</group>
+							<group>
+            					<title><![CDATA[<a target="_blank" href="../org.cumulus4j.keymanager/">org.cumulus4j.keymanager</a>]]></title>
+            					<packages>org.cumulus4j.keymanager:org.cumulus4j.keymanager.*</packages>
+            				</group>
+            				<group>
+            					<title><![CDATA[<a target="_blank" href="../org.cumulus4j.keymanager.api/">org.cumulus4j.keymanager.api</a>]]></title>
+            					<packages>org.cumulus4j.keymanager.api:org.cumulus4j.keymanager.api.*</packages>
+            				</group>
+            				<group>
+            					<title><![CDATA[<a target="_blank" href="../org.cumulus4j.keymanager.cli/">org.cumulus4j.keymanager.cli</a>]]></title>
+            					<packages>org.cumulus4j.keymanager.cli:org.cumulus4j.keymanager.cli.*</packages>
+            				</group>
+            				<group>
+            					<title><![CDATA[<a target="_blank" href="../org.cumulus4j.keymanager.back.shared/">org.cumulus4j.keymanager.back.shared</a>]]></title>
+            					<packages>org.cumulus4j.keymanager.back.shared:org.cumulus4j.keymanager.back.shared.*</packages>
+            				</group>
+            				<group>
+            					<title><![CDATA[<a target="_blank" href="../org.cumulus4j.keymanager.back.webapp/">org.cumulus4j.keymanager.back.webapp</a>]]></title>
+            					<packages>org.cumulus4j.keymanager.back.webapp:org.cumulus4j.keymanager.back.webapp.*</packages>
+            				</group>
+            				<group>
+            					<title><![CDATA[<a target="_blank" href="../org.cumulus4j.keymanager.front.shared/">org.cumulus4j.keymanager.front.shared</a>]]></title>
+            					<packages>org.cumulus4j.keymanager.front.shared:org.cumulus4j.keymanager.front.shared.*</packages>
+            				</group>
+            				<group>
+            					<title><![CDATA[<a target="_blank" href="../org.cumulus4j.keymanager.front.webapp/">org.cumulus4j.keymanager.front.webapp</a>]]></title>
+            					<packages>org.cumulus4j.keymanager.front.webapp:org.cumulus4j.keymanager.front.webapp.*</packages>
+            				</group>
+            				<group>
+            					<title><![CDATA[<a target="_blank" href="../org.cumulus4j.keystore/">org.cumulus4j.keystore</a>]]></title>
+            					<packages>org.cumulus4j.keystore:org.cumulus4j.keystore.*</packages>
+            				</group>
+            				<group>
+            					<title><![CDATA[<a target="_blank" href="../org.cumulus4j.store/">org.cumulus4j.store</a>]]></title>
+            					<packages>org.cumulus4j.store:org.cumulus4j.store.*</packages>
+            				</group>
+            				<group>
+            					<title><![CDATA[<a target="_blank" href="../org.cumulus4j.store.crypto.keymanager/">org.cumulus4j.store.crypto.keymanager</a>]]></title>
+            					<packages>org.cumulus4j.store.crypto.keymanager:org.cumulus4j.store.crypto.keymanager.*</packages>
+            				</group>
+            			</groups>
+            			<header><![CDATA[<b><a target="_blank" href="http://www.cumulus4j.org/${project.version}/">Cumulus4j</a> API</b><br />(${project.version})]]></header>
+            			<links>
+            				<!-- The Legion of the Bouncy Castle -->
+            				<link>http://www.bouncycastle.org/docs/docs1.6</link>
+            				<link>http://www.bouncycastle.org/docs/mdocs1.6</link>
+            				<link>http://www.bouncycastle.org/docs/pgdocs1.6</link>
+            				<link>http://www.bouncycastle.org/docs/tspdocs1.6</link>
+
+            				<!-- DataNucleus -->
+            				<link>http://www.datanucleus.org/javadocs/core/${datanucleus.javadoc.version}</link>
+            				<link>http://www.datanucleus.org/javadocs/api.jdo/${datanucleus.javadoc.version}</link>
+            				<link>http://www.datanucleus.org/javadocs/jpa/${datanucleus.javadoc.version}</link>
+            				<link>http://www.datanucleus.org/javadocs/store.rdbms/${datanucleus.javadoc.version}</link>
+
+            				<!-- JDO (javax.jdo.*) -->
+            				<link>http://db.apache.org/jdo/api30/apidocs</link>
+
+            				<!-- Jersey (REST implementation) -->
+            				<link>http://jersey.java.net/nonav/apidocs/${jersey.version}/jersey</link>
+
+            				<!-- JavaEE (javax.*) -->
+            				<link>http://download.oracle.com/javaee/6/api</link>
+            			</links>
+            			<linksource>true</linksource>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-project-info-reports-plugin</artifactId>
+					<version>2.4</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>2.5</version>
+					<configuration>
+						<encoding>UTF-8</encoding>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-site-plugin</artifactId>
+					<version>3.0-beta-3</version>
+				</plugin>
+				
+				<plugin>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>2.1.2</version>
+<!--
+					<configuration>
+						<includePom>true</includePom>
+					</configuration>
+-->
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>2.8.1</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-surefire-report-plugin</artifactId>
+					<version>2.8.1</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-war-plugin</artifactId>
+					<version>2.1.1</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>cobertura-maven-plugin</artifactId>
+					<version>2.4</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-bundle-plugin</artifactId>
+					<version>2.3.4</version>
+					<extensions>true</extensions>
+					<configuration>
+						<instructions>
+							<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
+							<Bundle-DocURL>http://www.cumulus4j.org</Bundle-DocURL>
+							<!-- Prevent the comment from some other MANIFEST.MF from being merged into the result. -->
+							<Comment>This file was generated by org.apache.felix:maven-bundle-plugin.</Comment>
+						</instructions>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.mortbay.jetty</groupId>
+					<artifactId>jetty-maven-plugin</artifactId>
+					<version>8.0.0.M2</version>
+				</plugin>
+
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<!--
+			This MUST NOT be enabled. For a reason which I do not understand, it breaks
+			the test:
+*** *** ***
+Tests in error: 
+  createData(org.cumulus4j.store.test.jpa.account.JPAPersistenceTest): The VoucherLocalAccountantDelegate does not contain an account for currencyID 'EUR'!!! id='jdo/org.cumulus4j.store.test.jpa.account.id.LocalAccountantDelegateID?organisationID=jfire.my.org&localAccountantDelegateID=0'
+
+Tests run: 3, Failures: 0, Errors: 1, Skipped: 0
+*** *** ***
+			Everything works totally fine, if I disable it. Marco :-)
+				-->
+
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.datanucleus</groupId>
+										<artifactId>maven-datanucleus-plugin</artifactId>
+										<versionRange>[3.0.0-release-SNAPSHOT,)</versionRange>
+										<goals>
+											<goal>enhance</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+
+		<plugins>
+			<plugin>
+				<groupId>com.mycila.maven-license-plugin</groupId>
+				<artifactId>maven-license-plugin</artifactId>
+				<configuration>
+					<header>${basedir}/../org.cumulus4j.parent/src/etc/header.txt</header>
+					<strictCheck>false</strictCheck>
+					<mapping>
+						<!-- We do NOT want a javadoc comment, because it IS NOT javadoc
+						and causes collisions with the javadoc, e.g. in package-info.java files.
+						Hence we change the mapping for java files to the normal comment. -->
+						<java>SLASHSTAR_STYLE</java>
+					</mapping>
+					<excludes>
+						<!-- We exclude all web-site files, because 1st it does not work for
+						*.apt.vm files properly anyway (it uses the mapping for .vm - not for .apt.vm)
+						and 2nd we don't essentially need to add a header there - it unnecessarily
+						bloats the files. -->
+						<exclude>**/*.apt</exclude>
+						<exclude>**/*.apt.vm</exclude>
+						<!-- Don't want to bloat properties files. -->
+						<exclude>**/*.properties</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+<!--
+	*** BEGIN Javadoc with filtering ***
+	We want to use variables like ${project.version} in Javadoc. Hence we configure it to generate the Javadoc
+	first in "target/javadoc.unfiltered" and then copy it (while filtering all HTML files) to "target/apidocs"
+	(the ordinary Maven Javadoc directory).
+	
+	As the site needs it in "target/site/apidocs", we copy it again (the filtered version).
+	
+	Finally, we create the javadoc-JAR from the filtered version - but this is not done here - it's only done in
+	project "org.cumulus4j.crypto.all" - see that pom.xml.
+-->
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+						<configuration>
+							<outputDirectory>${project.build.directory}/javadoc.unfiltered</outputDirectory>
+							<!-- <reportOutputDirectory>${project.reporting.outputDirectory}</reportOutputDirectory> -->
+							<reportOutputDirectory>${project.build.directory}</reportOutputDirectory>
+							<destDir>javadoc.unfiltered</destDir>
+						</configuration>
+
+						<id>javadoc-generate-unfiltered</id>
+						<phase>site</phase>
+						<goals>
+							<goal>javadoc</goal>
+							<!-- <goal>jar</goal> -->
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>javadoc-filter</id>
+						<phase>site</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+
+						<configuration>
+							<outputDirectory>${project.build.directory}/apidocs</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${project.build.directory}/javadoc.unfiltered</directory>
+									<filtering>true</filtering>
+									<includes>
+										<include>**/*.html</include>
+									</includes>
+								</resource>
+								<resource>
+									<directory>${project.build.directory}/javadoc.unfiltered</directory>
+									<filtering>false</filtering>
+									<excludes>
+										<exclude>**/*.html</exclude>
+									</excludes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>javadoc-copy-to-site</id>
+						<phase>site</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+
+						<configuration>
+							<outputDirectory>${project.reporting.outputDirectory}/apidocs</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${project.build.directory}/apidocs</directory>
+									<filtering>false</filtering>
+									<includes>
+										<include>**/*</include>
+									</includes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+<!--
+	*** END Javadoc with filtering ***
+-->
+		</plugins>
+	</build>
+
+	<distributionManagement>
+		<!--
+		We configure this "junk" directory here in order to make Maven upload everyting but the
+		'org.cumulus4j.all' to a directory which doesn't disturb us. I did not yet find out how to prevent
+		Maven from uploading the other modules completely. Marco.
+		-->
+		<site>
+			<id>www.cumulus4j.org</id>
+<!--			<url>${distributionManagement.site.prefix}/www.cumulus4j.org/junk/</url> -->
+			<url>file:${java.io.tmpdir}/cumulus4j-junk</url>
+		</site>
+
+		<repository>
+			<id>dev.nightlabs.org-libs-releases-local</id>
+			<name>dev.nightlabs.org-libs-releases-local</name>
+			<url>https://dev.nightlabs.org/maven-repository/libs-releases-local</url>
+		</repository>
+		<snapshotRepository>
+			<id>dev.nightlabs.org-libs-snapshots-local</id>
+			<name>dev.nightlabs.org-libs-snapshots-local</name>
+			<url>https://dev.nightlabs.org/maven-repository/libs-snapshots-local</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+</project>

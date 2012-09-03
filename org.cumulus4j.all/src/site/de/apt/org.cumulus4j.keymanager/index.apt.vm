@@ -1,0 +1,61 @@
+	---
+	Module org.cumulus4j.keymanager
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-02
+
+Modul org.cumulus4j.keymanager
+
+	Der Key-Manager schickt immer dann Schlüssel vom lokal verwalteten Key-Store zum Applikationsserver
+	wenn der Applikationsserver einen Schlüssel anfordert und der Client dies erlaubt.
+	
+	Der Key-Manager erhält ein {{{../apidocs/index.html?org/cumulus4j/keymanager/back/shared/Request.html}Request}}
+	vom Applikationsserver und verarbeitet ihn mit einem 
+	{{{../apidocs/index.html?org/cumulus4j/keymanager/channel/RequestHandler.html}RequestHandler}}.
+	Nach der Verarbeitung wird das Ergebnis zum Applikationsserver zurück geschickt 
+	({{{../apidocs/index.html?org/cumulus4j/keymanager/back/shared/Response.html}Response}}).
+	
+	Anfragen werden nur während einer gültigen und entsperrten 
+	{{{../apidocs/index.html?org/cumulus4j/keymanager/api/Session.html}crypto-session}} verarbeitet.
+
+* Maven
+
+	Nachdem Sie die auf {{{../download/index.html}Herunterladen}} dokumentierten Lager (Repositories)
+	zu Ihrer <<<pom.xml>>> hinzugefügt haben, können Sie die folgende Abhängigkeit deklarieren, 
+	um dieses Modul zu benutzen:
+
++------------------------------------------+
+<dependencies>
+	...
+	<dependency>
+		<groupId>org.cumulus4j</groupId>
+		<artifactId>org.cumulus4j.keymanager</artifactId>
+	</dependency>
+	...
+</dependencies>
++------------------------------------------+
+
+	Die obige Abhängigkeit deklariert keine Version (und sollte dies auch nicht tun!). Stattdessen empfehlen
+	wir, folgendes zu Ihrem "dependency-management" hinzuzufügen:
+
++------------------------------------------+
+<dependencyManagement>
+	<dependencies>
+		...
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.parent</artifactId>
+			<type>pom</type>
+			<version>${project.version}</version>
+			<scope>import</scope>
+		</dependency>
+		...
+	</dependencies>
+</dependencyManagement>
++------------------------------------------+
+
+* Einsatzort
+
+	Die {{{../documentation/deployment-module-location-matrix.html}Modul-Ort-Matrix}} zeigt, wo dieses Modul
+	bereitgestellt werden muss.
