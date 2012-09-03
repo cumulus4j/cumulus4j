@@ -17,6 +17,7 @@
  */
 package org.cumulus4j.store.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,13 +30,11 @@ import javax.jdo.PersistenceManager;
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.FetchGroup;
 import javax.jdo.annotations.FetchGroups;
-import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.NullValue;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
-import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.annotations.Queries;
 import javax.jdo.annotations.Query;
 import javax.jdo.annotations.Unique;
@@ -78,9 +77,15 @@ implements DetachCallback
 		public static final String getClassMetaByPackageNameAndSimpleClassName = "getClassMetaByPackageNameAndSimpleClassName";
 	}
 
-	@PrimaryKey
-	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE, sequence="ClassMetaSequence")
 	private long classID = -1;
+	
+	/** This is needed due to GAE compatibility. package-gae.orm is responsible
+	 *  for the correct usage if this class
+	 * 	
+	 * @since 18.05.2012
+	 * @author Alexander.Gauss
+	**/
+	private String classIDString;
 
 	@NotPersistent
 	private transient volatile String className;
@@ -120,6 +125,9 @@ implements DetachCallback
 	}
 
 	public long getClassID() {
+		if(classID == -1){
+			return Long.valueOf(classIDString);
+		}
 		return classID;
 	}
 
@@ -405,10 +413,16 @@ implements DetachCallback
 
 				// if the fetch-groups say we should detach the FieldMetas, we do it.
 				HashMap<String, FieldMeta> map = new HashMap<String, FieldMeta>();
-				Collection<FieldMeta> detachedFieldMetas = pm.detachCopyAll(attached.getFieldMetas());
-				for (FieldMeta detachedFieldMeta : detachedFieldMetas) {
-					detachedFieldMeta.setClassMeta(this); // ensure, it's the identical (not only equal) ClassMeta.
-					map.put(detachedFieldMeta.getFieldName(), detachedFieldMeta);
+				
+				Collection<FieldMeta> fieldMetas = new ArrayList<FieldMeta>();
+				Collection<FieldMeta> attachedFieldMetas = attached.getFieldMetas();
+				for(FieldMeta fieldMeta : attachedFieldMetas){
+					fieldMetas.add(fieldMeta.clone());
+				}
+				
+				for (FieldMeta fieldMeta : fieldMetas) {
+					fieldMeta.setClassMeta(this); // ensure, it's the identical (not only equal) ClassMeta.
+					map.put(fieldMeta.getFieldName(), fieldMeta);
 				}
 				detached.fieldName2FieldMeta = map;
 			}

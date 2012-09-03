@@ -239,8 +239,11 @@ implements StoreCallback
 		// which slows down the storing process immensely, as it is unnecessarily attached.
 		// Attaching an object is an expensive operation and we neither want nor need to
 		// update the ClassMeta object when persisting a new DataEntry.
-		PersistenceManager pm = JDOHelper.getPersistenceManager(this);
-		Object classMetaID = JDOHelper.getObjectId(classMeta);
-		classMeta = (ClassMeta) pm.getObjectById(classMetaID);
+		
+		//This is not possible with the GAE, because of Exceptions, occuring, when a stored element
+		// shall be set as child of another element.
+//		PersistenceManager pm = JDOHelper.getPersistenceManager(this);
+//		Object classMetaID = JDOHelper.getObjectId(classMeta);
+//		classMeta = (ClassMeta) pm.getObjectById(classMetaID);
 	}
 }

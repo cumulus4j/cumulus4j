@@ -294,6 +294,7 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 		public void close() {
 			if (pmConnection != null) {
 				PersistenceManager dataPM = pmConnection.getDataPM();
+				if(dataPM.currentTransaction().isActive()) dataPM.currentTransaction().commit();
 				dataPM.close();
 				if (pmConnection.indexHasOwnPM()) {
 					PersistenceManager indexPM = pmConnection.getIndexPM();

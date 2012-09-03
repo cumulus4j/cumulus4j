@@ -14,7 +14,7 @@ See: http://www.datanucleus.org/products/accessplatform_3_0/jdo/pmf.html - javax
 See: http://cumulus4j.org/1.0.1/documentation/persistence-api.html
 
 Marco :-)
--->
+
 <orm>
 	<package name="org.cumulus4j.store.model">
 
@@ -67,3 +67,5 @@ Marco :-)
 
 	</package>
 </orm>
+
+-->

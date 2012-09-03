@@ -29,7 +29,6 @@ import java.util.WeakHashMap;
 
 import javax.jdo.FetchPlan;
 import javax.jdo.PersistenceManager;
-
 import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.datastoreversion.DatastoreVersionManager;
 import org.cumulus4j.store.model.ClassMeta;
@@ -149,7 +148,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 		try {
 			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
 			PersistenceManager pm = pmConn.getDataPM();
-
+			
 			synchronized (this) { // Synchronise in case we have data and index backends // why? what about multiple instances? shouldn't the replication be safe? is this just for lower chance of exceptions (causing a rollback and being harmless)?
 				// Register the class
 				pm.getFetchPlan().setGroup(FetchPlan.ALL);
