@@ -22,7 +22,6 @@ import org.cumulus4j.store.datastoreversion.DatastoreVersionManager;
 public class DatastoreVersion {
 
 	@PrimaryKey
-	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE, sequence="DatastoreVersionSequence")
 	private long datastoreVersionID;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)

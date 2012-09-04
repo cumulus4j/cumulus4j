@@ -63,6 +63,20 @@
 			</field>
 			
 		</class>
+		
+		<class name="KeyStoreRef" detachable="true">
+			<field name="keyStoreRefID" value-strategy="sequence" />
+			
+			<query name="getKeyStoreRefByKeyStoreID" language="javax.jdo.query.JDOQL">
+				<![CDATA[
+					SELECT UNIQUE WHERE this.keyStoreID == :keyStoreID
+				]]>
+            </query>
+		</class>
+		
+		<class name="DatastoreVersion" detachable="true">
+			<field name="datastoreVersionID" value-strategy="sequence" />
+		</class>
 
 	</package>
   

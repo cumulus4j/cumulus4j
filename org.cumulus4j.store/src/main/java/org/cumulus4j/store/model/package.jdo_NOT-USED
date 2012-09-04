@@ -22,6 +22,14 @@
 			<field name="fieldIDString" primary-key="false" persistence-modifier="persistent">
 			</field>
 		</class>
+		
+		<class name="KeyStoreRef" detachable="true">
+			<field name="keyStoreRefID" value-strategy="native" />
+		</class>
+		
+		<class name="DatastoreVersion" detachable="true">
+			<field name="datastoreVersionID" value-strategy="native" />
+		</class>
 
 	</package>
   

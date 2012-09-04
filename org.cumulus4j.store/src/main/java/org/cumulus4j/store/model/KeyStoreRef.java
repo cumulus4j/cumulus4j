@@ -42,8 +42,7 @@ public class KeyStoreRef {
 	}
 
 	@PrimaryKey
-	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE, sequence="KeyStoreRefSequence")
-	private int keyStoreRefID = -666;
+	private long keyStoreRefID = -666;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	@Unique(name="KeyStoreRef_keyStoreID")
@@ -51,7 +50,7 @@ public class KeyStoreRef {
 	private String keyStoreID;
 
 	public int getKeyStoreRefID() {
-		return keyStoreRefID;
+		return (int)keyStoreRefID;
 	}
 
 	public String getKeyStoreID() {
