@@ -186,9 +186,6 @@ implements DetachCallback
 	}
 
 	public long getFieldID() {
-		if(fieldID == -1 && fieldIDString != null){
-			return Long.valueOf(fieldIDString);
-		}
 		return fieldID;
 	}
 

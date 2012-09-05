@@ -125,9 +125,6 @@ implements DetachCallback
 	}
 
 	public long getClassID() {
-		if(classID == -1 && classIDString != null){
-			return Long.valueOf(classIDString);
-		}
 		return classID;
 	}
 
@@ -417,6 +414,7 @@ implements DetachCallback
 				Collection<FieldMeta> fieldMetas = new ArrayList<FieldMeta>();
 				Collection<FieldMeta> attachedFieldMetas = attached.getFieldMetas();
 				for(FieldMeta fieldMeta : attachedFieldMetas){
+					pm.makePersistent(fieldMeta);
 					fieldMetas.add(fieldMeta.clone());
 				}
 				
