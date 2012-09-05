@@ -48,6 +48,18 @@
 			<field name="ownerFieldMeta">
 				<extension vendor-name="datanucleus" key="gae.unowned" value="true"/>
 			</field>
+			
+			<query name="getFieldMetasForClassMeta" language="javax.jdo.query.JDOQL">
+				<![CDATA[
+					SELECT WHERE this.classMeta == :classMeta
+				]]>
+            </query>
+            
+            <query name="getSubFieldMetasForFieldMeta" language="javax.jdo.query.JDOQL">
+				<![CDATA[
+					SELECT WHERE this.ownerFieldMeta == :ownerFieldMeta
+				]]>
+            </query>
 		</class>
 
 
