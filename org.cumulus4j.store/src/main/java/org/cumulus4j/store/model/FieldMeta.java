@@ -27,13 +27,11 @@ import java.util.Set;
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
 import javax.jdo.annotations.Column;
-import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.NullValue;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
-import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.annotations.Queries;
 import javax.jdo.annotations.Query;
 import javax.jdo.annotations.Unique;
@@ -75,9 +73,15 @@ implements DetachCallback
 		public static final String getSubFieldMetasForFieldMeta = "getSubFieldMetasForFieldMeta";
 	}
 
-	@PrimaryKey
-	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE, sequence="FieldMetaSequence")
 	private long fieldID = -1;
+	
+	/** This is needed due to GAE compatibility. package-gae.orm is responsible
+	 *  for the correct usage if this class
+	 * 	
+	 * @since 18.05.2012
+	 * @author Alexander.Gauss
+	**/
+	private String fieldIDString;
 
 	private ClassMeta classMeta;
 
@@ -157,8 +161,34 @@ implements DetachCallback
 		this.fieldName = fieldName;
 		this.role = role;
 	}
+	
+	/**
+	 * Copy C´tor
+	 */
+	protected FieldMeta(ClassMeta classMeta, FieldMeta ownerFieldMeta, String fieldName, 
+							FieldMetaRole role, long fieldID, String fieldIDString, int dnAbsFieldNumber, 
+							Map<FieldMetaRole, FieldMeta> role2SubFieldMeta){
+		this.classMeta = classMeta;
+		this.ownerFieldMeta = ownerFieldMeta;
+		this.fieldName = fieldName;
+		this.role = role;
+		this.fieldID = fieldID;
+		this.fieldIDString = fieldIDString;
+		this.role2SubFieldMeta = role2SubFieldMeta;
+		this.dataNucleusAbsoluteFieldNumber = dnAbsFieldNumber;
+	}
+	
+	@Override
+	public FieldMeta clone(){
+		return new FieldMeta(this.getClassMeta(), this.getOwnerFieldMeta(), this.getFieldName(), 
+								this.getRole(), this.getFieldID(), this.fieldIDString, 
+								this.getDataNucleusAbsoluteFieldNumber(), this.getRole2SubFieldMeta());
+	}
 
 	public long getFieldID() {
+		if(fieldID == -1 && fieldIDString != null){
+			return Long.valueOf(fieldIDString);
+		}
 		return fieldID;
 	}
 
@@ -309,7 +339,6 @@ implements DetachCallback
 			throw new IllegalArgumentException("There is already a subFieldMeta with role \"" + subFieldMeta.getRole() + "\"!");
 
 		subFieldMeta.setDataNucleusAbsoluteFieldNumber(dataNucleusAbsoluteFieldNumber);
-
 		PersistenceManager pm = getPersistenceManager();
 		if (pm != null)
 			subFieldMeta = pm.makePersistent(subFieldMeta);
@@ -336,7 +365,6 @@ implements DetachCallback
 		Set<FieldMetaRole> rolesToKeep = new HashSet<FieldMetaRole>(roles.length);
 		for (FieldMetaRole role : roles)
 			rolesToKeep.add(role);
-
 		PersistenceManager pm = getPersistenceManager();
 		Collection<FieldMetaRole> oldRoles = new ArrayList<FieldMetaRole>(getRole2SubFieldMeta().keySet());
 		for (FieldMetaRole role : oldRoles) {
@@ -428,6 +456,15 @@ implements DetachCallback
 					if (mmd.getMap().keyIsPersistent() && mappedBy == null)
 						throw new IllegalStateException("The map's key is persistent via mappedBy (without @Join), but there is no @Value(mappedBy=\"...\")! This is invalid! " + mmd);
 					break;
+
+				case arrayElement:
+				case collectionElement:
+					// TODO doesn't this need implementation?
+					// Seems to work this way, but why? Marco :-)
+					break;
+
+				default:
+					throw new IllegalStateException("Unexpected role: " + role);
 			}
 
 			if (mappedBy != null) {
