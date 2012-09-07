@@ -296,8 +296,8 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 		}
 
 		if (!classExists) {
-		    // Persist the new class and its fields in one call, minimising updates
-		    pm.makePersistent(classMeta);
+			// Persist the new class and its fields in one call, minimising updates
+			classMeta = pm.makePersistent(classMeta);
 		}
 		pm.flush(); // Get exceptions as soon as possible by forcing a flush here
 

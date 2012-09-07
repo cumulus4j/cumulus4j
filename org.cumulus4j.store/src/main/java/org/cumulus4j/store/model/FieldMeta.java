@@ -41,6 +41,9 @@ import javax.jdo.annotations.Uniques;
 import javax.jdo.annotations.Version;
 import javax.jdo.annotations.VersionStrategy;
 import javax.jdo.listener.DetachCallback;
+import javax.jdo.listener.InstanceLifecycleEvent;
+import javax.jdo.listener.StoreCallback;
+import javax.jdo.listener.StoreLifecycleListener;
 
 import org.cumulus4j.store.Cumulus4jStoreManager;
 import org.datanucleus.metadata.AbstractClassMetaData;
@@ -66,7 +69,7 @@ import org.slf4j.LoggerFactory;
 	@Query(name=FieldMeta.NamedQueries.getSubFieldMetasForFieldMeta, value="SELECT WHERE this.ownerFieldMeta == :ownerFieldMeta")
 })
 public class FieldMeta
-implements DetachCallback
+implements DetachCallback, StoreCallback
 {
 	private static final Logger logger = LoggerFactory.getLogger(FieldMeta.class);
 
@@ -311,7 +314,7 @@ implements DetachCallback
 		subFieldMeta.setDataNucleusAbsoluteFieldNumber(dataNucleusAbsoluteFieldNumber);
 
 		PersistenceManager pm = getPersistenceManager();
-		if (pm != null)
+		if (pm != null) // If the pm is null, the subFieldMeta is persisted later (see jdoPreStore() below).
 			subFieldMeta = pm.makePersistent(subFieldMeta);
 
 		getRole2SubFieldMeta().put(subFieldMeta.getRole(), subFieldMeta);
@@ -555,5 +558,32 @@ implements DetachCallback
 
 		dataNucleusMemberMetaData = dnMemberMetaData;
 		return dnMemberMetaData;
+	}
+
+	@Override
+	public void jdoPreStore() {
+		// We'd need a jdoPostStore(...), but such a callback method does not exist.
+		// We're thus using a StoreLifecycleListener as workaround. Marco :-)
+		final PersistenceManager pm = JDOHelper.getPersistenceManager(this);
+		pm.addInstanceLifecycleListener(new StoreLifecycleListener() {
+			@Override
+			public void preStore(InstanceLifecycleEvent event) { }
+
+			@Override
+			public void postStore(InstanceLifecycleEvent event) {
+				logger.debug("postStore: entered.");
+				pm.removeInstanceLifecycleListener(this); // We MUST remove the listener immediately!
+				if (role2SubFieldMeta != null) {
+					Map<FieldMetaRole, FieldMeta> persistentRole2SubFieldMeta2 = new HashMap<FieldMetaRole, FieldMeta>(role2SubFieldMeta.size());
+					for (FieldMeta subFieldMeta : role2SubFieldMeta.values()) {
+						// Usually the persistentSubFieldMeta is the same instance as subFieldMeta, but this is dependent on the configuration.
+						// This code here should work with all possible configurations. Marco :-)
+						FieldMeta persistentSubFieldMeta = pm.makePersistent(subFieldMeta);
+						persistentRole2SubFieldMeta2.put(persistentSubFieldMeta.getRole(), persistentSubFieldMeta);
+					}
+					role2SubFieldMeta = persistentRole2SubFieldMeta2;
+				}
+			}
+		});
 	}
 }

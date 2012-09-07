@@ -42,6 +42,9 @@ import javax.jdo.annotations.Unique;
 import javax.jdo.annotations.Version;
 import javax.jdo.annotations.VersionStrategy;
 import javax.jdo.listener.DetachCallback;
+import javax.jdo.listener.InstanceLifecycleEvent;
+import javax.jdo.listener.StoreCallback;
+import javax.jdo.listener.StoreLifecycleListener;
 
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.store.ExecutionContext;
@@ -70,7 +73,7 @@ import org.slf4j.LoggerFactory;
 	)
 })
 public class ClassMeta
-implements DetachCallback
+implements DetachCallback, StoreCallback
 {
 	private static final Logger logger = LoggerFactory.getLogger(ClassMeta.class);
 
@@ -308,7 +311,7 @@ implements DetachCallback
 			throw new IllegalArgumentException("fieldMeta.classMeta != this");
 
 		PersistenceManager pm = getPersistenceManager();
-		if (pm != null)
+		if (pm != null) // If the pm is null, the fieldMeta is persisted later (see jdoPreStore() below).
 			fieldMeta = pm.makePersistent(fieldMeta);
 
 		getFieldName2FieldMeta().put(fieldMeta.getFieldName(), fieldMeta);
@@ -416,5 +419,33 @@ implements DetachCallback
 		} finally {
 			attachedClassMetasInPostDetach.remove(attached);
 		}
+	}
+
+	@Override
+	public void jdoPreStore() {
+		// We'd need a jdoPostStore(...), but such a callback method does not exist.
+		// We're thus using a StoreLifecycleListener as workaround. Marco :-)
+		final PersistenceManager pm = JDOHelper.getPersistenceManager(this);
+		pm.addInstanceLifecycleListener(new StoreLifecycleListener() {
+			@Override
+			public void preStore(InstanceLifecycleEvent event) { }
+
+			@Override
+			public void postStore(InstanceLifecycleEvent event) {
+				logger.debug("postStore: entered.");
+				pm.removeInstanceLifecycleListener(this); // We MUST remove the listener immediately!
+				if (fieldName2FieldMeta != null) {
+					Map<String, FieldMeta> persistentFieldName2FieldMeta = new HashMap<String, FieldMeta>(fieldName2FieldMeta.size());
+					for (FieldMeta fieldMeta : fieldName2FieldMeta.values()) {
+						// Usually the persistentFieldMeta is the same instance as fieldMeta, but this is dependent on the configuration.
+						// This code here should work with all possible configurations. Marco :-)
+						FieldMeta persistentFieldMeta = pm.makePersistent(fieldMeta);
+						persistentFieldName2FieldMeta.put(persistentFieldMeta.getFieldName(), persistentFieldMeta);
+					}
+					fieldName2FieldMeta = persistentFieldName2FieldMeta;
+				}
+				fieldID2FieldMeta = null;
+			}
+		});
 	}
 }
