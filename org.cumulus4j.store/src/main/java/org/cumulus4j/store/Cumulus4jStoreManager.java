@@ -211,6 +211,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 
 	private ClassMeta registerClass(ExecutionContext ec, PersistenceManager pm, Class<?> clazz)
 	{
+		logger.debug("registerClass: clazz={}", clazz == null ? null : clazz.getName());
 		AbstractClassMetaData dnClassMetaData = getMetaDataManager().getMetaDataForClass(clazz, ec.getClassLoaderResolver());
 		if (dnClassMetaData == null)
 			throw new IllegalArgumentException("The class " + clazz.getName() + " does not have persistence-meta-data! Is it persistence-capable? Is it enhanced?");
