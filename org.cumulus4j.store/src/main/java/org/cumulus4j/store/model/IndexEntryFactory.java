@@ -69,10 +69,14 @@ public abstract class IndexEntryFactory
 				"this.fieldMeta == :fieldMeta && " +
 				"this.indexKey == :indexKey"
 		);
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("fieldMeta", fieldMeta);
-		params.put("indexKey", indexKey);
-		return indexEntryClass.cast(q.executeWithMap(params));
+		IndexEntry result;
+		try{
+			result = indexEntryClass.cast(q.execute(fieldMeta, indexKey));
+		} catch(Exception e){
+			e.printStackTrace();
+			result = null;
+		}
+		return result ;
 	}
 
 	/**

@@ -31,6 +31,9 @@ import javax.jdo.annotations.Version;
 import javax.jdo.annotations.VersionStrategy;
 import javax.jdo.listener.StoreCallback;
 
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
+
 /**
  * <p>
  * Persistent index information with <b>encrypted</b> pointers to {@link DataEntry}s.
@@ -90,7 +93,7 @@ implements StoreCallback
 {
 	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE, sequence="IndexEntrySequence")
-	private long indexEntryID = -1;
+	private long indexEntryID;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	private FieldMeta fieldMeta;
@@ -192,8 +195,9 @@ implements StoreCallback
 	public void jdoPreStore()
 	{
 		// See: DataEntry#jdoPreStore() - the same applies here to 'this.fieldMeta'.
-		PersistenceManager pm = JDOHelper.getPersistenceManager(this);
-		Object fieldMetaID = JDOHelper.getObjectId(fieldMeta);
-		fieldMeta = (FieldMeta) pm.getObjectById(fieldMetaID);
+//		PersistenceManager pm = JDOHelper.getPersistenceManager(this);
+//		Object fieldMetaID = JDOHelper.getObjectId(fieldMeta);
+//		Key fieldMetaID = KeyFactory.stringToKey(fieldMeta.getFieldIDString());
+//		fieldMeta = (FieldMeta) pm.getObjectById(fieldMetaID);
 	}
 }

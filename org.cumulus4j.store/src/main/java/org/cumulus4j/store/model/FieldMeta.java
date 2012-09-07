@@ -47,6 +47,9 @@ import org.datanucleus.store.ExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
+
 /**
  * Persistent meta-data for a field of a persistence-capable class. Since class- and field-names are very
  * long we reference them indirectly via the long-identifiers of {@link ClassMeta} and {@link FieldMeta},
@@ -186,6 +189,9 @@ implements DetachCallback
 	}
 
 	public long getFieldID() {
+		if(fieldIDString != null && fieldID == -1){
+			fieldID = KeyFactory.stringToKey(fieldIDString).getId();
+		}
 		return fieldID;
 	}
 

@@ -65,6 +65,10 @@
 
 		<class name="IndexEntry" detachable="true">
 			<field name="indexEntryID" value-strategy="sequence" />
+			
+			<field name="fieldMeta">
+				<extension vendor-name="datanucleus" key="gae.unowned" value="true"/>
+			</field>
 		</class>
 		
 		<class name="DataEntry" detachable="true">
