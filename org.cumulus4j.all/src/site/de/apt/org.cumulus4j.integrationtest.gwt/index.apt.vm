@@ -4,7 +4,7 @@
 	Jan Morlock
 	Marco หงุ่ยตระกูล-Schulze
 	---
-	2012-01-30
+	2012-09-14
 
 Modul org.cumulus4j.integrationtest.gwt
 
@@ -31,15 +31,15 @@ Modul org.cumulus4j.integrationtest.gwt
 	
 	Afterwards start the key management services as described above.
 	
-	Now open <<another>> shell and change into the directory <<<$workspace/org.cumulus4j.integrationtest.gwt>>>. Here, execute the command
-	
-	<<<mvn gwt:run>>>.
-	
+	Now open <<another>> shell and change into the directory <<<$workspace/org.cumulus4j.integrationtest.gwt>>>. Here, execute the command:
+
+	<<<mvn gwt:run>>>
+
 	This will start the Maven GWT Plugin, which will open a control window and start an embedded Jetty webserver on port 8888.
 	Now either select "Launch Default Browser" or open the following URL in your favorite web browser:
-	
+
 	{{http://localhost:8888/sample.html?gwt.codesvr=127.0.0.1:9997}}
-	
+
 	This will open a web page consisting only of two text boxes for user name and password respectively, a
 	"Start Test"-button and a text area for log messages. By selecting this button, the test will be triggered.
 	Log messages will be appended to the text area explaining the current test phases and their results.

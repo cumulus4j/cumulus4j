@@ -20,6 +20,9 @@ Was ist neu?
 	(ohnehin unlesbaren, weil nicht entschlüsselbaren) Daten anderer Mandanten und erlaubt so die gemeinsame
 	Nutzung einer einzigen Datenbank durch mehrere Mandanten.
 
+	* Neues Feature: Versionsmanagement für Datenspeicher-Upgrades eingeführt (wurde erstmals benötigt, um
+	die alte Datenspeicherstruktur auf die neue Version 1.1.0 zu transformieren).
+
 	[]
 
 * Was ist neu in 1.0.2?

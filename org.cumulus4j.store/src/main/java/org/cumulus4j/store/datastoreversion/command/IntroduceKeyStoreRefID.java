@@ -1,10 +1,12 @@
 package org.cumulus4j.store.datastoreversion.command;
 
 import java.util.Collection;
+import java.util.Set;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 
+import org.cumulus4j.store.Cumulus4jStoreManager;
 import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.datastoreversion.AbstractDatastoreVersionCommand;
 import org.cumulus4j.store.datastoreversion.CommandApplyParam;
@@ -13,6 +15,9 @@ import org.cumulus4j.store.model.IndexEntry;
 
 public class IntroduceKeyStoreRefID extends AbstractDatastoreVersionCommand
 {
+	private CryptoContext cryptoContext;
+	private Set<Class<? extends IndexEntry>> indexEntryClasses;
+
 	@Override
 	public int getCommandVersion() {
 		return 0;
@@ -21,7 +26,7 @@ public class IntroduceKeyStoreRefID extends AbstractDatastoreVersionCommand
 	@Override
 	public void apply(CommandApplyParam commandApplyParam) {
 		PersistenceManager pm = commandApplyParam.getPersistenceManager();
-		CryptoContext cryptoContext = commandApplyParam.getCryptoContext();
+		cryptoContext = commandApplyParam.getCryptoContext();
 
 		if (pm == cryptoContext.getPersistenceManagerForData())
 			applyToData(commandApplyParam, pm);
@@ -39,9 +44,11 @@ public class IntroduceKeyStoreRefID extends AbstractDatastoreVersionCommand
 	}
 
 	protected void applyToIndex(CommandApplyParam commandApplyParam, PersistenceManager pm) {
-		Collection<IndexEntry> indexEntries = getAll(pm, IndexEntry.class);
-		for (IndexEntry indexEntry : indexEntries) {
-			indexEntry.setKeyStoreRefID(commandApplyParam.getCryptoContext().getKeyStoreRefID());
+		for (Class<? extends IndexEntry> indexEntryClass : getIndexEntryClasses()) {
+			Collection<? extends IndexEntry> indexEntries = getAll(pm, indexEntryClass);
+			for (IndexEntry indexEntry : indexEntries) {
+				indexEntry.setKeyStoreRefID(commandApplyParam.getCryptoContext().getKeyStoreRefID());
+			}
 		}
 	}
 
@@ -50,5 +57,12 @@ public class IntroduceKeyStoreRefID extends AbstractDatastoreVersionCommand
 		@SuppressWarnings("unchecked")
 		Collection<T> c = (Collection<T>) q.execute();
 		return c;
+	}
+
+	protected Set<Class<? extends IndexEntry>> getIndexEntryClasses() {
+		if (indexEntryClasses == null)
+			indexEntryClasses = ((Cumulus4jStoreManager)cryptoContext.getExecutionContext().getStoreManager()).getIndexFactoryRegistry().getIndexEntryClasses();
+
+		return indexEntryClasses;
 	}
 }

@@ -19,6 +19,9 @@ What's new?
 	application). Cumulus4j now hides the (anyway unreadable, because undecipherable) data of other tenants, 
 	thus making it possible to share one single database among many tenants.
 
+	* New feature: Introduced version management for datastore upgrades (needed first time to transform the
+	old datastore structure into version 1.1.0).
+
 	[]
 
 * What's new in 1.0.2?
