@@ -200,4 +200,6 @@ em.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, "dummyKeyStoreID_" + UU
 	If you have any questions not answered by the web site or encounter any problems which you cannot solve yourself, please
 	don't hesitate to {{{../about/contact.html}contact us}}!
 
+	Of course, we're also happy about positive feed-back or constructive criticism.
+
 	Note, that professional support and consulting services are available.
