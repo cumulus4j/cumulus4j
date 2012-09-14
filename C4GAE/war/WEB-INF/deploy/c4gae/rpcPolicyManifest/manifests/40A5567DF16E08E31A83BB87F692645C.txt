@@ -1,0 +1,2 @@
+serviceClass: de.alexgauss.test.client.GreetingService
+path: 58DD6373C908933499856E8D60A2C399.gwt.rpc
