@@ -1,0 +1,192 @@
+	---
+	Getting started
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2012-09-14
+
+Getting started
+
+	There are multiple ways to start and depending on what way of learning you prefer, one or the other might
+	be preferably for you - or you simply dig through all of them in your personal order of choice.
+
+* Understanding persistence
+
+	Cumulus4j is a plug-in for {{{http://www.datanucleus.org}DataNucleus}} and is thus used via one of the
+	standard persistence-APIs: {{{http://en.wikipedia.org/wiki/Java_Data_Objects}JDO}} or
+	{{{http://en.wikipedia.org/wiki/Java_Persistence_API}JPA}}.
+
+	If you have no idea how to make use of JDO (or JPA), it is urgently recommended that you learn about these
+	basics first. You might want to take a look at DataNucleus'
+	{{{http://www.datanucleus.org/products/accessplatform_3_1/getting_started.html}Getting started}} guide
+	or one of the many other tutorials in the web. JDO/JPA are much better than writing plain (error-prone)
+	SQL [i.e. using JDBC], hence learning these basic technologies is a great idea, anyway - even if you don't
+	use Cumulus4j ;-)
+
+	The author of this document recommends to start with JDO, because it is more mature, provides more features
+	than JPA and is community-driven (i.e. really free). But it is up to you which API you use with Cumulus4j -
+	DataNucleus (and therefore Cumulus4j) supports both.
+
+* Looking at example code
+
+	Cumulus4j is thoroughly tested by a multitude of different tests. In order to test its functionality, 
+	there are many examples simulating real-world-scenarios in various test-projects. Thus you might want to
+	{{{./development.html}check out the sources}} and take a look at the following projects:
+
+	* Unit tests:
+
+		* {{{../org.cumulus4j.store.test/index.html}org.cumulus4j.store.test}}
+
+		* {{{../org.cumulus4j.store.test.jpa/index.html}org.cumulus4j.store.test.jpa}}
+
+		[]
+
+	* {{{./integration-tests.html}Integration tests}}:
+
+		* {{{../org.cumulus4j.integrationtest.gwt/index.html}org.cumulus4j.integrationtest.gwt}}
+
+		* {{{../org.cumulus4j.integrationtest.webapp/index.html}org.cumulus4j.integrationtest.webapp}}
+
+		* {{{../org.cumulus4j.integrationtest.withkeyserver/index.html}org.cumulus4j.integrationtest.withkeyserver}}
+
+		[]
+
+	[]
+
+	The two unit test projects contain the data models and test Cumulus4j without key management (they use a
+	dummy key manager - Cumulus4j is pluggable and the key manager can be exchanged).
+
+	The integration tests set up scenarios that come very close to real-world-environments: They
+	start web servers and communicate as remote-clients (using REST) with them.
+
+* Understanding the big picture
+
+	Cumulus4j is a plug-in for {{{http://www.datanucleus.org}DataNucleus}} and is thus used via one of the
+	standard persistence-APIs: {{{http://en.wikipedia.org/wiki/Java_Data_Objects}JDO}} or
+	{{{http://en.wikipedia.org/wiki/Java_Persistence_API}JPA}}.
+
+	In order to encrypt or decrypt data, Cumulus4j needs keys which are stored separately from the actual database
+	in a so-called {{{./key-store.html}key store}}.
+
+	Because managing keys is not covered by any persistence-standard, Cumulus4j provides its own
+	{{{../org.cumulus4j.keymanager.api/index.html}API for the key management}}. However, this API is as slim and
+	straight-forward as possible.
+
+	When data is queried/read from or written to the database, it is automatically decrypted or encrypted. For this
+	purpose, the application server (or more precisely Cumulus4j's store-plug-in within DataNucleus within the
+	application server) is granted access to the keys in the key store. The keys are only kept in memory and the
+	access to the key store is only granted for the shortest time necessary. Take a look at this
+	{{{../images/cumulus4j-key-management+service-invocation.png}diagram about key management and service invocation}}
+	to get a better understanding of the workflow.
+
+	Cumulus4j can be used in different {{{./deployment-scenarios.html}deployment scenarios}} and depending on your
+	scenario, you have to employ different {{{./deployment-module-location-matrix.html}modules at different locations}}.
+
+* Implementing your first Cumulus4j-protected application
+
+	To get your first Cumulus4j-protected application running, you should follow these steps:
+
+** [1] Create a simple plain JDO or JPA application.
+
+	Decide, which persistence-API you want to use: JDO or JPA?
+
+	Start with your data model. Write just one or two entity classes (aka persistence-capable classes) and persist
+	some instances into the database of your choice. Then query them again. If you can read from the database
+	what you have written into it, before, then you're on the right way. Don't continue before you achieved
+	this goal - it makes no sense to add more complexity, before the basics are running well.
+
+	Note, that you must use DataNucleus - no other JDO/JPA-implementation is supported by Cumulus4j! Therefore,
+	following DataNucleus'
+	{{{http://www.datanucleus.org/products/accessplatform_3_1/getting_started.html}Getting started}} guide is
+	a good idea.
+
+	If this guide isn't answering all your questions, do some more research in the web.
+
+	JDO/JPA are much better than writing plain (error-prone) SQL [i.e. using JDBC], hence learning these basic
+	technologies is a great idea, anyway - even if you don't use Cumulus4j ;-)
+
+** [2] Enable Cumulus4j with the dummy key manager
+
+	If your plain-JDO/JPA-project is running smoothly, you should make sure the necessary libraries
+	(i.e. {{{../org.cumulus4j.store/index.html}org.cumulus4j.store}} and all its dependencies) are present
+	in your classpath. If you're unsure what dependencies the module <<<org.cumulus4j.store>>> requires,
+	consult its <<<pom.xml>>>. Even if you're new to Maven, the <<<\<dependencies\>>>> tag should be clear.
+	Note, that the <<<pom.xml>>> can be found inside the JAR file (in <<<META-INF/maven>>>) - no need to obtain
+	the source codes.
+
+	To enable Cumulus4j, you only need to add the following two persistence-properties (either in your properties
+	file or in your <<<persistence.xml>>> or manually by code):
+
+	<<<datanucleus.storeManagerType=cumulus4j>>>
+	<<<cumulus4j.cryptoManagerID=dummy>>>
+
+	For now, we use the "dummy" key manager, which <<must not>> be used in a productive environment, because
+	it provides no security at all! It encrypts/decrypts with a single hard-coded dummy key.
+
+	If you use Derby or any other database which is not capable of indexing (and querying) CLOBs, then
+	you must add the following persistence-property, too:
+
+	<<<cumulus4j.index.clob.enabled=false>>>
+
+	There are many more {{{./persistence-api.html}persistence-properties}} to fine-tune the behaviour of both
+	DataNucleus and Cumulus4j, but for the beginning, these are sufficient.
+
+	In your source code, you have to add one single line, before using a <<<PersistenceManager>>>
+	or <<<EntityManager>>>:
+
+------
+// for JDO (pm is an instance of PersistenceManager)
+pm.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, "dummyKeyStoreID_" + UUID.randomUUID() + '*' + UUID.randomUUID());
+
+// for JPA (em is an instance of EntityManager)
+em.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, "dummyKeyStoreID_" + UUID.randomUUID() + '*' + UUID.randomUUID()); 
+------
+
+	The class <<<CryptoSession>>> is located in the package <<<org.cumulus4j.store.crypto>>>.
+
+	Make sure, you set the property to exactly this value! The crypto-session-id must be formatted in exactly this way!
+
+	You want to take a look at some example code? Check out
+	{{{../org.cumulus4j.store.test/index.html}org.cumulus4j.store.test}}, if you're using JDO,
+	or {{{../org.cumulus4j.store.test.jpa/index.html}org.cumulus4j.store.test.jpa}}, if you're using JPA.
+
+** [3] Move your code into a web application
+
+	Cumulus4j can be used inside a single JVM, but that is normally never the case (except for query tools like
+	{{{http://vestigo.nightlabs.com}Vestigo}}). Usually, your database is located on a server computer and
+	DataNucleus+Cumulus4j are operated in a full-blown JEE server (e.g. GlassFish, JBoss, ...) or a servlet container
+	(e.g. Jetty, Tomcat, ...) on the same computer (or at least a server computer in the same data center).
+
+	Therefore, we cover only this one common case here: The so-called {{{.//deployment-scenarios.html}2-computer-scenario}}.
+
+	The easiest way is - at least if you're using Maven - to convert your project into a <<<war>>>-project, put
+	your backend (service) code into <<<src/main/java>>> and your client code into <<<src/test/java>>>. This way, you
+	can simply start up the server (e.g. a Jetty) while running the client code as integration tests (=>
+	{{{http://maven.apache.org/plugins/maven-failsafe-plugin/}Maven Failsafe plug-in}}). If you're not using Maven,
+	you might want to create two separate projects - one for the backend (running in Jetty or Tomcat) and
+	one for the frontend.
+
+	Need a cheat sheet? Take a look at
+	{{{../org.cumulus4j.integrationtest.webapp/index.html}org.cumulus4j.integrationtest.webapp}}! But note, that we're
+	using a real key manager there, already (i.e. that's one step ahead) - and of course, we're using Maven.
+
+** [4] Enable the real key manager
+
+	The real {{{./org.cumulus4j.keymanager/index.html}key manager}} needs a real {{{./key-store.html}key store}}
+	(actually one for each mandator, if your application should have multi-client capability). You can create
+	a key-store (for your test) via code - once
+	for every test-run.	In a real-world-scenario, you'd probably either use our
+	{{{../org.cumulus4j.keymanager.cli/index.html}command-line-utility}} or integrate the key-store-creation somehow into
+	your application.
+
+	Note, that you need additional libraries - check our {{{./deployment-module-location-matrix.html}module-location-matrix}}
+	and maybe look into the <<<pom.xml>>> files, additionally.
+
+	In your client code, you should definitely use our {{{./org.cumulus4j.keymanager.api/index.html}key manager API}}! Don't
+	be confused that our code in {{{../org.cumulus4j.integrationtest.webapp/index.html}org.cumulus4j.integrationtest.webapp}}
+	(class <<<IntegrationWithAppServerOnlyTest>>>) contains a low-level-test. After all, this is not only a demo project, but
+	also an integration test. Only the method <<<testTwoComputerScenarioWithUnifiedAPI()>>> is interesting for you!
+	What's happening
+	under the hood of the official key manager API might change at any time without further notice!
+
+	Anyway, the API is much easier to use than the low-level-code. So, there's really no reason why you shouldn't use the API.

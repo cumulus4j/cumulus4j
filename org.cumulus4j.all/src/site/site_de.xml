@@ -82,6 +82,7 @@
 		</links>
 
 		<menu name="Dokumentation">
+			<item name="Erste Schritte" href="./documentation/getting-started.html" />
 			<item name="Benutzung" href="./documentation/usage.html" />
 			<item name="Theorie" href="./documentation/theory.html" />
 			<item name="Entwicklung" href="./documentation/development.html" />
