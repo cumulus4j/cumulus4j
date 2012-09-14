@@ -35,6 +35,8 @@ import org.cumulus4j.keymanager.front.shared.Error;
 import org.cumulus4j.keystore.DateDependentKeyStrategy;
 import org.cumulus4j.keystore.KeyStore;
 import org.cumulus4j.keystore.KeyStoreNotEmptyException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * REST service to work with a {@link KeyStore} via the {@link DateDependentKeyStrategy}.
@@ -47,6 +49,8 @@ import org.cumulus4j.keystore.KeyStoreNotEmptyException;
 @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public class DateDependentKeyStrategyService extends AbstractService
 {
+	private static final Logger logger = LoggerFactory.getLogger(DateDependentKeyStrategyService.class);
+
 	/**
 	 * Initialise a {@link KeyStore} by delegating to {@link DateDependentKeyStrategy#init(String, char[], long, long)}.
 	 * @param keyStoreID identifier of the key-store to work with.
@@ -72,10 +76,13 @@ public class DateDependentKeyStrategyService extends AbstractService
 
 			return result;
 		} catch (KeyStoreNotEmptyException e) {
+			logger.debug("init: " + e.toString(), e); // client error (no internal error) => debug only
 			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(new Error(e)).build());
 		} catch (IOException e) {
+			logger.error("init: " + e.toString(), e);
 			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(e)).build());
 		} catch (Exception e) {
+			logger.error("init: " + e.toString(), e);
 			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(e)).build());
 		} finally {
 			auth.clear();

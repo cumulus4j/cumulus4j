@@ -118,12 +118,16 @@ public class CryptoSessionService extends AbstractService
 		try {
 			appServerManager = keyStoreManager.getAppServerManager(keyStoreID);
 		} catch (IOException e) {
+			logger.error("getSessionManager: " + e, e);
 			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(e)).build());
 		}
 
 		AppServer appServer = appServerManager.getAppServerForAppServerID(appServerID);
-		if (appServer == null)
-			throw new WebApplicationException(Response.status(Status.NOT_FOUND).entity(new Error("There is no AppServer with appServerID=\"" + appServerID + "\"!")).build());
+		if (appServer == null) {
+			String message = "There is no AppServer with appServerID=\"" + appServerID + "\"!";
+			logger.debug("getSessionManager: " + message);
+			throw new WebApplicationException(Response.status(Status.NOT_FOUND).entity(new Error(message)).build());
+		}
 
 		return appServer.getSessionManager();
 	}
@@ -142,12 +146,16 @@ public class CryptoSessionService extends AbstractService
 	{
 		SessionManager sessionManager = getSessionManager(keyStoreID, appServerID);
 		Session session = sessionManager.getSessionForCryptoSessionID(cryptoSessionID);
-		if (session == null)
-			throw new WebApplicationException(Response.status(Status.NOT_FOUND).entity(new Error("There is no session with cryptoSessionID='" + cryptoSessionID + "'!")).build());
+		if (session == null) {
+			String message = "There is no session with cryptoSessionID='" + cryptoSessionID + "'!";
+			logger.debug("reacquire: " + message);
+			throw new WebApplicationException(Response.status(Status.NOT_FOUND).entity(new Error(message)).build());
+		}
 
 		try {
 			session.reacquire();
 		} catch (Exception x) {
+			logger.debug("reacquire: " + x, x);
 			throw new WebApplicationException(Response.status(Status.NOT_FOUND).entity(new Error(x)).build());
 		}
 
@@ -203,8 +211,11 @@ public class CryptoSessionService extends AbstractService
 	{
 		SessionManager sessionManager = getSessionManager(keyStoreID, appServerID);
 		Session session = sessionManager.getSessionForCryptoSessionID(cryptoSessionID);
-		if (session == null)
-			throw new WebApplicationException(Response.status(Status.NOT_FOUND).entity(new Error("There is no session with cryptoSessionID='" + cryptoSessionID + "'!")).build());
+		if (session == null) {
+			String message = "There is no session with cryptoSessionID='" + cryptoSessionID + "'!";
+			logger.debug("release: " + message);
+			throw new WebApplicationException(Response.status(Status.NOT_FOUND).entity(new Error(message)).build());
+		}
 
 		session.release();
 	}

@@ -85,6 +85,7 @@ public class AppServerService extends AbstractService
 				return as;
 			}
 		} catch (IOException e) {
+			logger.error("getAppServer: " + e, e);
 			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(e)).build());
 		} finally {
 			auth.clear();
@@ -113,6 +114,7 @@ public class AppServerService extends AbstractService
 				appServerList.getAppServers().add(as);
 			}
 		} catch (IOException e) {
+			logger.error("getAppServers: " + e, e);
 			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(e)).build());
 		} finally {
 			auth.clear();
@@ -206,6 +208,7 @@ public class AppServerService extends AbstractService
 			// TODO write AppServers to a file (maybe into the keystore?!)!
 			return new PutAppServerResponse(as.getAppServerID());
 		} catch (IOException e) {
+			logger.error("putAppServer: " + e, e);
 			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(e)).build());
 		} finally {
 			// extra safety => overwrite passwords
@@ -229,6 +232,7 @@ public class AppServerService extends AbstractService
 			AppServerManager appServerManager = keyStoreManager.getAppServerManager(keyStoreID);
 			appServerManager.removeAppServer(appServerID);
 		} catch (IOException e) {
+			logger.error("deleteAppServer: " + e, e);
 			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(e)).build());
 		} finally {
 			// extra safety => overwrite password

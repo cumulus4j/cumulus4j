@@ -177,7 +177,7 @@ jQuery(document).ready(function(){
 			cryptoSessionID: "UNINITIALIZED", // This ID will be assigned by the key server.
 			keyActivityPeriodMSec: "3600000",
 			keyStorePeriodMSec: "86400000",
-			keyStoreId: "keyStoreID_" + Math.floor(Math.random() * 10000000000),
+			keyStoreId: "keyStoreID." + Math.floor(Math.random() * 10000000000),
 			keyManagerUrl: "http://localhost:8686/org.cumulus4j.keymanager.front.webapp",
 			appServerBaseURL: "http://localhost:8585/org.cumulus4j.integrationtest.webapp/org.cumulus4j.keymanager.back.webapp",
 			appServerTestURL: "http://localhost:8585/org.cumulus4j.integrationtest.webapp/App/Test",

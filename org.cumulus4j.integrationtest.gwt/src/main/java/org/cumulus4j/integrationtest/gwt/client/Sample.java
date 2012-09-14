@@ -19,7 +19,7 @@ import com.google.gwt.user.client.ui.TextBox;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
- * 
+ *
  * @author Jan Morlock - jan dot morlock at googlemail dot com
  */
 public class Sample implements EntryPoint {
@@ -57,7 +57,7 @@ public class Sample implements EntryPoint {
 	/**
 	 * Dummy keystore id.
 	 */
-	private String keyStoreId = "keyStoreID_"
+	private String keyStoreId = "keyStoreID."
 			+ String.valueOf(Random.nextInt(RANDOM_UPPER_BOUND) + RANDOM_OFFSET);
 
 	/**
@@ -98,7 +98,7 @@ public class Sample implements EntryPoint {
 	/**
 	 * This request is directed to the key server. It is the initial request.
 	 * Its general purpose is to init the keystore.
-	 * 
+	 *
 	 * @return New request object
 	 */
 	private RESTRequest getInitRequest() {
@@ -126,7 +126,7 @@ public class Sample implements EntryPoint {
 	 * This request is directed to the key server. It is the second request. Its
 	 * general purpose is to tell the keyserver the application server's key
 	 * management interface (a rest interface).
-	 * 
+	 *
 	 * @return New request object
 	 */
 	private RESTRequest getNotificationRequest() {
@@ -148,7 +148,7 @@ public class Sample implements EntryPoint {
 
 	/**
 	 * Create the final lock request.
-	 * 
+	 *
 	 * @return New request object
 	 */
 	private RESTRequest getLockRequest() {
@@ -166,7 +166,7 @@ public class Sample implements EntryPoint {
 
 	/**
 	 * Create the crypto session rest request.
-	 * 
+	 *
 	 * @return New request object
 	 */
 	private RESTRequest getCryptoSessionRequest() {
@@ -198,7 +198,7 @@ public class Sample implements EntryPoint {
 
 	/**
 	 * Create the control panel.
-	 * 
+	 *
 	 * @return New control panel
 	 */
 	private Panel getControlPanel() {
@@ -233,7 +233,7 @@ public class Sample implements EntryPoint {
 
 	/**
 	 * Append a new message in the text area.
-	 * 
+	 *
 	 * @param message
 	 *            Message to append
 	 */
@@ -256,6 +256,7 @@ public class Sample implements EntryPoint {
 		log("POST " + request.getUrl());
 
 		RESTRequestFactory.callREST(request, new RESTCallback() {
+			@Override
 			public void onSuccess(final JSONObject val) {
 				JSONValue value = val.get("cryptoSessionID");
 				cryptoSessionID = value.isString().stringValue();
@@ -265,6 +266,7 @@ public class Sample implements EntryPoint {
 				doAppServerRequest();
 			}
 
+			@Override
 			public void onError(final String errorResponse) {
 				log("Error: " + errorResponse);
 			}
@@ -303,6 +305,7 @@ public class Sample implements EntryPoint {
 		log("POST " + request.getUrl());
 
 		RESTRequestFactory.callREST(request, new RESTCallback() {
+			@Override
 			public void onSuccess(final JSONObject val) {
 				JSONValue value = val.get("appServerID");
 				appServerID = value.isString().stringValue();
@@ -310,6 +313,7 @@ public class Sample implements EntryPoint {
 				doCryptoSessionRequest();
 			}
 
+			@Override
 			public void onError(final String errorResponse) {
 				log("Error: " + errorResponse);
 			}
@@ -326,11 +330,13 @@ public class Sample implements EntryPoint {
 		log("POST " + request.getUrl());
 
 		RESTRequestFactory.callREST(request, new RESTCallback() {
+			@Override
 			public void onSuccess(final JSONObject val) {
 				log("Success: " + val);
 				doNotificationRequest();
 			}
 
+			@Override
 			public void onError(final String errorResponse) {
 				log("Error: " + errorResponse);
 			}
@@ -346,12 +352,14 @@ public class Sample implements EntryPoint {
 		log("POST " + request.getUrl());
 
 		RESTRequestFactory.callREST(request, new RESTCallback() {
+			@Override
 			public void onSuccess(final JSONObject val) {
 				log("Success: " + val);
 				log("Session is locked.");
 				log("All done successfully.");
 			}
 
+			@Override
 			public void onError(final String errorResponse) {
 				log("Error: " + errorResponse);
 			}
@@ -361,6 +369,7 @@ public class Sample implements EntryPoint {
 	/**
 	 * Construct the control panel.
 	 */
+	@Override
 	public final void onModuleLoad() {
 		RootPanel.get("contentPanel").add(getControlPanel());
 
