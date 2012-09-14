@@ -117,8 +117,10 @@ Getting started
 	To enable Cumulus4j, you only need to add the following two persistence-properties (either in your properties
 	file or in your <<<persistence.xml>>> or manually by code):
 
-	<<<datanucleus.storeManagerType=cumulus4j>>>
-	<<<cumulus4j.cryptoManagerID=dummy>>>
+------
+datanucleus.storeManagerType=cumulus4j
+cumulus4j.cryptoManagerID=dummy
+------
 
 	For now, we use the "dummy" key manager, which <<must not>> be used in a productive environment, because
 	it provides no security at all! It encrypts/decrypts with a single hard-coded dummy key.
@@ -126,7 +128,9 @@ Getting started
 	If you use Derby or any other database which is not capable of indexing (and querying) CLOBs, then
 	you must add the following persistence-property, too:
 
-	<<<cumulus4j.index.clob.enabled=false>>>
+------
+cumulus4j.index.clob.enabled=false
+------
 
 	There are many more {{{./persistence-api.html}persistence-properties}} to fine-tune the behaviour of both
 	DataNucleus and Cumulus4j, but for the beginning, these are sufficient.
@@ -157,7 +161,7 @@ em.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, "dummyKeyStoreID_" + UU
 	DataNucleus+Cumulus4j are operated in a full-blown JEE server (e.g. GlassFish, JBoss, ...) or a servlet container
 	(e.g. Jetty, Tomcat, ...) on the same computer (or at least a server computer in the same data center).
 
-	Therefore, we cover only this one common case here: The so-called {{{.//deployment-scenarios.html}2-computer-scenario}}.
+	Therefore, we cover only this one common case here: The so-called {{{./deployment-scenarios.html}2-computer-scenario}}.
 
 	The easiest way is - at least if you're using Maven - to convert your project into a <<<war>>>-project, put
 	your backend (service) code into <<<src/main/java>>> and your client code into <<<src/test/java>>>. This way, you
@@ -185,8 +189,15 @@ em.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, "dummyKeyStoreID_" + UU
 	In your client code, you should definitely use our {{{./org.cumulus4j.keymanager.api/index.html}key manager API}}! Don't
 	be confused that our code in {{{../org.cumulus4j.integrationtest.webapp/index.html}org.cumulus4j.integrationtest.webapp}}
 	(class <<<IntegrationWithAppServerOnlyTest>>>) contains a low-level-test. After all, this is not only a demo project, but
-	also an integration test. Only the method <<<testTwoComputerScenarioWithUnifiedAPI()>>> is interesting for you!
-	What's happening
-	under the hood of the official key manager API might change at any time without further notice!
+	also an integration test. Only the method <<<testTwoComputerScenarioWithUnifiedAPI()>>> is interesting for you
+	(not the low-level tests).
+	What's happening under the hood of the official key manager API might change at any time without further notice!
 
 	Anyway, the API is much easier to use than the low-level-code. So, there's really no reason why you shouldn't use the API.
+
+* Questions or problems?
+
+	If you have any questions not answered by the web site or encounter any problems which you cannot solve yourself, please
+	don't hesitate to {{{../about/contact.html}contact us}}!
+
+	Note, that professional support and consulting services are available.
