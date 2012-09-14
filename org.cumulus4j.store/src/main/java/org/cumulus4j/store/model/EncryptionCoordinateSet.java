@@ -139,7 +139,7 @@ public class EncryptionCoordinateSet
 
 	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE, sequence="EncryptionCoordinateSetSequence")
-	private long encryptionCoordinateSetID = -1;
+	private Long encryptionCoordinateSetID;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	private String cipherTransformation;
@@ -187,7 +187,10 @@ public class EncryptionCoordinateSet
 	 * @return the unique numeric identifier (primary key).
 	 */
 	public int getEncryptionCoordinateSetID() {
-		return (int)encryptionCoordinateSetID;
+		if(encryptionCoordinateSetID == null){
+			return -1;
+		}
+		return (int)encryptionCoordinateSetID.intValue();
 	}
 
 	/**

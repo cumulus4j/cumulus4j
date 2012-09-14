@@ -47,7 +47,6 @@ import org.datanucleus.store.ExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 
 /**
@@ -80,7 +79,7 @@ implements DetachCallback
 		public static final String getClassMetaByPackageNameAndSimpleClassName = "getClassMetaByPackageNameAndSimpleClassName";
 	}
 
-	private long classID = -1;
+	private Long classID;
 	
 	/** This is needed due to GAE compatibility. package-gae.orm is responsible
 	 *  for the correct usage if this class
@@ -340,7 +339,11 @@ implements DetachCallback
 
 	@Override
 	public int hashCode() {
-		return (int) (classID ^ (classID >>> 32));
+		Long id = classID;
+		if(id == null){
+			id = -1L;
+		}
+		return (int) (id ^ (id >>> 32));
 	}
 
 	@Override

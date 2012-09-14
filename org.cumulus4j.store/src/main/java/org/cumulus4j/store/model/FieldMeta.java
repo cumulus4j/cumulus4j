@@ -76,7 +76,7 @@ implements DetachCallback
 		public static final String getSubFieldMetasForFieldMeta = "getSubFieldMetasForFieldMeta";
 	}
 
-	private long fieldID = -1;
+	private Long fieldID;
 	
 	/** This is needed due to GAE compatibility. package-gae.orm is responsible
 	 *  for the correct usage if this class
@@ -189,6 +189,9 @@ implements DetachCallback
 	}
 
 	public long getFieldID() {
+		if(fieldID == null){
+			return -1;
+		}
 		if(fieldIDString != null && fieldID == -1){
 			fieldID = KeyFactory.stringToKey(fieldIDString).getId();
 		}
@@ -539,7 +542,11 @@ implements DetachCallback
 	@Override
 	public int hashCode()
 	{
-		return (int) (fieldID ^ (fieldID >>> 32));
+		Long id = fieldID;
+		if(id == null){
+			id = -1L;
+		}
+		return (int) (id ^ (id >>> 32));
 	}
 
 	@Override

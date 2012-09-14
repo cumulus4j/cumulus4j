@@ -93,7 +93,7 @@ implements StoreCallback
 {
 	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE, sequence="IndexEntrySequence")
-	private long indexEntryID;
+	private Long indexEntryID;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	private FieldMeta fieldMeta;
@@ -179,7 +179,11 @@ implements StoreCallback
 
 	@Override
 	public int hashCode() {
-		return (int) (indexEntryID ^ (indexEntryID >>> 32));
+		Long id = indexEntryID;
+		if(id == null){
+			id = -1L;
+		}
+		return (int) (id ^ (id >>> 32));
 	}
 
 	@Override
