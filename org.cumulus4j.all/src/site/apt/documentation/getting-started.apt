@@ -7,8 +7,14 @@
 
 Getting started
 
-	There are multiple ways to start and depending on what way of learning you prefer, one or the other might
-	be preferably for you - or you simply dig through all of them in your personal order of choice.
+	Cumulus4j makes things as easy as possible. But combining a web server with object-oriented
+	persistence and encryption cannot be simplified below a certain level of complexity.
+
+	Anyway, it's easier than you might think: You probably already know many components used, 
+	because Cumulus4j builds on top of standards and libraries/frameworks widely known in the
+	field of Java software development.
+
+	This page aims at giving you a quick start into understanding and using Cumulus4j.
 
 * Understanding persistence
 
