@@ -1,0 +1,54 @@
+	---
+	Module org.cumulus4j.store.localkeystoremessagebroker
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2012-09-15
+
+Module org.cumulus4j.store.localkeystoremessagebroker
+
+	Implementation of
+	{{{../apidocs/index.html?org/cumulus4j/store/crypto/keymanager/messagebroker/MessageBroker.html}MessageBroker}}
+	having access to a local key store in the same JVM.
+
+* Maven
+
+	After adding the repositories documented on the {{{../download/index.html}Download}} page
+	to your <<<pom.xml>>>, you can add the following dependency in order to use this module: 
+
++------------------------------------------+
+<dependencies>
+	...
+	<dependency>
+		<groupId>org.cumulus4j</groupId>
+		<artifactId>org.cumulus4j.store.localkeystoremessagebroker</artifactId>
+	</dependency>
+	...
+</dependencies>
++------------------------------------------+
+
+	The above dependency does not (and should not!) declare a version. Instead, it is recommended that
+	you add the following to your dependency-management:
+
++------------------------------------------+
+<dependencyManagement>
+	<dependencies>
+		...
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.parent</artifactId>
+			<type>pom</type>
+			<version>${project.version}</version>
+			<scope>import</scope>
+		</dependency>
+		...
+	</dependencies>
+</dependencyManagement>
++------------------------------------------+
+
+* Deployment location
+
+	Normally, this module is <<not>> used at all. It exists solely for extraordinary use-cases, when the
+	key store and DataNucleus (with Cumulus4j) run in the same JVM. For obvious security reasons, this is
+	only the case in administrative tools - for example in
+	{{{http://vestigo.nightlabs.com}Vestigo - The JDO/JPA Query Tool And Browser}}.
