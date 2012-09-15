@@ -78,15 +78,15 @@ Getting started
 	{{{../org.cumulus4j.keymanager.api/index.html}API for the key management}}. However, this API is as slim and
 	straight-forward as possible.
 
+	Cumulus4j can be used in different {{{./deployment-scenarios.html}deployment scenarios}} and depending on your
+	scenario, you have to employ different {{{./deployment-module-location-matrix.html}modules at different locations}}.
+
 	When data is queried/read from or written to the database, it is automatically decrypted or encrypted. For this
 	purpose, the application server (or more precisely Cumulus4j's store-plug-in within DataNucleus within the
 	application server) is granted access to the keys in the key store. The keys are only kept in memory and the
 	access to the key store is only granted for the shortest time necessary. Take a look at this
 	{{{../images/cumulus4j-key-management+service-invocation.png}diagram about key management and service invocation}}
 	to get a better understanding of the workflow.
-
-	Cumulus4j can be used in different {{{./deployment-scenarios.html}deployment scenarios}} and depending on your
-	scenario, you have to employ different {{{./deployment-module-location-matrix.html}modules at different locations}}.
 
 * Implementing your first Cumulus4j-protected application
 
