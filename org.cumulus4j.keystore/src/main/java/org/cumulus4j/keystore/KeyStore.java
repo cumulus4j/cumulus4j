@@ -207,6 +207,10 @@ import org.slf4j.LoggerFactory;
  * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMAC</i>: MAC: Number of bytes in the MAC.</td>
  * 				</tr>
  *
+ * 				<tr>
+ * 					<td align="right" valign="top">2</td><td valign="top">UNSIGNED short <i>lenEncrypted</i>: Number of encrypted bytes following (written by {@link KeyStoreUtil#writeByteArrayWithShortLengthHeader(DataOutputStream, byte[])}).</td>
+ * 				</tr>
+ *
  *				<tr>
  *					<td colspan="2">
  * 						<table bgcolor="#E0E0E0" border="1" width="100%">
@@ -284,6 +288,10 @@ import org.slf4j.LoggerFactory;
  * 				</tr>
  * 				<tr>
  * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMAC</i>: MAC: Number of bytes in the MAC.</td>
+ * 				</tr>
+ *
+ * 				<tr>
+ * 					<td align="right" valign="top">2</td><td valign="top">UNSIGNED short <i>lenEncrypted</i>: Number of encrypted bytes following (written by {@link KeyStoreUtil#writeByteArrayWithShortLengthHeader(DataOutputStream, byte[])}).</td>
  * 				</tr>
  *
  *				<tr>
@@ -368,6 +376,10 @@ import org.slf4j.LoggerFactory;
  * 				</tr>
  * 				<tr>
  * 					<td align="right" valign="top">2</td><td valign="top">short <i>lenMAC</i>: MAC: Number of bytes in the MAC.</td>
+ * 				</tr>
+ *
+ * 				<tr>
+ * 					<td align="right" valign="top">4</td><td valign="top">int <i>lenEncrypted</i>: Number of encrypted bytes following (written by {@link KeyStoreUtil#writeByteArrayWithIntegerLengthHeader(DataOutputStream, byte[])}).</td>
  * 				</tr>
  *
  *				<tr>
