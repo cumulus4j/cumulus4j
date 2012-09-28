@@ -8,7 +8,8 @@
 Betrieb: Modul-Ort-Matrix
 
 	Cumulus4j besteht aus mehreren Modulen, die an verschiedenen Orten installiert werden müssen.
-	Welche Orte das sind, hängt von Ihrem {{{./deployment-scenarios.html}Betriebsszenario}} ab:
+	Welche Orte das sind, hängt von Ihrem {{{./deployment-scenarios.html}Betriebsszenario}} ab
+	(transitive Abhängigkeiten sind nicht gelistet):
 
 * {2-Computer-Szenario} (ohne Schlüssel-Server)
 
@@ -108,5 +109,8 @@ Betrieb: Modul-Ort-Matrix
 	* {{{../org.cumulus4j.keymanager.api/}org.cumulus4j.keymanager.api}}
 
 	* {{{../org.cumulus4j.keymanager.front.shared/}org.cumulus4j.keymanager.front.shared}}
+
+	* com.sun.jersey:jersey-client (obwohl dies eine Abhängigkeit von org.cumulus4j.keymanager.api ist, muß
+	sie in der pom.xml des Clients angegeben werden, weil sie optional ist und optionale Abhängigkeiten nicht transitiv sind)
 
 	[]
