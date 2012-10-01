@@ -39,8 +39,6 @@ import javax.jdo.annotations.VersionStrategy;
 import javax.jdo.identity.LongIdentity;
 import javax.jdo.listener.StoreCallback;
 
-import com.google.appengine.api.datastore.Key;
-
 /**
  * Persistent container holding an entity's data in <b>encrypted</b> form.
  *
