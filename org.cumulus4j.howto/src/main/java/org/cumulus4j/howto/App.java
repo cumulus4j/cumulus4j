@@ -37,8 +37,6 @@ public class App extends Application {
 	public Set<Object> getSingletons() {
 		if (singletons == null) {
 			Set<Object> s = new HashSet<Object>();
-			// s.add(new SomeSingletonProvider(someSingleton));
-			// s.add(new AnotherSingletonProvider(anotherSingleton));
 			singletons = Collections.unmodifiableSet(s);
 		}
 

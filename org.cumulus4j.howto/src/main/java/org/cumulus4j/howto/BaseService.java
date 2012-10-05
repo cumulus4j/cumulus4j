@@ -34,6 +34,17 @@ public abstract class BaseService {
 			throw new RuntimeException(x);
 		}
 
+		String tmpKey = "";
+		String tmpValue = "";
+		for(Object key : result.keySet()){
+			String value = ((String)result.get(key));
+			if(value.contains("${java.io.tmpdir}")){
+				tmpKey = (String)key;
+				tmpValue = value.replace("${java.io.tmpdir}", System.getProperty("java.io.tmpdir"));
+			}
+		}
+		result.put(tmpKey, tmpValue);
+
 		return result;
 	}
 
