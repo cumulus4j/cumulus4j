@@ -1,13 +1,26 @@
 package org.cumulus4j.howto.test;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.ws.rs.core.MediaType;
+
+import org.junit.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.UniformInterfaceException;
+
 public abstract class BaseTest {
 
+	private static final Logger logger = LoggerFactory
+			.getLogger(BaseTest.class);
+
 	private static final String URL_APP_SERVER = "http://localhost:8585";
-	private static final String URL_INTEGRATIONTEST_CONTEXT = URL_APP_SERVER
+	protected static final String URL_INTEGRATIONTEST_CONTEXT = URL_APP_SERVER
 			+ "/org.cumulus4j.howto";
 	protected static final String URL_INTEGRATIONTEST_WEBAPP = URL_INTEGRATIONTEST_CONTEXT
 			+ "/App";
@@ -15,6 +28,43 @@ public abstract class BaseTest {
 	protected static long transferStreamData(InputStream in, OutputStream out)
 			throws java.io.IOException {
 		return transferStreamData(in, out, 0, -1);
+	}
+
+	protected void invokeTestWithinServer(String url) throws Exception{
+		Client client = new Client();
+		String result;
+		try {
+			result = client.resource(url).accept(MediaType.TEXT_PLAIN)
+					.post(String.class);
+		} catch (UniformInterfaceException x) {
+			String message = null;
+			try {
+				InputStream in = x.getResponse().getEntityInputStream();
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				transferStreamData(in, out);
+				in.close();
+				message = new String(out.toByteArray(), "UTF-8");
+			} catch (Exception e) {
+				logger.error("Reading error message failed: " + e, e);
+			}
+			if (message == null)
+				throw x;
+			else
+				throw new IOException("Error-code="
+						+ x.getResponse().getStatus() + " error-message="
+						+ message, x);
+		}
+
+		if (result == null)
+			Assert.fail("The POST request on URL " + url
+					+ " did not return any result!");
+
+		if (!result.startsWith("OK:"))
+			Assert.fail("The POST request on URL "
+					+ url
+					+ " did not return the expected result! Instead it returned: "
+					+ result);
+
 	}
 
 	protected static long transferStreamData(InputStream in, OutputStream out,

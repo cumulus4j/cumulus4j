@@ -13,6 +13,19 @@
 
 	<name>org.cumulus4j.howto</name>
 
+	<repositories>
+		<repository>
+			<id>dev.nightlabs.org-libs-releases-local</id>
+			<url>http://dev.nightlabs.org/maven-repository/libs-releases-local/</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
+	</repositories>
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -55,7 +68,7 @@
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-server</artifactId>
 		</dependency>
-  		<dependency>
+		<dependency>
 			<groupId>org.datanucleus</groupId>
 			<artifactId>datanucleus-rdbms</artifactId>
 		</dependency>
@@ -76,24 +89,24 @@
 		<dependency>
 			<groupId>org.cumulus4j</groupId>
 			<artifactId>org.cumulus4j.store.crypto.keymanager</artifactId>
-		</dependency>	
-		<!-- <dependency>
-            <groupId>org.cumulus4j</groupId>
-            <artifactId>org.cumulus4j.keymanager.back.webapp</artifactId>
-            <type>war</type>
-        </dependency>
-        <dependency>
-            <groupId>org.cumulus4j</groupId>
-            <artifactId>org.cumulus4j.keymanager.back.shared</artifactId>
-        </dependency>
-         <dependency>
-            <groupId>org.cumulus4j</groupId>
-            <artifactId>org.cumulus4j.annotation</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.cumulus4j</groupId>
-            <artifactId>org.cumulus4j.keystore</artifactId>
-        </dependency>  -->
+		</dependency>
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.keymanager.back.webapp</artifactId>
+			<type>war</type>
+		</dependency>
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.keymanager.back.shared</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.annotation</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.keystore</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derby</artifactId>
@@ -101,9 +114,9 @@
 		</dependency>
 	</dependencies>
 
- 	<build>
+	<build>
 		<plugins>
-			 <plugin>
+			<plugin>
 				<groupId>org.mortbay.jetty</groupId>
 				<artifactId>jetty-maven-plugin</artifactId>
 				<configuration>
@@ -145,13 +158,14 @@
 				</executions>
 			</plugin>
 
-		<plugin>
+			<plugin>
 				<groupId>org.datanucleus</groupId>
 				<artifactId>maven-datanucleus-plugin</artifactId>
-   			 	<version>3.1.0-m3</version> 
+				<version>3.1.0-m3</version>
 				<executions>
 					<execution>
-						<phase>compile</phase>  <!-- the default is 'process-classes', but that doesn't exist for 'war' packaging type-->
+						<phase>compile</phase>  <!--  the default is 'process-classes', but that doesn't exist for 'war' packaging 
+							type-->
 						<goals>
 							<goal>enhance</goal>
 						</goals>
@@ -161,17 +175,17 @@
 					<dependency>
 						<groupId>org.datanucleus</groupId>
 						<artifactId>datanucleus-core</artifactId>
-	  					<version>3.1.0-m5</version>
+						<version>3.1.0-m5</version>
 						<scope>compile</scope>
 					</dependency>
 					<dependency>
 						<groupId>org.datanucleus</groupId>
 						<artifactId>datanucleus-enhancer</artifactId>
-  						<version>3.1.0-m2</version>
+						<version>3.1.0-m2</version>
 						<scope>compile</scope>
 					</dependency>
 				</dependencies>
-			</plugin> 
+			</plugin>
 
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -185,7 +199,7 @@
 
 			<plugin>
 				<artifactId>maven-failsafe-plugin</artifactId>
- 				<version>2.8.1</version>
+				<version>2.8.1</version>
 				<configuration>
 					<includes>
 						<include>**/Test*.java</include>
@@ -203,12 +217,12 @@
 				</executions>
 			</plugin>
 		</plugins>
- 		<pluginManagement>
+		<pluginManagement>
 			<plugins>
 				<plugin>
 					<groupId>org.mortbay.jetty</groupId>
 					<artifactId>jetty-maven-plugin</artifactId>
- 					<version>8.0.0.M2</version> 
+					<version>8.0.0.M2</version>
 				</plugin>
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
@@ -236,6 +250,6 @@
 				</plugin>
 			</plugins>
 		</pluginManagement>
-	</build> 
+	</build>
 
 </project>
