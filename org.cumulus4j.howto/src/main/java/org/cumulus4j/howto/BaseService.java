@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManagerFactory;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -17,16 +16,18 @@ public abstract class BaseService {
 
 	protected static PersistenceManagerFactory pmf;
 
-	protected static synchronized PersistenceManagerFactory getPersistenceManagerFactory() {
-		if (pmf == null) {
-			pmf = JDOHelper
-					.getPersistenceManagerFactory(loadProperties("datanucleus.properties"));
-		}
+//	protected static synchronized PersistenceManagerFactory getPersistenceManagerFactory() {
+//		if (pmf == null) {
+//			pmf = JDOHelper
+//					.getPersistenceManagerFactory(loadProperties("datanucleus.properties"));
+//		}
+//
+//		return pmf;
+//	}
 
-		return pmf;
-	}
+//	protected abstract Properties loadProperties();
 
-	private static Properties loadProperties(String fileName) {
+	protected static Properties loadProperties(String fileName) {
 		Properties result = new Properties();
 
 		try {

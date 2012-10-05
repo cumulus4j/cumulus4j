@@ -27,11 +27,6 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-	<!-- 	<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<scope>compile</scope>
@@ -40,15 +35,12 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
 			<scope>provided</scope>
-		</dependency> -->
-<!--  		<dependency>
-			<groupId>org.datanucleus</groupId>
-			<artifactId>datanucleus-core</artifactId>
-		</dependency> -->
-<!-- 		<dependency>
-			<groupId>org.datanucleus</groupId>
-			<artifactId>datanucleus-api-jdo</artifactId>
-		</dependency> -->
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>javax.jdo</groupId>
 			<artifactId>jdo-api</artifactId>
@@ -85,12 +77,12 @@
 			<groupId>org.cumulus4j</groupId>
 			<artifactId>org.cumulus4j.store.crypto.keymanager</artifactId>
 		</dependency>	
-		<dependency>
+		<!-- <dependency>
             <groupId>org.cumulus4j</groupId>
             <artifactId>org.cumulus4j.keymanager.back.webapp</artifactId>
             <type>war</type>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>org.cumulus4j</groupId>
             <artifactId>org.cumulus4j.keymanager.back.shared</artifactId>
         </dependency>
@@ -101,15 +93,11 @@
         <dependency>
             <groupId>org.cumulus4j</groupId>
             <artifactId>org.cumulus4j.keystore</artifactId>
-        </dependency> 
+        </dependency>  -->
 		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derby</artifactId>
 			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.cumulus4j</groupId>
-			<artifactId>org.cumulus4j.store.test</artifactId>
 		</dependency>
 	</dependencies>
 
@@ -123,7 +111,7 @@
 					<stopPort>9995</stopPort>
 					<webAppConfig>
 						<contextPath>/${project.artifactId}</contextPath>
-						<extraClasspath>${basedir}/src/test/java;${settings.localRepository}/org/slf4j/slf4j-log4j12/${slf4j.version}/slf4j-log4j12-${slf4j.version}.jar;${settings.localRepository}/log4j/log4j/${log4j.version}/log4j-${log4j.version}.jar</extraClasspath>
+						<extraClasspath>${basedir}/src/test/resources;${settings.localRepository}/org/slf4j/slf4j-log4j12/${slf4j.version}/slf4j-log4j12-${slf4j.version}.jar;${settings.localRepository}/log4j/log4j/${log4j.version}/log4j-${log4j.version}.jar</extraClasspath>
 					</webAppConfig>
 					<connectors>
 						<connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
@@ -157,13 +145,13 @@
 				</executions>
 			</plugin>
 
-		<!-- 	<plugin>
+		<plugin>
 				<groupId>org.datanucleus</groupId>
 				<artifactId>maven-datanucleus-plugin</artifactId>
    			 	<version>3.1.0-m3</version> 
 				<executions>
 					<execution>
-						<phase>compile</phase>   the default is 'process-classes', but that doesn't exist for 'war' packaging type
+						<phase>compile</phase>  <!-- the default is 'process-classes', but that doesn't exist for 'war' packaging type-->
 						<goals>
 							<goal>enhance</goal>
 						</goals>
@@ -183,7 +171,7 @@
 						<scope>compile</scope>
 					</dependency>
 				</dependencies>
-			</plugin>  -->
+			</plugin> 
 
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>

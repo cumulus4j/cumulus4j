@@ -3,7 +3,6 @@ package org.cumulus4j.howto.test;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 import javax.ws.rs.core.MediaType;
 
@@ -15,17 +14,13 @@ import org.slf4j.LoggerFactory;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.UniformInterfaceException;
 
-public class Cumulus4jWithDummyKeyManagerTest {
+public class Cumulus4jWithDummyKeyManagerTest extends BaseTest{
+
 	private static final Logger logger = LoggerFactory
 			.getLogger(Cumulus4jWithDummyKeyManagerTest.class);
 
-	private static final String URL_APP_SERVER = "http://localhost:8585";
-	private static final String URL_INTEGRATIONTEST_CONTEXT = URL_APP_SERVER
-			+ "/org.cumulus4j.howto";
-	private static final String URL_INTEGRATIONTEST_WEBAPP = URL_INTEGRATIONTEST_CONTEXT
-			+ "/App";
-	private static final String URL_TEST = URL_INTEGRATIONTEST_WEBAPP + "/Test";
-
+	private static final String URL_TEST = URL_INTEGRATIONTEST_WEBAPP + "/DummyKeyManagerService";
+//	protected static final String URL_TEST = URL_INTEGRATIONTEST_WEBAPP + "/DatanucleusService";
 
 	private void invokeTestWithinServer()
 			throws Exception {
@@ -69,45 +64,5 @@ public class Cumulus4jWithDummyKeyManagerTest {
 	@Test
 	public void testTwoComputerScenarioWithUnifiedAPI() throws Exception {
 		invokeTestWithinServer();
-	}
-
-	private static long transferStreamData(InputStream in, OutputStream out)
-			throws java.io.IOException {
-		return transferStreamData(in, out, 0, -1);
-	}
-
-	private static long transferStreamData(InputStream in, OutputStream out,
-			long inputOffset, long inputLen) throws java.io.IOException {
-		byte[] buf = new byte[4096];
-
-		int bytesRead;
-		int transferred = 0;
-
-		// skip offset
-		if (inputOffset > 0)
-			if (in.skip(inputOffset) != inputOffset)
-				throw new IOException("Input skip failed (offset "
-						+ inputOffset + ")");
-
-		while (true) {
-			if (inputLen >= 0)
-				bytesRead = in.read(buf, 0,
-						(int) Math.min(buf.length, inputLen - transferred));
-			else
-				bytesRead = in.read(buf);
-
-			if (bytesRead <= 0)
-				break;
-
-			out.write(buf, 0, bytesRead);
-
-			transferred += bytesRead;
-
-			if (inputLen >= 0 && transferred >= inputLen)
-				break;
-		}
-		out.flush();
-
-		return transferred;
 	}
 }
