@@ -1,48 +1,63 @@
 package de.alexgauss.test.server;
 
+import java.util.List;
+
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-import com.google.appengine.api.datastore.Key;
+import org.cumulus4j.annotation.NotQueryable;
 
 @PersistenceCapable
 public class MovieDBO {
 
 	@PrimaryKey
+	@NotQueryable
     @Persistent(valueStrategy = IdGeneratorStrategy.SEQUENCE)
-    private Key key;
+    private long key;
 
     @Persistent
-    private String firstName;
+    private String title;
 
     @Persistent
-    private String lastName;
+    private String subtitle;
+    
+    @Persistent
+    private List<String> starring;
 	
-    public MovieDBO(String fName, String lName){
-    	firstName = fName;
-    	lastName = lName;
+    public MovieDBO(String movieTitle, String movieSubtitle, List<String> movieStarring){
+    	title = movieTitle;
+    	subtitle = movieSubtitle;
+    	starring = movieStarring;
     }
     
-    public Key getKey() {
+    public long getKey() {
         return key;
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
-    
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
+	public String getTitle() {
+		return title;
+	}
 
-    public String getLastName() {
-        return lastName;
-    }
+	public void setTitle(String title) {
+		this.title = title;
+	}
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
+	public String getSubtitle() {
+		return subtitle;
+	}
+
+	public void setSubtitle(String subtitle) {
+		this.subtitle = subtitle;
+	}
+
+	public List<String> getStarring() {
+		return starring;
+	}
+
+	public void setStarring(List<String> starring) {
+		this.starring = starring;
+	}
     
 }

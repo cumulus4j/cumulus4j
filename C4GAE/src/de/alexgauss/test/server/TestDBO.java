@@ -22,6 +22,9 @@ public class TestDBO {
     @Persistent
     private String lastName;
     
+    @Persistent
+    private long number;
+    
     /**
      * C´tor
      * 
@@ -31,6 +34,7 @@ public class TestDBO {
     public TestDBO(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
+        this.number = 3;
     }
 
     public long getKey() {
@@ -52,5 +56,13 @@ public class TestDBO {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
+
+	public long getNumber() {
+		return number;
+	}
+
+	public void setNumber(long number) {
+		this.number = number;
+	}
     
 }

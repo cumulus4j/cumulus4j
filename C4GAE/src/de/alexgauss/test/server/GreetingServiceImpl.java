@@ -1,5 +1,6 @@
 package de.alexgauss.test.server;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -68,11 +69,14 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 		pm.setProperty(CryptoManager.PROPERTY_CRYPTO_MANAGER_ID, "dummy");
 		pm.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, "dummy" + 1 + '_' + random1 + '*' + random2);
 
-//		MovieDBO movie = new MovieDBO("Avatar", "Jake Sully");
-			
+		List<String> starring = new ArrayList<String>();
+		starring.add("Jake Sully");
+		starring.add("Doc");
+		MovieDBO movie = new MovieDBO("Avatar", "Jake Sully", starring);
 		TestDBO test = new TestDBO(fName, lName);
 
 		pm.makePersistent(test);
+		pm.makePersistent(movie);
 		pm.close();
 	}
 
@@ -85,9 +89,10 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 		pm.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, "dummy" + 1 + '_' + random1 + '*' + random2);
 
 		List<TestDBO> result = (List<TestDBO>) pm.newQuery("select from " + TestDBO.class.getName() + " WHERE firstName == 'Martin'").execute();
-
+		List<MovieDBO> movies = (List<MovieDBO>) pm.newQuery("select from " + MovieDBO.class.getName()).execute();
 		pm.close();
-		return String.valueOf(result.get(0).getFirstName() + " " + result.get(0).getLastName());
+		return String.valueOf(result.get(0).getFirstName() + " " + result.get(0).getLastName()
+				+ " " + result.get(0).getNumber()) + "\n " + movies.get(0).getTitle();
 	}
 	
 }
