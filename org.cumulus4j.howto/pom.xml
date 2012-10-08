@@ -114,6 +114,15 @@
 		</dependency>
 		<dependency>
 			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.keymanager.front.shared</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.keymanager.front.webapp</artifactId>
+			<type>war</type>
+		</dependency>
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
 			<artifactId>org.cumulus4j.annotation</artifactId>
 		</dependency>
 		<dependency>
@@ -129,7 +138,7 @@
 
 	<build>
 		<plugins>
-		
+
 			<!-- Use Jetty as application server -->
 			<plugin>
 				<groupId>org.mortbay.jetty</groupId>
@@ -172,9 +181,9 @@
 					</execution>
 				</executions>
 			</plugin>
-			
+
 			<!-- Use a GlassFish server as KeyServer -->
-			<!-- <plugin>
+			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
 				<executions>
 					<execution>
@@ -183,12 +192,11 @@
 						<goals>
 							<goal>copy-resources</goal>
 						</goals>
-
 						<configuration>
 							<outputDirectory>${glassfish.config}</outputDirectory>
 							<resources>
 								<resource>
-									<directory>${basedir}/src/glassfish-config</directory>
+									<directory>${basedir}/src/main/resources/glassfish-config</directory>
 									<filtering>false</filtering>
 									<includes>
 										<include>*</include>
@@ -197,20 +205,42 @@
 							</resources>
 						</configuration>
 					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<executions>
 					<execution>
 						<id>populate-glassfish-autodeploy</id>
-						<phase>integration-test</phase>
+						<phase>pre-integration-test</phase>
 						<goals>
-							<goal>copy-dependencies</goal>
+							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
 							<outputDirectory>${glassfish.autodeploy}</outputDirectory>
-							<includeArtifactIds>${settings.localRepository}/org/cumulus4j/org.cumulus4j.keymanager.front.webapp/${project.version}/org.cumulus4j.keymanager.front.webapp-${project.version}.war</includeArtifactIds>
+							<resources>
+
+								<resource>
+									<directory>${settings.localRepository}/org/cumulus4j/org.cumulus4j.keymanager.front.webapp/${project.version}</directory>
+									<filtering>false</filtering>
+									<includes>
+										<include>org.cumulus4j.keymanager.front.webapp-${project.version}.war</include>
+									</includes>
+								</resource>
+
+<!-- 								<resource>
+									<directory>${settings.localRepository}/org/cumulus4j</directory>
+									<filtering>false</filtering>
+									<includes>
+										<include>org.cumulus4j.keymanager.front.webapp/${project.version}/org.cumulus4j.keymanager.front.webapp-${project.version}.war</include>
+										<include>org.cumulus4j.keymanager.front.shared/${project.version}/org.cumulus4j.keymanager.front.shared-${project.version}.jar</include>
+									</includes>
+								</resource> -->
+								
+ 								<!-- <resource>
+									<directory>${settings.localRepository}/org/cumulus4j/org.cumulus4j.keymanager.front.shared/${project.version}</directory>
+									<filtering>false</filtering>
+									<includes>
+										<include>org.cumulus4j.keymanager.front.shared-${project.version}.jar</include>
+									</includes>
+								</resource> -->
+								
+							</resources>
 						</configuration>
 					</execution>
 				</executions>
@@ -221,12 +251,12 @@
 				<version>3.1</version>
 				<configuration>
 					<serverID>server</serverID>
-					<name>server</name> -->
-					<!-- the following does not work :-( it does not deploy. using the above solution via "autodeploy" folder.
-					<app>${project.build.directory}/${project.build.finalName}.jar</app>
-					-->
-					<!-- <port>8080</port>
+					<name>server</name>
+					<port>8080</port>
 					<instanceRoot>${glassfish.instanceRoot}</instanceRoot>
+					<!-- <app>${glassfish.instanceRoot}/autodeploy/org.cumulus4j.keymanager.front.webapp-${project.version}.war</app> -->
+					<!-- <app>${glassfish.instanceRoot}/autodeploy/org.cumulus4j.keymanager.front.shared-${project.version}.jar</app> -->
+ 		      		<!-- <contextRoot>org.cumulus4j.keymanager.front.webapp-${project.version}.war</contextRoot> -->
 					<autoDelete>true</autoDelete>
 					<configFile>${glassfish.config}/domain.xml</configFile>
 					<systemProperties>
@@ -234,7 +264,14 @@
 					</systemProperties>
 				</configuration>
 				<executions>
-					<execution>
+					<!-- <execution>
+                        <id>deploy</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>deploy</goal>
+                        </goals>
+                    </execution> -->
+					<!-- <execution>
 						<id>pre-integration-test</id>
 						<phase>pre-integration-test</phase>
 						<goals>
@@ -249,9 +286,9 @@
 							<goal>stop</goal>
 						</goals>
 						<inherited>false</inherited>
-					</execution>
+					</execution>  -->
 				</executions>
-			</plugin> -->
+			</plugin>
 			
 			<plugin>
 				<groupId>org.datanucleus</groupId>
@@ -259,8 +296,8 @@
 				<version>3.1.0-m3</version>
 				<executions>
 					<execution>
-						<phase>compile</phase>  <!--  the default is 'process-classes', but that doesn't exist for 'war' packaging 
-							type-->
+						<phase>compile</phase>  <!-- the default is 'process-classes', but that doesn't exist for 'war' packaging 
+							type -->
 						<goals>
 							<goal>enhance</goal>
 						</goals>
@@ -310,7 +347,7 @@
 				</executions>
 			</plugin>
 		</plugins>
-		
+
 		<pluginManagement>
 			<plugins>
 				<plugin>
@@ -338,7 +375,7 @@
 										<ignore />
 									</action>
 								</pluginExecution>
-								<!-- <pluginExecution>
+								<pluginExecution>
 									<pluginExecutionFilter>
 										<groupId>
 											org.apache.maven.plugins
@@ -358,7 +395,7 @@
 									<action>
 										<ignore></ignore>
 									</action>
-								</pluginExecution> -->
+								</pluginExecution>
 							</pluginExecutions>
 						</lifecycleMappingMetadata>
 					</configuration>
