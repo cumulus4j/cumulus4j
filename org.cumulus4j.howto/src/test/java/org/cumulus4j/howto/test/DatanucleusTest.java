@@ -1,16 +1,19 @@
 package org.cumulus4j.howto.test;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
-public class DatanucleusTest extends BaseTest{
+public class DatanucleusTest extends BaseTest {
 
-	private static final String URL_TEST = URL_INTEGRATIONTEST_WEBAPP + "/DatanucleusService";
+	private static final String URL_TEST = URL_INTEGRATIONTEST_WEBAPP
+			+ "/DatanucleusService";
 
-	private void invokeTest()
-			throws Exception {
+	private void invokeTest() throws Exception {
+
 		invokeTestWithinServer(URL_TEST);
 	}
 
+	@Ignore
 	@Test
 	public void testTwoComputerScenarioWithUnifiedAPI() throws Exception {
 

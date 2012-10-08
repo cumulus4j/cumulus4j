@@ -8,6 +8,7 @@ import org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam;
 import org.cumulus4j.keymanager.api.DefaultKeyManagerAPI;
 import org.cumulus4j.keymanager.api.KeyManagerAPI;
 import org.cumulus4j.keymanager.api.KeyManagerAPIConfiguration;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +18,7 @@ public class Cumulus4jWithLocalKeystoreTest extends BaseTest {
 	private static final Logger logger = LoggerFactory
 			.getLogger(Cumulus4jWithLocalKeystoreTest.class);
 
-	private static final String URL_KEY_MANAGER_BACK_WEBAPP = URL_INTEGRATIONTEST_CONTEXT
+	protected static final String URL_KEY_MANAGER_BACK_WEBAPP = URL_INTEGRATIONTEST_CONTEXT
 			+ "/org.cumulus4j.keymanager.back.webapp";
 
 	private static final String URL_TEST = URL_INTEGRATIONTEST_WEBAPP
@@ -29,11 +30,12 @@ public class Cumulus4jWithLocalKeystoreTest extends BaseTest {
 
 	private static SecureRandom random = new SecureRandom();
 
-	private void invokeTest(String cryptoSessionID) throws Exception {
+	protected void invokeTest(String cryptoSessionID) throws Exception {
 		invokeTestWithinServer(URL_TEST + "?cryptoSessionID="
 				+ URLEncoder.encode(cryptoSessionID, "UTF-8"));
 	}
 
+	@Ignore
 	@Test
 	public void testTwoComputerScenarioWithUnifiedAPI() throws Exception {
 		File keyStoreDir = new File(new File(
