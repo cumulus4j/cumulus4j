@@ -8,7 +8,6 @@ import org.cumulus4j.keymanager.api.DateDependentKeyStrategyInitParam;
 import org.cumulus4j.keymanager.api.DefaultKeyManagerAPI;
 import org.cumulus4j.keymanager.api.KeyManagerAPI;
 import org.cumulus4j.keymanager.api.KeyManagerAPIConfiguration;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +34,7 @@ public class Cumulus4jWithLocalKeystoreTest extends BaseTest {
 				+ URLEncoder.encode(cryptoSessionID, "UTF-8"));
 	}
 
-	@Ignore
+//	@Ignore
 	@Test
 	public void testTwoComputerScenarioWithUnifiedAPI() throws Exception {
 		File keyStoreDir = new File(new File(
@@ -75,29 +74,12 @@ public class Cumulus4jWithLocalKeystoreTest extends BaseTest {
 					configuration.getKeyStoreID() + ".keystore");
 			if (!keyStoreFile.exists()) {
 				logger.warn("**************************************************************************");
-				logger.warn("**************************************************************************");
-				logger.warn("**************************************************************************");
-				logger.warn("**************************************************************************");
-				logger.warn("**************************************************************************");
-				logger.warn("**************************************************************************");
-				logger.warn("**************************************************************************");
-				logger.warn("**************************************************************************");
-				logger.warn("**************************************************************************");
-				logger.warn("**************************************************************************");
 
 				logger.warn("*** The key-store-file does not exist: "
 						+ keyStoreFile.getAbsolutePath());
 
 				logger.warn("**************************************************************************");
-				logger.warn("**************************************************************************");
-				logger.warn("**************************************************************************");
-				logger.warn("**************************************************************************");
-				logger.warn("**************************************************************************");
-				logger.warn("**************************************************************************");
-				logger.warn("**************************************************************************");
-				logger.warn("**************************************************************************");
-				logger.warn("**************************************************************************");
-				logger.warn("**************************************************************************");
+
 			} else {
 				keyStoreFile.delete();
 				if (keyStoreFile.exists())

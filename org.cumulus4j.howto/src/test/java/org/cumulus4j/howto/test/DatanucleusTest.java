@@ -1,6 +1,5 @@
 package org.cumulus4j.howto.test;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class DatanucleusTest extends BaseTest {
@@ -13,7 +12,7 @@ public class DatanucleusTest extends BaseTest {
 		invokeTestWithinServer(URL_TEST);
 	}
 
-	@Ignore
+//	@Ignore
 	@Test
 	public void testTwoComputerScenarioWithUnifiedAPI() throws Exception {
 

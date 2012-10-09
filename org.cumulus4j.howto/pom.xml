@@ -12,6 +12,10 @@
 		<glassfish.instanceRoot>${project.build.directory}/glassfish-instance</glassfish.instanceRoot>
 		<glassfish.config>${glassfish.instanceRoot}/config</glassfish.config>
 		<glassfish.autodeploy>${glassfish.instanceRoot}/autodeploy</glassfish.autodeploy>
+		<glassfish.docroot>${glassfish.instanceRoot}/docroot</glassfish.docroot>
+		
+		<!-- <version.org.jboss.jbossas>6.0.0.20100429-M3</version.org.jboss.jbossas>
+		<JBOSS_HOME>${project.build.directory}/jboss-${version.org.jboss.jbossas}</JBOSS_HOME> -->
 	</properties>
 
 	<name>org.cumulus4j.howto</name>
@@ -42,6 +46,18 @@
 	</dependencyManagement>
 
 	<dependencies>
+		<!-- <dependency>
+			<groupId>org.jboss.jbossas</groupId>
+			<artifactId>jboss-as-depchain</artifactId>			    
+			<version>${version.org.jboss.jbossas}</version>
+			<type>pom</type>
+		</dependency> -->
+		<dependency>
+			<groupId>org.glassfish</groupId>
+			<artifactId>maven-embedded-glassfish-plugin</artifactId>
+			<version>3.1.1</version>
+			<type>maven-plugin</type>
+		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
@@ -206,8 +222,28 @@
 						</configuration>
 					</execution>
 					<execution>
+						<id>copy-glassfish-docroot</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${glassfish.docroot}</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${basedir}/src/main/resources/docroot</directory>
+									<filtering>false</filtering>
+									<includes>
+										<include>*</include>
+									</includes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+					<execution>
 						<id>populate-glassfish-autodeploy</id>
-						<phase>pre-integration-test</phase>
+						<!-- <phase>pre-integration-test</phase> -->
+						<phase>generate-resources</phase>
 						<goals>
 							<goal>copy-resources</goal>
 						</goals>
@@ -248,7 +284,7 @@
 			<plugin>
 				<groupId>org.glassfish</groupId>
 				<artifactId>maven-embedded-glassfish-plugin</artifactId>
-				<version>3.1</version>
+				<!-- <version>3.1-SNAPSHOT</version> -->
 				<configuration>
 					<serverID>server</serverID>
 					<name>server</name>
@@ -264,14 +300,14 @@
 					</systemProperties>
 				</configuration>
 				<executions>
-					<!-- <execution>
+					<execution>
                         <id>deploy</id>
                         <phase>pre-integration-test</phase>
                         <goals>
                             <goal>deploy</goal>
                         </goals>
-                    </execution> -->
-					<!-- <execution>
+                    </execution> 
+					 <execution>
 						<id>pre-integration-test</id>
 						<phase>pre-integration-test</phase>
 						<goals>
@@ -286,9 +322,140 @@
 							<goal>stop</goal>
 						</goals>
 						<inherited>false</inherited>
-					</execution>  -->
+					</execution> 
 				</executions>
 			</plugin>
+			
+			<!-- JBoss as key server -->
+ 			<!-- <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>unpack</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.jboss.jbossas</groupId>
+									<artifactId>jboss-as-distribution</artifactId>
+									<version>${version.org.jboss.jbossas}</version>
+									<type>zip</type>
+									<overWrite>false</overWrite>
+									<outputDirectory>${project.build.directory}</outputDirectory>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+					<execution>
+						<id>populate-jboss-deploy</id>
+						<phase>integration-test</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${JBOSS_HOME}/server/default/deploy</outputDirectory>
+							<includeArtifactIds>${settings.localRepository}/org/cumulus4j/org.cumulus4j.keymanager.front.webapp/${project.version}/org.cumulus4j.keymanager.front.webapp-${project.version}.war</includeArtifactIds>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.6</version>
+				<executions>
+					<execution>
+						<id>set-jboss-permissions</id>
+						<phase>pre-integration-test</phase>
+						<configuration>
+							<target>
+								<chmod file="${JBOSS_HOME}/bin/run.sh" perm="755"/>
+								<chmod file="${JBOSS_HOME}/bin/shutdown.sh" perm="755"/>
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-jboss-config</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${JBOSS_HOME}/server/default/deploy</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${basedir}/src/jboss-config</directory>
+									<filtering>false</filtering>
+									<includes>
+										<include>*</include>
+									</includes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy-derby</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${JBOSS_HOME}/lib</outputDirectory> 
+							<resources>
+								<resource>
+									<directory>${basedir}/src/derby</directory>
+									<filtering>false</filtering>
+									<includes>
+										<include>*</include>
+									</includes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+ 			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>jboss-maven-plugin</artifactId>
+				<version>1.5.0</version>
+				<configuration>
+					<serverID>server</serverID>
+					<name>server</name>
+					<port>8080</port>
+					<jbossHome>${JBOSS_HOME}</jbossHome>
+					<autoDelete>true</autoDelete>
+				</configuration>
+				<executions>
+					<execution>
+						<id>pre-integration-test</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>start</goal>
+						</goals>
+						<inherited>false</inherited>
+					</execution>
+					<execution>
+						<id>post-integration-test</id>
+						<phase>post-integration-test</phase>
+						<goals>
+							<goal>stop</goal>
+						</goals>
+						<inherited>false</inherited>
+					</execution>
+				</executions>
+			</plugin> -->
 			
 			<plugin>
 				<groupId>org.datanucleus</groupId>
@@ -390,6 +557,9 @@
 											<goal>
 												copy-dependencies
 											</goal>
+											<!-- <goal>
+												unpack
+											</goal> -->
 										</goals>
 									</pluginExecutionFilter>
 									<action>
