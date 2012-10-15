@@ -12,7 +12,6 @@ public class Cumulus4jWithDummyKeyManagerTest extends BaseTest {
 		invokeTestWithinServer(URL_TEST);
 	}
 
-//	@Ignore
 	@Test
 	public void testTwoComputerScenarioWithUnifiedAPI() throws Exception {
 

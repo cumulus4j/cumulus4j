@@ -19,7 +19,6 @@ public class Cumulus4jWithKeyServerTest extends Cumulus4jWithLocalKeystoreTest {
 
 	private static SecureRandom random = new SecureRandom();
 
-	// @Ignore
 	@Override
 	@Test
 	public void testTwoComputerScenarioWithUnifiedAPI() throws Exception {

@@ -34,7 +34,6 @@ public class Cumulus4jWithLocalKeystoreTest extends BaseTest {
 				+ URLEncoder.encode(cryptoSessionID, "UTF-8"));
 	}
 
-//	@Ignore
 	@Test
 	public void testTwoComputerScenarioWithUnifiedAPI() throws Exception {
 		File keyStoreDir = new File(new File(
