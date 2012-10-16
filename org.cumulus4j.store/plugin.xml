@@ -119,6 +119,7 @@
   </extension>
 
   <extension point="org.datanucleus.store_valuegenerator">
+    <valuegenerator name="identity" class-name="org.cumulus4j.store.Cumulus4jIncrementGenerator" datastore="cumulus4j"/>
     <valuegenerator name="increment" class-name="org.cumulus4j.store.Cumulus4jIncrementGenerator" datastore="cumulus4j"/>
     <valuegenerator name="sequence" class-name="org.cumulus4j.store.Cumulus4jIncrementGenerator" datastore="cumulus4j"/>
   </extension>

@@ -385,15 +385,15 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 //		return nucleusSequence.nextValue();
 //	}
 
-	@Override
-	protected String getStrategyForNative(AbstractClassMetaData cmd, int absFieldNumber) {
-		return "increment";
-//		AbstractMemberMetaData mmd = cmd.getMetaDataForManagedMemberAtAbsolutePosition(absFieldNumber);
-//		if (String.class.isAssignableFrom(mmd.getType()) || UUID.class.isAssignableFrom(mmd.getType()))
-//			return "uuid-hex";
-//		else
-//			return "increment";
-	}
+//	@Override
+//	protected String getStrategyForNative(AbstractClassMetaData cmd, int absFieldNumber) {
+//		return "increment";
+////		AbstractMemberMetaData mmd = cmd.getMetaDataForManagedMemberAtAbsolutePosition(absFieldNumber);
+////		if (String.class.isAssignableFrom(mmd.getType()) || UUID.class.isAssignableFrom(mmd.getType()))
+////			return "uuid-hex";
+////		else
+////			return "increment";
+//	}
 
 	@Override
 	public void createSchema(Set<String> classNames, Properties props) {
@@ -478,5 +478,11 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 	@Override
 	public Cumulus4jPersistenceHandler getPersistenceHandler() {
 		return (Cumulus4jPersistenceHandler) super.getPersistenceHandler();
+	}
+
+	@Override
+	public boolean isStrategyDatastoreAttributed(AbstractClassMetaData cmd, int absFieldNumber) {
+		// We emulate all strategies via our Cumulus4jIncrementGenerator - none is really datastore-attributed.
+		return false;
 	}
 }

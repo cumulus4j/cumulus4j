@@ -188,6 +188,9 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 
 			Object object = op.getObject();
 			Object objectID = op.getExternalObjectId();
+			if (objectID == null) {
+				throw new IllegalStateException("op.getExternalObjectId() returned null! Maybe Cumulus4jStoreManager.isStrategyDatastoreAttributed(...) is incorrect?");
+			}
 			ClassMeta classMeta = storeManager.getClassMeta(ec, object.getClass());
 
 			AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), ec.getClassLoaderResolver());
