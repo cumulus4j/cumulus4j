@@ -67,7 +67,7 @@
 		<dependency>
 			<groupId>javax.jdo</groupId>
 			<artifactId>jdo-api</artifactId>
-			<scope>compile</scope>
+ 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.datanucleus</groupId>
