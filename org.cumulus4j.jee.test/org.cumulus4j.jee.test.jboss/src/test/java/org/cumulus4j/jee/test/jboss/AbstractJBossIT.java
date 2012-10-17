@@ -70,7 +70,7 @@ public abstract class AbstractJBossIT {
 	public InitialContext createInitialContext() throws NamingException {
 	Properties props = new Properties();
 	props.setProperty("java.naming.factory.initial", "org.jnp.interfaces.NamingContextFactory");
-	props.setProperty("java.naming.factory.url.pkgs", "org.jboss.naming rg.jnp.interfaces");
+	props.setProperty("java.naming.factory.url.pkgs", "org.jboss.naming:rg.jnp.interfaces");
 //	props.setProperty("java.naming.factory.state", "com.sun.corba.ee.impl.presentation.rmi.JNDIStateFactoryImpl");
 //
 //	// optional.  Defaults to localhost.  Only needed if web server is running

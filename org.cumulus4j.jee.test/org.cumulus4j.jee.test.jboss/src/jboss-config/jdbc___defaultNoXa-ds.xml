@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <datasources>
-	<no-tx-datasource>
+<!-- 	<no-tx-datasource>
 		<jndi-name>jdbc/__defaultNoXa</jndi-name>
 		<rar-name>jboss-local-jdbc.rar</rar-name>
 		<use-java-context>true</use-java-context>
@@ -30,7 +30,51 @@
 		<url-delimiter>|</url-delimiter>
 		<driver-class>org.apache.derby.jdbc.EmbeddedDataSource40
 		</driver-class>
-		<connection-url>jdbc:derby:${jboss.server.data.dir}${/}derby${/}default;create=true
+ 		<connection-url>jdbc:derby:${jboss.server.data.dir}${/}derby${/}default;create=true 
 		</connection-url>
+	</no-tx-datasource> -->
+	
+	<no-tx-datasource>
+		<jndi-name>jdbc/__defaultNoXa</jndi-name>
+		<connection-url>jdbc:derby:${jboss.server.data.dir}${/}derby${/}default;create=true</connection-url>
+		<driver-class>org.apache.derby.jdbc.EmbeddedDataSource40</driver-class>
+
+		<user-name>${databaseUserName}</user-name>
+		<password><![CDATA[${databasePassword}]]></password>
+
+		<connection-property name="autoReconnect">false</connection-property>
+		<connection-property name="auto-commit">false</connection-property>
+
+		<metadata>
+			<type-mapping>${datasourceMetadataTypeMapping}</type-mapping>
+		</metadata>
+		<max-pool-size>200</max-pool-size>
+		<!--
+		Even though the connections to the embedded DB cannot break, we close
+		idle connections in order to save memory.
+		-->
+		<min-pool-size>0</min-pool-size>
+		<idle-timeout-minutes>1</idle-timeout-minutes>
 	</no-tx-datasource>
+	
+	<xa-datasource>
+		<jndi-name>${datasourceJNDIName_relative_xa}</jndi-name>
+		<xa-datasource-class>${databaseDriverName_xa}</xa-datasource-class>
+		<xa-datasource-property name="DatabaseName">${databaseName}</xa-datasource-property>
+
+		<user-name>${databaseUserName}</user-name>
+		<password>${databasePassword}</password>
+
+		<track-connection-by-tx>true</track-connection-by-tx>
+		<metadata>
+			<type-mapping>${datasourceMetadataTypeMapping}</type-mapping>
+		</metadata>
+		<max-pool-size>200</max-pool-size>
+		<!--
+		Even though the connections to the embedded DB cannot break, we close
+		idle connections in order to save memory.
+		-->
+		<min-pool-size>0</min-pool-size>
+		<idle-timeout-minutes>1</idle-timeout-minutes>
+	</xa-datasource>
 </datasources>

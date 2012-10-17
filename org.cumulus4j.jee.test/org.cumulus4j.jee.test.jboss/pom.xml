@@ -165,7 +165,8 @@
 						</goals>
 
 						<configuration>
-							<outputDirectory>${JBOSS_HOME}/lib</outputDirectory>
+							<outputDirectory>${JBOSS_HOME}/lib</outputDirectory> 
+							<!-- <outputDirectory>${JBOSS_HOME}/server/default/deploy</outputDirectory> -->
 							<resources>
 								<resource>
 									<directory>${basedir}/src/derby</directory>
