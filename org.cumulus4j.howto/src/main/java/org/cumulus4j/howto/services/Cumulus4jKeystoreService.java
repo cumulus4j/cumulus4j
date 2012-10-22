@@ -18,11 +18,14 @@ import org.cumulus4j.store.crypto.CryptoSession;
 @Path("KeyStoreService")
 public class Cumulus4jKeystoreService extends BaseService {
 
-	private static synchronized PersistenceManagerFactory getPersistenceManagerFactory() {
+	private static synchronized PersistenceManagerFactory getPersistenceManagerFactory(String cryptoManagerID, String cryptoSessionID) {
 		if (pmf == null) {
 
 			Properties props = loadProperties("datanucleus.properties");
 			props.putAll(loadProperties("cumulus4j.properties"));
+			
+			props.put(CryptoManager.PROPERTY_CRYPTO_MANAGER_ID, cryptoManagerID);
+			props.put(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, cryptoSessionID);
 
 			pmf = JDOHelper
 					.getPersistenceManagerFactory(props);
@@ -34,19 +37,19 @@ public class Cumulus4jKeystoreService extends BaseService {
 	protected PersistenceManager getPersistenceManager(String cryptoManagerID,
 			String cryptoSessionID) {
 
-		if (cryptoManagerID == null)
-			throw new IllegalArgumentException("cryptoManagerID == null");
+//		if (cryptoManagerID == null)
+//			throw new IllegalArgumentException("cryptoManagerID == null");
+//
+//		if (cryptoSessionID == null)
+//			throw new IllegalArgumentException("cryptoSessionID == null");
 
-		if (cryptoSessionID == null)
-			throw new IllegalArgumentException("cryptoSessionID == null");
-
-		PersistenceManager pm = getPersistenceManagerFactory()
+		PersistenceManager pm = getPersistenceManagerFactory(cryptoManagerID, cryptoSessionID)
 				.getPersistenceManager();
 
-		pm.setProperty(CryptoManager.PROPERTY_CRYPTO_MANAGER_ID,
-				cryptoManagerID);
-		pm.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID,
-				cryptoSessionID);
+//		pm.setProperty(CryptoManager.PROPERTY_CRYPTO_MANAGER_ID,
+//				cryptoManagerID);
+//		pm.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID,
+//				cryptoSessionID);
 
 		return pm;
 	}

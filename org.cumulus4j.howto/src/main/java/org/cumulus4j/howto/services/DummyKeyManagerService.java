@@ -24,6 +24,11 @@ public class DummyKeyManagerService extends BaseService {
 			props.putAll(loadProperties("cumulus4j.properties"));
 
 			props.put("cumulus4j.cryptoManagerID", "dummy");
+			
+			props.put(
+					CryptoSession.PROPERTY_CRYPTO_SESSION_ID,
+					"dummyKeyStoreID_" + UUID.randomUUID() + '*'
+							+ UUID.randomUUID());
 
 			pmf = JDOHelper
 					.getPersistenceManagerFactory(props);
@@ -36,10 +41,10 @@ public class DummyKeyManagerService extends BaseService {
 		PersistenceManager pm = getPersistenceManagerFactory()
 				.getPersistenceManager();
 
-		pm.setProperty(
-				CryptoSession.PROPERTY_CRYPTO_SESSION_ID,
-				"dummyKeyStoreID_" + UUID.randomUUID() + '*'
-						+ UUID.randomUUID());
+//		pm.setProperty(
+//				CryptoSession.PROPERTY_CRYPTO_SESSION_ID,
+//				"dummyKeyStoreID_" + UUID.randomUUID() + '*'
+//						+ UUID.randomUUID());
 
 		return pm;
 	}
