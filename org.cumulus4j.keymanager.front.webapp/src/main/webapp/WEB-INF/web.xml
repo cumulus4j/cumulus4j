@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Cumulus4j - Securing your data in the cloud - http://cumulus4j.org
+    Copyright (C) 2011 NightLabs Consulting GmbH
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	metadata-complete="true"
+	version="2.5">
+	<!--
+	metadata-complete="true" causes the annotations to be ignored, which speeds up the jetty startup significantly
+	(from about 30 sec to 1 sec). Of course, this must be false (or omitted), if the annotations should be used
+	instead of this file.
+	-->
+
+	<display-name>org.cumulus4j.keymanager.front.webapp</display-name>
+
+	<servlet>
+		<servlet-name>Jersey Web Application</servlet-name>
+		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+		<init-param>
+			<param-name>javax.ws.rs.Application</param-name>
+			<param-value>org.cumulus4j.keymanager.front.webapp.KeyManagerFrontWebApp</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Jersey Web Application</servlet-name>
+		<url-pattern>/*</url-pattern>
+	</servlet-mapping>
+	<filter>
+		<filter-name>AjaxHeadersFilter</filter-name>
+		<filter-class>org.cumulus4j.keymanager.back.shared.AjaxHeadersFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>AjaxHeadersFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+</web-app>

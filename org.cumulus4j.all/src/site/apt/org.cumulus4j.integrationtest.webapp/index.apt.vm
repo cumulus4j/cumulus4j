@@ -1,0 +1,32 @@
+	---
+	Module org.cumulus4j.integrationtest.webapp
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-02
+
+Module org.cumulus4j.integrationtest.webapp
+
+	This is an integration test launching a Jetty servlet container with a dummy web app containing
+	DataNucleus and Cumulus4j. It is used to test the cooperation of all parts in a complete simulation
+	of app server (simulated by Jetty + dummy web app) and client (test classes in /src/test/java of this
+	project). 
+
+	You can start the jetty server of this project by the following command:
+
++-------------------------------------------+
+mvn jetty:run
++-------------------------------------------+
+
+* {Ajax}
+
+	This WAR also contains a little example Ajax client which you can try at:
+	{{http://localhost:8585/org.cumulus4j.integrationtest.webapp/jquery-test.html}}
+
+	This URL will open a web page consisting only of two text boxes for user name and password respectively and a
+	"Start Test"-link. By selecting this link, the test will be triggered. Log messages will be appended to the page explaining
+	the current test phases and their results.
+	In case of success, the message "All done successfully" will appear as final message on the screen after approximately 30 seconds.
+
+	Note, that this Ajax client only works, if both application server and key server are running, i.e. you have to
+	additionally start {{{../org.cumulus4j.integrationtest.withkeyserver/index.html}org.cumulus4j.integrationtest.withkeyserver}}.

@@ -1,0 +1,89 @@
+	---
+	Modul org.cumulus4j.store
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-02
+
+Modul org.cumulus4j.store
+
+	Plugin für {{{http://www.datanucleus.org}DataNucleus}}, ermöglicht verschlüsselte Datenspeicherung.
+	
+	Es ist verantwortlich für die Speicherung von Daten in einer verschlüsselten Form, sowie die Abfrage der Daten
+	(dabei werden JDOQL und JPAQL unterstützt). Deshalb nutzt es einen Backend-Datenspeicher
+	(erreichbar via DataNucleus über die JDO-API), der seine eigene Datenstruktur verwaltet.
+	Zusätzlich zur Verwendung von nur einem einzigen Backend-Datenspeicher, wird die Verwendung von zwei separaten
+	Datenspeichern (einer für Indizes und einer für die tatsächlichen Daten) ebenfalls unterstützt.
+
+DataNucleus nutzt den Eclipse-Plugin-Mechanismus und dieses Plugin ist der Kern von Cumulus4j mit Erweiterungen
+auf die folgenden DN Erweiterungspunkte:
+	
+	* org.datanucleus.member_annotation_handler
+	
+	* org.datanucleus.persistence_properties
+	
+	* org.datanucleus.store_connectionfactory
+	
+	* org.datanucleus.store_manager
+	
+	* org.datanucleus.store_query_query
+	
+	* org.datanucleus.store_valuegenerator
+	
+	[]
+	
+	Um erweiterbar zu sein, deklariert dieses Plugins selbst einige Erweiterungspunkte:
+	
+	* org.cumulus4j.store.crypto_manager (siehe {{{../apidocs/index.html?org/cumulus4j/store/crypto/CryptoManager.html}CryptoManager}})
+	
+	* Extension provided by {{{../org.cumulus4j.store.crypto.keymanager/}org.cumulus4j.store.crypto.keymanager}}
+	
+	* org.cumulus4j.store.index_mapping (siehe {{{../apidocs/index.html?org/cumulus4j/store/model/IndexEntry.html}IndexEntry}})
+	
+	* org.cumulus4j.store.query_method (siehe {{{../apidocs/index.html?org/cumulus4j/store/query/method/MethodEvaluator.html}MethodEvaluator}})
+	
+	[]
+	
+	Diese Listen könnten nicht aktuell sein, aber sie sollte Ihnen eine grobe Vorstellung geben
+	(überprüfen Sie die Datei <<<plugin.xml>>>, wenn Sie sicher sein wollen).
+
+* Maven
+
+	Nachdem Sie die auf {{{../download/index.html}Herunterladen}} dokumentierten Lager (Repositories)
+	zu Ihrer <<<pom.xml>>> hinzugefügt haben, können Sie die folgende Abhängigkeit deklarieren, 
+	um dieses Modul zu benutzen:
+
++------------------------------------------+
+<dependencies>
+	...
+	<dependency>
+		<groupId>org.cumulus4j</groupId>
+		<artifactId>org.cumulus4j.store</artifactId>
+	</dependency>
+	...
+</dependencies>
++------------------------------------------+
+
+	Die obige Abhängigkeit deklariert keine Version (und sollte dies auch nicht tun!). Stattdessen empfehlen
+	wir, folgendes zu Ihrem "dependency-management" hinzuzufügen:
+
++------------------------------------------+
+<dependencyManagement>
+	<dependencies>
+		...
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.parent</artifactId>
+			<type>pom</type>
+			<version>${project.version}</version>
+			<scope>import</scope>
+		</dependency>
+		...
+	</dependencies>
+</dependencyManagement>
++------------------------------------------+
+
+* Einsatzort
+
+	Die {{{../documentation/deployment-module-location-matrix.html}Modul-Ort-Matrix}} zeigt, wo dieses Modul
+	bereitgestellt werden muss.

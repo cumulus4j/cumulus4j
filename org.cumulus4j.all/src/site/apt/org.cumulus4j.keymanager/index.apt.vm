@@ -1,0 +1,59 @@
+	---
+	Module org.cumulus4j.keymanager
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-02
+
+Module org.cumulus4j.keymanager
+
+	The key-manager sends keys from the locally managed key-store to the app-server, whenever the app-server
+	requests keys and the app-client allows it. 
+
+	Therefore, the key-manager receives a {{{../apidocs/index.html?org/cumulus4j/keymanager/back/shared/Request.html}Request}}
+	from the app-server and processes it via a {{{../apidocs/index.html?org/cumulus4j/keymanager/channel/RequestHandler.html}RequestHandler}}.
+	After it is processed, the result is sent back to the app-server via a
+	{{{../apidocs/index.html?org/cumulus4j/keymanager/back/shared/Response.html}Response}}.
+
+	The requests are only processed within the scope of a valid and unlocked
+	{{{../apidocs/index.html?org/cumulus4j/keymanager/api/Session.html}crypto-session}}. 
+
+* Maven
+
+	After adding the repositories documented on the {{{../download/index.html}Download}} page
+	to your <<<pom.xml>>>, you can add the following dependency in order to use this module: 
+
++------------------------------------------+
+<dependencies>
+	...
+	<dependency>
+		<groupId>org.cumulus4j</groupId>
+		<artifactId>org.cumulus4j.keymanager</artifactId>
+	</dependency>
+	...
+</dependencies>
++------------------------------------------+
+
+	The above dependency does not (and should not!) declare a version. Instead, it is recommended that
+	you add the following to your dependency-management:
+
++------------------------------------------+
+<dependencyManagement>
+	<dependencies>
+		...
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.parent</artifactId>
+			<type>pom</type>
+			<version>${project.version}</version>
+			<scope>import</scope>
+		</dependency>
+		...
+	</dependencies>
+</dependencyManagement>
++------------------------------------------+
+
+* Deployment location
+
+	The {{{../documentation/deployment-module-location-matrix.html}module-location-matrix}} shows where
+	this module needs to be deployed.

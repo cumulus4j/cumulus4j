@@ -1,0 +1,33 @@
+	---
+	Persistence mapping
+	---
+	Marco หงุ่ยตระกูล-Schulze, Andy Jefferson
+	---
+	2011-07-12
+
+Persistence mapping
+
+	You define the persistence mapping for your model classes in the normal way for JDO/JPA, using annotations or XML.
+	For details about this, please consult DataNucleus' documentation
+	about {{{http://www.datanucleus.org/products/accessplatform_3_0/jdo/mapping.html}JDO Mapping}}
+	or {{{http://www.datanucleus.org/products/accessplatform_3_0/jpa/mapping.html}JPA Mapping}}.
+	All standard annotations/XML apply here, with no exceptions.
+
+	One difference between normal JDO/JPA persistence and Cumulus4j persistence is that if you want to query
+	a field of one of your model classes in the datastore then it needs "indexing". This is not indexing in the 
+	relational database	sense, but instead indexing of the encrypted field value so that it doesn't need loading into 
+	memory to determine if it passes a particular query constraint. By default all persistent fields are "indexed". 
+	Obviously this has an impact on performance, so you can specify particular fields to be not indexed. 
+	You do this as follows:
+
+	[[1]] JDO: Standard Annotations
+	
+	@Extension(vendorName="datanucleus", key="cumulus4j-queryable", value="false")
+	
+	[[2]] JDO/JPA: Cumulus4j Annotations
+	
+	@NotQueryable
+	
+	[[3]] JPA: DataNucleus Annotations
+	
+	@Extension(key="cumulus4j-queryable", value="false") 

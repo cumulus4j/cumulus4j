@@ -1,0 +1,54 @@
+	---
+	Module org.cumulus4j.annotation
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-02
+
+Modul org.cumulus4j.annotation
+
+	Diese Annotationen können im Datenmodell zusätzlich zu den JDO/JPA-Annotationen benutzt werden um das Verhalten
+	von Cumulus4j zu beeinflussen.
+
+	Siehe auch {{{../documentation/persistence-mapping.html}Persistence mapping}} für weitere Details.
+
+* Maven
+
+	Nachdem Sie die auf {{{../download/index.html}Herunterladen}} dokumentierten Lager (Repositories)
+	zu Ihrer <<<pom.xml>>> hinzugefügt haben, können Sie die folgende Abhängigkeit deklarieren, 
+	um dieses Modul zu benutzen:
+
++------------------------------------------+
+<dependencies>
+	...
+	<dependency>
+		<groupId>org.cumulus4j</groupId>
+		<artifactId>org.cumulus4j.annotation</artifactId>
+	</dependency>
+	...
+</dependencies>
++------------------------------------------+
+
+	Die obige Abhängigkeit deklariert keine Version (und sollte dies auch nicht tun!). Stattdessen empfehlen
+	wir, folgendes zu Ihrem "dependency-management" hinzuzufügen:
+
++------------------------------------------+
+<dependencyManagement>
+	<dependencies>
+		...
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.parent</artifactId>
+			<type>pom</type>
+			<version>${project.version}</version>
+			<scope>import</scope>
+		</dependency>
+		...
+	</dependencies>
+</dependencyManagement>
++------------------------------------------+
+
+* Einsatzort
+
+	Die {{{../documentation/deployment-module-location-matrix.html}Modul-Ort-Matrix}} zeigt, wo dieses Modul
+	bereitgestellt werden muss.

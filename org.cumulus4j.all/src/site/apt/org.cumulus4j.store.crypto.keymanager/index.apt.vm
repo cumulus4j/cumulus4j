@@ -1,0 +1,56 @@
+	---
+	Module org.cumulus4j.store.crypto.keymanager
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-02
+
+Module org.cumulus4j.store.crypto.keymanager
+
+	Implementation of {{{../apidocs/index.html?org/cumulus4j/store/crypto/CryptoManager.html}CryptoManager}} working with a
+	key-manager as shown in {{{../documentation/deployment-scenarios.html}Deployment scenarios}}.
+
+	This module is a plug-in to {{{../org.cumulus4j.store/}org.cumulus4j.store}} (DataNucleus uses the Eclipse plugin-mechanism
+	and we therefore do the same). It contains the REST API classes that allow the remote key manager (in client or in
+	key-server) to establish a connection to the app-server (yellow arrow in 'Deployment scenarios'). The registration
+	of this REST app is located in the <<<web.xml>>> of module {{{../org.cumulus4j.keymanager.back.webapp/}org.cumulus4j.keymanager.back.webapp}}. 
+
+* Maven
+
+	After adding the repositories documented on the {{{../download/index.html}Download}} page
+	to your <<<pom.xml>>>, you can add the following dependency in order to use this module: 
+
++------------------------------------------+
+<dependencies>
+	...
+	<dependency>
+		<groupId>org.cumulus4j</groupId>
+		<artifactId>org.cumulus4j.store.crypto.keymanager</artifactId>
+	</dependency>
+	...
+</dependencies>
++------------------------------------------+
+
+	The above dependency does not (and should not!) declare a version. Instead, it is recommended that
+	you add the following to your dependency-management:
+
++------------------------------------------+
+<dependencyManagement>
+	<dependencies>
+		...
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.parent</artifactId>
+			<type>pom</type>
+			<version>${project.version}</version>
+			<scope>import</scope>
+		</dependency>
+		...
+	</dependencies>
+</dependencyManagement>
++------------------------------------------+
+
+* Deployment location
+
+	The {{{../documentation/deployment-module-location-matrix.html}module-location-matrix}} shows where
+	this module needs to be deployed.

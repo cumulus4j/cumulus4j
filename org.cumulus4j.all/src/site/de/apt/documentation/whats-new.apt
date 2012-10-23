@@ -1,0 +1,50 @@
+	---
+	Was ist neu?
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2012-02-10
+
+Was ist neu?
+
+~~ !!! NEWEST VERSIONS FIRST !!! NEUESTE VERSIONEN ZUERST !!!
+
+* Was ist neu in 1.1.0?
+
+	Verglichen mit Version 1.0.2 gibt es folgende Änderungen:
+
+	* Neues Feature: Unterstützung mehrerer Mandanten in einer einzigen zugrundeliegenden Datenbank. Es war zwar
+	bereits zuvor möglich, eine Cumulus4j-basierte Applikation in einem Mehr-Mandanten-Szenario einzusetzen, indem
+	jedem Mandanten eine separate Datenbank zugewiesen wurde; aber es gibt Anwendungsfälle, in denen dies nicht
+	möglich ist (z.B. hat in der GAE jede Applikation nur genau eine Datenbank). Cumulus4j versteckt nun die
+	(ohnehin unlesbaren, weil nicht entschlüsselbaren) Daten anderer Mandanten und erlaubt so die gemeinsame
+	Nutzung einer einzigen Datenbank durch mehrere Mandanten.
+
+	[]
+
+* Was ist neu in 1.0.2?
+
+	Verglichen mit Version 1.0.1 gibt es folgende Änderungen:
+
+	* Diverse Fehler wurden beseitigt. Wegen
+	{{{https://sourceforge.net/tracker/?func=detail&aid=3453405&group_id=517465&atid=2102911}eines dieser Fehler}}
+	hat sich das Schlüsselspeicherdateiformat geändert. Alte Schlüsselspeicher (Key-Stores) können gelesen werden,
+	doch sie werden evtl. automatisch in das neue Dateiformat konvertiert und können dann nicht mehr von einer älteren
+	Cumulus4j-Version gelesen werden. Dies sollten Sie bei einem Upgrade berücksichtigen (Backup Ihrer Schlüsselspeicher!).
+
+	* Zwecks GAE-Kompatibilität wurden einige Annotationen hinzugefügt (die GAE wird aber von dieser Version noch nicht
+	unterstützt).
+
+	[]
+
+* Was ist neu in 1.0.1?
+
+	Im Vergleich zu Version 1.0.0 bringt Cumulus4j 1.0.1 folgende Neuerungen:
+
+	* Fehlerbeseitigung: Ein Heisenbug, der ausschließlich bei optimistischen Transaktionen auftrat, wurde beseitigt.
+
+	* Kompatibilität: Es gab eine Änderung in DataNucleus' Plugin-API Version 3.0.0-release auf Version 3.0.1.
+	Cumulus4j 1.0.1 ist nun wieder mit den neuesten DataNucleus-Versionen kompatibel
+	(siehe {{{./datanucleus-compatibility-matrix.html}Kompatibilitätsmatrix}}).
+
+	[]

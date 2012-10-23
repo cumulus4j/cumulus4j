@@ -1,0 +1,2 @@
+# Module c4gae
+# RPC service class, partial path of RPC policy file

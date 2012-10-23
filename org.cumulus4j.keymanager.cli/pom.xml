@@ -1,0 +1,85 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<artifactId>org.cumulus4j.parent</artifactId>
+		<groupId>org.cumulus4j</groupId>
+		<version>1.1.0-SNAPSHOT</version>
+		<relativePath>../org.cumulus4j.parent/pom.xml</relativePath>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>org.cumulus4j.keymanager.cli</artifactId>
+	
+	<name>org.cumulus4j.keymanager.cli</name>
+	<description>Command line interface for the key-store. It uses the key-manager-API and can thus work with both, key-stores in the local file system as well as remote key-servers.</description>
+	
+	<dependencies>
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.keymanager.api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.keystore</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+      		<artifactId>log4j</artifactId>
+      		<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>args4j</groupId>
+	    	<artifactId>args4j</artifactId>
+    	</dependency>
+	</dependencies>
+	
+	<build>
+		<plugins>
+			<plugin>
+                <groupId>org.dstovall</groupId>
+                <artifactId>onejar-maven-plugin</artifactId>
+                <version>1.4.4</version>
+                <executions>
+                    <execution>
+                        <configuration>
+	                        <mainClass>org.cumulus4j.keymanager.cli.KeyManagerCLI</mainClass>
+
+                            <!-- Optional -->
+                            <onejarVersion>0.96</onejarVersion>
+                            <!--
+                            We use attachToBuild=false, because otherwise the *.one-jar.jar file is
+                            registered in the build, but missing, because we rename it below.
+                            -->
+                            <attachToBuild>false</attachToBuild>
+                        </configuration>
+                        <goals>
+                            <goal>one-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.6</version>
+				<executions>
+					<execution>
+						<phase>verify</phase>
+						<configuration>
+							<target>
+								<delete file="${basedir}/target/${project.artifactId}-${project.version}.jar" />
+								<move file="${basedir}/target/${project.artifactId}-${project.version}.one-jar.jar" tofile="${basedir}/target/${project.artifactId}-${project.version}.jar" />
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

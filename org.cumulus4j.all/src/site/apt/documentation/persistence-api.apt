@@ -1,0 +1,95 @@
+	---
+	Persistence API
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-19
+
+Persistence API
+
+* Basic configuration
+
+	Anyone familiar with either of the two standardised Java persistence APIs (JDO, JPA) should have no problem
+	utilising Cumulus4j to encrypt their data. Please consult DataNucleus' documentation about the
+	{{{http://www.datanucleus.org/products/accessplatform_3_0/jdo/api.html}JDO API}} or the
+	{{{http://www.datanucleus.org/products/accessplatform_3_0/jpa/api.html}JPA API}} for details.
+
+	In terms of persistence properties (for <persistence.xml>, <jdoconfig.xml> etc) you define your persistence properties
+	as normal, but need to specify to use Cumulus4j. For example
+
++------------------------------------------+
+javax.jdo.PersistenceManagerFactoryClass=org.datanucleus.api.jdo.JDOPersistenceManagerFactory
+
+datanucleus.storeManagerType=cumulus4j
+datanucleus.persistenceByReachabilityAtCommit=false
+datanucleus.manageRelationships=false
+datanucleus.manageRelationshipsChecks=false
+datanucleus.plugin.allowUserBundles=true
+
+javax.jdo.option.ConnectionDriverName=org.apache.derby.jdbc.EmbeddedDriver
+javax.jdo.option.ConnectionURL=jdbc:derby:${java.io.tmpdir}/derby/cumulus4j;create=true
+javax.jdo.option.ConnectionUserName=derbyuser
+javax.jdo.option.ConnectionPassword=
++------------------------------------------+
+
+	So here we specify Cumulus4J to use an embedded Apache Derby database. Internally this will start a PMF/EMF
+	for the backend (Derby) datastore. If you want to control further the properties used for the backend datastore
+	simply add them to your persistence properties, prefixing them with <<cumulus4j.>> and they will be passed to
+	the backend datastore without the prefix.
+	
+	As an extension to this you can separate the "data" from the "index" information. You do this by specifying
+	a separate backend datastore for the index information. Like this
+
++------------------------------------------+
+cumulus4j.index.javax.jdo.option.ConnectionDriverName=com.mysql.jdbc.Driver
+cumulus4j.index.javax.jdo.option.ConnectionURL=jdbc:mysql://127.0.0.1/cumulus4j
+cumulus4j.index.javax.jdo.option.ConnectionUserName=mysqluser
+cumulus4j.index.javax.jdo.option.ConnectionPassword=
++------------------------------------------+
+
+	so now we're storing the index information in a MySQL datastore.
+
+* Encryption algorithm
+
+	Furthermore, you can optionally change the {{{./supported-algorithms.html}encryption and MAC algorithm}}
+	by specifying the following properties:
+
++------------------------------------------+
+cumulus4j.encryptionAlgorithm=AES/CBC/PKCS5
+cumulus4j.macAlgorithm=HMAC-SHA1
++------------------------------------------+
+
+* Expiry of sessions and cached keys/ciphers
+
+	You can configure how long sessions shall be active and when timers should clean-up expired ones by the following
+	properties:
+
++------------------------------------------+
+cumulus4j.cryptoSessionExpiryAge=900000
+cumulus4j.cryptoSessionExpiryTimer.enabled=false
+cumulus4j.cryptoSessionExpiryTimer.period=300000
++------------------------------------------+
+
+	These settings set the expiry age of a session to 15 minutes (= 900 000 ms) and disable the timer
+	(required for the Google App Engine - otherwise <<not recommended!!!>>).
+	
+	Note, that even though the timer is disabled, the timer-period is set to 5 minutes. This will cause the "normal"
+	threads to do a cleanup every 5 minutes, if they
+	call a "normal" method of the CryptoManager often enough. If no timer can be used, this at least does the
+	cleanup, whenever a thread normally runs through the CryptoManager code (and the period elapsed). If there is heavy
+	load on the system, it is approximately the same result as using a timer - if there is no load at all, however, it means
+	that the garbage is never removed.
+
+	It is recommended to stick with the default settings, though.
+
+	Right now, Cumulus4j solely uses shared caches (because this is much faster than per-session-caches) and you can configure
+	their timings via the following properties:
+
++------------------------------------------+
+cumulus4j.CryptoCache.cleanupTimer.enabled=false
+cumulus4j.CryptoCache.cleanupTimer.period=120000
+cumulus4j.CryptoCache.entryExpiryAge=900000
++------------------------------------------+
+
+	Again, the timer is deactivated, as is required for the GAE, but otherwise <<not recommended>>. As usual,
+	it is a good idea to stick with the default settings.

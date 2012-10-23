@@ -1,0 +1,48 @@
+	---
+	What's new?
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2012-02-10
+
+What's new?
+
+~~ !!! NEWEST VERSIONS FIRST !!!
+
+* What's new in 1.1.0?
+
+	Compared to version 1.0.2, there are the following changes:
+
+	* New feature: Support multitenancy within one single underlying database. It was already possible to use a
+	Cumulus4j-based application in a multi-tenants-scenario by assigning a separate database to each tenant. 
+	But there are use-cases where this is not possible (e.g. in the GAE, there is only one single database per
+	application). Cumulus4j now hides the (anyway unreadable, because undecipherable) data of other tenants, 
+	thus making it possible to share one single database among many tenants.
+
+	[]
+
+* What's new in 1.0.2?
+
+	Compared to version 1.0.1, there are the following changes:
+
+	* Fixed a few bugs. Due to
+	{{{https://sourceforge.net/tracker/?func=detail&aid=3453405&group_id=517465&atid=2102911}one of these bugs}}
+	the key store's file format changed. Old key store files can be read, but they might be converted automatically
+	into the new file format and will then not be readable for older Cumulus4j versions, anymore. Bear this in mind
+	when upgrading (backup your key stores!).
+
+	* Added a few annotations for GAE compatibility (which is not yet achieved by this version).
+
+	[]
+
+* What's new in 1.0.1?
+
+	Compared to version 1.0.0, Cumulus4j 1.0.1 brings the following:
+
+	* Bugfix: A Heisenbug which happened solely with optimistic transactions was fixed.
+
+	* Compatibility: There was a change in DataNucleus' plug-in API from version 3.0.0-release to version 3.0.1.
+	Cumulus4j 1.0.1 is now compatible again with the newest DataNucleus versions
+	(see {{{./datanucleus-compatibility-matrix.html}compatibility matrix}}).
+
+	[]

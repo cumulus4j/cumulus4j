@@ -1,0 +1,61 @@
+	---
+	Module org.cumulus4j.crypto
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-02
+
+Module org.cumulus4j.crypto
+
+	API providing a unified way to use various cryptography algorithms.
+
+	For example, there is the {{{../apidocs/index.html?org/cumulus4j/crypto/Cipher.html}Cipher}}
+	which provides a generic API for {{{http://en.wikipedia.org/wiki/Symmetric_encryption}symmetric}} and
+	{{{http://en.wikipedia.org/wiki/Public-key_cryptography}asymmetric}} encryption (& decryption) or there
+	is the
+	{{{../apidocs/index.html?org/cumulus4j/crypto/MACCalculator.html}MACCalculator}} for calculating
+	{{{http://en.wikipedia.org/wiki/Message_authentication_code}message	authentication codes}}.
+
+	This API allows for the simple configuration of the algorithms used by your application as the
+	{{{../apidocs/index.html?org/cumulus4j/crypto/CryptoRegistry.html}CryptoRegistry}} binds an algorithm
+	name (i.e. a <<<String>>>) to an implementation of one of the API's interfaces.
+
+* Maven
+
+	After adding the repositories documented on the {{{../download/index.html}Download}} page
+	to your <<<pom.xml>>>, you can add the following dependency in order to use this module: 
+
++------------------------------------------+
+<dependencies>
+	...
+	<dependency>
+		<groupId>org.cumulus4j</groupId>
+		<artifactId>org.cumulus4j.crypto</artifactId>
+	</dependency>
+	...
+</dependencies>
++------------------------------------------+
+
+	The above dependency does not (and should not!) declare a version. Instead, it is recommended that
+	you add the following to your dependency-management:
+
++------------------------------------------+
+<dependencyManagement>
+	<dependencies>
+		...
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.parent</artifactId>
+			<type>pom</type>
+			<version>${project.version}</version>
+			<scope>import</scope>
+		</dependency>
+		...
+	</dependencies>
+</dependencyManagement>
++------------------------------------------+
+
+* Deployment location
+
+	The {{{../documentation/deployment-module-location-matrix.html}module-location-matrix}} shows where
+	this module needs to be deployed.

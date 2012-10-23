@@ -1,0 +1,74 @@
+	---
+	Betriebsszenarien
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-05-26
+
+Betriebsszenarien
+
+	Cumulus4j kann in zwei verschiedenen Szenarien betrieben werden. Aber bevor wir diese erklären, hier
+	zum Vergleich eine Darstellung des normalen Betriebs (ohne Cumulus4j), den Sie bereits kennen:
+
+[../images/deployment-scenario/deployment-scenario-without-cumulus4j.png] Betrieb ohne Cumulus4j
+
+	Normalerweise betreiben Sie das Back-End Ihrer Applikation auf Ihrem Applikationsserver (z.B.
+	Jetty, Tomcat, Glassfish, JBoss, oder was immer Sie bevorzugen). Wenn Ihr Client ein Browser ist, dann
+	ist das bereits alles. Wenn Ihr Client ein Rich-Client (auch Fat-Client genannt) ist, dann installieren
+	Sie zusätzlich das Front-End auf Ihren Client-Computern. 
+
+	Wie aus dem blaugrünen Pfeil hervorgeht, wird die Verbindung (üblicherweise ein TCP/IP-basierendes Protokoll
+	wie HTTP, HTTPS, RMI etc.) vom Client aus aufgebaut. Anfragen werden darüber vom Client an den Server
+	geschickt, während die Antworten auf dem entgegengesetzten Weg zurückkommen.
+
+* {2-computer-scenario} (ohne Schlüssel-Server)
+
+	Wenn man Cumulus4j diesem Bild hinzufügt, dann stellt Ihr Back-End zusätzlich noch eine REST-basierte
+	Cumulus4j-API zur Verfügung, über die der Client das Schlüssel-Management parallel kommuniziert:  
+
+[../images/deployment-scenario/deployment-scenario-without-keyserver.png] Betrieb ohne Schlüssel-Server
+
+	Der zweite Kommunikationskanal wird (wie durch den gelben Pfeil gezeigt) ebenfalls vom Client aus
+	geöffnet und sollte daher nicht zu Firewall-Problemen führen.
+
+	Die Anfragen werden jedoch vom Server zum Client innerhalb der bestehenden Verbindung gesandt. Diese
+	Schlüssel-Anforderungs-Anfragen entstehen immer dann, wenn der Server Daten ver- oder entschlüsseln muß
+	und daher Zugriff auf bestimmte Schlüssel benötigt.
+
+	Momentan funktioniert dieses Betriebsszenario nur mit einem Rich-Client, denn das Cumulus4j-Projekt stellt
+	(noch) keine JavaScript-Bibliotheken zur Verfügung. Diese folgen vielleicht später. Wenn Sie diese Funktionalität
+	beisteuern möchten, dann schließen Sie sich bitte dem {{{./development.html}Entwickler}}-Team an! Sie sind willkommen!
+
+* {3-computer-scenario} (mit Schlüssel-Server)
+
+	Alternativ dazu, die Schlüssel auf jedem Client zu halten, ist es möglich, einen separaten Schlüssel-Server zu betreiben:
+
+[../images/deployment-scenario/deployment-scenario-with-keyserver.png] Betrieb mit Schlüssel-Server
+
+	Dieser Schlüssel-Server könnte zum Beispiel in Ihrem privaten Firmen-LAN oder auch irgendwo im Internet stehen, aber
+	natürlich separat vom Infrastrukturbetreiber Ihres Applikations-Servers (z.B. ein anderer Cloud- oder ein klassischer
+	Hosting-Provider).
+
+* Module
+
+	Welche Module wo installiert werden müssen, ist in der {{{./deployment-module-location-matrix.html}Modul-Ort-Matrix}}
+	beschrieben.
+
+* {Cluster-Knoten}
+
+	Es ist wichtig zu verstehen, daß der Applikations-Server üblicherweise nicht eine einzelne Maschine sondern ein Cluster
+	ist. Insbesondere wenn man die Cloud verwendet, kann ein Applikations-Server über eine unbekannte Zahl von physischen
+	Maschinen (Cluster-Knoten) verteilt sein. 
+
+	Daher kann es passieren (und ist sogar recht wahrscheinlich!), daß die beiden Verbindungen auf separaten Cluster-Knoten
+	ankommen, wie es das folgende Beispiel zeigt:
+
+[../images/deployment-scenario/deployment-scenario-without-keyserver-with-cluster.png] Betrieb ohne Schlüssel-Server mit Applikations-Server-Cluster
+
+	Deshalb muß die originale Schlüssel-Anforderung (1) zunächst zu dem Cluster-Knoten gesandt werden, der
+	eine direkte Verbindung zum Schlüssel-Manager hat. Dann muß dieser Cluster-Knoten die Schlüssel-Anforderung
+	(2) zum Schlüssel-Manager weiterleiten und nachdem er dessen Antwort (3) erhalten hat, diese wiederum an den
+	ursprünglich anfragenden Server zurück leiten (4).
+
+	Die Durchführung dieses komplexen Vorgangs erfolgt in Implementationen von
+	{{{../../apidocs/index.html?org/cumulus4j/store/crypto/keymanager/messagebroker/MessageBroker.html}MessageBroker}}. 

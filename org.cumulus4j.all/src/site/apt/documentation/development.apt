@@ -1,0 +1,138 @@
+	---
+	Development
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-04-07
+
+Workspace-Setup Cumulus4j-DataNucleus-Plug-in
+
+	Cumulus4j is an open-source encryption software released under the {{{../license.html}AGPL}}. Its source code
+	is available under this license, enabling you to develop it further. Even though Cumulus4j is already
+	usable in productive environments, there's still a lot left to be done. {{{../about/contact.html}Contact us}}, if
+	you want to lend us a hand.
+
+* Requirements
+
+	First of all, the following software needs to be installed in order to set up a workspace to develop
+	the Cumulus4j-DataNucleus-Plug-in:
+
+	* {{{http://www.eclipse.org/}Eclipse}}
+
+		* {{{http://www.eclipse.org/downloads/}Download}}
+
+		* You need the "Eclipse IDE for Java EE Developers".
+
+	* {{{http://www.eclipse.org/m2e/}m2eclipse}}
+
+		* {{{http://www.eclipse.org/m2e/download/}Download}}
+
+		* Update site for latest m2e release: {{http://download.eclipse.org/technology/m2e/releases}} 
+
+	* Subclipse
+
+		* Update site: {{http://subclipse.tigris.org/update_1.6.x}}
+
+			* Install 4 features:
+
+				* Core SVNKit Library / SVNKit Library
+
+				* Subclipse / Subclipse
+
+				* Subclipse / Subversion Client Adapter
+
+				* Subclipse / SVNKit Client Adapter
+
+		* {{{http://subclipse.tigris.org/servlets/ProjectProcess?pageID=p4wYuA}Installation howto}}
+    
+    * {{{http://maven.apache.org/}Maven}}
+
+		* {{{http://maven.apache.org/download.html}Download}}
+
+		* Version 3 is required.
+
+* A: Workspace withOUT DataNucleus sources
+
+	If you do not need the DataNucleus source codes, you can set up an Eclipse workspace without them. This is much
+	faster than the version with DN sources, because the SourceForge SVN server hosting DataNucleus is pretty slow.
+
+** A: Step 1
+
+	Start Eclipse, go to the “SVN Repository Exploring” perspective and add the following SVN repository:
+	{{https://dev.nightlabs.org/svn/public/cumulus4j/}}
+
+** A: Step 2
+
+	Check-out all projects starting on “org.cumulus4j.”.
+
+** {A: Step 3} (optional)
+
+	Open a console (aka shell), go to the directory <<<${workspace}/org.cumulus4j.all/>>> and run one of the following commands:
+
+	* <<<MAVEN_OPTS='-Xmx256M -XX:MaxPermSize=128M -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled' mvn clean install>>>
+
+	* <<<MAVEN_OPTS='-Xmx256M -XX:MaxPermSize=128M -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled' mvn clean install -Dmaven.test.skip=true>>>
+	
+	[]
+
+	The 2nd command skips all tests, which is faster.
+
+	Maven will automatically download all dependencies (e.g. the DataNucleus nightly builds).
+
+	Alternatively, you can run Maven within your Eclipse IDE via a right-click on the project “org.cumulus4j.all”
+	and choosing "Run as..." => "Maven install" or "Maven build...".
+
+** A: Step 4
+
+	In the Project Explorer, select all projects starting on “org.cumulus4j.”, right-click and execute
+	"Maven" => "Enable dependency management".
+
+** A: Step 5
+
+	In your Eclipse IDE, go to "Window" => "Preferences..." => "Plug-in Development" => "Target Platform" and check (enable)
+	the "DataNucleus" target definition. Click "OK".
+
+* B: Workspace with DataNucleus sources
+
+** B: Step 1
+
+	Follow the {{{http://www.datanucleus.org/development/building_eclipse.html}DataNucleus.org => Development => Building with Eclipse}} howto.
+
+** B: Step 2
+
+	Go to the "SVN Repository Exploring" perspective and add the following SVN repository:
+	{{https://dev.nightlabs.org/svn/public/cumulus4j/}}
+
+** B: Step 3
+
+	Check-out all projects starting on "org.cumulus4j.".
+
+** B: Step 4 (optional)
+
+	Run the Maven build as described in "{{A: Step 3}}" above.
+
+** B: Step 5
+
+	In the Project Explorer, select all projects starting on “org.cumulus4j.”, right-click and execute
+	"Maven" => "Enable dependency management".
+
+* Troubleshooting
+
+** Projects have error markers
+
+	If your projects are not yet compiling correctly and red error markers are shown, select all projects,
+	right-click them and "Refresh" them. Afterwards go to the main menu "Project" => "Clean..." and clean all
+	projects.
+
+	If you still have error markers, you could additionally try
+	"Maven" => "Update project configuration" or "Maven" => "Update dependencies".
+
+	In some rare cases, you might even need to close and re-open all projects or restart Eclipse.
+
+** Only "Generic" available in the Eclipse extension editor
+
+	You opened your plugin.xml or MANIFEST.MF and selected the "Extensions" tab. When you right-click, the context-menu
+	shows "New" => "Generic" instead of e.g. "New" => "store-manager" or "New" => "query". That means, your target platform
+	misses the extension-point's schema files. If you used option "A", check in "Window" => "Preferences" => "Plug-in development"
+	=> "Target platform" via "Edit..." on the "DataNucleus" target platform, whether there is "0 plug-ins available" displayed
+	anywhere. If so, you likely have to fix the version number.

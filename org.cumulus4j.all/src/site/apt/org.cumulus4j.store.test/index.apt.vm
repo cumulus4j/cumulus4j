@@ -1,0 +1,11 @@
+	---
+	Module org.cumulus4j.store.test
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-02
+
+Module org.cumulus4j.store.test
+
+	Tests for {{{../org.cumulus4j.store/}org.cumulus4j.store}} testing persist- and query-functionality
+	without key management. The tests in this project use the JDO API.

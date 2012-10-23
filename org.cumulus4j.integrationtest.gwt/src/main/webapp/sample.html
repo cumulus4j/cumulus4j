@@ -1,0 +1,79 @@
+<!doctype html>
+<!-- The DOCTYPE declaration above will set the    -->
+<!-- browser's rendering engine into               -->
+<!-- "Standards Mode". Replacing this declaration  -->
+<!-- with a "Quirks Mode" doctype may lead to some -->
+<!-- differences in layout.                        -->
+
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link type="text/css" rel="stylesheet" href="sample.css">
+<title>GWT Cumulus4j Client</title>
+
+<script type="text/javascript"
+	src="http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js"></script>
+<script type="text/javascript" src="jquery.base64.min.js"></script>
+<!-- <script type="text/javascript" src="jquery.json-2.3.min.js"></script> -->
+<script type="text/javascript">
+	function make_base_auth(user, password) {
+		var tok = user + ':' + password;
+		var hash = jQuery.base64.encode(tok);
+		return "Basic " + hash;
+	}
+
+	var jquery_container = {
+		doRESTCallback : null,
+		doRESTErrorCallback : null,
+		callREST : function(/*string*/restUrl, /*string*/data, /*string*/
+				method, /*string*/id, /*string*/username, /*string*/password) {
+
+			headers = {
+				"Accept" : "application/json"
+			};
+			if (username) {
+				headers.Authorization = make_base_auth(username, password);
+			}
+
+			jQuery.ajax({
+				url : restUrl,
+				type : method,
+				contentType : "application/json",
+				headers : headers,
+				processData : false,
+				dataType : "json",
+				data : data,
+				success : function(data, textStatus, XMLHttpRequest) {
+					jquery_container.doRESTCallback(data, textStatus,
+							XMLHttpRequest, id);
+				},
+				error : function(XMLHttpRequest, textStatus, errorThrown) {
+					jquery_container.doRESTErrorCallback(XMLHttpRequest,
+							textStatus, errorThrown, id);
+				}
+			});
+		}
+	}
+</script>
+
+<script type="text/javascript" language="javascript"
+	src="sample/sample.nocache.js"></script>
+</head>
+<body>
+	<!-- OPTIONAL: include this if you want history support -->
+	<iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1'
+		style="position: absolute; width: 0; height: 0; border: 0"></iframe>
+
+	<!-- RECOMMENDED if your web app will not function without JavaScript enabled -->
+	<noscript>
+		<div
+			style="width: 22em; position: absolute; left: 50%; margin-left: -11em; color: red; background-color: white; border: 1px solid red; padding: 4px; font-family: sans-serif">
+			Your web browser must have JavaScript enabled in order for this
+			application to display correctly.</div>
+	</noscript>
+
+	<h1>GWT Cumulus4j Client</h1>
+
+	<div id=contentPanel></div>
+</body>
+</html>

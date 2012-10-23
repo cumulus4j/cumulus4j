@@ -1,0 +1,59 @@
+	---
+	Module org.cumulus4j.keymanager.front.webapp
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-02
+
+Module org.cumulus4j.keymanager.front.webapp
+
+	Key-server managing {{{../org.cumulus4j.keystore/}key-stores}} and providing keys
+	to the app-server whenever requested (by the app-server) and granted (by the client).
+	
+	See {{{../documentation/deployment-scenarios.html#3-computer-scenario}Deployment scenarios / 3-computer-scenario}}
+	for further details.
+	
+	The key-server can be accessed via a REST-based API. The module
+	{{{../org.cumulus4j.keymanager.api/}org.cumulus4j.keymanager.api}} provides a Java-API
+	wrapping the REST-services of this key-server.
+
+* Maven
+
+	After adding the repositories documented on the {{{../download/index.html}Download}} page
+	to your <<<pom.xml>>>, you can add the following dependency in order to use this module: 
+
++------------------------------------------+
+<dependencies>
+	...
+	<dependency>
+		<groupId>org.cumulus4j</groupId>
+		<artifactId>org.cumulus4j.keymanager.front.webapp</artifactId>
+		<type>war</type>
+	</dependency>
+	...
+</dependencies>
++------------------------------------------+
+
+	The above dependency does not (and should not!) declare a version. Instead, it is recommended that
+	you add the following to your dependency-management:
+
++------------------------------------------+
+<dependencyManagement>
+	<dependencies>
+		...
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.parent</artifactId>
+			<type>pom</type>
+			<version>${project.version}</version>
+			<scope>import</scope>
+		</dependency>
+		...
+	</dependencies>
+</dependencyManagement>
++------------------------------------------+
+
+* Deployment location
+
+	The {{{../documentation/deployment-module-location-matrix.html}module-location-matrix}} shows where
+	this module needs to be deployed.

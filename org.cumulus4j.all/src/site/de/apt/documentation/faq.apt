@@ -1,0 +1,64 @@
+	---
+	Häufige Fragen (FAQ)
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	Alexander Bieber
+	---
+	2012-01-30
+
+Häufige Fragen (FAQ)
+
+* Was ist Cumulus4j und für wen ist es gedacht?
+
+	Cumulus4j stellt eine Verschlüsselungsschicht zur Verfügung, die Applikationsdaten vor dem Zugriff derjenigen schützt,
+	die diese Daten speichern (Infrastrukturanbieter) und nur denjenigen zugänglich macht, die die Applikation nutzen. 
+	Die Schicht ist ein Plug-in für {{{http://de.wikipedia.org/wiki/DataNucleus}DataNucleus}}.
+	Demnach richtet sich Cumulus4j an Java-Entwickler, die Cloud- oder Web-basierte Anwendungen schreiben und für die
+	Datenpersistenz entweder {{{http://de.wikipedia.org/wiki/Java_Persistence_API}JPA}} oder
+	{{{http://de.wikipedia.org/wiki/Java_Data_Objects}JDO}} einsetzen.
+
+* Warum nicht einfach ein verschlüsseltes Dateisystem benutzen?
+
+	Verschlüsselte Dateisysteme, wie zum Beispiel {{{http://en.wikipedia.org/wiki/Linux_Unified_Key_Setup}LUKS}} oder
+	{{{http://de.wikipedia.org/wiki/TrueCrypt}TrueCrypt}}, nutzen lediglich einen Schlüssel pro Container. Zusätzlich
+	sind die Daten unverschlüsselt zugänglich, solange der Container geöffnet ist.
+	Cumulus4j hingegen nutzt sehr viele verschiedene Schlüssel, um die Daten zu verschlüsseln. Werden also einige Schlüssel
+	gestohlen, kann sich ein Angreifer nur Zugang zu einem kleinen Teil der Daten verschaffen. Zusätzlich hält Cumulus4j
+	Schlüssel und unverschlüsselte Daten nur im Arbeitsspeicher und das nur für kurze Zeit. Es werden zu keiner Zeit Daten
+	unverschlüsselt in die Datenbank geschrieben. Darüber hinaus erreich man eine bessere Performance, wenn man vom Server 
+	bereit gestellte Funktionen für Indizierung und Anfragen nutzen kann.
+
+* Warum verteilt Cumulus4j seine Daten?
+
+	Cumulus4j verwaltet zwei Arten von Daten. Zum einen die Applikationsdaten selbst, zum anderen Indexdaten, die gespeichert
+	werden, um effiziente Abfragen zu ermöglichen. Um nun den Schutz der Daten neben der Verschlüsselung weiter zu erhöhen,
+	ist es möglich, die Speicherung der beiden Daten-Arten auf verschiedene Orte zu verteilen. So kann für die Speicherung
+	jeweils ein anderer	Infrastrukturanbieter gewählt werden, der damit nur Zugriff auf einen Teil der Daten hat. 
+
+* Wird die Verschlüsselung auf dem Server ausgeführt?
+
+	Ja, derzeit verschlüsselt und entschlüsselt Cumulus4j die Daten während es diese in die Datenbank schreibt bzw. daraus liest
+	(siehe {{{./theory.html}Theorie}}). Die Daten sollten dann für den Transfer an den Client wiederum verschlüsselt werden,
+	zum Beispiel mittels HTTPS.
+
+* Verschlüsselung auf dem Client ist doch besser, oder?
+
+	Natürlich erreicht man einen besseren Schutz der Daten, wenn die Schlüssel niemals die sichere Umgebung des Clients verlassen.
+	Bisher stellt Cumulus4j serverseitige Bibliotheken zur Verfügung. Dies wurde vor allem deswegen als erstes entwickelt, da diese
+	Bibliotheken von Entwicklern nahezu ohne Änderungen in bestehende Projekte integriert werden können.
+	In einer weiteren Projektphase, die zu Beginn des Jahres 2012 startet, werden auch Möglichkeiten für clientseitige
+	Verschlüsselung entwickelt.   
+
+* Wo speichert Cumulus4j die Schlüssel?
+
+	Die Schlüssel, die Cumulus4j zur Ver- und Entschlüsselung benötigt, werden bei Bedarf an die Server-Applikation gesendet
+	(z.B. für die Ausführung einer Datenabfrage) und nach kurzer Zeit wieder vergessen. Die Schlüssel werden auf Server-Seite
+	niemals persistent gespeichert. Die eigentliche {{{./key-store.html}Schlüsselspeicherung}} erfolgt separat an einem physikalisch
+	entfernten Ort. Dies kann der Client-Computer selbst, ein Server im internen Netz des Clients oder aber ein separater Server weit
+	von den Datenbanken entfernt sein (d.h. der Schlüsselserver sollte bei einer Firma gehostet werden, die keinerlei Beziehung
+	zu dem Hoster der eigentlichen Applikation hat).
+
+	Für diesen Zweck bietet Cumulus4j zwei Arten der Schlüsselspeicherung und -verwaltung: Einen lokalen, Datei-basierten
+	Schlüsselspeicher und einen Web-Service (Schlüssel-Server). Beide können vom Benutzer via einer Kommandozeilenapplikation
+	oder vom Entwickler via einer einheitlichen API angesteuert werden (es gibt also keinen sichtbaren Unterschied zwischen den
+	beiden Speichersystemen). Weitere Details finden Sie in der {{{./key-store.html}Schlüsselspeicher-Dokumentation}}.

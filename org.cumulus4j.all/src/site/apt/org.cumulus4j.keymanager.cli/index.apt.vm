@@ -1,0 +1,69 @@
+	---
+	Module org.cumulus4j.keymanager.cli
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-22
+
+Module org.cumulus4j.keymanager.cli
+
+	This is a command line interface for managing a key store and not meant to be deployed anywhere.
+	
+	After downloading the JAR, use the following command to get help for this tool:
+
++------------------------------------------+
+java -jar org.cumulus4j.keymanager.cli-${project.version}.jar help
++------------------------------------------+
+
+	You can manage local key stores (in the local file system) as well as key stores managed by
+	a remote key server. Here is an excerpt of the functionality (there are more features - use the above
+	help command for a complete listing):
+
+	* Create a new key store and initialise it with the {{{../documentation/date-dependent-key-strategy.html}date-dependent key-strategy}}.
+
+	* Add a user.
+
+	* Remove a user.
+
+	* Change a user's password.
+
+	* Display information about a key-store.
+
+* Maven
+
+	After adding the repositories documented on the {{{../download/index.html}Download}} page
+	to your <<<pom.xml>>>, you can add the following dependency in order to use this module: 
+
++------------------------------------------+
+<dependencies>
+	...
+	<dependency>
+		<groupId>org.cumulus4j</groupId>
+		<artifactId>org.cumulus4j.keymanager.cli</artifactId>
+	</dependency>
+	...
+</dependencies>
++------------------------------------------+
+
+	The above dependency does not (and should not!) declare a version. Instead, it is recommended that
+	you add the following to your dependency-management:
+
++------------------------------------------+
+<dependencyManagement>
+	<dependencies>
+		...
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.parent</artifactId>
+			<type>pom</type>
+			<version>${project.version}</version>
+			<scope>import</scope>
+		</dependency>
+		...
+	</dependencies>
+</dependencyManagement>
++------------------------------------------+
+
+	However, as said: This module is <<not a library>> and therefore you should normally not need to
+	include it into the <<<pom.xml>>> of any of your modules. We provide these Maven coordinates merely
+	for special situations like bundling this CLI into an installation package. 

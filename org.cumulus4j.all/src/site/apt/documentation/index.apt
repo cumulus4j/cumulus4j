@@ -1,0 +1,49 @@
+	---
+	Documentation
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-14
+
+Documentation
+
+* Hot to use it
+
+	How to integrate Cumulus4j into your application is documented on the {{{./usage.html}Usage}} page.
+
+* How it works
+
+	A theoretic explanation how Cumulus4j works can be found on the {{{./theory.html}Theory}} page.
+
+* How to set up a development workspace
+
+	You want to lend a hand and help developing Cumulus4j? The {{{./development.html}Development}} page
+	explains how to start.
+
+* Integration tests
+
+	On the {{{./integration-tests.html}Integration tests}} page you can find detailed information about
+	our integration tests.
+
+* Supported algorithms
+
+	Cumulus4j uses very fast and highly secure algorithms by default. However, depending on your
+	hardware, you might prefer a different configuration. You can choose from a plethora of
+	{{{./supported-algorithms.html}supported algorithms}}.
+
+* API documentation (Javadoc)
+
+	API documentation is available in the form of {{{../apidocs/index.html}Javadoc}}.
+
+* DataNucleus compatibility
+
+	Which version of Cumulus4j is compatible with which version of DataNucleus is documented
+	in the {{{./datanucleus-compatibility-matrix.html}DataNucleus compatibility matrix}}.
+
+* FAQ
+
+	You can find answers to some {{{./faq.html}frequently asked questions here}}.
+
+* What's new?
+
+	{{{./whats-new.html}What's new}} in the current Cumulus4j version?

@@ -1,0 +1,55 @@
+	---
+	Module org.cumulus4j.keymanager.back.shared
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-02
+
+Module org.cumulus4j.keymanager.back.shared
+
+	Shared classes to communicate between {{{../org.cumulus4j.keymanager/}key-manager}}
+	(either embedded in app-client or in key-server) and {{{../org.cumulus4j.keymanager.back.webapp/}app-server}}.
+
+	Since the communication is based on REST, most classes here are {{{http://en.wikipedia.org/wiki/Data_Transfer_Object}DTOs}}
+	(sub-classed from {{{../apidocs/index.html?org/cumulus4j/keymanager/back/shared/Message.html}Message}}) which are
+	transferred via XML or JSON.
+
+* Maven
+
+	After adding the repositories documented on the {{{../download/index.html}Download}} page
+	to your <<<pom.xml>>>, you can add the following dependency in order to use this module: 
+
++------------------------------------------+
+<dependencies>
+	...
+	<dependency>
+		<groupId>org.cumulus4j</groupId>
+		<artifactId>org.cumulus4j.keymanager.back.shared</artifactId>
+	</dependency>
+	...
+</dependencies>
++------------------------------------------+
+
+	The above dependency does not (and should not!) declare a version. Instead, it is recommended that
+	you add the following to your dependency-management:
+
++------------------------------------------+
+<dependencyManagement>
+	<dependencies>
+		...
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.parent</artifactId>
+			<type>pom</type>
+			<version>${project.version}</version>
+			<scope>import</scope>
+		</dependency>
+		...
+	</dependencies>
+</dependencyManagement>
++------------------------------------------+
+
+* Deployment location
+
+	The {{{../documentation/deployment-module-location-matrix.html}module-location-matrix}} shows where
+	this module needs to be deployed.

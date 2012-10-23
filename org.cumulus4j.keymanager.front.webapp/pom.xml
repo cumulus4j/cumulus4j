@@ -1,0 +1,79 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<parent>
+		<artifactId>org.cumulus4j.parent</artifactId>
+		<groupId>org.cumulus4j</groupId>
+		<version>1.1.0-SNAPSHOT</version>
+		<relativePath>../org.cumulus4j.parent/pom.xml</relativePath>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>org.cumulus4j.keymanager.front.webapp</artifactId>
+	<packaging>war</packaging>
+	<name>org.cumulus4j.keymanager.front.webapp</name>
+
+	<properties>
+		<jetty.port>8181</jetty.port>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-server</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-json</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.keymanager</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.keymanager.front.shared</artifactId>
+		</dependency>
+	</dependencies>
+
+	<description>The key-server-web-app.</description>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.mortbay.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+				<configuration>
+					<!-- <scanIntervalSeconds>10</scanIntervalSeconds> -->
+					<stopKey>stop.${project.artifactId}</stopKey>
+					<stopPort>9991</stopPort>
+					<webAppConfig>
+						<contextPath>/${project.artifactId}</contextPath>
+						<!-- The following extraClasspath configures log4j and binds slf4j 
+							to log4j so that we have logging when running 'mvn jetty:run'. The WAR itself 
+							does NOT contain this binding and will thus fall-back to NO-OP logging (i.e. 
+							disable logging) with a warning. The log4j.properties is located in /src/test/java
+							in order to not be packaged into the WAR so that the logging can be configured 
+							without any unexpected interference by the servlet container. -->
+						<extraClasspath>${basedir}/src/test/java;${settings.localRepository}/org/slf4j/slf4j-log4j12/${slf4j.version}/slf4j-log4j12-${slf4j.version}.jar;${settings.localRepository}/log4j/log4j/${log4j.version}/log4j-${log4j.version}.jar</extraClasspath>
+					</webAppConfig>
+					<connectors>
+						<connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+							<port>${jetty.port}</port>
+							<maxIdleTime>60000</maxIdleTime>
+						</connector>
+					</connectors>
+				</configuration>
+				<!-- No need for automatic start during build here - we only need this 
+					in the real integration test (in another project, probably). <executions> 
+					<execution> <id>start-jetty</id> <phase>pre-integration-test</phase> <goals> 
+					<goal>run</goal> </goals> <configuration> <scanIntervalSeconds>0</scanIntervalSeconds> 
+					<daemon>true</daemon> </configuration> </execution> <execution> <id>stop-jetty</id> 
+					<phase>post-integration-test</phase> <goals> <goal>stop</goal> </goals> </execution> 
+					</executions> -->
+			</plugin>
+
+		</plugins>
+	</build>
+
+</project>

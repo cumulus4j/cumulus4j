@@ -1,0 +1,58 @@
+	---
+	Module org.cumulus4j.keymanager.back.webapp
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2011-06-02
+
+Modul org.cumulus4j.keymanager.back.webapp
+
+	Web-Anwendung, die auf dem Applikationsserver läuft und die Kommunikation zwischen Key-Manager und Applikationsserver
+	zu Verfügung stellt. (Gelber Pfeil in {{{../documentation/deployment-scenarios.html}Deployment scenarios}}).
+
+	Dieses Modul enthält nur die Kompilierinformationen (<<<pom.xml>>>) und eine Web-Applikation-Deklatration
+	(<<<WEB-INF/web.xml>>>). Die eigentliche REST-Implementierung ist in dem Modul 
+	{{{../org.cumulus4j.store.crypto.keymanager/}org.cumulus4j.store.crypto.keymanager}}, Im Pakete
+	{{{../apidocs/index.html?org/cumulus4j/store/crypto/keymanager/rest/package-summary.html}org.cumulus4j.store.crypto.keymanager.rest}}.
+
+* Maven
+
+	Nachdem Sie die auf {{{../download/index.html}Herunterladen}} dokumentierten Lager (Repositories)
+	zu Ihrer <<<pom.xml>>> hinzugefügt haben, können Sie die folgende Abhängigkeit deklarieren, 
+	um dieses Modul zu benutzen:
+
++------------------------------------------+
+<dependencies>
+	...
+	<dependency>
+		<groupId>org.cumulus4j</groupId>
+		<artifactId>org.cumulus4j.keymanager.back.webapp</artifactId>
+		<type>war</type>
+	</dependency>
+	...
+</dependencies>
++------------------------------------------+
+
+	Die obige Abhängigkeit deklariert keine Version (und sollte dies auch nicht tun!). Stattdessen empfehlen
+	wir, folgendes zu Ihrem "dependency-management" hinzuzufügen:
+
++------------------------------------------+
+<dependencyManagement>
+	<dependencies>
+		...
+		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.parent</artifactId>
+			<type>pom</type>
+			<version>${project.version}</version>
+			<scope>import</scope>
+		</dependency>
+		...
+	</dependencies>
+</dependencyManagement>
++------------------------------------------+
+
+* Einsatzort
+
+	Die {{{../documentation/deployment-module-location-matrix.html}Modul-Ort-Matrix}} zeigt, wo dieses Modul
+	bereitgestellt werden muss.

@@ -1,0 +1,73 @@
+	---
+	Theory
+	---
+	Matthias Huber, Matthias Gabel
+	---
+
+Theorie
+
+	Um Ihre Daten zu schützen, benutzt Cumulus4j Verschlüsselung.
+
+	Bevor Daten in den Datenspeicher geschrieben werden, werden sie von Cumulus4j automatisch verschlüsselt.
+	Cumulus4j entschlüsselt die Daten auch wieder, bevor sie von Ihrer Applikation benutzt werden. 
+	Die geschieht für Ihre Anwendung transparent.
+
+[../images/schema_de_561.png] Vereinfachtes Schema von Cumulus4j
+
+* Die Cumulus4j-Datenstruktur
+
+	Die Cumulus4j-Datenstruktur ist unten abgebildet.
+	Sie speichert Objekte in einer Weise, die Relationen von Attributwerten versteckt. Das heißt, es ist nicht ersichtlich 
+	mit welchen Werten die Variablen eines Objektes belegt sind.
+	
+[../images/c4j-datastructure.png] Die Cumulus4j-Datenstruktur
+
+	In der Tabelle ClassMeta werden Metadaten über die gespeicherten Objekte hinterlegt.
+	Jeder Eintrag in ClassMeta enthält eine Liste von Referenzen zu Einträgen in FieldMeta der entsprechenden Klasse.
+	In dieser Tabelle (FieldMeta) sind Metadaten über die Felder von Objekten hinterlegt.
+	Jeder Eintrag in FieldMeta hat eine Referenz zum ClassMeta-Eintrag seiner Klasse
+	und kann Referenzen zu eventuellen enthaltenen Sub-Feldern haben.
+
+	Die Tabelle DataEntry speichert eine verschlüsselte Repräsentation der eigentlichen Objekte.
+	Auf diese Objekte kann mittels der IndexEntry-Tabellen, 
+	die Indexeinträge und verschlüsselte Referenzen auf Einträge in die DataEntry-Tabelle speichert, zugegriffen werden.
+	Zusätzlich ist in jedem Eintrag in der IndexEntry-Tabelle 
+	eine Referenz auf den entsprechenden Eintrag in der FieldMeta-Tabelle enthalten.
+
+* Verschlüsselung
+
+	Um Ihre Daten zu schützen, benutzt Cumulus4j aktuelle probabilistische symmetrische Verschlüsselungsverfahren 
+	(z.B. AES mit Galois/Counter-Mode und PKCS#5-Padding).
+	Eine solche Verschlüsselung versteckt nicht nur den Inhalt, sondern stellt auch sicher, dass Manipulationen entdeckt werden.
+	Cumulus4j verwendet Verschlüsselung für Einträge in der DataEntries-Tabelle und für die Indexeinträge in der IndexEntries-Tabelle.
+
+* Entschlüsselung
+
+	Cumulus4j transformiert eingehende Datenbankanfragen um sie auf der Cumulus4j-Datenstruktur ausführen zu können.
+	Abgerufene Daten werden on-the-fly entschlüsselt. Selektionen werden effizient in den folgenden vier Schritten durchgeführt:
+
+	* Rufe IndexEntries ab, die die Bedingungen der Anfrage erfüllen. Dieser Schritt involviert Entschlüsselung der Indexeinträge.
+	
+	* Rufe die verschlüsselten Einträge in DataEntries ab, die zu den Indexeinträgen gehören.
+	
+	* Entschlüssle die abgerufenen Einträge, projiziere und aggregiere sie entsprechend der Anfrage.
+	
+	* Gebe die Resultate zurück.
+
+* Sicherheit
+
+	Cumulus4j bietet
+	{{{http://books.google.com/books?id=JxiCjJI8C_0C&pg=PA164&dq=Indistinguishability+under+Independent+Column+Permutation&hl=en&ei=ChFLTqupOYf4sgaArtnEBw&sa=X&oi=book_result&ct=result&resnum=1&ved=0CCkQ6AEwAA}Ind-ICP}}-Sicherheit
+	für Ihre Daten. Das bedeutet, dass versteckt wird, welche Attributwerte zusammen gehören.
+	Ein Angreifer, der Ihre Daten stiehlt, kann die darin gespeicherten Objekte nicht rekonstruieren.
+
+* Kompatibilität
+
+	Der Cumulus4j-Adapter arbeitet für die Applikation transparent. 
+	Er ist in DataNucleus integriert und unterstützt JDO sowie JPA vollständig.
+
+* Performance
+
+	Durch die Verwendung symmetrischer Verschlüsselungsverfahren und Indizes für schnelles Suchen von Einträgen liefert das Plugin eine gute Performance.
+	Ein Ziel dieses Projektes ist die Geschwindigkeitsoptimierung des Adapters, sodass für die erhöhte Sicherheit nur noch ein vertretbar kleiner Mehraufwand nötig ist.
+

@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Cumulus4j-Annotations
+Bundle-SymbolicName: org.cumulus4j.annotation;singleton:=true
+Bundle-Version: 0.0.0.DUMMY
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Important: This file is only a DUMMY. It is not used for actual OSGi deployment. The real OSGi descriptor is created 
+ by Maven and the Maven-plugin 'org.apache.felix:maven-bundle-plugin'. Therefore, this file only contains the minimum 
+ that is required to suppress Eclipse's error messages. We still use some of Eclipse's builders, because we want to 
+ manage the plugin.xml (for extensions and extension-points) using Eclipse. Marco :-)
