@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jdoconfig xmlns="http://java.sun.com/xml/ns/jdo/jdoconfig"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:noNamespaceSchemaLocation="http://java.sun.com/xml/ns/jdo/jdoconfig">
+
+   <persistence-manager-factory name="transactions-optional">
+   
+       <property name="javax.jdo.PersistenceManagerFactoryClass"
+           value="org.datanucleus.api.jdo.JDOPersistenceManagerFactory"/>
+  
+       <property name="datanucleus.ConnectionURL" value="appengine"/>
+     
+       <property name="javax.jdo.option.NontransactionalRead" value="true"/>
+       <property name="javax.jdo.option.NontransactionalWrite" value="true"/>
+       <property name="javax.jdo.option.RetainValues" value="true"/>
+       <property name="datanucleus.appengine.autoCreateDatastoreTxns" value="true"/>
+       <property name="datanucleus.autoCreateSchema" value="true"/>
+       <property name="datanucleus.validateTables" value="false"/>
+       <property name="datanucleus.validateConstraints" value="false"/>
+	
+       <property name="cumulus4j.cryptoSessionExpiryAge" value="900000"/>
+       <property name="cumulus4j.cryptoSessionExpiryTimer.enabled" value="false"/>
+       <property name="cumulus4j.cryptoSessionExpiryTimer.period" value="300000"/>
+       <property name="cumulus4j.CryptoCache.cleanupTimer.enabled" value="false"/>
+       <property name="cumulus4j.CryptoCache.cleanupTimer.period" value="120000"/>
+       <property name="cumulus4j.CryptoCache.entryExpiryAge" value="900000"/>
+   
+       <property name="datanucleus.plugin.allowUserBundle" value="true"/>
+       <property name="datanucleus.storeManagerType" value="cumulus4j"/>
+  <!-- -->      
+
+       
+   </persistence-manager-factory>
+</jdoconfig>
