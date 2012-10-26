@@ -46,6 +46,10 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	
+	<profiles>
+		
+	</profiles>
 
 	<build>
 		<plugins>
@@ -86,6 +90,49 @@
 -->
 					</instructions>
 				</configuration>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>gae-jar-prepare</id>
+						<phase>package</phase>
+						<configuration>
+							<tasks>
+								<echo message="Unpacking JAR" />
+								<unzip src="${project.build.directory}/${project.artifactId}-${project.version}.jar" dest="${project.build.directory}/gae/" />
+								<copy todir="${project.build.directory}/gae/">
+									<fileset dir="${basedir}/src/main/gae-resources/">
+										<include name="**/*"/>
+									</fileset>
+								</copy>
+							</tasks>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-jar-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<configuration>
+							<classifier>gae</classifier>
+							<classesDirectory>${project.build.directory}/gae/</classesDirectory>
+							<includes>
+								<include>**/*</include>
+							</includes>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
