@@ -77,6 +77,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 //	}
 
 	private Map<Class<?>, ClassMeta> class2classMeta = Collections.synchronizedMap(new HashMap<Class<?>, ClassMeta>());
+	private Map<Long, ClassMeta> classID2classMeta = Collections.synchronizedMap(new HashMap<Long, ClassMeta>());
 
 	/**
 	 * For every class, we keep a set of all known sub-classes (all inheritance-levels down). Note, that the class in
@@ -130,6 +131,30 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 		return datastoreVersionManager;
 	}
 
+	public ClassMeta getClassMeta(ExecutionContext ec, long classID, boolean throwExceptionIfNotFound) {
+		ClassMeta result = classID2classMeta.get(classID);
+		if (result != null)
+			return result;
+
+		String className;
+		ManagedConnection mconn = this.getConnection(ec);
+		try {
+			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
+			PersistenceManager pm = pmConn.getDataPM();
+			ClassMetaDAO dao = new ClassMetaDAO(pm);
+			ClassMeta classMeta = dao.getClassMeta(classID, throwExceptionIfNotFound);
+			className = classMeta.getClassName();
+		} finally {
+			mconn.release();
+		}
+
+		Class<?> clazz = ec.getClassLoaderResolver().classForName(className, true);
+
+		result = getClassMeta(ec, clazz);
+		classID2classMeta.put(result.getClassID(), result);
+		return result;
+	}
+
 	/**
 	 * Get the persistent meta-data of a certain class. This persistent meta-data is primarily used for efficient
 	 * mapping using long-identifiers instead of fully qualified class names.
@@ -170,6 +195,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 			}
 
 			class2classMeta.put(clazz, result);
+			classID2classMeta.put(result.getClassID(), result);
 
 			// register in class2subclasses-map
 			Set<Class<?>> currentSubclasses = new HashSet<Class<?>>();
@@ -200,6 +226,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 
 					// Store the super-class-meta-data for optimisation reasons (not necessary, but [hopefully] better).
 					class2classMeta.put(c, cm);
+					classID2classMeta.put(cm.getClassID(), cm);
 				}
 			}
 		} finally {

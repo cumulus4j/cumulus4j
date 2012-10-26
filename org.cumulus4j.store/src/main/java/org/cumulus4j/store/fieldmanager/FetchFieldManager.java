@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.jdo.PersistenceManager;
+import javax.jdo.spi.JDOImplHelper;
+import javax.jdo.spi.PersistenceCapable;
 
 import org.cumulus4j.store.Cumulus4jStoreManager;
 import org.cumulus4j.store.EncryptionHandler;
@@ -33,6 +35,7 @@ import org.cumulus4j.store.ObjectContainerHelper;
 import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.DataEntryDAO;
+import org.cumulus4j.store.model.EmbeddedObjectContainer;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.FieldMetaRole;
 import org.cumulus4j.store.model.IndexEntry;
@@ -44,6 +47,7 @@ import org.datanucleus.identity.IdentityUtils;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.Relation;
+import org.datanucleus.state.ObjectProviderFactory;
 import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.ObjectProvider;
 import org.datanucleus.store.fieldmanager.AbstractFieldManager;
@@ -165,7 +169,7 @@ public class FetchFieldManager extends AbstractFieldManager
 
 	@Override
 	public Object fetchObjectField(int fieldNumber)
-	{
+	{ // TODO refactor this *too* *long* method! split into multiple! Marco :-)
 		AbstractMemberMetaData mmd = dnClassMetaData.getMetaDataForManagedMemberAtAbsolutePosition(fieldNumber);
 		FieldMeta fieldMeta = classMeta.getFieldMeta(mmd.getClassName(), mmd.getName());
 		if (fieldMeta == null)
@@ -220,19 +224,45 @@ public class FetchFieldManager extends AbstractFieldManager
 		}
 		else if (Relation.isRelationSingleValued(relationType))
 		{
-			if (mmd.getMappedBy() != null) {
-				if (mappedByDataEntryIDs.isEmpty())
+			if (mmd.isEmbedded()) {
+				Object value = objectContainer.getValue(fieldMeta.getFieldID());
+				if (value == null)
 					return null;
 
-				if (mappedByDataEntryIDs.size() != 1)
-					throw new IllegalStateException("There are multiple objects referencing a 1-1-mapped-by-relationship! Expected 0 or 1! fieldMeta=" + fieldMeta + " dataEntryIDsForMappedBy=" + mappedByDataEntryIDs);
+				if (!(value instanceof EmbeddedObjectContainer))
+					throw new IllegalStateException("field claims to be embedded, but persistent field value is not an EmbeddedObjectContainer! fieldID=" + fieldMeta.getFieldID() + " fieldName=" + fieldMeta.getFieldName());
 
-				long dataEntryID = mappedByDataEntryIDs.iterator().next();
-				return getObjectFromDataEntryID(dataEntryID);
+				EmbeddedObjectContainer embeddedObjectContainer = (EmbeddedObjectContainer) value;
+
+				// TODO the newest DN version has a StateManagerFactory that makes the following more convenient (I think) - maybe switch later?!
+				ClassMeta embeddedClassMeta = ((Cumulus4jStoreManager)ec.getStoreManager()).getClassMeta(ec, embeddedObjectContainer.getClassID(), true);
+				Class<?> embeddedClass = ec.getClassLoaderResolver().classForName(embeddedClassMeta.getClassName());
+
+				AbstractClassMetaData embeddedDNClassMeta = embeddedClassMeta.getDataNucleusClassMetaData(ec);
+				PersistenceCapable pc = JDOImplHelper.getInstance().newInstance(embeddedClass, null);
+
+				ObjectProvider embeddedOP = ObjectProviderFactory.newForEmbedded(ec, pc, false, op, fieldNumber);
+				embeddedOP.replaceFields(
+						embeddedDNClassMeta.getAllMemberPositions(),
+						new FetchFieldManager(embeddedOP, cryptoContext, embeddedClassMeta, embeddedDNClassMeta, embeddedObjectContainer)
+				);
+				return embeddedOP.getObject();
 			}
+			else {
+				if (mmd.getMappedBy() != null) {
+					if (mappedByDataEntryIDs.isEmpty())
+						return null;
 
-			Object valueID = objectContainer.getValue(fieldMeta.getFieldID());
-			return ObjectContainerHelper.referenceToEntity(cryptoContext, pmData, valueID);
+					if (mappedByDataEntryIDs.size() != 1)
+						throw new IllegalStateException("There are multiple objects referencing a 1-1-mapped-by-relationship! Expected 0 or 1! fieldMeta=" + fieldMeta + " dataEntryIDsForMappedBy=" + mappedByDataEntryIDs);
+
+					long dataEntryID = mappedByDataEntryIDs.iterator().next();
+					return getObjectFromDataEntryID(dataEntryID);
+				}
+
+				Object valueID = objectContainer.getValue(fieldMeta.getFieldID());
+				return ObjectContainerHelper.referenceToEntity(cryptoContext, pmData, valueID);
+			}
 		}
 		else if (Relation.isRelationMultiValued(relationType))
 		{

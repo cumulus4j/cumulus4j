@@ -24,9 +24,11 @@ import java.util.Map;
 
 import javax.jdo.PersistenceManager;
 
+import org.cumulus4j.store.Cumulus4jStoreManager;
 import org.cumulus4j.store.ObjectContainerHelper;
 import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.ClassMeta;
+import org.cumulus4j.store.model.EmbeddedObjectContainer;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.ObjectContainer;
 import org.datanucleus.exceptions.NucleusDataStoreException;
@@ -135,7 +137,7 @@ public class StoreFieldManager extends AbstractFieldManager
 
 	@Override
 	public void storeObjectField(int fieldNumber, Object value)
-	{
+	{ // TODO refactor this *too* *long* method! split into multiple! Marco :-)
 		if (logger.isTraceEnabled()) {
 			logger.trace(
 					"storeObjectField: classMeta.className={} fieldNumber={} value={}",
@@ -194,12 +196,41 @@ public class StoreFieldManager extends AbstractFieldManager
 		else if (Relation.isRelationSingleValued(relationType))
 		{
 			// Persistable object - persist the related object and store the identity in the cell
-			Object valuePC = ec.persistObjectInternal(value, op, fieldNumber, -1);
+			int objectType = ObjectProvider.PC;
+			if (mmd.isEmbedded())
+				objectType = ObjectProvider.EMBEDDED_PC;
+
+			Object valuePC = ec.persistObjectInternal(value, op, fieldNumber, objectType);
 			ec.flushInternal(true);
 
-			if (mmd.getMappedBy() == null) {
-				Object valueID = ObjectContainerHelper.entityToReference(cryptoContext, pmData, valuePC);
-				objectContainer.setValue(fieldMeta.getFieldID(), valueID);
+			if (mmd.isEmbedded()) {
+				if (valuePC != null) {
+					ObjectProvider embeddedOP = ec.findObjectProvider(valuePC);
+					EmbeddedObjectContainer embeddedObjectContainer = (EmbeddedObjectContainer) embeddedOP.getAssociatedValue(EmbeddedObjectContainer.ASSOCIATED_VALUE);
+					if (embeddedObjectContainer == null) {
+						// embedded ONLY => not yet persisted
+						// Maybe we could omit the ec.persistObjectInternal(...) completely for embedded objects to prevent double handling,
+						// but I guess, we'd have to add other code, then, doing things that are also done by ec.persistObjectInternal(...)
+						// besides the actual persisting (which is skipped for embedded-ONLY PCs [but done for embedded PCs that are not
+						// @EmbeddedOnly]) - e.g. create & assign an ObjectProvider if none is assigned, yet. Marco :-)
+
+						ClassMeta embeddedClassMeta = ((Cumulus4jStoreManager)ec.getStoreManager()).getClassMeta(ec, valuePC.getClass());
+						AbstractClassMetaData embeddedDNClassMetaData = embeddedOP.getClassMetaData();
+						embeddedObjectContainer = new EmbeddedObjectContainer(embeddedClassMeta.getClassID(), null);
+						embeddedOP.provideFields(
+								embeddedDNClassMetaData.getAllMemberPositions(),
+								new StoreFieldManager(embeddedOP, cryptoContext, pmData, embeddedClassMeta, embeddedDNClassMetaData, cryptoContext.getKeyStoreRefID(), embeddedObjectContainer));
+						embeddedObjectContainer.setVersion(embeddedOP.getTransactionalVersion());
+					}
+
+					objectContainer.setValue(fieldMeta.getFieldID(), embeddedObjectContainer);
+				}
+			}
+			else {
+				if (mmd.getMappedBy() == null) {
+					Object valueID = ObjectContainerHelper.entityToReference(cryptoContext, pmData, valuePC);
+					objectContainer.setValue(fieldMeta.getFieldID(), valueID);
+				}
 			}
 		}
 		else if (Relation.isRelationMultiValued(relationType))

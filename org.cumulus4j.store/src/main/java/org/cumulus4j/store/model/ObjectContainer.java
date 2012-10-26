@@ -99,6 +99,13 @@ implements Serializable, Cloneable
 			fieldID2value.put(fieldID, value);
 	}
 
+	protected void setValues(Map<Long, Object> fieldID2value) {
+		if (fieldID2value == null)
+			throw new IllegalArgumentException("fieldID2value == null");
+
+		this.fieldID2value.putAll(fieldID2value);
+	}
+
 	public Map<Long, Object> getFieldID2value() {
 		return Collections.unmodifiableMap(fieldID2value);
 	}

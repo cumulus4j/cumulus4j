@@ -2,6 +2,7 @@ package org.cumulus4j.store.model;
 
 import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
+import javax.jdo.identity.LongIdentity;
 
 public class ClassMetaDAO extends AbstractDAO {
 
@@ -29,5 +30,19 @@ public class ClassMetaDAO extends AbstractDAO {
 		String packageName = clazz.getPackage() == null ? "" : clazz.getPackage().getName();
 		String simpleClassName = clazz.getSimpleName();
 		return getClassMeta(packageName, simpleClassName, throwExceptionIfNotFound);
+	}
+
+	public ClassMeta getClassMeta(long classID, boolean throwExceptionIfNotFound)
+	{
+		LongIdentity identity = new LongIdentity(ClassMeta.class, classID);
+		try {
+			ClassMeta classMeta = (ClassMeta) pm.getObjectById(identity);
+			return classMeta;
+		} catch (JDOObjectNotFoundException x) {
+			if (throwExceptionIfNotFound)
+				throw x;
+			else
+				return null;
+		}
 	}
 }

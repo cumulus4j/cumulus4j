@@ -6,27 +6,24 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 @PersistenceCapable
-public class F {
+public class G {
 
 	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE)
 	private Long id;
 
 	@Persistent
-	private String class_f_id;
+	private String class_g_id;
 
 	@Persistent
 	private int  counter;
 
-	@Persistent
-	private G g;
-
-	public String getClass_f_id() {
-		return class_f_id;
+	public String getClass_g_id() {
+		return class_g_id;
 	}
 
-	public void setClass_f_id(String class_f_id) {
-		this.class_f_id = class_f_id;
+	public void setClass_g_id(String class_f_id) {
+		this.class_g_id = class_f_id;
 	}
 
 	public int getCounter() {
@@ -37,10 +34,4 @@ public class F {
 		this.counter = counter;
 	}
 
-	public G getG() {
-		return g;
-	}
-	public void setG(G g) {
-		this.g = g;
-	}
 }

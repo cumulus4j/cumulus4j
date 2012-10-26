@@ -28,6 +28,7 @@ import org.cumulus4j.store.fieldmanager.StoreFieldManager;
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.DataEntry;
 import org.cumulus4j.store.model.DataEntryDAO;
+import org.cumulus4j.store.model.EmbeddedObjectContainer;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.ObjectContainer;
 import org.datanucleus.exceptions.NucleusObjectNotFoundException;
@@ -195,7 +196,6 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 
 			AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), ec.getClassLoaderResolver());
 
-			int[] allFieldNumbers = dnClassMetaData.getAllMemberPositions();
 			ObjectContainer objectContainer = new ObjectContainer();
 			String objectIDString = objectID.toString();
 
@@ -222,44 +222,57 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 //			}
 
 			// This performs reachability on this input object so that all related objects are persisted.
-			op.provideFields(allFieldNumbers, new StoreFieldManager(op, cryptoContext, pmData, classMeta, dnClassMetaData, cryptoContext.getKeyStoreRefID(), objectContainer));
+			op.provideFields(
+					dnClassMetaData.getAllMemberPositions(),
+					new StoreFieldManager(op, cryptoContext, pmData, classMeta, dnClassMetaData, cryptoContext.getKeyStoreRefID(), objectContainer));
 			objectContainer.setVersion(op.getTransactionalVersion());
 
-			// The DataEntry might already have been written by ObjectContainerHelper.entityToReference(...),
-			// if it was needed for a reference. We therefore check, if it already exists (and update it then instead of insert).
-			boolean persistDataEntry = false;
-			DataEntry dataEntry = ObjectContainerHelper.popTemporaryReferenceDataEntry(cryptoContext, pmData, objectIDString);
-			if (dataEntry != null)
-				logger.trace("insertObject: Found temporary-reference-DataEntry for: {}", objectIDString);
+			if (op.getEmbeddedOwners() == null || op.getEmbeddedOwners().length == 0) {
+				// *** NON-embedded ***
+				// The DataEntry might already have been written by ObjectContainerHelper.entityToReference(...),
+				// if it was needed for a reference. We therefore check, if it already exists (and update it then instead of insert).
+				boolean persistDataEntry = false;
+				DataEntry dataEntry = ObjectContainerHelper.popTemporaryReferenceDataEntry(cryptoContext, pmData, objectIDString);
+				if (dataEntry != null)
+					logger.trace("insertObject: Found temporary-reference-DataEntry for: {}", objectIDString);
+				else {
+					persistDataEntry = true;
+					dataEntry = new DataEntry(classMeta, cryptoContext.getKeyStoreRefID(), objectIDString);
+					logger.trace("insertObject: Created new DataEntry for: {}", objectIDString);
+				}
+
+				// persist data
+				if (persistDataEntry) {
+					encryptionHandler.encryptDataEntry(cryptoContext, dataEntry, objectContainer);
+					dataEntry = pmData.makePersistent(dataEntry);
+					logger.trace("insertObject: Persisted new non-embedded DataEntry for: {}", objectIDString);
+				}
+
+				// persist index
+				for (Map.Entry<Long, ?> me : objectContainer.getFieldID2value().entrySet()) {
+					long fieldID = me.getKey();
+					Object fieldValue = me.getValue();
+					FieldMeta fieldMeta = classMeta.getFieldMeta(fieldID);
+					AbstractMemberMetaData dnMemberMetaData = dnClassMetaData.getMetaDataForManagedMemberAtAbsolutePosition(fieldMeta.getDataNucleusAbsoluteFieldNumber());
+
+					// sanity checks
+					if (dnMemberMetaData == null)
+						throw new IllegalStateException("dnMemberMetaData == null!!! class == \"" + classMeta.getClassName() + "\" fieldMeta.dataNucleusAbsoluteFieldNumber == " + fieldMeta.getDataNucleusAbsoluteFieldNumber() + " fieldMeta.fieldName == \"" + fieldMeta.getFieldName() + "\"");
+
+					if (!fieldMeta.getFieldName().equals(dnMemberMetaData.getName()))
+						throw new IllegalStateException("Meta data inconsistency!!! class == \"" + classMeta.getClassName() + "\" fieldMeta.dataNucleusAbsoluteFieldNumber == " + fieldMeta.getDataNucleusAbsoluteFieldNumber() + " fieldMeta.fieldName == \"" + fieldMeta.getFieldName() + "\" != dnMemberMetaData.name == \"" + dnMemberMetaData.getName() + "\"");
+
+					if (!(fieldValue instanceof EmbeddedObjectContainer)) // TODO index embedded objects, too!
+						addIndexEntryAction.perform(cryptoContext, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, fieldValue);
+				}
+
+			}
 			else {
-				persistDataEntry = true;
-				dataEntry = new DataEntry(classMeta, cryptoContext.getKeyStoreRefID(), objectIDString);
-				logger.trace("insertObject: Created new DataEntry for: {}", objectIDString);
-			}
+				// *** embedded ***
+				EmbeddedObjectContainer embeddedObjectContainer = new EmbeddedObjectContainer(classMeta.getClassID(), objectContainer);
+				op.setAssociatedValue(EmbeddedObjectContainer.ASSOCIATED_VALUE, embeddedObjectContainer);
 
-			// persist data
-			encryptionHandler.encryptDataEntry(cryptoContext, dataEntry, objectContainer);
-
-			if (persistDataEntry) {
-				dataEntry = pmData.makePersistent(dataEntry);
-				logger.trace("insertObject: Persisted new DataEntry for: {}", objectIDString);
-			}
-
-			// persist index
-			for (Map.Entry<Long, ?> me : objectContainer.getFieldID2value().entrySet()) {
-				long fieldID = me.getKey();
-				Object fieldValue = me.getValue();
-				FieldMeta fieldMeta = classMeta.getFieldMeta(fieldID);
-				AbstractMemberMetaData dnMemberMetaData = dnClassMetaData.getMetaDataForManagedMemberAtAbsolutePosition(fieldMeta.getDataNucleusAbsoluteFieldNumber());
-
-				// sanity checks
-				if (dnMemberMetaData == null)
-					throw new IllegalStateException("dnMemberMetaData == null!!! class == \"" + classMeta.getClassName() + "\" fieldMeta.dataNucleusAbsoluteFieldNumber == " + fieldMeta.getDataNucleusAbsoluteFieldNumber() + " fieldMeta.fieldName == \"" + fieldMeta.getFieldName() + "\"");
-
-				if (!fieldMeta.getFieldName().equals(dnMemberMetaData.getName()))
-					throw new IllegalStateException("Meta data inconsistency!!! class == \"" + classMeta.getClassName() + "\" fieldMeta.dataNucleusAbsoluteFieldNumber == " + fieldMeta.getDataNucleusAbsoluteFieldNumber() + " fieldMeta.fieldName == \"" + fieldMeta.getFieldName() + "\" != dnMemberMetaData.name == \"" + dnMemberMetaData.getName() + "\"");
-
-				addIndexEntryAction.perform(cryptoContext, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, fieldValue);
+				// TODO index embedded objects, too!
 			}
 		} finally {
 			mconn.release();
