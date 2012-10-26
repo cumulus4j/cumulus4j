@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE jdo SYSTEM "http://java.sun.com/dtd/jdo_3_0.dtd">
+ 
+ <!--
+	The settings declared in this file are specific for the GAE (Google App Engine). Do not write any general
+	(non-GAE-specific) settings here. For general settings, use	other package.jdo file and rename it, please!
+-->
+ 
+<jdo>
+
+	<package name="org.cumulus4j.store.model">
+
+		<class name="ClassMeta" detachable="true">
+			<field name="classID" primary-key="false" persistence-modifier="persistent">
+				<extension vendor-name="datanucleus" key="gae.pk-id" value="true" />
+			</field>
+			
+			<field name="classIDString" primary-key="true" value-strategy="identity" persistence-modifier="persistent">
+				<extension vendor-name="datanucleus" key="gae.encoded-pk" value="true" />
+			</field>
+			
+			<query name="getClassMetaByPackageNameAndSimpleClassName" language="javax.jdo.query.JDOQL">
+				<![CDATA[
+					SELECT UNIQUE WHERE this.packageName == :packageName && this.simpleClassName == :simpleClassName
+				]]>
+            </query>
+		</class>
+
+
+		<class name="EncryptionCoordinateSet" detachable="true">
+			<field name="encryptionCoordinateSetID" value-strategy="identity" />
+		</class>
+
+
+		<class name="FieldMeta" detachable="true">
+			<field name="fieldID" primary-key="false" persistence-modifier="persistent">
+				<extension vendor-name="datanucleus" key="gae.pk-id" value="true"/>
+			</field>
+			
+			<field name="fieldIDString" primary-key="true" value-strategy="identity" persistence-modifier="persistent">
+				<extension vendor-name="datanucleus" key="gae.encoded-pk" value="true" />
+			</field>
+
+			<field name="classMeta">
+				<extension vendor-name="datanucleus" key="gae.unowned" value="true"/>
+			</field>
+
+			<field name="ownerFieldMeta">
+				<extension vendor-name="datanucleus" key="gae.unowned" value="true"/>
+			</field>
+			
+			<query name="getFieldMetasForClassMeta" language="javax.jdo.query.JDOQL">
+				<![CDATA[
+					SELECT WHERE this.classMeta == :classMeta
+				]]>
+            </query>
+            
+            <query name="getSubFieldMetasForFieldMeta" language="javax.jdo.query.JDOQL">
+				<![CDATA[
+					SELECT WHERE this.ownerFieldMeta == :ownerFieldMeta
+				]]>
+            </query>
+		</class>
+
+
+		<class name="IndexEntry" detachable="true">
+			<field name="indexEntryID" value-strategy="identity" />
+			
+			<field name="fieldMeta">
+				<extension vendor-name="datanucleus" key="gae.unowned" value="true"/>
+			</field>
+		</class>
+		
+		<class name="DataEntry" detachable="true">
+			<field name="dataEntryID" value-strategy="identity" />
+			
+			<field name="classMeta">
+				<extension vendor-name="datanucleus" key="gae.unowned" value="true"/>
+			</field>
+			
+			<query name="getDataEntryByClassMetaAndObjectID" language="javax.jdo.query.JDOQL">
+				<![CDATA[
+					SELECT UNIQUE WHERE this.classMeta == :classMeta && this.objectID == :objectID
+				]]>
+            </query>
+            
+            <query name="getDataEntryIDByClassMetaAndObjectID" language="javax.jdo.query.JDOQL">
+				<![CDATA[
+					SELECT UNIQUE this.dataEntryID WHERE this.classMeta == :classMeta && this.objectID == :objectID
+				]]>
+            </query>
+            
+            <query name="getDataEntryIDsByClassMetaAndObjectIDNegated" language="javax.jdo.query.JDOQL">
+				<![CDATA[
+					SELECT this.dataEntryID WHERE this.classMeta == :classMeta && this.objectID != :notThisObjectID
+				]]>
+            </query>
+			
+		</class>
+
+	</package>
+  
+</jdo>
