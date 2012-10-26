@@ -12,10 +12,10 @@ import javax.jdo.annotations.Persistent;
 public class TaxAccountDBO {
 
     @Persistent
-    private String salesTaxID = ""; // german: USt.-ID
+    private String salesTaxID; // german: USt.-ID
 
     @Persistent
-    private String taxNumber = ""; // german: Steuernummer
+    private String taxNumber; // german: Steuernummer
 
     public String getSalesTaxID() {
         return salesTaxID;

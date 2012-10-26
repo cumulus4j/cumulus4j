@@ -13,17 +13,17 @@ public class Address implements Serializable {
 	 * 
 	 */
     private static final long serialVersionUID = 2227946488388042048L;
-    private String company = "";
-    private String additionalInformation = "";
-    private String firstName = "";
-    private String lastName = "";
-    private String street = "";
-    private String houseNumber = ""; // e.g. 15b
-    private String postalCode = "";
-    private String city = "";
-    private String country = "";
-    private String salutationId = "";
-    private String salutationText = "";
+    private String company;
+    private String additionalInformation;
+    private String firstName;
+    private String lastName;
+    private String street;
+    private String houseNumber; // e.g. 15b
+    private String postalCode;
+    private String city;
+    private String country;
+    private String salutationId;
+    private String salutationText;
 
     public String getCompany() {
         return company;

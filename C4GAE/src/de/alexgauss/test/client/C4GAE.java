@@ -134,7 +134,7 @@ public class C4GAE implements EntryPoint {
 		loadOfferButton.addClickHandler(new ClickHandler(){
 			@Override
 			public void onClick(ClickEvent event) {
-				greetingService.getOfferData(new AsyncCallback<String>(){
+				greetingService.getOfferData(offer_id_textbox.getText(), new AsyncCallback<String>(){
 
 					@Override
 					public void onFailure(Throwable caught) {

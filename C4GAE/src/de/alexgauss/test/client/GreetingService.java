@@ -16,6 +16,6 @@ public interface GreetingService extends RemoteService {
 	
 	String getArticleData(String article_id) throws IllegalArgumentException;
 	
-	String getOfferData() throws IllegalArgumentException;
+	String getOfferData(String offer_id) throws IllegalArgumentException;
 	
 }

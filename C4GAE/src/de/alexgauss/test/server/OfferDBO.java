@@ -14,17 +14,17 @@ import javax.jdo.annotations.Persistent;
 public class OfferDBO extends ReceiptDBO {
 
     @Persistent(serialized = "true")
-    private ReceiptItemList offerItems = null;
+    private ReceiptItemList offerItems;
 
     @Persistent
     @Embedded(members = {@Persistent(name = "price", columns = @Column(name = "pricePreTax")),
             @Persistent(name = "currency", columns = @Column(name = "pricePreTaxCurrency")) })
-    private PriceDBO pricePreTax = null;
+    private PriceDBO pricePreTax;
 
     @Persistent
     @Embedded(members = {@Persistent(name = "price", columns = @Column(name = "priceAfterTax")),
             @Persistent(name = "currency", columns = @Column(name = "priceAfterTaxCurrency")) })
-    private PriceDBO priceAfterTax = null;
+    private PriceDBO priceAfterTax;
 
     @Persistent
     private String signatureGreeting;
@@ -35,10 +35,11 @@ public class OfferDBO extends ReceiptDBO {
     @Persistent
     private String furtherDetails;
 
+    /*
     @Persistent
     @Embedded
     private PaymentTermsDBO paymentTerms;
-
+*/
     public ReceiptItemList getOfferItems() {
         return offerItems;
     }
@@ -70,7 +71,7 @@ public class OfferDBO extends ReceiptDBO {
     public String getFurtherDetails() {
         return furtherDetails;
     }
-
+/*
     public void setPaymentTerms(PaymentTermsDBO paymentTerms) {
         this.paymentTerms = paymentTerms;
     }
@@ -78,7 +79,7 @@ public class OfferDBO extends ReceiptDBO {
     public PaymentTermsDBO getPaymentTerms() {
         return paymentTerms;
     }
-
+*/
     public void setPricePreTax(PriceDBO pricePreTax) {
         this.pricePreTax = pricePreTax;
     }

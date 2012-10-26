@@ -1,16 +1,15 @@
 package de.alexgauss.test.server;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
-import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+import javax.jdo.annotations.IdentityType;
 
 import org.cumulus4j.annotation.NotQueryable;
 
-import com.google.appengine.api.datastore.Blob;
 
-@PersistenceCapable(identityType = IdentityType.APPLICATION, detachable = "true") 
+@PersistenceCapable//(identityType=IdentityType.APPLICATION, detachable="true")
 public class TestDBO {
 
 	@PrimaryKey
@@ -23,9 +22,9 @@ public class TestDBO {
 
     @Persistent
     private String lastName;
-    
+
     @Persistent
-    private Blob number;
+    private int number;
     
     /**
      * C´tor
@@ -33,9 +32,10 @@ public class TestDBO {
      * @param firstName - param as String
      * @param lastName - param as String
      */
-    public TestDBO(String firstName, String lastName) {
-        this.firstName = firstName;
+    public TestDBO(String firstName, String lastName, int number) {
+    	this.firstName = firstName;
         this.lastName = lastName;
+        this.number = number;
     }
 
     public long getKey() {
@@ -58,11 +58,11 @@ public class TestDBO {
         this.lastName = lastName;
     }
 
-	public Blob getNumber() {
+	public int getNumber() {
 		return number;
 	}
 
-	public void setNumber(Blob number) {
+	public void setNumber(int number) {
 		this.number = number;
 	}
     

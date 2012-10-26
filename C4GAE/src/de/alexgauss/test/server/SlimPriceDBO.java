@@ -18,7 +18,7 @@ public class SlimPriceDBO {
     private Long id;
 	
     @Persistent
-    private String price = "";
+    private String price;
 
 
     public String getPrice() {

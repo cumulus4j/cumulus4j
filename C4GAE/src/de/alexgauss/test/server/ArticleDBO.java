@@ -19,29 +19,29 @@ public class ArticleDBO {
     private Long id;
 
     @Persistent
-    private String article_id = "";
+    private String article_id;
 
     @Persistent
-    private String name = "";
+    private String name;
 
     @Persistent
-    private String description = "";
+    private String description;
 
     @Persistent
     private String taxCodeId;
 
     @Persistent
     @Embedded
-    private PriceDBO pricePreTax = new PriceDBO();
+    private PriceDBO pricePreTax;
 
     @Persistent
-    private String unitId = "";
+    private String unitId;
 
     @Persistent
-    private String unitText = "";
+    private String unitText;
 
     @Persistent
-    private Integer version = 0;
+    private Integer version;
 
     @Persistent
     private String companyId;
@@ -51,15 +51,15 @@ public class ArticleDBO {
     // nor setter
     @SuppressWarnings("unused")
     @Persistent
-    private String lc_article_id = "";
+    private String lc_article_id;
 
     @SuppressWarnings("unused")
     @Persistent
-    private String lc_name = "";
+    private String lc_name;
 
     @SuppressWarnings("unused")
     @Persistent
-    private String lc_description = "";
+    private String lc_description;
 
     public String getUnitId() {
         return unitId;

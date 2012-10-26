@@ -13,7 +13,6 @@ import javax.jdo.PersistenceManager;
 import org.cumulus4j.store.crypto.CryptoManager;
 import org.cumulus4j.store.crypto.CryptoSession;
 
-import com.google.appengine.api.datastore.Blob;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import de.alexgauss.test.client.GreetingService;
@@ -77,22 +76,24 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 		List<String> starring = new ArrayList<String>();
 		starring.add("Jake Sully");
 		starring.add("Doc");
-		MovieDBO movie = new MovieDBO("Avatar", "Jake Sully", starring);
+		MovieDBO movie = new MovieDBO("Avatar 2" + article_id, "Jake Sully", starring);
 		
 	
 		
 		ArticleDBO article = new ArticleDBO();
-		article.setArticle_id("TestSchraube123");
 		article.setVersion(1);
 		article.setDescription("the test_article with the id: " + article_id);
 		article.setName("Schraube " + article_id);
 		article.setTaxCodeId("taxcode of the article" + article.getName());
 		article.setUnitText("TODO");
 		article.setUnitId("articleUnit-ID123456789");
+		article.setCompanyId("0815");
+		article.setArticle_id(article_id);
 
 		PriceDBO pricePreTax = new PriceDBO();
-		pricePreTax.setCurrency("EUR");
 		pricePreTax.setPrice(new BigDecimal(0.1));
+		pricePreTax.setCurrency("EUR");
+		
 		article.setPricePreTax(pricePreTax);
 
 		SlimPriceDBO slim_ppt = new SlimPriceDBO();
@@ -101,28 +102,17 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 		SlimArticleDBO slim_article = new SlimArticleDBO();
 		slim_article.setArticle_id(article_id);
 		slim_article.setPricePreTax(slim_ppt);
-
-		byte b = (byte)1;
 		
-		byte[] byte_array = new byte[1000];
-		
-		for (int i = 0; i < 1000; i++) {
-			byte_array[i] = b;
-		}
-		
-		Blob number = new Blob(byte_array); 
-		
-		TestDBO blob_test = new TestDBO("Blob","Test");
-		blob_test.setNumber(number);
+		TestDBO blob_test = new TestDBO("Blob" + article_id,"Test" + article_id, 1);
 		
 		
 		pm.makePersistent(blob_test);
 		
-		//pm.makePersistent(slim_article);
+		pm.makePersistent(slim_article);
 	
-		//pm.makePersistent(article);
+		pm.makePersistent(article);
 		
-		//pm.makePersistent(movie);
+		pm.makePersistent(movie);
 		
 		pm.close();
 		
@@ -190,7 +180,7 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 		paymentTerms.setPaymentOption(PaymentOptions.PAY_WITHIN_DAYS_OFFER_DISCOUNT);
 		paymentTerms.setCashDiscount(new BigDecimal(0));
 		
-		offer.setPaymentTerms(paymentTerms);
+	//	offer.setPaymentTerms(paymentTerms);
 		
 		TaxAccount taxAccount = new TaxAccount();
 		taxAccount.setSalesTaxID("here is the tax id");
@@ -314,17 +304,28 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 
 		List<SlimArticleDBO> result = (List<SlimArticleDBO>) pm.newQuery("select from " + SlimArticleDBO.class.getName() + " WHERE article_id == '" + article_id + "'").execute();
 		pm.retrieveAll(result);
-		List<MovieDBO> movies = (List<MovieDBO>) pm.newQuery("select from " + MovieDBO.class.getName()).execute();
+		String r1 = new String();
+		r1 = new String("article_id of the slim_aricle: " + result.get(0).getArticle_id() + "\n" + "and the price:" + result.get(0).getPricePreTax().getPrice() + "\n"); 
+		
+		List<ArticleDBO> article = (List<ArticleDBO>) pm.newQuery("select from " + ArticleDBO.class.getName() + " WHERE article_id == '" + article_id + "'").execute();
+		pm.retrieveAll(article);
+		String r2 = new String();
+		r2 = new String("article_id of the real article: " + article.get(0).getArticle_id() + ",\n" + "the name: " + article.get(0).getName() + "\n"+ "and the price of the article: " + article.get(0).getPricePreTax().getPrice() + "\n");
+
+		List<TestDBO> tests = (List<TestDBO>) pm.newQuery("select from " + TestDBO.class.getName() + " WHERE firstName == 'Blob" + article_id +"'").execute();
+		String r3 = new String();
+		r3 = new String("firstName of the query result: " + tests.get(0).getFirstName() + "\n" + ", the lastname: " + tests.get(0).getLastName() + " and the number: " + tests.get(0).getNumber() + "\n"); 
+
+		List<MovieDBO> movies = (List<MovieDBO>) pm.newQuery("select from " + MovieDBO.class.getName()  + " WHERE title == 'Avatar 2" + article_id + "'").execute();
+		String r4 = new String();
+		r4 = new String("movie title: " + movies.get(0).getTitle()); 
 		pm.close();
-		
-		String r = new String("article_id of the query result: " + result.get(0).getArticle_id() + "\n" + "and the price of the article: " + result.get(0).getPricePreTax().getPrice()); 
-		
-		return r;
+		return r1+r2+r3+r4;
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public String getOfferData() throws IllegalArgumentException {
+	public String getOfferData(String offer_id) throws IllegalArgumentException {
 		
 		//TODO implement db query for an offer
 		PersistenceManager pm = null;
@@ -332,11 +333,10 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 		pm.setProperty(CryptoManager.PROPERTY_CRYPTO_MANAGER_ID, "dummy");
 		pm.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, "dummy" + 1 + '_' + random1 + '*' + random2);
 
-		List<TestDBO> result = (List<TestDBO>) pm.newQuery("select from " + TestDBO.class.getName() + " WHERE firstName == 'Martin'").execute();
+		List<OfferDBO> result = (List<OfferDBO>) pm.newQuery("select from " + OfferDBO.class.getName() + " WHERE receipt_id == '" + offer_id +"'").execute();
 		List<MovieDBO> movies = (List<MovieDBO>) pm.newQuery("select from " + MovieDBO.class.getName()).execute();
 		pm.close();
-		return String.valueOf(result.get(0).getFirstName() + " " + result.get(0).getLastName()
-				+ " " + result.get(0).getNumber()) + "\n " + movies.get(0).getTitle();
+		return "Offer-ID: " + result.get(0).getReceipt_id() + "\n " + movies.get(0).getTitle();
 	}
 	
 }

@@ -13,11 +13,11 @@ public class BankAccount implements Serializable {
 	 */
     private static final long serialVersionUID = 8044729610135039218L;
 
-    private String bankName = "";
-    private String bankCode = "";
-    private String accountNumber = "";
-    private String iban = "";
-    private String bic = "";
+    private String bankName;
+    private String bankCode;
+    private String accountNumber;
+    private String iban;
+    private String bic;
 
     public String getBankName() {
         return bankName;

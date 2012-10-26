@@ -8,6 +8,7 @@ package de.alexgauss.test.server;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 
@@ -16,8 +17,9 @@ import de.alexgauss.test.server.PaymentTerms.PaymentOptions;
 @PersistenceCapable
 public class PaymentTermsDBO implements Serializable {
 
+	@NotPersistent
     private static final long serialVersionUID = 1931143776207228660L;
-
+	
     @Persistent
     private PaymentOptions paymentOption;
 

@@ -15,6 +15,6 @@ public interface GreetingServiceAsync {
 
 	void getArticleData(String article_id, AsyncCallback<String> callback);
 	
-	void getOfferData(AsyncCallback<String> callback);
+	void getOfferData(String offer_id, AsyncCallback<String> callback);
 	
 }

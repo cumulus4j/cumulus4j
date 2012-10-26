@@ -29,29 +29,29 @@ public class BusinessPartnerDBO {
      * therefore initialized as null
      */
     @Persistent
-    private String businessPartner_id = null;
+    private String businessPartner_id;
 
     @Persistent
     @Embedded
-    private AddressDBO address = null;
+    private AddressDBO address;
 
     @Persistent
-    private String eMail_address = "";
+    private String eMail_address;
 
     @Persistent
-    private String phoneNumber = "";
+    private String phoneNumber;
 
     @Persistent
-    private String cellPhoneNumber = "";
+    private String cellPhoneNumber;
 
     @Persistent
-    private String fax_number = "";
+    private String fax_number;
 
     @Persistent
     private Date birthDate;
 
     @Persistent
-    private String website = "";
+    private String website;
 
     @Persistent
     private String logoKeyString;
@@ -68,7 +68,7 @@ public class BusinessPartnerDBO {
     private TaxAccountDBO taxAccount;
 
     @Persistent
-    private Integer version = 0;
+    private Integer version;
 
     @Persistent
     private String companyId;
@@ -80,32 +80,32 @@ public class BusinessPartnerDBO {
      * This field indicates, which sub the company chose.
      */
     @Persistent
-    private String subscription = "0";
+    private String subscription;
 
     /**
      * This field indicates, which billingMethod the company choosed
      */
     @Persistent
-    private String billingMethod = "0";
+    private String billingMethod;
 
     // Information about who is the businessPartner
     @Persistent
-    private String relationship = ""; // Kunde, Lieferant, oder man selbst
+    private String relationship; // Kunde, Lieferant, oder man selbst
 
     // Key of the signature image
     @Persistent
-    private String signatureKeyString = null;
+    private String signatureKeyString;
 
     // Signature name
     @Persistent
-    private String signatureName = "";
+    private String signatureName;
 
     // The following variables are lower-case versions of the upper ones.
     // They are used only inside queries and therefore possess neither getter
     // nor setter
     @SuppressWarnings("unused")
     @Persistent
-    private String lc_businessPartner_id = "";
+    private String lc_businessPartner_id;
 
     public Integer getVersion() {
         return version;

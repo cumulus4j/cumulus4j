@@ -15,7 +15,7 @@ public class Price implements Serializable {
     /**
      * Currency.
      */
-    private String currency = "";
+    private String currency;
 
     /**
      * Price.

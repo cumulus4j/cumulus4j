@@ -15,23 +15,23 @@ public class BusinessPartner implements Serializable {
      */
     private static final long serialVersionUID = -1862946184631185581L;
 
-    private String businessPartner_id = "";
+    private String businessPartner_id;
 
-    private Address address = null;
+    private Address address;
 
-    private String eMail_address = "";
+    private String eMail_address;
 
-    private String phoneNumber = "";
+    private String phoneNumber;
 
-    private String cellPhoneNumber = "";
+    private String cellPhoneNumber;
 
-    private String fax_number = "";
+    private String fax_number;
 
     private Date birthDate;
 
-    private String website = "";
+    private String website;
 
-    private String logoKeyString = "";
+    private String logoKeyString;
 
     private int customerScore;
 
@@ -39,28 +39,28 @@ public class BusinessPartner implements Serializable {
 
     private TaxAccount taxAccount;
 
-    private Integer version = 0;
+    private Integer version;
 
     private Date registrationDate;
 
     // Information about who is the businessPartner
-    private String relationship = ""; // Kunde, Lieferant, oder man selbst
+    private String relationship; // Kunde, Lieferant, oder man selbst
 
     // Key of the signature image
-    private String signatureKeyString = null;
+    private String signatureKeyString;
 
     // Signature name
-    private String signatureName = "";
+    private String signatureName;
 
     /**
      * This field indicates, which sub the company chose.
      */
-    private String subscription = "0";
+    private String subscription;
 
     /**
      * This field indicates, which billingMethod the company chose.
      */
-    private String billingMethod = "0";
+    private String billingMethod;
 
     public BusinessPartner() {
     }

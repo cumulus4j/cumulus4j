@@ -13,8 +13,8 @@ public class TaxAccount implements Serializable {
 	 */
     private static final long serialVersionUID = 123259861831031079L;
 
-    private String salesTaxID = ""; // german: USt.-ID
-    private String taxNumber = ""; // german: Steuernummer
+    private String salesTaxID; // german: USt.-ID
+    private String taxNumber; // german: Steuernummer
 
     public String getSalesTaxID() {
         return salesTaxID;

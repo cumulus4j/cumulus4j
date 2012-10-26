@@ -19,15 +19,16 @@ public class SlimArticleDBO {
     private Long id;
 
     @Persistent
-    private String article_id = "";
+    private String article_id;
 
+    
     @Persistent
     @Embedded
-    private SlimPriceDBO pricePreTax = new SlimPriceDBO();
+    private SlimPriceDBO pricePreTax;
 
     @SuppressWarnings("unused")
     @Persistent
-    private String lc_article_id = "";
+    private String lc_article_id;
 
     public String getArticle_id() {
         return article_id;
