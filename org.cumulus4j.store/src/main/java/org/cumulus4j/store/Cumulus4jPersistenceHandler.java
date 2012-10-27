@@ -104,22 +104,24 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			if (dataEntry != null) {
 				// decrypt object-container in order to identify index entries for deletion
 				ObjectContainer objectContainer = encryptionHandler.decryptDataEntry(cryptoContext, dataEntry);
-				AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), ec.getClassLoaderResolver());
+				if (objectContainer != null) {
+					AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), ec.getClassLoaderResolver());
 
-				for (Map.Entry<Long, ?> me : objectContainer.getFieldID2value().entrySet()) {
-					long fieldID = me.getKey();
-					Object fieldValue = me.getValue();
-					FieldMeta fieldMeta = classMeta.getFieldMeta(fieldID);
-					AbstractMemberMetaData dnMemberMetaData = dnClassMetaData.getMetaDataForManagedMemberAtAbsolutePosition(fieldMeta.getDataNucleusAbsoluteFieldNumber());
+					for (Map.Entry<Long, ?> me : objectContainer.getFieldID2value().entrySet()) {
+						long fieldID = me.getKey();
+						Object fieldValue = me.getValue();
+						FieldMeta fieldMeta = classMeta.getFieldMeta(fieldID);
+						AbstractMemberMetaData dnMemberMetaData = dnClassMetaData.getMetaDataForManagedMemberAtAbsolutePosition(fieldMeta.getDataNucleusAbsoluteFieldNumber());
 
-					// sanity checks
-					if (dnMemberMetaData == null)
-						throw new IllegalStateException("dnMemberMetaData == null!!! class == \"" + classMeta.getClassName() + "\" fieldMeta.dataNucleusAbsoluteFieldNumber == " + fieldMeta.getDataNucleusAbsoluteFieldNumber() + " fieldMeta.fieldName == \"" + fieldMeta.getFieldName() + "\"");
+						// sanity checks
+						if (dnMemberMetaData == null)
+							throw new IllegalStateException("dnMemberMetaData == null!!! class == \"" + classMeta.getClassName() + "\" fieldMeta.dataNucleusAbsoluteFieldNumber == " + fieldMeta.getDataNucleusAbsoluteFieldNumber() + " fieldMeta.fieldName == \"" + fieldMeta.getFieldName() + "\"");
 
-					if (!fieldMeta.getFieldName().equals(dnMemberMetaData.getName()))
-						throw new IllegalStateException("Meta data inconsistency!!! class == \"" + classMeta.getClassName() + "\" fieldMeta.dataNucleusAbsoluteFieldNumber == " + fieldMeta.getDataNucleusAbsoluteFieldNumber() + " fieldMeta.fieldName == \"" + fieldMeta.getFieldName() + "\" != dnMemberMetaData.name == \"" + dnMemberMetaData.getName() + "\"");
+						if (!fieldMeta.getFieldName().equals(dnMemberMetaData.getName()))
+							throw new IllegalStateException("Meta data inconsistency!!! class == \"" + classMeta.getClassName() + "\" fieldMeta.dataNucleusAbsoluteFieldNumber == " + fieldMeta.getDataNucleusAbsoluteFieldNumber() + " fieldMeta.fieldName == \"" + fieldMeta.getFieldName() + "\" != dnMemberMetaData.name == \"" + dnMemberMetaData.getName() + "\"");
 
-					removeIndexEntryAction.perform(cryptoContext, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, fieldValue);
+						removeIndexEntryAction.perform(cryptoContext, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, fieldValue);
+					}
 				}
 				pmData.deletePersistent(dataEntry);
 			}
