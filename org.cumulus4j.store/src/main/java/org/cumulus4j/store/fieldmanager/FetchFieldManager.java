@@ -77,6 +77,17 @@ public class FetchFieldManager extends AbstractFieldManager
 			ObjectContainer objectContainer
 	)
 	{
+		if (op == null)
+			throw new IllegalArgumentException("op == null");
+		if (cryptoContext == null)
+			throw new IllegalArgumentException("cryptoContext == null");
+		if (classMeta == null)
+			throw new IllegalArgumentException("classMeta == null");
+		if (dnClassMetaData == null)
+			throw new IllegalArgumentException("dnClassMetaData == null");
+		if (objectContainer == null)
+			throw new IllegalArgumentException("objectContainer == null");
+
 		this.op = op;
 		this.cryptoContext = cryptoContext;
 		this.pmData = cryptoContext.getPersistenceManagerForData();

@@ -66,10 +66,23 @@ public class StoreFieldManager extends AbstractFieldManager
 			PersistenceManager pmData,
 			ClassMeta classMeta,
 			AbstractClassMetaData dnClassMetaData,
-			int keyStoreRefID
-, ObjectContainer objectContainer // populated by this class
+			int keyStoreRefID,
+			ObjectContainer objectContainer // populated by this class
 	)
 	{
+		if (op == null)
+			throw new IllegalArgumentException("op == null");
+		if (cryptoContext == null)
+			throw new IllegalArgumentException("cryptoContext == null");
+		if (pmData == null)
+			throw new IllegalArgumentException("pmData == null");
+		if (classMeta == null)
+			throw new IllegalArgumentException("classMeta == null");
+		if (dnClassMetaData == null)
+			throw new IllegalArgumentException("dnClassMetaData == null");
+		if (objectContainer == null)
+			throw new IllegalArgumentException("objectContainer == null");
+
 		this.op = op;
 		this.cryptoContext = cryptoContext;
 		this.pmData = pmData;
