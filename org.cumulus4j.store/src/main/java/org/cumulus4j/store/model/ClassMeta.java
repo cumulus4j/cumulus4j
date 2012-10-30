@@ -47,6 +47,10 @@ import org.datanucleus.store.ExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.appengine.api.datastore.KeyFactory;
+
+
+
 /**
  * Persistent meta-data for a persistence-capable {@link Class}. Since class names are very long,
  * we use the {@link #getClassID() classID} instead in our index and data entities (e.g. in the relation
@@ -122,8 +126,8 @@ implements DetachCallback
 	}
 
 	public long getClassID() {
-		if(classIDString == null){
-			return -1;
+		if(classIDString != null && classID == -1){
+			classID = KeyFactory.stringToKey(classIDString).getId();
 		}
 		return classID;
 	}
