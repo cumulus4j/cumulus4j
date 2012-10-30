@@ -12,6 +12,7 @@ import javax.jdo.PersistenceManager;
 
 import org.cumulus4j.store.crypto.CryptoManager;
 import org.cumulus4j.store.crypto.CryptoSession;
+import org.cumulus4j.store.model.DataEntry;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
@@ -105,7 +106,32 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 		
 		TestDBO blob_test = new TestDBO("Blob" + article_id,"Test" + article_id, 1);
 		
+		List<String> stringList = new ArrayList<String>();
+		List<Long> longObjectList = new ArrayList<Long>();
+		List<PriceDBO> priceList = new ArrayList<PriceDBO>();
 		
+		stringList.add("test 1");
+		stringList.add("test 2");
+		
+		longObjectList.add(new Long(9000));
+		longObjectList.add(new Long(9001));
+		
+		PriceDBO p1 = new PriceDBO();
+		p1.setCurrency("EUR");
+		p1.setPrice(new BigDecimal(100));
+		
+		PriceDBO p2 = new PriceDBO();
+		p2.setCurrency("USD");
+		p2.setPrice(new BigDecimal(80));
+		
+		priceList.add(p1);
+		priceList.add(p2);
+		
+		ListTestDBO list_test = new ListTestDBO();
+		list_test.setLongObjectList(longObjectList);
+		list_test.setPriceList(priceList);
+		list_test.setStringList(stringList);
+		/*
 		pm.makePersistent(blob_test);
 		
 		pm.makePersistent(slim_article);
@@ -113,6 +139,8 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 		pm.makePersistent(article);
 		
 		pm.makePersistent(movie);
+		*/
+		pm.makePersistent(list_test);
 		
 		pm.close();
 		

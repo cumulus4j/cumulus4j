@@ -10,7 +10,7 @@ public interface GreetingServiceAsync {
 	void greetServer(String input, AsyncCallback<String> callback) throws IllegalArgumentException;
 
 	void saveArticle(String article_id, AsyncCallback<Void> callback);
-	
+
 	void saveOffer(String offer_id, AsyncCallback<Void> callback);
 
 	void getArticleData(String article_id, AsyncCallback<String> callback);

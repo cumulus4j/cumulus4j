@@ -116,8 +116,15 @@ public class C4GAE implements EntryPoint {
 			}});
 		
 		loadArticleButton.addClickHandler(new ClickHandler(){
+
 			@Override
 			public void onClick(ClickEvent event) {
+				//Check, if something was typed in.
+				if(article_id_textbox.getText().equals("")){
+					Window.alert("Bitte eine Artikel-ID eingeben!");
+					return;
+				}
+				
 				greetingService.getArticleData(article_id_textbox.getText(), new AsyncCallback<String>(){
 
 					@Override
@@ -134,6 +141,12 @@ public class C4GAE implements EntryPoint {
 		loadOfferButton.addClickHandler(new ClickHandler(){
 			@Override
 			public void onClick(ClickEvent event) {
+				//Check, if something was typed in.
+				if(offer_id_textbox.getText().equals("")){
+					Window.alert("Bitte eine Angebots-ID eingeben!");
+					return;
+				}
+				
 				greetingService.getOfferData(offer_id_textbox.getText(), new AsyncCallback<String>(){
 
 					@Override
