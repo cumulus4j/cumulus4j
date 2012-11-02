@@ -27,6 +27,7 @@ import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.DataEntry;
 import org.cumulus4j.store.model.DataEntryDAO;
+import org.cumulus4j.store.model.EmbeddedObjectContainer;
 import org.cumulus4j.store.model.ObjectContainer;
 import org.datanucleus.identity.IdentityUtils;
 import org.datanucleus.metadata.AbstractClassMetaData;
@@ -165,8 +166,12 @@ public final class ObjectContainerHelper
 		if (reference == null)
 			return null;
 
-		if (USE_DATA_ENTRY_ID)
+		if (USE_DATA_ENTRY_ID) {
+			if (reference instanceof EmbeddedObjectContainer)
+				return null;
+
 			return (Long)reference;
+		}
 
 		ExecutionContext ec = cryptoContext.getExecutionContext();
 		Cumulus4jStoreManager storeManager = (Cumulus4jStoreManager) ec.getStoreManager();

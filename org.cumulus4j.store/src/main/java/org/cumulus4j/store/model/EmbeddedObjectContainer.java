@@ -6,7 +6,7 @@ package org.cumulus4j.store.model;
 public class EmbeddedObjectContainer extends ObjectContainer {
 	private static final long serialVersionUID = 1L;
 
-	public static final String ASSOCIATED_VALUE = "embeddedObjectContainer";
+//	public static final String ASSOCIATED_VALUE = "embeddedObjectContainer";
 
 	private long classID;
 

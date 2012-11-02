@@ -181,6 +181,10 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		// Check if read-only so update not permitted
 		storeManager.assertReadOnlyForUpdateOfObject(op);
 
+		if (op.getEmbeddedOwners() != null && op.getEmbeddedOwners().length > 0) {
+			return; // don't handle embedded objects here!
+		}
+
 		ExecutionContext ec = op.getExecutionContext();
 		ManagedConnection mconn = storeManager.getConnection(ec);
 		try {
@@ -229,7 +233,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 					new StoreFieldManager(op, cryptoContext, pmData, classMeta, dnClassMetaData, cryptoContext.getKeyStoreRefID(), objectContainer));
 			objectContainer.setVersion(op.getTransactionalVersion());
 
-			if (op.getEmbeddedOwners() == null || op.getEmbeddedOwners().length == 0) {
+//			if (op.getEmbeddedOwners() == null || op.getEmbeddedOwners().length == 0) {
 				// *** NON-embedded ***
 				// The DataEntry might already have been written by ObjectContainerHelper.entityToReference(...),
 				// if it was needed for a reference. We therefore check, if it already exists (and update it then instead of insert).
@@ -268,14 +272,14 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 						addIndexEntryAction.perform(cryptoContext, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, fieldValue);
 				}
 
-			}
-			else {
-				// *** embedded ***
-				EmbeddedObjectContainer embeddedObjectContainer = new EmbeddedObjectContainer(classMeta.getClassID(), objectContainer);
-				op.setAssociatedValue(EmbeddedObjectContainer.ASSOCIATED_VALUE, embeddedObjectContainer);
-
-				// TODO index embedded objects, too!
-			}
+//			}
+//			else {
+//				// *** embedded ***
+//				EmbeddedObjectContainer embeddedObjectContainer = new EmbeddedObjectContainer(classMeta.getClassID(), objectContainer);
+//				op.setAssociatedValue(EmbeddedObjectContainer.ASSOCIATED_VALUE, embeddedObjectContainer);
+//
+//				// TODO index embedded objects, too!
+//			}
 		} finally {
 			mconn.release();
 		}
@@ -309,6 +313,10 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 	{
 		// Check if read-only so update not permitted
 		storeManager.assertReadOnlyForUpdateOfObject(op);
+
+		if (op.getEmbeddedOwners() != null && op.getEmbeddedOwners().length > 0) {
+			return; // don't handle embedded objects here!
+		}
 
 		ExecutionContext ec = op.getExecutionContext();
 		ManagedConnection mconn = storeManager.getConnection(ec);

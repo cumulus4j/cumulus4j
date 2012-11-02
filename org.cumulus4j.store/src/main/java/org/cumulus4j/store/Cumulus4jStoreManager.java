@@ -188,9 +188,12 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 				if (pmConn.indexHasOwnPM()) {
 					// Replicate ClassMeta+FieldMeta to Index datastore
 					PersistenceManager pmIndex = pmConn.getIndexPM();
+					pmIndex.getFetchPlan().setGroup(FetchPlan.ALL); // not sure, if this is necessary before persisting, but don't have time to find it out - leaving it.
+					pmIndex.getFetchPlan().setMaxFetchDepth(-1); // not sure, if this is necessary before persisting, but don't have time to find it out - leaving it.
+					result = pmIndex.makePersistent(result);
 					pmIndex.getFetchPlan().setGroup(FetchPlan.ALL);
 					pmIndex.getFetchPlan().setMaxFetchDepth(-1);
-					pmIndex.makePersistent(result);
+					result = pmIndex.detachCopy(result);
 				}
 			}
 

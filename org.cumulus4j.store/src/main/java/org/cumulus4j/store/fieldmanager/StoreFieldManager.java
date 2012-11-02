@@ -219,8 +219,8 @@ public class StoreFieldManager extends AbstractFieldManager
 			if (mmd.isEmbedded()) {
 				if (valuePC != null) {
 					ObjectProvider embeddedOP = ec.findObjectProvider(valuePC);
-					EmbeddedObjectContainer embeddedObjectContainer = (EmbeddedObjectContainer) embeddedOP.getAssociatedValue(EmbeddedObjectContainer.ASSOCIATED_VALUE);
-					if (embeddedObjectContainer == null) {
+//					EmbeddedObjectContainer embeddedObjectContainer = (EmbeddedObjectContainer) embeddedOP.getAssociatedValue(EmbeddedObjectContainer.ASSOCIATED_VALUE);
+//					if (embeddedObjectContainer == null) { // We must do this ALWAYS, because otherwise changes are ignored :-(
 						// embedded ONLY => not yet persisted
 						// Maybe we could omit the ec.persistObjectInternal(...) completely for embedded objects to prevent double handling,
 						// but I guess, we'd have to add other code, then, doing things that are also done by ec.persistObjectInternal(...)
@@ -229,12 +229,12 @@ public class StoreFieldManager extends AbstractFieldManager
 
 						ClassMeta embeddedClassMeta = ((Cumulus4jStoreManager)ec.getStoreManager()).getClassMeta(ec, valuePC.getClass());
 						AbstractClassMetaData embeddedDNClassMetaData = embeddedOP.getClassMetaData();
-						embeddedObjectContainer = new EmbeddedObjectContainer(embeddedClassMeta.getClassID(), null);
+						EmbeddedObjectContainer embeddedObjectContainer = new EmbeddedObjectContainer(embeddedClassMeta.getClassID(), null);
 						embeddedOP.provideFields(
 								embeddedDNClassMetaData.getAllMemberPositions(),
 								new StoreFieldManager(embeddedOP, cryptoContext, pmData, embeddedClassMeta, embeddedDNClassMetaData, cryptoContext.getKeyStoreRefID(), embeddedObjectContainer));
 						embeddedObjectContainer.setVersion(embeddedOP.getTransactionalVersion());
-					}
+//					}
 
 					objectContainer.setValue(fieldMeta.getFieldID(), embeddedObjectContainer);
 				}
