@@ -171,7 +171,7 @@ implements StoreCallback
 	private String objectID;
 
 	@Persistent
-	private long keyID = -1;
+	private long keyID;
 
 	@Persistent
 	@Serialized
