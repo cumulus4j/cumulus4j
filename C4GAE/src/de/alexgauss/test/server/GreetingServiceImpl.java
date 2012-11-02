@@ -131,7 +131,7 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 		list_test.setLongObjectList(longObjectList);
 		list_test.setPriceList(priceList);
 		list_test.setStringList(stringList);
-		/*
+		
 		pm.makePersistent(blob_test);
 		
 		pm.makePersistent(slim_article);
@@ -139,8 +139,8 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 		pm.makePersistent(article);
 		
 		pm.makePersistent(movie);
-		*/
-		pm.makePersistent(list_test);
+		
+		//pm.makePersistent(list_test);
 		
 		pm.close();
 		
