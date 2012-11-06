@@ -17,8 +17,10 @@
  */
 package org.cumulus4j.store.test.inheritance;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -30,6 +32,17 @@ import javax.jdo.Query;
 import junit.framework.Assert;
 
 import org.cumulus4j.store.test.framework.AbstractJDOTransactionalTestClearingDatabase;
+import org.cumulus4j.store.test.inheritance.sources.Article;
+import org.cumulus4j.store.test.inheritance.sources.Class_B;
+import org.cumulus4j.store.test.inheritance.sources.Class_C;
+import org.cumulus4j.store.test.inheritance.sources.Class_D;
+import org.cumulus4j.store.test.inheritance.sources.Information;
+import org.cumulus4j.store.test.inheritance.sources.InformationDBO;
+import org.cumulus4j.store.test.inheritance.sources.Item;
+import org.cumulus4j.store.test.inheritance.sources.PriceDBO;
+import org.cumulus4j.store.test.inheritance.sources.ItemList;
+import org.cumulus4j.store.test.inheritance.sources.Terms.Options;
+import org.cumulus4j.store.test.inheritance.sources.TermsDBO;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -47,8 +60,100 @@ extends AbstractJDOTransactionalTestClearingDatabase
 			Object o = it.next();
 			pm.deletePersistent(o);
 		}
+
+		for (Iterator<?> it = pm.getExtent(Class_B.class).iterator(); it.hasNext(); ) {
+			Object o = it.next();
+			pm.deletePersistent(o);
+		}
 	}
 
+	@Test
+	public void persistAndQueryInheritanceTest() throws Exception {
+		
+		logger.info("start: persistAndQueryInheritanceTest");
+		Class_B b = new Class_B();
+		
+		b.setQuery_id("test_id_abc");
+		b.setDate(new Date());
+		b.setText("test test 123");
+		
+		Article article = new Article();
+		article.setArticle_id("AID-Ox1234567890FF");
+		article.setVersion(1);
+		article.setName("Plasmastrahlengenerator");
+		article.setPricePreTax("Credits", 1000000);
+		
+		Item item = new Item();
+		item.setAmount(1000);
+		item.setArticle(article);
+		
+		List<Item> items = new ArrayList<Item>();
+		items.add(item);
+		
+		ItemList offerItems = new ItemList();
+		offerItems.setItems(items);
+		
+		b.setOfferItems(offerItems);
+		
+		TermsDBO terms = new TermsDBO();
+		terms.setOption(Options.PAY_WITHIN_DAYS_OFFER_DISCOUNT);
+		
+		b.setTerms(terms);
+		
+		Information information = new Information();
+		information.setAdditionalInformation("Bender is a robot that likes to drink alcoholic beverages");
+		
+		Class_D	sender = new Class_D();
+		sender.setClass_d_id("Bender");
+		sender.setScore(9001);
+		sender.setDate(new Date());
+		sender.setVersion(1);
+		sender.setInformation(information);
+		
+		b.setSender(sender);
+		
+		PriceDBO pricePreTax = new PriceDBO();
+		pricePreTax.setCurrency("Credits");
+		pricePreTax.setPrice(new BigDecimal(1000000));
+		
+		b.setPricePreTax(pricePreTax);
+		
+		PriceDBO priceAfterTax = new PriceDBO();
+		priceAfterTax.setCurrency("Credits");
+		pricePreTax.setPrice(new BigDecimal(1190000));
+
+		b.setPriceAfterTax(priceAfterTax);
+		
+		InformationDBO infos = new InformationDBO();
+		infos.setAdditionalInformation("Fry lovel Leela");
+		
+		Class_C acceptor = new Class_C();
+		acceptor.setClass_c_id("Fry");
+		acceptor.setScore(0);
+		acceptor.setDate(new Date());
+		acceptor.setVersion(1);
+		acceptor.setInformation(infos);
+		
+		b.setAcceptor(acceptor);
+		
+		pm.makePersistent(b);
+		
+		commitAndBeginNewTransaction();
+		
+		List<Class_B> result = (List<Class_B>) pm.newQuery("select from " + Class_B.class.getName() + " where query_id == 'test_id_abc'").execute();
+		
+		logger.info("The query_id of the query result Class_B object: " + result.get(0).getQuery_id());
+		logger.info("The sender id: " + result.get(0).getSender().getClass_d_id() + ". - Should be 'Bender'");
+		logger.info("The sender's additional info: " + result.get(0).getSender().getInformation().getAdditionalInformation() + ". - Should tell you about his favorite drinks.");
+		logger.info("The acceptor's id: " + result.get(0).getAcceptor().getClass_c_id() + ". - Should be 'Fry'");
+		logger.info("The acceptor's additional info: " + result.get(0).getAcceptor().getInformation().getAdditionalInformation() + ". - Fry and Leela sitting in a tree. K-I-S-S-I-N-G.");
+		logger.info("The article's price as stored in the article: " + result.get(0).getItems().getItems().get(0).getArticle().getPricePreTax().getPrice().toString() + ". - Should be a Million.");
+		logger.info("The article's price after tax as stored in the price after tax field: " + result.get(0).getPriceAfterTax().getPrice().toString() + ". - Should be a 1190000.");
+
+		logger.info("end: persistenAndQueryInheritanceTest");
+		
+	}
+	
 	@Test
 	public void persistOneInheritanceObject()
 	throws Exception

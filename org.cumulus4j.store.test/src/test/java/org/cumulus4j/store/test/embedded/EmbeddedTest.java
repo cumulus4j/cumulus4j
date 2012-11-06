@@ -116,7 +116,7 @@ public class EmbeddedTest extends AbstractJDOTransactionalTestClearingDatabase {
 
 		logger.info("start: insertObjectWithEmbeddedOnlySubobject");
 
-		//setting up the subobject and the main object of class B and inserting the main object
+		//setting up the subobject and the main object of class D and inserting the main object
 		E e = new E();
 		e.setInformation("some information in the Class E DBO");
 
