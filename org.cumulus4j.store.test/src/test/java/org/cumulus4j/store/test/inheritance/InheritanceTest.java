@@ -142,13 +142,41 @@ extends AbstractJDOTransactionalTestClearingDatabase
 		
 		List<Class_B> result = (List<Class_B>) pm.newQuery("select from " + Class_B.class.getName() + " where query_id == 'test_id_abc'").execute();
 		
-		logger.info("The query_id of the query result Class_B object: " + result.get(0).getQuery_id());
-		logger.info("The sender id: " + result.get(0).getSender().getClass_d_id() + ". - Should be 'Bender'");
-		logger.info("The sender's additional info: " + result.get(0).getSender().getInformation().getAdditionalInformation() + ". - Should tell you about his favorite drinks.");
-		logger.info("The acceptor's id: " + result.get(0).getAcceptor().getClass_c_id() + ". - Should be 'Fry'");
-		logger.info("The acceptor's additional info: " + result.get(0).getAcceptor().getInformation().getAdditionalInformation() + ". - Fry and Leela sitting in a tree. K-I-S-S-I-N-G.");
-		logger.info("The article's price as stored in the article: " + result.get(0).getItems().getItems().get(0).getArticle().getPricePreTax().getPrice().toString() + ". - Should be a Million.");
-		logger.info("The article's price after tax as stored in the price after tax field: " + result.get(0).getPriceAfterTax().getPrice().toString() + ". - Should be a 1190000.");
+		try{
+			logger.info("The query_id of the query result Class_B object: " + result.get(0).getQuery_id());
+		} catch (Exception e) {
+			logger.error("[ERROR] Exception thrown trying to access the query_id of the test object: " + e.getLocalizedMessage());
+		}
+		try{
+			logger.info("The sender id: " + result.get(0).getSender().getClass_d_id() + ". - Should be 'Bender'");
+		} catch (Exception e) {
+			logger.error("[ERROR] Exception thrown trying to access the sender's id: " + e.getLocalizedMessage());
+		}
+		try{
+			logger.info("The sender's additional info: " + result.get(0).getSender().getInformation().getAdditionalInformation() + ". - Should tell you about his favorite drinks.");
+		} catch (Exception e) {
+			logger.error("[ERROR] Exception thrown trying to access the sender's additional information stored in an extra class: " + e.getLocalizedMessage());
+		}
+		try{
+			logger.info("The acceptor's id: " + result.get(0).getAcceptor().getClass_c_id() + ". - Should be 'Fry'");
+		} catch (Exception e) {
+			logger.error("[ERROR] Exception thrown trying to access the acceptor's id: " + e.getLocalizedMessage());
+		}
+		try{
+			logger.info("The acceptor's additional info: " + result.get(0).getAcceptor().getInformation().getAdditionalInformation() + ". - Fry and Leela sitting in a tree. K-I-S-S-I-N-G.");
+		} catch (Exception e) {
+			logger.error("[ERROR] Exception thrown trying to access the acceptor's additional information stored in an extra class: " + e.getLocalizedMessage());
+		}
+		try{
+			logger.info("The article's price as stored in the article: " + result.get(0).getItems().getItems().get(0).getArticle().getPricePreTax().getPrice().toString() + ". - Should be a Million.");
+		} catch (Exception e) {
+			logger.error("[ERROR] Exception thrown trying to access the article's price stored in the article itself: " + e.getLocalizedMessage());
+		}
+		try{
+			logger.info("The total price after tax as stored in the price after tax field: " + result.get(0).getPriceAfterTax().getPrice().toString() + ". - Should be a 1190000.");
+		} catch (Exception e) {
+			logger.error("[ERROR] Exception thrown trying to access the total price after tax stored in an extra class: " + e.getLocalizedMessage());
+		}
 
 		logger.info("end: persistenAndQueryInheritanceTest");
 		
