@@ -200,10 +200,10 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 			throw new IllegalArgumentException("The class " + clazz.getName() + " does not have persistence-meta-data! Is it persistence-capable? Is it enhanced?");
 
 		ClassMeta classMeta = new ClassMetaDAO(pm).getClassMeta(clazz, false);
-		boolean classExists = (classMeta != null);
-		if (!classExists) {
-			classMeta = new ClassMeta(clazz);
-		}
+        if (classMeta == null) {
+            classMeta = pm.makePersistent(new ClassMeta(clazz));
+        }
+
 
 		Class<?> superclass = clazz.getSuperclass();
 		if (superclass != null && getMetaDataManager().hasMetaDataForClass(superclass.getName())) {
@@ -279,10 +279,6 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 			classMeta.removeFieldMeta(fieldMeta);
 		}
 
-		if (!classExists) {
-		    // Persist the new class and its fields in one call, minimising updates
-		    pm.makePersistent(classMeta);
-		}
 		pm.flush(); // Get exceptions as soon as possible by forcing a flush here
 
 		return classMeta;

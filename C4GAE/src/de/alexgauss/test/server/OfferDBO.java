@@ -7,8 +7,10 @@ package de.alexgauss.test.server;
 
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.Embedded;
+import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
+import javax.jdo.annotations.PrimaryKey;
 
 @PersistenceCapable
 public class OfferDBO extends ReceiptDBO {
@@ -16,14 +18,18 @@ public class OfferDBO extends ReceiptDBO {
     @Persistent(serialized = "true")
     private ReceiptItemList offerItems;
 
+
+  /*  @Embedded(members = {@Persistent(name = "price", columns = @Column(name = "pricePreTax")),
+            @Persistent(name = "currency", columns = @Column(name = "pricePreTaxCurrency")) })*/
     @Persistent
-    @Embedded(members = {@Persistent(name = "price", columns = @Column(name = "pricePreTax")),
-            @Persistent(name = "currency", columns = @Column(name = "pricePreTaxCurrency")) })
+    @Embedded
     private PriceDBO pricePreTax;
 
+
+   /* @Embedded(members = {@Persistent(name = "price", columns = @Column(name = "priceAfterTax")),
+            @Persistent(name = "currency", columns = @Column(name = "priceAfterTaxCurrency")) }) */
     @Persistent
-    @Embedded(members = {@Persistent(name = "price", columns = @Column(name = "priceAfterTax")),
-            @Persistent(name = "currency", columns = @Column(name = "priceAfterTaxCurrency")) })
+    @Embedded
     private PriceDBO priceAfterTax;
 
     @Persistent
@@ -35,11 +41,10 @@ public class OfferDBO extends ReceiptDBO {
     @Persistent
     private String furtherDetails;
 
-    /*
     @Persistent
     @Embedded
     private PaymentTermsDBO paymentTerms;
-*/
+
     public ReceiptItemList getOfferItems() {
         return offerItems;
     }
@@ -71,7 +76,7 @@ public class OfferDBO extends ReceiptDBO {
     public String getFurtherDetails() {
         return furtherDetails;
     }
-/*
+
     public void setPaymentTerms(PaymentTermsDBO paymentTerms) {
         this.paymentTerms = paymentTerms;
     }
@@ -79,7 +84,7 @@ public class OfferDBO extends ReceiptDBO {
     public PaymentTermsDBO getPaymentTerms() {
         return paymentTerms;
     }
-*/
+
     public void setPricePreTax(PriceDBO pricePreTax) {
         this.pricePreTax = pricePreTax;
     }

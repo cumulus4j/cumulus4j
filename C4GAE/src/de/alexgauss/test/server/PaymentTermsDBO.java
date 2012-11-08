@@ -8,9 +8,11 @@ package de.alexgauss.test.server;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
+import javax.jdo.annotations.PrimaryKey;
 
 import de.alexgauss.test.server.PaymentTerms.PaymentOptions;
 
@@ -85,4 +87,5 @@ public class PaymentTermsDBO implements Serializable {
     public boolean isShowDates() {
         return showDates;
     }
+    
 }

@@ -164,7 +164,7 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 		
 		offer.setVersion(1);
 		offer.setReceipt_id(offer_id);
-		offer.setCompany_id("TestCompanyID" + offer_id);
+		offer.setCompany_id("TestCompanyID-" + offer_id);
 		offer.setFurtherDetails("no further Details for Offer with ID: " + offer_id);
 		offer.setIssueDate(new Date());
 		offer.setIntroduction("Blubb intro to Offer with ID: " + offer_id);
@@ -208,7 +208,7 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 		paymentTerms.setPaymentOption(PaymentOptions.PAY_WITHIN_DAYS_OFFER_DISCOUNT);
 		paymentTerms.setCashDiscount(new BigDecimal(0));
 		
-	//	offer.setPaymentTerms(paymentTerms);
+		offer.setPaymentTerms(paymentTerms);
 		
 		TaxAccount taxAccount = new TaxAccount();
 		taxAccount.setSalesTaxID("here is the tax id");
@@ -265,7 +265,7 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 		
 		PriceDBO priceAfterTax = new PriceDBO();
 		priceAfterTax.setCurrency("EUR");
-		pricePreTax.setPrice(receiptItem.getTotalReceiptItemPriceAfterTax().getPrice());
+		priceAfterTax.setPrice(receiptItem.getTotalReceiptItemPriceAfterTax().getPrice());
 
 		offer.setPriceAfterTax(priceAfterTax);
 		
@@ -314,11 +314,10 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 		receipt_acceptor.setAddress(a_address);
 		receipt_acceptor.setBankAccount(a_bankAccount);
 		receipt_acceptor.setTaxAccount(a_taxAccount);
-		
+
 		offer.setReceipt_acceptor(receipt_acceptor);
 		
 		pm.makePersistent(offer);
-		pm.makePersistent(movie);
 		pm.close();
 	}
 
@@ -362,9 +361,33 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 		pm.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, "dummy" + 1 + '_' + random1 + '*' + random2);
 
 		List<OfferDBO> result = (List<OfferDBO>) pm.newQuery("select from " + OfferDBO.class.getName() + " WHERE receipt_id == '" + offer_id +"'").execute();
-		List<MovieDBO> movies = (List<MovieDBO>) pm.newQuery("select from " + MovieDBO.class.getName()).execute();
+		pm.retrieveAll(result);
+		
+		OfferDBO o= result.get(0);
+		pm.retrieve(o.getReceipt_acceptor());
 		pm.close();
-		return "Offer-ID: " + result.get(0).getReceipt_id() + "\n " + movies.get(0).getTitle();
+		return "Offer-ID: " + o.getReceipt_id() + "\n"
+				+ "Company-ID: " + o.getCompany_id() + "\n"
+				+ "Further details: " + o.getFurtherDetails() + "\n"
+				+ "Introduction: " + o.getIntroduction() + "\n"
+				+ "pdf-file-id: " + o.getPdfFileID() + "\n"
+				+ "Signature greeting: " + o.getSignatureGreeting() + "\n"
+				+ "Version: " + o.getVersion() + "\n"
+				+ "Issue date: " + o.getIssueDate().toString() + "\n"
+				+ "OfferItems-article-1-name: " + o.getOfferItems().getReceiptItems().get(0).getArticle().getName() + "\n"
+				+ "OfferItems-amount: " + o.getOfferItems().getReceiptItems().get(0).getAmount().toString() + "\n"
+				+ "PaymentTerms-cashDiscount: " + o.getPaymentTerms().getCashDiscount().toString() + "\n"
+				+ "PaymentTerms-standardPaymentDays " + o.getPaymentTerms().getStandardPaymentDays() + "\n"
+				+ "PaymentTerms-reducedPaymentDays " + o.getPaymentTerms().getReducedPaymentDays() + "\n"
+				+ "PaymentTerms-paymentOption " + o.getPaymentTerms().getPaymentOption() + "\n"
+				+ "PaymentTerms-showDates " + o.getPaymentTerms().isShowDates() + "\n"
+				+ "PaymentTerms-showReducedAmount " + o.getPaymentTerms().isShowReducedAmount() + "\n"
+				+ "PricePreTax-price: " + o.getPricePreTax().getPrice().toString() + "\n"
+				+ "PricePreTax-currency: " + o.getPricePreTax().getCurrency() + "\n"
+				+ "PriceAfterTax-price: " + o.getPriceAfterTax().getPrice().toString() + "\n"
+				+ "PriceAfterTax-currency: " + o.getPriceAfterTax().getCurrency() + "\n"
+				+ "Receipt_acceptor: " + o.getReceipt_acceptor() + "\n"
+				+ "Receipt_sender: " + o.getReceipt_sender() + "\n";
 	}
 	
 }

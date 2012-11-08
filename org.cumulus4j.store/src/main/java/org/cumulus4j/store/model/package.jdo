@@ -19,6 +19,10 @@
 				<extension vendor-name="datanucleus" key="gae.encoded-pk" value="true" />
 			</field>
 			
+			<field name="superClassMeta">
+				<extension vendor-name="datanucleus" key="gae.unowned" value="true"/>
+			</field>
+			
 			<query name="getClassMetaByPackageNameAndSimpleClassName" language="javax.jdo.query.JDOQL">
 				<![CDATA[
 					SELECT UNIQUE WHERE this.packageName == :packageName && this.simpleClassName == :simpleClassName

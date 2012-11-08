@@ -97,7 +97,7 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 		
 		byte b = (byte) 1;
 		
-		byte[] testByteArray = new byte[1000000000];
+		byte[] testByteArray = new byte[5000000];
 		
 		for (int i = 0; i < 1000000; i++) {
 			testByteArray[i] = b;

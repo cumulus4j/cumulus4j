@@ -10,7 +10,7 @@ import javax.jdo.annotations.Persistent;
 
 @PersistenceCapable
 public class BankAccountDBO {
-
+	
     @Persistent
     private String bankName;
 
@@ -65,5 +65,5 @@ public class BankAccountDBO {
     public void setBic(String bic) {
         this.bic = bic;
     }
-
+    
 }

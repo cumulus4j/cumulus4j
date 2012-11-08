@@ -10,7 +10,7 @@ import javax.jdo.annotations.Persistent;
 
 @PersistenceCapable
 public class AddressDBO {
-
+	
     @Persistent
     private String company;
 

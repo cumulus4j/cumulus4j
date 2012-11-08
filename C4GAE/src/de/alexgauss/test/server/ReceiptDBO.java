@@ -16,6 +16,7 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+@PersistenceCapable
 @Inheritance(strategy = InheritanceStrategy.SUBCLASS_TABLE)
 public abstract class ReceiptDBO {
 
@@ -34,6 +35,7 @@ public abstract class ReceiptDBO {
 
     @Persistent(serialized = "true")
     private BusinessPartner receipt_sender;
+    
 
     @Persistent
     @Embedded(nullIndicatorColumn = "businessPartner_id")
