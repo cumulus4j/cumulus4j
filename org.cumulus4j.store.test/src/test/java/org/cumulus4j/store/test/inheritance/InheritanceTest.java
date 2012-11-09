@@ -36,6 +36,8 @@ import org.cumulus4j.store.test.inheritance.sources.Article;
 import org.cumulus4j.store.test.inheritance.sources.Class_B;
 import org.cumulus4j.store.test.inheritance.sources.Class_C;
 import org.cumulus4j.store.test.inheritance.sources.Class_D;
+import org.cumulus4j.store.test.inheritance.sources.F1;
+import org.cumulus4j.store.test.inheritance.sources.F2;
 import org.cumulus4j.store.test.inheritance.sources.Information;
 import org.cumulus4j.store.test.inheritance.sources.InformationDBO;
 import org.cumulus4j.store.test.inheritance.sources.Item;
@@ -125,7 +127,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 		b.setPriceAfterTax(priceAfterTax);
 		
 		InformationDBO infos = new InformationDBO();
-		infos.setAdditionalInformation("Fry lovel Leela");
+		infos.setAdditionalInformation("Fry loves Leela");
 		
 		Class_C acceptor = new Class_C();
 		acceptor.setClass_c_id("Fry");
@@ -152,6 +154,32 @@ extends AbstractJDOTransactionalTestClearingDatabase
 
 		logger.info("end: persistenAndQueryInheritanceTest");
 		
+	}
+	
+	@Test
+	public void persistAnObjectAndQueryWithAnObjectOfAnotherSubclass() throws Exception
+	{
+		logger.info("start: persistAnObjectAndQueryWithAnObjectOfAnotherSubclass");
+
+		F1 f1 = new F1();
+		f1.setF1Text("class F1 object");
+		f1.setQuery_id("Test_ID");
+		pm.makePersistent(f1);
+		
+		commitAndBeginNewTransaction();
+
+		List<Object> result = (List<Object>) pm.newQuery("select from " + F2.class.getName() + " where query_id == 'Test_ID'").execute();
+		
+		logger.info("the following objects were found:");
+		for(int i = 0; i < result.size(); i++) {
+			logger.info(result.get(i).toString());
+		}
+		
+		if (result.size() > 0) {
+            throw new IllegalArgumentException();
+        }
+		
+		logger.info("end: persistAnObjectAndQueryWithAnObjectOfAnotherSubclass");
 	}
 	
 	@Test
