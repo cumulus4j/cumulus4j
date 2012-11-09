@@ -36,8 +36,6 @@ import org.cumulus4j.store.test.inheritance.sources.Article;
 import org.cumulus4j.store.test.inheritance.sources.Class_B;
 import org.cumulus4j.store.test.inheritance.sources.Class_C;
 import org.cumulus4j.store.test.inheritance.sources.Class_D;
-import org.cumulus4j.store.test.inheritance.sources.F1;
-import org.cumulus4j.store.test.inheritance.sources.F2;
 import org.cumulus4j.store.test.inheritance.sources.Information;
 import org.cumulus4j.store.test.inheritance.sources.InformationDBO;
 import org.cumulus4j.store.test.inheritance.sources.Item;
@@ -45,6 +43,8 @@ import org.cumulus4j.store.test.inheritance.sources.PriceDBO;
 import org.cumulus4j.store.test.inheritance.sources.ItemList;
 import org.cumulus4j.store.test.inheritance.sources.Terms.Options;
 import org.cumulus4j.store.test.inheritance.sources.TermsDBO;
+import org.cumulus4j.store.test.inheritance.sources.TestSubClassA;
+import org.cumulus4j.store.test.inheritance.sources.TestSubClassB;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -161,18 +161,20 @@ extends AbstractJDOTransactionalTestClearingDatabase
 	{
 		logger.info("start: persistAnObjectAndQueryWithAnObjectOfAnotherSubclass");
 
-		F1 f1 = new F1();
-		f1.setF1Text("class F1 object");
-		f1.setQuery_id("Test_ID");
-		pm.makePersistent(f1);
+		TestSubClassA a = new TestSubClassA();
+		a.setF1Text("class F1 object");
+		a.setQuery_id("Test_ID");
+		pm.makePersistent(a);
 		
 		commitAndBeginNewTransaction();
 
-		List<Object> result = (List<Object>) pm.newQuery("select from " + F2.class.getName() + " where query_id == 'Test_ID'").execute();
+		List<Object> result = (List<Object>) pm.newQuery("select from " + TestSubClassB.class.getName() + " where query_id == 'Test_ID'").execute();
 		
-		logger.info("the following objects were found:");
-		for(int i = 0; i < result.size(); i++) {
-			logger.info(result.get(i).toString());
+		if (result.size() > 0) {
+			logger.error("the following objects were found:");
+			for(int i = 0; i < result.size(); i++) {
+				logger.error(result.get(i).toString());
+			}
 		}
 		
 		Assert.assertEquals(0, result.size());

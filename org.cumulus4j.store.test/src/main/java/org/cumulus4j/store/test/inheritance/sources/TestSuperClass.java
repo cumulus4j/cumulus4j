@@ -9,7 +9,7 @@ import javax.jdo.annotations.PrimaryKey;
 
 @PersistenceCapable
 @Inheritance(strategy = InheritanceStrategy.SUBCLASS_TABLE)
-public abstract class E {
+public abstract class TestSuperClass {
 
     @PrimaryKey
     @Persistent(valueStrategy = IdGeneratorStrategy.SEQUENCE)

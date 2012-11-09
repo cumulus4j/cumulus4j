@@ -4,7 +4,7 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 
 @PersistenceCapable
-public class F2 extends E {
+public class TestSubClassB extends TestSuperClass {
 
     @Persistent
     private String f2_text;
