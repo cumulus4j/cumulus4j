@@ -17,6 +17,7 @@
  */
 package org.cumulus4j.store.query.eval;
 
+import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.FieldMeta;
 import org.datanucleus.query.symbol.Symbol;
 
@@ -35,6 +36,7 @@ public class ResultDescriptor
 	private Symbol symbol;
 	private Class<?> resultType;
 	private FieldMeta fieldMeta;
+	private ClassMeta classMeta;
 	private boolean negated;
 
 	/**
@@ -68,16 +70,18 @@ public class ResultDescriptor
 	 * is not <code>null</code>, this argument is ignored.
 	 * @param fieldMeta the field to be queried, if there is no FCO candidate. Must be
 	 * <code>null</code>, if an FCO is searched.
+	 * @param classMeta TODO
 	 */
-	public ResultDescriptor(Symbol symbol, Class<?> resultType, FieldMeta fieldMeta)
+	public ResultDescriptor(Symbol symbol, Class<?> resultType, FieldMeta fieldMeta, ClassMeta classMeta)
 	{
 		this(symbol, resultType);
 		this.fieldMeta = fieldMeta;
+		this.classMeta = classMeta;
 	}
 
-	private ResultDescriptor(Symbol symbol, Class<?> resultType, FieldMeta fieldMeta, boolean negated)
+	private ResultDescriptor(Symbol symbol, Class<?> resultType, FieldMeta fieldMeta, ClassMeta classMeta, boolean negated)
 	{
-		this(symbol, resultType, fieldMeta);
+		this(symbol, resultType, fieldMeta, classMeta);
 		this.negated = negated;
 	}
 
@@ -96,6 +100,10 @@ public class ResultDescriptor
 	 */
 	public Class<?> getResultType() {
 		return resultType;
+	}
+
+	public ClassMeta getClassMeta() {
+		return classMeta;
 	}
 
 	/**
@@ -135,7 +143,7 @@ public class ResultDescriptor
 	 */
 	public ResultDescriptor negate()
 	{
-		return new ResultDescriptor(symbol, resultType, fieldMeta, !negated);
+		return new ResultDescriptor(symbol, resultType, fieldMeta, classMeta, !negated);
 	}
 
 	@Override

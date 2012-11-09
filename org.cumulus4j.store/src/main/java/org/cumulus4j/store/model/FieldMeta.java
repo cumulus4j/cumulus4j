@@ -27,6 +27,8 @@ import java.util.Set;
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
 import javax.jdo.annotations.Column;
+import javax.jdo.annotations.Discriminator;
+import javax.jdo.annotations.DiscriminatorStrategy;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.NotPersistent;
@@ -58,6 +60,7 @@ import org.slf4j.LoggerFactory;
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
+@Discriminator(strategy=DiscriminatorStrategy.VALUE_MAP, value="FieldMeta", columns=@Column(defaultValue="FieldMeta", length=100))
 @Version(strategy=VersionStrategy.VERSION_NUMBER)
 @Uniques({
 	@Unique(name="FieldMeta_classMeta_ownerFieldMeta_fieldName_role", members={"classMeta", "ownerFieldMeta", "fieldName", "role"})

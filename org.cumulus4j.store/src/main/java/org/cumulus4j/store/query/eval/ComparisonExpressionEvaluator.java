@@ -19,11 +19,15 @@ package org.cumulus4j.store.query.eval;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.jdo.Query;
 
+import org.cumulus4j.store.Cumulus4jStoreManager;
 import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.DataEntryDAO;
@@ -90,7 +94,7 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 				return null;
 
 			if (resultDescriptor.getFieldMeta() != null)
-				return queryCompareConcreteValue(resultDescriptor.getFieldMeta(), getRightCompareToArgument(), resultDescriptor.isNegated());
+				return queryCompareConcreteValue(resultDescriptor.getFieldMeta(), resultDescriptor.getClassMeta(), getRightCompareToArgument(), resultDescriptor.isNegated());
 			else {
 				// The variable is an FCO and directly compared (otherwise it would be a PrimaryExpression - see above) or the FieldMeta would be specified.
 				ClassMeta classMeta = getQueryEvaluator().getStoreManager().getClassMeta(executionContext, resultDescriptor.getResultType());
@@ -139,12 +143,12 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		}
 
 		@Override
-		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
-			return queryCompareConcreteValue(fieldMeta, value, negate);
+		protected Set<Long> queryEnd(FieldMeta fieldMeta, ClassMeta classMeta) {
+			return queryCompareConcreteValue(fieldMeta, classMeta, value, negate);
 		}
 	}
 
-	private Set<Long> queryCompareConcreteValue(FieldMeta fieldMeta, Object value, boolean negate)
+	private Set<Long> queryCompareConcreteValue(FieldMeta fieldMeta, ClassMeta classMeta, Object value, boolean negate)
 	{
 		CryptoContext cryptoContext = getQueryEvaluator().getCryptoContext();
 		ExecutionContext executionContext = getQueryEvaluator().getExecutionContext();
@@ -193,13 +197,25 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		q.setFilter(
 				"this.keyStoreRefID == :keyStoreRefID && " +
 				"this.fieldMeta == :fieldMeta && " +
+				":classMetas.contains(this.classMeta) && " +
 				"this.indexKey " + getOperatorAsJDOQLSymbol(negate) + " :value"
 		);
 
+		Cumulus4jStoreManager storeManager = (Cumulus4jStoreManager) executionContext.getStoreManager();
+		List<ClassMeta> classMetas = storeManager.getClassMetaWithSubClassMetas(executionContext, classMeta);
+
+		Map<String, Object> params = new HashMap<String, Object>(4);
+		params.put("keyStoreRefID", cryptoContext.getKeyStoreRefID());
+		params.put("fieldMeta", fieldMeta);
+		params.put("classMetas", classMetas);
+		params.put("value", queryParam);
+
+//		@SuppressWarnings("unchecked")
+//		Collection<? extends IndexEntry> indexEntries = (Collection<? extends IndexEntry>) q.execute(
+//				cryptoContext.getKeyStoreRefID(), fieldMeta, queryParam
+//		);
 		@SuppressWarnings("unchecked")
-		Collection<? extends IndexEntry> indexEntries = (Collection<? extends IndexEntry>) q.execute(
-				cryptoContext.getKeyStoreRefID(), fieldMeta, queryParam
-		);
+		Collection<? extends IndexEntry> indexEntries = (Collection<? extends IndexEntry>) q.executeWithMap(params);
 
 		Set<Long> result = new HashSet<Long>();
 		for (IndexEntry indexEntry : indexEntries) {

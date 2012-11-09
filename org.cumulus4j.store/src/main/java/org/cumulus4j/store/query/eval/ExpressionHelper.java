@@ -180,7 +180,7 @@ public class ExpressionHelper
 		}
 
 		@Override
-		protected final Set<Long> queryEnd(FieldMeta fieldMeta) {
+		protected final Set<Long> queryEnd(FieldMeta fieldMeta, ClassMeta classMeta) {
 			AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(executionContext);
 			FieldMeta subFieldMeta = fieldMeta.getSubFieldMeta(role);
 
@@ -203,10 +203,10 @@ public class ExpressionHelper
 					throw new IllegalStateException("Unknown role: " + role);
 			}
 
-			return _queryEnd(fieldMeta, mmd, subFieldMeta, argumentIsPersistent, argumentType);
+			return _queryEnd(fieldMeta, classMeta, mmd, subFieldMeta, argumentIsPersistent, argumentType);
 		}
 
-		protected abstract Set<Long> _queryEnd(FieldMeta fieldMeta, AbstractMemberMetaData mmd, FieldMeta subFieldMeta, boolean argumentIsPersistent, Class<?> argumentType
+		protected abstract Set<Long> _queryEnd(FieldMeta fieldMeta, ClassMeta classMeta, AbstractMemberMetaData mmd, FieldMeta subFieldMeta, boolean argumentIsPersistent, Class<?> argumentType
 		);
 	}
 
@@ -235,14 +235,14 @@ public class ExpressionHelper
 		}
 
 		@Override
-		public Set<Long> _queryEnd(FieldMeta fieldMeta, AbstractMemberMetaData mmd, FieldMeta subFieldMeta,
-				boolean argumentIsPersistent, Class<?> argumentType)
+		public Set<Long> _queryEnd(FieldMeta fieldMeta, ClassMeta classMeta, AbstractMemberMetaData mmd,
+				FieldMeta subFieldMeta, boolean argumentIsPersistent, Class<?> argumentType)
 		{
 			if (argumentIsPersistent || subFieldMeta.getMappedByFieldMeta(executionContext) != null) {
 				AbstractExpressionEvaluator<?> eval = queryEvaluator.getExpressionEvaluator();
 
 				Collection<Long> valueDataEntryIDs = eval.queryResultDataEntryIDs(
-						new ResultDescriptor(variableExpr.getSymbol(), argumentType, subFieldMeta.getMappedByFieldMeta(executionContext))
+						new ResultDescriptor(variableExpr.getSymbol(), argumentType, subFieldMeta.getMappedByFieldMeta(executionContext), classMeta)
 				);
 				if (valueDataEntryIDs == null)
 					return null;
@@ -280,7 +280,7 @@ public class ExpressionHelper
 			}
 			else {
 				AbstractExpressionEvaluator<?> eval = queryEvaluator.getExpressionEvaluator();
-				Set<Long> result = eval.queryResultDataEntryIDs(new ResultDescriptor(variableExpr.getSymbol(), argumentType, subFieldMeta));
+				Set<Long> result = eval.queryResultDataEntryIDs(new ResultDescriptor(variableExpr.getSymbol(), argumentType, subFieldMeta, classMeta));
 				return negateIfNecessary(fieldMeta, result);
 			}
 		}
@@ -309,8 +309,8 @@ public class ExpressionHelper
 		private static Set<Long> emptyDataEntryIDs = Collections.emptySet();
 
 		@Override
-		public Set<Long> _queryEnd(FieldMeta fieldMeta, AbstractMemberMetaData mmd, FieldMeta subFieldMeta,
-				boolean argumentIsPersistent, Class<?> argumentType)
+		public Set<Long> _queryEnd(FieldMeta fieldMeta, ClassMeta classMeta, AbstractMemberMetaData mmd,
+				FieldMeta subFieldMeta, boolean argumentIsPersistent, Class<?> argumentType)
 		{
 			if (constant != null && !argumentType.isInstance(constant)) {
 				logger.debug(

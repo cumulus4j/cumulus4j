@@ -39,12 +39,13 @@ import org.cumulus4j.store.test.inheritance.sources.Class_D;
 import org.cumulus4j.store.test.inheritance.sources.Information;
 import org.cumulus4j.store.test.inheritance.sources.InformationDBO;
 import org.cumulus4j.store.test.inheritance.sources.Item;
-import org.cumulus4j.store.test.inheritance.sources.PriceDBO;
 import org.cumulus4j.store.test.inheritance.sources.ItemList;
+import org.cumulus4j.store.test.inheritance.sources.PriceDBO;
 import org.cumulus4j.store.test.inheritance.sources.Terms.Options;
 import org.cumulus4j.store.test.inheritance.sources.TermsDBO;
 import org.cumulus4j.store.test.inheritance.sources.TestSubClassA;
 import org.cumulus4j.store.test.inheritance.sources.TestSubClassB;
+import org.cumulus4j.store.test.inheritance.sources.TestSuperClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -71,79 +72,79 @@ extends AbstractJDOTransactionalTestClearingDatabase
 
 	@Test
 	public void persistAndQueryInheritanceTest() throws Exception {
-		
+
 		logger.info("start: persistAndQueryInheritanceTest");
 		Class_B b = new Class_B();
-		
+
 		b.setQuery_id("test_id_abc");
 		b.setDate(new Date());
 		b.setText("test test 123");
-		
+
 		Article article = new Article();
 		article.setArticle_id("AID-Ox1234567890FF");
 		article.setVersion(1);
 		article.setName("Plasmastrahlengenerator");
 		article.setPricePreTax("Credits", 1000000);
-		
+
 		Item item = new Item();
 		item.setAmount(1000);
 		item.setArticle(article);
-		
+
 		List<Item> items = new ArrayList<Item>();
 		items.add(item);
-		
+
 		ItemList offerItems = new ItemList();
 		offerItems.setItems(items);
-		
+
 		b.setOfferItems(offerItems);
-		
+
 		TermsDBO terms = new TermsDBO();
 		terms.setOption(Options.PAY_WITHIN_DAYS_OFFER_DISCOUNT);
-		
+
 		b.setTerms(terms);
-		
+
 		Information information = new Information();
 		information.setAdditionalInformation("Bender is a robot that likes to drink alcoholic beverages");
-		
+
 		Class_D	sender = new Class_D();
 		sender.setClass_d_id("Bender");
 		sender.setScore(9001);
 		sender.setDate(new Date());
 		sender.setVersion(1);
 		sender.setInformation(information);
-		
+
 		b.setSender(sender);
-		
+
 		PriceDBO pricePreTax = new PriceDBO();
 		pricePreTax.setCurrency("Credits");
 		pricePreTax.setPrice(new BigDecimal(1000000));
-		
+
 		b.setPricePreTax(pricePreTax);
-		
+
 		PriceDBO priceAfterTax = new PriceDBO();
 		priceAfterTax.setCurrency("Credits");
 		priceAfterTax.setPrice(new BigDecimal(1190000));
 
 		b.setPriceAfterTax(priceAfterTax);
-		
+
 		InformationDBO infos = new InformationDBO();
 		infos.setAdditionalInformation("Fry loves Leela");
-		
+
 		Class_C acceptor = new Class_C();
 		acceptor.setClass_c_id("Fry");
 		acceptor.setScore(0);
 		acceptor.setDate(new Date());
 		acceptor.setVersion(1);
 		acceptor.setInformation(infos);
-		
+
 		b.setAcceptor(acceptor);
-		
+
 		pm.makePersistent(b);
-		
+
 		commitAndBeginNewTransaction();
-		
+
 		List<Class_B> result = (List<Class_B>) pm.newQuery("select from " + Class_B.class.getName() + " where query_id == 'test_id_abc'").execute();
-		
+
 		logger.info("The query_id of the query result Class_B object: " + result.get(0).getQuery_id());
 		logger.info("The sender id: " + result.get(0).getSender().getClass_d_id() + ". - Should be 'Bender'");
 		logger.info("The sender's additional info: " + result.get(0).getSender().getInformation().getAdditionalInformation() + ". - Should tell you about his favorite drinks.");
@@ -153,9 +154,9 @@ extends AbstractJDOTransactionalTestClearingDatabase
 		logger.info("The total price after tax as stored in the price after tax field: " + result.get(0).getPriceAfterTax().getPrice().toString() + ". - Should be a 1190000.");
 
 		logger.info("end: persistenAndQueryInheritanceTest");
-		
+
 	}
-	
+
 	@Test
 	public void persistAnObjectAndQueryWithAnObjectOfAnotherSubclass() throws Exception
 	{
@@ -165,27 +166,37 @@ extends AbstractJDOTransactionalTestClearingDatabase
 		a.setF1Text("class F1 object");
 		a.setQuery_id("Test_ID");
 		pm.makePersistent(a);
-		
+
 		commitAndBeginNewTransaction();
 
-		List<Object> result = (List<Object>) pm.newQuery("select from " + TestSubClassB.class.getName() + " where query_id == 'Test_ID'").execute();
-		
-		if (result.size() > 0) {
-			logger.error("the following objects were found:");
-			for(int i = 0; i < result.size(); i++) {
-				logger.error(result.get(i).toString());
-			}
-		}
-		
-		Assert.assertEquals(0, result.size());
+		{
+			List<Object> result = (List<Object>) pm.newQuery("select from " + TestSubClassB.class.getName() + " where query_id == 'Test_ID'").execute();
 
-		//if (result.size() > 0) {
-        //    throw new IllegalArgumentException();
-        //}
-		
+			if (result.size() > 0) {
+				logger.error("the following objects were found:");
+				for(int i = 0; i < result.size(); i++) {
+					logger.error(result.get(i).toString());
+				}
+			}
+
+			Assert.assertEquals(0, result.size());
+		}
+
+		{
+			List<Object> result = (List<Object>) pm.newQuery("select from " + TestSubClassA.class.getName() + " where query_id == 'Test_ID'").execute();
+			Assert.assertEquals(1, result.size());
+			Assert.assertTrue(result.get(0) instanceof TestSubClassA);
+		}
+
+		{
+			List<Object> result = (List<Object>) pm.newQuery("select from " + TestSuperClass.class.getName() + " where query_id == 'Test_ID'").execute();
+			Assert.assertEquals(1, result.size());
+			Assert.assertTrue(result.get(0) instanceof TestSubClassA);
+		}
+
 		logger.info("end: persistAnObjectAndQueryWithAnObjectOfAnotherSubclass");
 	}
-	
+
 	@Test
 	public void persistOneInheritanceObject()
 	throws Exception

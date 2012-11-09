@@ -128,7 +128,7 @@ public abstract class PrimaryExpressionResolver
 		}
 
 		if (tuples.isEmpty()) {
-			return queryEnd(fieldMetaForNextTuple);
+			return queryEnd(fieldMetaForNextTuple, classMeta);
 		}
 		else {
 			// join
@@ -172,5 +172,5 @@ public abstract class PrimaryExpressionResolver
 		}
 	}
 
-	protected abstract Set<Long> queryEnd(FieldMeta fieldMeta);
+	protected abstract Set<Long> queryEnd(FieldMeta fieldMeta, ClassMeta classMeta);
 }

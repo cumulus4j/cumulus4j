@@ -26,6 +26,7 @@ import java.util.Set;
 import javax.jdo.Query;
 
 import org.cumulus4j.store.crypto.CryptoContext;
+import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.FieldMetaRole;
 import org.cumulus4j.store.model.IndexEntry;
@@ -114,7 +115,7 @@ public class CollectionContainsEvaluator extends AbstractMethodEvaluator
 		}
 
 		@Override
-		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
+		protected Set<Long> queryEnd(FieldMeta fieldMeta, ClassMeta classMeta) {
 			CryptoContext cryptoContext = queryEvaluator.getCryptoContext();
 			ExecutionContext executionContext = queryEvaluator.getExecutionContext();
 			IndexEntryFactory indexEntryFactory = queryEvaluator.getStoreManager().getIndexFactoryRegistry().getIndexEntryFactory(

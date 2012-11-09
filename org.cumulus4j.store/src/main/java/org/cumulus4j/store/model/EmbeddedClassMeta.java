@@ -1,10 +1,16 @@
 package org.cumulus4j.store.model;
 
+import javax.jdo.annotations.Discriminator;
+import javax.jdo.annotations.DiscriminatorStrategy;
+import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.NullValue;
+import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 
 import org.datanucleus.store.ExecutionContext;
 
+@PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
+@Discriminator(strategy=DiscriminatorStrategy.VALUE_MAP, value="EmbeddedClassMeta")
 public class EmbeddedClassMeta extends ClassMeta {
 
 	@Persistent(nullValue=NullValue.EXCEPTION)

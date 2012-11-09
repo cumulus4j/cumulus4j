@@ -59,7 +59,7 @@ import org.slf4j.LoggerFactory;
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
-@Discriminator(strategy=DiscriminatorStrategy.VALUE_MAP)
+@Discriminator(strategy=DiscriminatorStrategy.VALUE_MAP, value="ClassMeta", columns=@Column(defaultValue="ClassMeta", length=100))
 @Version(strategy=VersionStrategy.VERSION_NUMBER)
 @Unique(name="ClassMeta_fullyQualifiedClassName", members={"packageName", "simpleClassName"})
 @FetchGroups({

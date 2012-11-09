@@ -26,6 +26,7 @@ import java.util.Set;
 import javax.jdo.Query;
 
 import org.cumulus4j.store.crypto.CryptoContext;
+import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.IndexEntry;
 import org.cumulus4j.store.model.IndexEntryFactory;
@@ -147,7 +148,7 @@ public class StringSubstringEvaluator extends AbstractMethodEvaluator {
 		}
 
 		@Override
-		protected Set<Long> queryEnd(FieldMeta fieldMeta) {
+		protected Set<Long> queryEnd(FieldMeta fieldMeta, ClassMeta classMeta) {
 			return queryEvaluate(invokeExprEval, queryEvaluator, fieldMeta, invokePos1, invokePos2, compareToArgument, negate);
 		}
 	}

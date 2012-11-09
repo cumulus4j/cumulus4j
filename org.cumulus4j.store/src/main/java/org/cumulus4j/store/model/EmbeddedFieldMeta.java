@@ -1,5 +1,12 @@
 package org.cumulus4j.store.model;
 
+import javax.jdo.annotations.Discriminator;
+import javax.jdo.annotations.DiscriminatorStrategy;
+import javax.jdo.annotations.IdentityType;
+import javax.jdo.annotations.PersistenceCapable;
+
+@PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
+@Discriminator(strategy=DiscriminatorStrategy.VALUE_MAP, value="EmbeddedFieldMeta")
 public class EmbeddedFieldMeta extends FieldMeta {
 
 	protected EmbeddedFieldMeta() { }
