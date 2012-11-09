@@ -37,7 +37,7 @@ import javax.jdo.annotations.Unique;
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 @Inheritance(strategy=InheritanceStrategy.NEW_TABLE)
-@Unique(members={"keyStoreRefID", "fieldMeta", "indexKey"})
+@Unique(members={"keyStoreRefID", "fieldMeta", "classMeta", "indexKey"})
 public class IndexEntryURL
 extends IndexEntry
 {

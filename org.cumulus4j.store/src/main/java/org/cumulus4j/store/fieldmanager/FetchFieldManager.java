@@ -21,7 +21,9 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -188,12 +190,20 @@ public class FetchFieldManager extends AbstractFieldManager
 
 		Set<Long> mappedByDataEntryIDs = null;
 		if (mmd.getMappedBy() != null) {
-			IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(cryptoContext, pmIndex, fieldMeta.getMappedByFieldMeta(ec), getThisDataEntryID());
-			if (indexEntry == null)
+			ClassMeta fieldOrElementTypeClassMeta = fieldMeta.getFieldOrElementTypeClassMeta(ec);
+
+//			IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(cryptoContext, pmIndex, fieldMeta.getMappedByFieldMeta(ec), classMeta, getThisDataEntryID());
+			List<IndexEntry> indexEntries = IndexEntryObjectRelationHelper.getIndexEntriesIncludingSubClasses(cryptoContext, pmIndex, fieldMeta.getMappedByFieldMeta(ec), fieldOrElementTypeClassMeta, getThisDataEntryID());
+			if (indexEntries.isEmpty())
 				mappedByDataEntryIDs = Collections.emptySet();
 			else {
-				IndexValue indexValue = getEncryptionHandler().decryptIndexEntry(cryptoContext, indexEntry);
-				mappedByDataEntryIDs = indexValue.getDataEntryIDs();
+				for (IndexEntry indexEntry : indexEntries) {
+					IndexValue indexValue = getEncryptionHandler().decryptIndexEntry(cryptoContext, indexEntry);
+					if (mappedByDataEntryIDs == null)
+						mappedByDataEntryIDs = new HashSet<Long>(indexValue.getDataEntryIDs());
+					else
+						mappedByDataEntryIDs.addAll(indexValue.getDataEntryIDs());
+				}
 			}
 		}
 

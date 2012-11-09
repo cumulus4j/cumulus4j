@@ -132,16 +132,20 @@ public abstract class PrimaryExpressionResolver
 		}
 		else {
 			// join
-			Class<?> nextTupleType = mmd.getType();
+//			Class<?> nextTupleType = mmd.getType();
+			Class<?> nextTupleType = fieldMetaForNextTuple.getFieldOrElementType(executionContext);
 			ClassMeta classMetaForNextTupleType = queryEvaluator.getStoreManager().getClassMeta(executionContext, nextTupleType);
 			Set<Long> dataEntryIDsForNextTuple = queryMiddle(classMetaForNextTupleType, tuples);
 			Set<Long> result = new HashSet<Long>();
 			if (fieldMetaForNextTuple.getDataNucleusMemberMetaData(executionContext).getMappedBy() == null) {
 				for (Long dataEntryIDForNextTuple : dataEntryIDsForNextTuple) {
-					IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(
-							cryptoContext, queryEvaluator.getPersistenceManagerForIndex(), fieldMetaForNextTuple, dataEntryIDForNextTuple
+//					IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(
+//							cryptoContext, queryEvaluator.getPersistenceManagerForIndex(), fieldMetaForNextTuple, classMeta, dataEntryIDForNextTuple
+//					);
+					List<IndexEntry> indexEntries = IndexEntryObjectRelationHelper.getIndexEntriesIncludingSubClasses(
+							cryptoContext, queryEvaluator.getPersistenceManagerForIndex(), fieldMetaForNextTuple, classMeta, dataEntryIDForNextTuple
 					);
-					if (indexEntry != null) {
+					for (IndexEntry indexEntry : indexEntries) {
 						IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(
 								cryptoContext, indexEntry
 						);

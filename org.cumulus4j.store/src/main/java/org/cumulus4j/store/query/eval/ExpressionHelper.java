@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -263,9 +264,13 @@ public class ExpressionHelper
 				}
 				else {
 					for (Long valueDataEntryID : valueDataEntryIDs) {
-						IndexEntry indexEntry =
-							IndexEntryObjectRelationHelper.getIndexEntry(cryptoContext, queryEvaluator.getPersistenceManagerForIndex(), subFieldMeta, valueDataEntryID);
-						if (indexEntry != null) {
+//						IndexEntry indexEntry =
+//							IndexEntryObjectRelationHelper.getIndexEntry(cryptoContext, queryEvaluator.getPersistenceManagerForIndex(), subFieldMeta, classMeta, valueDataEntryID);
+//						ClassMeta fieldOrElementTypeClassMeta = subFieldMeta.getFieldOrElementTypeClassMeta(executionContext);
+						List<IndexEntry> indexEntries = IndexEntryObjectRelationHelper.getIndexEntriesIncludingSubClasses(
+								cryptoContext, queryEvaluator.getPersistenceManagerForIndex(), subFieldMeta, fieldMeta.getClassMeta(), valueDataEntryID
+						);
+						for (IndexEntry indexEntry : indexEntries) {
 							IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(cryptoContext, indexEntry);
 							result.addAll(indexValue.getDataEntryIDs());
 						}
@@ -347,50 +352,84 @@ public class ExpressionHelper
 							queryEvaluator.getPersistenceManagerForData(), cryptoContext.getKeyStoreRefID()
 					).getDataEntryID(constantClassMeta, constantID.toString());
 				}
-				IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(cryptoContext,
-						queryEvaluator.getPersistenceManagerForIndex(), subFieldMeta, constantDataEntryID);
-				if (indexEntry == null)
-					return negateIfNecessary(fieldMeta, emptyDataEntryIDs);
-
-				IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(cryptoContext, indexEntry);
-				return negateIfNecessary(fieldMeta, indexValue.getDataEntryIDs());
+//				IndexEntry indexEntry = IndexEntryObjectRelationHelper.getIndexEntry(cryptoContext,
+//						queryEvaluator.getPersistenceManagerForIndex(), subFieldMeta, classMeta, constantDataEntryID);
+//				ClassMeta fieldOrElementTypeClassMeta = subFieldMeta.getFieldOrElementTypeClassMeta(executionContext);
+				List<IndexEntry> indexEntries = IndexEntryObjectRelationHelper.getIndexEntriesIncludingSubClasses(
+						cryptoContext, queryEvaluator.getPersistenceManagerForIndex(), subFieldMeta, fieldMeta.getClassMeta(), constantDataEntryID
+				);
+				return negateIfNecessary(fieldMeta, getDataEntryIDsFromIndexEntries(indexEntries));
 			}
 			else if (subFieldMeta.getMappedByFieldMeta(executionContext) != null) {
 				FieldMeta oppositeFieldMeta = subFieldMeta.getMappedByFieldMeta(executionContext);
 				IndexEntryFactory indexEntryFactory =
 					queryEvaluator.getStoreManager().getIndexFactoryRegistry().getIndexEntryFactory(executionContext, oppositeFieldMeta, true);
-				IndexEntry indexEntry = indexEntryFactory == null ? null :
-					indexEntryFactory.getIndexEntry(cryptoContext, queryEvaluator.getPersistenceManagerForIndex(), oppositeFieldMeta, constant);
-				if (indexEntry == null)
+
+				if (indexEntryFactory == null)
 					return negateIfNecessary(fieldMeta, emptyDataEntryIDs);
 
-				IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(cryptoContext, indexEntry);
-				Set<Long> result = new HashSet<Long>(indexValue.getDataEntryIDs().size());
-				for (Long elementDataEntryID : indexValue.getDataEntryIDs()) {
-					DataEntry elementDataEntry = new DataEntryDAO(
-							queryEvaluator.getPersistenceManagerForData(), cryptoContext.getKeyStoreRefID()
-					).getDataEntry(elementDataEntryID);
-					ObjectContainer elementObjectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(cryptoContext, elementDataEntry);
-					Object value = elementObjectContainer.getValue(
-							fieldMeta.getMappedByFieldMeta(executionContext).getFieldID()
-					);
+//				IndexEntry indexEntry = indexEntryFactory.getIndexEntry(cryptoContext, queryEvaluator.getPersistenceManagerForIndex(), oppositeFieldMeta, classMeta, constant);
+//				ClassMeta fieldOrElementTypeClassMeta = oppositeFieldMeta.getFieldOrElementTypeClassMeta(executionContext);
+				List<IndexEntry> indexEntries = indexEntryFactory.getIndexEntriesIncludingSubClasses(
+						cryptoContext, queryEvaluator.getPersistenceManagerForIndex(), oppositeFieldMeta, oppositeFieldMeta.getClassMeta(), constant
+				);
+				if (indexEntries.isEmpty())
+					return negateIfNecessary(fieldMeta, emptyDataEntryIDs);
 
-					Long mappedByDataEntryID = (Long) value;
-					if (mappedByDataEntryID != null)
-						result.add(mappedByDataEntryID);
+				Set<Long> result = null;
+				for (IndexEntry indexEntry : indexEntries) {
+					IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(cryptoContext, indexEntry);
+					if (result == null)
+						result = new HashSet<Long>(indexValue.getDataEntryIDs().size());
+
+					for (Long elementDataEntryID : indexValue.getDataEntryIDs()) {
+						DataEntry elementDataEntry = new DataEntryDAO(
+								queryEvaluator.getPersistenceManagerForData(), cryptoContext.getKeyStoreRefID()
+								).getDataEntry(elementDataEntryID);
+						ObjectContainer elementObjectContainer = queryEvaluator.getEncryptionHandler().decryptDataEntry(cryptoContext, elementDataEntry);
+						Object value = elementObjectContainer.getValue(
+								fieldMeta.getMappedByFieldMeta(executionContext).getFieldID()
+								);
+
+						Long mappedByDataEntryID = (Long) value;
+						if (mappedByDataEntryID != null)
+							result.add(mappedByDataEntryID);
+					}
 				}
 				return negateIfNecessary(fieldMeta, result);
 			}
 			else {
 				IndexEntryFactory indexEntryFactory = queryEvaluator.getStoreManager().getIndexFactoryRegistry().getIndexEntryFactory(executionContext, subFieldMeta, true);
-				IndexEntry indexEntry = indexEntryFactory == null ? null :
-					indexEntryFactory.getIndexEntry(cryptoContext, queryEvaluator.getPersistenceManagerForIndex(), subFieldMeta, constant);
-				if (indexEntry == null)
+				if (indexEntryFactory == null)
 					return negateIfNecessary(fieldMeta, emptyDataEntryIDs);
 
-				IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(cryptoContext, indexEntry);
-				return negateIfNecessary(fieldMeta, indexValue.getDataEntryIDs());
+//				IndexEntry indexEntry = indexEntryFactory.getIndexEntry(cryptoContext, queryEvaluator.getPersistenceManagerForIndex(), subFieldMeta, classMeta, constant);
+//				if (indexEntry == null)
+//					return negateIfNecessary(fieldMeta, emptyDataEntryIDs);
+//
+//				IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(cryptoContext, indexEntry);
+//				return negateIfNecessary(fieldMeta, indexValue.getDataEntryIDs());
+//				ClassMeta fieldOrElementTypeClassMeta = subFieldMeta.getFieldOrElementTypeClassMeta(executionContext);
+				List<IndexEntry> indexEntries = indexEntryFactory.getIndexEntriesIncludingSubClasses(
+						cryptoContext, queryEvaluator.getPersistenceManagerForIndex(), subFieldMeta, fieldMeta.getClassMeta(), constant
+				);
+				return negateIfNecessary(fieldMeta, getDataEntryIDsFromIndexEntries(indexEntries));
 			}
+		}
+
+		protected Set<Long> getDataEntryIDsFromIndexEntries(Collection<? extends IndexEntry> indexEntries) {
+			if (indexEntries.isEmpty())
+				return emptyDataEntryIDs;
+
+			Set<Long> dataEntryIDs = null;
+			for (IndexEntry indexEntry : indexEntries) {
+				IndexValue indexValue = queryEvaluator.getEncryptionHandler().decryptIndexEntry(cryptoContext, indexEntry);
+				if (dataEntryIDs == null)
+					dataEntryIDs = indexEntries.size() == 1 ? indexValue.getDataEntryIDs() : new HashSet<Long>(indexValue.getDataEntryIDs());
+				else
+					dataEntryIDs.addAll(indexValue.getDataEntryIDs());
+			}
+			return dataEntryIDs;
 		}
 	}
 

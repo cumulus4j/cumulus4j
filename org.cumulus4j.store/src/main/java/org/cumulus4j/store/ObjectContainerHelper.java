@@ -54,26 +54,24 @@ public final class ObjectContainerHelper
 	private ObjectContainerHelper() { }
 
 	private static final class TemporaryReferenceDataEntry {
+		public CryptoContext cryptoContext;
 		public String objectID;
 		public long dataEntryID = -1;
 		public ClassMeta classMeta;
 	}
 
-	private static final String PM_DATA_KEY_TEMPORARY_REFERENCE_DATA_ENTRY_MAP = "temporaryReferenceDataEntryMap";
-	private static final String PM_DATA_KEY_TEMPORARY_REFERENCE_SCOPE_COUNTER = "temporaryReferenceScopeCounter";
-
 	private static void registerTemporaryReferenceDataEntry(CryptoContext cryptoContext, PersistenceManager pmData, DataEntry dataEntry)
 	{
 		assertTemporaryReferenceScopeEntered(cryptoContext, pmData);
 
-		@SuppressWarnings("unchecked")
-		Map<String, TemporaryReferenceDataEntry> objectID2tempRefMap = (Map<String, TemporaryReferenceDataEntry>) pmData.getUserObject(PM_DATA_KEY_TEMPORARY_REFERENCE_DATA_ENTRY_MAP);
+		Map<String, TemporaryReferenceDataEntry> objectID2tempRefMap = temporaryReferenceDataEntryMapThreadLocal.get();
 		if (objectID2tempRefMap == null) {
 			objectID2tempRefMap = new HashMap<String, TemporaryReferenceDataEntry>();
-			pmData.putUserObject(PM_DATA_KEY_TEMPORARY_REFERENCE_DATA_ENTRY_MAP, objectID2tempRefMap);
+			temporaryReferenceDataEntryMapThreadLocal.set(objectID2tempRefMap);
 		}
 
 		TemporaryReferenceDataEntry trde = new TemporaryReferenceDataEntry();
+		trde.cryptoContext = cryptoContext;
 		trde.objectID = dataEntry.getObjectID();
 		trde.dataEntryID = dataEntry.getDataEntryID();
 		trde.classMeta = dataEntry.getClassMeta();
@@ -85,38 +83,44 @@ public final class ObjectContainerHelper
 		objectID2tempRefMap.put(trde.objectID, trde);
 	}
 
-	public static void enterTemporaryReferenceScope(CryptoContext cryptoContext, PersistenceManager pmData) {
-		Integer temporaryReferenceScopeCounterValue = (Integer) pmData.getUserObject(PM_DATA_KEY_TEMPORARY_REFERENCE_SCOPE_COUNTER);
+	private static ThreadLocal<Map<String, TemporaryReferenceDataEntry>> temporaryReferenceDataEntryMapThreadLocal = new ThreadLocal<Map<String,TemporaryReferenceDataEntry>>();
 
-		if (temporaryReferenceScopeCounterValue == null)
-			temporaryReferenceScopeCounterValue = 1;
+	private static ThreadLocal<Integer> temporaryReferenceScopeCounterThreadLocal = new ThreadLocal<Integer>();
+
+	public static void enterTemporaryReferenceScope() {
+		Integer temporaryReferenceScopeCounter = temporaryReferenceScopeCounterThreadLocal.get();
+
+		if (temporaryReferenceScopeCounter == null) {
+			assertNoEmptyTemporaryReferenceDataEntry();
+			temporaryReferenceScopeCounter = 1;
+		}
 		else
-			temporaryReferenceScopeCounterValue = temporaryReferenceScopeCounterValue + 1;
+			temporaryReferenceScopeCounter = temporaryReferenceScopeCounter + 1;
 
-		pmData.putUserObject(PM_DATA_KEY_TEMPORARY_REFERENCE_SCOPE_COUNTER, temporaryReferenceScopeCounterValue);
+		temporaryReferenceScopeCounterThreadLocal.set(temporaryReferenceScopeCounter);
 	}
 
-	public static void exitTemporaryReferenceScope(CryptoContext cryptoContext, PersistenceManager pmData, boolean error) {
-		Integer temporaryReferenceScopeCounterValue = (Integer) pmData.getUserObject(PM_DATA_KEY_TEMPORARY_REFERENCE_SCOPE_COUNTER);
+	public static void exitTemporaryReferenceScope(boolean error) {
+		Integer temporaryReferenceScopeCounter = temporaryReferenceScopeCounterThreadLocal.get();
 
-		if (temporaryReferenceScopeCounterValue == null)
-			throw new IllegalStateException("temporaryReferenceScopeCounterValue == null");
+		if (temporaryReferenceScopeCounter == null)
+			throw new IllegalStateException("temporaryReferenceScopeCounter == null");
 
-		temporaryReferenceScopeCounterValue = temporaryReferenceScopeCounterValue - 1;
-		if (temporaryReferenceScopeCounterValue.intValue() == 0) {
-			pmData.removeUserObject(PM_DATA_KEY_TEMPORARY_REFERENCE_SCOPE_COUNTER);
+		temporaryReferenceScopeCounter = temporaryReferenceScopeCounter - 1;
+		if (temporaryReferenceScopeCounter.intValue() == 0) {
+			temporaryReferenceScopeCounterThreadLocal.remove();
 			if (error)
-				deleteTemporaryReferenceEmptyDataEntries(cryptoContext, pmData);
+				deleteTemporaryReferenceEmptyDataEntries();
 			else {
-				assertNoEmptyTemporaryReferenceDataEntry(cryptoContext, pmData);
-				pmData.removeUserObject(PM_DATA_KEY_TEMPORARY_REFERENCE_DATA_ENTRY_MAP);
+				assertNoEmptyTemporaryReferenceDataEntry();
+				temporaryReferenceDataEntryMapThreadLocal.remove();
 			}
 		}
 		else {
-			if (temporaryReferenceScopeCounterValue.intValue() < 0)
-				throw new IllegalStateException("temporaryReferenceScopeCounterValue < 0");
+			if (temporaryReferenceScopeCounter.intValue() < 0)
+				throw new IllegalStateException("temporaryReferenceScopeCounter < 0");
 
-			pmData.putUserObject(PM_DATA_KEY_TEMPORARY_REFERENCE_SCOPE_COUNTER, temporaryReferenceScopeCounterValue);
+			temporaryReferenceScopeCounterThreadLocal.set(temporaryReferenceScopeCounter);
 		}
 	}
 
@@ -124,8 +128,7 @@ public final class ObjectContainerHelper
 	{
 		assertTemporaryReferenceScopeEntered(cryptoContext, pmData);
 
-		@SuppressWarnings("unchecked")
-		Map<String, TemporaryReferenceDataEntry> objectID2tempRefMap = (Map<String, TemporaryReferenceDataEntry>) pmData.getUserObject(PM_DATA_KEY_TEMPORARY_REFERENCE_DATA_ENTRY_MAP);
+		Map<String, TemporaryReferenceDataEntry> objectID2tempRefMap = temporaryReferenceDataEntryMapThreadLocal.get();
 		if (objectID2tempRefMap == null)
 			return null;
 
@@ -137,29 +140,29 @@ public final class ObjectContainerHelper
 		return dataEntry;
 	}
 
-	private static void deleteTemporaryReferenceEmptyDataEntries(CryptoContext cryptoContext, PersistenceManager pmData) {
-		@SuppressWarnings("unchecked")
-		Map<String, TemporaryReferenceDataEntry> objectID2tempRefMap = (Map<String, TemporaryReferenceDataEntry>) pmData.getUserObject(PM_DATA_KEY_TEMPORARY_REFERENCE_DATA_ENTRY_MAP);
+	private static void deleteTemporaryReferenceEmptyDataEntries() {
+		Map<String, TemporaryReferenceDataEntry> objectID2tempRefMap = temporaryReferenceDataEntryMapThreadLocal.get();
 		if (objectID2tempRefMap == null || objectID2tempRefMap.isEmpty())
 			return;
 
-		DataEntryDAO dataEntryDAO = new DataEntryDAO(pmData, cryptoContext.getKeyStoreRefID());
 		for (TemporaryReferenceDataEntry trde : objectID2tempRefMap.values()) {
+			PersistenceManager pmData = trde.cryptoContext.getPersistenceManagerForData();
+			DataEntryDAO dataEntryDAO = new DataEntryDAO(pmData, trde.cryptoContext.getKeyStoreRefID());
 			DataEntry dataEntry = dataEntryDAO.getDataEntry(trde.dataEntryID);
 			if (dataEntry != null && (dataEntry.getValue() == null || dataEntry.getValue().length == 0))
 				pmData.deletePersistent(dataEntry);
 		}
-		pmData.removeUserObject(PM_DATA_KEY_TEMPORARY_REFERENCE_DATA_ENTRY_MAP);
+		temporaryReferenceDataEntryMapThreadLocal.remove();
 	}
 
-	private static void assertNoEmptyTemporaryReferenceDataEntry(CryptoContext cryptoContext, PersistenceManager pmData) {
-		@SuppressWarnings("unchecked")
-		Map<String, TemporaryReferenceDataEntry> objectID2tempRefMap = (Map<String, TemporaryReferenceDataEntry>) pmData.getUserObject(PM_DATA_KEY_TEMPORARY_REFERENCE_DATA_ENTRY_MAP);
+	private static void assertNoEmptyTemporaryReferenceDataEntry() {
+		Map<String, TemporaryReferenceDataEntry> objectID2tempRefMap = temporaryReferenceDataEntryMapThreadLocal.get();
 		if (objectID2tempRefMap == null || objectID2tempRefMap.isEmpty())
 			return;
 
-		DataEntryDAO dataEntryDAO = new DataEntryDAO(pmData, cryptoContext.getKeyStoreRefID());
 		for (TemporaryReferenceDataEntry trde : objectID2tempRefMap.values()) {
+			PersistenceManager pmData = trde.cryptoContext.getPersistenceManagerForData();
+			DataEntryDAO dataEntryDAO = new DataEntryDAO(pmData, trde.cryptoContext.getKeyStoreRefID());
 			DataEntry dataEntry = dataEntryDAO.getDataEntry(trde.dataEntryID);
 			if (dataEntry != null && (dataEntry.getValue() == null || dataEntry.getValue().length == 0))
 				throw new IllegalStateException("Found empty TemporaryReferenceDataEntry! dataEntryID=" + trde.dataEntryID
@@ -169,13 +172,13 @@ public final class ObjectContainerHelper
 	}
 
 	private static void assertTemporaryReferenceScopeEntered(CryptoContext cryptoContext, PersistenceManager pmData) {
-		Integer temporaryReferenceScopeCounterValue = (Integer) pmData.getUserObject(PM_DATA_KEY_TEMPORARY_REFERENCE_SCOPE_COUNTER);
+		Integer temporaryReferenceScopeCounter = temporaryReferenceScopeCounterThreadLocal.get();
 
-		if (temporaryReferenceScopeCounterValue == null)
-			throw new IllegalStateException("temporaryReferenceScopeCounterValue == null");
+		if (temporaryReferenceScopeCounter == null)
+			throw new IllegalStateException("temporaryReferenceScopeCounter == null");
 
-		if (temporaryReferenceScopeCounterValue.intValue() < 1)
-			throw new IllegalStateException("temporaryReferenceScopeCounterValue < 1");
+		if (temporaryReferenceScopeCounter.intValue() < 1)
+			throw new IllegalStateException("temporaryReferenceScopeCounter < 1");
 	}
 
 	public static Object entityToReference(CryptoContext cryptoContext, PersistenceManager pmData, Object entity)

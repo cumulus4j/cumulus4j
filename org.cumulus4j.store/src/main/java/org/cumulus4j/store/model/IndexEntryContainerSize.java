@@ -33,7 +33,7 @@ import javax.jdo.annotations.Unique;
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 @Inheritance(strategy=InheritanceStrategy.NEW_TABLE)
-@Unique(members={"keyStoreRefID", "fieldMeta", "indexKey"})
+@Unique(members={"keyStoreRefID", "fieldMeta", "classMeta", "indexKey"})
 public class IndexEntryContainerSize
 extends IndexEntry
 {
@@ -47,5 +47,16 @@ extends IndexEntry
 	@Override
 	protected void setIndexKey(Object indexKey) {
 		this.indexKey = (Long) indexKey;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * The <code>IndexEntryContainerSize</code> always uses the {@link FieldMeta#getClassMeta() FieldMeta.classMeta}
+	 * as <code>classMeta</code>.
+	 */
+	@Override
+	public ClassMeta getClassMeta() {
+		return super.getClassMeta();
 	}
 }

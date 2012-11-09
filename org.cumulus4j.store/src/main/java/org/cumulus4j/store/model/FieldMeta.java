@@ -359,6 +359,34 @@ implements DetachCallback, StoreCallback
 	 */
 	private static final FieldMeta NULL_MAPPED_BY_FIELD_META = new FieldMeta();
 
+	public ClassMeta getFieldOrElementTypeClassMeta(ExecutionContext executionContext) {
+		Class<?> clazz = getFieldOrElementType(executionContext);
+		Cumulus4jStoreManager storeManager = (Cumulus4jStoreManager) executionContext.getStoreManager();
+		ClassMeta result = storeManager.getClassMeta(executionContext, clazz);
+		return result;
+	}
+
+	public Class<?> getFieldOrElementType(ExecutionContext executionContext) {
+		AbstractMemberMetaData mmd = getDataNucleusMemberMetaData(executionContext);
+		Class<?> result;
+		if (mmd.hasCollection())
+			result = executionContext.getClassLoaderResolver().classForName(mmd.getCollection().getElementType());
+		else if (mmd.hasArray())
+			result = executionContext.getClassLoaderResolver().classForName(mmd.getArray().getElementType());
+		else if (mmd.hasMap()) {
+			if (mmd.getMap().keyIsPersistent())
+				result = executionContext.getClassLoaderResolver().classForName(mmd.getMap().getKeyType());
+			else if (mmd.getMap().valueIsPersistent())
+				result = executionContext.getClassLoaderResolver().classForName(mmd.getMap().getValueType());
+			else
+				throw new IllegalStateException("How can a Map be mapped-by without key and value being persistent?! Exactly one of them should be persistent!");
+		}
+		else
+			result = mmd.getType();
+
+		return result;
+	}
+
 	/**
 	 * <p>
 	 * Get the {@link FieldMeta} of the opposite end of the mapped-by-relation. If
@@ -393,21 +421,21 @@ implements DetachCallback, StoreCallback
 
 		if (mmd.getMappedBy() != null)
 		{
-			Class<?> typeOppositeSide;
-			if (mmd.hasCollection())
-				typeOppositeSide = executionContext.getClassLoaderResolver().classForName(mmd.getCollection().getElementType());
-			else if (mmd.hasArray())
-				typeOppositeSide = executionContext.getClassLoaderResolver().classForName(mmd.getArray().getElementType());
-			else if (mmd.hasMap()) {
-				if (mmd.getMap().keyIsPersistent())
-					typeOppositeSide = executionContext.getClassLoaderResolver().classForName(mmd.getMap().getKeyType());
-				else if (mmd.getMap().valueIsPersistent())
-					typeOppositeSide = executionContext.getClassLoaderResolver().classForName(mmd.getMap().getValueType());
-				else
-					throw new IllegalStateException("How can a Map be mapped-by without key and value being persistent?! Exactly one of them should be persistent!");
-			}
-			else
-				typeOppositeSide = mmd.getType();
+			Class<?> typeOppositeSide = getFieldOrElementType(executionContext);
+//			if (mmd.hasCollection())
+//				typeOppositeSide = executionContext.getClassLoaderResolver().classForName(mmd.getCollection().getElementType());
+//			else if (mmd.hasArray())
+//				typeOppositeSide = executionContext.getClassLoaderResolver().classForName(mmd.getArray().getElementType());
+//			else if (mmd.hasMap()) {
+//				if (mmd.getMap().keyIsPersistent())
+//					typeOppositeSide = executionContext.getClassLoaderResolver().classForName(mmd.getMap().getKeyType());
+//				else if (mmd.getMap().valueIsPersistent())
+//					typeOppositeSide = executionContext.getClassLoaderResolver().classForName(mmd.getMap().getValueType());
+//				else
+//					throw new IllegalStateException("How can a Map be mapped-by without key and value being persistent?! Exactly one of them should be persistent!");
+//			}
+//			else
+//				typeOppositeSide = mmd.getType();
 
 			Cumulus4jStoreManager storeManager = (Cumulus4jStoreManager) executionContext.getStoreManager();
 			ClassMeta classMetaOppositeSide = storeManager.getClassMeta(executionContext, typeOppositeSide);

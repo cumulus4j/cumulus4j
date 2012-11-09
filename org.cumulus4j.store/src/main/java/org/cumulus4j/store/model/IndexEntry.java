@@ -85,7 +85,7 @@ import javax.jdo.listener.StoreCallback;
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 @Inheritance(strategy=InheritanceStrategy.SUBCLASS_TABLE)
 @Version(strategy=VersionStrategy.VERSION_NUMBER)
-//@Unique(members={"fieldMeta", "indexKeyDouble", "indexKeyLong", "indexKeyString"})
+//@Unique(members={"keyStoreRefID", "fieldMeta", "classMeta", "indexKey"})
 public abstract class IndexEntry
 implements StoreCallback
 {
@@ -99,6 +99,9 @@ implements StoreCallback
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	private FieldMeta fieldMeta;
+
+	@Persistent(nullValue=NullValue.EXCEPTION)
+	private ClassMeta classMeta;
 
 	private long keyID = -1;
 
@@ -132,6 +135,29 @@ implements StoreCallback
 			throw new IllegalStateException("The property fieldMeta cannot be modified after being set once!");
 
 		this.fieldMeta = fieldMeta;
+	}
+
+	/**
+	 * Get the {@link ClassMeta} of the concrete type of the instance containing the field.
+	 * <p>
+	 * If a field is declared in a super-class, all sub-classes have it, too. But when querying
+	 * instances of a sub-class (either as candidate-class or in a relation (as concrete type of
+	 * the field/property), only this given sub-class and its sub-classes should be found.
+	 * <p>
+	 * The <code>ClassMeta</code> here is either the same as {@link FieldMeta#getClassMeta() fieldMeta.classMeta}
+	 * (if it is an instance of the class declaring the field) or a <code>ClassMeta</code> of a sub-class of
+	 * <code>fieldMeta.classMeta</code>.
+	 * @return the {@link ClassMeta} of the concrete type of the instance containing the field.
+	 */
+	public ClassMeta getClassMeta() {
+		return classMeta;
+	}
+
+	public void setClassMeta(ClassMeta classMeta) {
+		if (this.classMeta != null && !this.classMeta.equals(classMeta))
+			throw new IllegalStateException("The property classMeta cannot be modified after being set once!");
+
+		this.classMeta = classMeta;
 	}
 
 	/**

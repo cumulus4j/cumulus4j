@@ -17,13 +17,18 @@
  */
 package org.cumulus4j.store.model;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.jdo.PersistenceManager;
 
+import org.cumulus4j.store.Cumulus4jStoreManager;
 import org.cumulus4j.store.EncryptionHandler;
 import org.cumulus4j.store.crypto.CryptoContext;
+import org.datanucleus.store.ExecutionContext;
 
 /**
  * <p>
@@ -47,16 +52,15 @@ public abstract class IndexEntryFactory
 	 */
 	public abstract Class<? extends IndexEntry> getIndexEntryClass();
 
-	/**
-	 * Get an {@link IndexEntry} for the specified unique key fields or <code>null</code>, if no such instance
-	 * exists.
-	 * @param cryptoContext the crypto-context.
-	 * @param pmIndex the backend-<code>PersistenceManager</code>. Must not be <code>null</code>.
-	 * @param fieldMeta the meta-data of the field to query. Must not be <code>null</code>.
-	 * @param indexKey the indexed value to search for. Might be <code>null</code> (<code>null</code> can be indexed).
-	 * @return the matching {@link IndexEntry} or <code>null</code>.
-	 */
-	public IndexEntry getIndexEntry(CryptoContext cryptoContext, PersistenceManager pmIndex, FieldMeta fieldMeta, Object indexKey)
+	public List<IndexEntry> getIndexEntriesIncludingSubClasses(CryptoContext cryptoContext, PersistenceManager pmIndex, FieldMeta fieldMeta, ClassMeta classMeta, Object indexKey)
+	{
+		ExecutionContext ec = cryptoContext.getExecutionContext();
+		Cumulus4jStoreManager storeManager = (Cumulus4jStoreManager) ec.getStoreManager();
+		List<ClassMeta> classMetaWithSubClassMetas = storeManager.getClassMetaWithSubClassMetas(ec, classMeta);
+		return getIndexEntries(cryptoContext, pmIndex, fieldMeta, classMetaWithSubClassMetas, indexKey);
+	}
+
+	public List<IndexEntry> getIndexEntries(CryptoContext cryptoContext, PersistenceManager pmIndex, FieldMeta fieldMeta, List<ClassMeta> classMetas, Object indexKey)
 	{
 		if (pmIndex == null)
 			throw new IllegalArgumentException("pm == null");
@@ -64,33 +68,100 @@ public abstract class IndexEntryFactory
 		if (fieldMeta == null)
 			throw new IllegalArgumentException("fieldMeta == null");
 
+		if (classMetas == null)
+			throw new IllegalArgumentException("classMetas == null");
+
+		if (classMetas.isEmpty()) {
+			throw new IllegalArgumentException("classMetas is empty"); // hmmm... I think this should never happen.
+//			return Collections.emptyList();
+		}
+
+		if (classMetas.size() == 1) {
+			IndexEntry indexEntry = getIndexEntry(cryptoContext, pmIndex, fieldMeta, classMetas.get(0), indexKey);
+			if (indexEntry == null)
+				return Collections.emptyList();
+			else
+				return Collections.singletonList(indexEntry);
+		}
+//		List<IndexEntry> result = new ArrayList<IndexEntry>(classMetas.size());
+//		for (ClassMeta classMeta : classMetas) {
+//			IndexEntry indexEntry = getIndexEntry(cryptoContext, pmIndex, fieldMeta, classMeta, indexKey);
+//			if (indexEntry != null)
+//				result.add(indexEntry);
+//		}
+//		return result;
+
+		Class<? extends IndexEntry> indexEntryClass = getIndexEntryClass();
+		javax.jdo.Query q = pmIndex.newQuery(indexEntryClass);
+		q.setFilter(
+				"this.keyStoreRefID == :keyStoreRefID && " +
+				"this.fieldMeta == :fieldMeta && " +
+				":classMetas.contains(this.classMeta) && " +
+				"this.indexKey == :indexKey"
+		);
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("keyStoreRefID", cryptoContext.getKeyStoreRefID());
+		params.put("fieldMeta", fieldMeta);
+		params.put("classMetas", classMetas);
+		params.put("indexKey", indexKey);
+		@SuppressWarnings("unchecked")
+		List<IndexEntry> result = (List<IndexEntry>) q.executeWithMap(params);
+		result = Collections.unmodifiableList(new ArrayList<IndexEntry>(result)); // consistent with emptyList + singletonList above (both read-only)
+		q.closeAll();
+		return result;
+	}
+
+	/**
+	 * Get an {@link IndexEntry} for the specified unique key fields or <code>null</code>, if no such instance
+	 * exists.
+	 * @param cryptoContext the crypto-context.
+	 * @param pmIndex the backend-<code>PersistenceManager</code>. Must not be <code>null</code>.
+	 * @param fieldMeta the meta-data of the field to query. Must not be <code>null</code>.
+	 * @param classMeta TODO
+	 * @param indexKey the indexed value to search for. Might be <code>null</code> (<code>null</code> can be indexed).
+	 * @return the matching {@link IndexEntry} or <code>null</code>.
+	 */
+	public IndexEntry getIndexEntry(CryptoContext cryptoContext, PersistenceManager pmIndex, FieldMeta fieldMeta, ClassMeta classMeta, Object indexKey)
+	{
+		if (pmIndex == null)
+			throw new IllegalArgumentException("pm == null");
+
+		if (fieldMeta == null)
+			throw new IllegalArgumentException("fieldMeta == null");
+
+		if (classMeta == null)
+			throw new IllegalArgumentException("classMeta == null");
+
 		Class<? extends IndexEntry> indexEntryClass = getIndexEntryClass();
 		javax.jdo.Query q = pmIndex.newQuery(indexEntryClass);
 		q.setUnique(true);
 		q.setFilter(
 				"this.keyStoreRefID == :keyStoreRefID && " +
 				"this.fieldMeta == :fieldMeta && " +
+				"this.classMeta == :classMeta && " +
 				"this.indexKey == :indexKey"
 		);
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("keyStoreRefID", cryptoContext.getKeyStoreRefID());
 		params.put("fieldMeta", fieldMeta);
+		params.put("classMeta", classMeta);
 		params.put("indexKey", indexKey);
 		return indexEntryClass.cast(q.executeWithMap(params));
 	}
 
 	/**
-	 * Get an existing {@link IndexEntry} just like {@link #getIndexEntry(CryptoContext, PersistenceManager, FieldMeta, Object)}
+	 * Get an existing {@link IndexEntry} just like {@link #getIndexEntry(CryptoContext, PersistenceManager, FieldMeta, ClassMeta, Object)}
 	 * or create one, if it does not yet exist.
 	 * @param cryptoContext TODO
 	 * @param pmIndex the backend-<code>PersistenceManager</code>. Must not be <code>null</code>.
 	 * @param fieldMeta the meta-data of the field to query. Must not be <code>null</code>.
+	 * @param classMeta TODO
 	 * @param indexKey the indexed value to search for. Might be <code>null</code> (<code>null</code> can be indexed).
 	 * @return the matching {@link IndexEntry} (never <code>null</code>).
 	 */
-	public IndexEntry createIndexEntry(CryptoContext cryptoContext, PersistenceManager pmIndex, FieldMeta fieldMeta, Object indexKey)
+	public IndexEntry createIndexEntry(CryptoContext cryptoContext, PersistenceManager pmIndex, FieldMeta fieldMeta, ClassMeta classMeta, Object indexKey)
 	{
-		IndexEntry result = getIndexEntry(cryptoContext, pmIndex, fieldMeta, indexKey);
+		IndexEntry result = getIndexEntry(cryptoContext, pmIndex, fieldMeta, classMeta, indexKey);
 		if (result == null) {
 			try {
 				result = getIndexEntryClass().newInstance();
@@ -100,6 +171,7 @@ public abstract class IndexEntryFactory
 				throw new RuntimeException(e);
 			}
 			result.setFieldMeta(fieldMeta);
+			result.setClassMeta(classMeta);
 			result.setKeyStoreRefID(cryptoContext.getKeyStoreRefID());
 			result.setIndexKey(indexKey);
 

@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -155,12 +156,39 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 		return result;
 	}
 
+	public List<ClassMeta> getClassMetaWithSubClassMetas(ExecutionContext ec, ClassMeta classMeta) {
+		final List<ClassMeta> result = getSubClassMetas(ec, classMeta, true);
+//		result.add(0, classMeta);
+		result.add(classMeta); // I think, the order does not matter ;-)
+		return result;
+	}
+
+	public List<ClassMeta> getSubClassMetas(ExecutionContext ec, ClassMeta classMeta, boolean includeDescendents) {
+		return getSubClassMetas(ec, classMeta.getClassName(), includeDescendents);
+	}
+
+	public List<ClassMeta> getSubClassMetas(ExecutionContext ec, Class<?> clazz, boolean includeDescendents) {
+		return getSubClassMetas(ec, clazz.getName(), includeDescendents);
+	}
+
+	public List<ClassMeta> getSubClassMetas(ExecutionContext ec, String className, boolean includeDescendents) {
+		ClassLoaderResolver clr = ec.getClassLoaderResolver();
+		HashSet<String> subClassesForClass = getSubClassesForClass(className, includeDescendents, clr);
+		List<ClassMeta> result = new ArrayList<ClassMeta>(subClassesForClass.size());
+		for (String subClassName : subClassesForClass) {
+			Class<?> subClass = clr.classForName(subClassName);
+			ClassMeta subClassMeta = getClassMeta(ec, subClass);
+			result.add(subClassMeta);
+		}
+		return result;
+	}
+
 	/**
 	 * Get the persistent meta-data of a certain class. This persistent meta-data is primarily used for efficient
 	 * mapping using long-identifiers instead of fully qualified class names.
 	 *
 	 * @param ec
-	 * @param clazz the {@link Class} for which to query the meta-data.
+	 * @param clazz the {@link Class} for which to query the meta-data. Must not be <code>null</code>.
 	 * @return the meta-data. Never returns <code>null</code>.
 	 */
 	public ClassMeta getClassMeta(ExecutionContext ec, Class<?> clazz)

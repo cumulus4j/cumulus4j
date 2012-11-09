@@ -96,7 +96,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			Object object = op.getObject();
 			Object objectID = op.getExternalObjectId();
 			String objectIDString = objectID.toString();
-			ClassMeta classMeta = storeManager.getClassMeta(ec, object.getClass());
+			final ClassMeta classMeta = storeManager.getClassMeta(ec, object.getClass());
 			DataEntry dataEntry = new DataEntryDAO(pmData, cryptoContext.getKeyStoreRefID()).getDataEntry(classMeta, objectIDString);
 			//			if (dataEntry == null)
 			//				throw new NucleusObjectNotFoundException("Object does not exist in datastore: class=" + classMeta.getClassName() + " oid=" + objectIDString);
@@ -120,7 +120,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 						if (!fieldMeta.getFieldName().equals(dnMemberMetaData.getName()))
 							throw new IllegalStateException("Meta data inconsistency!!! class == \"" + classMeta.getClassName() + "\" fieldMeta.dataNucleusAbsoluteFieldNumber == " + fieldMeta.getDataNucleusAbsoluteFieldNumber() + " fieldMeta.fieldName == \"" + fieldMeta.getFieldName() + "\" != dnMemberMetaData.name == \"" + dnMemberMetaData.getName() + "\"");
 
-						removeIndexEntryAction.perform(cryptoContext, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, fieldValue);
+						removeIndexEntryAction.perform(cryptoContext, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, classMeta, fieldValue);
 					}
 				}
 				pmData.deletePersistent(dataEntry);
@@ -145,7 +145,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			Object object = op.getObject();
 			Object objectID = op.getExternalObjectId();
 			String objectIDString = objectID.toString();
-			ClassMeta classMeta = storeManager.getClassMeta(ec, object.getClass());
+			final ClassMeta classMeta = storeManager.getClassMeta(ec, object.getClass());
 			AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), ec.getClassLoaderResolver());
 
 			// TODO Maybe we should load ALL *SIMPLE* fields, because the decryption happens on a per-row-level and thus
@@ -176,6 +176,33 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 	}
 
 	@Override
+	public void insertObjects(ObjectProvider ... ops) {
+		boolean error = true;
+		ObjectContainerHelper.enterTemporaryReferenceScope();
+		try {
+			super.insertObjects(ops);
+
+			error = false;
+		} finally {
+			ObjectContainerHelper.exitTemporaryReferenceScope(error);
+		}
+	}
+
+	@Override
+	public void deleteObjects(ObjectProvider... ops) {
+		boolean error = true;
+		ObjectContainerHelper.enterTemporaryReferenceScope();
+		try {
+			super.deleteObjects(ops);
+
+			error = false;
+		} finally {
+			ObjectContainerHelper.exitTemporaryReferenceScope(error);
+		}
+	}
+
+
+	@Override
 	public void insertObject(ObjectProvider op)
 	{
 		// Check if read-only so update not permitted
@@ -194,14 +221,14 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			getStoreManager().getDatastoreVersionManager().applyOnce(cryptoContext);
 
 			boolean error = true;
-			ObjectContainerHelper.enterTemporaryReferenceScope(cryptoContext, pmData);
+			ObjectContainerHelper.enterTemporaryReferenceScope();
 			try {
 				Object object = op.getObject();
 				Object objectID = op.getExternalObjectId();
 				if (objectID == null) {
 					throw new IllegalStateException("op.getExternalObjectId() returned null! Maybe Cumulus4jStoreManager.isStrategyDatastoreAttributed(...) is incorrect?");
 				}
-				ClassMeta classMeta = storeManager.getClassMeta(ec, object.getClass());
+				final ClassMeta classMeta = storeManager.getClassMeta(ec, object.getClass());
 
 				AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), ec.getClassLoaderResolver());
 
@@ -260,12 +287,12 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 						throw new IllegalStateException("Meta data inconsistency!!! class == \"" + classMeta.getClassName() + "\" fieldMeta.dataNucleusAbsoluteFieldNumber == " + fieldMeta.getDataNucleusAbsoluteFieldNumber() + " fieldMeta.fieldName == \"" + fieldMeta.getFieldName() + "\" != dnMemberMetaData.name == \"" + dnMemberMetaData.getName() + "\"");
 
 					if (!(fieldValue instanceof EmbeddedObjectContainer)) // TODO index embedded objects, too!
-						addIndexEntryAction.perform(cryptoContext, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, fieldValue);
+						addIndexEntryAction.perform(cryptoContext, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, classMeta, fieldValue);
 				}
 
 				error = false;
 			} finally {
-				ObjectContainerHelper.exitTemporaryReferenceScope(cryptoContext, pmData, error);
+				ObjectContainerHelper.exitTemporaryReferenceScope(error);
 			}
 		} finally {
 			mconn.release();
@@ -314,13 +341,13 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			getStoreManager().getDatastoreVersionManager().applyOnce(cryptoContext);
 
 			boolean error = true;
-			ObjectContainerHelper.enterTemporaryReferenceScope(cryptoContext, pmData);
+			ObjectContainerHelper.enterTemporaryReferenceScope();
 			try {
 
 				Object object = op.getObject();
 				Object objectID = op.getExternalObjectId();
 				String objectIDString = objectID.toString();
-				ClassMeta classMeta = storeManager.getClassMeta(ec, object.getClass());
+				final ClassMeta classMeta = storeManager.getClassMeta(ec, object.getClass());
 				AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), ec.getClassLoaderResolver());
 
 				DataEntry dataEntry = new DataEntryDAO(pmData, cryptoContext.getKeyStoreRefID()).getDataEntry(classMeta, objectIDString);
@@ -357,14 +384,14 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 
 					if (!fieldsEqual(fieldValueOld, fieldValueNew)){
 
-						removeIndexEntryAction.perform(cryptoContext, dataEntryID, fieldMeta, dnMemberMetaData, fieldValueOld);
-						addIndexEntryAction.perform(cryptoContext, dataEntryID, fieldMeta, dnMemberMetaData, fieldValueNew);
+						removeIndexEntryAction.perform(cryptoContext, dataEntryID, fieldMeta, dnMemberMetaData, classMeta, fieldValueOld);
+						addIndexEntryAction.perform(cryptoContext, dataEntryID, fieldMeta, dnMemberMetaData, classMeta, fieldValueNew);
 					}
 				}
 
 				error = false;
 			} finally {
-				ObjectContainerHelper.exitTemporaryReferenceScope(cryptoContext, pmData, error);
+				ObjectContainerHelper.exitTemporaryReferenceScope(error);
 			}
 		} finally {
 			mconn.release();

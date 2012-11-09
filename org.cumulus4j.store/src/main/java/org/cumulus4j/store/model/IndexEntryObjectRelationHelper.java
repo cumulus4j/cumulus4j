@@ -17,9 +17,13 @@
  */
 package org.cumulus4j.store.model;
 
+import java.util.List;
+
 import javax.jdo.PersistenceManager;
 
+import org.cumulus4j.store.Cumulus4jStoreManager;
 import org.cumulus4j.store.crypto.CryptoContext;
+import org.datanucleus.store.ExecutionContext;
 
 /**
  * Helper to find an {@link IndexEntry} for an object relation (1-1, 1-n or m-n).
@@ -37,6 +41,26 @@ public class IndexEntryObjectRelationHelper
 		return indexEntryFactoryLong;
 	}
 
+	public static List<IndexEntry> getIndexEntriesIncludingSubClasses(CryptoContext cryptoContext, PersistenceManager pmIndex, FieldMeta fieldMeta, ClassMeta classMeta, Long indexedDataEntryID)
+	{
+		ExecutionContext ec = cryptoContext.getExecutionContext();
+		Cumulus4jStoreManager storeManager = (Cumulus4jStoreManager) ec.getStoreManager();
+		List<ClassMeta> classMetaWithSubClassMetas = storeManager.getClassMetaWithSubClassMetas(ec, classMeta);
+		return getIndexEntries(cryptoContext, pmIndex, fieldMeta, classMetaWithSubClassMetas, indexedDataEntryID);
+	}
+
+	public static List<IndexEntry> getIndexEntries(CryptoContext cryptoContext, PersistenceManager pmIndex, FieldMeta fieldMeta, List<ClassMeta> classMetas, Long indexedDataEntryID)
+	{
+//		List<IndexEntry> result = new ArrayList<IndexEntry>(classMetas.size());
+//		for (ClassMeta classMeta : classMetas) {
+//			IndexEntry indexEntry = getIndexEntry(cryptoContext, pmIndex, fieldMeta, classMeta, indexedDataEntryID);
+//			if (indexEntry != null)
+//				result.add(indexEntry);
+//		}
+//		return result;
+		return indexEntryFactoryLong.getIndexEntries(cryptoContext, pmIndex, fieldMeta, classMetas, indexedDataEntryID);
+	}
+
 	/**
 	 * Get an existing {@link IndexEntry} or <code>null</code>, if it does not exist.
 	 * This method looks up an <code>IndexEntry</code> for a relation to the object referenced
@@ -44,28 +68,28 @@ public class IndexEntryObjectRelationHelper
 	 * @param cryptoContext the crypto-context.
 	 * @param pmIndex the backend-<code>PersistenceManager</code> used to access the index-datastore.
 	 * @param fieldMeta the field pointing to the referenced object.
+	 * @param classMeta the concrete owner type holding the field (might be a sub-class of {@link FieldMeta#getClassMeta() fieldMeta.classMeta}.
 	 * @param indexedDataEntryID the {@link DataEntry#getDataEntryID() DataEntry.dataEntryID} of the referenced object.
-	 *
 	 * @return the appropriate {@link IndexEntry} or <code>null</code>.
 	 */
-	public static IndexEntry getIndexEntry(CryptoContext cryptoContext, PersistenceManager pmIndex, FieldMeta fieldMeta, Long indexedDataEntryID)
+	public static IndexEntry getIndexEntry(CryptoContext cryptoContext, PersistenceManager pmIndex, FieldMeta fieldMeta, ClassMeta classMeta, Long indexedDataEntryID)
 	{
-		return indexEntryFactoryLong.getIndexEntry(cryptoContext, pmIndex, fieldMeta, indexedDataEntryID);
+		return indexEntryFactoryLong.getIndexEntry(cryptoContext, pmIndex, fieldMeta, classMeta, indexedDataEntryID);
 	}
 
 	/**
 	 * Get an existing {@link IndexEntry} or create it, if it does not yet exist. This method behaves
-	 * just like {@link #getIndexEntry(CryptoContext, PersistenceManager, FieldMeta, Long)}, but instead of returning <code>null</code>,
+	 * just like {@link #getIndexEntry(CryptoContext, PersistenceManager, FieldMeta, ClassMeta, Long)}, but instead of returning <code>null</code>,
 	 * it creates an <code>IndexEntry</code>, if it does not yet exist.
 	 * @param cryptoContext the crypto-context.
 	 * @param pmIndex the backend-<code>PersistenceManager</code> used to access the index-datastore.
 	 * @param fieldMeta the field pointing to the referenced object.
+	 * @param classMeta the concrete owner type holding the field (might be a sub-class of {@link FieldMeta#getClassMeta() fieldMeta.classMeta}.
 	 * @param indexedDataEntryID the {@link DataEntry#getDataEntryID() DataEntry.dataEntryID} of the referenced object.
-	 *
 	 * @return the appropriate {@link IndexEntry}; never <code>null</code>.
 	 */
-	public static IndexEntry createIndexEntry(CryptoContext cryptoContext, PersistenceManager pmIndex, FieldMeta fieldMeta, Long indexedDataEntryID)
+	public static IndexEntry createIndexEntry(CryptoContext cryptoContext, PersistenceManager pmIndex, FieldMeta fieldMeta, ClassMeta classMeta, Long indexedDataEntryID)
 	{
-		return indexEntryFactoryLong.createIndexEntry(cryptoContext, pmIndex, fieldMeta, indexedDataEntryID);
+		return indexEntryFactoryLong.createIndexEntry(cryptoContext, pmIndex, fieldMeta, classMeta, indexedDataEntryID);
 	}
 }

@@ -25,6 +25,7 @@ import org.cumulus4j.store.model.DataEntry;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.IndexEntry;
 import org.cumulus4j.store.model.ObjectContainer;
+import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.store.ExecutionContext;
 import org.slf4j.Logger;
@@ -198,6 +199,7 @@ public class RecreateIndex extends AbstractDatastoreVersionCommand
 
 	protected void createIndexForRange(long fromDataEntryIDIncl, Long toDataEntryIDExcl) {
 		ExecutionContext ec = cryptoContext.getExecutionContext();
+		ClassLoaderResolver clr = ec.getClassLoaderResolver();
 		Cumulus4jStoreManager storeManager = commandApplyParam.getStoreManager();
 		EncryptionHandler encryptionHandler = storeManager.getEncryptionHandler();
 		Cumulus4jPersistenceHandler persistenceHandler = storeManager.getPersistenceHandler();
@@ -205,15 +207,15 @@ public class RecreateIndex extends AbstractDatastoreVersionCommand
 		List<DataEntryWithClassName> l = getDataEntries(fromDataEntryIDIncl, toDataEntryIDExcl);
 		for (DataEntryWithClassName dataEntryWithClassName : l) {
 			long dataEntryID = dataEntryWithClassName.getDataEntry().getDataEntryID();
+			Class<?> clazz = clr.classForName(dataEntryWithClassName.getClassName());
+			ClassMeta classMeta = storeManager.getClassMeta(ec, clazz);
 			ObjectContainer objectContainer = encryptionHandler.decryptDataEntry(cryptoContext, dataEntryWithClassName.getDataEntry());
 			for (Map.Entry<Long, Object> me : objectContainer.getFieldID2value().entrySet()) {
 				long fieldID = me.getKey();
 				Object fieldValue = me.getValue();
-				Class<?> clazz = ec.getClassLoaderResolver().classForName(dataEntryWithClassName.getClassName());
-				ClassMeta classMeta = storeManager.getClassMeta(ec, clazz);
 				FieldMeta fieldMeta = classMeta.getFieldMeta(fieldID);
 				AbstractMemberMetaData dnMemberMetaData = fieldMeta.getDataNucleusMemberMetaData(ec);
-				addIndexEntryAction.perform(cryptoContext, dataEntryID, fieldMeta, dnMemberMetaData, fieldValue);
+				addIndexEntryAction.perform(cryptoContext, dataEntryID, fieldMeta, dnMemberMetaData, classMeta, fieldValue);
 			}
 		}
 	}

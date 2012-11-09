@@ -27,6 +27,8 @@ import javax.jdo.FetchPlan;
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
 import javax.jdo.annotations.Column;
+import javax.jdo.annotations.Discriminator;
+import javax.jdo.annotations.DiscriminatorStrategy;
 import javax.jdo.annotations.FetchGroup;
 import javax.jdo.annotations.FetchGroups;
 import javax.jdo.annotations.IdGeneratorStrategy;
@@ -57,6 +59,7 @@ import org.slf4j.LoggerFactory;
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
+@Discriminator(strategy=DiscriminatorStrategy.VALUE_MAP)
 @Version(strategy=VersionStrategy.VERSION_NUMBER)
 @Unique(name="ClassMeta_fullyQualifiedClassName", members={"packageName", "simpleClassName"})
 @FetchGroups({
