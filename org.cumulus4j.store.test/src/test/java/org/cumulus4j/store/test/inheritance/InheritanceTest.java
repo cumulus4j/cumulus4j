@@ -175,9 +175,11 @@ extends AbstractJDOTransactionalTestClearingDatabase
 			logger.info(result.get(i).toString());
 		}
 		
-		if (result.size() > 0) {
-            throw new IllegalArgumentException();
-        }
+		Assert.assertEquals(0, result.size());
+
+		//if (result.size() > 0) {
+        //    throw new IllegalArgumentException();
+        //}
 		
 		logger.info("end: persistAnObjectAndQueryWithAnObjectOfAnotherSubclass");
 	}
