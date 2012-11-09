@@ -331,7 +331,7 @@
 					<excludes>
 						<exclude>**/*</exclude>
 					</excludes>
-				<argLine>-Xms1024m -Xmx1024m</argLine>
+				<argLine>-Xms2048m -Xmx2048m</argLine>
 				</configuration>
 			</plugin>
 			<plugin>
