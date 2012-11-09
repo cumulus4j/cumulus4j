@@ -19,10 +19,15 @@ public abstract class BaseTest {
 	private static final Logger logger = LoggerFactory
 			.getLogger(BaseTest.class);
 
+	// Address of the application server
 	private static final String URL_APP_SERVER = "http://localhost:8585";
-	protected static final String URL_INTEGRATIONTEST_CONTEXT = URL_APP_SERVER
+	
+	// Context of the howto project within the application server
+	protected static final String URL_HOWTO_CONTEXT = URL_APP_SERVER
 			+ "/org.cumulus4j.howto";
-	protected static final String URL_INTEGRATIONTEST_WEBAPP = URL_INTEGRATIONTEST_CONTEXT
+	
+	// The web application which holds the howto services.
+	protected static final String URL_HOWTO_WEBAPP = URL_HOWTO_CONTEXT
 			+ "/App";
 
 	protected static long transferStreamData(InputStream in, OutputStream out)
@@ -30,6 +35,11 @@ public abstract class BaseTest {
 		return transferStreamData(in, out, 0, -1);
 	}
 
+	/*
+	 * This method performs a call to the application server.
+	 * It does not matter if you are using Cumulus4j or not, the only
+	 * thing that changes is the url.
+	 */
 	protected void invokeTestWithinServer(String url) throws Exception{
 		Client client = new Client();
 		String result;

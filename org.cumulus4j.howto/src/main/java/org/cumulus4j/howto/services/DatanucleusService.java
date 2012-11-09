@@ -10,8 +10,18 @@ import javax.ws.rs.core.MediaType;
 
 import org.cumulus4j.howto.BaseService;
 
+
+/**
+ * @author jmortensen
+ */
 @Path("DatanucleusService")
 public class DatanucleusService extends BaseService {
+	
+	/*
+	 * This service is just a reference. It uses DataNucleus without Cumulus4j to save data.
+	 * You can compare it with the services Cumulus4jDummyKeyManager and Cumulus4jKeyStore
+	 * to see what changes when you use Cumulus4j.
+	 */
 
 	private static synchronized PersistenceManagerFactory getPersistenceManagerFactory() {
 		if (pmf == null) {

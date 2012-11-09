@@ -55,6 +55,8 @@ public abstract class BaseService {
 				+ ": Use POST on the same URL for a real test.";
 	}
 
+	// The actual test to be performed. Without Cumulus4j, with a dummy key manager and
+	// with a real key manager always this test is performed. 
 	protected String storeEntities(PersistenceManager pm){
 
 		StringBuilder resultSB = new StringBuilder();

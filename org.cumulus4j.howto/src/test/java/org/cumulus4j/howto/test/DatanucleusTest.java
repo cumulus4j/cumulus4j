@@ -4,17 +4,14 @@ import org.junit.Test;
 
 public class DatanucleusTest extends BaseTest {
 
-	private static final String URL_TEST = URL_INTEGRATIONTEST_WEBAPP
+	// The address of the service which uses DataNucleus without Cumulus4j
+	private static final String URL_TEST = URL_HOWTO_WEBAPP
 			+ "/DatanucleusService";
 
-	private void invokeTest() throws Exception {
-
-		invokeTestWithinServer(URL_TEST);
-	}
-
+	// Calling the DataNucleus reference service.  
 	@Test
 	public void testTwoComputerScenarioWithUnifiedAPI() throws Exception {
 
-		invokeTest();
+		invokeTestWithinServer(URL_TEST);
 	}
 }

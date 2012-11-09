@@ -14,7 +14,7 @@ import javax.ws.rs.core.Application;
 public class App extends Application {
 	private static final Class<?>[] serviceClassesArray = {
 			org.cumulus4j.howto.services.DatanucleusService.class,
-			org.cumulus4j.howto.services.DummyKeyManagerService.class,
+			org.cumulus4j.howto.services.Cumulus4jDummyKeyManagerService.class,
 			org.cumulus4j.howto.services.Cumulus4jKeystoreService.class};
 
 	private static final Set<Class<?>> serviceClassesSet;

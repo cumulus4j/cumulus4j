@@ -4,17 +4,15 @@ import org.junit.Test;
 
 public class Cumulus4jWithDummyKeyManagerTest extends BaseTest {
 
-	private static final String URL_TEST = URL_INTEGRATIONTEST_WEBAPP
+	// The address of the test service with a dummy key manager. 
+	private static final String URL_TEST = URL_HOWTO_WEBAPP
 			+ "/DummyKeyManagerService";
 
-	private void invokeTest() throws Exception {
-
-		invokeTestWithinServer(URL_TEST);
-	}
-
 	@Test
+	// For testing the dummy key manager we have to make no additional changes 
+	// on the client side
 	public void testTwoComputerScenarioWithUnifiedAPI() throws Exception {
 
-		invokeTest();
+		invokeTestWithinServer(URL_TEST);
 	}
 }
