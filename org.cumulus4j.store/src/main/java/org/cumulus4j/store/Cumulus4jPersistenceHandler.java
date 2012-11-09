@@ -193,52 +193,42 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			CryptoContext cryptoContext = new CryptoContext(encryptionCoordinateSetManager, keyStoreRefManager, ec, pmConn);
 			getStoreManager().getDatastoreVersionManager().applyOnce(cryptoContext);
 
-			Object object = op.getObject();
-			Object objectID = op.getExternalObjectId();
-			if (objectID == null) {
-				throw new IllegalStateException("op.getExternalObjectId() returned null! Maybe Cumulus4jStoreManager.isStrategyDatastoreAttributed(...) is incorrect?");
-			}
-			ClassMeta classMeta = storeManager.getClassMeta(ec, object.getClass());
+			boolean error = true;
+			ObjectContainerHelper.enterTemporaryReferenceScope(cryptoContext, pmData);
+			try {
+				Object object = op.getObject();
+				Object objectID = op.getExternalObjectId();
+				if (objectID == null) {
+					throw new IllegalStateException("op.getExternalObjectId() returned null! Maybe Cumulus4jStoreManager.isStrategyDatastoreAttributed(...) is incorrect?");
+				}
+				ClassMeta classMeta = storeManager.getClassMeta(ec, object.getClass());
 
-			AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), ec.getClassLoaderResolver());
+				AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), ec.getClassLoaderResolver());
 
-			ObjectContainer objectContainer = new ObjectContainer();
-			String objectIDString = objectID.toString();
+				ObjectContainer objectContainer = new ObjectContainer();
+				String objectIDString = objectID.toString();
 
-			// We have to persist the DataEntry before the call to provideFields(...), because the InsertFieldManager recursively
-			// persists other fields which might back-reference (=> mapped-by) and thus need this DataEntry to already exist.
-			// TO DO Try to make this persistent afterwards and solve the problem by only allocating the ID before [keeping it in memory] (see Cumulus4jStoreManager#nextDataEntryID(), which is commented out currently).
-			//   Even though reducing the INSERT + UPDATE to one single INSERT in the handling of IndexEntry made
-			//   things faster, it seems not to have a performance benefit here. But we should still look at this
-			//   again later.
-			// Marco.
-			//
-			// 2012-02-02: Refactored this because of a Heisenbug with optimistic transactions. At the same time solved
-			// the above to do. Marco :-)
+				// We have to persist the DataEntry before the call to provideFields(...), because the InsertFieldManager recursively
+				// persists other fields which might back-reference (=> mapped-by) and thus need this DataEntry to already exist.
+				// TO DO Try to make this persistent afterwards and solve the problem by only allocating the ID before [keeping it in memory] (see Cumulus4jStoreManager#nextDataEntryID(), which is commented out currently).
+				//   Even though reducing the INSERT + UPDATE to one single INSERT in the handling of IndexEntry made
+				//   things faster, it seems not to have a performance benefit here. But we should still look at this
+				//   again later.
+				// Marco.
+				//
+				// 2012-02-02: Refactored this because of a Heisenbug with optimistic transactions. At the same time solved
+				// the above to do. Marco :-)
 
-//			// In case we work with deferred datastore operations, the DataEntry might already have been written by
-//			// ObjectContainerHelper.entityToReference(...). We therefore, check, if it already exists (and update it then instead of insert).
-//			DataEntry dataEntry;
-//			dataEntry = DataEntry.getDataEntry(pmData, classMeta, objectIDString);
-//			if (dataEntry != null)
-//				logger.trace("insertObject: Found existing DataEntry for: {}", objectIDString);
-//			else {
-//				dataEntry = pmData.makePersistent(new DataEntry(classMeta, objectIDString));
-//				logger.trace("insertObject: Persisted DataEntry for: {}", objectIDString);
-//			}
+				// This performs reachability on this input object so that all related objects are persisted.
+				op.provideFields(
+						dnClassMetaData.getAllMemberPositions(),
+						new StoreFieldManager(op, cryptoContext, pmData, classMeta, dnClassMetaData, cryptoContext.getKeyStoreRefID(), objectContainer));
+				objectContainer.setVersion(op.getTransactionalVersion());
 
-			// This performs reachability on this input object so that all related objects are persisted.
-			op.provideFields(
-					dnClassMetaData.getAllMemberPositions(),
-					new StoreFieldManager(op, cryptoContext, pmData, classMeta, dnClassMetaData, cryptoContext.getKeyStoreRefID(), objectContainer));
-			objectContainer.setVersion(op.getTransactionalVersion());
-
-//			if (op.getEmbeddedOwners() == null || op.getEmbeddedOwners().length == 0) {
-				// *** NON-embedded ***
 				// The DataEntry might already have been written by ObjectContainerHelper.entityToReference(...),
 				// if it was needed for a reference. We therefore check, if it already exists (and update it then instead of insert).
 				boolean persistDataEntry = false;
-				DataEntry dataEntry = ObjectContainerHelper.popTemporaryReferenceDataEntry(cryptoContext, pmData, objectIDString);
+				DataEntry dataEntry = ObjectContainerHelper.getTemporaryReferenceDataEntry(cryptoContext, pmData, objectIDString);
 				if (dataEntry != null)
 					logger.trace("insertObject: Found temporary-reference-DataEntry for: {}", objectIDString);
 				else {
@@ -247,9 +237,10 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 					logger.trace("insertObject: Created new DataEntry for: {}", objectIDString);
 				}
 
+				encryptionHandler.encryptDataEntry(cryptoContext, dataEntry, objectContainer);
+
 				// persist data
 				if (persistDataEntry) {
-					encryptionHandler.encryptDataEntry(cryptoContext, dataEntry, objectContainer);
 					dataEntry = pmData.makePersistent(dataEntry);
 					logger.trace("insertObject: Persisted new non-embedded DataEntry for: {}", objectIDString);
 				}
@@ -272,14 +263,10 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 						addIndexEntryAction.perform(cryptoContext, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, fieldValue);
 				}
 
-//			}
-//			else {
-//				// *** embedded ***
-//				EmbeddedObjectContainer embeddedObjectContainer = new EmbeddedObjectContainer(classMeta.getClassID(), objectContainer);
-//				op.setAssociatedValue(EmbeddedObjectContainer.ASSOCIATED_VALUE, embeddedObjectContainer);
-//
-//				// TODO index embedded objects, too!
-//			}
+				error = false;
+			} finally {
+				ObjectContainerHelper.exitTemporaryReferenceScope(cryptoContext, pmData, error);
+			}
 		} finally {
 			mconn.release();
 		}
@@ -326,49 +313,58 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			CryptoContext cryptoContext = new CryptoContext(encryptionCoordinateSetManager, keyStoreRefManager, ec, pmConn);
 			getStoreManager().getDatastoreVersionManager().applyOnce(cryptoContext);
 
-			Object object = op.getObject();
-			Object objectID = op.getExternalObjectId();
-			String objectIDString = objectID.toString();
-			ClassMeta classMeta = storeManager.getClassMeta(ec, object.getClass());
-			AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), ec.getClassLoaderResolver());
+			boolean error = true;
+			ObjectContainerHelper.enterTemporaryReferenceScope(cryptoContext, pmData);
+			try {
 
-			DataEntry dataEntry = new DataEntryDAO(pmData, cryptoContext.getKeyStoreRefID()).getDataEntry(classMeta, objectIDString);
-			if (dataEntry == null)
-				throw new NucleusObjectNotFoundException("Object does not exist in datastore: class=" + classMeta.getClassName() + " oid=" + objectIDString);
+				Object object = op.getObject();
+				Object objectID = op.getExternalObjectId();
+				String objectIDString = objectID.toString();
+				ClassMeta classMeta = storeManager.getClassMeta(ec, object.getClass());
+				AbstractClassMetaData dnClassMetaData = storeManager.getMetaDataManager().getMetaDataForClass(object.getClass(), ec.getClassLoaderResolver());
 
-			long dataEntryID = dataEntry.getDataEntryID();
+				DataEntry dataEntry = new DataEntryDAO(pmData, cryptoContext.getKeyStoreRefID()).getDataEntry(classMeta, objectIDString);
+				if (dataEntry == null)
+					throw new NucleusObjectNotFoundException("Object does not exist in datastore: class=" + classMeta.getClassName() + " oid=" + objectIDString);
 
-			ObjectContainer objectContainerOld = encryptionHandler.decryptDataEntry(cryptoContext, dataEntry);
-			ObjectContainer objectContainerNew = objectContainerOld.clone();
+				long dataEntryID = dataEntry.getDataEntryID();
 
-			// This performs reachability on this input object so that all related objects are persisted
-			op.provideFields(fieldNumbers, new StoreFieldManager(op, cryptoContext, pmData, classMeta, dnClassMetaData, cryptoContext.getKeyStoreRefID(), objectContainerNew));
-			objectContainerNew.setVersion(op.getTransactionalVersion());
+				ObjectContainer objectContainerOld = encryptionHandler.decryptDataEntry(cryptoContext, dataEntry);
+				ObjectContainer objectContainerNew = objectContainerOld.clone();
 
-			// update persistent data
-			encryptionHandler.encryptDataEntry(cryptoContext, dataEntry, objectContainerNew);
+				// This performs reachability on this input object so that all related objects are persisted
+				op.provideFields(fieldNumbers, new StoreFieldManager(op, cryptoContext, pmData, classMeta, dnClassMetaData, cryptoContext.getKeyStoreRefID(), objectContainerNew));
+				objectContainerNew.setVersion(op.getTransactionalVersion());
 
-			// update persistent index
-			for (int fieldNumber : fieldNumbers) {
-				AbstractMemberMetaData dnMemberMetaData = dnClassMetaData.getMetaDataForManagedMemberAtAbsolutePosition(fieldNumber);
-				if (dnMemberMetaData == null)
-					throw new IllegalStateException("dnMemberMetaData == null!!! class == \"" + classMeta.getClassName() + "\" fieldNumber == " + fieldNumber);
+				// update persistent data
+				encryptionHandler.encryptDataEntry(cryptoContext, dataEntry, objectContainerNew);
 
-				if (dnMemberMetaData.getMappedBy() != null)
-					continue; // TODO is this sufficient to take 'mapped-by' into account?
+				// update persistent index
+				for (int fieldNumber : fieldNumbers) {
+					AbstractMemberMetaData dnMemberMetaData = dnClassMetaData.getMetaDataForManagedMemberAtAbsolutePosition(fieldNumber);
+					if (dnMemberMetaData == null)
+						throw new IllegalStateException("dnMemberMetaData == null!!! class == \"" + classMeta.getClassName() + "\" fieldNumber == " + fieldNumber);
 
-				FieldMeta fieldMeta = classMeta.getFieldMeta(dnMemberMetaData.getClassName(), dnMemberMetaData.getName());
-				if (fieldMeta == null)
-					throw new IllegalStateException("fieldMeta == null!!! class == \"" + classMeta.getClassName() + "\" dnMemberMetaData.className == \"" + dnMemberMetaData.getClassName() + "\" dnMemberMetaData.name == \"" + dnMemberMetaData.getName() + "\"");
+					if (dnMemberMetaData.getMappedBy() != null)
+						continue; // TODO is this sufficient to take 'mapped-by' into account?
 
-				Object fieldValueOld = objectContainerOld.getValue(fieldMeta.getFieldID());
-				Object fieldValueNew = objectContainerNew.getValue(fieldMeta.getFieldID());
+					FieldMeta fieldMeta = classMeta.getFieldMeta(dnMemberMetaData.getClassName(), dnMemberMetaData.getName());
+					if (fieldMeta == null)
+						throw new IllegalStateException("fieldMeta == null!!! class == \"" + classMeta.getClassName() + "\" dnMemberMetaData.className == \"" + dnMemberMetaData.getClassName() + "\" dnMemberMetaData.name == \"" + dnMemberMetaData.getName() + "\"");
 
-				if (!fieldsEqual(fieldValueOld, fieldValueNew)){
+					Object fieldValueOld = objectContainerOld.getValue(fieldMeta.getFieldID());
+					Object fieldValueNew = objectContainerNew.getValue(fieldMeta.getFieldID());
 
-					removeIndexEntryAction.perform(cryptoContext, dataEntryID, fieldMeta, dnMemberMetaData, fieldValueOld);
-					addIndexEntryAction.perform(cryptoContext, dataEntryID, fieldMeta, dnMemberMetaData, fieldValueNew);
+					if (!fieldsEqual(fieldValueOld, fieldValueNew)){
+
+						removeIndexEntryAction.perform(cryptoContext, dataEntryID, fieldMeta, dnMemberMetaData, fieldValueOld);
+						addIndexEntryAction.perform(cryptoContext, dataEntryID, fieldMeta, dnMemberMetaData, fieldValueNew);
+					}
 				}
+
+				error = false;
+			} finally {
+				ObjectContainerHelper.exitTemporaryReferenceScope(cryptoContext, pmData, error);
 			}
 		} finally {
 			mconn.release();
