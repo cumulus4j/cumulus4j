@@ -157,4 +157,17 @@ public class EmbeddedClassMeta extends ClassMeta {
 			populateFieldMetasWithSubFieldMetas(result, subFieldMeta);
 		}
 	}
+
+	@Override
+	public void jdoPostDetach(Object o) {
+		super.jdoPostDetach(o);
+		PostDetachRunnableManager.getInstance().addRunnable(new Runnable() {
+			@Override
+			public void run() {
+				DetachedClassMetaModel detachedClassMetaModel = DetachedClassMetaModel.getInstance();
+				if (detachedClassMetaModel != null)
+					nonEmbeddedClassMeta = detachedClassMetaModel.getClassMeta(nonEmbeddedClassMeta.getClassID(), true);
+			}
+		});
+	}
 }

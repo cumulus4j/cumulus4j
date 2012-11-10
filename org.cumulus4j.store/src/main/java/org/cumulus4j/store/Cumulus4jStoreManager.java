@@ -37,11 +37,13 @@ import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.ClassMetaDAO;
 import org.cumulus4j.store.model.DataEntry;
 import org.cumulus4j.store.model.DataEntryDAO;
+import org.cumulus4j.store.model.DetachedClassMetaModel;
 import org.cumulus4j.store.model.EmbeddedClassMeta;
 import org.cumulus4j.store.model.EmbeddedFieldMeta;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.FieldMetaRole;
 import org.cumulus4j.store.model.IndexEntryFactoryRegistry;
+import org.cumulus4j.store.model.PostDetachRunnableManager;
 import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.NucleusContext;
 import org.datanucleus.api.jdo.JDOPersistenceManagerFactory;
@@ -148,13 +150,59 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 			ClassMeta classMeta = dao.getClassMeta(classID, throwExceptionIfNotFound);
 			className = classMeta.getClassName();
 		} finally {
-			mconn.release();
+			mconn.release(); mconn = null;
 		}
 
 		Class<?> clazz = ec.getClassLoaderResolver().classForName(className, true);
 
 		result = getClassMeta(ec, clazz);
+
+		// This is not necessarily the right result, because getClassMeta(ec, clazz) NEVER returns an EmbeddedClassMeta
+		// and the classID might belong to an embeddedClassMeta.
+		if (result.getClassID() != classID) {
+			result = null;
+
+			DetachedClassMetaModel.setInstance(new DetachedClassMetaModel() {
+				@Override
+				public ClassMeta getClassMeta(long classID, boolean throwExceptionIfNotFound) {
+					ClassMeta result = classID2classMeta.get(classID);
+					if (result == null && throwExceptionIfNotFound)
+						throw new IllegalArgumentException("No ClassMeta found for classID=" + classID);
+
+					return result;
+				}
+			});
+			try {
+				mconn = this.getConnection(ec);
+				try {
+					PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
+					PersistenceManager pm = pmConn.getDataPM();
+					ClassMetaDAO dao = new ClassMetaDAO(pm);
+					ClassMeta classMeta = dao.getClassMeta(classID, throwExceptionIfNotFound);
+					result = detachClassMeta(pm, classMeta);
+				} finally {
+					mconn.release(); mconn = null;
+				}
+			} finally {
+				DetachedClassMetaModel.setInstance(null);
+			}
+		}
+
 		classID2classMeta.put(result.getClassID(), result);
+		return result;
+	}
+
+	protected ClassMeta detachClassMeta(PersistenceManager pm, ClassMeta classMeta) {
+		ClassMeta result;
+		pm.getFetchPlan().setGroup(FetchPlan.ALL);
+		pm.getFetchPlan().setMaxFetchDepth(-1);
+		final PostDetachRunnableManager postDetachRunnableManager = PostDetachRunnableManager.getInstance();
+		postDetachRunnableManager.enterScope();
+		try {
+			result = pm.detachCopy(classMeta);
+		} finally {
+			postDetachRunnableManager.exitScope();
+		}
 		return result;
 	}
 
@@ -211,9 +259,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 				result = registerClass(ec, pm, clazz);
 
 				// Detach the class in order to cache only detached objects. Make sure fetch-plan detaches all
-				pm.getFetchPlan().setGroup(FetchPlan.ALL);
-				pm.getFetchPlan().setMaxFetchDepth(-1);
-				result = pm.detachCopy(result);
+				result = detachClassMeta(pm, result);
 
 				if (pmConn.indexHasOwnPM()) {
 					// Replicate ClassMeta+FieldMeta to Index datastore
@@ -221,9 +267,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 					pmIndex.getFetchPlan().setGroup(FetchPlan.ALL); // not sure, if this is necessary before persisting, but don't have time to find it out - leaving it.
 					pmIndex.getFetchPlan().setMaxFetchDepth(-1); // not sure, if this is necessary before persisting, but don't have time to find it out - leaving it.
 					result = pmIndex.makePersistent(result);
-					pmIndex.getFetchPlan().setGroup(FetchPlan.ALL);
-					pmIndex.getFetchPlan().setMaxFetchDepth(-1);
-					result = pmIndex.detachCopy(result);
+					result = detachClassMeta(pmIndex, result);
 				}
 			}
 

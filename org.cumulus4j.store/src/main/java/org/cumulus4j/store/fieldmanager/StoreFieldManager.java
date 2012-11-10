@@ -27,6 +27,7 @@ import javax.jdo.PersistenceManager;
 import org.cumulus4j.store.ObjectContainerHelper;
 import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.ClassMeta;
+import org.cumulus4j.store.model.EmbeddedClassMeta;
 import org.cumulus4j.store.model.EmbeddedObjectContainer;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.ObjectContainer;
@@ -227,7 +228,7 @@ public class StoreFieldManager extends AbstractFieldManager
 						// @EmbeddedOnly]) - e.g. create & assign an ObjectProvider if none is assigned, yet. Marco :-)
 
 //						ClassMeta embeddedClassMeta = ((Cumulus4jStoreManager)ec.getStoreManager()).getClassMeta(ec, valuePC.getClass());
-						ClassMeta embeddedClassMeta = fieldMeta.getEmbeddedClassMeta();
+						EmbeddedClassMeta embeddedClassMeta = fieldMeta.getEmbeddedClassMeta();
 						AbstractClassMetaData embeddedDNClassMetaData = embeddedOP.getClassMetaData();
 						EmbeddedObjectContainer embeddedObjectContainer = new EmbeddedObjectContainer(embeddedClassMeta.getClassID());
 						embeddedOP.provideFields(

@@ -28,6 +28,8 @@ import org.cumulus4j.store.fieldmanager.StoreFieldManager;
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.DataEntry;
 import org.cumulus4j.store.model.DataEntryDAO;
+import org.cumulus4j.store.model.EmbeddedClassMeta;
+import org.cumulus4j.store.model.EmbeddedFieldMeta;
 import org.cumulus4j.store.model.EmbeddedObjectContainer;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.ObjectContainer;
@@ -303,23 +305,31 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			if (!fieldMeta.getFieldName().equals(dnMemberMetaData.getName()))
 				throw new IllegalStateException("Meta data inconsistency!!! class == \"" + classMeta.getClassName() + "\" fieldMeta.dataNucleusAbsoluteFieldNumber == " + fieldMeta.getDataNucleusAbsoluteFieldNumber() + " fieldMeta.fieldName == \"" + fieldMeta.getFieldName() + "\" != dnMemberMetaData.name == \"" + dnMemberMetaData.getName() + "\"");
 
-			insertObjectIndex(op, cryptoContext, classMeta, dnClassMetaData, objectContainer, dataEntry, fieldMeta, dnMemberMetaData, fieldValue);
+			insertObjectIndex(op, cryptoContext, classMeta, dataEntry, fieldMeta, fieldValue);
 		}
 	}
 
 	protected void insertObjectIndex(
 			ObjectProvider op, CryptoContext cryptoContext,
-			ClassMeta classMeta, AbstractClassMetaData dnClassMetaData,
-			ObjectContainer objectContainer, DataEntry dataEntry,
-			FieldMeta fieldMeta, AbstractMemberMetaData dnMemberMetaData,
-			Object fieldValue
+			ClassMeta classMeta, DataEntry dataEntry,
+			FieldMeta fieldMeta, Object fieldValue
 	)
 	{
 		if (fieldValue instanceof EmbeddedObjectContainer) {
-			// TODO implement this!!!
+			EmbeddedObjectContainer embeddedObjectContainer = (EmbeddedObjectContainer) fieldValue;
+			ClassMeta embeddedClassMeta = storeManager.getClassMeta(cryptoContext.getExecutionContext(), embeddedObjectContainer.getClassID(), true);
+			EmbeddedClassMeta ecm = (EmbeddedClassMeta) embeddedClassMeta;
+			for (Map.Entry<Long, ?> me : embeddedObjectContainer.getFieldID2value().entrySet()) {
+				long embeddedFieldID = me.getKey();
+				Object embeddedFieldValue = me.getValue();
+				EmbeddedFieldMeta embeddedFieldMeta = (EmbeddedFieldMeta) ecm.getFieldMeta(embeddedFieldID);
+				insertObjectIndex(op, cryptoContext, embeddedClassMeta, dataEntry, embeddedFieldMeta, embeddedFieldValue);
+			}
 		}
-		else
+		else {
+			AbstractMemberMetaData dnMemberMetaData = fieldMeta.getDataNucleusMemberMetaData(cryptoContext.getExecutionContext());
 			addIndexEntryAction.perform(cryptoContext, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, classMeta, fieldValue);
+		}
 	}
 
 	@Override

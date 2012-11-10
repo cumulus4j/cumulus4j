@@ -589,7 +589,7 @@ implements DetachCallback, StoreCallback
 
 	@Override
 	public void jdoPostDetach(Object o) {
-		final PostDetachRunnableManager postDetachRunnableManager = PostDetachRunnableManager.get();
+		final PostDetachRunnableManager postDetachRunnableManager = PostDetachRunnableManager.getInstance();
 		postDetachRunnableManager.enterScope();
 		try {
 			final FieldMeta attached = (FieldMeta) o;

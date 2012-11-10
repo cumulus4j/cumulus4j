@@ -11,6 +11,9 @@ import javax.jdo.annotations.NullValue;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 
+import org.datanucleus.metadata.AbstractMemberMetaData;
+import org.datanucleus.store.ExecutionContext;
+
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 @Inheritance(strategy=InheritanceStrategy.NEW_TABLE)
 @Discriminator(strategy=DiscriminatorStrategy.VALUE_MAP, value="EmbeddedFieldMeta")
@@ -85,8 +88,33 @@ public class EmbeddedFieldMeta extends FieldMeta {
 	}
 
 	@Override
+	public void jdoPostDetach(Object o) {
+		super.jdoPostDetach(o);
+		PostDetachRunnableManager.getInstance().addRunnable(new Runnable() {
+			@Override
+			public void run() {
+				DetachedClassMetaModel detachedClassMetaModel = DetachedClassMetaModel.getInstance();
+				if (detachedClassMetaModel != null) {
+					ClassMeta detachedClassMeta = detachedClassMetaModel.getClassMeta(nonEmbeddedFieldMeta.getClassMeta().getClassID(), true);
+
+					FieldMeta nefm = detachedClassMeta.getFieldMeta(nonEmbeddedFieldMeta.getFieldID());
+					if (nefm == null)
+						throw new IllegalStateException("detachedClassMeta.getFieldMeta(...) returned null for " + nonEmbeddedFieldMeta);
+
+					nonEmbeddedFieldMeta = nefm;
+				}
+			}
+		});
+	}
+
+	@Override
 	public int getDataNucleusAbsoluteFieldNumber() {
 		return getNonEmbeddedFieldMeta().getDataNucleusAbsoluteFieldNumber();
+	}
+
+	@Override
+	public AbstractMemberMetaData getDataNucleusMemberMetaData(ExecutionContext executionContext) {
+		return getNonEmbeddedFieldMeta().getDataNucleusMemberMetaData(executionContext);
 	}
 
 	@Override

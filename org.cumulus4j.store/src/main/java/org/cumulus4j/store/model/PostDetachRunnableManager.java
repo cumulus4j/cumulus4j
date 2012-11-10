@@ -17,7 +17,7 @@ public class PostDetachRunnableManager {
 		}
 	};
 
-	public static PostDetachRunnableManager get() {
+	public static PostDetachRunnableManager getInstance() {
 		return managerThreadLocal.get();
 	}
 
