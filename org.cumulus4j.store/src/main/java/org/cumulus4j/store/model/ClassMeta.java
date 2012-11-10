@@ -59,9 +59,12 @@ import org.slf4j.LoggerFactory;
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
-@Discriminator(strategy=DiscriminatorStrategy.VALUE_MAP, value="ClassMeta", columns=@Column(defaultValue="ClassMeta", length=100))
+@Discriminator(
+		strategy=DiscriminatorStrategy.VALUE_MAP, value="ClassMeta",
+		columns=@Column(name="discriminator", defaultValue="ClassMeta", length=100)
+)
 @Version(strategy=VersionStrategy.VERSION_NUMBER)
-@Unique(name="ClassMeta_fullyQualifiedClassName", members={"packageName", "simpleClassName"})
+@Unique(name="ClassMeta_fullyQualifiedClassName", members={"uniqueScope", "packageName", "simpleClassName"})
 @FetchGroups({
 	@FetchGroup(name=FetchPlan.ALL, members={
 			@Persistent(name="superClassMeta", recursionDepth=-1)
@@ -69,14 +72,16 @@ import org.slf4j.LoggerFactory;
 })
 @Queries({
 	@Query(
-			name="getClassMetaByPackageNameAndSimpleClassName",
-			value="SELECT UNIQUE WHERE this.packageName == :packageName && this.simpleClassName == :simpleClassName"
+			name=ClassMeta.NamedQueries.getClassMetaByPackageNameAndSimpleClassName,
+			value="SELECT UNIQUE WHERE this.uniqueScope == :uniqueScope && this.packageName == :packageName && this.simpleClassName == :simpleClassName"
 	)
 })
 public class ClassMeta
 implements DetachCallback, StoreCallback
 {
 	private static final Logger logger = LoggerFactory.getLogger(ClassMeta.class);
+
+	protected static final String UNIQUE_SCOPE_CLASS_META = "ClassMeta";
 
 	protected static class NamedQueries {
 		public static final String getClassMetaByPackageNameAndSimpleClassName = "getClassMetaByPackageNameAndSimpleClassName";
@@ -88,6 +93,10 @@ implements DetachCallback, StoreCallback
 
 	@NotPersistent
 	private transient volatile String className;
+
+	@Persistent(nullValue=NullValue.EXCEPTION)
+	@Column(length=255, defaultValue=UNIQUE_SCOPE_CLASS_META)
+	private String uniqueScope;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	@Column(length=255)
@@ -121,10 +130,19 @@ implements DetachCallback, StoreCallback
 	public ClassMeta(Class<?> clazz) {
 		this.packageName = clazz.getPackage() == null ? "" : clazz.getPackage().getName();
 		this.simpleClassName = clazz.getSimpleName();
+		setUniqueScope(ClassMeta.UNIQUE_SCOPE_CLASS_META);
 	}
 
 	public long getClassID() {
 		return classID;
+	}
+
+	protected String getUniqueScope() {
+		return uniqueScope;
+	}
+
+	protected void setUniqueScope(String uniqueScope) {
+		this.uniqueScope = uniqueScope;
 	}
 
 	/**

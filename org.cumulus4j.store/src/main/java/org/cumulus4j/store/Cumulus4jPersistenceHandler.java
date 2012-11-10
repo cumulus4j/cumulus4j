@@ -272,23 +272,7 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 					logger.trace("insertObject: Persisted new non-embedded DataEntry for: {}", objectIDString);
 				}
 
-				// persist index
-				for (Map.Entry<Long, ?> me : objectContainer.getFieldID2value().entrySet()) {
-					long fieldID = me.getKey();
-					Object fieldValue = me.getValue();
-					FieldMeta fieldMeta = classMeta.getFieldMeta(fieldID);
-					AbstractMemberMetaData dnMemberMetaData = dnClassMetaData.getMetaDataForManagedMemberAtAbsolutePosition(fieldMeta.getDataNucleusAbsoluteFieldNumber());
-
-					// sanity checks
-					if (dnMemberMetaData == null)
-						throw new IllegalStateException("dnMemberMetaData == null!!! class == \"" + classMeta.getClassName() + "\" fieldMeta.dataNucleusAbsoluteFieldNumber == " + fieldMeta.getDataNucleusAbsoluteFieldNumber() + " fieldMeta.fieldName == \"" + fieldMeta.getFieldName() + "\"");
-
-					if (!fieldMeta.getFieldName().equals(dnMemberMetaData.getName()))
-						throw new IllegalStateException("Meta data inconsistency!!! class == \"" + classMeta.getClassName() + "\" fieldMeta.dataNucleusAbsoluteFieldNumber == " + fieldMeta.getDataNucleusAbsoluteFieldNumber() + " fieldMeta.fieldName == \"" + fieldMeta.getFieldName() + "\" != dnMemberMetaData.name == \"" + dnMemberMetaData.getName() + "\"");
-
-					if (!(fieldValue instanceof EmbeddedObjectContainer)) // TODO index embedded objects, too!
-						addIndexEntryAction.perform(cryptoContext, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, classMeta, fieldValue);
-				}
+				insertObjectIndex(op, cryptoContext, classMeta, dnClassMetaData, objectContainer, dataEntry);
 
 				error = false;
 			} finally {
@@ -297,6 +281,45 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		} finally {
 			mconn.release();
 		}
+	}
+
+	protected void insertObjectIndex(
+			ObjectProvider op, CryptoContext cryptoContext,
+			ClassMeta classMeta, AbstractClassMetaData dnClassMetaData,
+			ObjectContainer objectContainer, DataEntry dataEntry
+	)
+	{
+		// persist index
+		for (Map.Entry<Long, ?> me : objectContainer.getFieldID2value().entrySet()) {
+			long fieldID = me.getKey();
+			Object fieldValue = me.getValue();
+			FieldMeta fieldMeta = classMeta.getFieldMeta(fieldID);
+			AbstractMemberMetaData dnMemberMetaData = dnClassMetaData.getMetaDataForManagedMemberAtAbsolutePosition(fieldMeta.getDataNucleusAbsoluteFieldNumber());
+
+			// sanity checks
+			if (dnMemberMetaData == null)
+				throw new IllegalStateException("dnMemberMetaData == null!!! class == \"" + classMeta.getClassName() + "\" fieldMeta.dataNucleusAbsoluteFieldNumber == " + fieldMeta.getDataNucleusAbsoluteFieldNumber() + " fieldMeta.fieldName == \"" + fieldMeta.getFieldName() + "\"");
+
+			if (!fieldMeta.getFieldName().equals(dnMemberMetaData.getName()))
+				throw new IllegalStateException("Meta data inconsistency!!! class == \"" + classMeta.getClassName() + "\" fieldMeta.dataNucleusAbsoluteFieldNumber == " + fieldMeta.getDataNucleusAbsoluteFieldNumber() + " fieldMeta.fieldName == \"" + fieldMeta.getFieldName() + "\" != dnMemberMetaData.name == \"" + dnMemberMetaData.getName() + "\"");
+
+			insertObjectIndex(op, cryptoContext, classMeta, dnClassMetaData, objectContainer, dataEntry, fieldMeta, dnMemberMetaData, fieldValue);
+		}
+	}
+
+	protected void insertObjectIndex(
+			ObjectProvider op, CryptoContext cryptoContext,
+			ClassMeta classMeta, AbstractClassMetaData dnClassMetaData,
+			ObjectContainer objectContainer, DataEntry dataEntry,
+			FieldMeta fieldMeta, AbstractMemberMetaData dnMemberMetaData,
+			Object fieldValue
+	)
+	{
+		if (fieldValue instanceof EmbeddedObjectContainer) {
+			// TODO implement this!!!
+		}
+		else
+			addIndexEntryAction.perform(cryptoContext, dataEntry.getDataEntryID(), fieldMeta, dnMemberMetaData, classMeta, fieldValue);
 	}
 
 	@Override

@@ -93,13 +93,13 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 			if (!getLeft().getResultSymbols().contains(resultDescriptor.getSymbol()))
 				return null;
 
-			if (resultDescriptor.getFieldMeta() != null)
-				return queryCompareConcreteValue(resultDescriptor.getFieldMeta(), resultDescriptor.getClassMeta(), getRightCompareToArgument(), resultDescriptor.isNegated());
-			else {
-				// The variable is an FCO and directly compared (otherwise it would be a PrimaryExpression - see above) or the FieldMeta would be specified.
+			String className = resultDescriptor.getResultType().getName();
+			if (getQueryEvaluator().getStoreManager().getMetaDataManager().isClassPersistable(className)) {
 				ClassMeta classMeta = getQueryEvaluator().getStoreManager().getClassMeta(executionContext, resultDescriptor.getResultType());
 				return queryEqualsConcreteValue(classMeta, getRightCompareToArgument(), resultDescriptor.isNegated());
 			}
+
+			return queryCompareConcreteValue(resultDescriptor.getFieldMeta(), resultDescriptor.getClassMeta(), getRightCompareToArgument(), resultDescriptor.isNegated());
 		}
 
 		throw new UnsupportedOperationException("NYI");

@@ -243,6 +243,7 @@ public class ExpressionHelper
 
 				Collection<Long> valueDataEntryIDs = eval.queryResultDataEntryIDs(
 						new ResultDescriptor(variableExpr.getSymbol(), argumentType, subFieldMeta.getMappedByFieldMeta(executionContext), classMeta)
+//						new ResultDescriptor(variableExpr.getSymbol(), argumentType, null, classMeta)
 				);
 				if (valueDataEntryIDs == null)
 					return null;

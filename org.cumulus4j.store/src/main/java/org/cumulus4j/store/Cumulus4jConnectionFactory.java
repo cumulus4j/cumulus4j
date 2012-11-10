@@ -32,6 +32,8 @@ import javax.transaction.xa.Xid;
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.DataEntry;
 import org.cumulus4j.store.model.DatastoreVersion;
+import org.cumulus4j.store.model.EmbeddedClassMeta;
+import org.cumulus4j.store.model.EmbeddedFieldMeta;
 import org.cumulus4j.store.model.EncryptionCoordinateSet;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.IndexEntry;
@@ -173,6 +175,8 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 			// Class structure meta-data
 			pm.getExtent(ClassMeta.class);
 			pm.getExtent(FieldMeta.class);
+			pm.getExtent(EmbeddedClassMeta.class);
+			pm.getExtent(EmbeddedFieldMeta.class);
 
 			// Data
 			pm.getExtent(DataEntry.class);

@@ -48,6 +48,7 @@ import javax.jdo.listener.StoreCallback;
 import org.cumulus4j.store.Cumulus4jStoreManager;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
+import org.datanucleus.metadata.MetaDataManager;
 import org.datanucleus.store.ExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,10 +61,13 @@ import org.slf4j.LoggerFactory;
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
-@Discriminator(strategy=DiscriminatorStrategy.VALUE_MAP, value="FieldMeta", columns=@Column(defaultValue="FieldMeta", length=100))
+@Discriminator(
+		strategy=DiscriminatorStrategy.VALUE_MAP, value="FieldMeta",
+		columns=@Column(name="discriminator", defaultValue="FieldMeta", length=100)
+)
 @Version(strategy=VersionStrategy.VERSION_NUMBER)
 @Uniques({
-	@Unique(name="FieldMeta_classMeta_ownerFieldMeta_fieldName_role", members={"classMeta", "ownerFieldMeta", "fieldName", "role"})
+	@Unique(name="FieldMeta_classMeta_ownerFieldMeta_fieldName_role", members={"uniqueScope", "classMeta", "ownerFieldMeta", "fieldName", "role"})
 })
 @Queries({
 	@Query(name=FieldMeta.NamedQueries.getFieldMetasForClassMeta, value="SELECT WHERE this.classMeta == :classMeta"),
@@ -74,6 +78,8 @@ implements DetachCallback, StoreCallback
 {
 	private static final Logger logger = LoggerFactory.getLogger(FieldMeta.class);
 
+	protected static final String UNIQUE_SCOPE_FIELD_META = "FieldMeta";
+
 	protected static class NamedQueries {
 		public static final String getFieldMetasForClassMeta = "getFieldMetasForClassMeta";
 		public static final String getSubFieldMetasForFieldMeta = "getSubFieldMetasForFieldMeta";
@@ -82,6 +88,10 @@ implements DetachCallback, StoreCallback
 	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE, sequence="FieldMetaSequence")
 	private long fieldID = -1;
+
+	@Persistent(nullValue=NullValue.EXCEPTION)
+	@Column(length=255, defaultValue=UNIQUE_SCOPE_FIELD_META)
+	private String uniqueScope;
 
 	private ClassMeta classMeta;
 
@@ -110,6 +120,12 @@ implements DetachCallback, StoreCallback
 	 */
 	@NotPersistent
 	private Map<FieldMetaRole, FieldMeta> role2SubFieldMeta;
+
+	@NotPersistent
+	private boolean embeddedClassMetaLoaded;
+
+	@NotPersistent
+	private EmbeddedClassMeta embeddedClassMeta;
 
 	/**
 	 * Internal constructor. This exists only for JDO and should not be used by application code!
@@ -160,10 +176,19 @@ implements DetachCallback, StoreCallback
 		this.ownerFieldMeta = ownerFieldMeta;
 		this.fieldName = fieldName;
 		this.role = role;
+		setUniqueScope(UNIQUE_SCOPE_FIELD_META);
 	}
 
 	public long getFieldID() {
 		return fieldID;
+	}
+
+	protected String getUniqueScope() {
+		return uniqueScope;
+	}
+
+	protected void setUniqueScope(String uniqueScope) {
+		this.uniqueScope = uniqueScope;
 	}
 
 	/**
@@ -258,6 +283,23 @@ implements DetachCallback, StoreCallback
 			logger.trace("getRole2SubFieldMeta: this.role2SubFieldMeta != null (already populated). this={}", this);
 
 		return result;
+	}
+
+	public EmbeddedClassMeta getEmbeddedClassMeta() {
+		if (!embeddedClassMetaLoaded) {
+			logger.debug("getEmbeddedClassMeta: this.embeddedClassMetaLoaded == false => loading. this={}", this);
+			PersistenceManager pm = getPersistenceManager();
+			if (pm != null) {
+				embeddedClassMeta = new ClassMetaDAO(pm).getEmbeddedClassMeta(this, false);
+			}
+			embeddedClassMetaLoaded = true;
+		}
+		return embeddedClassMeta;
+	}
+
+	public void setEmbeddedClassMeta(EmbeddedClassMeta embeddedClassMeta) {
+		this.embeddedClassMeta = embeddedClassMeta;
+		this.embeddedClassMetaLoaded = true;
 	}
 
 	/**
@@ -365,24 +407,70 @@ implements DetachCallback, StoreCallback
 	public ClassMeta getFieldOrElementTypeClassMeta(ExecutionContext executionContext) {
 		Class<?> clazz = getFieldOrElementType(executionContext);
 		Cumulus4jStoreManager storeManager = (Cumulus4jStoreManager) executionContext.getStoreManager();
+		if (!storeManager.getMetaDataManager().isClassPersistable(clazz.getName()))
+			return null;
+
 		ClassMeta result = storeManager.getClassMeta(executionContext, clazz);
 		return result;
+	}
+
+	public AbstractClassMetaData getFieldOrElementTypeDataNucleusClassMetaData(ExecutionContext executionContext)
+	{
+		Class<?> clazz = getFieldOrElementType(executionContext);
+		Cumulus4jStoreManager storeManager = (Cumulus4jStoreManager) executionContext.getStoreManager();
+		MetaDataManager metaDataManager = storeManager.getMetaDataManager();
+		AbstractClassMetaData metaDataForClass = metaDataManager.getMetaDataForClass(clazz, executionContext.getClassLoaderResolver());
+		return metaDataForClass;
 	}
 
 	public Class<?> getFieldOrElementType(ExecutionContext executionContext) {
 		AbstractMemberMetaData mmd = getDataNucleusMemberMetaData(executionContext);
 		Class<?> result;
-		if (mmd.hasCollection())
+		if (mmd.hasCollection()) {
+//			if (FieldMetaRole.primary == this.getRole())
+//				throw new IllegalStateException("this is a primary FieldMeta of a collection - use appropriate sub-FieldMeta instead!");
+
 			result = executionContext.getClassLoaderResolver().classForName(mmd.getCollection().getElementType());
-		else if (mmd.hasArray())
+		}
+		else if (mmd.hasArray()) {
+//			if (FieldMetaRole.primary == this.getRole())
+//				throw new IllegalStateException("this is a primary FieldMeta of an array - use appropriate sub-FieldMeta instead!");
+
 			result = executionContext.getClassLoaderResolver().classForName(mmd.getArray().getElementType());
+		}
 		else if (mmd.hasMap()) {
-			if (mmd.getMap().keyIsPersistent())
-				result = executionContext.getClassLoaderResolver().classForName(mmd.getMap().getKeyType());
-			else if (mmd.getMap().valueIsPersistent())
-				result = executionContext.getClassLoaderResolver().classForName(mmd.getMap().getValueType());
-			else
-				throw new IllegalStateException("How can a Map be mapped-by without key and value being persistent?! Exactly one of them should be persistent!");
+			FieldMetaRole role = this.getRole();
+
+			// This method should work with mapped-by-relations, because there is only one
+			// FCO related anyway. Marco :-)
+			String mappedBy;
+			mappedBy = mmd.getKeyMetaData() == null ? null : mmd.getKeyMetaData().getMappedBy();
+			if(mappedBy != null)
+				role = FieldMetaRole.mapValue;
+
+			mappedBy = mmd.getValueMetaData() == null ? null : mmd.getValueMetaData().getMappedBy();
+			if(mappedBy != null)
+				role = FieldMetaRole.mapKey;
+
+			if (FieldMetaRole.primary == role)
+				throw new IllegalStateException("this is a primary FieldMeta of a map - use appropriate sub-FieldMeta instead!");
+
+			switch (role) {
+				case mapKey:
+					result = executionContext.getClassLoaderResolver().classForName(mmd.getMap().getKeyType());
+					break;
+				case mapValue:
+					result = executionContext.getClassLoaderResolver().classForName(mmd.getMap().getValueType());
+					break;
+				default:
+					throw new IllegalStateException("DataNucleus-member-meta-data says this is a map, but this.role='" + this.getRole() + "': this=" + this);
+			}
+//			if (mmd.getMap().keyIsPersistent())
+//				result = executionContext.getClassLoaderResolver().classForName(mmd.getMap().getKeyType());
+//			else if (mmd.getMap().valueIsPersistent())
+//				result = executionContext.getClassLoaderResolver().classForName(mmd.getMap().getValueType());
+//			else
+//				throw new IllegalStateException("How can a Map be mapped-by without key and value being persistent?! Exactly one of them should be persistent!");
 		}
 		else
 			result = mmd.getType();
@@ -446,7 +534,8 @@ implements DetachCallback, StoreCallback
 
 			switch (role) {
 				case primary:
-					mbfm = classMetaOppositeSide.getFieldMeta(mmd.getMappedBy());
+//					mbfm = classMetaOppositeSide.getFieldMeta(mmd.getMappedBy());
+					mappedBy = mmd.getMappedBy();
 					break;
 
 				case mapKey:
@@ -465,6 +554,8 @@ implements DetachCallback, StoreCallback
 				case collectionElement:
 					// TODO doesn't this need implementation?
 					// Seems to work this way, but why? Marco :-)
+					// 2012-11-10: added the following line.
+					mappedBy = mmd.getMappedBy(); // commented out again // FIXME - some queries break with htis, but IMHO it's correct!
 					break;
 
 				default:
@@ -503,22 +594,22 @@ implements DetachCallback, StoreCallback
 		logger.debug("jdoPostDetach: attached={}", attached);
 		detached.dataNucleusAbsoluteFieldNumber = attached.dataNucleusAbsoluteFieldNumber;
 
+		PersistenceManager pm = attached.getPersistenceManager();
+		if (pm == null)
+			throw new IllegalStateException("attached.getPersistenceManager() returned null!");
+
+		Set<?> fetchGroups = pm.getFetchPlan().getGroups();
+
 		Set<FieldMeta> attachedFieldMetasInPostDetach = attachedFieldMetasInPostDetachThreadLocal.get();
 		if (!attachedFieldMetasInPostDetach.add(attached)) {
 			logger.debug("jdoPostDetach: Already in detachment => Skipping detachment of this.role2SubFieldMeta! attached={}", attached);
 			return;
 		}
 		try {
-
-			PersistenceManager pm = attached.getPersistenceManager();
-			if (pm == null)
-				throw new IllegalStateException("attached.getPersistenceManager() returned null!");
-
 			// The following field should already be null, but we better ensure that we never
 			// contain *AT*tached objects inside a *DE*tached container.
 			detached.role2SubFieldMeta = null;
 
-			Set<?> fetchGroups = pm.getFetchPlan().getGroups();
 			if (fetchGroups.contains(javax.jdo.FetchGroup.ALL)) {
 				logger.debug("jdoPostDetach: Detaching this.role2SubFieldMeta: attached={}", attached);
 
@@ -534,6 +625,16 @@ implements DetachCallback, StoreCallback
 
 		} finally {
 			attachedFieldMetasInPostDetach.remove(attached);
+		}
+
+		if (fetchGroups.contains(javax.jdo.FetchGroup.ALL)) {
+			logger.debug("jdoPostDetach: Detaching this.embeddedClassMeta: attached={}", attached);
+			EmbeddedClassMeta embeddedClassMeta = attached.getEmbeddedClassMeta();
+			detached.setEmbeddedClassMeta(embeddedClassMeta == null ? null : pm.detachCopy(embeddedClassMeta));
+		}
+		else {
+			detached.embeddedClassMeta = null;
+			detached.embeddedClassMetaLoaded = false;
 		}
 	}
 

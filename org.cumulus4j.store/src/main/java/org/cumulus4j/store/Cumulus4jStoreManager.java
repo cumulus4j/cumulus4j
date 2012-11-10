@@ -37,6 +37,7 @@ import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.ClassMetaDAO;
 import org.cumulus4j.store.model.DataEntry;
 import org.cumulus4j.store.model.DataEntryDAO;
+import org.cumulus4j.store.model.EmbeddedClassMeta;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.FieldMetaRole;
 import org.cumulus4j.store.model.IndexEntryFactoryRegistry;
@@ -312,6 +313,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 					subFieldMeta = new FieldMeta(primaryFieldMeta, FieldMetaRole.collectionElement);
 					primaryFieldMeta.addSubFieldMeta(subFieldMeta);
 				}
+				setEmbeddedClassMeta(ec, subFieldMeta, memberMetaData);
 			}
 			else if (memberMetaData.hasArray()) {
 				// register "array" field-meta, if appropriate
@@ -323,27 +325,34 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 					subFieldMeta = new FieldMeta(primaryFieldMeta, FieldMetaRole.arrayElement);
 					primaryFieldMeta.addSubFieldMeta(subFieldMeta);
 				}
+				setEmbeddedClassMeta(ec, subFieldMeta, memberMetaData);
 			}
 			else if (memberMetaData.hasMap()) {
 				// register "map" field-meta, if appropriate
 				primaryFieldMeta.removeAllSubFieldMetasExcept(FieldMetaRole.mapKey, FieldMetaRole.mapValue);
 
+				// key
 				FieldMeta subFieldMeta = primaryFieldMeta.getSubFieldMeta(FieldMetaRole.mapKey);
 				if (subFieldMeta == null) {
 					// adding field that's so far unknown
 					subFieldMeta = new FieldMeta(primaryFieldMeta, FieldMetaRole.mapKey);
 					primaryFieldMeta.addSubFieldMeta(subFieldMeta);
 				}
+				setEmbeddedClassMeta(ec, subFieldMeta, memberMetaData);
 
+				// value
 				subFieldMeta = primaryFieldMeta.getSubFieldMeta(FieldMetaRole.mapValue);
 				if (subFieldMeta == null) {
 					// adding field that's so far unknown
 					subFieldMeta = new FieldMeta(primaryFieldMeta, FieldMetaRole.mapValue);
 					primaryFieldMeta.addSubFieldMeta(subFieldMeta);
 				}
+				setEmbeddedClassMeta(ec, subFieldMeta, memberMetaData);
 			}
-			else
+			else {
 				primaryFieldMeta.removeAllSubFieldMetasExcept();
+				setEmbeddedClassMeta(ec, primaryFieldMeta, memberMetaData);
+			}
 		}
 
 		for (FieldMeta fieldMeta : new ArrayList<FieldMeta>(classMeta.getFieldMetas())) {
@@ -361,6 +370,20 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 		pm.flush(); // Get exceptions as soon as possible by forcing a flush here
 
 		return classMeta;
+	}
+
+	private void setEmbeddedClassMeta(ExecutionContext ec, FieldMeta fieldMeta, AbstractMemberMetaData memberMetaData) {
+		if (memberMetaData.isEmbedded()) {
+			if (fieldMeta.getEmbeddedClassMeta() == null) {
+				ClassMeta fieldOrElementTypeClassMeta = fieldMeta.getFieldOrElementTypeClassMeta(ec);
+				if (fieldOrElementTypeClassMeta != null)
+					fieldMeta.setEmbeddedClassMeta(new EmbeddedClassMeta(ec, fieldOrElementTypeClassMeta, fieldMeta));
+				else
+					fieldMeta.setEmbeddedClassMeta(null);
+			}
+		}
+		else
+			fieldMeta.setEmbeddedClassMeta(null);
 	}
 
 	private Map<Object, String> objectID2className = Collections.synchronizedMap(new WeakHashMap<Object, String>());
