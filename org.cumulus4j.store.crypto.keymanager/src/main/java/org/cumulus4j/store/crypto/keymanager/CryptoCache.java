@@ -956,37 +956,43 @@ public class CryptoCache
 				throw new IllegalStateException("cryptoManager.getCryptoManagerRegistry() returned null!");
 
 			NucleusContext nucleusContext = cryptoManagerRegistry.getNucleusContext();
-			if (nucleusContext == null)
-				throw new IllegalStateException("cryptoManagerRegistry.getNucleusContext() returned null!");
-
-			PersistenceConfiguration persistenceConfiguration = nucleusContext.getPersistenceConfiguration();
-			if (persistenceConfiguration == null)
-				throw new IllegalStateException("nucleusContext.getPersistenceConfiguration() returned null!");
-
-			String propVal = (String) persistenceConfiguration.getProperty(propName);
-			// TODO Fix NPE! Just had a NullPointerException in the above line:
-//			22:48:39,028 ERROR [Timer-3][CryptoCache$CleanupTask] run: java.lang.NullPointerException
-//			java.lang.NullPointerException
-//			        at org.cumulus4j.store.crypto.keymanager.CryptoCache.getCryptoCacheEntryExpiryAge(CryptoCache.java:950)
-//			        at org.cumulus4j.store.crypto.keymanager.CryptoCache.removeExpiredEntries(CryptoCache.java:686)
-//			        at org.cumulus4j.store.crypto.keymanager.CryptoCache.access$000(CryptoCache.java:56)
-//			        at org.cumulus4j.store.crypto.keymanager.CryptoCache$CleanupTask.run(CryptoCache.java:615)
-//			        at java.util.TimerThread.mainLoop(Timer.java:512)
-//			        at java.util.TimerThread.run(Timer.java:462)
-			// Need to check what exactly is null and if that is allowed or there is another problem.
-			propVal = propVal == null ? null : propVal.trim();
-			if (propVal != null && !propVal.isEmpty()) {
-				try {
-					val = Long.parseLong(propVal);
-					logger.info("getCryptoCacheEntryExpiryAgeMSec: Property '{}' is set to {} ms.", propName, val);
-				} catch (NumberFormatException x) {
-					logger.warn("getCryptoCacheEntryExpiryAgeMSec: Property '{}' is set to '{}', which is an ILLEGAL value (no valid number). Falling back to default value.", propName, propVal);
-				}
+			if (nucleusContext == null) {
+//				throw new IllegalStateException("cryptoManagerRegistry.getNucleusContext() returned null!");
+				// garbage-collected => close quickly => return small value
+				val =  5L * 60000L;
+				logger.info("getCryptoCacheEntryExpiryAgeMSec: Property '{}' cannot be read, because NucleusContext was garbage-collected. Using fallback value {}.", propName, val);
 			}
+			else {
+				PersistenceConfiguration persistenceConfiguration = nucleusContext.getPersistenceConfiguration();
+				if (persistenceConfiguration == null)
+					throw new IllegalStateException("nucleusContext.getPersistenceConfiguration() returned null!");
 
-			if (val == Long.MIN_VALUE) {
-				val =  30L * 60000L;
-				logger.info("getCryptoCacheEntryExpiryAgeMSec: Property '{}' is not set. Using default value {}.", propName, val);
+				String propVal = (String) persistenceConfiguration.getProperty(propName);
+				// TO DO Fix NPE! Just had a NullPointerException in the above line:
+	//			22:48:39,028 ERROR [Timer-3][CryptoCache$CleanupTask] run: java.lang.NullPointerException
+	//			java.lang.NullPointerException
+	//			        at org.cumulus4j.store.crypto.keymanager.CryptoCache.getCryptoCacheEntryExpiryAge(CryptoCache.java:950)
+	//			        at org.cumulus4j.store.crypto.keymanager.CryptoCache.removeExpiredEntries(CryptoCache.java:686)
+	//			        at org.cumulus4j.store.crypto.keymanager.CryptoCache.access$000(CryptoCache.java:56)
+	//			        at org.cumulus4j.store.crypto.keymanager.CryptoCache$CleanupTask.run(CryptoCache.java:615)
+	//			        at java.util.TimerThread.mainLoop(Timer.java:512)
+	//			        at java.util.TimerThread.run(Timer.java:462)
+				// Need to check what exactly is null and if that is allowed or there is another problem.
+				// Update 2012-11-11: NPE above should be fixed now. Marco :-)
+				propVal = propVal == null ? null : propVal.trim();
+				if (propVal != null && !propVal.isEmpty()) {
+					try {
+						val = Long.parseLong(propVal);
+						logger.info("getCryptoCacheEntryExpiryAgeMSec: Property '{}' is set to {} ms.", propName, val);
+					} catch (NumberFormatException x) {
+						logger.warn("getCryptoCacheEntryExpiryAgeMSec: Property '{}' is set to '{}', which is an ILLEGAL value (no valid number). Falling back to default value.", propName, propVal);
+					}
+				}
+
+				if (val == Long.MIN_VALUE) {
+					val =  30L * 60000L;
+					logger.info("getCryptoCacheEntryExpiryAgeMSec: Property '{}' is not set. Using default value {}.", propName, val);
+				}
 			}
 
 			cryptoCacheEntryExpiryAge = val;
