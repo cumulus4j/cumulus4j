@@ -138,9 +138,13 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 
 	public ClassMeta getClassMeta(ExecutionContext ec, long classID, boolean throwExceptionIfNotFound) {
 		ClassMeta result = classID2classMeta.get(classID);
-		if (result != null)
+		if (result != null) {
+			logger.trace("getClassMetaByClassID: found cache entry. classID={}", classID);
 			return result;
+		}
 
+		logger.debug("getClassMetaByClassID: begin loading. classID={}", classID);
+		long beginLoadingTimestamp = System.currentTimeMillis();
 		String className;
 		ManagedConnection mconn = this.getConnection(ec);
 		try {
@@ -187,6 +191,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 				DetachedClassMetaModel.setInstance(null);
 			}
 		}
+		logger.debug("getClassMetaByClassID: end loading (took {} ms). classID={}", System.currentTimeMillis() - beginLoadingTimestamp, classID);
 
 		classID2classMeta.put(result.getClassID(), result);
 		return result;
@@ -243,11 +248,17 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 	 */
 	public ClassMeta getClassMeta(ExecutionContext ec, Class<?> clazz)
 	{
+		if (clazz == null)
+			throw new IllegalArgumentException("clazz == null");
+
 		ClassMeta result = class2classMeta.get(clazz);
 		if (result != null) {
+			logger.trace("getClassMetaByClass: found cache entry. class={}", clazz.getName());
 			return result;
 		}
 
+		logger.debug("getClassMetaByClass: begin loading. class={}", clazz.getName());
+		long beginLoadingTimestamp = System.currentTimeMillis();
 		ManagedConnection mconn = this.getConnection(ec);
 		try {
 			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
@@ -309,6 +320,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 		} finally {
 			mconn.release();
 		}
+		logger.debug("getClassMetaByClass: end loading (took {} ms). class={}", System.currentTimeMillis() - beginLoadingTimestamp, clazz.getName());
 
 		return result;
 	}
