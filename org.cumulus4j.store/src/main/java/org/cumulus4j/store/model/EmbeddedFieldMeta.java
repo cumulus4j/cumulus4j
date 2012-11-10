@@ -24,11 +24,10 @@ public class EmbeddedFieldMeta extends FieldMeta {
 	protected EmbeddedFieldMeta() { }
 
 	public EmbeddedFieldMeta(
-			EmbeddedClassMeta classMeta, EmbeddedFieldMeta ownerFieldMeta,
-			FieldMeta nonEmbeddedFieldMeta, FieldMetaRole role
+			EmbeddedClassMeta classMeta, EmbeddedFieldMeta ownerFieldMeta, FieldMeta nonEmbeddedFieldMeta
 	)
 	{
-		super(classMeta, ownerFieldMeta, nonEmbeddedFieldMeta.getFieldName(), role);
+		super(classMeta, ownerFieldMeta, nonEmbeddedFieldMeta.getFieldName(), nonEmbeddedFieldMeta.getRole());
 		this.nonEmbeddedFieldMeta = nonEmbeddedFieldMeta;
 		setUniqueScope(null); // is set in jdoPreStore
 	}
@@ -83,5 +82,15 @@ public class EmbeddedFieldMeta extends FieldMeta {
 		PersistenceManager pm = JDOHelper.getPersistenceManager(this);
 		FieldMeta embeddingFieldMeta = pm.makePersistent(getEmbeddingFieldMeta());
 		setUniqueScope(UNIQUE_SCOPE_PREFIX_EMBEDDED_FIELD_META + embeddingFieldMeta.getFieldID());
+	}
+
+	@Override
+	public int getDataNucleusAbsoluteFieldNumber() {
+		return getNonEmbeddedFieldMeta().getDataNucleusAbsoluteFieldNumber();
+	}
+
+	@Override
+	public String toString() {
+		return super.toString() + "\nembedded in\n" + getEmbeddingFieldMeta();
 	}
 }

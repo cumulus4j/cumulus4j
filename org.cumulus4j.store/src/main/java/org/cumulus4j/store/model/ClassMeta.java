@@ -17,6 +17,7 @@
  */
 package org.cumulus4j.store.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -401,42 +402,65 @@ implements DetachCallback, StoreCallback
 
 	@Override
 	public void jdoPostDetach(Object o) {
-		final ClassMeta attached = (ClassMeta) o;
-		final ClassMeta detached = this;
-		logger.debug("jdoPostDetach: attached={}", attached);
-
-		Set<ClassMeta> attachedClassMetasInPostDetach = attachedClassMetasInPostDetachThreadLocal.get();
-		if (!attachedClassMetasInPostDetach.add(attached)) {
-			logger.debug("jdoPostDetach: Already in detachment => Skipping detachment of this.fieldName2FieldMeta! attached={}", attached);
-			return;
-		}
+		final PostDetachRunnableManager postDetachRunnableManager = PostDetachRunnableManager.get();
+		postDetachRunnableManager.enterScope();
 		try {
+			final ClassMeta attached = (ClassMeta) o;
+			final ClassMeta detached = this;
+			logger.debug("jdoPostDetach: attached={}", attached);
 
-			PersistenceManager pm = attached.getPersistenceManager();
-			if (pm == null)
-				throw new IllegalStateException("attached.getPersistenceManager() returned null!");
+			if (!JDOHelper.isDetached(detached))
+				throw new IllegalStateException("detached ist not detached!");
 
-			// The following fields should already be null, but we better ensure that we never
-			// contain *AT*tached objects inside a *DE*tached container.
-			detached.fieldName2FieldMeta = null;
-			detached.fieldID2FieldMeta = null;
+			if (JDOHelper.getPersistenceManager(detached) != null)
+				throw new IllegalStateException("detached has a PersistenceManager assigned!");
 
-			Set<?> fetchGroups = pm.getFetchPlan().getGroups();
-			if (fetchGroups.contains(javax.jdo.FetchGroup.ALL)) {
-				logger.debug("jdoPostDetach: Detaching this.fieldName2FieldMeta: attached={}", attached);
-
-				// if the fetch-groups say we should detach the FieldMetas, we do it.
-				HashMap<String, FieldMeta> map = new HashMap<String, FieldMeta>();
-				Collection<FieldMeta> detachedFieldMetas = pm.detachCopyAll(attached.getFieldMetas());
-				for (FieldMeta detachedFieldMeta : detachedFieldMetas) {
-					detachedFieldMeta.setClassMeta(this); // ensure, it's the identical (not only equal) ClassMeta.
-					map.put(detachedFieldMeta.getFieldName(), detachedFieldMeta);
-				}
-				detached.fieldName2FieldMeta = map;
+			Set<ClassMeta> attachedClassMetasInPostDetach = attachedClassMetasInPostDetachThreadLocal.get();
+			if (!attachedClassMetasInPostDetach.add(attached)) {
+				logger.debug("jdoPostDetach: Already in detachment => Skipping detachment of this.fieldName2FieldMeta! attached={}", attached);
+				return;
 			}
+			try {
 
+				PersistenceManager pm = attached.getPersistenceManager();
+				if (pm == null)
+					throw new IllegalStateException("attached.getPersistenceManager() returned null!");
+
+				// The following fields should already be null, but we better ensure that we never
+				// contain *AT*tached objects inside a *DE*tached container.
+				detached.fieldName2FieldMeta = null;
+				detached.fieldID2FieldMeta = null;
+
+				Set<?> fetchGroups = pm.getFetchPlan().getGroups();
+				if (fetchGroups.contains(javax.jdo.FetchGroup.ALL)) {
+					logger.debug("jdoPostDetach: Detaching this.fieldName2FieldMeta: attached={}", attached);
+
+					// if the fetch-groups say we should detach the FieldMetas, we do it.
+					HashMap<String, FieldMeta> map = new HashMap<String, FieldMeta>();
+					Collection<FieldMeta> attachedFieldMetas = new ArrayList<FieldMeta>(attached.getFieldMetas());
+					Collection<FieldMeta> detachedFieldMetas = pm.detachCopyAll(attachedFieldMetas);
+					for (final FieldMeta detachedFieldMeta : detachedFieldMetas) {
+//						detachedFieldMeta.setClassMeta(detached); // ensure, it's the identical (not only equal) ClassMeta.
+						// The above is not necessary and might cause problems (because this callback might be called while the detached instance is currently
+						// BEING detached, i.e. not yet finished detaching. Marco.
+
+						postDetachRunnableManager.addRunnable(new Runnable() {
+							@Override
+							public void run() {
+								detachedFieldMeta.setClassMeta(detached); // ensure, it's the identical (not only equal) ClassMeta.
+							}
+						});
+
+						map.put(detachedFieldMeta.getFieldName(), detachedFieldMeta);
+					}
+					detached.fieldName2FieldMeta = map;
+				}
+
+			} finally {
+				attachedClassMetasInPostDetach.remove(attached);
+			}
 		} finally {
-			attachedClassMetasInPostDetach.remove(attached);
+			postDetachRunnableManager.exitScope();
 		}
 	}
 

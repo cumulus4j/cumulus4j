@@ -256,7 +256,8 @@ public class FetchFieldManager extends AbstractFieldManager
 				EmbeddedObjectContainer embeddedObjectContainer = (EmbeddedObjectContainer) value;
 
 				// TODO the newest DN version has a StateManagerFactory that makes the following more convenient (I think) - maybe switch later?!
-				ClassMeta embeddedClassMeta = ((Cumulus4jStoreManager)ec.getStoreManager()).getClassMeta(ec, embeddedObjectContainer.getClassID(), true);
+//				ClassMeta embeddedClassMeta = ((Cumulus4jStoreManager)ec.getStoreManager()).getClassMeta(ec, embeddedObjectContainer.getClassID(), true);
+				ClassMeta embeddedClassMeta = fieldMeta.getEmbeddedClassMeta();
 				Class<?> embeddedClass = ec.getClassLoaderResolver().classForName(embeddedClassMeta.getClassName());
 
 				AbstractClassMetaData embeddedDNClassMeta = embeddedClassMeta.getDataNucleusClassMetaData(ec);

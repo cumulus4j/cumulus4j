@@ -38,6 +38,7 @@ import org.cumulus4j.store.model.ClassMetaDAO;
 import org.cumulus4j.store.model.DataEntry;
 import org.cumulus4j.store.model.DataEntryDAO;
 import org.cumulus4j.store.model.EmbeddedClassMeta;
+import org.cumulus4j.store.model.EmbeddedFieldMeta;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.FieldMetaRole;
 import org.cumulus4j.store.model.IndexEntryFactoryRegistry;
@@ -313,7 +314,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 					subFieldMeta = new FieldMeta(primaryFieldMeta, FieldMetaRole.collectionElement);
 					primaryFieldMeta.addSubFieldMeta(subFieldMeta);
 				}
-				setEmbeddedClassMeta(ec, subFieldMeta, memberMetaData);
+//				setEmbeddedClassMeta(ec, subFieldMeta);
 			}
 			else if (memberMetaData.hasArray()) {
 				// register "array" field-meta, if appropriate
@@ -325,7 +326,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 					subFieldMeta = new FieldMeta(primaryFieldMeta, FieldMetaRole.arrayElement);
 					primaryFieldMeta.addSubFieldMeta(subFieldMeta);
 				}
-				setEmbeddedClassMeta(ec, subFieldMeta, memberMetaData);
+//				setEmbeddedClassMeta(ec, subFieldMeta);
 			}
 			else if (memberMetaData.hasMap()) {
 				// register "map" field-meta, if appropriate
@@ -338,7 +339,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 					subFieldMeta = new FieldMeta(primaryFieldMeta, FieldMetaRole.mapKey);
 					primaryFieldMeta.addSubFieldMeta(subFieldMeta);
 				}
-				setEmbeddedClassMeta(ec, subFieldMeta, memberMetaData);
+//				setEmbeddedClassMeta(ec, subFieldMeta);
 
 				// value
 				subFieldMeta = primaryFieldMeta.getSubFieldMeta(FieldMetaRole.mapValue);
@@ -347,12 +348,12 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 					subFieldMeta = new FieldMeta(primaryFieldMeta, FieldMetaRole.mapValue);
 					primaryFieldMeta.addSubFieldMeta(subFieldMeta);
 				}
-				setEmbeddedClassMeta(ec, subFieldMeta, memberMetaData);
+//				setEmbeddedClassMeta(ec, subFieldMeta);
 			}
 			else {
 				primaryFieldMeta.removeAllSubFieldMetasExcept();
-				setEmbeddedClassMeta(ec, primaryFieldMeta, memberMetaData);
 			}
+			setEmbeddedClassMeta(ec, primaryFieldMeta);
 		}
 
 		for (FieldMeta fieldMeta : new ArrayList<FieldMeta>(classMeta.getFieldMetas())) {
@@ -372,18 +373,55 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 		return classMeta;
 	}
 
-	private void setEmbeddedClassMeta(ExecutionContext ec, FieldMeta fieldMeta, AbstractMemberMetaData memberMetaData) {
+	private void setEmbeddedClassMeta(ExecutionContext ec, FieldMeta fieldMeta) {
+		AbstractMemberMetaData memberMetaData = fieldMeta.getDataNucleusMemberMetaData(ec);
 		if (memberMetaData.isEmbedded()) {
-			if (fieldMeta.getEmbeddedClassMeta() == null) {
-				ClassMeta fieldOrElementTypeClassMeta = fieldMeta.getFieldOrElementTypeClassMeta(ec);
-				if (fieldOrElementTypeClassMeta != null)
-					fieldMeta.setEmbeddedClassMeta(new EmbeddedClassMeta(ec, fieldOrElementTypeClassMeta, fieldMeta));
-				else
-					fieldMeta.setEmbeddedClassMeta(null);
+			if (fieldMeta.getSubFieldMetas().isEmpty()) {
+				// only assign this to the leafs (map-key, map-value, collection-element, etc.)
+				// if we have no sub-field-metas, our fieldMeta is a leaf.
+				if (fieldMeta.getEmbeddedClassMeta() == null) {
+					ClassMeta fieldOrElementTypeClassMeta = fieldMeta.getFieldOrElementTypeClassMeta(ec);
+					if (fieldOrElementTypeClassMeta != null) {
+						fieldMeta.setEmbeddedClassMeta(new EmbeddedClassMeta(ec, fieldOrElementTypeClassMeta, fieldMeta));
+						updateEmbeddedFieldMetas(ec, fieldMeta);
+					}
+				}
+			}
+			else {
+				fieldMeta.setEmbeddedClassMeta(null);
+				for (FieldMeta subFieldMeta : fieldMeta.getSubFieldMetas()) {
+					setEmbeddedClassMeta(ec, subFieldMeta);
+				}
 			}
 		}
 		else
 			fieldMeta.setEmbeddedClassMeta(null);
+	}
+
+	private void updateEmbeddedFieldMetas(ExecutionContext ec, FieldMeta embeddingFieldMeta)
+	{
+		EmbeddedClassMeta embeddedClassMeta = embeddingFieldMeta.getEmbeddedClassMeta();
+
+		for (FieldMeta fieldMeta : embeddedClassMeta.getNonEmbeddedClassMeta().getFieldMetas()) {
+			EmbeddedFieldMeta embeddedFieldMeta = embeddedClassMeta.getEmbeddedFieldMetaForNonEmbeddedFieldMeta(fieldMeta);
+			if (embeddedFieldMeta == null) {
+				embeddedFieldMeta = new EmbeddedFieldMeta(embeddedClassMeta, null, fieldMeta);
+				embeddedClassMeta.addFieldMeta(embeddedFieldMeta);
+			}
+			setEmbeddedClassMeta(ec, embeddedFieldMeta);
+			updateEmbeddedFieldMetas_subFieldMetas(embeddedClassMeta, fieldMeta, embeddedFieldMeta);
+		}
+	}
+
+	private void updateEmbeddedFieldMetas_subFieldMetas(EmbeddedClassMeta embeddedClassMeta, FieldMeta fieldMeta, EmbeddedFieldMeta embeddedFieldMeta) {
+		for (FieldMeta subFieldMeta : fieldMeta.getSubFieldMetas()) {
+			EmbeddedFieldMeta subEmbeddedFieldMeta = embeddedClassMeta.getEmbeddedFieldMetaForNonEmbeddedFieldMeta(subFieldMeta);
+			if (subEmbeddedFieldMeta == null) {
+				subEmbeddedFieldMeta = new EmbeddedFieldMeta(embeddedClassMeta, embeddedFieldMeta, subFieldMeta);
+				embeddedFieldMeta.addSubFieldMeta(subEmbeddedFieldMeta);
+			}
+			updateEmbeddedFieldMetas_subFieldMetas(embeddedClassMeta, subFieldMeta, subEmbeddedFieldMeta);
+		}
 	}
 
 	private Map<Object, String> objectID2className = Collections.synchronizedMap(new WeakHashMap<Object, String>());

@@ -589,52 +589,75 @@ implements DetachCallback, StoreCallback
 
 	@Override
 	public void jdoPostDetach(Object o) {
-		final FieldMeta attached = (FieldMeta) o;
-		final FieldMeta detached = this;
-		logger.debug("jdoPostDetach: attached={}", attached);
-		detached.dataNucleusAbsoluteFieldNumber = attached.dataNucleusAbsoluteFieldNumber;
-
-		PersistenceManager pm = attached.getPersistenceManager();
-		if (pm == null)
-			throw new IllegalStateException("attached.getPersistenceManager() returned null!");
-
-		Set<?> fetchGroups = pm.getFetchPlan().getGroups();
-
-		Set<FieldMeta> attachedFieldMetasInPostDetach = attachedFieldMetasInPostDetachThreadLocal.get();
-		if (!attachedFieldMetasInPostDetach.add(attached)) {
-			logger.debug("jdoPostDetach: Already in detachment => Skipping detachment of this.role2SubFieldMeta! attached={}", attached);
-			return;
-		}
+		final PostDetachRunnableManager postDetachRunnableManager = PostDetachRunnableManager.get();
+		postDetachRunnableManager.enterScope();
 		try {
-			// The following field should already be null, but we better ensure that we never
-			// contain *AT*tached objects inside a *DE*tached container.
-			detached.role2SubFieldMeta = null;
+			final FieldMeta attached = (FieldMeta) o;
+			final FieldMeta detached = this;
+			logger.debug("jdoPostDetach: attached={}", attached);
 
-			if (fetchGroups.contains(javax.jdo.FetchGroup.ALL)) {
-				logger.debug("jdoPostDetach: Detaching this.role2SubFieldMeta: attached={}", attached);
+			if (!JDOHelper.isDetached(detached))
+				throw new IllegalStateException("detached ist not detached!");
 
-				// if the fetch-groups say we should detach the FieldMetas, we do it.
-				HashMap<FieldMetaRole, FieldMeta> map = new HashMap<FieldMetaRole, FieldMeta>();
-				Collection<FieldMeta> detachedSubFieldMetas = pm.detachCopyAll(attached.getRole2SubFieldMeta().values());
-				for (FieldMeta detachedSubFieldMeta : detachedSubFieldMetas) {
-					detachedSubFieldMeta.setOwnerFieldMeta(this); // ensure, it's the identical (not only equal) FieldMeta.
-					map.put(detachedSubFieldMeta.getRole(), detachedSubFieldMeta);
+			if (JDOHelper.getPersistenceManager(detached) != null)
+				throw new IllegalStateException("detached has a PersistenceManager assigned!");
+
+			detached.dataNucleusAbsoluteFieldNumber = attached.dataNucleusAbsoluteFieldNumber;
+
+			PersistenceManager pm = attached.getPersistenceManager();
+			if (pm == null)
+				throw new IllegalStateException("attached.getPersistenceManager() returned null!");
+
+			Set<?> fetchGroups = pm.getFetchPlan().getGroups();
+
+			Set<FieldMeta> attachedFieldMetasInPostDetach = attachedFieldMetasInPostDetachThreadLocal.get();
+			if (!attachedFieldMetasInPostDetach.add(attached)) {
+				logger.debug("jdoPostDetach: Already in detachment => Skipping detachment of this.role2SubFieldMeta! attached={}", attached);
+				return;
+			}
+			try {
+				// The following field should already be null, but we better ensure that we never
+				// contain *AT*tached objects inside a *DE*tached container.
+				detached.role2SubFieldMeta = null;
+
+				if (fetchGroups.contains(javax.jdo.FetchGroup.ALL)) {
+					logger.debug("jdoPostDetach: Detaching this.role2SubFieldMeta: attached={}", attached);
+
+					// if the fetch-groups say we should detach the FieldMetas, we do it.
+					HashMap<FieldMetaRole, FieldMeta> map = new HashMap<FieldMetaRole, FieldMeta>();
+					Collection<FieldMeta> detachedSubFieldMetas = pm.detachCopyAll(attached.getRole2SubFieldMeta().values());
+					for (final FieldMeta detachedSubFieldMeta : detachedSubFieldMetas) {
+//						detachedSubFieldMeta.setOwnerFieldMeta(detached); // ensure, it's the identical (not only equal) FieldMeta.
+						// The above is not necessary and might cause problems (because this callback might be called while the detached instance is currently
+						// BEING detached, i.e. not yet finished detaching.
+
+						postDetachRunnableManager.addRunnable(new Runnable() {
+							@Override
+							public void run() {
+								detachedSubFieldMeta.setOwnerFieldMeta(detached); // ensure, it's the identical (not only equal) FieldMeta.
+							}
+						});
+
+						map.put(detachedSubFieldMeta.getRole(), detachedSubFieldMeta);
+					}
+					detached.role2SubFieldMeta = map;
 				}
-				detached.role2SubFieldMeta = map;
+
+			} finally {
+				attachedFieldMetasInPostDetach.remove(attached);
 			}
 
+			if (fetchGroups.contains(javax.jdo.FetchGroup.ALL)) {
+				logger.debug("jdoPostDetach: Detaching this.embeddedClassMeta: attached={}", attached);
+				EmbeddedClassMeta embeddedClassMeta = attached.getEmbeddedClassMeta();
+				detached.setEmbeddedClassMeta(embeddedClassMeta == null ? null : pm.detachCopy(embeddedClassMeta));
+			}
+			else {
+				detached.embeddedClassMeta = null;
+				detached.embeddedClassMetaLoaded = false;
+			}
 		} finally {
-			attachedFieldMetasInPostDetach.remove(attached);
-		}
-
-		if (fetchGroups.contains(javax.jdo.FetchGroup.ALL)) {
-			logger.debug("jdoPostDetach: Detaching this.embeddedClassMeta: attached={}", attached);
-			EmbeddedClassMeta embeddedClassMeta = attached.getEmbeddedClassMeta();
-			detached.setEmbeddedClassMeta(embeddedClassMeta == null ? null : pm.detachCopy(embeddedClassMeta));
-		}
-		else {
-			detached.embeddedClassMeta = null;
-			detached.embeddedClassMetaLoaded = false;
+			postDetachRunnableManager.exitScope();
 		}
 	}
 
