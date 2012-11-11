@@ -127,6 +127,9 @@ implements DetachCallback, StoreCallback
 	@NotPersistent
 	private EmbeddedClassMeta embeddedClassMeta;
 
+	@NotPersistent
+	private Set<EmbeddedClassMeta> embeddedClassMetasToBeDeleted;
+
 	/**
 	 * Internal constructor. This exists only for JDO and should not be used by application code!
 	 */
@@ -298,8 +301,32 @@ implements DetachCallback, StoreCallback
 	}
 
 	public void setEmbeddedClassMeta(EmbeddedClassMeta embeddedClassMeta) {
+		EmbeddedClassMeta embeddedClassMetaOld = this.embeddedClassMeta;
+		if (embeddedClassMetaOld != null) {
+			if (this.embeddedClassMetasToBeDeleted == null)
+				this.embeddedClassMetasToBeDeleted = new HashSet<EmbeddedClassMeta>();
+
+			this.embeddedClassMetasToBeDeleted.add(embeddedClassMetaOld);
+		}
+
 		this.embeddedClassMeta = embeddedClassMeta;
 		this.embeddedClassMetaLoaded = true;
+
+		if (this.embeddedClassMetasToBeDeleted != null)
+			this.embeddedClassMetasToBeDeleted.remove(embeddedClassMeta);
+	}
+
+	public int getDataNucleusAbsoluteFieldNumber(ExecutionContext executionContext) {
+		AbstractClassMetaData dnClassMetaData = getClassMeta().getDataNucleusClassMetaData(executionContext);
+		int dnFieldNumber = getDataNucleusAbsoluteFieldNumber();
+		if (dnFieldNumber < 0) {
+			dnFieldNumber = dnClassMetaData.getAbsolutePositionOfMember(getClassMeta().getClassName(), getFieldName());
+			if (dnFieldNumber < 0)
+				throw new IllegalStateException("The method dnClassMetaData.getAbsolutePositionOfMember(...) returned -1 for memberName='" + getFieldName() + "'!!!");
+
+			setDataNucleusAbsoluteFieldNumber(dnFieldNumber);
+		}
+		return dnFieldNumber;
 	}
 
 	/**
@@ -701,9 +728,7 @@ implements DetachCallback, StoreCallback
 
 		AbstractClassMetaData dnClassMetaData = getClassMeta().getDataNucleusClassMetaData(executionContext);
 
-		int dnFieldNumber = getDataNucleusAbsoluteFieldNumber();
-		if (dnFieldNumber < 0)
-			throw new IllegalStateException("The method getDataNucleusMemberMetaData(...) can only be called on FieldMeta instances that were obtained via Cumulus4jStoreManager#getClassMeta(org.datanucleus.store.ExecutionContext, Class)!!!");
+		int dnFieldNumber = getDataNucleusAbsoluteFieldNumber(executionContext);
 
 		AbstractMemberMetaData dnMemberMetaData = dnClassMetaData.getMetaDataForManagedMemberAtAbsolutePosition(dnFieldNumber);
 		if (dnMemberMetaData == null)
@@ -726,6 +751,14 @@ implements DetachCallback, StoreCallback
 				persistentRole2SubFieldMeta2.put(persistentSubFieldMeta.getRole(), persistentSubFieldMeta);
 			}
 			role2SubFieldMeta = persistentRole2SubFieldMeta2;
+		}
+
+		if (embeddedClassMetasToBeDeleted != null) {
+			PersistenceManager pm = JDOHelper.getPersistenceManager(this);
+			for (EmbeddedClassMeta embeddedClassMeta : embeddedClassMetasToBeDeleted) {
+				pm.deletePersistent(embeddedClassMeta);
+			}
+			pm.flush();
 		}
 	}
 }

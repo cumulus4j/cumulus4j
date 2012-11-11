@@ -108,8 +108,18 @@ public class EmbeddedFieldMeta extends FieldMeta {
 	}
 
 	@Override
+	public int getDataNucleusAbsoluteFieldNumber(ExecutionContext executionContext) {
+		return getNonEmbeddedFieldMeta().getDataNucleusAbsoluteFieldNumber(executionContext);
+	}
+
+	@Override
 	public int getDataNucleusAbsoluteFieldNumber() {
 		return getNonEmbeddedFieldMeta().getDataNucleusAbsoluteFieldNumber();
+	}
+
+	@Override
+	public void setDataNucleusAbsoluteFieldNumber(int dataNucleusAbsoluteFieldNumber) {
+		throw new UnsupportedOperationException("This delegate property cannot be set!");
 	}
 
 	@Override

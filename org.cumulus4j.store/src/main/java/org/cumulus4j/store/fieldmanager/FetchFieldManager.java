@@ -351,13 +351,13 @@ public class FetchFieldManager extends AbstractFieldManager
 						if (keyIsPersistent)
 							key = element;
 						else
-							key = elementOP.provideField(oppositeFieldMetaKey.getDataNucleusAbsoluteFieldNumber());
+							key = elementOP.provideField(oppositeFieldMetaKey.getDataNucleusAbsoluteFieldNumber(ec));
 
 						Object value;
 						if (valueIsPersistent)
 							value = element;
 						else
-							value = elementOP.provideField(oppositeFieldMetaValue.getDataNucleusAbsoluteFieldNumber());
+							value = elementOP.provideField(oppositeFieldMetaValue.getDataNucleusAbsoluteFieldNumber(ec));
 
 						map.put(key, value);
 					}

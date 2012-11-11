@@ -134,8 +134,18 @@ public abstract class PrimaryExpressionResolver
 			// join
 //			Class<?> nextTupleType = mmd.getType();
 			Class<?> nextTupleType = fieldMetaForNextTuple.getFieldOrElementType(executionContext);
-			ClassMeta classMetaForNextTupleType = queryEvaluator.getStoreManager().getClassMeta(executionContext, nextTupleType);
+			boolean isEmbedded = true;
+			ClassMeta classMetaForNextTupleType = fieldMetaForNextTuple.getEmbeddedClassMeta();
+			if (classMetaForNextTupleType == null) {
+				isEmbedded = false;
+				classMetaForNextTupleType = queryEvaluator.getStoreManager().getClassMeta(executionContext, nextTupleType);
+			}
+
 			Set<Long> dataEntryIDsForNextTuple = queryMiddle(classMetaForNextTupleType, tuples);
+
+			if (isEmbedded)
+				return dataEntryIDsForNextTuple;
+
 			Set<Long> result = new HashSet<Long>();
 			if (fieldMetaForNextTuple.getDataNucleusMemberMetaData(executionContext).getMappedBy() == null) {
 				for (Long dataEntryIDForNextTuple : dataEntryIDsForNextTuple) {

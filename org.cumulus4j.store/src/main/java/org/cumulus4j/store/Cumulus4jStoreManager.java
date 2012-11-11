@@ -439,9 +439,11 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 					ClassMeta fieldOrElementTypeClassMeta = fieldMeta.getFieldOrElementTypeClassMeta(ec);
 					if (fieldOrElementTypeClassMeta != null) {
 						fieldMeta.setEmbeddedClassMeta(new EmbeddedClassMeta(ec, fieldOrElementTypeClassMeta, fieldMeta));
-						updateEmbeddedFieldMetas(ec, fieldMeta);
 					}
 				}
+
+				if (fieldMeta.getEmbeddedClassMeta() != null)
+					updateEmbeddedFieldMetas(ec, fieldMeta);
 			}
 			else {
 				fieldMeta.setEmbeddedClassMeta(null);
