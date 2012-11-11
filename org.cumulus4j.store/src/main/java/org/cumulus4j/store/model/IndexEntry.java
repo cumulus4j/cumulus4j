@@ -241,7 +241,11 @@ implements StoreCallback
 	{
 		// See: DataEntry#jdoPreStore() - the same applies here to 'this.fieldMeta'.
 		PersistenceManager pm = JDOHelper.getPersistenceManager(this);
+
 		Object fieldMetaID = JDOHelper.getObjectId(fieldMeta);
 		fieldMeta = (FieldMeta) pm.getObjectById(fieldMetaID);
+
+		Object classMetaID = JDOHelper.getObjectId(classMeta);
+		classMeta = (ClassMeta) pm.getObjectById(classMetaID);
 	}
 }
