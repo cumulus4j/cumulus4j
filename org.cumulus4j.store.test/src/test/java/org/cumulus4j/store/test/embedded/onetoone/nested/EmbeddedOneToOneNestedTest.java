@@ -3,6 +3,8 @@ package org.cumulus4j.store.test.embedded.onetoone.nested;
 import java.util.Collection;
 import java.util.Iterator;
 
+import javax.jdo.Query;
+
 import junit.framework.Assert;
 
 import org.cumulus4j.store.test.framework.AbstractJDOTransactionalTestClearingDatabase;
@@ -39,19 +41,19 @@ public class EmbeddedOneToOneNestedTest extends AbstractJDOTransactionalTestClea
 		commitAndBeginNewTransaction();
 		// END populate meta-data in separate tx for debugging reasons
 
-		EmbeddedContainer container = new EmbeddedContainer();
-		container.setName("container");
-
-		EmbeddedA embeddedA = createEmbeddedA("");
-		container.setEmbeddedA(embeddedA);
-
-		EmbeddedA againEmbeddedA = createEmbeddedA("again_");
-		container.setAgainEmbeddedA(againEmbeddedA);
-
-		EmbeddedB embeddedB = new EmbeddedB();
-		container.setEmbeddedB(embeddedB);
-		embeddedB.setName("embeddedB");
-
+//		EmbeddedContainer container = new EmbeddedContainer();
+//		container.setName("container");
+//
+//		EmbeddedA embeddedA = createEmbeddedA("");
+//		container.setEmbeddedA(embeddedA);
+//
+//		EmbeddedA againEmbeddedA = createEmbeddedA("again_");
+//		container.setAgainEmbeddedA(againEmbeddedA);
+//
+//		EmbeddedB embeddedB = new EmbeddedB();
+//		container.setEmbeddedB(embeddedB);
+//		embeddedB.setName("embeddedB");
+		EmbeddedContainer container = createEmbeddedContainer("");
 		pm.makePersistent(container);
 
 		commitAndBeginNewTransaction();
@@ -73,6 +75,10 @@ public class EmbeddedOneToOneNestedTest extends AbstractJDOTransactionalTestClea
 		Assert.assertTrue("non-embedded EmbeddedA1 found in database!", ((Collection<?>)pm.newQuery(EmbeddedA1.class).execute()).isEmpty());
 		Assert.assertTrue("non-embedded EmbeddedB found in database!", ((Collection<?>)pm.newQuery(EmbeddedB.class).execute()).isEmpty());
 
+		assertEmbeddedContainerCorrect("", embeddedContainer);
+	}
+
+	private void assertEmbeddedContainerCorrect(String namePrefix, EmbeddedContainer embeddedContainer) {
 		Assert.assertNotNull(embeddedContainer.getEmbeddedA());
 		Assert.assertNotNull(embeddedContainer.getEmbeddedB());
 		Assert.assertNotNull(embeddedContainer.getAgainEmbeddedA());
@@ -81,16 +87,33 @@ public class EmbeddedOneToOneNestedTest extends AbstractJDOTransactionalTestClea
 		Assert.assertNotNull(embeddedContainer.getAgainEmbeddedA().getEmbeddedA0());
 		Assert.assertNotNull(embeddedContainer.getAgainEmbeddedA().getEmbeddedA1());
 
-		Assert.assertEquals("container", embeddedContainer.getName());
-		Assert.assertEquals("embeddedA", embeddedContainer.getEmbeddedA().getName());
-		Assert.assertEquals("embeddedA0", embeddedContainer.getEmbeddedA().getEmbeddedA0().getName());
-		Assert.assertEquals("embeddedA1", embeddedContainer.getEmbeddedA().getEmbeddedA1().getName());
+		Assert.assertEquals(namePrefix + "container", embeddedContainer.getName());
+		Assert.assertEquals(namePrefix + "embeddedA", embeddedContainer.getEmbeddedA().getName());
+		Assert.assertEquals(namePrefix + "embeddedA0", embeddedContainer.getEmbeddedA().getEmbeddedA0().getName());
+		Assert.assertEquals(namePrefix + "embeddedA1", embeddedContainer.getEmbeddedA().getEmbeddedA1().getName());
 
-		Assert.assertEquals("embeddedB", embeddedContainer.getEmbeddedB().getName());
+		Assert.assertEquals(namePrefix + "embeddedB", embeddedContainer.getEmbeddedB().getName());
 
-		Assert.assertEquals("again_embeddedA", embeddedContainer.getAgainEmbeddedA().getName());
-		Assert.assertEquals("again_embeddedA0", embeddedContainer.getAgainEmbeddedA().getEmbeddedA0().getName());
-		Assert.assertEquals("again_embeddedA1", embeddedContainer.getAgainEmbeddedA().getEmbeddedA1().getName());
+		Assert.assertEquals(namePrefix + "again_embeddedA", embeddedContainer.getAgainEmbeddedA().getName());
+		Assert.assertEquals(namePrefix + "again_embeddedA0", embeddedContainer.getAgainEmbeddedA().getEmbeddedA0().getName());
+		Assert.assertEquals(namePrefix + "again_embeddedA1", embeddedContainer.getAgainEmbeddedA().getEmbeddedA1().getName());
+	}
+
+	private EmbeddedContainer createEmbeddedContainer(String namePrefix) {
+		EmbeddedContainer container = new EmbeddedContainer();
+		container.setName(namePrefix + "container");
+
+		EmbeddedA embeddedA = createEmbeddedA(namePrefix);
+		container.setEmbeddedA(embeddedA);
+
+		EmbeddedA againEmbeddedA = createEmbeddedA(namePrefix + "again_");
+		container.setAgainEmbeddedA(againEmbeddedA);
+
+		EmbeddedB embeddedB = new EmbeddedB();
+		container.setEmbeddedB(embeddedB);
+		embeddedB.setName(namePrefix + "embeddedB");
+
+		return container;
 	}
 
 	private EmbeddedA createEmbeddedA(String namePrefix) {
@@ -105,5 +128,71 @@ public class EmbeddedOneToOneNestedTest extends AbstractJDOTransactionalTestClea
 		embeddedA.setEmbeddedA1(embeddedA1);
 		embeddedA1.setName(namePrefix + "embeddedA1");
 		return embeddedA;
+	}
+
+	@Test
+	public void query1stLevel() {
+		pm.makePersistent(createEmbeddedContainer("1."));
+		pm.makePersistent(createEmbeddedContainer("2."));
+		pm.makePersistent(createEmbeddedContainer("3."));
+		pm.makePersistent(createEmbeddedContainer("1001."));
+		pm.makePersistent(createEmbeddedContainer("1002."));
+
+		{
+			Query q = pm.newQuery(EmbeddedContainer.class);
+			q.setFilter("this.embeddedA.name == :embeddedAName");
+
+			@SuppressWarnings("unchecked")
+			Collection<EmbeddedContainer> c = (Collection<EmbeddedContainer>) q.execute("2.embeddedA");
+			Assert.assertEquals(1, c.size());
+			EmbeddedContainer embeddedContainer = c.iterator().next();
+			assertEmbeddedContainerCorrect("2.", embeddedContainer);
+		}
+
+		{
+			Query q = pm.newQuery(EmbeddedContainer.class);
+			q.setFilter("this.embeddedA.name.indexOf(:embeddedAName) >= 0");
+			q.setOrdering("this.name descending");
+
+			@SuppressWarnings("unchecked")
+			Collection<EmbeddedContainer> c = (Collection<EmbeddedContainer>) q.execute("100");
+			Assert.assertEquals(2, c.size());
+			Iterator<EmbeddedContainer> it = c.iterator();
+			assertEmbeddedContainerCorrect("1002.", it.next());
+			assertEmbeddedContainerCorrect("1001.", it.next());
+		}
+	}
+
+	@Test
+	public void query2ndLevel() {
+		pm.makePersistent(createEmbeddedContainer("1."));
+		pm.makePersistent(createEmbeddedContainer("2."));
+		pm.makePersistent(createEmbeddedContainer("3."));
+		pm.makePersistent(createEmbeddedContainer("1001."));
+		pm.makePersistent(createEmbeddedContainer("1002."));
+
+		{
+			Query q = pm.newQuery(EmbeddedContainer.class);
+			q.setFilter("this.embeddedA.embeddedA0.name == :embeddedAName");
+
+			@SuppressWarnings("unchecked")
+			Collection<EmbeddedContainer> c = (Collection<EmbeddedContainer>) q.execute("2.embeddedA0");
+			Assert.assertEquals(1, c.size());
+			EmbeddedContainer embeddedContainer = c.iterator().next();
+			assertEmbeddedContainerCorrect("2.", embeddedContainer);
+		}
+
+		{
+			Query q = pm.newQuery(EmbeddedContainer.class);
+			q.setFilter("this.embeddedA.embeddedA0.name.indexOf(:embeddedAName) >= 0");
+			q.setOrdering("this.name descending");
+
+			@SuppressWarnings("unchecked")
+			Collection<EmbeddedContainer> c = (Collection<EmbeddedContainer>) q.execute("100");
+			Assert.assertEquals(2, c.size());
+			Iterator<EmbeddedContainer> it = c.iterator();
+			assertEmbeddedContainerCorrect("1002.", it.next());
+			assertEmbeddedContainerCorrect("1001.", it.next());
+		}
 	}
 }
