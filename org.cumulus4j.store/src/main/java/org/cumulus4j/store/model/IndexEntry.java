@@ -239,7 +239,7 @@ implements StoreCallback
 	@Override
 	public void jdoPreStore()
 	{
-		// See: DataEntry#jdoPreStore() - the same applies here to 'this.fieldMeta'.
+		// See: DataEntry#jdoPreStore() - the same applies here to 'this.fieldMeta' and 'this.classMeta'.
 		PersistenceManager pm = JDOHelper.getPersistenceManager(this);
 
 		Object fieldMetaID = JDOHelper.getObjectId(fieldMeta);
