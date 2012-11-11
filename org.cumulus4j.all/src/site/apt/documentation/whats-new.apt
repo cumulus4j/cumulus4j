@@ -13,6 +13,11 @@ What's new?
 
 	Compared to version 1.0.2, there are the following changes:
 
+	* Data store incompatibility: When upgrading an existing datastore, you have to manually drop all
+	unique indexes in the underlying database. They will then be automatically recreated (they only
+	cannot be automatically changed). Furthermore, you should be aware that Cumulus4j will need to
+	recreate its indexes.
+
 	* New feature: Support multitenancy within one single underlying database. It was already possible to use a
 	Cumulus4j-based application in a multi-tenants-scenario by assigning a separate database to each tenant. 
 	But there are use-cases where this is not possible (e.g. in the GAE, there is only one single database per
@@ -21,6 +26,14 @@ What's new?
 
 	* New feature: Introduced version management for datastore upgrades (needed first time to transform the
 	old datastore structure into version 1.1.0).
+
+	* New feature: Full support (write, read, query) of embedded objects in 1-1-relations. Embedded 1-n-relations
+	are not supported, yet.
+
+	* Bugfix: If there is a common super-class having two direct sub-classes (siblings to each other)
+	and a query is performed on one of the sub-classes and that query filters by fields of the super-class,
+	then objects of the other sub-class were found, too. Now only instances of the correct sub-class
+	(including its sub-classes, if there are) are found.
 
 	[]
 
