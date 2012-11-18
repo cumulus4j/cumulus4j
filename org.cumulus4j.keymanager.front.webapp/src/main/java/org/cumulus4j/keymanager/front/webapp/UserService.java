@@ -180,13 +180,13 @@ public class UserService extends AbstractService
 			try {
 				keyStore.createUser(
 						auth.getUserName(), auth.getPassword(),
-						userWithPassword.getUserName(), userWithPassword.getPassword()
+						userWithPassword.getUserName(), userWithPassword.getPassword() == null ? null : userWithPassword.getPassword().toCharArray()
 				);
 			} catch (UserAlreadyExistsException e) {
 				try {
 					keyStore.changeUserPassword(
 							auth.getUserName(), auth.getPassword(),
-							userWithPassword.getUserName(), userWithPassword.getPassword()
+							userWithPassword.getUserName(), userWithPassword.getPassword() == null ? null : userWithPassword.getPassword().toCharArray()
 					);
 				} catch (UserNotFoundException e1) {
 					logger.error("Why does it not exist? Has the user just been deleted?!", e1);
@@ -204,7 +204,7 @@ public class UserService extends AbstractService
 			auth.clear();
 
 			if (userWithPassword.getPassword() != null)
-				Arrays.fill(userWithPassword.getPassword(), (char)0);
+				Arrays.fill(userWithPassword.getPassword() == null ? null : userWithPassword.getPassword().toCharArray(), (char)0);
 		}
 	}
 
