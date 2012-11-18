@@ -28,21 +28,27 @@ public class UserWithPassword extends User
 {
 	private static final long serialVersionUID = 1L;
 
-	private char[] password;
+	private String password;
 
 	/**
 	 * Get the password.
+	 * 
+	 * Note: we do not use directly a char array for storing the password (we use a String) 
+	 * because it is not possible to pass a char array via JSON.
 	 * @return the password.
 	 */
-	public char[] getPassword() {
-		return password;
+	public String getPassword() {
+		return password;		
 	}
 
 	/**
 	 * Set the password.
+	 * 
+	 * Note: we do not use directly a char array for storing the password (we use a String) 
+	 * because it is not possible to pass a char array via JSON.
 	 * @param password the password.
 	 */
-	public void setPassword(char[] password) {
+	public void setPassword(String password) {
 		this.password = password;
 	}
 }
