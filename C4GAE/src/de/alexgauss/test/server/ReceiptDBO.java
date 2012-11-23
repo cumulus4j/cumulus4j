@@ -34,18 +34,17 @@ public abstract class ReceiptDBO {
     private String receipt_id;
 
     @Persistent(serialized = "true")
-    private BusinessPartner receipt_sender;
-    
+    private BusinessPartner receipt_sender = null;
 
     @Persistent
     @Embedded(nullIndicatorColumn = "businessPartner_id")
-    private BusinessPartnerDBO receipt_acceptor;
+    private BusinessPartnerDBO receipt_acceptor = null;
 
     @Persistent
-    private String pdfFileID;
+    private String pdfFileID = null;
 
     @Persistent
-    private Date issueDate;
+    private Date issueDate = null;
 
     public String getCompany_id() {
         return company_id;

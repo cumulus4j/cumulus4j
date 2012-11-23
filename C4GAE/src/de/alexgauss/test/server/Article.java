@@ -15,21 +15,21 @@ public class Article implements Serializable, Comparable<Article> {
      */
     private static final long serialVersionUID = -7299915499041177889L;
 
-    private String article_id;
+    private String article_id = "";
 
-    private String name;
+    private String name = "";
 
-    private String description;
+    private String description = "";
 
-    private Price pricePreTax;
+    private Price pricePreTax = new Price();
 
-    private String unitId;
+    private String unitId = "";
 
-    private String unitText;
+    private String unitText = "";
 
     private String taxCodeId;
 
-    private Integer version;
+    private Integer version = 0;
 
     // Konstruktor
     public Article() {

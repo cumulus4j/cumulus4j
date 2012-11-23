@@ -16,21 +16,18 @@ import javax.jdo.annotations.PrimaryKey;
 public class OfferDBO extends ReceiptDBO {
 
     @Persistent(serialized = "true")
-    private ReceiptItemList offerItems;
+    private ReceiptItemList offerItems = null;
 
-
-  /*  @Embedded(members = {@Persistent(name = "price", columns = @Column(name = "pricePreTax")),
-            @Persistent(name = "currency", columns = @Column(name = "pricePreTaxCurrency")) })*/
     @Persistent
-    @Embedded
-    private PriceDBO pricePreTax;
+    @Embedded(members = {@Persistent(name = "price", columns = @Column(name = "pricePreTax")),
+            @Persistent(name = "currency", columns = @Column(name = "pricePreTaxCurrency")) })
+    private PriceDBO pricePreTax = null;
 
 
-   /* @Embedded(members = {@Persistent(name = "price", columns = @Column(name = "priceAfterTax")),
-            @Persistent(name = "currency", columns = @Column(name = "priceAfterTaxCurrency")) }) */
     @Persistent
-    @Embedded
-    private PriceDBO priceAfterTax;
+	@Embedded(members = {@Persistent(name = "price", columns = @Column(name = "priceAfterTax")),
+            @Persistent(name = "currency", columns = @Column(name = "priceAfterTaxCurrency")) })
+    private PriceDBO priceAfterTax = null;
 
     @Persistent
     private String signatureGreeting;

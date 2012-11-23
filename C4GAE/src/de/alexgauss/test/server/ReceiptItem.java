@@ -11,15 +11,15 @@ import java.math.BigDecimal;
 public class ReceiptItem implements Serializable {
     private static final long serialVersionUID = -3660074050300790029L;
 
-    private Article article;
+    private Article article = null;
 
     /**
      * Member field to preserve historical data
      * Information is combined with article.taxCodeId.
      */
-    private TaxCode taxCode;
+    private TaxCode taxCode = null;
 
-    private BigDecimal amount;
+    private BigDecimal amount = null;
    
 
     public Article getArticle() {

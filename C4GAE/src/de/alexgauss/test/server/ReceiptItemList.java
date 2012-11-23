@@ -6,7 +6,6 @@
 package de.alexgauss.test.server;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -17,7 +16,7 @@ public class ReceiptItemList implements Serializable {
 
     private static final long serialVersionUID = 3429460057260319234L;
 
-    private List<ReceiptItem> receiptItems;
+    private List<ReceiptItem> receiptItems = new ArrayList<ReceiptItem>();
 
     /**
      * Returns a list of tax codes which are used inside this bill. Each tax

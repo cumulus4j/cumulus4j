@@ -14,7 +14,7 @@ import javax.jdo.annotations.Persistent;
 public class PriceDBO {
 	
     @Persistent
-    private String currency;
+    private String currency = "";
 
     @Persistent
     private BigDecimal price;

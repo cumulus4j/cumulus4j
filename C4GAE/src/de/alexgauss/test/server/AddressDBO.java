@@ -12,80 +12,80 @@ import javax.jdo.annotations.Persistent;
 public class AddressDBO {
 	
     @Persistent
-    private String company;
+    private String company = "";
 
     @Persistent
-    private String additionalInformation;
+    private String additionalInformation = "";
 
     @Persistent
-    private String salutationId;
+    private String salutationId = "";
 
     @Persistent
-    private String salutationText;
+    private String salutationText = "";
 
     @Persistent
-    private String firstName;
+    private String firstName = "";
 
     @Persistent
-    private String lastName;
+    private String lastName = "";
 
     @Persistent
-    private String street;
+    private String street = "";
 
     @Persistent
-    private String houseNumber; // e.g. 15b
+    private String houseNumber = ""; // e.g. 15b
 
     @Persistent
-    private String postalCode;
+    private String postalCode = "";
 
     @Persistent
-    private String city;
+    private String city = "";
 
     @Persistent
-    private String country;
+    private String country = "";
 
     // The following variables are lower-case versions of the upper ones.
     // They are used only inside queries and therefore possess neither getter
     // nor setter
     @SuppressWarnings("unused")
     @Persistent
-    private String lc_company;
+    private String lc_company = "";
 
     @SuppressWarnings("unused")
     @Persistent
-    private String lc_additionalInformation;
+    private String lc_additionalInformation = "";
 
     @SuppressWarnings("unused")
     @Persistent
-    private String lc_salutation;
+    private String lc_salutation = "";
 
     @SuppressWarnings("unused")
     @Persistent
-    private String lc_firstName;
+    private String lc_firstName = "";
 
     @SuppressWarnings("unused")
     @Persistent
-    private String lc_lastName;
+    private String lc_lastName = "";
 
     @SuppressWarnings("unused")
     @Persistent
-    private String lc_street;
+    private String lc_street = "";
 
     @SuppressWarnings("unused")
     @Persistent
-    private String lc_houseNumber;
+    private String lc_houseNumber = "";
 
     @SuppressWarnings("unused")
     @Persistent
-    private String lc_postalCode;
+    private String lc_postalCode = "";
 
     @SuppressWarnings("unused")
     @Persistent
-    private String lc_city;
+    private String lc_city = "";
 
     @SuppressWarnings("unused")
     @Persistent
-    private String lc_country;
+    private String lc_country = "";
 
     public String getCompany() {
         return company;

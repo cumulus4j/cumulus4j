@@ -12,19 +12,19 @@ import javax.jdo.annotations.Persistent;
 public class BankAccountDBO {
 	
     @Persistent
-    private String bankName;
+    private String bankName = "";
 
     @Persistent
-    private String bankCode;
+    private String bankCode = "";
 
     @Persistent
-    private String accountNumber;
+    private String accountNumber = "";
 
     @Persistent
-    private String iban;
+    private String iban = "";
 
     @Persistent
-    private String bic;
+    private String bic = "";
 
     public String getBankName() {
         return bankName;
