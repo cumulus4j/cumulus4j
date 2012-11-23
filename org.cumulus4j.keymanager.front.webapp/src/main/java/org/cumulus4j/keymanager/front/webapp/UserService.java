@@ -86,8 +86,10 @@ public class UserService extends AbstractService
 			else
 				return null;
 		} catch (AuthenticationException e) {
+			logger.debug("getUser: " + e, e); // debug, because not an internal error
 			throw new WebApplicationException(Response.status(Status.FORBIDDEN).entity(new Error(e)).build());
 		} catch (IOException e) {
+			logger.error("getUser: " + e, e);
 			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(e)).build());
 		} finally {
 			auth.clear();
@@ -113,8 +115,10 @@ public class UserService extends AbstractService
 				userList.getUsers().add(new User(userName));
 			}
 		} catch (AuthenticationException e) {
+			logger.debug("getUsers: " + e, e); // debug, because not an internal error
 			throw new WebApplicationException(Response.status(Status.FORBIDDEN).entity(new Error(e)).build());
 		} catch (IOException e) {
+			logger.error("getUsers: " + e, e);
 			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(e)).build());
 		} finally {
 			auth.clear();
@@ -176,13 +180,13 @@ public class UserService extends AbstractService
 			try {
 				keyStore.createUser(
 						auth.getUserName(), auth.getPassword(),
-						userWithPassword.getUserName(), userWithPassword.getPassword()
+						userWithPassword.getUserName(), userWithPassword.getPassword() == null ? null : userWithPassword.getPassword().toCharArray()
 				);
 			} catch (UserAlreadyExistsException e) {
 				try {
 					keyStore.changeUserPassword(
 							auth.getUserName(), auth.getPassword(),
-							userWithPassword.getUserName(), userWithPassword.getPassword()
+							userWithPassword.getUserName(), userWithPassword.getPassword() == null ? null : userWithPassword.getPassword().toCharArray()
 					);
 				} catch (UserNotFoundException e1) {
 					logger.error("Why does it not exist? Has the user just been deleted?!", e1);
@@ -190,15 +194,17 @@ public class UserService extends AbstractService
 				}
 			}
 		} catch (AuthenticationException e) {
+			logger.debug("putUser: " + e, e); // debug, because not an internal error
 			throw new WebApplicationException(Response.status(Status.FORBIDDEN).entity(new Error(e)).build());
 		} catch (IOException e) {
+			logger.error("putUser: " + e, e);
 			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(e)).build());
 		} finally {
 			// extra safety => overwrite passwords
 			auth.clear();
 
 			if (userWithPassword.getPassword() != null)
-				Arrays.fill(userWithPassword.getPassword(), (char)0);
+				Arrays.fill(userWithPassword.getPassword() == null ? null : userWithPassword.getPassword().toCharArray(), (char)0);
 		}
 	}
 
@@ -219,13 +225,16 @@ public class UserService extends AbstractService
 			KeyStore keyStore = keyStoreManager.getKeyStore(keyStoreID);
 			keyStore.deleteUser(auth.getUserName(), auth.getPassword(), userName);
 		} catch (AuthenticationException e) {
+			logger.debug("deleteUser: " + e, e); // debug, because not an internal error
 			throw new WebApplicationException(Response.status(Status.FORBIDDEN).entity(new Error(e)).build());
 		} catch (UserNotFoundException e) {
 			// ignore in order to be idempotent - only warn
 			logger.warn("deleteUser: " + e);
 		} catch (CannotDeleteLastUserException e) {
+			logger.debug("deleteUser: " + e, e); // debug, because not an internal error
 			throw new WebApplicationException(Response.status(Status.FORBIDDEN).entity(new Error(e)).build());
 		} catch (IOException e) {
+			logger.error("deleteUser: " + e, e);
 			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(new Error(e)).build());
 		} finally {
 			// extra safety => overwrite password
