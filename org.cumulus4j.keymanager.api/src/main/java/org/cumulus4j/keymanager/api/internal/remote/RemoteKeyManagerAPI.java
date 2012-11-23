@@ -122,7 +122,7 @@ public class RemoteKeyManagerAPI extends AbstractKeyManagerAPI
 		try {
 			UserWithPassword userWithPassword = new UserWithPassword();
 			userWithPassword.setUserName(userName);
-			userWithPassword.setPassword(password);
+			userWithPassword.setPassword(password.toString());
 
 			getClient().resource(appendFinalSlash(getKeyManagerBaseURL()) + "User/" + getKeyStoreID())
 			.type(MediaType.APPLICATION_XML_TYPE)
