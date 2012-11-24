@@ -30,11 +30,11 @@
             </query>
 		</class>
 
-
+<!--
 		<class name="EncryptionCoordinateSet" detachable="true">
 			<field name="encryptionCoordinateSetID" value-strategy="identity" />
 		</class>
-
+-->
 
 		<class name="FieldMeta" detachable="true">
 			<field name="fieldID" primary-key="false" persistence-modifier="persistent">
