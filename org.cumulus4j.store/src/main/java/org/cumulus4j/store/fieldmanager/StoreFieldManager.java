@@ -30,6 +30,7 @@ import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.EmbeddedClassMeta;
 import org.cumulus4j.store.model.EmbeddedObjectContainer;
 import org.cumulus4j.store.model.FieldMeta;
+import org.cumulus4j.store.model.FieldMetaRole;
 import org.cumulus4j.store.model.ObjectContainer;
 import org.datanucleus.exceptions.NucleusDataStoreException;
 import org.datanucleus.metadata.AbstractClassMetaData;
@@ -150,7 +151,7 @@ public class StoreFieldManager extends AbstractFieldManager
 
 	@Override
 	public void storeObjectField(int fieldNumber, Object value)
-	{ // TODO refactor this *too* *long* method! split into multiple! Marco :-)
+	{
 		if (logger.isTraceEnabled()) {
 			logger.trace(
 					"storeObjectField: classMeta.className={} fieldNumber={} value={}",
@@ -177,151 +178,227 @@ public class StoreFieldManager extends AbstractFieldManager
 			value = op.wrapSCOField(fieldNumber, value, false, true, true);
 
 		if (relationType == Relation.NONE)
-		{
-			if (mmd.hasCollection()) {
-				// Replace the special DN collection by a simple array.
-				Collection<?> collection = (Collection<?>)value;
-				Object[] values = collection.toArray(new Object[collection.size()]);
-				objectContainer.setValue(fieldMeta.getFieldID(), values);
-			}
-			else if (mmd.hasMap()) {
-				// replace the special DN Map by a simple HashMap.
-				Map<?,?> valueMap = (Map<?, ?>) value;
-
-				Map<Object, Object> map;
-				@SuppressWarnings("unchecked")
-				Class<? extends Map<Object, Object>> instanceType = SCOUtils.getContainerInstanceType(mmd.getType(), mmd.getOrderMetaData() != null);
-				try {
-					map = instanceType.newInstance();
-				} catch (InstantiationException e) {
-					throw new NucleusDataStoreException(e.getMessage(), e);
-				} catch (IllegalAccessException e) {
-					throw new NucleusDataStoreException(e.getMessage(), e);
-				}
-
-				map.putAll(valueMap);
-
-				objectContainer.setValue(fieldMeta.getFieldID(), map);
-			}
-			else // arrays are not managed (no special DN instances) and thus stored 'as is'...
-				objectContainer.setValue(fieldMeta.getFieldID(), value);
-		}
+			storeObjectFieldWithRelationTypeNone(fieldNumber, value, mmd, fieldMeta);
 		else if (Relation.isRelationSingleValued(relationType))
-		{
-			// Persistable object - persist the related object and store the identity in the cell
-			int objectType = ObjectProvider.PC;
-			if (mmd.isEmbedded())
-				objectType = ObjectProvider.EMBEDDED_PC;
-
-			Object valuePC = ec.persistObjectInternal(value, op, fieldNumber, objectType);
-			ec.flushInternal(true);
-
-			if (mmd.isEmbedded()) {
-				if (valuePC != null) {
-					ObjectProvider embeddedOP = ec.findObjectProvider(valuePC);
-//					EmbeddedObjectContainer embeddedObjectContainer = (EmbeddedObjectContainer) embeddedOP.getAssociatedValue(EmbeddedObjectContainer.ASSOCIATED_VALUE);
-//					if (embeddedObjectContainer == null) { // We must do this ALWAYS, because otherwise changes are ignored :-(
-						// embedded ONLY => not yet persisted
-						// Maybe we could omit the ec.persistObjectInternal(...) completely for embedded objects to prevent double handling,
-						// but I guess, we'd have to add other code, then, doing things that are also done by ec.persistObjectInternal(...)
-						// besides the actual persisting (which is skipped for embedded-ONLY PCs [but done for embedded PCs that are not
-						// @EmbeddedOnly]) - e.g. create & assign an ObjectProvider if none is assigned, yet. Marco :-)
-
-//						ClassMeta embeddedClassMeta = ((Cumulus4jStoreManager)ec.getStoreManager()).getClassMeta(ec, valuePC.getClass());
-						EmbeddedClassMeta embeddedClassMeta = fieldMeta.getEmbeddedClassMeta();
-						AbstractClassMetaData embeddedDNClassMetaData = embeddedOP.getClassMetaData();
-						EmbeddedObjectContainer embeddedObjectContainer = new EmbeddedObjectContainer(embeddedClassMeta.getClassID());
-						embeddedOP.provideFields(
-								embeddedDNClassMetaData.getAllMemberPositions(),
-								new StoreFieldManager(embeddedOP, cryptoContext, pmData, embeddedClassMeta, embeddedDNClassMetaData, cryptoContext.getKeyStoreRefID(), embeddedObjectContainer));
-						embeddedObjectContainer.setVersion(embeddedOP.getTransactionalVersion());
-//					}
-
-					objectContainer.setValue(fieldMeta.getFieldID(), embeddedObjectContainer);
-				}
-			}
-			else {
-				if (mmd.getMappedBy() == null) {
-					Object valueID = ObjectContainerHelper.entityToReference(cryptoContext, pmData, valuePC);
-					objectContainer.setValue(fieldMeta.getFieldID(), valueID);
-				}
-			}
-		}
+			storeObjectFieldWithRelationTypeSingleValue(fieldNumber, value, mmd, fieldMeta);
 		else if (Relation.isRelationMultiValued(relationType))
 		{
 			// Collection/Map/Array
 			if (mmd.hasCollection())
-			{
-				Collection<?> collection = (Collection<?>)value;
-				Object[] ids = mmd.getMappedBy() != null ? null : new Object[collection.size()];
-				int idx = -1;
-				for (Object element : collection) {
-					Object elementPC = ec.persistObjectInternal(element, op, fieldNumber, -1);
-					ec.flushInternal(true);
-
-					if (ids != null) {
-						Object elementID = ObjectContainerHelper.entityToReference(cryptoContext, pmData, elementPC);
-						ids[++idx] = elementID;
-					}
-				}
-
-				if (ids != null)
-					objectContainer.setValue(fieldMeta.getFieldID(), ids);
-			}
+				storeObjectFieldWithRelationTypeCollection(fieldNumber, value, mmd, fieldMeta);
 			else if (mmd.hasMap())
-			{
-				boolean keyIsPersistent = mmd.getMap().keyIsPersistent();
-				boolean valueIsPersistent = mmd.getMap().valueIsPersistent();
-
-				Map<?,?> valueMap = (Map<?, ?>) value;
-				Map<Object,Object> idMap = mmd.getMappedBy() != null ? null : new HashMap<Object, Object>(valueMap.size());
-				for (Map.Entry<?, ?> me : valueMap.entrySet()) {
-					Object k = me.getKey();
-					Object v = me.getValue();
-
-					if (keyIsPersistent) {
-						Object kpc = ec.persistObjectInternal(k, op, fieldNumber, -1);
-						ec.flushInternal(true);
-
-						if (idMap != null)
-							k = ObjectContainerHelper.entityToReference(cryptoContext, pmData, kpc);
-					}
-
-					if (valueIsPersistent) {
-						Object vpc = ec.persistObjectInternal(v, op, fieldNumber, -1);
-						ec.flushInternal(true);
-
-						if (idMap != null)
-							v = ObjectContainerHelper.entityToReference(cryptoContext, pmData, vpc);
-					}
-
-					if (idMap != null)
-						idMap.put(k, v);
-				}
-
-				if (idMap != null)
-					objectContainer.setValue(fieldMeta.getFieldID(), idMap);
-			}
+				storeObjectFieldWithRelationTypeMap(fieldNumber, value, mmd, fieldMeta);
 			else if (mmd.hasArray())
-			{
-				if (mmd.getMappedBy() != null)
-					throw new UnsupportedOperationException("NYI");
-
-				Object[] ids = new Object[Array.getLength(value)];
-				for (int i=0;i<Array.getLength(value);i++)
-				{
-					Object element = Array.get(value, i);
-					Object elementPC = ec.persistObjectInternal(element, op, fieldNumber, -1);
-					ec.flushInternal(true);
-
-					Object elementID = ObjectContainerHelper.entityToReference(cryptoContext, pmData, elementPC);
-					ids[i] = elementID;
-				}
-				objectContainer.setValue(fieldMeta.getFieldID(), ids);
-			}
+				storeObjectFieldWithRelationTypeArray(fieldNumber, value, mmd, fieldMeta);
+			else
+				throw new IllegalStateException("Unexpected 1-n-sub-type for relationType: " + relationType);
 		}
 		else
 			throw new IllegalStateException("Unexpected relationType: " + relationType);
+	}
+
+	/**
+	 * Store related objects that are not persistence-capable.
+	 * The related objects might be single-valued, arrays, collections or maps.
+	 */
+	protected void storeObjectFieldWithRelationTypeNone(int fieldNumber, Object value, AbstractMemberMetaData mmd, FieldMeta fieldMeta) {
+		if (mmd.hasCollection()) {
+			// Replace the special DN collection by a simple array.
+			Collection<?> collection = (Collection<?>)value;
+			Object[] values = collection.toArray(new Object[collection.size()]);
+			objectContainer.setValue(fieldMeta.getFieldID(), values);
+		}
+		else if (mmd.hasMap()) {
+			// replace the special DN Map by a simple HashMap.
+			Map<?,?> valueMap = (Map<?, ?>) value;
+
+			Map<Object, Object> map;
+			@SuppressWarnings("unchecked")
+			Class<? extends Map<Object, Object>> instanceType = SCOUtils.getContainerInstanceType(mmd.getType(), mmd.getOrderMetaData() != null);
+			try {
+				map = instanceType.newInstance();
+			} catch (InstantiationException e) {
+				throw new NucleusDataStoreException(e.getMessage(), e);
+			} catch (IllegalAccessException e) {
+				throw new NucleusDataStoreException(e.getMessage(), e);
+			}
+
+			map.putAll(valueMap);
+
+			objectContainer.setValue(fieldMeta.getFieldID(), map);
+		}
+		else // arrays are not managed (no special DN instances) and thus stored 'as is'...
+			objectContainer.setValue(fieldMeta.getFieldID(), value);
+	}
+
+	protected EmbeddedObjectContainer createEmbeddedObjectContainerFromPC(FieldMeta fieldMeta, Object pc, EmbeddedClassMeta embeddedClassMeta) {
+		if (pc == null)
+			return null;
+
+		ObjectProvider embeddedOP = ec.findObjectProvider(pc);
+//		EmbeddedObjectContainer embeddedObjectContainer = (EmbeddedObjectContainer) embeddedOP.getAssociatedValue(EmbeddedObjectContainer.ASSOCIATED_VALUE);
+//		if (embeddedObjectContainer == null) { // We must do this ALWAYS, because otherwise changes are ignored :-(
+			// embedded ONLY => not yet persisted
+			// Maybe we could omit the ec.persistObjectInternal(...) completely for embedded objects to prevent double handling,
+			// but I guess, we'd have to add other code, then, doing things that are also done by ec.persistObjectInternal(...)
+			// besides the actual persisting (which is skipped for embedded-ONLY PCs [but done for embedded PCs that are not
+			// @EmbeddedOnly]) - e.g. create & assign an ObjectProvider if none is assigned, yet. Marco :-)
+
+//			ClassMeta embeddedClassMeta = ((Cumulus4jStoreManager)ec.getStoreManager()).getClassMeta(ec, valuePC.getClass());
+			AbstractClassMetaData embeddedDNClassMetaData = embeddedOP.getClassMetaData();
+			EmbeddedObjectContainer embeddedObjectContainer = new EmbeddedObjectContainer(embeddedClassMeta.getClassID());
+			embeddedOP.provideFields(
+					embeddedDNClassMetaData.getAllMemberPositions(),
+					new StoreFieldManager(embeddedOP, cryptoContext, pmData, embeddedClassMeta, embeddedDNClassMetaData, cryptoContext.getKeyStoreRefID(), embeddedObjectContainer));
+			embeddedObjectContainer.setVersion(embeddedOP.getTransactionalVersion());
+//		}
+		return embeddedObjectContainer;
+	}
+
+	/**
+	 * Store a single related object (1-1-relationship).
+	 * The related object is persistence-capable.
+	 */
+	protected void storeObjectFieldWithRelationTypeSingleValue(int fieldNumber, Object value, AbstractMemberMetaData mmd, FieldMeta fieldMeta) {
+		// Persistable object - persist the related object and store the identity in the cell
+		boolean embedded = mmd.isEmbedded();
+		int objectType = embedded ? ObjectProvider.EMBEDDED_PC : ObjectProvider.PC;
+
+		Object valuePC = ec.persistObjectInternal(value, op, fieldNumber, objectType);
+		ec.flushInternal(true);
+
+		if (embedded) {
+			if (valuePC != null) {
+				EmbeddedClassMeta embeddedClassMeta = fieldMeta.getEmbeddedClassMeta();
+				EmbeddedObjectContainer embeddedObjectContainer = createEmbeddedObjectContainerFromPC(fieldMeta, valuePC, embeddedClassMeta);
+				objectContainer.setValue(fieldMeta.getFieldID(), embeddedObjectContainer);
+			}
+		}
+		else {
+			if (mmd.getMappedBy() == null) {
+				Object valueID = ObjectContainerHelper.entityToReference(cryptoContext, pmData, valuePC);
+				objectContainer.setValue(fieldMeta.getFieldID(), valueID);
+			}
+		}
+	}
+
+	/**
+	 * Store an array of related objects (1-n-relationship).
+	 * The related objects are persistence-capable.
+	 */
+	protected void storeObjectFieldWithRelationTypeArray(int fieldNumber, Object value, AbstractMemberMetaData mmd, FieldMeta fieldMeta) {
+		// TODO for mapped-by-relations, the order is not yet maintained - AFAIK.
+
+		boolean embedded = mmd.getArray().isEmbeddedElement();
+		int objectType = embedded ? ObjectProvider.EMBEDDED_COLLECTION_ELEMENT_PC : ObjectProvider.PC;
+		EmbeddedClassMeta embeddedClassMeta = fieldMeta.getSubFieldMeta(FieldMetaRole.arrayElement).getEmbeddedClassMeta();
+
+		Object[] ids = (mmd.getMappedBy() != null || embedded) ? null : new Object[Array.getLength(value)];
+		EmbeddedObjectContainer[] embeddedObjectContainers = (ids != null || !embedded) ? null : new EmbeddedObjectContainer[Array.getLength(value)];
+		for (int i = 0; i < Array.getLength(value); i++)
+		{
+			Object element = Array.get(value, i);
+			Object elementPC = ec.persistObjectInternal(element, op, fieldNumber, objectType);
+			ec.flushInternal(true);
+
+			if (ids != null) {
+				Object elementID = ObjectContainerHelper.entityToReference(cryptoContext, pmData, elementPC);
+				ids[i] = elementID;
+			}
+			else if (embeddedObjectContainers != null) {
+				EmbeddedObjectContainer embeddedObjectContainer = createEmbeddedObjectContainerFromPC(fieldMeta, elementPC, embeddedClassMeta);
+				embeddedObjectContainers[i] = embeddedObjectContainer;
+			}
+		}
+
+		if (ids != null)
+			objectContainer.setValue(fieldMeta.getFieldID(), ids);
+	}
+
+	/**
+	 * Store a {@link Collection} (<code>List</code>, <code>Set</code>, etc.) of
+	 * related objects (1-n-relationship).
+	 * The related objects are persistence-capable.
+	 */
+	protected void storeObjectFieldWithRelationTypeCollection(int fieldNumber, Object value, AbstractMemberMetaData mmd, FieldMeta fieldMeta) {
+		// TODO for mapped-by-relations, the order is not yet maintained (=> Lists) - AFAIK.
+
+		boolean embedded = mmd.getCollection().isEmbeddedElement();
+		int objectType = embedded ? ObjectProvider.EMBEDDED_COLLECTION_ELEMENT_PC : ObjectProvider.PC;
+		EmbeddedClassMeta embeddedClassMeta = fieldMeta.getSubFieldMeta(FieldMetaRole.collectionElement).getEmbeddedClassMeta();
+
+		Collection<?> collection = (Collection<?>)value;
+		Object[] ids = (mmd.getMappedBy() != null || embedded) ? null : new Object[collection.size()];
+		EmbeddedObjectContainer[] embeddedObjectContainers = (ids != null || !embedded) ? null : new EmbeddedObjectContainer[collection.size()];
+		int idx = -1;
+		for (Object element : collection) {
+			Object elementPC = ec.persistObjectInternal(element, op, fieldNumber, objectType);
+			ec.flushInternal(true);
+
+			if (ids != null) {
+				Object elementID = ObjectContainerHelper.entityToReference(cryptoContext, pmData, elementPC);
+				ids[++idx] = elementID;
+			}
+			else if (embeddedObjectContainers != null) {
+				EmbeddedObjectContainer embeddedObjectContainer = createEmbeddedObjectContainerFromPC(fieldMeta, elementPC, embeddedClassMeta);
+				embeddedObjectContainers[++idx] = embeddedObjectContainer;
+			}
+		}
+
+		if (ids != null)
+			objectContainer.setValue(fieldMeta.getFieldID(), ids);
+	}
+
+	/**
+	 * Store a {@link Map} of related objects (1-n-relationship).
+	 * The related objects are persistence-capable.
+	 */
+	protected void storeObjectFieldWithRelationTypeMap(int fieldNumber, Object value, AbstractMemberMetaData mmd, FieldMeta fieldMeta) {
+		boolean keyIsPersistent = mmd.getMap().keyIsPersistent();
+		boolean valueIsPersistent = mmd.getMap().valueIsPersistent();
+		boolean embeddedKey = mmd.getMap().isEmbeddedKey();
+		boolean embeddedValue = mmd.getMap().isEmbeddedValue();
+
+		int keyObjectType;
+		if (keyIsPersistent)
+			keyObjectType = embeddedKey ? ObjectProvider.EMBEDDED_MAP_KEY_PC : ObjectProvider.PC;
+		else
+			keyObjectType = -1;
+
+		int valueObjectType;
+		if (valueIsPersistent)
+			valueObjectType = embeddedValue ? ObjectProvider.EMBEDDED_MAP_VALUE_PC : ObjectProvider.PC;
+		else
+			valueObjectType = -1;
+
+		Map<?,?> valueMap = (Map<?, ?>) value;
+		Map<Object,Object> idMap = mmd.getMappedBy() != null ? null : new HashMap<Object, Object>(valueMap.size());
+		for (Map.Entry<?, ?> me : valueMap.entrySet()) {
+			Object k = me.getKey();
+			Object v = me.getValue();
+
+			if (keyIsPersistent) {
+				Object kpc = ec.persistObjectInternal(k, op, fieldNumber, keyObjectType);
+				ec.flushInternal(true);
+
+				if (idMap != null)
+					k = ObjectContainerHelper.entityToReference(cryptoContext, pmData, kpc);
+			}
+
+			if (valueIsPersistent) {
+				Object vpc = ec.persistObjectInternal(v, op, fieldNumber, valueObjectType);
+				ec.flushInternal(true);
+
+				if (idMap != null)
+					v = ObjectContainerHelper.entityToReference(cryptoContext, pmData, vpc);
+			}
+
+			if (idMap != null)
+				idMap.put(k, v);
+		}
+
+		if (idMap != null)
+			objectContainer.setValue(fieldMeta.getFieldID(), idMap);
 	}
 
 }
