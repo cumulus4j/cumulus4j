@@ -231,7 +231,7 @@ public class StoreFieldManager extends AbstractFieldManager
 			objectContainer.setValue(fieldMeta.getFieldID(), value);
 	}
 
-	protected EmbeddedObjectContainer createEmbeddedObjectContainerFromPC(FieldMeta fieldMeta, Object pc, EmbeddedClassMeta embeddedClassMeta) {
+	protected EmbeddedObjectContainer createEmbeddedObjectContainerFromPC(FieldMeta fieldMeta, EmbeddedClassMeta embeddedClassMeta, Object pc) {
 		if (pc == null)
 			return null;
 
@@ -270,7 +270,7 @@ public class StoreFieldManager extends AbstractFieldManager
 		if (embedded) {
 			if (valuePC != null) {
 				EmbeddedClassMeta embeddedClassMeta = fieldMeta.getEmbeddedClassMeta();
-				EmbeddedObjectContainer embeddedObjectContainer = createEmbeddedObjectContainerFromPC(fieldMeta, valuePC, embeddedClassMeta);
+				EmbeddedObjectContainer embeddedObjectContainer = createEmbeddedObjectContainerFromPC(fieldMeta, embeddedClassMeta, valuePC);
 				objectContainer.setValue(fieldMeta.getFieldID(), embeddedObjectContainer);
 			}
 		}
@@ -306,13 +306,15 @@ public class StoreFieldManager extends AbstractFieldManager
 				ids[i] = elementID;
 			}
 			else if (embeddedObjectContainers != null) {
-				EmbeddedObjectContainer embeddedObjectContainer = createEmbeddedObjectContainerFromPC(fieldMeta, elementPC, embeddedClassMeta);
+				EmbeddedObjectContainer embeddedObjectContainer = createEmbeddedObjectContainerFromPC(fieldMeta, embeddedClassMeta, elementPC);
 				embeddedObjectContainers[i] = embeddedObjectContainer;
 			}
 		}
 
 		if (ids != null)
 			objectContainer.setValue(fieldMeta.getFieldID(), ids);
+		else if (embeddedObjectContainers != null)
+			objectContainer.setValue(fieldMeta.getFieldID(), embeddedObjectContainers);
 	}
 
 	/**
@@ -340,13 +342,16 @@ public class StoreFieldManager extends AbstractFieldManager
 				ids[++idx] = elementID;
 			}
 			else if (embeddedObjectContainers != null) {
-				EmbeddedObjectContainer embeddedObjectContainer = createEmbeddedObjectContainerFromPC(fieldMeta, elementPC, embeddedClassMeta);
+				EmbeddedObjectContainer embeddedObjectContainer = createEmbeddedObjectContainerFromPC(fieldMeta, embeddedClassMeta, elementPC);
 				embeddedObjectContainers[++idx] = embeddedObjectContainer;
 			}
 		}
 
+
 		if (ids != null)
 			objectContainer.setValue(fieldMeta.getFieldID(), ids);
+		else if (embeddedObjectContainers != null)
+			objectContainer.setValue(fieldMeta.getFieldID(), embeddedObjectContainers);
 	}
 
 	/**

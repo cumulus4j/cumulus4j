@@ -280,24 +280,11 @@ public class FetchFieldManager extends AbstractFieldManager
 				return null;
 
 			if (!(value instanceof EmbeddedObjectContainer))
-				throw new IllegalStateException("field claims to be embedded, but persistent field value is not an EmbeddedObjectContainer! fieldID=" + fieldMeta.getFieldID() + " fieldName=" + fieldMeta.getFieldName());
+				throw new IllegalStateException("field claims to be embedded, but persistent field value is not an EmbeddedObjectContainer! fieldID=" + fieldMeta.getFieldID() + " fieldName=" + fieldMeta.getFieldName() + " value=" + value);
 
 			EmbeddedObjectContainer embeddedObjectContainer = (EmbeddedObjectContainer) value;
-
-			// TODO the newest DN version has a StateManagerFactory that makes the following more convenient (I think) - maybe switch later?!
-//			ClassMeta embeddedClassMeta = ((Cumulus4jStoreManager)ec.getStoreManager()).getClassMeta(ec, embeddedObjectContainer.getClassID(), true);
 			ClassMeta embeddedClassMeta = fieldMeta.getEmbeddedClassMeta();
-			Class<?> embeddedClass = ec.getClassLoaderResolver().classForName(embeddedClassMeta.getClassName());
-
-			AbstractClassMetaData embeddedDNClassMeta = embeddedClassMeta.getDataNucleusClassMetaData(ec);
-			PersistenceCapable pc = JDOImplHelper.getInstance().newInstance(embeddedClass, null);
-
-			ObjectProvider embeddedOP = ObjectProviderFactory.newForEmbedded(ec, pc, false, op, fieldNumber);
-			embeddedOP.replaceFields(
-					embeddedDNClassMeta.getAllMemberPositions(),
-					new FetchFieldManager(embeddedOP, cryptoContext, embeddedClassMeta, embeddedDNClassMeta, embeddedObjectContainer)
-			);
-			return embeddedOP.getObject();
+			return createPCFromEmbeddedObjectContainer(fieldNumber, fieldMeta, embeddedClassMeta, embeddedObjectContainer);
 		}
 		else {
 			if (mmd.getMappedBy() != null) {
@@ -316,6 +303,32 @@ public class FetchFieldManager extends AbstractFieldManager
 		}
 	}
 
+	protected Object createPCFromEmbeddedObjectContainer(int fieldNumber, FieldMeta fieldMeta, ClassMeta embeddedClassMeta, EmbeddedObjectContainer embeddedObjectContainer)
+	{
+		if (fieldMeta == null)
+			throw new IllegalArgumentException("fieldMeta == null");
+		if (embeddedClassMeta == null)
+			throw new IllegalArgumentException("embeddedClassMeta == null");
+
+		if (embeddedObjectContainer == null) // we allow null values in embedded lists - or shouldn't we?
+			return null;
+
+		// TODO the newest DN version has a StateManagerFactory that makes the following more convenient (I think) - maybe switch later?!
+//		ClassMeta embeddedClassMeta = ((Cumulus4jStoreManager)ec.getStoreManager()).getClassMeta(ec, embeddedObjectContainer.getClassID(), true);
+//		ClassMeta embeddedClassMeta = fieldMeta.getEmbeddedClassMeta();
+		Class<?> embeddedClass = ec.getClassLoaderResolver().classForName(embeddedClassMeta.getClassName());
+
+		AbstractClassMetaData embeddedDNClassMeta = embeddedClassMeta.getDataNucleusClassMetaData(ec);
+		PersistenceCapable pc = JDOImplHelper.getInstance().newInstance(embeddedClass, null);
+
+		ObjectProvider embeddedOP = ObjectProviderFactory.newForEmbedded(ec, pc, false, op, fieldNumber);
+		embeddedOP.replaceFields(
+				embeddedDNClassMeta.getAllMemberPositions(),
+				new FetchFieldManager(embeddedOP, cryptoContext, embeddedClassMeta, embeddedDNClassMeta, embeddedObjectContainer)
+		);
+		return embeddedOP.getObject();
+	}
+
 	/**
 	 * Fetch an array of related objects (1-n-relationship).
 	 * The related objects are persistence-capable.
@@ -325,48 +338,66 @@ public class FetchFieldManager extends AbstractFieldManager
 		Class<?> elementType = ec.getClassLoaderResolver().classForName(mmd.getArray().getElementType());
 
 		Object array;
-		if (mmd.getMappedBy() != null) {
-			int arrayLength = mappedByDataEntryIDs.size();
+
+		if (mmd.getArray().isEmbeddedElement()) {
+			Object value = objectContainer.getValue(fieldMeta.getFieldID());
+			if (!(value instanceof EmbeddedObjectContainer[]))
+				throw new IllegalStateException("field claims to be embedded, but persistent field value is not an array of EmbeddedObjectContainer! fieldID=" + fieldMeta.getFieldID() + " fieldName=" + fieldMeta.getFieldName() + " value=" + value);
+
+			EmbeddedObjectContainer[] embeddedObjectContainers = (EmbeddedObjectContainer[]) value;
+			int arrayLength = embeddedObjectContainers.length;
 			array = Array.newInstance(elementType, arrayLength);
-			Iterator<Long> it = mappedByDataEntryIDs.iterator();
+			ClassMeta embeddedClassMeta = fieldMeta.getSubFieldMeta(FieldMetaRole.arrayElement).getEmbeddedClassMeta();
 			for (int i = 0; i < arrayLength; ++i) {
-				Long dataEntryID = it.next();
-				Object element = getObjectFromDataEntryID(dataEntryID);
-				Array.set(array, i, element);
+				Object pc = createPCFromEmbeddedObjectContainer(fieldNumber, fieldMeta, embeddedClassMeta, embeddedObjectContainers[i]);
+				Array.set(array, i, pc);
 			}
 		}
 		else {
-			Object ids = objectContainer.getValue(fieldMeta.getFieldID());
-			if (ids == null)
-				array = null;
-			else {
-				if (ec.getStoreManager().getPersistenceHandler().useReferentialIntegrity()) {
-					// Directly fill the array.
-					int arrayLength = Array.getLength(ids);
-					array = Array.newInstance(elementType, arrayLength);
-					for (int i = 0; i < arrayLength; ++i) {
-						Object id = Array.get(ids, i);
-						Object element = ObjectContainerHelper.referenceToEntity(cryptoContext, pmData, id);
-						Array.set(array, i, element);
-					}
+			if (mmd.getMappedBy() != null) {
+				int arrayLength = mappedByDataEntryIDs.size();
+				array = Array.newInstance(elementType, arrayLength);
+				Iterator<Long> it = mappedByDataEntryIDs.iterator();
+				for (int i = 0; i < arrayLength; ++i) {
+					Long dataEntryID = it.next();
+					Object element = getObjectFromDataEntryID(dataEntryID);
+					Array.set(array, i, element);
 				}
+			}
+			else {
+				Object ids = objectContainer.getValue(fieldMeta.getFieldID());
+				if (ids == null)
+					array = null;
 				else {
-					// https://sourceforge.net/tracker/?func=detail&aid=3515529&group_id=517465&atid=2102914
-					// First fill a list and then transfer everything into an array, because there might
-					// be elements missing (orphaned references).
-					int arrayLength = Array.getLength(ids);
-					ArrayList<Object> tmpList = new ArrayList<Object>();
-					for (int i = 0; i < arrayLength; ++i) {
-						Object id = Array.get(ids, i);
-						Object element = ObjectContainerHelper.referenceToEntity(cryptoContext, pmData, id);
-						if (element != null)
-							tmpList.add(element);
+					if (ec.getStoreManager().getPersistenceHandler().useReferentialIntegrity()) {
+						// Directly fill the array.
+						int arrayLength = Array.getLength(ids);
+						array = Array.newInstance(elementType, arrayLength);
+						for (int i = 0; i < arrayLength; ++i) {
+							Object id = Array.get(ids, i);
+							Object element = ObjectContainerHelper.referenceToEntity(cryptoContext, pmData, id);
+							Array.set(array, i, element);
+						}
 					}
-					array = Array.newInstance(elementType, tmpList.size());
-					array = tmpList.toArray((Object[]) array);
+					else {
+						// https://sourceforge.net/tracker/?func=detail&aid=3515529&group_id=517465&atid=2102914
+						// First fill a list and then transfer everything into an array, because there might
+						// be elements missing (orphaned references).
+						int arrayLength = Array.getLength(ids);
+						ArrayList<Object> tmpList = new ArrayList<Object>();
+						for (int i = 0; i < arrayLength; ++i) {
+							Object id = Array.get(ids, i);
+							Object element = ObjectContainerHelper.referenceToEntity(cryptoContext, pmData, id);
+							if (element != null)
+								tmpList.add(element);
+						}
+						array = Array.newInstance(elementType, tmpList.size());
+						array = tmpList.toArray((Object[]) array);
+					}
 				}
 			}
 		}
+
 		return array;
 	}
 
@@ -387,23 +418,38 @@ public class FetchFieldManager extends AbstractFieldManager
 			throw new NucleusDataStoreException(e.getMessage(), e);
 		}
 
-		if (mmd.getMappedBy() != null) {
-			for (Long mappedByDataEntryID : mappedByDataEntryIDs) {
-				Object element = getObjectFromDataEntryID(mappedByDataEntryID);
-				collection.add(element);
+		if (mmd.getCollection().isEmbeddedElement()) {
+			Object value = objectContainer.getValue(fieldMeta.getFieldID());
+			if (!(value instanceof EmbeddedObjectContainer[]))
+				throw new IllegalStateException("field claims to be embedded, but persistent field value is not an array of EmbeddedObjectContainer! fieldID=" + fieldMeta.getFieldID() + " fieldName=" + fieldMeta.getFieldName() + " value=" + value);
+
+			EmbeddedObjectContainer[] embeddedObjectContainers = (EmbeddedObjectContainer[]) value;
+			ClassMeta embeddedClassMeta = fieldMeta.getSubFieldMeta(FieldMetaRole.collectionElement).getEmbeddedClassMeta();
+			for (EmbeddedObjectContainer embeddedObjectContainer : embeddedObjectContainers) {
+				Object pc = createPCFromEmbeddedObjectContainer(fieldNumber, fieldMeta, embeddedClassMeta, embeddedObjectContainer);
+				collection.add(pc);
 			}
 		}
 		else {
-			Object ids = objectContainer.getValue(fieldMeta.getFieldID());
-			if (ids != null) {
-				for (int idx = 0; idx < Array.getLength(ids); ++idx) {
-					Object id = Array.get(ids, idx);
-					Object element = ObjectContainerHelper.referenceToEntity(cryptoContext, pmData, id);
-					if (element != null) // orphaned reference - https://sourceforge.net/tracker/?func=detail&aid=3515529&group_id=517465&atid=2102914
-						collection.add(element);
+			if (mmd.getMappedBy() != null) {
+				for (Long mappedByDataEntryID : mappedByDataEntryIDs) {
+					Object element = getObjectFromDataEntryID(mappedByDataEntryID);
+					collection.add(element);
+				}
+			}
+			else {
+				Object ids = objectContainer.getValue(fieldMeta.getFieldID());
+				if (ids != null) {
+					for (int idx = 0; idx < Array.getLength(ids); ++idx) {
+						Object id = Array.get(ids, idx);
+						Object element = ObjectContainerHelper.referenceToEntity(cryptoContext, pmData, id);
+						if (element != null) // orphaned reference - https://sourceforge.net/tracker/?func=detail&aid=3515529&group_id=517465&atid=2102914
+							collection.add(element);
+					}
 				}
 			}
 		}
+
 		return op.wrapSCOField(fieldNumber, collection, false, false, true);
 	}
 
