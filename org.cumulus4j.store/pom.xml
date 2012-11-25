@@ -92,6 +92,16 @@
 			
 			<properties>
 				<finalName>${project.artifactId}-${project.version}-gae</finalName>
+
+				<!-- SNAPSHOT -->
+				<repositoryId>dev.nightlabs.org-libs-snapshots-local</repositoryId>
+				<repositoryUrl>http://dev.nightlabs.org/maven-repository/libs-snapshots-local</repositoryUrl>
+
+				<!-- RELEASE -->
+				<!--
+				<repositoryId>dev.nightlabs.org-libs-releases-local</repositoryId>
+				<repositoryUrl>http://dev.nightlabs.org/maven-repository/libs-releases-local</repositoryUrl>
+				 -->
 			</properties>
 			
 			<build>
@@ -148,6 +158,7 @@
 					</plugin>
 					-->
 
+<!-- doesn't work - only adds and doesn't replace :-( need detach-artifact, but doesn't exist
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>build-helper-maven-plugin</artifactId>
@@ -161,28 +172,38 @@
 								</goals>
 								<configuration>
 									<artifacts>
-										<artifact> <!-- overwrite wrong default -->
+										<artifact> <!- overwrite wrong default ->
 											<file>${settings.localRepository}/org/cumulus4j/${project.artifactId}/${project.version}/${project.artifactId}-${project.version}.jar</file>
 											<type>jar</type>
+										</artifact>
+										<artifact> <!- overwrite wrong default ->
+											<file>${settings.localRepository}/org/cumulus4j/${project.artifactId}/${project.version}/${project.artifactId}-${project.version}-sources.jar</file>
+											<type>jar</type>
+											<classifier>sources</classifier>
 										</artifact>
 										<artifact>
 											<file>${project.build.directory}/${finalName}.jar</file>
 											<type>jar</type>
 											<classifier>gae</classifier>
 										</artifact>
+										<artifact>
+											<file>${project.build.directory}/${finalName}-sources.jar</file>
+											<type>jar</type>
+											<classifier>gae-sources</classifier>
+										</artifact>
 									</artifacts>
 								</configuration>
 							</execution>
 						</executions>
 					</plugin>
+-->
 
-<!--
 					<plugin>
 						<artifactId>maven-install-plugin</artifactId>
 						<executions>
 							<execution>
-								<id>gae-install</id>
-								<phase>verify</phase> <!- must be one phase earlier than normal - otherwise is not executed at all ->
+								<id>gae-install-main</id>
+								<phase>verify</phase> <!-- must be one phase earlier than normal - otherwise is not executed at all -->
 								<goals>
 									<goal>install-file</goal>
 								</goals>
@@ -194,6 +215,22 @@
 									<packaging>jar</packaging>
 									<version>${cumulus4j.version}</version>
 									<classifier>gae</classifier>
+								</configuration>
+							</execution>
+							<execution>
+								<id>gae-install-sources</id>
+								<phase>verify</phase> <!-- must be one phase earlier than normal - otherwise is not executed at all -->
+								<goals>
+									<goal>install-file</goal>
+								</goals>
+								<inherited>false</inherited>
+								<configuration>
+									<file>${project.build.directory}/${finalName}-sources.jar</file>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>${project.artifactId}</artifactId>
+									<packaging>jar</packaging>
+									<version>${cumulus4j.version}</version>
+									<classifier>gae-sources</classifier>
 								</configuration>
 							</execution>
 							<execution>
@@ -214,15 +251,17 @@
 						<executions>
 							<execution>
 								<id>gae-deploy</id>
-								<phase>install</phase> <!- just like above one phase earlier than normal - didn't test though, just copied -> 
+								<phase>deploy</phase> <!-- MAYBE just like above one phase earlier than normal - didn't test though, just copied --> 
 								<goals>
 									<goal>deploy-file</goal>
 								</goals>
 								<inherited>false</inherited>
 								<configuration>
 									<file>${project.build.directory}/${finalName}.jar</file>
-									<url></url>
-									
+									<!-- <url>${repositoryUrl}/org/cumulus4j/org.cumulus4j.store/${cumulus4j.version}/${finalName}.jar</url> -->
+									<url>${repositoryUrl}</url>
+									<repositoryId>${repositoryId}</repositoryId>
+
 									<groupId>${project.groupId}</groupId>
 									<artifactId>${project.artifactId}</artifactId>
 									<packaging>jar</packaging>
@@ -242,7 +281,7 @@
 							</execution>
 						</executions>
 					</plugin>
--->
+
 				</plugins>
 			</build>
 			
