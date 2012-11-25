@@ -217,9 +217,10 @@
 									<classifier>gae</classifier>
 								</configuration>
 							</execution>
+							<!-- trouble with sources (gae-specific sources overwrite default artifacts - disabled!
 							<execution>
 								<id>gae-install-sources</id>
-								<phase>verify</phase> <!-- must be one phase earlier than normal - otherwise is not executed at all -->
+								<phase>verify</phase> <!- must be one phase earlier than normal - otherwise is not executed at all ->
 								<goals>
 									<goal>install-file</goal>
 								</goals>
@@ -233,6 +234,7 @@
 									<classifier>gae-sources</classifier>
 								</configuration>
 							</execution>
+							-->
 							<execution>
 								<id>default-install</id>
 								<goals>
@@ -274,10 +276,12 @@
 									<packaging>jar</packaging>
 									<version>${cumulus4j.version}</version>
 									<classifier>gae</classifier>
-									
+
+									<!-- NO sources, because I didn't manage to prevent the GAE-sources from overwriting the default sources.
 									<types>jar</types>
 									<classifiers>gae-sources</classifiers>
-									<files>${project.build.directory}/${finalName}.jar</files>
+									<files>${project.build.directory}/${finalName}-sources.jar</files>
+									-->
 									
 									<generatePom>false</generatePom>
 								</configuration>
