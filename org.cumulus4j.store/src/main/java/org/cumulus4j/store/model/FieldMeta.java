@@ -35,7 +35,6 @@ import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.NullValue;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
-import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.annotations.Queries;
 import javax.jdo.annotations.Query;
 import javax.jdo.annotations.Unique;
@@ -46,6 +45,7 @@ import javax.jdo.listener.DetachCallback;
 import javax.jdo.listener.StoreCallback;
 
 import org.cumulus4j.store.Cumulus4jStoreManager;
+import org.cumulus4j.store.reflectionwrapper.gae.KeyFactory;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.MetaDataManager;
@@ -85,9 +85,16 @@ implements DetachCallback, StoreCallback
 		public static final String getSubFieldMetasForFieldMeta = "getSubFieldMetasForFieldMeta";
 	}
 
-	@PrimaryKey
+//	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE, sequence="FieldMetaSequence")
-	private long fieldID = -1;
+	private Long fieldID;
+
+	/**
+	 * This is needed due to GAE compatibility. package.jdo is responsible
+	 * for the correct usage if this field.
+	 */
+//	@NotPersistent // not persistent for non-GAE-datastores
+	private String fieldIDString;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	@Column(length=255, defaultValue=UNIQUE_SCOPE_FIELD_META)
@@ -183,7 +190,10 @@ implements DetachCallback, StoreCallback
 	}
 
 	public long getFieldID() {
-		return fieldID;
+		if(fieldIDString != null && fieldID == null){
+			fieldID = KeyFactory.getInstance().stringToKey(fieldIDString).getId();
+		}
+		return fieldID == null ? -1 : fieldID;
 	}
 
 	protected String getUniqueScope() {
@@ -691,6 +701,7 @@ implements DetachCallback, StoreCallback
 	@Override
 	public int hashCode()
 	{
+		long fieldID = getFieldID();
 		return (int) (fieldID ^ (fieldID >>> 32));
 	}
 
@@ -701,7 +712,8 @@ implements DetachCallback, StoreCallback
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
 		FieldMeta other = (FieldMeta) obj;
-		return this.fieldID == other.fieldID;
+		// if not yet persisted (id == null), it is only equal to the same instance (checked above, already).
+		return this.fieldID == null ? false : this.fieldID.equals(other.fieldID);
 	}
 
 	@Override

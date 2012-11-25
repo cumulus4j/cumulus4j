@@ -43,7 +43,7 @@ public class KeyStoreRef {
 
 	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE, sequence="KeyStoreRefSequence")
-	private int keyStoreRefID = -666;
+	private Long keyStoreRefID;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	@Unique(name="KeyStoreRef_keyStoreID")
@@ -51,7 +51,14 @@ public class KeyStoreRef {
 	private String keyStoreID;
 
 	public int getKeyStoreRefID() {
-		return keyStoreRefID;
+		Long result = keyStoreRefID;
+		if (result == null)
+			return -666;
+
+		if (keyStoreRefID.longValue() > Integer.MAX_VALUE)
+			throw new IllegalStateException("keyStoreRefID > Integer.MAX_VALUE :: " + keyStoreRefID + " > " + Integer.MAX_VALUE);
+
+		return result.intValue();
 	}
 
 	public String getKeyStoreID() {

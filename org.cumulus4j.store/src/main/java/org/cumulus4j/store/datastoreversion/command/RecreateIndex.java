@@ -155,8 +155,10 @@ public class RecreateIndex extends AbstractDatastoreVersionCommand
 		filter.append("this.keyStoreRefID == :keyStoreRefID");
 		params.put("keyStoreRefID", keyStoreRefID);
 
-		filter.append(" && this.indexEntryID >= :fromIndexEntryIDIncl");
-		params.put("fromIndexEntryIDIncl", fromIndexEntryIDIncl);
+		if (fromIndexEntryIDIncl > 0) { // required for GAE, because it throws an exception when querying for ID >= 0, saying that ID == 0 is illegal.
+			filter.append(" && this.indexEntryID >= :fromIndexEntryIDIncl");
+			params.put("fromIndexEntryIDIncl", fromIndexEntryIDIncl);
+		}
 
 		if (toIndexEntryIDExcl != null) {
 			filter.append(" && this.indexEntryID < :toIndexEntryIDExcl");
@@ -258,8 +260,10 @@ public class RecreateIndex extends AbstractDatastoreVersionCommand
 		filter.append("this.keyStoreRefID == :keyStoreRefID");
 		params.put("keyStoreRefID", keyStoreRefID);
 
-		filter.append(" && this.dataEntryID >= :fromDataEntryIDIncl");
-		params.put("fromDataEntryIDIncl", fromDataEntryIDIncl);
+		if (fromDataEntryIDIncl > 0) { // required for GAE, because it throws an exception when querying for ID >= 0, saying that ID == 0 is illegal.
+			filter.append(" && this.dataEntryID >= :fromDataEntryIDIncl");
+			params.put("fromDataEntryIDIncl", fromDataEntryIDIncl);
+		}
 
 		if (toDataEntryIDExcl != null) {
 			filter.append(" && this.dataEntryID < :toDataEntryIDExcl");

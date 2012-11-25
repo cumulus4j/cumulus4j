@@ -48,24 +48,139 @@
 	</dependencies>
 	
 	<profiles>
-		
+		<profile>
+			<id>default</id>
+			<activation>
+				<property>
+					<name>gae</name>
+					<value>!true</value>
+				</property>
+			</activation>
+
+			<build>
+				<resources>
+					<resource>
+						<directory>src/main/resources</directory>
+					</resource>
+					<resource>
+						<directory>src/main/default-resources</directory>
+					</resource>
+					<resource>
+						<directory>src/main/java</directory>
+						<excludes>
+							<exclude>**/*.java</exclude>
+						</excludes>
+					</resource>
+					<resource>
+						<directory>.</directory>
+						<includes>
+							<include>plugin.xml</include>
+						</includes>
+					</resource>
+				</resources>
+			</build>
+		</profile>
+
+		<profile>
+			<id>gae</id>
+			<activation>
+				<property>
+					<name>gae</name>
+					<value>true</value>
+				</property>
+			</activation>
+			
+			<properties>
+				<finalName>${project.artifactId}-${project.version}-gae</finalName>
+			</properties>
+			
+			<build>
+				<resources>
+					<resource>
+						<directory>src/main/resources</directory>
+					</resource>
+					<resource>
+						<directory>src/main/gae-resources</directory>
+					</resource>
+					<resource>
+						<directory>src/main/java</directory>
+						<excludes>
+							<exclude>**/*.java</exclude>
+						</excludes>
+					</resource>
+					<resource>
+						<directory>.</directory>
+						<includes>
+							<include>plugin.xml</include>
+						</includes>
+					</resource>
+				</resources>
+
+				<finalName>${finalName}</finalName>
+
+				<plugins>
+					<plugin>
+						<artifactId>maven-install-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>gae-install</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>install-file</goal>
+								</goals>
+								<inherited>false</inherited>
+								<configuration>
+									<file>${project.build.directory}/${finalName}.jar</file>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>${project.artifactId}</artifactId>
+									<packaging>jar</packaging>
+									<version>${cumulus4j.version}</version>
+									<classifier>gae</classifier>
+								</configuration>
+							</execution>
+							<execution>
+								<id>default-install</id>
+								<goals>
+									<goal>install</goal>
+								</goals>
+								<inherited>false</inherited>
+								<configuration>
+									<skip>true</skip>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					
+				</plugins>
+			</build>
+			
+		</profile>
 	</profiles>
 
 	<build>
 		<plugins>
+			<!--
 			<plugin>
 				<artifactId>maven-clean-plugin</artifactId>
 				<configuration>
 					<filesets>
 						<fileset>
+							<directory>${project.build.directory}</directory>
+							<includes>
+								<include>**</include>
+							</includes>
+						</fileset>
+						<fileset>
 							<directory>${basedir}</directory>
 							<includes>
 								<include>*.log</include>
+								<include>$jarplug.work/**</include>
 							</includes>
 						</fileset>
 					</filesets>
 				</configuration>
 			</plugin>
+			-->
 			<plugin>
 				<groupId>org.datanucleus</groupId>
 				<artifactId>maven-datanucleus-plugin</artifactId>
@@ -92,6 +207,7 @@
 				</configuration>
 			</plugin>
 
+<!--
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<executions>
@@ -102,7 +218,7 @@
 							<tasks>
 								<echo message="Unpacking JAR" />
 								<unzip src="${project.build.directory}/${project.artifactId}-${project.version}.jar" dest="${project.build.directory}/gae/" />
-								<copy todir="${project.build.directory}/gae/">
+								<copy todir="${project.build.directory}/gae/" overwrite="true">
 									<fileset dir="${basedir}/src/main/gae-resources/">
 										<include name="**/*"/>
 									</fileset>
@@ -127,6 +243,7 @@
 						<configuration>
 							<classifier>gae</classifier>
 							<classesDirectory>${project.build.directory}/gae/</classesDirectory>
+							<useDefaultManifestFile>true</useDefaultManifestFile>
 							<includes>
 								<include>**/*</include>
 							</includes>
@@ -134,6 +251,7 @@
 					</execution>
 				</executions>
 			</plugin>
+-->
 		</plugins>
 	</build>
 </project>

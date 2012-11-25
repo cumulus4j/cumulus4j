@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.jdo.FetchPlan;
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
 import javax.jdo.annotations.Column;
@@ -38,15 +37,16 @@ import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.NullValue;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
-import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.annotations.Queries;
 import javax.jdo.annotations.Query;
 import javax.jdo.annotations.Unique;
 import javax.jdo.annotations.Version;
 import javax.jdo.annotations.VersionStrategy;
 import javax.jdo.listener.DetachCallback;
+import javax.jdo.listener.LoadCallback;
 import javax.jdo.listener.StoreCallback;
 
+import org.cumulus4j.store.reflectionwrapper.gae.KeyFactory;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.store.ExecutionContext;
 import org.slf4j.Logger;
@@ -67,7 +67,7 @@ import org.slf4j.LoggerFactory;
 @Version(strategy=VersionStrategy.VERSION_NUMBER)
 @Unique(name="ClassMeta_fullyQualifiedClassName", members={"uniqueScope", "packageName", "simpleClassName"})
 @FetchGroups({
-	@FetchGroup(name=FetchPlan.ALL, members={
+	@FetchGroup(name=FetchGroupsMetaData.ALL, members={
 			@Persistent(name="superClassMeta", recursionDepth=-1)
 	})
 })
@@ -78,7 +78,7 @@ import org.slf4j.LoggerFactory;
 	)
 })
 public class ClassMeta
-implements DetachCallback, StoreCallback
+implements DetachCallback, StoreCallback, LoadCallback
 {
 	private static final Logger logger = LoggerFactory.getLogger(ClassMeta.class);
 
@@ -88,9 +88,16 @@ implements DetachCallback, StoreCallback
 		public static final String getClassMetaByPackageNameAndSimpleClassName = "getClassMetaByPackageNameAndSimpleClassName";
 	}
 
-	@PrimaryKey
+//	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE, sequence="ClassMetaSequence")
-	private long classID = -1;
+	private Long classID;
+
+	/**
+	 * This is needed due to GAE compatibility. package.jdo is responsible
+	 * for the correct usage if this field.
+	 */
+//	@NotPersistent // not persistent for non-GAE-datastores
+	private String classIDString;
 
 	@NotPersistent
 	private transient volatile String className;
@@ -135,7 +142,10 @@ implements DetachCallback, StoreCallback
 	}
 
 	public long getClassID() {
-		return classID;
+		if(classIDString != null && classID == null){
+			classID = KeyFactory.getInstance().stringToKey(classIDString).getId();
+		}
+		return classID == null ? -1 : classID;
 	}
 
 	protected String getUniqueScope() {
@@ -352,6 +362,7 @@ implements DetachCallback, StoreCallback
 
 	@Override
 	public int hashCode() {
+		long classID = getClassID();
 		return (int) (classID ^ (classID >>> 32));
 	}
 
@@ -361,7 +372,9 @@ implements DetachCallback, StoreCallback
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
 		ClassMeta other = (ClassMeta) obj;
-		return this.classID == other.classID;
+		// if not yet persisted (id == null), it is only equal to the same instance (checked above, already).
+//		return this.classID == null ? false : this.classID.equals(other.classID);
+		return this.getClassID() == other.getClassID();
 	}
 
 	@Override
@@ -479,5 +492,10 @@ implements DetachCallback, StoreCallback
 			fieldName2FieldMeta = persistentFieldName2FieldMeta;
 		}
 		fieldID2FieldMeta = null;
+	}
+
+	@Override
+	public void jdoPostLoad() {
+		getClassName();
 	}
 }

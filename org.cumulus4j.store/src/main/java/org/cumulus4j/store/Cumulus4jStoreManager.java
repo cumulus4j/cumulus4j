@@ -40,6 +40,7 @@ import org.cumulus4j.store.model.DataEntryDAO;
 import org.cumulus4j.store.model.DetachedClassMetaModel;
 import org.cumulus4j.store.model.EmbeddedClassMeta;
 import org.cumulus4j.store.model.EmbeddedFieldMeta;
+import org.cumulus4j.store.model.FetchGroupsMetaData;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.FieldMetaRole;
 import org.cumulus4j.store.model.IndexEntryFactoryRegistry;
@@ -199,7 +200,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 
 	protected ClassMeta detachClassMeta(PersistenceManager pm, ClassMeta classMeta) {
 		ClassMeta result;
-		pm.getFetchPlan().setGroup(FetchPlan.ALL);
+		pm.getFetchPlan().setGroups(FetchPlan.ALL, FetchGroupsMetaData.ALL);
 		pm.getFetchPlan().setMaxFetchDepth(-1);
 		final PostDetachRunnableManager postDetachRunnableManager = PostDetachRunnableManager.getInstance();
 		postDetachRunnableManager.enterScope();
@@ -266,7 +267,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 
 			synchronized (this) { // Synchronise in case we have data and index backends // why? what about multiple instances? shouldn't the replication be safe? is this just for lower chance of exceptions (causing a rollback and being harmless)?
 				// Register the class
-				pm.getFetchPlan().setGroup(FetchPlan.ALL);
+				pm.getFetchPlan().setGroups(FetchPlan.ALL, FetchGroupsMetaData.ALL);
 				result = registerClass(ec, pm, clazz);
 
 				// Detach the class in order to cache only detached objects. Make sure fetch-plan detaches all
@@ -275,7 +276,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 				if (pmConn.indexHasOwnPM()) {
 					// Replicate ClassMeta+FieldMeta to Index datastore
 					PersistenceManager pmIndex = pmConn.getIndexPM();
-					pmIndex.getFetchPlan().setGroup(FetchPlan.ALL); // not sure, if this is necessary before persisting, but don't have time to find it out - leaving it.
+					pm.getFetchPlan().setGroups(FetchPlan.ALL, FetchGroupsMetaData.ALL); // not sure, if this is necessary before persisting, but don't have time to find it out - leaving it.
 					pmIndex.getFetchPlan().setMaxFetchDepth(-1); // not sure, if this is necessary before persisting, but don't have time to find it out - leaving it.
 					result = pmIndex.makePersistent(result);
 					result = detachClassMeta(pmIndex, result);

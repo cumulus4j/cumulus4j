@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE jdo SYSTEM "http://java.sun.com/dtd/jdo_3_0.dtd">
+ 
+ <!--
+	The settings declared in this file are used by all underlying DBMS except for those which override
+	(currently only GAE (Google App Engine) overrides). Write as much as possible into annotations
+	and put only things here that cannot be overridden by the GAE-specific package.jdo.
+-->
+ 
+<jdo>
+
+	<package name="org.cumulus4j.store.model">
+
+		<class name="ClassMeta" identity-type="application" detachable="true">
+			<field name="classID" primary-key="true" value-strategy="native" sequence="ClassMetaSequence">
+			</field>
+			<field name="classIDString" persistence-modifier="none">
+			</field>
+			
+			<query name="getClassMetaByPackageNameAndSimpleClassName" language="javax.jdo.query.JDOQL">
+				<![CDATA[
+					SELECT UNIQUE WHERE this.uniqueScope == :uniqueScope && this.packageName == :packageName && this.simpleClassName == :simpleClassName
+				]]>
+            </query>
+		</class>
+
+		<class name="FieldMeta" identity-type="application" detachable="true">
+			<field name="fieldID" primary-key="true" value-strategy="native" sequence="FieldMetaSequence">
+			</field>
+			<field name="fieldIDString" persistence-modifier="none">
+			</field>
+
+			<query name="getFieldMetasForClassMeta" language="javax.jdo.query.JDOQL">
+				<![CDATA[
+					SELECT WHERE this.classMeta == :classMeta
+				]]>
+            </query>
+            
+            <query name="getSubFieldMetasForFieldMeta" language="javax.jdo.query.JDOQL">
+				<![CDATA[
+					SELECT WHERE this.ownerFieldMeta == :ownerFieldMeta
+				]]>
+            </query>
+		</class>
+
+	</package>
+  
+</jdo>

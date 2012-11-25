@@ -91,7 +91,7 @@ implements StoreCallback
 {
 	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE, sequence="IndexEntrySequence")
-	private long indexEntryID = -1;
+	private Long indexEntryID;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	@Column(defaultValue="0")
@@ -114,7 +114,7 @@ implements StoreCallback
 	 * @return the object-identifier (= primary key).
 	 */
 	public long getIndexEntryID() {
-		return indexEntryID;
+		return indexEntryID == null ? -1 : indexEntryID;
 	}
 
 	/**

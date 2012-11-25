@@ -65,7 +65,7 @@ implements StoreCallback
 {
 	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE, sequence="DataEntrySequence")
-	private long dataEntryID = -1;
+	private Long dataEntryID;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	@Column(defaultValue="0")
@@ -106,7 +106,7 @@ implements StoreCallback
 	 * @return the object-identifier (= primary key).
 	 */
 	public long getDataEntryID() {
-		return dataEntryID;
+		return dataEntryID == null ? -1 : dataEntryID;
 	}
 
 	/**
@@ -241,6 +241,9 @@ implements StoreCallback
 		// update the ClassMeta object when persisting a new DataEntry.
 		PersistenceManager pm = JDOHelper.getPersistenceManager(this);
 		Object classMetaID = JDOHelper.getObjectId(classMeta);
+		if (classMetaID == null)
+			throw new IllegalStateException("JDOHelper.getObjectId(classMeta) returned null! this=" + this + " classMeta=" + classMeta);
+
 		classMeta = (ClassMeta) pm.getObjectById(classMetaID);
 	}
 }

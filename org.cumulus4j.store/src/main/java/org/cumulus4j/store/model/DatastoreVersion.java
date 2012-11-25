@@ -23,7 +23,7 @@ public class DatastoreVersion {
 
 	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE, sequence="DatastoreVersionSequence")
-	private long datastoreVersionID;
+	private Long datastoreVersionID;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	@Column(length=255)
