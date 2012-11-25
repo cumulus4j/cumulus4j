@@ -457,7 +457,14 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 
 	private void setEmbeddedClassMeta(ExecutionContext ec, FieldMeta fieldMeta) {
 		AbstractMemberMetaData memberMetaData = fieldMeta.getDataNucleusMemberMetaData(ec);
-		if (memberMetaData.isEmbedded()) {
+		boolean embedded = (
+				memberMetaData.isEmbedded()
+				|| (memberMetaData.hasCollection() && memberMetaData.getCollection().isEmbeddedElement())
+				|| (memberMetaData.hasArray() && memberMetaData.getArray().isEmbeddedElement())
+				|| (memberMetaData.hasMap() && (memberMetaData.getMap().isEmbeddedKey() || memberMetaData.getMap().isEmbeddedValue()))
+		);
+
+		if (embedded) {
 			if (fieldMeta.getSubFieldMetas().isEmpty()) {
 				// only assign this to the leafs (map-key, map-value, collection-element, etc.)
 				// if we have no sub-field-metas, our fieldMeta is a leaf.
@@ -474,12 +481,32 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 			else {
 				fieldMeta.setEmbeddedClassMeta(null);
 				for (FieldMeta subFieldMeta : fieldMeta.getSubFieldMetas()) {
-					setEmbeddedClassMeta(ec, subFieldMeta);
+					boolean subEmbedded = true;
+					if (memberMetaData.hasMap()) {
+						switch (subFieldMeta.getRole()) {
+							case mapKey:
+								subEmbedded = memberMetaData.getMap().isEmbeddedKey();
+								break;
+							case mapValue:
+								subEmbedded = memberMetaData.getMap().isEmbeddedValue();
+								break;
+							default:
+								throw new IllegalStateException("Unexpected subFieldMeta.role=" + subFieldMeta.getRole());
+						}
+					}
+					if (subEmbedded)
+						setEmbeddedClassMeta(ec, subFieldMeta);
+					else
+						subFieldMeta.setEmbeddedClassMeta(null);
 				}
 			}
 		}
-		else
+		else {
 			fieldMeta.setEmbeddedClassMeta(null);
+			for (FieldMeta subFieldMeta : fieldMeta.getSubFieldMetas()) {
+				subFieldMeta.setEmbeddedClassMeta(null);
+			}
+		}
 	}
 
 	private void updateEmbeddedFieldMetas(ExecutionContext ec, FieldMeta embeddingFieldMeta)

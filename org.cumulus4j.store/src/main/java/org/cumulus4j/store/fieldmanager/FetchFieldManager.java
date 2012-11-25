@@ -182,7 +182,7 @@ public class FetchFieldManager extends AbstractFieldManager
 
 	@Override
 	public Object fetchObjectField(int fieldNumber)
-	{ // TODO refactor this *too* *long* method! split into multiple! Marco :-)
+	{
 		AbstractMemberMetaData mmd = dnClassMetaData.getMetaDataForManagedMemberAtAbsolutePosition(fieldNumber);
 		FieldMeta fieldMeta = classMeta.getFieldMeta(mmd.getClassName(), mmd.getName());
 		if (fieldMeta == null)
@@ -210,233 +210,18 @@ public class FetchFieldManager extends AbstractFieldManager
 		int relationType = mmd.getRelationType(ec.getClassLoaderResolver());
 
 		if (relationType == Relation.NONE)
-		{
-			if (mmd.hasCollection())
-			{
-				Collection<Object> collection;
-				@SuppressWarnings("unchecked")
-				Class<? extends Collection<Object>> instanceType = SCOUtils.getContainerInstanceType(mmd.getType(), mmd.getOrderMetaData() != null);
-				try {
-					collection = instanceType.newInstance();
-				} catch (InstantiationException e) {
-					throw new NucleusDataStoreException(e.getMessage(), e);
-				} catch (IllegalAccessException e) {
-					throw new NucleusDataStoreException(e.getMessage(), e);
-				}
-
-				Object array = objectContainer.getValue(fieldMeta.getFieldID());
-				if (array != null) {
-					for (int idx = 0; idx < Array.getLength(array); ++idx) {
-						Object element = Array.get(array, idx);
-						collection.add(element);
-					}
-				}
-				return op.wrapSCOField(fieldNumber, collection, false, false, true);
-			}
-
-			if (mmd.hasMap())
-			{
-				Map<?,?> map = (Map<?,?>) objectContainer.getValue(fieldMeta.getFieldID());
-				return op.wrapSCOField(fieldNumber, map, false, false, true);
-			}
-
-			// Arrays are stored 'as is', thus no conversion necessary.
-			return objectContainer.getValue(getFieldID(fieldNumber));
-		}
+			return fetchObjectFieldWithRelationTypeNone(fieldNumber, mmd, fieldMeta);
 		else if (Relation.isRelationSingleValued(relationType))
-		{
-			if (mmd.isEmbedded()) {
-				Object value = objectContainer.getValue(fieldMeta.getFieldID());
-				if (value == null)
-					return null;
-
-				if (!(value instanceof EmbeddedObjectContainer))
-					throw new IllegalStateException("field claims to be embedded, but persistent field value is not an EmbeddedObjectContainer! fieldID=" + fieldMeta.getFieldID() + " fieldName=" + fieldMeta.getFieldName());
-
-				EmbeddedObjectContainer embeddedObjectContainer = (EmbeddedObjectContainer) value;
-
-				// TODO the newest DN version has a StateManagerFactory that makes the following more convenient (I think) - maybe switch later?!
-//				ClassMeta embeddedClassMeta = ((Cumulus4jStoreManager)ec.getStoreManager()).getClassMeta(ec, embeddedObjectContainer.getClassID(), true);
-				ClassMeta embeddedClassMeta = fieldMeta.getEmbeddedClassMeta();
-				Class<?> embeddedClass = ec.getClassLoaderResolver().classForName(embeddedClassMeta.getClassName());
-
-				AbstractClassMetaData embeddedDNClassMeta = embeddedClassMeta.getDataNucleusClassMetaData(ec);
-				PersistenceCapable pc = JDOImplHelper.getInstance().newInstance(embeddedClass, null);
-
-				ObjectProvider embeddedOP = ObjectProviderFactory.newForEmbedded(ec, pc, false, op, fieldNumber);
-				embeddedOP.replaceFields(
-						embeddedDNClassMeta.getAllMemberPositions(),
-						new FetchFieldManager(embeddedOP, cryptoContext, embeddedClassMeta, embeddedDNClassMeta, embeddedObjectContainer)
-				);
-				return embeddedOP.getObject();
-			}
-			else {
-				if (mmd.getMappedBy() != null) {
-					if (mappedByDataEntryIDs.isEmpty())
-						return null;
-
-					if (mappedByDataEntryIDs.size() != 1)
-						throw new IllegalStateException("There are multiple objects referencing a 1-1-mapped-by-relationship! Expected 0 or 1! fieldMeta=" + fieldMeta + " dataEntryIDsForMappedBy=" + mappedByDataEntryIDs);
-
-					long dataEntryID = mappedByDataEntryIDs.iterator().next();
-					return getObjectFromDataEntryID(dataEntryID);
-				}
-
-				Object valueID = objectContainer.getValue(fieldMeta.getFieldID());
-				return ObjectContainerHelper.referenceToEntity(cryptoContext, pmData, valueID);
-			}
-		}
+			return fetchObjectFieldWithRelationTypeSingleValue(fieldNumber, mmd, fieldMeta, mappedByDataEntryIDs);
 		else if (Relation.isRelationMultiValued(relationType))
 		{
 			// Collection/Map/Array
 			if (mmd.hasCollection())
-			{
-				Collection<Object> collection;
-				@SuppressWarnings("unchecked")
-				Class<? extends Collection<Object>> instanceType = SCOUtils.getContainerInstanceType(mmd.getType(), mmd.getOrderMetaData() != null);
-				try {
-					collection = instanceType.newInstance();
-				} catch (InstantiationException e) {
-					throw new NucleusDataStoreException(e.getMessage(), e);
-				} catch (IllegalAccessException e) {
-					throw new NucleusDataStoreException(e.getMessage(), e);
-				}
-
-				if (mmd.getMappedBy() != null) {
-					for (Long mappedByDataEntryID : mappedByDataEntryIDs) {
-						Object element = getObjectFromDataEntryID(mappedByDataEntryID);
-						collection.add(element);
-					}
-				}
-				else {
-					Object ids = objectContainer.getValue(fieldMeta.getFieldID());
-					if (ids != null) {
-						for (int idx = 0; idx < Array.getLength(ids); ++idx) {
-							Object id = Array.get(ids, idx);
-							Object element = ObjectContainerHelper.referenceToEntity(cryptoContext, pmData, id);
-							if (element != null) // orphaned reference - https://sourceforge.net/tracker/?func=detail&aid=3515529&group_id=517465&atid=2102914
-								collection.add(element);
-						}
-					}
-				}
-				return op.wrapSCOField(fieldNumber, collection, false, false, true);
-			}
+				return fetchObjectFieldWithRelationTypeCollection(fieldNumber, mmd, fieldMeta, mappedByDataEntryIDs);
 			else if (mmd.hasMap())
-			{
-				Map<Object, Object> map;
-				@SuppressWarnings("unchecked")
-				Class<? extends Map<Object, Object>> instanceType = SCOUtils.getContainerInstanceType(mmd.getType(), mmd.getOrderMetaData() != null);
-				try {
-					map = instanceType.newInstance();
-				} catch (InstantiationException e) {
-					throw new NucleusDataStoreException(e.getMessage(), e);
-				} catch (IllegalAccessException e) {
-					throw new NucleusDataStoreException(e.getMessage(), e);
-				}
-
-				boolean keyIsPersistent = mmd.getMap().keyIsPersistent();
-				boolean valueIsPersistent = mmd.getMap().valueIsPersistent();
-
-				if (mmd.getMappedBy() != null) {
-					FieldMeta oppositeFieldMetaKey = fieldMeta.getSubFieldMeta(FieldMetaRole.mapKey).getMappedByFieldMeta(ec);
-					FieldMeta oppositeFieldMetaValue = fieldMeta.getSubFieldMeta(FieldMetaRole.mapValue).getMappedByFieldMeta(ec);
-
-					for (Long mappedByDataEntryID : mappedByDataEntryIDs) {
-						Object element = getObjectFromDataEntryID(mappedByDataEntryID);
-						ObjectProvider elementOP = ec.findObjectProvider(element);
-						if (elementOP == null)
-							throw new IllegalStateException("executionContext.findObjectProvider(element) returned null for " + element);
-
-						Object key;
-						if (keyIsPersistent)
-							key = element;
-						else
-							key = elementOP.provideField(oppositeFieldMetaKey.getDataNucleusAbsoluteFieldNumber(ec));
-
-						Object value;
-						if (valueIsPersistent)
-							value = element;
-						else
-							value = elementOP.provideField(oppositeFieldMetaValue.getDataNucleusAbsoluteFieldNumber(ec));
-
-						map.put(key, value);
-					}
-				}
-				else {
-					Map<?,?> idMap = (Map<?,?>) objectContainer.getValue(fieldMeta.getFieldID());
-					if (idMap != null) {
-						for (Map.Entry<?, ?> me : idMap.entrySet()) {
-							Object k = me.getKey();
-							Object v = me.getValue();
-
-							if (keyIsPersistent) {
-								k = ObjectContainerHelper.referenceToEntity(cryptoContext, pmData, k);
-								if (k == null) // orphaned reference - https://sourceforge.net/tracker/?func=detail&aid=3515529&group_id=517465&atid=2102914
-									continue;
-							}
-
-							if (valueIsPersistent) {
-								v = ObjectContainerHelper.referenceToEntity(cryptoContext, pmData, v);
-								if (v == null) // orphaned reference - https://sourceforge.net/tracker/?func=detail&aid=3515529&group_id=517465&atid=2102914
-									continue;
-							}
-
-							map.put(k, v);
-						}
-					}
-				}
-
-				return op.wrapSCOField(fieldNumber, map, false, false, true);
-			}
+				return fetchObjectFieldWithRelationTypeMap(fieldNumber, mmd, fieldMeta, mappedByDataEntryIDs);
 			else if (mmd.hasArray())
-			{
-				Class<?> elementType = ec.getClassLoaderResolver().classForName(mmd.getArray().getElementType());
-
-				Object array;
-				if (mmd.getMappedBy() != null) {
-					int arrayLength = mappedByDataEntryIDs.size();
-					array = Array.newInstance(elementType, arrayLength);
-					Iterator<Long> it = mappedByDataEntryIDs.iterator();
-					for (int i = 0; i < arrayLength; ++i) {
-						Long dataEntryID = it.next();
-						Object element = getObjectFromDataEntryID(dataEntryID);
-						Array.set(array, i, element);
-					}
-				}
-				else {
-					Object ids = objectContainer.getValue(fieldMeta.getFieldID());
-					if (ids == null)
-						array = null;
-					else {
-						if (ec.getStoreManager().getPersistenceHandler().useReferentialIntegrity()) {
-							// Directly fill the array.
-							int arrayLength = Array.getLength(ids);
-							array = Array.newInstance(elementType, arrayLength);
-							for (int i = 0; i < arrayLength; ++i) {
-								Object id = Array.get(ids, i);
-								Object element = ObjectContainerHelper.referenceToEntity(cryptoContext, pmData, id);
-								Array.set(array, i, element);
-							}
-						}
-						else {
-							// https://sourceforge.net/tracker/?func=detail&aid=3515529&group_id=517465&atid=2102914
-							// First fill a list and then transfer everything into an array, because there might
-							// be elements missing (orphaned references).
-							int arrayLength = Array.getLength(ids);
-							ArrayList<Object> tmpList = new ArrayList<Object>();
-							for (int i = 0; i < arrayLength; ++i) {
-								Object id = Array.get(ids, i);
-								Object element = ObjectContainerHelper.referenceToEntity(cryptoContext, pmData, id);
-								if (element != null)
-									tmpList.add(element);
-							}
-							array = Array.newInstance(elementType, tmpList.size());
-							array = tmpList.toArray((Object[]) array);
-						}
-					}
-				}
-				return array;
-			}
+				return fetchObjectFieldWithRelationTypeArray(fieldNumber, mmd, fieldMeta, mappedByDataEntryIDs);
 			else
 				throw new IllegalStateException("Unexpected multi-valued relationType: " + relationType);
 		}
@@ -444,7 +229,257 @@ public class FetchFieldManager extends AbstractFieldManager
 			throw new IllegalStateException("Unexpected relationType: " + relationType);
 	}
 
-	private Object getObjectFromDataEntryID(long dataEntryID)
+	/**
+	 * Fetch related objects that are not persistence-capable.
+	 * The related objects might be single-valued, arrays, collections or maps.
+	 */
+	protected Object fetchObjectFieldWithRelationTypeNone(int fieldNumber, AbstractMemberMetaData mmd, FieldMeta fieldMeta)
+	{
+		if (mmd.hasCollection())
+		{
+			Collection<Object> collection;
+			@SuppressWarnings("unchecked")
+			Class<? extends Collection<Object>> instanceType = SCOUtils.getContainerInstanceType(mmd.getType(), mmd.getOrderMetaData() != null);
+			try {
+				collection = instanceType.newInstance();
+			} catch (InstantiationException e) {
+				throw new NucleusDataStoreException(e.getMessage(), e);
+			} catch (IllegalAccessException e) {
+				throw new NucleusDataStoreException(e.getMessage(), e);
+			}
+
+			Object array = objectContainer.getValue(fieldMeta.getFieldID());
+			if (array != null) {
+				for (int idx = 0; idx < Array.getLength(array); ++idx) {
+					Object element = Array.get(array, idx);
+					collection.add(element);
+				}
+			}
+			return op.wrapSCOField(fieldNumber, collection, false, false, true);
+		}
+
+		if (mmd.hasMap())
+		{
+			Map<?,?> map = (Map<?,?>) objectContainer.getValue(fieldMeta.getFieldID());
+			return op.wrapSCOField(fieldNumber, map, false, false, true);
+		}
+
+		// Arrays are stored 'as is', thus no conversion necessary.
+		return objectContainer.getValue(getFieldID(fieldNumber));
+	}
+
+	/**
+	 * Fetch a single related object (1-1-relationship).
+	 * The related object is persistence-capable.
+	 */
+	protected Object fetchObjectFieldWithRelationTypeSingleValue(int fieldNumber, AbstractMemberMetaData mmd, FieldMeta fieldMeta, Set<Long> mappedByDataEntryIDs)
+	{
+		if (mmd.isEmbedded()) {
+			Object value = objectContainer.getValue(fieldMeta.getFieldID());
+			if (value == null)
+				return null;
+
+			if (!(value instanceof EmbeddedObjectContainer))
+				throw new IllegalStateException("field claims to be embedded, but persistent field value is not an EmbeddedObjectContainer! fieldID=" + fieldMeta.getFieldID() + " fieldName=" + fieldMeta.getFieldName());
+
+			EmbeddedObjectContainer embeddedObjectContainer = (EmbeddedObjectContainer) value;
+
+			// TODO the newest DN version has a StateManagerFactory that makes the following more convenient (I think) - maybe switch later?!
+//			ClassMeta embeddedClassMeta = ((Cumulus4jStoreManager)ec.getStoreManager()).getClassMeta(ec, embeddedObjectContainer.getClassID(), true);
+			ClassMeta embeddedClassMeta = fieldMeta.getEmbeddedClassMeta();
+			Class<?> embeddedClass = ec.getClassLoaderResolver().classForName(embeddedClassMeta.getClassName());
+
+			AbstractClassMetaData embeddedDNClassMeta = embeddedClassMeta.getDataNucleusClassMetaData(ec);
+			PersistenceCapable pc = JDOImplHelper.getInstance().newInstance(embeddedClass, null);
+
+			ObjectProvider embeddedOP = ObjectProviderFactory.newForEmbedded(ec, pc, false, op, fieldNumber);
+			embeddedOP.replaceFields(
+					embeddedDNClassMeta.getAllMemberPositions(),
+					new FetchFieldManager(embeddedOP, cryptoContext, embeddedClassMeta, embeddedDNClassMeta, embeddedObjectContainer)
+			);
+			return embeddedOP.getObject();
+		}
+		else {
+			if (mmd.getMappedBy() != null) {
+				if (mappedByDataEntryIDs.isEmpty())
+					return null;
+
+				if (mappedByDataEntryIDs.size() != 1)
+					throw new IllegalStateException("There are multiple objects referencing a 1-1-mapped-by-relationship! Expected 0 or 1! fieldMeta=" + fieldMeta + " dataEntryIDsForMappedBy=" + mappedByDataEntryIDs);
+
+				long dataEntryID = mappedByDataEntryIDs.iterator().next();
+				return getObjectFromDataEntryID(dataEntryID);
+			}
+
+			Object valueID = objectContainer.getValue(fieldMeta.getFieldID());
+			return ObjectContainerHelper.referenceToEntity(cryptoContext, pmData, valueID);
+		}
+	}
+
+	/**
+	 * Fetch an array of related objects (1-n-relationship).
+	 * The related objects are persistence-capable.
+	 */
+	protected Object fetchObjectFieldWithRelationTypeArray(int fieldNumber, AbstractMemberMetaData mmd, FieldMeta fieldMeta, Set<Long> mappedByDataEntryIDs)
+	{
+		Class<?> elementType = ec.getClassLoaderResolver().classForName(mmd.getArray().getElementType());
+
+		Object array;
+		if (mmd.getMappedBy() != null) {
+			int arrayLength = mappedByDataEntryIDs.size();
+			array = Array.newInstance(elementType, arrayLength);
+			Iterator<Long> it = mappedByDataEntryIDs.iterator();
+			for (int i = 0; i < arrayLength; ++i) {
+				Long dataEntryID = it.next();
+				Object element = getObjectFromDataEntryID(dataEntryID);
+				Array.set(array, i, element);
+			}
+		}
+		else {
+			Object ids = objectContainer.getValue(fieldMeta.getFieldID());
+			if (ids == null)
+				array = null;
+			else {
+				if (ec.getStoreManager().getPersistenceHandler().useReferentialIntegrity()) {
+					// Directly fill the array.
+					int arrayLength = Array.getLength(ids);
+					array = Array.newInstance(elementType, arrayLength);
+					for (int i = 0; i < arrayLength; ++i) {
+						Object id = Array.get(ids, i);
+						Object element = ObjectContainerHelper.referenceToEntity(cryptoContext, pmData, id);
+						Array.set(array, i, element);
+					}
+				}
+				else {
+					// https://sourceforge.net/tracker/?func=detail&aid=3515529&group_id=517465&atid=2102914
+					// First fill a list and then transfer everything into an array, because there might
+					// be elements missing (orphaned references).
+					int arrayLength = Array.getLength(ids);
+					ArrayList<Object> tmpList = new ArrayList<Object>();
+					for (int i = 0; i < arrayLength; ++i) {
+						Object id = Array.get(ids, i);
+						Object element = ObjectContainerHelper.referenceToEntity(cryptoContext, pmData, id);
+						if (element != null)
+							tmpList.add(element);
+					}
+					array = Array.newInstance(elementType, tmpList.size());
+					array = tmpList.toArray((Object[]) array);
+				}
+			}
+		}
+		return array;
+	}
+
+	/**
+	 * Fetch a {@link Collection} (<code>List</code>, <code>Set</code>, etc.) of
+	 * related objects (1-n-relationship).
+	 * The related objects are persistence-capable.
+	 */
+	protected Object fetchObjectFieldWithRelationTypeCollection(int fieldNumber, AbstractMemberMetaData mmd, FieldMeta fieldMeta, Set<Long> mappedByDataEntryIDs) {
+		Collection<Object> collection;
+		@SuppressWarnings("unchecked")
+		Class<? extends Collection<Object>> instanceType = SCOUtils.getContainerInstanceType(mmd.getType(), mmd.getOrderMetaData() != null);
+		try {
+			collection = instanceType.newInstance();
+		} catch (InstantiationException e) {
+			throw new NucleusDataStoreException(e.getMessage(), e);
+		} catch (IllegalAccessException e) {
+			throw new NucleusDataStoreException(e.getMessage(), e);
+		}
+
+		if (mmd.getMappedBy() != null) {
+			for (Long mappedByDataEntryID : mappedByDataEntryIDs) {
+				Object element = getObjectFromDataEntryID(mappedByDataEntryID);
+				collection.add(element);
+			}
+		}
+		else {
+			Object ids = objectContainer.getValue(fieldMeta.getFieldID());
+			if (ids != null) {
+				for (int idx = 0; idx < Array.getLength(ids); ++idx) {
+					Object id = Array.get(ids, idx);
+					Object element = ObjectContainerHelper.referenceToEntity(cryptoContext, pmData, id);
+					if (element != null) // orphaned reference - https://sourceforge.net/tracker/?func=detail&aid=3515529&group_id=517465&atid=2102914
+						collection.add(element);
+				}
+			}
+		}
+		return op.wrapSCOField(fieldNumber, collection, false, false, true);
+	}
+
+	/**
+	 * Fetch a {@link Map} of related objects (1-n-relationship).
+	 * The related objects are persistence-capable.
+	 */
+	protected Object fetchObjectFieldWithRelationTypeMap(int fieldNumber, AbstractMemberMetaData mmd, FieldMeta fieldMeta, Set<Long> mappedByDataEntryIDs)
+	{
+		Map<Object, Object> map;
+		@SuppressWarnings("unchecked")
+		Class<? extends Map<Object, Object>> instanceType = SCOUtils.getContainerInstanceType(mmd.getType(), mmd.getOrderMetaData() != null);
+		try {
+			map = instanceType.newInstance();
+		} catch (InstantiationException e) {
+			throw new NucleusDataStoreException(e.getMessage(), e);
+		} catch (IllegalAccessException e) {
+			throw new NucleusDataStoreException(e.getMessage(), e);
+		}
+
+		boolean keyIsPersistent = mmd.getMap().keyIsPersistent();
+		boolean valueIsPersistent = mmd.getMap().valueIsPersistent();
+
+		if (mmd.getMappedBy() != null) {
+			FieldMeta oppositeFieldMetaKey = fieldMeta.getSubFieldMeta(FieldMetaRole.mapKey).getMappedByFieldMeta(ec);
+			FieldMeta oppositeFieldMetaValue = fieldMeta.getSubFieldMeta(FieldMetaRole.mapValue).getMappedByFieldMeta(ec);
+
+			for (Long mappedByDataEntryID : mappedByDataEntryIDs) {
+				Object element = getObjectFromDataEntryID(mappedByDataEntryID);
+				ObjectProvider elementOP = ec.findObjectProvider(element);
+				if (elementOP == null)
+					throw new IllegalStateException("executionContext.findObjectProvider(element) returned null for " + element);
+
+				Object key;
+				if (keyIsPersistent)
+					key = element;
+				else
+					key = elementOP.provideField(oppositeFieldMetaKey.getDataNucleusAbsoluteFieldNumber(ec));
+
+				Object value;
+				if (valueIsPersistent)
+					value = element;
+				else
+					value = elementOP.provideField(oppositeFieldMetaValue.getDataNucleusAbsoluteFieldNumber(ec));
+
+				map.put(key, value);
+			}
+		}
+		else {
+			Map<?,?> idMap = (Map<?,?>) objectContainer.getValue(fieldMeta.getFieldID());
+			if (idMap != null) {
+				for (Map.Entry<?, ?> me : idMap.entrySet()) {
+					Object k = me.getKey();
+					Object v = me.getValue();
+
+					if (keyIsPersistent) {
+						k = ObjectContainerHelper.referenceToEntity(cryptoContext, pmData, k);
+						if (k == null) // orphaned reference - https://sourceforge.net/tracker/?func=detail&aid=3515529&group_id=517465&atid=2102914
+							continue;
+					}
+
+					if (valueIsPersistent) {
+						v = ObjectContainerHelper.referenceToEntity(cryptoContext, pmData, v);
+						if (v == null) // orphaned reference - https://sourceforge.net/tracker/?func=detail&aid=3515529&group_id=517465&atid=2102914
+							continue;
+					}
+
+					map.put(k, v);
+				}
+			}
+		}
+
+		return op.wrapSCOField(fieldNumber, map, false, false, true);
+	}
+
+	protected Object getObjectFromDataEntryID(long dataEntryID)
 	{
 		String idStr = new DataEntryDAO(pmData, cryptoContext.getKeyStoreRefID()).getDataEntry(dataEntryID).getObjectID();
 		return IdentityUtils.getObjectFromIdString(
