@@ -270,6 +270,8 @@
 									
 									<classifiers></classifiers>
 									<files></files>
+									
+									<generatePom>false</generatePom>
 								</configuration>
 							</execution>
 							<execution>
