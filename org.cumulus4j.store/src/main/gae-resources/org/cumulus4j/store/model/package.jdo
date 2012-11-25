@@ -63,7 +63,6 @@
             </query>
 		</class>
 
-<!--
 		<class name="EmbeddedClassMeta" identity-type="application" detachable="true">
 			
 			<inheritance strategy="complete-table">
@@ -79,9 +78,14 @@
 			<field name="embeddingFieldMeta">
 				<extension vendor-name="datanucleus" key="gae.unowned" value="true"/>
 			</field>
+			
+			<query name="getEmbeddedClassMetaByEmbeddingFieldMeta_fieldID" language="javax.jdo.query.JDOQL">
+				<![CDATA[
+					SELECT UNIQUE FROM org.cumulus4j.store.model.EmbeddedClassMeta EXCLUDE SUBCLASSES WHERE this.embeddingFieldMeta_fieldID == :embeddingFieldMeta_fieldID
+				]]>
+            </query>
 
 		</class>
--->
 
 		<class name="IndexEntry" identity-type="application" detachable="true">
 		
@@ -129,7 +133,6 @@
 			
 		</class>
 
-<!-- 
 		<class name="EmbeddedFieldMeta" identity-type="application" detachable="true">
 			
 			<inheritance strategy="complete-table">
@@ -143,7 +146,6 @@
 			</field>
 		
 		</class>
--->
 		
 	</package>
   
