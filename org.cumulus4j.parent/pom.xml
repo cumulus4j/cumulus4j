@@ -747,7 +747,12 @@
 						</filesets>
 					</configuration>
 				</plugin>
-				
+
+				<plugin>
+					<artifactId>maven-deploy-plugin</artifactId>
+					<version>2.7</version>
+				</plugin>
+
 				<plugin>
 					<artifactId>maven-failsafe-plugin</artifactId>
 					<version>2.8.1</version>
