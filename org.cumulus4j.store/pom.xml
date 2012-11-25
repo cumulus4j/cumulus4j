@@ -251,7 +251,7 @@
 						<executions>
 							<execution>
 								<id>gae-deploy</id>
-								<phase>deploy</phase> <!-- MAYBE just like above one phase earlier than normal - didn't test though, just copied --> 
+								<phase>deploy</phase> 
 								<goals>
 									<goal>deploy-file</goal>
 								</goals>
@@ -268,8 +268,10 @@
 									<version>${cumulus4j.version}</version>
 									<classifier>gae</classifier>
 									
-									<classifiers></classifiers>
-									<files></files>
+									<sources></sources>
+
+									<classifiers>gae-sources</classifiers>
+									<files>${project.build.directory}/${finalName}.jar</files>
 									
 									<generatePom>false</generatePom>
 								</configuration>
