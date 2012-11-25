@@ -124,7 +124,7 @@
 						<executions>
 							<execution>
 								<id>gae-install</id>
-								<phase>verify</phase>
+								<phase>verify</phase> <!-- must be one phase earlier than normal - otherwise is not executed at all -->
 								<goals>
 									<goal>install-file</goal>
 								</goals>
@@ -150,7 +150,38 @@
 							</execution>
 						</executions>
 					</plugin>
-					
+
+					<plugin>
+						<artifactId>maven-deploy-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>gae-deploy</id>
+								<phase>install</phase> <!-- just like above one phase earlier than normal - didn't test though, just copied --> 
+								<goals>
+									<goal>deploy-file</goal>
+								</goals>
+								<inherited>false</inherited>
+								<configuration>
+									<file>${project.build.directory}/${finalName}.jar</file>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>${project.artifactId}</artifactId>
+									<packaging>jar</packaging>
+									<version>${cumulus4j.version}</version>
+									<classifier>gae</classifier>
+								</configuration>
+							</execution>
+							<execution>
+								<id>default-deploy</id>
+								<goals>
+									<goal>deploy</goal>
+								</goals>
+								<inherited>false</inherited>
+								<configuration>
+									<skip>true</skip>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
 				</plugins>
 			</build>
 			
