@@ -267,6 +267,9 @@
 									<packaging>jar</packaging>
 									<version>${cumulus4j.version}</version>
 									<classifier>gae</classifier>
+									
+									<classifiers></classifiers>
+									<files></files>
 								</configuration>
 							</execution>
 							<execution>
