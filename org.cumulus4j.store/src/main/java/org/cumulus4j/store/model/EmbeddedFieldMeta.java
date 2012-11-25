@@ -150,21 +150,54 @@ public class EmbeddedFieldMeta extends FieldMeta {
 				@Override
 				public void run() {
 					DetachedClassMetaModel detachedClassMetaModel = DetachedClassMetaModel.getInstance();
+
+					if (detachedClassMetaModel == null) // we currently only detach with this being present - at least it should, hence we don't need to handle things differently.
+						throw new IllegalStateException("DetachedClassMetaModel.getInstance() returned null!");
+
 					if (detachedClassMetaModel != null) {
 						FieldMeta nonEmbeddedFieldMeta = attached.getNonEmbeddedFieldMeta();
-						ClassMeta detachedClassMeta = detachedClassMetaModel.getClassMeta(nonEmbeddedFieldMeta.getClassMeta().getClassID(), true);
+						ClassMeta detachedClassMeta = detachedClassMetaModel.getClassMeta(nonEmbeddedFieldMeta.getClassMeta().getClassID(), false);
+						if (detachedClassMeta == null) {
+							setNonEmbeddedFieldMetaPostponed(postDetachRunnableManager, detachedClassMetaModel, nonEmbeddedFieldMeta, 1);
+						}
+						else {
+							FieldMeta nefm = detachedClassMeta.getFieldMeta(nonEmbeddedFieldMeta_fieldID);
+							if (nefm == null)
+								throw new IllegalStateException("detachedClassMeta.getFieldMeta(...) returned null for " + nonEmbeddedFieldMeta);
 
-						FieldMeta nefm = detachedClassMeta.getFieldMeta(nonEmbeddedFieldMeta_fieldID);
-						if (nefm == null)
-							throw new IllegalStateException("detachedClassMeta.getFieldMeta(...) returned null for " + nonEmbeddedFieldMeta);
-
-						detached.nonEmbeddedFieldMeta = nefm;
+							detached.nonEmbeddedFieldMeta = nefm;
+						}
 					}
 				}
 			});
 		} finally {
 			postDetachRunnableManager.exitScope();
 		}
+	}
+
+	protected void setNonEmbeddedFieldMetaPostponed(final PostDetachRunnableManager postDetachRunnableManager, final DetachedClassMetaModel detachedClassMetaModel, final FieldMeta nonEmbeddedFieldMeta, final int postponeCounter) {
+		postDetachRunnableManager.addRunnable(new Runnable() {
+			@Override
+			public void run() {
+				if (detachedClassMetaModel != null) {
+					ClassMeta detachedClassMeta = detachedClassMetaModel.getClassMeta(nonEmbeddedFieldMeta.getClassMeta().getClassID(), false);
+					if (detachedClassMeta == null) {
+						final int maxPostponeCounter = 100;
+						if (postponeCounter > maxPostponeCounter)
+							throw new IllegalStateException("postponeCounter > " + maxPostponeCounter);
+
+						setNonEmbeddedFieldMetaPostponed(postDetachRunnableManager, detachedClassMetaModel, nonEmbeddedFieldMeta, postponeCounter + 1);
+					}
+					else {
+						FieldMeta nefm = detachedClassMeta.getFieldMeta(nonEmbeddedFieldMeta_fieldID);
+						if (nefm == null)
+							throw new IllegalStateException("detachedClassMeta.getFieldMeta(...) returned null for " + nonEmbeddedFieldMeta);
+
+						EmbeddedFieldMeta.this.nonEmbeddedFieldMeta = nefm;
+					}
+				}
+			}
+		});
 	}
 
 	@Override

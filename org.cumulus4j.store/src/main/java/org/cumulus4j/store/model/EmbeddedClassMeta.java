@@ -219,12 +219,35 @@ public class EmbeddedClassMeta extends ClassMeta {
 				@Override
 				public void run() {
 					DetachedClassMetaModel detachedClassMetaModel = DetachedClassMetaModel.getInstance();
-					if (detachedClassMetaModel != null)
-						nonEmbeddedClassMeta = detachedClassMetaModel.getClassMeta(nonEmbeddedClassMeta_classID, true);
+
+					if (detachedClassMetaModel == null) // we currently only detach with this being present - at least it should, hence we don't need to handle things differently.
+						throw new IllegalStateException("DetachedClassMetaModel.getInstance() returned null!");
+
+					if (detachedClassMetaModel != null) {
+						nonEmbeddedClassMeta = detachedClassMetaModel.getClassMeta(nonEmbeddedClassMeta_classID, false);
+						if (nonEmbeddedClassMeta == null)
+							setNonEmbeddedClassMetaPostponedInPostDetach(postDetachRunnableManager, detachedClassMetaModel, 1);
+					}
 				}
 			});
 		} finally {
 			postDetachRunnableManager.exitScope();
 		}
+	}
+
+	protected void setNonEmbeddedClassMetaPostponedInPostDetach(final PostDetachRunnableManager postDetachRunnableManager, final DetachedClassMetaModel detachedClassMetaModel, final int postponeCounter) {
+		postDetachRunnableManager.addRunnable(new Runnable() {
+			@Override
+			public void run() {
+				nonEmbeddedClassMeta = detachedClassMetaModel.getClassMeta(nonEmbeddedClassMeta_classID, false);
+				if (nonEmbeddedClassMeta == null) {
+					final int maxPostponeCounter = 100;
+					if (postponeCounter > maxPostponeCounter)
+						throw new IllegalStateException("postponeCounter > " + maxPostponeCounter);
+
+					setNonEmbeddedClassMetaPostponedInPostDetach(postDetachRunnableManager, detachedClassMetaModel, postponeCounter + 1);
+				}
+			}
+		});
 	}
 }

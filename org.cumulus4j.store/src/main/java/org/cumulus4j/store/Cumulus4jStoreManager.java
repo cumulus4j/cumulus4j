@@ -168,30 +168,30 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 		if (result.getClassID() != classID) {
 			result = null;
 
-			DetachedClassMetaModel.setInstance(new DetachedClassMetaModel() {
-				@Override
-				public ClassMeta getClassMeta(long classID, boolean throwExceptionIfNotFound) {
-					ClassMeta result = classID2classMeta.get(classID);
-					if (result == null && throwExceptionIfNotFound)
-						throw new IllegalArgumentException("No ClassMeta found for classID=" + classID);
-
-					return result;
-				}
-			});
-			try {
+//			DetachedClassMetaModel.setInstance(new DetachedClassMetaModel() {
+//				@Override
+//				public ClassMeta getClassMeta(long classID, boolean throwExceptionIfNotFound) {
+//					ClassMeta result = classID2classMeta.get(classID);
+//					if (result == null && throwExceptionIfNotFound)
+//						throw new IllegalArgumentException("No ClassMeta found for classID=" + classID);
+//
+//					return result;
+//				}
+//			});
+//			try {
 				mconn = this.getConnection(ec);
 				try {
 					PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
 					PersistenceManager pm = pmConn.getDataPM();
 					ClassMetaDAO dao = new ClassMetaDAO(pm);
 					ClassMeta classMeta = dao.getClassMeta(classID, throwExceptionIfNotFound);
-					result = detachClassMeta(pm, classMeta);
+					result = detachClassMeta(ec, pm, classMeta);
 				} finally {
 					mconn.release(); mconn = null;
 				}
-			} finally {
-				DetachedClassMetaModel.setInstance(null);
-			}
+//			} finally {
+//				DetachedClassMetaModel.setInstance(null);
+//			}
 		}
 		logger.debug("getClassMetaByClassID: end loading (took {} ms). classID={}", System.currentTimeMillis() - beginLoadingTimestamp, classID);
 
@@ -199,18 +199,32 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 		return result;
 	}
 
-	protected ClassMeta detachClassMeta(PersistenceManager pm, ClassMeta classMeta) {
-		ClassMeta result;
-		pm.getFetchPlan().setGroups(FetchPlan.ALL, FetchGroupsMetaData.ALL);
-		pm.getFetchPlan().setMaxFetchDepth(-1);
-		final PostDetachRunnableManager postDetachRunnableManager = PostDetachRunnableManager.getInstance();
-		postDetachRunnableManager.enterScope();
+	protected ClassMeta detachClassMeta(final ExecutionContext ec, PersistenceManager pm, ClassMeta classMeta) {
+		DetachedClassMetaModel.setInstance(new DetachedClassMetaModel() {
+			@Override
+			public ClassMeta getClassMeta(long classID, boolean throwExceptionIfNotFound) {
+//				ClassMeta result = classID2classMeta.get(classID);
+//				if (result == null && throwExceptionIfNotFound)
+//					throw new IllegalArgumentException("No ClassMeta found for classID=" + classID);
+				ClassMeta result = Cumulus4jStoreManager.this.getClassMeta(ec, classID, throwExceptionIfNotFound);
+				return result;
+			}
+		});
 		try {
-			result = pm.detachCopy(classMeta);
+			ClassMeta result;
+			pm.getFetchPlan().setGroups(FetchPlan.ALL, FetchGroupsMetaData.ALL);
+			pm.getFetchPlan().setMaxFetchDepth(-1);
+			final PostDetachRunnableManager postDetachRunnableManager = PostDetachRunnableManager.getInstance();
+			postDetachRunnableManager.enterScope();
+			try {
+				result = pm.detachCopy(classMeta);
+			} finally {
+				postDetachRunnableManager.exitScope();
+			}
+			return result;
 		} finally {
-			postDetachRunnableManager.exitScope();
+			DetachedClassMetaModel.setInstance(null);
 		}
-		return result;
 	}
 
 	public List<ClassMeta> getClassMetaWithSubClassMetas(ExecutionContext ec, ClassMeta classMeta) {
@@ -272,7 +286,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 				result = registerClass(ec, pm, clazz);
 
 				// Detach the class in order to cache only detached objects. Make sure fetch-plan detaches all
-				result = detachClassMeta(pm, result);
+				result = detachClassMeta(ec, pm, result);
 
 				if (pmConn.indexHasOwnPM()) {
 					// Replicate ClassMeta+FieldMeta to Index datastore
@@ -280,7 +294,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 					pm.getFetchPlan().setGroups(FetchPlan.ALL, FetchGroupsMetaData.ALL); // not sure, if this is necessary before persisting, but don't have time to find it out - leaving it.
 					pmIndex.getFetchPlan().setMaxFetchDepth(-1); // not sure, if this is necessary before persisting, but don't have time to find it out - leaving it.
 					result = pmIndex.makePersistent(result);
-					result = detachClassMeta(pmIndex, result);
+					result = detachClassMeta(ec, pmIndex, result);
 				}
 			}
 
