@@ -220,6 +220,7 @@ implements StoreCallback
 
 	@Override
 	public int hashCode() {
+		final long dataEntryID = getDataEntryID();
 		return (int) (dataEntryID ^ (dataEntryID >>> 32));
 	}
 
@@ -229,7 +230,7 @@ implements StoreCallback
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
 		DataEntry other = (DataEntry) obj;
-		return this.dataEntryID == other.dataEntryID;
+		return this.getDataEntryID() < 0 ? false : this.getDataEntryID() == other.getDataEntryID();
 	}
 
 	@Override

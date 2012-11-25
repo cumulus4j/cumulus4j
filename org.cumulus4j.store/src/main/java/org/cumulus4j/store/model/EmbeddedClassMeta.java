@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
@@ -14,9 +16,7 @@ import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.Inheritance;
 import javax.jdo.annotations.InheritanceStrategy;
 import javax.jdo.annotations.NotPersistent;
-import javax.jdo.annotations.NullValue;
 import javax.jdo.annotations.PersistenceCapable;
-import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.Queries;
 import javax.jdo.annotations.Query;
 import javax.jdo.annotations.Unique;
@@ -28,12 +28,12 @@ import org.datanucleus.store.ExecutionContext;
 @Inheritance(strategy=InheritanceStrategy.NEW_TABLE)
 @Discriminator(strategy=DiscriminatorStrategy.VALUE_MAP, value="EmbeddedClassMeta")
 @Uniques({
-	@Unique(members={"embeddingFieldMeta"}, columns=@Column(name="discriminator"))
+	@Unique(members={"embeddingFieldMeta_fieldID"}, columns=@Column(name="discriminator"))
 })
 @Queries({
 	@Query(
-			name=EmbeddedClassMeta.NamedQueries.getEmbeddedClassMetaByEmbeddingFieldMeta,
-			value="SELECT UNIQUE FROM org.cumulus4j.store.model.EmbeddedClassMeta EXCLUDE SUBCLASSES WHERE this.embeddingFieldMeta == :embeddingFieldMeta"
+			name=EmbeddedClassMeta.NamedQueries.getEmbeddedClassMetaByEmbeddingFieldMeta_fieldID,
+			value="SELECT UNIQUE FROM org.cumulus4j.store.model.EmbeddedClassMeta EXCLUDE SUBCLASSES WHERE this.embeddingFieldMeta_fieldID == :embeddingFieldMeta_fieldID"
 	)
 })
 public class EmbeddedClassMeta extends ClassMeta {
@@ -41,14 +41,20 @@ public class EmbeddedClassMeta extends ClassMeta {
 	protected static final String UNIQUE_SCOPE_PREFIX_EMBEDDED_CLASS_META = EmbeddedClassMeta.class.getSimpleName() + '.';
 
 	protected static class NamedQueries {
-		public static final String getEmbeddedClassMetaByEmbeddingFieldMeta = "getEmbeddedClassMetaByEmbeddingFieldMeta";
+		public static final String getEmbeddedClassMetaByEmbeddingFieldMeta_fieldID = "getEmbeddedClassMetaByEmbeddingFieldMeta_fieldID";
 	}
 
-	@Persistent(nullValue=NullValue.EXCEPTION)
+//	@Persistent(nullValue=NullValue.EXCEPTION)
+	@NotPersistent
 	private ClassMeta nonEmbeddedClassMeta;
 
-	@Persistent(nullValue=NullValue.EXCEPTION)
+	private long nonEmbeddedClassMeta_classID;
+
+//	@Persistent(nullValue=NullValue.EXCEPTION)
+	@NotPersistent
 	private FieldMeta embeddingFieldMeta;
+
+	private long embeddingFieldMeta_fieldID;
 
 	@NotPersistent
 	private Map<FieldMeta, EmbeddedFieldMeta> nonEmbeddedFieldMeta2EmbeddedFieldMeta;
@@ -65,7 +71,9 @@ public class EmbeddedClassMeta extends ClassMeta {
 			throw new IllegalArgumentException("nonEmbeddedClassMeta is an instance of EmbeddedClassMeta: " + nonEmbeddedClassMeta);
 
 		this.nonEmbeddedClassMeta = nonEmbeddedClassMeta;
+		this.nonEmbeddedClassMeta_classID = nonEmbeddedClassMeta.getClassID();
 		this.embeddingFieldMeta = embeddingFieldMeta;
+		this.embeddingFieldMeta_fieldID = embeddingFieldMeta.getFieldID();
 		setUniqueScope(null); // set in jdoPreStore, because id not assigned, yet
 	}
 
@@ -94,6 +102,9 @@ public class EmbeddedClassMeta extends ClassMeta {
 	 * @return the non-embedded {@link ClassMeta} (the one representing FCOs). Never <code>null</code>.
 	 */
 	public ClassMeta getNonEmbeddedClassMeta() {
+		if (nonEmbeddedClassMeta == null) {
+			nonEmbeddedClassMeta = new ClassMetaDAO(getPersistenceManager()).getClassMeta(nonEmbeddedClassMeta_classID, true);
+		}
 		return nonEmbeddedClassMeta;
 	}
 
@@ -104,16 +115,55 @@ public class EmbeddedClassMeta extends ClassMeta {
 	 * @return the field embedding this pseudo-class. Never <code>null</code>.
 	 */
 	public FieldMeta getEmbeddingFieldMeta() {
+		if (embeddingFieldMeta == null) {
+			embeddingFieldMeta = new FieldMetaDAO(getPersistenceManager()).getFieldMeta(embeddingFieldMeta_fieldID, true);
+		}
 		return embeddingFieldMeta;
 	}
 
 	@Override
 	public void jdoPreStore() {
 		super.jdoPreStore();
-		PersistenceManager pm = JDOHelper.getPersistenceManager(this);
-		embeddingFieldMeta = pm.makePersistent(embeddingFieldMeta);
-		setUniqueScope(UNIQUE_SCOPE_PREFIX_EMBEDDED_CLASS_META + embeddingFieldMeta.getFieldID());
+		if (getUniqueScope() == null || !getUniqueScope().startsWith(UNIQUE_SCOPE_PREFIX_EMBEDDED_CLASS_META)) {
+			setUniqueScope("TEMPORARY_" + UUID.randomUUID());
+			if (nonEmbeddedClassMeta_classID < 0)
+				nonEmbeddedClassMeta_classID = nextTemp_nonEmbeddedClassMeta_classID.decrementAndGet();
+
+			if (embeddingFieldMeta_fieldID < 0)
+				embeddingFieldMeta_fieldID = nextTemp_embeddingFieldMeta_fieldID.decrementAndGet();
+
+			PostStoreRunnableManager.getInstance().addRunnable(new Runnable() {
+				@Override
+				public void run() {
+					PersistenceManager pm = JDOHelper.getPersistenceManager(EmbeddedClassMeta.this);
+
+					if (nonEmbeddedClassMeta_classID < 0 && nonEmbeddedClassMeta != null) {
+						nonEmbeddedClassMeta = pm.makePersistent(nonEmbeddedClassMeta);
+						nonEmbeddedClassMeta_classID = nonEmbeddedClassMeta.getClassID();
+					}
+
+					if (nonEmbeddedClassMeta_classID < 0)
+						throw new IllegalStateException("nonEmbeddedClassMeta_classID < 0");
+
+					if (embeddingFieldMeta_fieldID < 0 && embeddingFieldMeta != null) {
+						embeddingFieldMeta = pm.makePersistent(embeddingFieldMeta);
+						embeddingFieldMeta_fieldID = embeddingFieldMeta.getFieldID();
+					}
+
+					if (embeddingFieldMeta_fieldID < 0)
+						throw new IllegalStateException("embeddingFieldMeta_fieldID < 0");
+
+					embeddingFieldMeta = pm.makePersistent(embeddingFieldMeta);
+					setUniqueScope(UNIQUE_SCOPE_PREFIX_EMBEDDED_CLASS_META + embeddingFieldMeta.getFieldID());
+
+					pm.flush();
+				}
+			});
+		}
 	}
+
+	private static AtomicLong nextTemp_nonEmbeddedClassMeta_classID = new AtomicLong();
+	private static AtomicLong nextTemp_embeddingFieldMeta_fieldID = new AtomicLong();
 
 	/**
 	 * Get the {@link FieldMeta} managed by this instances corresponding to the given <code>fieldMeta</code>.
@@ -166,7 +216,7 @@ public class EmbeddedClassMeta extends ClassMeta {
 			public void run() {
 				DetachedClassMetaModel detachedClassMetaModel = DetachedClassMetaModel.getInstance();
 				if (detachedClassMetaModel != null)
-					nonEmbeddedClassMeta = detachedClassMetaModel.getClassMeta(nonEmbeddedClassMeta.getClassID(), true);
+					nonEmbeddedClassMeta = detachedClassMetaModel.getClassMeta(nonEmbeddedClassMeta_classID, true);
 			}
 		});
 	}

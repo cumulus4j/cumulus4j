@@ -1,5 +1,8 @@
 package org.cumulus4j.store.model;
 
+import java.util.Collection;
+import java.util.Map;
+
 import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
@@ -11,6 +14,28 @@ public class ClassMetaDAO extends AbstractDAO {
 
 	public ClassMetaDAO(PersistenceManager pm) {
 		super(pm);
+	}
+
+	public static String getMultiClassMetaOrFilterPart(Map<String, Object> queryParams, Collection<ClassMeta> classMetas) {
+		StringBuilder result = new StringBuilder();
+
+		if (classMetas.size() > 1)
+			result.append('(');
+
+		int idx = -1;
+		for (ClassMeta classMeta : classMetas) {
+			if (++idx > 0)
+				result.append(" || ");
+
+			String classMetaParamName = "classMeta" + idx;
+			result.append("this.classMeta == :").append(classMetaParamName);
+			queryParams.put(classMetaParamName, classMeta);
+		}
+
+		if (classMetas.size() > 1)
+			result.append(')');
+
+		return result.toString();
 	}
 
 	public ClassMeta getClassMeta(String packageName, String simpleClassName, boolean throwExceptionIfNotFound)
@@ -48,8 +73,8 @@ public class ClassMetaDAO extends AbstractDAO {
 	}
 
 	public EmbeddedClassMeta getEmbeddedClassMeta(FieldMeta embeddingFieldMeta, boolean throwExceptionIfNotFound) {
-		Query q = pm.newNamedQuery(EmbeddedClassMeta.class, EmbeddedClassMeta.NamedQueries.getEmbeddedClassMetaByEmbeddingFieldMeta);
-		EmbeddedClassMeta result = (EmbeddedClassMeta) q.execute(embeddingFieldMeta);
+		Query q = pm.newNamedQuery(EmbeddedClassMeta.class, EmbeddedClassMeta.NamedQueries.getEmbeddedClassMetaByEmbeddingFieldMeta_fieldID);
+		EmbeddedClassMeta result = (EmbeddedClassMeta) q.execute(embeddingFieldMeta.getFieldID());
 
 //		EmbeddedClassMeta result;
 //		@SuppressWarnings("unchecked")

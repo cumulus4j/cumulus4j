@@ -224,6 +224,7 @@ implements StoreCallback
 
 	@Override
 	public int hashCode() {
+		long indexEntryID = getIndexEntryID();
 		return (int) (indexEntryID ^ (indexEntryID >>> 32));
 	}
 
@@ -233,7 +234,7 @@ implements StoreCallback
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
 		IndexEntry other = (IndexEntry) obj;
-		return this.indexEntryID == other.indexEntryID;
+		return this.getIndexEntryID() < 0 ? false : this.getIndexEntryID() == other.getIndexEntryID();
 	}
 
 	@Override

@@ -374,7 +374,7 @@ implements DetachCallback, StoreCallback, LoadCallback
 		ClassMeta other = (ClassMeta) obj;
 		// if not yet persisted (id == null), it is only equal to the same instance (checked above, already).
 //		return this.classID == null ? false : this.classID.equals(other.classID);
-		return this.getClassID() == other.getClassID();
+		return this.getClassID() < 0 ? false : this.getClassID() == other.getClassID();
 	}
 
 	@Override
@@ -480,18 +480,24 @@ implements DetachCallback, StoreCallback, LoadCallback
 	@Override
 	public void jdoPreStore() {
 		logger.debug("jdoPreStore: {}", this);
-		if (fieldName2FieldMeta != null) {
-			PersistenceManager pm = JDOHelper.getPersistenceManager(this);
-			Map<String, FieldMeta> persistentFieldName2FieldMeta = new HashMap<String, FieldMeta>(fieldName2FieldMeta.size());
-			for (FieldMeta fieldMeta : fieldName2FieldMeta.values()) {
-				// Usually the persistentFieldMeta is the same instance as fieldMeta, but this is dependent on the configuration.
-				// This code here should work with all possible configurations. Marco :-)
-				FieldMeta persistentFieldMeta = pm.makePersistent(fieldMeta);
-				persistentFieldName2FieldMeta.put(persistentFieldMeta.getFieldName(), persistentFieldMeta);
+		PostStoreRunnableManager.getInstance().addRunnable(new Runnable() {
+			@Override
+			public void run() {
+				if (fieldName2FieldMeta != null) {
+					final PersistenceManager pm = JDOHelper.getPersistenceManager(ClassMeta.this);
+					Map<String, FieldMeta> persistentFieldName2FieldMeta = new HashMap<String, FieldMeta>(fieldName2FieldMeta.size());
+					for (FieldMeta fieldMeta : fieldName2FieldMeta.values()) {
+						// Usually the persistentFieldMeta is the same instance as fieldMeta, but this is dependent on the configuration.
+						// This code here should work with all possible configurations. Marco :-)
+						FieldMeta persistentFieldMeta = pm.makePersistent(fieldMeta);
+						persistentFieldName2FieldMeta.put(persistentFieldMeta.getFieldName(), persistentFieldMeta);
+					}
+					fieldName2FieldMeta = persistentFieldName2FieldMeta;
+					pm.flush();
+				}
+//				fieldID2FieldMeta = null; // not necessary IMHO, because we assign the persistent instances above.
 			}
-			fieldName2FieldMeta = persistentFieldName2FieldMeta;
-		}
-		fieldID2FieldMeta = null;
+		});
 	}
 
 	@Override

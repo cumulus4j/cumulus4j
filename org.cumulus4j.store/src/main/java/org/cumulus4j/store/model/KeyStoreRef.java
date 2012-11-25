@@ -55,13 +55,28 @@ public class KeyStoreRef {
 		if (result == null)
 			return -666;
 
-		if (keyStoreRefID.longValue() > Integer.MAX_VALUE)
-			throw new IllegalStateException("keyStoreRefID > Integer.MAX_VALUE :: " + keyStoreRefID + " > " + Integer.MAX_VALUE);
+		if (result.longValue() > Integer.MAX_VALUE)
+			throw new IllegalStateException("keyStoreRefID > Integer.MAX_VALUE :: " + result + " > " + Integer.MAX_VALUE);
 
 		return result.intValue();
 	}
 
 	public String getKeyStoreID() {
 		return keyStoreID;
+	}
+
+	@Override
+	public int hashCode() {
+		final int keyStoreRefID = getKeyStoreRefID();
+		return keyStoreRefID;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		KeyStoreRef other = (KeyStoreRef) obj;
+		return this.getKeyStoreRefID() == -666 ? false : this.getKeyStoreRefID() == other.getKeyStoreRefID();
 	}
 }

@@ -45,6 +45,7 @@ import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.FieldMetaRole;
 import org.cumulus4j.store.model.IndexEntryFactoryRegistry;
 import org.cumulus4j.store.model.PostDetachRunnableManager;
+import org.cumulus4j.store.model.PostStoreRunnableManager;
 import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.NucleusContext;
 import org.datanucleus.api.jdo.JDOPersistenceManagerFactory;
@@ -335,97 +336,107 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 
 		ClassMeta classMeta = new ClassMetaDAO(pm).getClassMeta(clazz, false);
 		boolean classExists = (classMeta != null);
-		if (!classExists) {
-			classMeta = new ClassMeta(clazz);
-		}
 
-		Class<?> superclass = clazz.getSuperclass();
-		if (superclass != null && getMetaDataManager().hasMetaDataForClass(superclass.getName())) {
-			ClassMeta superClassMeta = registerClass(ec, pm, superclass);
-			classMeta.setSuperClassMeta(superClassMeta);
-		}
+		final PostStoreRunnableManager postStoreRunnableManager = PostStoreRunnableManager.getInstance();
+		postStoreRunnableManager.enterScope();
+		try {
 
-		Set<String> persistentMemberNames = new HashSet<String>();
-		for (AbstractMemberMetaData memberMetaData : dnClassMetaData.getManagedMembers()) {
-			if (!memberMetaData.isFieldToBePersisted())
-				continue;
-
-			persistentMemberNames.add(memberMetaData.getName());
-			int dnAbsoluteFieldNumber = memberMetaData.getAbsoluteFieldNumber();
-
-			// register primary field-meta
-			FieldMeta primaryFieldMeta = classMeta.getFieldMeta(memberMetaData.getName());
-			if (primaryFieldMeta == null) {
-				// adding field that's so far unknown
-				primaryFieldMeta = new FieldMeta(classMeta, memberMetaData.getName());
-				classMeta.addFieldMeta(primaryFieldMeta);
+			if (!classExists) {
+				classMeta = new ClassMeta(clazz);
 			}
-			primaryFieldMeta.setDataNucleusAbsoluteFieldNumber(dnAbsoluteFieldNumber);
 
-			if (memberMetaData.hasCollection()) {
-				// register "collection" field-meta, if appropriate
-				primaryFieldMeta.removeAllSubFieldMetasExcept(FieldMetaRole.collectionElement);
-				FieldMeta subFieldMeta = primaryFieldMeta.getSubFieldMeta(FieldMetaRole.collectionElement);
-				if (subFieldMeta == null) {
+			Class<?> superclass = clazz.getSuperclass();
+			if (superclass != null && getMetaDataManager().hasMetaDataForClass(superclass.getName())) {
+				ClassMeta superClassMeta = registerClass(ec, pm, superclass);
+				classMeta.setSuperClassMeta(superClassMeta);
+			}
+
+			Set<String> persistentMemberNames = new HashSet<String>();
+			for (AbstractMemberMetaData memberMetaData : dnClassMetaData.getManagedMembers()) {
+				if (!memberMetaData.isFieldToBePersisted())
+					continue;
+
+				persistentMemberNames.add(memberMetaData.getName());
+				int dnAbsoluteFieldNumber = memberMetaData.getAbsoluteFieldNumber();
+
+				// register primary field-meta
+				FieldMeta primaryFieldMeta = classMeta.getFieldMeta(memberMetaData.getName());
+				if (primaryFieldMeta == null) {
 					// adding field that's so far unknown
-					subFieldMeta = new FieldMeta(primaryFieldMeta, FieldMetaRole.collectionElement);
-					primaryFieldMeta.addSubFieldMeta(subFieldMeta);
+					primaryFieldMeta = new FieldMeta(classMeta, memberMetaData.getName());
+					classMeta.addFieldMeta(primaryFieldMeta);
 				}
-//				setEmbeddedClassMeta(ec, subFieldMeta);
-			}
-			else if (memberMetaData.hasArray()) {
-				// register "array" field-meta, if appropriate
-				// TODO shouldn't we handle it exactly as a collection, including reusing 'FieldMetaRole.collectionElement' for this case?
-				primaryFieldMeta.removeAllSubFieldMetasExcept(FieldMetaRole.arrayElement);
-				FieldMeta subFieldMeta = primaryFieldMeta.getSubFieldMeta(FieldMetaRole.arrayElement);
-				if (subFieldMeta == null) {
-					// adding field that's so far unknown
-					subFieldMeta = new FieldMeta(primaryFieldMeta, FieldMetaRole.arrayElement);
-					primaryFieldMeta.addSubFieldMeta(subFieldMeta);
-				}
-//				setEmbeddedClassMeta(ec, subFieldMeta);
-			}
-			else if (memberMetaData.hasMap()) {
-				// register "map" field-meta, if appropriate
-				primaryFieldMeta.removeAllSubFieldMetasExcept(FieldMetaRole.mapKey, FieldMetaRole.mapValue);
+				primaryFieldMeta.setDataNucleusAbsoluteFieldNumber(dnAbsoluteFieldNumber);
 
-				// key
-				FieldMeta subFieldMeta = primaryFieldMeta.getSubFieldMeta(FieldMetaRole.mapKey);
-				if (subFieldMeta == null) {
-					// adding field that's so far unknown
-					subFieldMeta = new FieldMeta(primaryFieldMeta, FieldMetaRole.mapKey);
-					primaryFieldMeta.addSubFieldMeta(subFieldMeta);
+				if (memberMetaData.hasCollection()) {
+					// register "collection" field-meta, if appropriate
+					primaryFieldMeta.removeAllSubFieldMetasExcept(FieldMetaRole.collectionElement);
+					FieldMeta subFieldMeta = primaryFieldMeta.getSubFieldMeta(FieldMetaRole.collectionElement);
+					if (subFieldMeta == null) {
+						// adding field that's so far unknown
+						subFieldMeta = new FieldMeta(primaryFieldMeta, FieldMetaRole.collectionElement);
+						primaryFieldMeta.addSubFieldMeta(subFieldMeta);
+					}
+					//				setEmbeddedClassMeta(ec, subFieldMeta);
 				}
-//				setEmbeddedClassMeta(ec, subFieldMeta);
+				else if (memberMetaData.hasArray()) {
+					// register "array" field-meta, if appropriate
+					// TODO shouldn't we handle it exactly as a collection, including reusing 'FieldMetaRole.collectionElement' for this case?
+					primaryFieldMeta.removeAllSubFieldMetasExcept(FieldMetaRole.arrayElement);
+					FieldMeta subFieldMeta = primaryFieldMeta.getSubFieldMeta(FieldMetaRole.arrayElement);
+					if (subFieldMeta == null) {
+						// adding field that's so far unknown
+						subFieldMeta = new FieldMeta(primaryFieldMeta, FieldMetaRole.arrayElement);
+						primaryFieldMeta.addSubFieldMeta(subFieldMeta);
+					}
+					//				setEmbeddedClassMeta(ec, subFieldMeta);
+				}
+				else if (memberMetaData.hasMap()) {
+					// register "map" field-meta, if appropriate
+					primaryFieldMeta.removeAllSubFieldMetasExcept(FieldMetaRole.mapKey, FieldMetaRole.mapValue);
 
-				// value
-				subFieldMeta = primaryFieldMeta.getSubFieldMeta(FieldMetaRole.mapValue);
-				if (subFieldMeta == null) {
-					// adding field that's so far unknown
-					subFieldMeta = new FieldMeta(primaryFieldMeta, FieldMetaRole.mapValue);
-					primaryFieldMeta.addSubFieldMeta(subFieldMeta);
+					// key
+					FieldMeta subFieldMeta = primaryFieldMeta.getSubFieldMeta(FieldMetaRole.mapKey);
+					if (subFieldMeta == null) {
+						// adding field that's so far unknown
+						subFieldMeta = new FieldMeta(primaryFieldMeta, FieldMetaRole.mapKey);
+						primaryFieldMeta.addSubFieldMeta(subFieldMeta);
+					}
+					//				setEmbeddedClassMeta(ec, subFieldMeta);
+
+					// value
+					subFieldMeta = primaryFieldMeta.getSubFieldMeta(FieldMetaRole.mapValue);
+					if (subFieldMeta == null) {
+						// adding field that's so far unknown
+						subFieldMeta = new FieldMeta(primaryFieldMeta, FieldMetaRole.mapValue);
+						primaryFieldMeta.addSubFieldMeta(subFieldMeta);
+					}
+					//				setEmbeddedClassMeta(ec, subFieldMeta);
 				}
-//				setEmbeddedClassMeta(ec, subFieldMeta);
+				else {
+					primaryFieldMeta.removeAllSubFieldMetasExcept();
+				}
+				setEmbeddedClassMeta(ec, primaryFieldMeta);
 			}
-			else {
-				primaryFieldMeta.removeAllSubFieldMetasExcept();
+
+			for (FieldMeta fieldMeta : new ArrayList<FieldMeta>(classMeta.getFieldMetas())) {
+				if (persistentMemberNames.contains(fieldMeta.getFieldName()))
+					continue;
+
+				// The field is not in the class anymore => remove its persistent reference.
+				classMeta.removeFieldMeta(fieldMeta);
 			}
-			setEmbeddedClassMeta(ec, primaryFieldMeta);
+
+			if (!classExists) {
+				// Persist the new class and its fields in one call, minimising updates
+				classMeta = pm.makePersistent(classMeta);
+			}
+			pm.flush(); // Get exceptions as soon as possible by forcing a flush here
+
+		} finally {
+			postStoreRunnableManager.exitScope();
+			pm.flush(); // Get exceptions as soon as possible by forcing a flush here
 		}
-
-		for (FieldMeta fieldMeta : new ArrayList<FieldMeta>(classMeta.getFieldMetas())) {
-			if (persistentMemberNames.contains(fieldMeta.getFieldName()))
-				continue;
-
-			// The field is not in the class anymore => remove its persistent reference.
-			classMeta.removeFieldMeta(fieldMeta);
-		}
-
-		if (!classExists) {
-			// Persist the new class and its fields in one call, minimising updates
-			classMeta = pm.makePersistent(classMeta);
-		}
-		pm.flush(); // Get exceptions as soon as possible by forcing a flush here
 
 		return classMeta;
 	}

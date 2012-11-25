@@ -30,6 +30,7 @@ import javax.jdo.Query;
 import org.cumulus4j.store.Cumulus4jStoreManager;
 import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.ClassMeta;
+import org.cumulus4j.store.model.ClassMetaDAO;
 import org.cumulus4j.store.model.DataEntryDAO;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.IndexEntry;
@@ -193,21 +194,22 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 			return Collections.emptySet();
 		}
 
-		Query q = getQueryEvaluator().getPersistenceManagerForIndex().newQuery(indexEntryFactory.getIndexEntryClass());
-		q.setFilter(
-				"this.keyStoreRefID == :keyStoreRefID && " +
-				"this.fieldMeta == :fieldMeta && " +
-				":classMetas.contains(this.classMeta) && " +
-				"this.indexKey " + getOperatorAsJDOQLSymbol(negate) + " :value"
-		);
-
 		Cumulus4jStoreManager storeManager = (Cumulus4jStoreManager) executionContext.getStoreManager();
 		List<ClassMeta> classMetas = storeManager.getClassMetaWithSubClassMetas(executionContext, classMeta);
 
+		Query q = getQueryEvaluator().getPersistenceManagerForIndex().newQuery(indexEntryFactory.getIndexEntryClass());
 		Map<String, Object> params = new HashMap<String, Object>(4);
+		q.setFilter(
+				"this.keyStoreRefID == :keyStoreRefID && " +
+				"this.fieldMeta == :fieldMeta && " +
+//				":classMetas.contains(this.classMeta) && " +
+				ClassMetaDAO.getMultiClassMetaOrFilterPart(params, classMetas) + " && " +
+				"this.indexKey " + getOperatorAsJDOQLSymbol(negate) + " :value"
+		);
+
 		params.put("keyStoreRefID", cryptoContext.getKeyStoreRefID());
 		params.put("fieldMeta", fieldMeta);
-		params.put("classMetas", classMetas);
+//		params.put("classMetas", classMetas);
 		params.put("value", queryParam);
 
 //		@SuppressWarnings("unchecked")

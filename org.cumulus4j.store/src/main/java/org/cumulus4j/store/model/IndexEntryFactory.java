@@ -93,16 +93,17 @@ public abstract class IndexEntryFactory
 
 		Class<? extends IndexEntry> indexEntryClass = getIndexEntryClass();
 		javax.jdo.Query q = pmIndex.newQuery(indexEntryClass);
+		Map<String, Object> params = new HashMap<String, Object>();
 		q.setFilter(
 				"this.keyStoreRefID == :keyStoreRefID && " +
 				"this.fieldMeta == :fieldMeta && " +
-				":classMetas.contains(this.classMeta) && " +
+//				":classMetas.contains(this.classMeta) && " +
+				ClassMetaDAO.getMultiClassMetaOrFilterPart(params, classMetas) + " && " +
 				"this.indexKey == :indexKey"
 		);
-		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("keyStoreRefID", cryptoContext.getKeyStoreRefID());
 		params.put("fieldMeta", fieldMeta);
-		params.put("classMetas", classMetas);
+//		params.put("classMetas", classMetas);
 		params.put("indexKey", indexKey);
 		@SuppressWarnings("unchecked")
 		List<IndexEntry> result = (List<IndexEntry>) q.executeWithMap(params);
