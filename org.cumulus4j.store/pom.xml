@@ -270,6 +270,7 @@
 									
 									<sources></sources>
 
+									<types>jar</types>
 									<classifiers>gae-sources</classifiers>
 									<files>${project.build.directory}/${finalName}.jar</files>
 									
