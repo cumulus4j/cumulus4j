@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import javax.jdo.PersistenceManager;
 
+import org.cumulus4j.store.Cumulus4jStoreManager;
 import org.cumulus4j.store.crypto.CryptoManager;
 import org.cumulus4j.store.crypto.CryptoSession;
 import org.cumulus4j.store.model.DataEntry;
@@ -68,6 +69,9 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 	@Override
 	public void saveArticle(String article_id)
 			throws IllegalArgumentException {
+		
+		System.out.println(CryptoManager.class.getName());
+		System.out.println(Cumulus4jStoreManager.class.getName());
 		
 		PersistenceManager pm = null;
 		pm = PMF.get().getPersistenceManager();
