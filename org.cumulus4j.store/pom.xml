@@ -119,12 +119,70 @@
 				<finalName>${finalName}</finalName>
 
 				<plugins>
+					<!-- 
+					<plugin>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>copy-default-artifact</id>
+								<phase>compile</phase>
+								<goals>
+									<goal>copy</goal>
+								</goals>
+								<inherited>false</inherited>
+								<configuration>
+									<artifactItems>
+										<artifactItem>
+											<groupId>${project.groupId}</groupId>
+											<artifactId>${project.artifactId}</artifactId>
+											<version>${project.version}</version>
+											<type>jar</type>
+											<overWrite>true</overWrite>
+											<outputDirectory>${project.build.directory}</outputDirectory>
+											<destFileName>${project.artifactId}-${project.version}.jar</destFileName>
+										</artifactItem>
+									</artifactItems>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					-->
+
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>build-helper-maven-plugin</artifactId>
+						<version>1.7</version>
+						<executions>
+							<execution>
+								<id>attach-artifacts</id>
+								<phase>package</phase>
+								<goals>
+									<goal>attach-artifact</goal>
+								</goals>
+								<configuration>
+									<artifacts>
+										<artifact> <!-- overwrite wrong default -->
+											<file>${settings.localRepository}/org/cumulus4j/${project.artifactId}/${project.version}/${project.artifactId}-${project.version}.jar</file>
+											<type>jar</type>
+										</artifact>
+										<artifact>
+											<file>${project.build.directory}/${finalName}.jar</file>
+											<type>jar</type>
+											<classifier>gae</classifier>
+										</artifact>
+									</artifacts>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+<!--
 					<plugin>
 						<artifactId>maven-install-plugin</artifactId>
 						<executions>
 							<execution>
 								<id>gae-install</id>
-								<phase>verify</phase> <!-- must be one phase earlier than normal - otherwise is not executed at all -->
+								<phase>verify</phase> <!- must be one phase earlier than normal - otherwise is not executed at all ->
 								<goals>
 									<goal>install-file</goal>
 								</goals>
@@ -156,13 +214,15 @@
 						<executions>
 							<execution>
 								<id>gae-deploy</id>
-								<phase>install</phase> <!-- just like above one phase earlier than normal - didn't test though, just copied --> 
+								<phase>install</phase> <!- just like above one phase earlier than normal - didn't test though, just copied -> 
 								<goals>
 									<goal>deploy-file</goal>
 								</goals>
 								<inherited>false</inherited>
 								<configuration>
 									<file>${project.build.directory}/${finalName}.jar</file>
+									<url></url>
+									
 									<groupId>${project.groupId}</groupId>
 									<artifactId>${project.artifactId}</artifactId>
 									<packaging>jar</packaging>
@@ -182,6 +242,7 @@
 							</execution>
 						</executions>
 					</plugin>
+-->
 				</plugins>
 			</build>
 			
