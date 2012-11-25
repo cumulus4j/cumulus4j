@@ -139,26 +139,32 @@ public class EmbeddedFieldMeta extends FieldMeta {
 
 	@Override
 	public void jdoPostDetach(Object o) {
-		super.jdoPostDetach(o);
-		final EmbeddedFieldMeta detached = this;
-		final EmbeddedFieldMeta attached = (EmbeddedFieldMeta) o;
+		final PostDetachRunnableManager postDetachRunnableManager = PostDetachRunnableManager.getInstance();
+		postDetachRunnableManager.enterScope();
+		try {
+			super.jdoPostDetach(o);
+			final EmbeddedFieldMeta detached = this;
+			final EmbeddedFieldMeta attached = (EmbeddedFieldMeta) o;
 
-		PostDetachRunnableManager.getInstance().addRunnable(new Runnable() {
-			@Override
-			public void run() {
-				DetachedClassMetaModel detachedClassMetaModel = DetachedClassMetaModel.getInstance();
-				if (detachedClassMetaModel != null) {
-					FieldMeta nonEmbeddedFieldMeta = attached.getNonEmbeddedFieldMeta();
-					ClassMeta detachedClassMeta = detachedClassMetaModel.getClassMeta(nonEmbeddedFieldMeta.getClassMeta().getClassID(), true);
+			postDetachRunnableManager.addRunnable(new Runnable() {
+				@Override
+				public void run() {
+					DetachedClassMetaModel detachedClassMetaModel = DetachedClassMetaModel.getInstance();
+					if (detachedClassMetaModel != null) {
+						FieldMeta nonEmbeddedFieldMeta = attached.getNonEmbeddedFieldMeta();
+						ClassMeta detachedClassMeta = detachedClassMetaModel.getClassMeta(nonEmbeddedFieldMeta.getClassMeta().getClassID(), true);
 
-					FieldMeta nefm = detachedClassMeta.getFieldMeta(nonEmbeddedFieldMeta_fieldID);
-					if (nefm == null)
-						throw new IllegalStateException("detachedClassMeta.getFieldMeta(...) returned null for " + nonEmbeddedFieldMeta);
+						FieldMeta nefm = detachedClassMeta.getFieldMeta(nonEmbeddedFieldMeta_fieldID);
+						if (nefm == null)
+							throw new IllegalStateException("detachedClassMeta.getFieldMeta(...) returned null for " + nonEmbeddedFieldMeta);
 
-					detached.nonEmbeddedFieldMeta = nefm;
+						detached.nonEmbeddedFieldMeta = nefm;
+					}
 				}
-			}
-		});
+			});
+		} finally {
+			postDetachRunnableManager.exitScope();
+		}
 	}
 
 	@Override

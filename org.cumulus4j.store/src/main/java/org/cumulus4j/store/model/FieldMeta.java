@@ -758,8 +758,13 @@ implements DetachCallback, StoreCallback
 			@Override
 			public void run() {
 				logger.debug("postStore: {}", this);
+				PersistenceManager pm = JDOHelper.getPersistenceManager(FieldMeta.this);
+
+				if (embeddedClassMeta != null) {
+					embeddedClassMeta = pm.makePersistent(embeddedClassMeta);
+				}
+
 				if (role2SubFieldMeta != null) {
-					PersistenceManager pm = JDOHelper.getPersistenceManager(FieldMeta.this);
 					Map<FieldMetaRole, FieldMeta> persistentRole2SubFieldMeta2 = new HashMap<FieldMetaRole, FieldMeta>(role2SubFieldMeta.size());
 					for (FieldMeta subFieldMeta : role2SubFieldMeta.values()) {
 						// Usually the persistentSubFieldMeta is the same instance as subFieldMeta, but this is dependent on the configuration.
@@ -772,7 +777,6 @@ implements DetachCallback, StoreCallback
 				}
 
 				if (embeddedClassMetasToBeDeleted != null) {
-					PersistenceManager pm = JDOHelper.getPersistenceManager(FieldMeta.this);
 					for (EmbeddedClassMeta embeddedClassMeta : embeddedClassMetasToBeDeleted) {
 						pm.deletePersistent(embeddedClassMeta);
 					}

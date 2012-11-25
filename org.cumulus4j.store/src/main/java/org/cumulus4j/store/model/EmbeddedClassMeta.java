@@ -137,23 +137,24 @@ public class EmbeddedClassMeta extends ClassMeta {
 				public void run() {
 					PersistenceManager pm = JDOHelper.getPersistenceManager(EmbeddedClassMeta.this);
 
-					if (nonEmbeddedClassMeta_classID < 0 && nonEmbeddedClassMeta != null) {
+					if (nonEmbeddedClassMeta != null)
 						nonEmbeddedClassMeta = pm.makePersistent(nonEmbeddedClassMeta);
+
+					if (nonEmbeddedClassMeta_classID < 0 && nonEmbeddedClassMeta != null)
 						nonEmbeddedClassMeta_classID = nonEmbeddedClassMeta.getClassID();
-					}
 
 					if (nonEmbeddedClassMeta_classID < 0)
 						throw new IllegalStateException("nonEmbeddedClassMeta_classID < 0");
 
-					if (embeddingFieldMeta_fieldID < 0 && embeddingFieldMeta != null) {
+					if (embeddingFieldMeta != null)
 						embeddingFieldMeta = pm.makePersistent(embeddingFieldMeta);
+
+					if (embeddingFieldMeta_fieldID < 0 && embeddingFieldMeta != null)
 						embeddingFieldMeta_fieldID = embeddingFieldMeta.getFieldID();
-					}
 
 					if (embeddingFieldMeta_fieldID < 0)
 						throw new IllegalStateException("embeddingFieldMeta_fieldID < 0");
 
-					embeddingFieldMeta = pm.makePersistent(embeddingFieldMeta);
 					setUniqueScope(UNIQUE_SCOPE_PREFIX_EMBEDDED_CLASS_META + embeddingFieldMeta.getFieldID());
 
 					pm.flush();
@@ -210,14 +211,20 @@ public class EmbeddedClassMeta extends ClassMeta {
 
 	@Override
 	public void jdoPostDetach(Object o) {
-		super.jdoPostDetach(o);
-		PostDetachRunnableManager.getInstance().addRunnable(new Runnable() {
-			@Override
-			public void run() {
-				DetachedClassMetaModel detachedClassMetaModel = DetachedClassMetaModel.getInstance();
-				if (detachedClassMetaModel != null)
-					nonEmbeddedClassMeta = detachedClassMetaModel.getClassMeta(nonEmbeddedClassMeta_classID, true);
-			}
-		});
+		final PostDetachRunnableManager postDetachRunnableManager = PostDetachRunnableManager.getInstance();
+		postDetachRunnableManager.enterScope();
+		try {
+			super.jdoPostDetach(o);
+			postDetachRunnableManager.addRunnable(new Runnable() {
+				@Override
+				public void run() {
+					DetachedClassMetaModel detachedClassMetaModel = DetachedClassMetaModel.getInstance();
+					if (detachedClassMetaModel != null)
+						nonEmbeddedClassMeta = detachedClassMetaModel.getClassMeta(nonEmbeddedClassMeta_classID, true);
+				}
+			});
+		} finally {
+			postDetachRunnableManager.exitScope();
+		}
 	}
 }
