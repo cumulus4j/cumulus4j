@@ -245,6 +245,13 @@
 							</execution>
 						</executions>
 					</plugin>
+					
+					<plugin>
+						<artifactId>maven-source-plugin</artifactId>
+						<configuration>
+							<attach>false</attach>
+						</configuration>
+					</plugin>
 
 					<plugin>
 						<artifactId>maven-deploy-plugin</artifactId>
@@ -268,8 +275,6 @@
 									<version>${cumulus4j.version}</version>
 									<classifier>gae</classifier>
 									
-									<sources></sources>
-
 									<types>jar</types>
 									<classifiers>gae-sources</classifiers>
 									<files>${project.build.directory}/${finalName}.jar</files>
