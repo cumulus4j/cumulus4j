@@ -425,6 +425,11 @@
 				<version>${cumulus4j.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.store</artifactId>
+				<classifier>gae</classifier>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.store.crypto.keymanager</artifactId>
 				<version>${cumulus4j.version}</version>
 			</dependency>
