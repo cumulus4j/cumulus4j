@@ -166,10 +166,10 @@ public class ResultDescriptor
 
 		ResultDescriptor other = (ResultDescriptor) obj;
 		return (
-				this.symbol == other.symbol || (this.symbol != null && this.symbol.equals(other.symbol)) &&
+				(this.symbol == other.symbol || (this.symbol != null && this.symbol.equals(other.symbol))) &&
 				this.negated == other.negated &&
-				this.resultType == other.resultType || (this.resultType != null && this.resultType.equals(other.resultType)) &&
-				this.fieldMeta == other.fieldMeta || (this.fieldMeta != null && this.fieldMeta.equals(other.fieldMeta))
+				(this.resultType == other.resultType || (this.resultType != null && this.resultType.equals(other.resultType))) &&
+				(this.fieldMeta == other.fieldMeta || (this.fieldMeta != null && this.fieldMeta.equals(other.fieldMeta)))
 		);
 	}
 }

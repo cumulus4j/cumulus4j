@@ -28,6 +28,7 @@ import java.util.Set;
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.DataEntry;
 import org.cumulus4j.store.model.DataEntryDAO;
+import org.cumulus4j.store.model.EmbeddedClassMeta;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.FieldMetaRole;
 import org.cumulus4j.store.model.IndexEntry;
@@ -248,12 +249,18 @@ public class ExpressionHelper
 			if (argumentIsPersistent || subFieldMeta.getMappedByFieldMeta(executionContext) != null) {
 				AbstractExpressionEvaluator<?> eval = queryEvaluator.getExpressionEvaluator();
 
-				Collection<Long> valueDataEntryIDs = eval.queryResultDataEntryIDs(
+				EmbeddedClassMeta embeddedClassMeta = subFieldMeta.getEmbeddedClassMeta();
+				queryEvaluator.registerValueTypeEmbeddedClassMeta(variableExpr.getSymbol(), embeddedClassMeta);
+
+				Set<Long> valueDataEntryIDs = eval.queryResultDataEntryIDs(
 						new ResultDescriptor(variableExpr.getSymbol(), argumentType, subFieldMeta.getMappedByFieldMeta(executionContext), classMeta)
 //						new ResultDescriptor(variableExpr.getSymbol(), argumentType, null, classMeta)
 				);
 				if (valueDataEntryIDs == null)
 					return null;
+
+				if (embeddedClassMeta != null)
+					return valueDataEntryIDs;
 
 				Set<Long> result = new HashSet<Long>();
 				if (mmd.getMappedBy() != null) {

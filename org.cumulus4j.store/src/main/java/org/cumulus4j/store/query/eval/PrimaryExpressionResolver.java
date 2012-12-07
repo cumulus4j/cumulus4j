@@ -106,8 +106,7 @@ public abstract class PrimaryExpressionResolver
 		else
 			throw new UnsupportedOperationException("NYI");
 
-		Class<?> clazz = queryEvaluator.getValueType(symbol);
-		ClassMeta classMeta = queryEvaluator.getStoreManager().getClassMeta(executionContext, clazz);
+		ClassMeta classMeta = queryEvaluator.getValueTypeClassMeta(symbol, true);
 		return queryMiddle(classMeta, tuples);
 	}
 

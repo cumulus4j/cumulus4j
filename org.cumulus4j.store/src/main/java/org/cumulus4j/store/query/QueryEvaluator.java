@@ -35,6 +35,7 @@ import org.cumulus4j.store.PersistenceManagerConnection;
 import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.DataEntry;
+import org.cumulus4j.store.model.EmbeddedClassMeta;
 import org.cumulus4j.store.query.eval.AbstractExpressionEvaluator;
 import org.cumulus4j.store.query.eval.AndExpressionEvaluator;
 import org.cumulus4j.store.query.eval.ComparisonExpressionEvaluator;
@@ -88,8 +89,8 @@ public abstract class QueryEvaluator
 	/** Map of input parameter values, keyed by the parameter name. */
 	private Map<String, Object> parameterValues;
 
-  /** Positional parameter that we are up to (-1 implies not being used). */
-  Map<Integer, Symbol> paramSymbolByPosition = null;
+	/** Positional parameter that we are up to (-1 implies not being used). */
+	private Map<Integer, Symbol> paramSymbolByPosition = null;
 
 	/** Map of state symbols for the query evaluation. */
 	private Map<String, Object> state;
@@ -107,6 +108,8 @@ public abstract class QueryEvaluator
 	private EncryptionHandler encryptionHandler;
 
 	private boolean complete = true;
+
+	private Map<Symbol, EmbeddedClassMeta> symbol2ValueTypeEmbeddedClassMeta = null;
 
 	/**
 	 * @param language Query language (JDOQL, JPQL, etc)
@@ -222,6 +225,38 @@ public abstract class QueryEvaluator
 	public ResultDescriptor popResultDescriptor()
 	{
 		return resultDescriptors.pop();
+	}
+
+	public ClassMeta getValueTypeClassMeta(Symbol symbol, boolean throwExceptionIfNotFound) {
+		ClassMeta classMeta = getValueTypeEmbeddedClassMeta(symbol);
+		if (classMeta == null) {
+			Class<?> clazz = getValueType(symbol, throwExceptionIfNotFound);
+			classMeta = getStoreManager().getClassMeta(getExecutionContext(), clazz);
+		}
+		return classMeta;
+	}
+
+	public EmbeddedClassMeta getValueTypeEmbeddedClassMeta(Symbol symbol) {
+		if (symbol == null)
+			throw new IllegalArgumentException("symbol == null");
+
+		if (symbol2ValueTypeEmbeddedClassMeta == null)
+			return null;
+
+		return symbol2ValueTypeEmbeddedClassMeta.get(symbol);
+	}
+
+	public void registerValueTypeEmbeddedClassMeta(Symbol symbol, EmbeddedClassMeta embeddedClassMeta) {
+		if (symbol == null)
+			throw new IllegalArgumentException("symbol == null");
+
+		if (embeddedClassMeta == null)
+			return;
+
+		if (symbol2ValueTypeEmbeddedClassMeta == null)
+			symbol2ValueTypeEmbeddedClassMeta = new HashMap<Symbol, EmbeddedClassMeta>();
+
+		symbol2ValueTypeEmbeddedClassMeta.put(symbol, embeddedClassMeta);
 	}
 
 	/**

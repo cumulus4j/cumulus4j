@@ -45,7 +45,7 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 	@Override
 	protected Set<Long> _queryResultDataEntryIDs(ResultDescriptor resultDescriptor)
 	{
-		// The invocationTarget is always the left side of the InvokeExpression. It can be one of the following three:
+		// The invocationTarget is always the left side of the InvokeExpression. It can be one of the following:
 		// 1) PrimaryExpression
 		// 2) VariableExpression
 		// 3) ParameterExpression
