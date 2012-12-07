@@ -62,13 +62,11 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 			Class<?> invocationTargetType = getFieldType(primaryExpr);
 
 			// Find the evaluator to use and invoke it
-			MethodEvaluator eval = getMethodEvaluatorForMethodOfClass(invocationTargetType, getExpression().getOperation());
-			synchronized (eval) {
-				if (eval.requiresComparisonArgument()) {
-					eval.setCompareToArgument(getCompareToArgument());
-				}
-				return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
+			MethodEvaluator eval = createMethodEvaluatorForMethodOfClass(invocationTargetType, getExpression().getOperation());
+			if (eval.requiresComparisonArgument()) {
+				eval.setCompareToArgument(getCompareToArgument());
 			}
+			return eval.evaluate(getQueryEvaluator(), this, primaryExpr, resultDescriptor);
 		}
 		else if (this.getLeft() instanceof VariableExpressionEvaluator) {
 			VariableExpressionEvaluator variableExprEval = (VariableExpressionEvaluator) this.getLeft();
@@ -81,13 +79,11 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 			Class<?> invocationTargetType = getQueryEvaluator().getValueType(classSymbol);
 
 			// Find the evaluator to use and invoke it
-			MethodEvaluator eval = getMethodEvaluatorForMethodOfClass(invocationTargetType, getExpression().getOperation());
-			synchronized (eval) {
-				if (eval.requiresComparisonArgument()) {
-					eval.setCompareToArgument(getCompareToArgument());
-				}
-				return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
+			MethodEvaluator eval = createMethodEvaluatorForMethodOfClass(invocationTargetType, getExpression().getOperation());
+			if (eval.requiresComparisonArgument()) {
+				eval.setCompareToArgument(getCompareToArgument());
 			}
+			return eval.evaluate(getQueryEvaluator(), this, variableExpr, resultDescriptor);
 		}
 		else if (this.getLeft() instanceof ParameterExpressionEvaluator) {
 			ParameterExpressionEvaluator paramExprEval = (ParameterExpressionEvaluator) this.getLeft();
@@ -99,13 +95,11 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 			Class<?> invocationTargetType = getQueryEvaluator().getValueType(classSymbol);
 
 			// Find the evaluator to use and invoke it
-			MethodEvaluator eval = getMethodEvaluatorForMethodOfClass(invocationTargetType, getExpression().getOperation());
-			synchronized (eval) {
-				if (eval.requiresComparisonArgument()) {
-					eval.setCompareToArgument(getCompareToArgument());
-				}
-				return eval.evaluate(getQueryEvaluator(), this, paramExprEval.getExpression(), resultDescriptor);
+			MethodEvaluator eval = createMethodEvaluatorForMethodOfClass(invocationTargetType, getExpression().getOperation());
+			if (eval.requiresComparisonArgument()) {
+				eval.setCompareToArgument(getCompareToArgument());
 			}
+			return eval.evaluate(getQueryEvaluator(), this, paramExprEval.getExpression(), resultDescriptor);
 		}
 		else if (this.getLeft() instanceof InvokeExpressionEvaluator) {
 			// TODO support this.getLeft() instanceof InvokeExpressionEvaluator
@@ -123,7 +117,7 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 		throw new UnsupportedOperationException("NYI");
 	}
 
-	private MethodEvaluator getMethodEvaluatorForMethodOfClass(Class cls, String method) {
+	private MethodEvaluator createMethodEvaluatorForMethodOfClass(Class cls, String method) {
 		String className = cls.getName();
 		if (Collection.class.isAssignableFrom(cls)) {
 			className = Collection.class.getName(); // Sub-types go through Collection
@@ -134,7 +128,7 @@ extends AbstractExpressionEvaluator<InvokeExpression>
 		else if (Date.class.isAssignableFrom(cls)) {
 			className = Date.class.getName(); // Sub-types go through Date
 		}
-		return ExpressionHelper.getMethodEvaluatorForMethodOfClass(getQueryEvaluator().getStoreManager(),
+		return ExpressionHelper.createMethodEvaluatorForMethodOfClass(getQueryEvaluator().getStoreManager(),
 				getQueryEvaluator().getClassLoaderResolver(), className, method);
 	}
 

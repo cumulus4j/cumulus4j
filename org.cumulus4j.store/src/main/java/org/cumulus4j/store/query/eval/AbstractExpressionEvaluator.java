@@ -54,7 +54,7 @@ import org.datanucleus.query.symbol.Symbol;
  */
 public abstract class AbstractExpressionEvaluator<X extends Expression>
 {
-	private static final boolean CHECK_RESULT_DATA_ENTRY_IDS = true;
+	private static final boolean CHECK_RESULT_DATA_ENTRY_IDS = false;
 
 	private QueryEvaluator queryEvaluator;
 

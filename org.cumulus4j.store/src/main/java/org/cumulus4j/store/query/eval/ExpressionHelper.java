@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ExpressionHelper
 {
-	static Map<String, MethodEvaluator> evaluatorByMethod = new HashMap<String, MethodEvaluator>();
+	private static Map<String, Class<? extends MethodEvaluator>> method2EvaluatorClass = new HashMap<String, Class<? extends MethodEvaluator>>();
 
 	/**
 	 * Accessor for the evaluator object for use of method xxx(...) of class Yyy in queries.
@@ -68,34 +68,41 @@ public class ExpressionHelper
 	 * @param method The method to call on the class
 	 * @return The MethodEvaluator
 	 */
-	public static MethodEvaluator getMethodEvaluatorForMethodOfClass(StoreManager storeMgr, ClassLoaderResolver clr,
+	@SuppressWarnings("unchecked")
+	public static MethodEvaluator createMethodEvaluatorForMethodOfClass(StoreManager storeMgr, ClassLoaderResolver clr,
 			String clsName, String method) {
 
 		String key = clsName + "." + method;
 
-		// Check if it is cached
-		if (evaluatorByMethod.containsKey(key)) {
-			return evaluatorByMethod.get(key);
-		}
-
-		ConfigurationElement elem =
-			storeMgr.getNucleusContext().getPluginManager().getConfigurationElementForExtension(
-					"org.cumulus4j.store.query_method", new String[]{"class", "method"}, new String[]{clsName, method});
-		if (elem == null) {
-			throw new UnsupportedOperationException("Invocation of method \""+method+"\" on object of type \""+clsName+"\" is not supported");
-		}
-
-		String evaluatorClassName = elem.getAttribute("evaluator");
-		Class<?> evaluatorCls = clr.classForName(evaluatorClassName);
 		MethodEvaluator eval = null;
-		try {
-			eval = (MethodEvaluator) evaluatorCls.newInstance();
-		} catch (Exception e) {
-			throw new UnsupportedOperationException("Attempt to instantiate an evaluator for "+key + " threw an exception", e);
+		Class<? extends MethodEvaluator> evaluatorCls = method2EvaluatorClass.get(key);
+		if (evaluatorCls == null) {
+			ConfigurationElement elem =
+					storeMgr.getNucleusContext().getPluginManager().getConfigurationElementForExtension(
+							"org.cumulus4j.store.query_method", new String[]{"class", "method"}, new String[]{clsName, method});
+			if (elem == null) {
+				throw new UnsupportedOperationException("Invocation of method \""+method+"\" on object of type \""+clsName+"\" is not supported");
+			}
+
+			String evaluatorClassName = elem.getAttribute("evaluator");
+			evaluatorCls = clr.classForName(evaluatorClassName);
+			try {
+				eval = evaluatorCls.newInstance();
+			} catch (Exception e) {
+				throw new UnsupportedOperationException("Attempt to instantiate an evaluator for " + key + " failed: " + e, e);
+			}
+
+			// Cache  the method for later use
+			method2EvaluatorClass.put(key, evaluatorCls);
 		}
 
-		// Cache  the method for later use
-		evaluatorByMethod.put(key, eval);
+		if (eval == null) {
+			try {
+				eval = evaluatorCls.newInstance();
+			} catch (Exception e) {
+				throw new UnsupportedOperationException("Attempt to instantiate an evaluator for " + key + " failed: " + e, e);
+			}
+		}
 
 		return eval;
 	}

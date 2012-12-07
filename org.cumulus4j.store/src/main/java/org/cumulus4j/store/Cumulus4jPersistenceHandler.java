@@ -134,18 +134,33 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 
 	protected void deleteObjectIndex(
 			CryptoContext cryptoContext, ClassMeta classMeta, DataEntry dataEntry,
+			FieldMeta fieldMeta, EmbeddedObjectContainer embeddedObjectContainer
+	)
+	{
+		ClassMeta embeddedClassMeta = storeManager.getClassMeta(cryptoContext.getExecutionContext(), embeddedObjectContainer.getClassID(), true);
+		EmbeddedClassMeta ecm = (EmbeddedClassMeta) embeddedClassMeta;
+		for (Map.Entry<Long, ?> me : embeddedObjectContainer.getFieldID2value().entrySet()) {
+			long embeddedFieldID = me.getKey();
+			Object embeddedFieldValue = me.getValue();
+			EmbeddedFieldMeta embeddedFieldMeta = (EmbeddedFieldMeta) ecm.getFieldMeta(embeddedFieldID);
+			deleteObjectIndex(cryptoContext, embeddedClassMeta, dataEntry, embeddedFieldMeta, embeddedFieldValue);
+		}
+	}
+
+	protected void deleteObjectIndex(
+			CryptoContext cryptoContext, ClassMeta classMeta, DataEntry dataEntry,
 			FieldMeta fieldMeta, Object fieldValue
 	)
 	{
 		if (fieldValue instanceof EmbeddedObjectContainer) {
 			EmbeddedObjectContainer embeddedObjectContainer = (EmbeddedObjectContainer) fieldValue;
-			ClassMeta embeddedClassMeta = storeManager.getClassMeta(cryptoContext.getExecutionContext(), embeddedObjectContainer.getClassID(), true);
-			EmbeddedClassMeta ecm = (EmbeddedClassMeta) embeddedClassMeta;
-			for (Map.Entry<Long, ?> me : embeddedObjectContainer.getFieldID2value().entrySet()) {
-				long embeddedFieldID = me.getKey();
-				Object embeddedFieldValue = me.getValue();
-				EmbeddedFieldMeta embeddedFieldMeta = (EmbeddedFieldMeta) ecm.getFieldMeta(embeddedFieldID);
-				deleteObjectIndex(cryptoContext, embeddedClassMeta, dataEntry, embeddedFieldMeta, embeddedFieldValue);
+			deleteObjectIndex(cryptoContext, classMeta, dataEntry, fieldMeta, embeddedObjectContainer);
+		}
+		else if (fieldValue instanceof EmbeddedObjectContainer[]) {
+			EmbeddedObjectContainer[] embeddedObjectContainers = (EmbeddedObjectContainer[]) fieldValue;
+			for (EmbeddedObjectContainer embeddedObjectContainer : embeddedObjectContainers) {
+				if (embeddedObjectContainer != null)
+					deleteObjectIndex(cryptoContext, classMeta, dataEntry, fieldMeta, embeddedObjectContainer);
 			}
 		}
 		else {
@@ -332,18 +347,33 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 
 	protected void insertObjectIndex(
 			CryptoContext cryptoContext, ClassMeta classMeta, DataEntry dataEntry,
+			FieldMeta fieldMeta, EmbeddedObjectContainer embeddedObjectContainer
+	)
+	{
+		ClassMeta embeddedClassMeta = storeManager.getClassMeta(cryptoContext.getExecutionContext(), embeddedObjectContainer.getClassID(), true);
+		EmbeddedClassMeta ecm = (EmbeddedClassMeta) embeddedClassMeta;
+		for (Map.Entry<Long, ?> me : embeddedObjectContainer.getFieldID2value().entrySet()) {
+			long embeddedFieldID = me.getKey();
+			Object embeddedFieldValue = me.getValue();
+			EmbeddedFieldMeta embeddedFieldMeta = (EmbeddedFieldMeta) ecm.getFieldMeta(embeddedFieldID);
+			insertObjectIndex(cryptoContext, embeddedClassMeta, dataEntry, embeddedFieldMeta, embeddedFieldValue);
+		}
+	}
+
+	protected void insertObjectIndex(
+			CryptoContext cryptoContext, ClassMeta classMeta, DataEntry dataEntry,
 			FieldMeta fieldMeta, Object fieldValue
 	)
 	{
 		if (fieldValue instanceof EmbeddedObjectContainer) {
 			EmbeddedObjectContainer embeddedObjectContainer = (EmbeddedObjectContainer) fieldValue;
-			ClassMeta embeddedClassMeta = storeManager.getClassMeta(cryptoContext.getExecutionContext(), embeddedObjectContainer.getClassID(), true);
-			EmbeddedClassMeta ecm = (EmbeddedClassMeta) embeddedClassMeta;
-			for (Map.Entry<Long, ?> me : embeddedObjectContainer.getFieldID2value().entrySet()) {
-				long embeddedFieldID = me.getKey();
-				Object embeddedFieldValue = me.getValue();
-				EmbeddedFieldMeta embeddedFieldMeta = (EmbeddedFieldMeta) ecm.getFieldMeta(embeddedFieldID);
-				insertObjectIndex(cryptoContext, embeddedClassMeta, dataEntry, embeddedFieldMeta, embeddedFieldValue);
+			insertObjectIndex(cryptoContext, classMeta, dataEntry, fieldMeta, embeddedObjectContainer);
+		}
+		else if (fieldValue instanceof EmbeddedObjectContainer[]) {
+			EmbeddedObjectContainer[] embeddedObjectContainers = (EmbeddedObjectContainer[]) fieldValue;
+			for (EmbeddedObjectContainer embeddedObjectContainer : embeddedObjectContainers) {
+				if (embeddedObjectContainer != null)
+					insertObjectIndex(cryptoContext, classMeta, dataEntry, fieldMeta, embeddedObjectContainer);
 			}
 		}
 		else {
