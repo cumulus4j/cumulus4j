@@ -53,6 +53,7 @@ import org.datanucleus.identity.OID;
 import org.datanucleus.identity.SCOID;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
+import org.datanucleus.metadata.MapMetaData.MapType;
 import org.datanucleus.store.AbstractStoreManager;
 import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.connection.ManagedConnection;
@@ -455,16 +456,34 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 		return classMeta;
 	}
 
+	private boolean isEmbedded(AbstractMemberMetaData memberMetaData) {
+		return isEmbeddedOneToOne(memberMetaData)
+				|| isEmbeddedArray(memberMetaData)
+				|| isEmbeddedCollection(memberMetaData)
+				|| isEmbeddedMap(memberMetaData);
+	}
+
+	private boolean isEmbeddedOneToOne(AbstractMemberMetaData memberMetaData) {
+		return memberMetaData.isEmbedded();
+	}
+
+	private boolean isEmbeddedCollection(AbstractMemberMetaData memberMetaData) {
+		return memberMetaData.hasCollection() && memberMetaData.getCollection().isEmbeddedElement();
+	}
+
+	private boolean isEmbeddedArray(AbstractMemberMetaData memberMetaData) {
+		return memberMetaData.hasArray() && memberMetaData.getArray().isEmbeddedElement();
+	}
+
+	private boolean isEmbeddedMap(AbstractMemberMetaData memberMetaData) {
+		return memberMetaData.hasMap()
+				&& MapType.MAP_TYPE_JOIN.equals(memberMetaData.getMap().getMapType())
+				&& (memberMetaData.getMap().isEmbeddedKey() || memberMetaData.getMap().isEmbeddedValue());
+	}
+
 	private void setEmbeddedClassMeta(ExecutionContext ec, FieldMeta fieldMeta) {
 		AbstractMemberMetaData memberMetaData = fieldMeta.getDataNucleusMemberMetaData(ec);
-		boolean embedded = (
-				memberMetaData.isEmbedded()
-				|| (memberMetaData.hasCollection() && memberMetaData.getCollection().isEmbeddedElement())
-				|| (memberMetaData.hasArray() && memberMetaData.getArray().isEmbeddedElement())
-				|| (memberMetaData.hasMap() && (memberMetaData.getMap().isEmbeddedKey() || memberMetaData.getMap().isEmbeddedValue()))
-		);
-
-		if (embedded) {
+		if (isEmbedded(memberMetaData)) {
 			if (fieldMeta.getSubFieldMetas().isEmpty()) {
 				// only assign this to the leafs (map-key, map-value, collection-element, etc.)
 				// if we have no sub-field-metas, our fieldMeta is a leaf.
