@@ -39,6 +39,8 @@ public class ResourceHelper
 	 */
 	protected static final String CUMULUS4J_BACKEND_PROPERTIES = "cumulus4j-backend.properties";
 
+	protected static final String CUMULUS4J_PERSISTENCE_PROPERTIES = "cumulus4j-persistence.properties";
+
 	/**
 	 * <p>
 	 * Open an {@link InputStream} reading the file {@value #CUMULUS4J_BACKEND_PROPERTIES}.
@@ -55,6 +57,12 @@ public class ResourceHelper
 		if (in == null)
 			throw new IllegalStateException("Resource does not exist (or cannot be openend): " + CUMULUS4J_BACKEND_PROPERTIES);
 
+		return in;
+	}
+
+	protected static InputStream tryOpenCumulus4jPersistenceProperties()
+	{
+		InputStream in = ResourceHelper.class.getResourceAsStream(CUMULUS4J_PERSISTENCE_PROPERTIES);
 		return in;
 	}
 
@@ -86,6 +94,26 @@ public class ResourceHelper
 			throw new RuntimeException(e);
 		}
 
+		return getPropertiesAsMap(properties);
+	}
+
+	public static Map<String, Object> getCumulus4jPersistenceProperties()
+	{
+		Properties properties = new Properties();
+		try {
+			InputStream in = tryOpenCumulus4jPersistenceProperties();
+			if (in != null) {
+				properties.load(in);
+				in.close();
+			}
+		} catch (IOException e) { // should never happen as it is a resource => rethrow as RuntimeException
+			throw new RuntimeException(e);
+		}
+
+		return getPropertiesAsMap(properties);
+	}
+
+	protected static Map<String, Object> getPropertiesAsMap(Properties properties) {
 		Map<String, Object> result = new HashMap<String, Object>(properties.size());
 		for (Map.Entry<?, ?> me : properties.entrySet())
 			result.put(String.valueOf(me.getKey()).toLowerCase(Locale.ENGLISH), String.valueOf(me.getValue()));

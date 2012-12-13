@@ -96,9 +96,17 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 		super(storeMgr, resourceType);
 
 		Map<String, Object> backendProperties = ResourceHelper.getCumulus4jBackendProperties();
+		Map<String, Object> persistenceProperties = ResourceHelper.getCumulus4jPersistenceProperties();
 		Map<String, Object> backendIndexProperties = null;
 
 		PersistenceConfiguration persistenceConfiguration = storeMgr.getNucleusContext().getPersistenceConfiguration();
+		for (Map.Entry<String, Object> me : persistenceProperties.entrySet()) {
+			if (me.getKey() == null) // can't happen, but better play safe
+				continue;
+
+			if (!persistenceConfiguration.hasProperty(me.getKey())) // we load our defaults after the user config, hence we must not override!
+				persistenceConfiguration.setProperty(me.getKey(), me.getValue());
+		}
 
 		// Copy the properties that are directly (as is) forwarded.
 		for (String propKey : propertiesToForward) {

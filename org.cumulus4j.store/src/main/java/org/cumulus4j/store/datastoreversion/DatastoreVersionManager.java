@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -113,6 +114,9 @@ public class DatastoreVersionManager {
 				if (KeyStoreRef.GLOBAL_KEY_STORE_REF_ID != keyStoreRefID && !datastoreVersionCommand.isKeyStoreDependent())
 					continue;
 
+				if (!isDatastoreVersionCommandEnabled(cryptoContext, datastoreVersionCommand))
+					continue;
+
 				try {
 					applyOneCommand(cryptoContext, keyStoreRefID, pm, datastoreVersionDAO, datastoreVersionID2DatastoreVersionMap, datastoreVersionCommand);
 				} catch (WorkInProgressException x) {
@@ -125,6 +129,12 @@ public class DatastoreVersionManager {
 				}
 			}
 		}
+	}
+
+	protected boolean isDatastoreVersionCommandEnabled(CryptoContext cryptoContext, DatastoreVersionCommand datastoreVersionCommand) {
+		String propertyKey = String.format("cumulus4j.DatastoreVersionCommand[%s].enabled", datastoreVersionCommand.getCommandID());
+		Object propertyValue = cryptoContext.getExecutionContext().getStoreManager().getProperty(propertyKey);
+		return propertyValue == null || !Boolean.FALSE.toString().toLowerCase(Locale.UK).equals(propertyValue.toString().toLowerCase(Locale.UK));
 	}
 
 	protected List<DatastoreVersionCommand> createDatastoreVersionCommands() {
