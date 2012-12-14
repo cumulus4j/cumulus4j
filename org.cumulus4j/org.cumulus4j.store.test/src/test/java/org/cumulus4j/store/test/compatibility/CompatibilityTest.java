@@ -23,6 +23,7 @@ import javax.jdo.PersistenceManagerFactory;
 import org.cumulus4j.store.DummyCryptoManager;
 import org.cumulus4j.store.crypto.CryptoManager;
 import org.cumulus4j.store.crypto.CryptoSession;
+import org.cumulus4j.store.datastoreversion.command.MinimumCumulus4jVersion;
 import org.cumulus4j.store.test.framework.CleanupUtil;
 import org.cumulus4j.store.test.framework.TestUtil;
 import org.junit.Test;
@@ -134,23 +135,23 @@ public class CompatibilityTest {
 	}
 
 	private String getCurrentVersion() {
-		return CompatibilityTestData.VERSION_1_0_0;
-//		MinimumCumulus4jVersion minimumCumulus4jVersion = new MinimumCumulus4jVersion();
-////		int commandVersion = minimumCumulus4jVersion.getCommandVersion();
-////		int major = commandVersion / 100 /*minor*/ / 100 /*release*/ / 1000 /*serial*/;
-////		int minor = commandVersion                 / 100 /*release*/ / 1000 /*serial*/;
-////		int release = commandVersion                                 / 1000 /*serial*/;
-////
-////		release -= minor * 100; // minor still includes major => only subtract minor.
-////		minor -= major * 100;
-////
-////		return String.format("%s.%s.%s", major, minor, release);
-//		return String.format(
-//				"%s.%s.%s",
-//				minimumCumulus4jVersion.getCommandVersionMajor(),
-//				minimumCumulus4jVersion.getCommandVersionMinor(),
-//				minimumCumulus4jVersion.getCommandVersionRelease()
-//		);
+//		return CompatibilityTestData.VERSION_1_0_0;
+		MinimumCumulus4jVersion minimumCumulus4jVersion = new MinimumCumulus4jVersion();
+//		int commandVersion = minimumCumulus4jVersion.getCommandVersion();
+//		int major = commandVersion / 100 /*minor*/ / 100 /*release*/ / 1000 /*serial*/;
+//		int minor = commandVersion                 / 100 /*release*/ / 1000 /*serial*/;
+//		int release = commandVersion                                 / 1000 /*serial*/;
+//
+//		release -= minor * 100; // minor still includes major => only subtract minor.
+//		minor -= major * 100;
+//
+//		return String.format("%s.%s.%s", major, minor, release);
+		return String.format(
+				"%s.%s.%s",
+				minimumCumulus4jVersion.getCommandVersionMajor(),
+				minimumCumulus4jVersion.getCommandVersionMinor(),
+				minimumCumulus4jVersion.getCommandVersionRelease()
+		);
 	}
 
 	@Test
