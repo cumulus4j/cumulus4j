@@ -49,34 +49,34 @@ extends AbstractJDOTransactionalTestClearingDatabase
 		{
 			ElementASetOwner owner = new ElementASetOwner();
 			owner.setName("Owner 1");
-			owner.addElementA(new ElementA("Element 1.1"));
-			owner.addElementA(new ElementA("Element 1.2"));
-			owner.addElementA(new ElementA("Element 1.3"));
-			owner.addElementA(new ElementA("Element 1.4"));
+			owner.addElementA(new ElementA("S.Element 1.1"));
+			owner.addElementA(new ElementA("S.Element 1.2"));
+			owner.addElementA(new ElementA("S.Element 1.3"));
+			owner.addElementA(new ElementA("S.Element 1.4"));
 			pm.makePersistent(owner);
 		}
 
 		{
 			ElementASetOwner owner = pm.makePersistent(new ElementASetOwner());
 			owner.setName("Owner 2");
-			owner.addElementA(new ElementA("Element 2.1"));
-			owner.addElementA(new ElementA("Element 2.2"));
-			owner.addElementA(new ElementA("Element 2.3"));
-			owner.addElementA(new ElementA("Element 2.4"));
+			owner.addElementA(new ElementA("S.Element 2.1"));
+			owner.addElementA(new ElementA("S.Element 2.2"));
+			owner.addElementA(new ElementA("S.Element 2.3"));
+			owner.addElementA(new ElementA("S.Element 2.4"));
 		}
 
 		{
 			ElementASetOwner owner = pm.makePersistent(new ElementASetOwner());
 			owner.setName("Owner 3");
-			owner.addElementA(new ElementA("Element 3.1"));
-			owner.addElementA(new ElementA("Element 3.2"));
-			owner.addElementA(new ElementA("Element 3.3"));
+			owner.addElementA(new ElementA("S.Element 3.1"));
+			owner.addElementA(new ElementA("S.Element 3.2"));
+			owner.addElementA(new ElementA("S.Element 3.3"));
 		}
 
 		{
 			ElementASetOwner owner = pm.makePersistent(new ElementASetOwner());
 			owner.setName("Owner 4");
-			owner.addElementA(new ElementA("Element 4.3"));
+			owner.addElementA(new ElementA("S.Element 4.3"));
 		}
 
 		{
@@ -101,7 +101,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 		for (ElementASetOwner resultElement : resultList) {
 			Assert.assertNotNull("Query returned a ElementASetOwner with the 'name' property being null: " + resultElement, resultElement.getName());
 			Assert.assertNotNull("Query returned a ElementASetOwner with the 'set' property being null: " + resultElement, resultElement.getSet());
-NucleusLogger.GENERAL.info(">> result="+ resultElement.getName());
+			NucleusLogger.GENERAL.info(">> result="+ resultElement.getName());
 			boolean expectedElement = expectedOwnerNameSet.remove(resultElement.getName());
 
 			StringBuilder sb = new StringBuilder();
@@ -128,7 +128,7 @@ NucleusLogger.GENERAL.info(">> result="+ resultElement.getName());
 
 	private ElementA getExampleElement()
 	{
-		return getExampleElement("Element 3.2");
+		return getExampleElement("S.Element 3.2");
 	}
 	private ElementA getExampleElement(String name)
 	{
@@ -233,7 +233,7 @@ NucleusLogger.GENERAL.info(">> result="+ resultElement.getName());
 	@Test
 	public void queryContainsVariableAndNotVariableEquals2()
 	{
-		ElementA element = getExampleElement("Element 4.3");
+		ElementA element = getExampleElement("S.Element 4.3");
 		Query q = pm.newQuery(ElementASetOwner.class);
 		q.setFilter("this.set.contains(elementVariable) && !(elementVariable == :element)");
 		executeQueryAndCheckResult(q, element, "Owner 1", "Owner 2", "Owner 3");

@@ -17,16 +17,22 @@ public class FieldMetaDAO extends AbstractDAO {
 	}
 
 	public Collection<FieldMeta> getFieldMetasForClassMeta(ClassMeta classMeta) {
-		javax.jdo.Query query = pm.newNamedQuery(FieldMeta.class, NamedQueries.getFieldMetasForClassMeta);
+		if (classMeta == null)
+			throw new IllegalArgumentException("classMeta == null");
+
+		javax.jdo.Query query = pm.newNamedQuery(FieldMeta.class, NamedQueries.getFieldMetasForClassMeta_classID);
 		@SuppressWarnings("unchecked")
-		Collection<FieldMeta> result = (Collection<FieldMeta>) query.execute(classMeta);
+		Collection<FieldMeta> result = (Collection<FieldMeta>) query.execute(classMeta.getClassID());
 		return result;
 	}
 
 	public Collection<FieldMeta> getSubFieldMetasForFieldMeta(FieldMeta fieldMeta) {
-		javax.jdo.Query query = pm.newNamedQuery(FieldMeta.class, NamedQueries.getSubFieldMetasForFieldMeta);
+		if (fieldMeta == null)
+			throw new IllegalArgumentException("fieldMeta == null");
+
+		javax.jdo.Query query = pm.newNamedQuery(FieldMeta.class, NamedQueries.getSubFieldMetasForFieldMeta_fieldID);
 		@SuppressWarnings("unchecked")
-		Collection<FieldMeta> result = (Collection<FieldMeta>) query.execute(fieldMeta);
+		Collection<FieldMeta> result = (Collection<FieldMeta>) query.execute(fieldMeta.getFieldID());
 		return result;
 	}
 

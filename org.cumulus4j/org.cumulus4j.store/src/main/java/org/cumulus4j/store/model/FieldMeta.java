@@ -35,6 +35,7 @@ import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.NullValue;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
+import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.annotations.Queries;
 import javax.jdo.annotations.Query;
 import javax.jdo.annotations.Unique;
@@ -45,7 +46,6 @@ import javax.jdo.listener.DetachCallback;
 import javax.jdo.listener.StoreCallback;
 
 import org.cumulus4j.store.Cumulus4jStoreManager;
-import org.cumulus4j.store.reflectionwrapper.gae.KeyFactory;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.MetaDataManager;
@@ -67,11 +67,11 @@ import org.slf4j.LoggerFactory;
 )
 @Version(strategy=VersionStrategy.VERSION_NUMBER)
 @Uniques({
-	@Unique(name="FieldMeta_classMeta_ownerFieldMeta_fieldName_role", members={"uniqueScope", "classMeta", "ownerFieldMeta", "fieldName", "role"})
+	@Unique(name="FieldMeta_classMeta_ownerFieldMeta_fieldName_role", members={"uniqueScope", "classMeta_classID", "ownerFieldMeta_fieldID", "fieldName", "role"})
 })
 @Queries({
-	@Query(name=FieldMeta.NamedQueries.getFieldMetasForClassMeta, value="SELECT WHERE this.classMeta == :classMeta"),
-	@Query(name=FieldMeta.NamedQueries.getSubFieldMetasForFieldMeta, value="SELECT WHERE this.ownerFieldMeta == :ownerFieldMeta")
+	@Query(name=FieldMeta.NamedQueries.getFieldMetasForClassMeta_classID, value="SELECT WHERE this.classMeta_classID == :classMeta_classID"),
+	@Query(name=FieldMeta.NamedQueries.getSubFieldMetasForFieldMeta_fieldID, value="SELECT WHERE this.ownerFieldMeta_fieldID == :ownerFieldMeta_fieldID")
 })
 public class FieldMeta
 implements DetachCallback, StoreCallback
@@ -81,27 +81,35 @@ implements DetachCallback, StoreCallback
 	protected static final String UNIQUE_SCOPE_FIELD_META = "FieldMeta";
 
 	protected static class NamedQueries {
-		public static final String getFieldMetasForClassMeta = "getFieldMetasForClassMeta";
-		public static final String getSubFieldMetasForFieldMeta = "getSubFieldMetasForFieldMeta";
+		public static final String getFieldMetasForClassMeta_classID = "getFieldMetasForClassMeta_classID";
+		public static final String getSubFieldMetasForFieldMeta_fieldID = "getSubFieldMetasForFieldMeta_fieldID";
 	}
 
-//	@PrimaryKey
+	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE, sequence="FieldMetaSequence")
 	private Long fieldID;
 
-	/**
-	 * This is needed due to GAE compatibility. package.jdo is responsible
-	 * for the correct usage if this field.
-	 */
-//	@NotPersistent // not persistent for non-GAE-datastores
-	private String fieldIDString;
+//	/**
+//	 * This is needed due to GAE compatibility. package.jdo is responsible
+//	 * for the correct usage if this field.
+//	 */
+////	@NotPersistent // not persistent for non-GAE-datastores
+//	private String fieldIDString;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	@Column(length=255, defaultValue=UNIQUE_SCOPE_FIELD_META)
 	private String uniqueScope;
 
+	@Column(name="classMeta_classID_oid") // for downward-compatibility
+	private Long classMeta_classID;
+
+	@NotPersistent
 	private ClassMeta classMeta;
 
+	@Column(name="ownerFieldMeta_fieldID_oid") // for downward-compatibility
+	private Long ownerFieldMeta_fieldID;
+
+	@NotPersistent
 	private FieldMeta ownerFieldMeta;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
@@ -182,17 +190,17 @@ implements DetachCallback, StoreCallback
 		if (role == null)
 			throw new IllegalArgumentException("role == null");
 
-		this.classMeta = classMeta;
-		this.ownerFieldMeta = ownerFieldMeta;
+		this.setClassMeta(classMeta);
+		this.setOwnerFieldMeta(ownerFieldMeta);
 		this.fieldName = fieldName;
 		this.role = role;
 		setUniqueScope(UNIQUE_SCOPE_FIELD_META);
 	}
 
 	public long getFieldID() {
-		if(fieldIDString != null && fieldID == null){
-			fieldID = KeyFactory.getInstance().stringToKey(fieldIDString).getId();
-		}
+//		if(fieldIDString != null && fieldID == null){
+//			fieldID = KeyFactory.getInstance().stringToKey(fieldIDString).getId();
+//		}
 		return fieldID == null ? -1 : fieldID;
 	}
 
@@ -213,8 +221,14 @@ implements DetachCallback, StoreCallback
 	 * @return the {@link ClassMeta} to which this instance of <code>FieldMeta</code> belongs.
 	 */
 	public ClassMeta getClassMeta() {
-		if (ownerFieldMeta != null)
-			return ownerFieldMeta.getClassMeta();
+		if (getOwnerFieldMeta() != null)
+			return getOwnerFieldMeta().getClassMeta();
+
+		if (classMeta_classID == null) // should never happen but better check
+			return null;
+
+		if (classMeta == null)
+			classMeta = new ClassMetaDAO(getPersistenceManager()).getClassMeta(classMeta_classID, true);
 
 		return classMeta;
 	}
@@ -225,6 +239,7 @@ implements DetachCallback, StoreCallback
 			throw new IllegalStateException("Cannot modify this this.classMeta!");
 
 		this.classMeta = classMeta;
+		this.classMeta_classID = classMeta == null ? null : classMeta.getClassID();
 	}
 
 	/**
@@ -233,6 +248,12 @@ implements DetachCallback, StoreCallback
 	 * @return the owning primary field-meta or <code>null</code>.
 	 */
 	public FieldMeta getOwnerFieldMeta() {
+		if (ownerFieldMeta_fieldID == null)
+			return null;
+
+		if (ownerFieldMeta == null)
+			ownerFieldMeta = new FieldMetaDAO(getPersistenceManager()).getFieldMeta(ownerFieldMeta_fieldID, true);
+
 		return ownerFieldMeta;
 	}
 
@@ -242,6 +263,7 @@ implements DetachCallback, StoreCallback
 			throw new IllegalStateException("Cannot modify this this.ownerFieldMeta!");
 
 		this.ownerFieldMeta = ownerFieldMeta;
+		this.ownerFieldMeta_fieldID = ownerFieldMeta == null ? null : ownerFieldMeta.getFieldID();
 	}
 
 	/**
@@ -639,9 +661,13 @@ implements DetachCallback, StoreCallback
 			if (JDOHelper.getPersistenceManager(detached) != null)
 				throw new IllegalStateException("detached has a PersistenceManager assigned!");
 
+			final DetachedClassMetaModel detachedClassMetaModel = DetachedClassMetaModel.getInstance();
+			if (detachedClassMetaModel != null)
+				detachedClassMetaModel.registerFieldMetaCurrentlyDetaching(detached);
+
 			detached.dataNucleusAbsoluteFieldNumber = attached.dataNucleusAbsoluteFieldNumber;
 
-			PersistenceManager pm = attached.getPersistenceManager();
+			final PersistenceManager pm = attached.getPersistenceManager();
 			if (pm == null)
 				throw new IllegalStateException("attached.getPersistenceManager() returned null!");
 
@@ -678,6 +704,26 @@ implements DetachCallback, StoreCallback
 						map.put(detachedSubFieldMeta.getRole(), detachedSubFieldMeta);
 					}
 					detached.role2SubFieldMeta = map;
+
+
+					postDetachRunnableManager.addRunnable(new Runnable() {
+						@Override
+						public void run() {
+							if (attached.classMeta_classID != null) {
+								detached.classMeta = detachedClassMetaModel == null ? null : detachedClassMetaModel.getClassMeta(attached.classMeta_classID, false);
+								if (detached.classMeta == null)
+									detached.classMeta = pm.detachCopy(attached.getClassMeta());
+							}
+
+							if (attached.ownerFieldMeta_fieldID != null) {
+								DetachedClassMetaModel detachedClassMetaModel = DetachedClassMetaModel.getInstance();
+								detached.ownerFieldMeta = detachedClassMetaModel == null ? null : detachedClassMetaModel.getFieldMeta(attached.ownerFieldMeta_fieldID, false);
+								if (detached.ownerFieldMeta == null)
+									detached.ownerFieldMeta = pm.detachCopy(attached.getOwnerFieldMeta());
+							}
+						}
+					});
+
 				}
 
 			} finally {
@@ -754,11 +800,22 @@ implements DetachCallback, StoreCallback
 	@Override
 	public void jdoPreStore() {
 		logger.debug("jdoPreStore: {}", this);
+		final ClassMeta finalClassMeta = classMeta;
+		final FieldMeta finalOwnerFieldMeta = ownerFieldMeta;
+
 		PostStoreRunnableManager.getInstance().addRunnable(new Runnable() {
 			@Override
 			public void run() {
 				logger.debug("postStore: {}", this);
 				PersistenceManager pm = JDOHelper.getPersistenceManager(FieldMeta.this);
+
+				if (finalClassMeta != null) {
+					setClassMeta(pm.makePersistent(finalClassMeta));
+				}
+
+				if (finalOwnerFieldMeta != null) {
+					setOwnerFieldMeta(pm.makePersistent(finalOwnerFieldMeta));
+				}
 
 				if (embeddedClassMeta != null) {
 					embeddedClassMeta = pm.makePersistent(embeddedClassMeta);

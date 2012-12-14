@@ -17,8 +17,6 @@
  */
 package org.cumulus4j.store.test.framework;
 
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -54,24 +52,8 @@ public class JDOTransactionalRunner extends BlockJUnit4ClassRunner
 	public void run(RunNotifier notifier) {
 		logger.info("run: Shutting down Derby (in case it was used before).");
 		// First shut down derby, in case it is open
-		try {
-			DriverManager.getConnection("jdbc:derby:;shutdown=true");
-		} catch (SQLException x) {
-			// ignore, because this is to be expected according to http://db.apache.org/derby/docs/dev/devguide/tdevdvlp40464.html
-			doNothing(); // Remove warning from PMD report: http://cumulus4j.org/pmd.html
-		}
+		TestUtil.shutdownDerby();
 
-//		logger.info("run: ************ children begin ************");
-//		List<FrameworkMethod> children = getChildren();
-//		for (FrameworkMethod child : children) {
-//			logger.info("run: " + child.getName());
-//		}
-//		logger.info("run: ************ children end ************");
-
-//		logger.info("run: Setting up PersistenceManagerFactory.");
-//		pmf = JDOHelper.getPersistenceManagerFactory(TestUtil.loadProperties("cumulus4j-test-datanucleus.properties"));
-//		for (int testRunIndex = 0; testRunIndex < 2; ++testRunIndex) {
-//			JDOTransactionalTest.State.setTestRunIndex(testRunIndex);
 		try {
 			super.run(notifier);
 		} finally {
@@ -81,7 +63,6 @@ public class JDOTransactionalRunner extends BlockJUnit4ClassRunner
 				pmf = null;
 			}
 		}
-//		}
 	}
 
 	@Override
@@ -189,22 +170,6 @@ public class JDOTransactionalRunner extends BlockJUnit4ClassRunner
 		return afters.isEmpty() ? statement : new TxRunAfters(statement, afters, target);
 	}
 
-//	@Override
-//	protected List<MethodRule> rules(Object test) {
-//		List<MethodRule> superRules = super.rules(test);
-//		List<MethodRule> result = new ArrayList<MethodRule>(superRules.size() + 1);
-//		result.addAll(superRules);
-//		result.add(transactionalRule);
-//		return result;
-//	}
-//
-//	private MethodRule transactionalRule = new MethodRule() {
-//		@Override
-//		public Statement apply(Statement base, FrameworkMethod method, Object target) {
-//			return new TransactionalInvokeMethod(method, target, base);
-//		}
-//	};
-
 	private void runInTransaction(final Object test, final FrameworkMethod method)
 	throws Throwable
 	{
@@ -283,42 +248,6 @@ public class JDOTransactionalRunner extends BlockJUnit4ClassRunner
 		@Override
 		public void evaluate() throws Throwable {
 			runInTransaction(test, delegate);
-
-//			PersistenceManager pm = null;
-//			TransactionalTest transactionalTest = null;
-//			if (test instanceof TransactionalTest) {
-//				transactionalTest = (TransactionalTest) test;
-//
-//				if (pmf == null) {
-//					logger.info("run: Setting up PersistenceManagerFactory.");
-//					pmf = JDOHelper.getPersistenceManagerFactory(TestUtil.loadProperties("cumulus4j-test-datanucleus.properties"));
-//				}
-//
-//				pm = pmf.getPersistenceManager();
-//				transactionalTest.setPersistenceManager(pm);
-//				pm.currentTransaction().begin();
-//			}
-//			try {
-//				delegate.evaluate();
-//
-//				pm = transactionalTest.getPersistenceManager();
-//				if (pm != null && !pm.isClosed() && pm.currentTransaction().isActive())
-//					pm.currentTransaction().commit();
-//			} finally {
-//				pm = transactionalTest.getPersistenceManager();
-//				if (pm != null && !pm.isClosed()) {
-//					try {
-//						if (pm.currentTransaction().isActive())
-//							pm.currentTransaction().rollback();
-//
-//						pm.close();
-//					} catch (Throwable t) {
-//						logger.warn("Rolling back or closing PM failed: " + t, t);
-//					}
-//				}
-//			}
 		}
 	}
-
-	private static final void doNothing() { }
 }

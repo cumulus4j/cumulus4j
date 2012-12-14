@@ -36,7 +36,7 @@ import javax.jdo.annotations.PersistenceCapable;
 //    ALTER TABLE indexentrystringlong ADD CONSTRAINT UNIQUE KEY (indexkey(255), fieldmeta_fieldid_oid)
 // => file a bug in DataNucleus' issue tracker (should log a warning, if the underlying DB doesn't support
 // it and should use RDBMS-specific syntax, if necessary).
-//@Unique(members={"keyStoreRefID", "fieldMeta", "classMeta", "indexKey"})
+//@Unique(members={"keyStoreRefID", "fieldMeta_fieldID", "classMeta_classID", "indexKey"})
 public class IndexEntryStringLong
 extends IndexEntry
 {

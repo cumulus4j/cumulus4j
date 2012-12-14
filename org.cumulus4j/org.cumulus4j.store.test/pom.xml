@@ -9,6 +9,36 @@
 	<artifactId>org.cumulus4j.store.test</artifactId>
 	<name>org.cumulus4j.store.test</name>
 	<description>Tests for org.cumulus4j.store testing persist- and query-functionality without key management. The tests in this project use the JDO API.</description>
+
+	<!--
+	<repositories>
+		<!-
+		Repositories here to be able to test older versions, too (if changing the parent-version, it cannot
+		download without knowing from where).
+		->
+		<repository>
+			<id>dev.nightlabs.org-libs-releases-local</id>
+			<url>http://dev.nightlabs.org/maven-repository/libs-releases-local/</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
+		<repository>
+			<id>dev.nightlabs.org-libs-snapshots-local</id>
+			<url>http://dev.nightlabs.org/maven-repository/libs-snapshots-local/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</repository>
+	</repositories>
+	-->
+	
 	<dependencies>
 		<dependency>
 			<groupId>javax.jdo</groupId>
@@ -104,11 +134,13 @@
 					<artifactId>derby</artifactId>
 					<scope>test</scope>
 				</dependency>
+				<!--
 				<dependency>
 					<groupId>postgresql</groupId>
 					<artifactId>postgresql</artifactId>
 					<scope>test</scope>
 				</dependency>
+				-->
 			</dependencies>
 		</profile>
 		<profile>

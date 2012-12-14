@@ -96,13 +96,13 @@ public abstract class IndexEntryFactory
 		Map<String, Object> params = new HashMap<String, Object>();
 		q.setFilter(
 				"this.keyStoreRefID == :keyStoreRefID && " +
-				"this.fieldMeta == :fieldMeta && " +
+				"this.fieldMeta_fieldID == :fieldMeta_fieldID && " +
 //				":classMetas.contains(this.classMeta) && " +
 				ClassMetaDAO.getMultiClassMetaOrFilterPart(params, classMetas) + " && " +
 				"this.indexKey == :indexKey"
 		);
 		params.put("keyStoreRefID", cryptoContext.getKeyStoreRefID());
-		params.put("fieldMeta", fieldMeta);
+		params.put("fieldMeta_fieldID", fieldMeta.getFieldID());
 //		params.put("classMetas", classMetas);
 		params.put("indexKey", indexKey);
 		@SuppressWarnings("unchecked")
@@ -138,14 +138,14 @@ public abstract class IndexEntryFactory
 		q.setUnique(true);
 		q.setFilter(
 				"this.keyStoreRefID == :keyStoreRefID && " +
-				"this.fieldMeta == :fieldMeta && " +
-				"this.classMeta == :classMeta && " +
+				"this.fieldMeta_fieldID == :fieldMeta_fieldID && " +
+				"this.classMeta_classID == :classMeta_classID && " +
 				"this.indexKey == :indexKey"
 		);
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("keyStoreRefID", cryptoContext.getKeyStoreRefID());
-		params.put("fieldMeta", fieldMeta);
-		params.put("classMeta", classMeta);
+		params.put("fieldMeta_fieldID", fieldMeta.getFieldID());
+		params.put("classMeta_classID", classMeta.getClassID());
 		params.put("indexKey", indexKey);
 		return indexEntryClass.cast(q.executeWithMap(params));
 	}

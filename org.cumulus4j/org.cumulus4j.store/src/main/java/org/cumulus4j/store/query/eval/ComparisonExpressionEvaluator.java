@@ -201,14 +201,14 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		Map<String, Object> params = new HashMap<String, Object>(4);
 		q.setFilter(
 				"this.keyStoreRefID == :keyStoreRefID && " +
-				"this.fieldMeta == :fieldMeta && " +
+				"this.fieldMeta_fieldID == :fieldMeta_fieldID && " +
 //				":classMetas.contains(this.classMeta) && " +
 				ClassMetaDAO.getMultiClassMetaOrFilterPart(params, classMetas) + " && " +
 				"this.indexKey " + getOperatorAsJDOQLSymbol(negate) + " :value"
 		);
 
 		params.put("keyStoreRefID", cryptoContext.getKeyStoreRefID());
-		params.put("fieldMeta", fieldMeta);
+		params.put("fieldMeta_fieldID", fieldMeta.getFieldID());
 //		params.put("classMetas", classMetas);
 		params.put("value", queryParam);
 

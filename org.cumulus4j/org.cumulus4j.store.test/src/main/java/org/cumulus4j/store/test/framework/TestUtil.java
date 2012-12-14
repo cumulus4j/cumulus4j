@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -115,4 +117,15 @@ public class TestUtil
 		Properties properties = loadProperties("cumulus4j-test-log4j.properties", true);
 		PropertyConfigurator.configure(properties);
 	}
+
+	public static void shutdownDerby() {
+		try {
+			DriverManager.getConnection("jdbc:derby:;shutdown=true");
+		} catch (SQLException x) {
+			// ignore, because this is to be expected according to http://db.apache.org/derby/docs/dev/devguide/tdevdvlp40464.html
+			doNothing(); // Remove warning from PMD report: http://cumulus4j.org/pmd.html
+		}
+	}
+
+	private static final void doNothing() { }
 }

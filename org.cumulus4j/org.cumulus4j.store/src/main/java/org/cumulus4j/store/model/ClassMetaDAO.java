@@ -26,9 +26,9 @@ public class ClassMetaDAO extends AbstractDAO {
 			if (++idx > 0)
 				result.append(" || ");
 
-			String classMetaParamName = "classMeta" + idx;
-			result.append("this.classMeta == :").append(classMetaParamName);
-			queryParams.put(classMetaParamName, classMeta);
+			String classMetaClassIDParamName = "classMeta_classID" + idx;
+			result.append("this.classMeta_classID == :").append(classMetaClassIDParamName);
+			queryParams.put(classMetaClassIDParamName, classMeta.getClassID());
 		}
 
 		if (classMetas.size() > 1)

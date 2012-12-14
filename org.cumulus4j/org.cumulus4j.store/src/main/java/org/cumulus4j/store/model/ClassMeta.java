@@ -29,14 +29,13 @@ import javax.jdo.PersistenceManager;
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.Discriminator;
 import javax.jdo.annotations.DiscriminatorStrategy;
-import javax.jdo.annotations.FetchGroup;
-import javax.jdo.annotations.FetchGroups;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.NullValue;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
+import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.annotations.Queries;
 import javax.jdo.annotations.Query;
 import javax.jdo.annotations.Unique;
@@ -46,7 +45,6 @@ import javax.jdo.listener.DetachCallback;
 import javax.jdo.listener.LoadCallback;
 import javax.jdo.listener.StoreCallback;
 
-import org.cumulus4j.store.reflectionwrapper.gae.KeyFactory;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.store.ExecutionContext;
 import org.slf4j.Logger;
@@ -66,11 +64,11 @@ import org.slf4j.LoggerFactory;
 )
 @Version(strategy=VersionStrategy.VERSION_NUMBER)
 @Unique(name="ClassMeta_fullyQualifiedClassName", members={"uniqueScope", "packageName", "simpleClassName"})
-@FetchGroups({
-	@FetchGroup(name=FetchGroupsMetaData.ALL, members={
-			@Persistent(name="superClassMeta", recursionDepth=-1)
-	})
-})
+//@FetchGroups({
+//	@FetchGroup(name=FetchGroupsMetaData.ALL, members={
+//			@Persistent(name="superClassMeta", recursionDepth=-1)
+//	})
+//})
 @Queries({
 //	// We cannot use pm.getObjectById(...), because GAE uses a GAE-specific identity
 //	// instead of the long-ID. We therefore must use a query instead.
@@ -95,16 +93,16 @@ implements DetachCallback, StoreCallback, LoadCallback
 //		public static final String getClassMetaByClassID = "getClassMetaByClassID";
 	}
 
-//	@PrimaryKey
+	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE, sequence="ClassMetaSequence")
 	private Long classID;
 
-	/**
-	 * This is needed due to GAE compatibility. package.jdo is responsible
-	 * for the correct usage if this field.
-	 */
-//	@NotPersistent // not persistent for non-GAE-datastores
-	private String classIDString;
+//	/**
+//	 * This is needed due to GAE compatibility. package.jdo is responsible
+//	 * for the correct usage if this field.
+//	 */
+////	@NotPersistent // not persistent for non-GAE-datastores
+//	private String classIDString;
 
 	@NotPersistent
 	private transient volatile String className;
@@ -121,6 +119,10 @@ implements DetachCallback, StoreCallback, LoadCallback
 	@Column(length=255)
 	private String simpleClassName;
 
+	@Column(name="superClassMeta_classID_oid") // for downward-compatibility.
+	private Long superClassMeta_classID;
+
+	@NotPersistent
 	private ClassMeta superClassMeta;
 
 	/**
@@ -149,9 +151,9 @@ implements DetachCallback, StoreCallback, LoadCallback
 	}
 
 	public long getClassID() {
-		if(classIDString != null && classID == null){
-			classID = KeyFactory.getInstance().stringToKey(classIDString).getId();
-		}
+//		if(classIDString != null && classID == null){
+//			classID = KeyFactory.getInstance().stringToKey(classIDString).getId();
+//		}
 		return classID == null ? -1 : classID;
 	}
 
@@ -205,11 +207,18 @@ implements DetachCallback, StoreCallback, LoadCallback
 	 * @return the super-class' meta-data or <code>null</code>.
 	 */
 	public ClassMeta getSuperClassMeta() {
+		if (superClassMeta_classID == null)
+			return null;
+
+		if (superClassMeta == null)
+			superClassMeta = new ClassMetaDAO(getPersistenceManager()).getClassMeta(superClassMeta_classID, true);
+
 		return superClassMeta;
 	}
 
 	public void setSuperClassMeta(ClassMeta superClassMeta) {
 		this.superClassMeta = superClassMeta;
+		this.superClassMeta_classID = superClassMeta == null ? null : superClassMeta.getClassID();
 	}
 
 	/**
@@ -434,6 +443,10 @@ implements DetachCallback, StoreCallback, LoadCallback
 
 			if (JDOHelper.getPersistenceManager(detached) != null)
 				throw new IllegalStateException("detached has a PersistenceManager assigned!");
+			
+			final DetachedClassMetaModel detachedClassMetaModel = DetachedClassMetaModel.getInstance();
+			if (detachedClassMetaModel != null)
+				detachedClassMetaModel.registerClassMetaCurrentlyDetaching(detached);
 
 			Set<ClassMeta> attachedClassMetasInPostDetach = attachedClassMetasInPostDetachThreadLocal.get();
 			if (!attachedClassMetasInPostDetach.add(attached)) {
@@ -442,7 +455,7 @@ implements DetachCallback, StoreCallback, LoadCallback
 			}
 			try {
 
-				PersistenceManager pm = attached.getPersistenceManager();
+				final PersistenceManager pm = attached.getPersistenceManager();
 				if (pm == null)
 					throw new IllegalStateException("attached.getPersistenceManager() returned null!");
 
@@ -474,6 +487,17 @@ implements DetachCallback, StoreCallback, LoadCallback
 						map.put(detachedFieldMeta.getFieldName(), detachedFieldMeta);
 					}
 					detached.fieldName2FieldMeta = map;
+
+					postDetachRunnableManager.addRunnable(new Runnable() {
+						@Override
+						public void run() {
+							if (attached.superClassMeta_classID != null) {
+								detached.superClassMeta = detachedClassMetaModel == null ? null : detachedClassMetaModel.getClassMeta(attached.superClassMeta_classID, false);
+								if (detached.superClassMeta == null)
+									detached.superClassMeta = pm.detachCopy(attached.getSuperClassMeta());
+							}
+						}
+					});
 				}
 
 			} finally {

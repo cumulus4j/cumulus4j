@@ -208,7 +208,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 		inheritanceObject = pm.makePersistent(inheritanceObject);
 	}
 
-	private Map<Class<? extends InheritanceHierarchy0>, List<InheritanceHierarchy0>> persistSomeInstances()
+	public Map<Class<? extends InheritanceHierarchy0>, List<InheritanceHierarchy0>> persistSomeInstances()
 	{
 		Map<Class<? extends InheritanceHierarchy0>, List<InheritanceHierarchy0>> result = new HashMap<Class<? extends InheritanceHierarchy0>, List<InheritanceHierarchy0>>();
 		List<InheritanceHierarchy0> list;
@@ -374,6 +374,10 @@ extends AbstractJDOTransactionalTestClearingDatabase
 
 		commitAndBeginNewTransaction();
 
+		iterateExtent();
+	}
+
+	public void iterateExtent() {
 		Map<Class<?>, Integer[]> class2count = new HashMap<Class<?>, Integer[]>();
 		for (Iterator<?> it = pm.getExtent(InheritanceHierarchy0.class).iterator(); it.hasNext(); ) {
 			Object o = it.next();

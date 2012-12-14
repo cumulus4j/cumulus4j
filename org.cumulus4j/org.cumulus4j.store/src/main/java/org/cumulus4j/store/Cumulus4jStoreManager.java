@@ -42,6 +42,7 @@ import org.cumulus4j.store.model.EmbeddedClassMeta;
 import org.cumulus4j.store.model.EmbeddedFieldMeta;
 import org.cumulus4j.store.model.FetchGroupsMetaData;
 import org.cumulus4j.store.model.FieldMeta;
+import org.cumulus4j.store.model.FieldMetaDAO;
 import org.cumulus4j.store.model.FieldMetaRole;
 import org.cumulus4j.store.model.IndexEntryFactoryRegistry;
 import org.cumulus4j.store.model.PostDetachRunnableManager;
@@ -86,6 +87,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 
 	private Map<Class<?>, ClassMeta> class2classMeta = Collections.synchronizedMap(new HashMap<Class<?>, ClassMeta>());
 	private Map<Long, ClassMeta> classID2classMeta = Collections.synchronizedMap(new HashMap<Long, ClassMeta>());
+	private Map<Long, FieldMeta> fieldID2fieldMeta = Collections.synchronizedMap(new HashMap<Long, FieldMeta>());
 
 	/**
 	 * For every class, we keep a set of all known sub-classes (all inheritance-levels down). Note, that the class in
@@ -139,7 +141,72 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 		return datastoreVersionManager;
 	}
 
+//	private ThreadLocal<Set<Long>> fieldIDsCurrentlyLoading = new ThreadLocal<Set<Long>>() {
+//		@Override
+//		protected Set<Long> initialValue() {
+//			return new HashSet<Long>();
+//		}
+//	};
+
+	public FieldMeta getFieldMeta(ExecutionContext ec, long fieldID, boolean throwExceptionIfNotFound) {
+		if (ec == null)
+			throw new IllegalArgumentException("ec == null");
+
+		if (fieldID < 0)
+			throw new IllegalArgumentException("fieldID < 0");
+
+//		if (!fieldIDsCurrentlyLoading.get().add(fieldID)) {
+//			if (throwExceptionIfNotFound)
+//				throw new IllegalStateException("Circular loading! This is only allowed, if throwExceptionIfNotFound == false and results in null being returned.");
+//
+//			return null;
+//		}
+//		try {
+			FieldMeta result = fieldID2fieldMeta.get(fieldID);
+			if (result != null) {
+				logger.trace("getFieldMetaByFieldID: found cache entry. fieldID={}", fieldID);
+				return result;
+			}
+
+			long beginLoadingTimestamp = System.currentTimeMillis();
+			long classID;
+			ManagedConnection mconn = this.getConnection(ec);
+			try {
+				PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
+				PersistenceManager pm = pmConn.getDataPM();
+				FieldMetaDAO dao = new FieldMetaDAO(pm);
+				FieldMeta fieldMeta = dao.getFieldMeta(fieldID, throwExceptionIfNotFound);
+				if (fieldMeta == null)
+					return null;
+
+				classID = fieldMeta.getClassMeta().getClassID();
+			} finally {
+				mconn.release(); mconn = null;
+			}
+
+			getClassMeta(ec, classID, true);
+
+			result = fieldID2fieldMeta.get(fieldID);
+			if (result == null)
+				throw new IllegalStateException("Even after loading the class " + classID + " , the field " + fieldID + " is still not cached!");
+
+			logger.debug("getFieldMetaByFieldID: end loading (took {} ms). fieldID={}", System.currentTimeMillis() - beginLoadingTimestamp, fieldID);
+			return result;
+//		} finally {
+//			Set<Long> set = fieldIDsCurrentlyLoading.get();
+//			set.remove(fieldID);
+//			if (set.isEmpty())
+//				fieldIDsCurrentlyLoading.remove();
+//		}
+	}
+
 	public ClassMeta getClassMeta(ExecutionContext ec, long classID, boolean throwExceptionIfNotFound) {
+		if (ec == null)
+			throw new IllegalArgumentException("ec == null");
+
+		if (classID < 0)
+			throw new IllegalArgumentException("classID < 0");
+
 		ClassMeta result = classID2classMeta.get(classID);
 		if (result != null) {
 			logger.trace("getClassMetaByClassID: found cache entry. classID={}", classID);
@@ -155,6 +222,9 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 			PersistenceManager pm = pmConn.getDataPM();
 			ClassMetaDAO dao = new ClassMetaDAO(pm);
 			ClassMeta classMeta = dao.getClassMeta(classID, throwExceptionIfNotFound);
+			if (classMeta == null)
+				return null;
+
 			className = classMeta.getClassName();
 		} finally {
 			mconn.release(); mconn = null;
@@ -196,21 +266,72 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 		}
 		logger.debug("getClassMetaByClassID: end loading (took {} ms). classID={}", System.currentTimeMillis() - beginLoadingTimestamp, classID);
 
-		classID2classMeta.put(result.getClassID(), result);
+		putClassMetaIntoCache(result);
 		return result;
 	}
 
+	protected void putClassMetaIntoCache(ClassMeta classMeta) {
+		if (classMeta == null)
+			return;
+
+		classID2classMeta.put(classMeta.getClassID(), classMeta);
+		putFieldMetasIntoCache(classMeta);
+	}
+
+	protected void putFieldMetasIntoCache(ClassMeta classMeta) {
+		if (classMeta == null)
+			return;
+
+		putFieldMetasIntoCache(classMeta.getFieldMetas());
+	}
+
+	protected void putFieldMetasIntoCache(Collection<FieldMeta> fieldMetas) {
+		if (fieldMetas == null)
+			return;
+
+		for (FieldMeta fieldMeta : fieldMetas) {
+			if (fieldID2fieldMeta.put(fieldMeta.getFieldID(), fieldMeta) != null)
+				continue; // already added before => no recursion
+
+			putFieldMetasIntoCache(fieldMeta.getEmbeddedClassMeta());
+			putFieldMetasIntoCache(fieldMeta.getSubFieldMetas());
+		}
+	}
+
 	protected ClassMeta detachClassMeta(final ExecutionContext ec, PersistenceManager pm, ClassMeta classMeta) {
-		DetachedClassMetaModel.setInstance(new DetachedClassMetaModel() {
-			@Override
-			public ClassMeta getClassMeta(long classID, boolean throwExceptionIfNotFound) {
-//				ClassMeta result = classID2classMeta.get(classID);
-//				if (result == null && throwExceptionIfNotFound)
-//					throw new IllegalArgumentException("No ClassMeta found for classID=" + classID);
-				ClassMeta result = Cumulus4jStoreManager.this.getClassMeta(ec, classID, throwExceptionIfNotFound);
-				return result;
-			}
-		});
+		boolean clearDetachedClassMetaModel = false;
+		if (DetachedClassMetaModel.getInstance() == null) {
+			clearDetachedClassMetaModel = true;
+			DetachedClassMetaModel.setInstance(new DetachedClassMetaModel() {
+				private Set<Long> pendingClassIDs = new HashSet<Long>();
+				private Set<Long> pendingFieldIDs = new HashSet<Long>();
+
+				@Override
+				protected ClassMeta getClassMetaImpl(long classID, boolean throwExceptionIfNotFound) {
+					if (!pendingClassIDs.add(classID)) {
+						throw new IllegalStateException("Circular detachment of classID=" + classID);
+					}
+					try {
+						ClassMeta result = Cumulus4jStoreManager.this.getClassMeta(ec, classID, throwExceptionIfNotFound);
+						return result;
+					} finally {
+						pendingClassIDs.remove(classID);
+					}
+				}
+				@Override
+				protected FieldMeta getFieldMetaImpl(long fieldID, boolean throwExceptionIfNotFound) {
+					if (!pendingFieldIDs.add(fieldID)) {
+						throw new IllegalStateException("Circular detachment of fieldID=" + fieldID);
+					}
+					try {
+						FieldMeta result = Cumulus4jStoreManager.this.getFieldMeta(ec, fieldID, throwExceptionIfNotFound);
+						return result;
+					} finally {
+						pendingFieldIDs.remove(fieldID);
+					}
+				}
+			});
+		}
 		try {
 			ClassMeta result;
 			pm.flush();
@@ -226,7 +347,8 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 			}
 			return result;
 		} finally {
-			DetachedClassMetaModel.setInstance(null);
+			if (clearDetachedClassMetaModel)
+				DetachedClassMetaModel.setInstance(null);
 		}
 	}
 
@@ -302,7 +424,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 			}
 
 			class2classMeta.put(clazz, result);
-			classID2classMeta.put(result.getClassID(), result);
+			putClassMetaIntoCache(result);
 
 			// register in class2subclasses-map
 			Set<Class<?>> currentSubclasses = new HashSet<Class<?>>();
@@ -333,7 +455,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 
 					// Store the super-class-meta-data for optimisation reasons (not necessary, but [hopefully] better).
 					class2classMeta.put(c, cm);
-					classID2classMeta.put(cm.getClassID(), cm);
+					putClassMetaIntoCache(result);
 				}
 			}
 		} finally {

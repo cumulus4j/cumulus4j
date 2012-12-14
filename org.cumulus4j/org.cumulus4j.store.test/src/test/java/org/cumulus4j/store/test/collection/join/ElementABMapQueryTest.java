@@ -45,40 +45,40 @@ extends AbstractJDOTransactionalTestClearingDatabase
 			return;
 		}
 
-		ElementA elementA_K1_3 = new ElementA("Element K1.3");
-		ElementB elementB_V1_1 = new ElementB("Element V1.1");
+		ElementA elementA_K1_3 = new ElementA("ABMap.Element K1.3");
+		ElementB elementB_V1_1 = new ElementB("ABMap.Element V1.1");
 
 		{
 			ElementABMapOwner owner = new ElementABMapOwner();
 			owner.setName("Owner 1");
-			owner.putMapEntry(new ElementA("Element K1.1"), elementB_V1_1);
-			owner.putMapEntry(new ElementA("Element K1.2"), new ElementB("Element V1.2"));
-			owner.putMapEntry(elementA_K1_3, new ElementB("Element V1.3"));
-			owner.putMapEntry(new ElementA("Element K1.4"), new ElementB("Element V1.4"));
+			owner.putMapEntry(new ElementA("ABMap.Element K1.1"), elementB_V1_1);
+			owner.putMapEntry(new ElementA("ABMap.Element K1.2"), new ElementB("ABMap.Element V1.2"));
+			owner.putMapEntry(elementA_K1_3, new ElementB("ABMap.Element V1.3"));
+			owner.putMapEntry(new ElementA("ABMap.Element K1.4"), new ElementB("ABMap.Element V1.4"));
 			pm.makePersistent(owner);
 		}
 
 		{
 			ElementABMapOwner owner = pm.makePersistent(new ElementABMapOwner());
 			owner.setName("Owner 2");
-			owner.putMapEntry(new ElementA("Element K2.1"), new ElementB("Element V2.1"));
-			owner.putMapEntry(new ElementA("Element K2.2"), new ElementB("Element V2.2"));
-			owner.putMapEntry(elementA_K1_3, new ElementB("Element V2.3"));
-			owner.putMapEntry(new ElementA("Element K2.4"), new ElementB("Element V2.4"));
+			owner.putMapEntry(new ElementA("ABMap.Element K2.1"), new ElementB("ABMap.Element V2.1"));
+			owner.putMapEntry(new ElementA("ABMap.Element K2.2"), new ElementB("ABMap.Element V2.2"));
+			owner.putMapEntry(elementA_K1_3, new ElementB("ABMap.Element V2.3"));
+			owner.putMapEntry(new ElementA("ABMap.Element K2.4"), new ElementB("ABMap.Element V2.4"));
 		}
 
 		{
 			ElementABMapOwner owner = pm.makePersistent(new ElementABMapOwner());
 			owner.setName("Owner 3");
-			owner.putMapEntry(new ElementA("Element K3.1"), elementB_V1_1);
-			owner.putMapEntry(new ElementA("Element K3.2"), new ElementB("Element V3.2"));
-			owner.putMapEntry(new ElementA("Element K3.3"), new ElementB("Element V3.3"));
+			owner.putMapEntry(new ElementA("ABMap.Element K3.1"), elementB_V1_1);
+			owner.putMapEntry(new ElementA("ABMap.Element K3.2"), new ElementB("ABMap.Element V3.2"));
+			owner.putMapEntry(new ElementA("ABMap.Element K3.3"), new ElementB("ABMap.Element V3.3"));
 		}
 
 		{
 			ElementABMapOwner owner = pm.makePersistent(new ElementABMapOwner());
 			owner.setName("Owner 4");
-			owner.putMapEntry(elementA_K1_3, new ElementB("Element V4.3"));
+			owner.putMapEntry(elementA_K1_3, new ElementB("ABMap.Element V4.3"));
 		}
 
 		{
@@ -89,7 +89,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 		{
 			ElementABMapOwner owner = pm.makePersistent(new ElementABMapOwner());
 			owner.setName("Owner 6");
-			owner.putMapEntry(new ElementA("Element K6.2"), new ElementB("Element V6.2"));
+			owner.putMapEntry(new ElementA("ABMap.Element K6.2"), new ElementB("ABMap.Element V6.2"));
 		}
 	}
 
@@ -136,12 +136,12 @@ extends AbstractJDOTransactionalTestClearingDatabase
 
 	private ElementA getExampleElementK()
 	{
-		return getExampleElementA("Element K3.2");
+		return getExampleElementA("ABMap.Element K3.2");
 	}
 
 	private ElementB getExampleElementV()
 	{
-		return getExampleElementB("Element V3.2");
+		return getExampleElementB("ABMap.Element V3.2");
 	}
 
 	private ElementA getExampleElementA(String name)
@@ -181,7 +181,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 	@Test
 	public void queryContainsKeyParameter2()
 	{
-		ElementA elementA = getExampleElementA("Element K1.3");
+		ElementA elementA = getExampleElementA("ABMap.Element K1.3");
 
 		Query q = pm.newQuery(ElementABMapOwner.class);
 		q.setFilter("this.map.containsKey(:queryParam)");
@@ -201,7 +201,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 	@Test
 	public void queryNotContainsKeyParameter2()
 	{
-		ElementA elementA = getExampleElementA("Element K1.3");
+		ElementA elementA = getExampleElementA("ABMap.Element K1.3");
 
 		Query q = pm.newQuery(ElementABMapOwner.class);
 		q.setFilter("!this.map.containsKey(:queryParam)");
@@ -229,7 +229,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 	@Test
 	public void queryContainsValueParameter2()
 	{
-		ElementB elementB = getExampleElementB("Element V1.1");
+		ElementB elementB = getExampleElementB("ABMap.Element V1.1");
 
 		Query q = pm.newQuery(ElementABMapOwner.class);
 		q.setFilter("this.map.containsValue(:queryParam)");
@@ -279,7 +279,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 	@Test
 	public void queryNotContainsValueParameter2()
 	{
-		ElementB elementB = getExampleElementB("Element V1.1");
+		ElementB elementB = getExampleElementB("ABMap.Element V1.1");
 
 		Query q = pm.newQuery(ElementABMapOwner.class);
 		q.setFilter("!this.map.containsValue(:queryParam)");

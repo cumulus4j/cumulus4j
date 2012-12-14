@@ -33,7 +33,7 @@ import javax.jdo.annotations.Unique;
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 @Inheritance(strategy=InheritanceStrategy.NEW_TABLE)
-@Unique(members={"keyStoreRefID", "fieldMeta", "classMeta", "indexKey"})
+@Unique(members={"keyStoreRefID", "fieldMeta_fieldID", "classMeta_classID", "indexKey"})
 public class IndexEntryContainerSize
 extends IndexEntry
 {

@@ -24,6 +24,7 @@ import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.Inheritance;
 import javax.jdo.annotations.InheritanceStrategy;
+import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.NullValue;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
@@ -82,10 +83,10 @@ import javax.jdo.listener.StoreCallback;
  *
  * @author Marco หงุ่ยตระกูล-Schulze - marco at nightlabs dot de
  */
-@PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
+@PersistenceCapable(identityType=IdentityType.APPLICATION)
 @Inheritance(strategy=InheritanceStrategy.SUBCLASS_TABLE)
 @Version(strategy=VersionStrategy.VERSION_NUMBER)
-//@Unique(members={"keyStoreRefID", "fieldMeta", "classMeta", "indexKey"})
+//@Unique(members={"keyStoreRefID", "fieldMeta_fieldID", "classMeta_classID", "indexKey"})
 public abstract class IndexEntry
 implements StoreCallback
 {
@@ -97,11 +98,18 @@ implements StoreCallback
 	@Column(defaultValue="0")
 	private int keyStoreRefID;
 
-	@Persistent(nullValue=NullValue.EXCEPTION)
+	@NotPersistent
 	private FieldMeta fieldMeta;
 
-	@Persistent(nullValue=NullValue.EXCEPTION)
+	@Column(name="fieldMeta_fieldID_oid") // for downward-compatibility
+	private long fieldMeta_fieldID = -1;
+
+	@NotPersistent
 	private ClassMeta classMeta;
+
+	@Column(name="classMeta_classID_oid", // not necessary for downward-compatibility (new field), but for the sake of consistency
+			defaultValue="-1")
+	private long classMeta_classID = -1;
 
 	private long keyID = -1;
 
@@ -127,6 +135,12 @@ implements StoreCallback
 	 * @return the descriptor of the indexed field.
 	 */
 	public FieldMeta getFieldMeta() {
+		if (fieldMeta == null) {
+			if (fieldMeta_fieldID < 0)
+				return null;
+
+			fieldMeta = new FieldMetaDAO(getPersistenceManager()).getFieldMeta(fieldMeta_fieldID, true);
+		}
 		return fieldMeta;
 	}
 
@@ -135,6 +149,7 @@ implements StoreCallback
 			throw new IllegalStateException("The property fieldMeta cannot be modified after being set once!");
 
 		this.fieldMeta = fieldMeta;
+		this.fieldMeta_fieldID = fieldMeta == null ? -1 : fieldMeta.getFieldID();
 	}
 
 	/**
@@ -150,7 +165,21 @@ implements StoreCallback
 	 * @return the {@link ClassMeta} of the concrete type of the instance containing the field.
 	 */
 	public ClassMeta getClassMeta() {
+		if (classMeta == null) {
+			if (classMeta_classID < 0)
+				return null;
+
+			classMeta = new ClassMetaDAO(getPersistenceManager()).getClassMeta(classMeta_classID, true);
+		}
 		return classMeta;
+	}
+
+	protected PersistenceManager getPersistenceManager() {
+		PersistenceManager pm = JDOHelper.getPersistenceManager(this);
+		if (pm == null) {
+			throw new IllegalStateException("JDOHelper.getPersistenceManager(this) returned null! " + this);
+		}
+		return pm;
 	}
 
 	public void setClassMeta(ClassMeta classMeta) {
@@ -158,6 +187,7 @@ implements StoreCallback
 			throw new IllegalStateException("The property classMeta cannot be modified after being set once!");
 
 		this.classMeta = classMeta;
+		this.classMeta_classID = classMeta == null ? -1 : classMeta.getClassID();
 	}
 
 	/**
@@ -240,13 +270,11 @@ implements StoreCallback
 	@Override
 	public void jdoPreStore()
 	{
-		// See: DataEntry#jdoPreStore() - the same applies here to 'this.fieldMeta' and 'this.classMeta'.
-		PersistenceManager pm = JDOHelper.getPersistenceManager(this);
+		if (fieldMeta_fieldID < 0)
+			throw new IllegalStateException("fieldMeta_fieldID < 0");
 
-		Object fieldMetaID = JDOHelper.getObjectId(fieldMeta);
-		fieldMeta = (FieldMeta) pm.getObjectById(fieldMetaID);
-
-		Object classMetaID = JDOHelper.getObjectId(classMeta);
-		classMeta = (ClassMeta) pm.getObjectById(classMetaID);
+		// Must allow this for updatability. At least temporarily. TODO find a better solution.
+//		if (classMeta_classID < 0)
+//			throw new IllegalStateException("classMeta_classID < 0");
 	}
 }

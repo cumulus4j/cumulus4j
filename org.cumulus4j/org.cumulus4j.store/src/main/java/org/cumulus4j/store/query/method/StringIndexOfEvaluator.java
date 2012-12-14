@@ -97,7 +97,7 @@ public class StringIndexOfEvaluator extends AbstractMethodEvaluator {
 
 		Query q = queryEval.getPersistenceManagerForIndex().newQuery(indexEntryFactory.getIndexEntryClass());
 		q.setFilter(
-				"this.keyStoreRefID == :keyStoreRefID && this.fieldMeta == :fieldMeta && " +
+				"this.keyStoreRefID == :keyStoreRefID && this.fieldMeta_fieldID == :fieldMeta_fieldID && " +
 				(invokeArg2 != null ?
 						"this.indexKey.indexOf(:invokeArg,:invokeFrom) " : "this.indexKey.indexOf(:invokeArg) ") +
 				ExpressionHelper.getOperatorAsJDOQLSymbol(invokeExprEval.getParent().getExpression().getOperator(), negate) +
@@ -105,7 +105,7 @@ public class StringIndexOfEvaluator extends AbstractMethodEvaluator {
 		);
 		Map<String, Object> params = new HashMap<String, Object>(3);
 		params.put("keyStoreRefID", cryptoContext.getKeyStoreRefID());
-		params.put("fieldMeta", fieldMeta);
+		params.put("fieldMeta_fieldID", fieldMeta.getFieldID());
 		params.put("invokeArg", invokeArg1);
 		if (invokeArg2 != null)
 		{

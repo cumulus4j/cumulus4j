@@ -45,39 +45,39 @@ extends AbstractJDOTransactionalTestClearingDatabase
 			return;
 		}
 
-		ElementA elementA_1_1 = new ElementA("Element 1.1");
+		ElementA elementA_1_1 = new ElementA("M.Element 1.1");
 
 		{
 			ElementAMapOwner1 owner = new ElementAMapOwner1();
 			owner.setName("Owner 1");
 			owner.putMapEntry("aaa", elementA_1_1);
-			owner.putMapEntry("bbb", new ElementA("Element 1.2"));
-			owner.putMapEntry("ccc", new ElementA("Element 1.3"));
-			owner.putMapEntry("ddd", new ElementA("Element 1.4"));
+			owner.putMapEntry("bbb", new ElementA("M.Element 1.2"));
+			owner.putMapEntry("ccc", new ElementA("M.Element 1.3"));
+			owner.putMapEntry("ddd", new ElementA("M.Element 1.4"));
 			pm.makePersistent(owner);
 		}
 
 		{
 			ElementAMapOwner1 owner = pm.makePersistent(new ElementAMapOwner1());
 			owner.setName("Owner 2");
-			owner.putMapEntry("aa", new ElementA("Element 2.1"));
-			owner.putMapEntry("bb", new ElementA("Element 2.2"));
-			owner.putMapEntry("cc", new ElementA("Element 2.3"));
-			owner.putMapEntry("dd", new ElementA("Element 2.4"));
+			owner.putMapEntry("aa", new ElementA("M.Element 2.1"));
+			owner.putMapEntry("bb", new ElementA("M.Element 2.2"));
+			owner.putMapEntry("cc", new ElementA("M.Element 2.3"));
+			owner.putMapEntry("dd", new ElementA("M.Element 2.4"));
 		}
 
 		{
 			ElementAMapOwner1 owner = pm.makePersistent(new ElementAMapOwner1());
 			owner.setName("Owner 3");
 			owner.putMapEntry("a", elementA_1_1);
-			owner.putMapEntry("b", new ElementA("Element 3.2"));
-			owner.putMapEntry("c", new ElementA("Element 3.3"));
+			owner.putMapEntry("b", new ElementA("M.Element 3.2"));
+			owner.putMapEntry("c", new ElementA("M.Element 3.3"));
 		}
 
 		{
 			ElementAMapOwner1 owner = pm.makePersistent(new ElementAMapOwner1());
 			owner.setName("Owner 4");
-			owner.putMapEntry("ccc", new ElementA("Element 4.3"));
+			owner.putMapEntry("ccc", new ElementA("M.Element 4.3"));
 		}
 
 		{
@@ -88,7 +88,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 		{
 			ElementAMapOwner1 owner = pm.makePersistent(new ElementAMapOwner1());
 			owner.setName("Owner 6");
-			owner.putMapEntry("bb", new ElementA("Element 6.2"));
+			owner.putMapEntry("bb", new ElementA("M.Element 6.2"));
 		}
 	}
 
@@ -135,7 +135,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 
 	private ElementA getExampleElement()
 	{
-		return getExampleElement("Element 3.2");
+		return getExampleElement("M.Element 3.2");
 	}
 
 	private ElementA getExampleElement(String name)
@@ -179,7 +179,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 	@Test
 	public void queryContainsValueParameter2()
 	{
-		ElementA elementA = getExampleElement("Element 1.1");
+		ElementA elementA = getExampleElement("M.Element 1.1");
 
 		Query q = pm.newQuery(ElementAMapOwner1.class);
 		q.setFilter("this.map.containsValue(:queryParam)");
@@ -237,7 +237,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 	@Test
 	public void queryNotContainsValueParameter2()
 	{
-		ElementA elementA = getExampleElement("Element 1.1");
+		ElementA elementA = getExampleElement("M.Element 1.1");
 
 		Query q = pm.newQuery(ElementAMapOwner1.class);
 		q.setFilter("!this.map.containsValue(:queryParam)");

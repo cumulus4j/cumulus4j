@@ -74,12 +74,12 @@ public class CollectionIsEmptyEvaluator extends AbstractMethodEvaluator {
 
 		Query q = queryEval.getPersistenceManagerForIndex().newQuery(indexEntryFactory.getIndexEntryClass());
 		q.setFilter(
-				"this.keyStoreRefID == :keyStoreRefID && this.fieldMeta == :fieldMeta && " +
+				"this.keyStoreRefID == :keyStoreRefID && this.fieldMeta_fieldID == :fieldMeta_fieldID && " +
 				(negate ? "this.indexKey != 0" : "this.indexKey == 0")
 		);
 		Map<String, Object> params = new HashMap<String, Object>(3);
 		params.put("keyStoreRefID", cryptoContext.getKeyStoreRefID());
-		params.put("fieldMeta", fieldMeta);
+		params.put("fieldMeta_fieldID", fieldMeta.getFieldID());
 
 		@SuppressWarnings("unchecked")
 		Collection<? extends IndexEntry> indexEntries = (Collection<? extends IndexEntry>) q.executeWithMap(params);

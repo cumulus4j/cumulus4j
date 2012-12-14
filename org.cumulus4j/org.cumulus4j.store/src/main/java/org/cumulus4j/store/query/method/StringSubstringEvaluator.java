@@ -98,7 +98,7 @@ public class StringSubstringEvaluator extends AbstractMethodEvaluator {
 
 		Query q = queryEval.getPersistenceManagerForIndex().newQuery(indexEntryFactory.getIndexEntryClass());
 		q.setFilter(
-				"this.keyStoreRefID == :keyStoreRefID && this.fieldMeta == :fieldMeta && " +
+				"this.keyStoreRefID == :keyStoreRefID && this.fieldMeta_fieldID == :fieldMeta_fieldID && " +
 				(invokeArg2 != null ?
 						"this.indexKey.substring(" + invokeArg1 + "," + invokeArg2 +") " :
 						"this.indexKey.substring(" + invokeArg1 + ") ") +
@@ -107,7 +107,7 @@ public class StringSubstringEvaluator extends AbstractMethodEvaluator {
 		);
 		Map<String, Object> params = new HashMap<String, Object>(2);
 		params.put("keyStoreRefID", cryptoContext.getKeyStoreRefID());
-		params.put("fieldMeta", fieldMeta);
+		params.put("fieldMeta_fieldID", fieldMeta.getFieldID());
 		params.put("compareToArgument", compareToArgument);
 
 		@SuppressWarnings("unchecked")

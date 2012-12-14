@@ -8,7 +8,7 @@
 -->
  
 <jdo>
-
+<!-- NOT used anymore.
 	<package name="org.cumulus4j.store.model">
 
 		<class name="ClassMeta" identity-type="application" detachable="true">
@@ -44,5 +44,5 @@
 		</class>
 
 	</package>
-  
+-->
 </jdo>

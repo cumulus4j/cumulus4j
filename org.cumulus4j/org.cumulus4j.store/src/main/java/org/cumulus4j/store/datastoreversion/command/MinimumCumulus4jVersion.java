@@ -41,10 +41,10 @@ public class MinimumCumulus4jVersion extends AbstractDatastoreVersionCommand {
 		// BEGIN: maintain this - i.e. manually update the following!!!
 		// Last updated: 2012-07-20 by Marco
 		// Current version in pom.xml: 1.1.0-SNAPSHOT
-		int major   =  01;
-		int minor   =  01;
-		int release =  00;
-		int serial  = 001;
+		int major   = getCommandVersionMajor();
+		int minor   = getCommandVersionMinor();
+		int release = getCommandVersionRelease();
+		int serial  = getCommandVersionSerial();
 		// END
 
 		// Calculate version number from elements.
@@ -57,6 +57,22 @@ public class MinimumCumulus4jVersion extends AbstractDatastoreVersionCommand {
 		logger.info("version={}", version);
 		this.version = version;
 		return version;
+	}
+
+	public int getCommandVersionMajor() {
+		return  01;
+	}
+
+	public int getCommandVersionMinor() {
+		return  01;
+	}
+
+	public int getCommandVersionRelease() {
+		return  00;
+	}
+
+	public int getCommandVersionSerial() {
+		return 001;
 	}
 
 	@Override

@@ -124,7 +124,7 @@ public class CollectionContainsEvaluator extends AbstractMethodEvaluator
 
 			Query q = queryEvaluator.getPersistenceManagerForIndex().newQuery(indexEntryFactory.getIndexEntryClass());
 			StringBuilder str = new StringBuilder();
-			str.append("this.keyStoreRefID == :keyStoreRefID && this.fieldMeta == :fieldMeta");
+			str.append("this.keyStoreRefID == :keyStoreRefID && this.fieldMeta_fieldID == :fieldMeta_fieldID");
 			if (!invokeCollection.isEmpty()) {
 				if (negate) {
 					str.append(" && !:paramColl.contains(this.indexKey)");
@@ -137,7 +137,7 @@ public class CollectionContainsEvaluator extends AbstractMethodEvaluator
 			q.setFilter(str.toString());
 			Map<String, Object> params = new HashMap<String, Object>(2);
 			params.put("keyStoreRefID", cryptoContext.getKeyStoreRefID());
-			params.put("fieldMeta", fieldMeta);
+			params.put("fieldMeta_fieldID", fieldMeta.getFieldID());
 			params.put("paramColl", invokeCollection);
 
 			@SuppressWarnings("unchecked")
