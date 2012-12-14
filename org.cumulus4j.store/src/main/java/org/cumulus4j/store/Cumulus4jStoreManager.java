@@ -213,6 +213,8 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 		});
 		try {
 			ClassMeta result;
+			pm.flush();
+			pm.evictAll();
 			pm.getFetchPlan().setGroups(FetchPlan.ALL, FetchGroupsMetaData.ALL);
 			pm.getFetchPlan().setMaxFetchDepth(-1);
 			final PostDetachRunnableManager postDetachRunnableManager = PostDetachRunnableManager.getInstance();

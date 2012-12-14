@@ -39,4 +39,34 @@ public class KeyFactory extends ReflectionWrapper {
 
 		return new Key(this, wrappedKey);
 	}
+
+	public Key createKey(String kind, long id) {
+		Object wrappedKey = invokeStatic(
+				2, "createKey",
+				String.class,
+				long.class,
+				kind,
+				id
+		);
+
+		if (wrappedKey == null)
+			throw new IllegalStateException("createKey(String, long) returned null! invocationTargetClass=" + getWrappedClassName());
+
+		return new Key(this, wrappedKey);
+	}
+
+	public String createKeyString(String kind, long id) {
+		String keyString = (String) invokeStatic(
+				3, "createKeyString",
+				String.class,
+				long.class,
+				kind,
+				id
+		);
+
+		if (keyString == null)
+			throw new IllegalStateException("createKeyString(String, long) returned null! invocationTargetClass=" + getWrappedClassName());
+
+		return keyString;
+	}
 }

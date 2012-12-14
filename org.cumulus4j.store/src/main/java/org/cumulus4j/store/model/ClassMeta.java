@@ -72,6 +72,12 @@ import org.slf4j.LoggerFactory;
 	})
 })
 @Queries({
+//	// We cannot use pm.getObjectById(...), because GAE uses a GAE-specific identity
+//	// instead of the long-ID. We therefore must use a query instead.
+//	@Query(
+//			name=ClassMeta.NamedQueries.getClassMetaByClassID,
+//			value="SELECT UNIQUE WHERE this.classID == :classID"
+//	),
 	@Query(
 			name=ClassMeta.NamedQueries.getClassMetaByPackageNameAndSimpleClassName,
 			value="SELECT UNIQUE WHERE this.uniqueScope == :uniqueScope && this.packageName == :packageName && this.simpleClassName == :simpleClassName"
@@ -86,6 +92,7 @@ implements DetachCallback, StoreCallback, LoadCallback
 
 	protected static class NamedQueries {
 		public static final String getClassMetaByPackageNameAndSimpleClassName = "getClassMetaByPackageNameAndSimpleClassName";
+//		public static final String getClassMetaByClassID = "getClassMetaByClassID";
 	}
 
 //	@PrimaryKey
