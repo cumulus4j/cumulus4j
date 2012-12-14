@@ -1,9 +1,5 @@
 package org.cumulus4j.store.model;
 
-import java.util.UUID;
-
-import javax.jdo.JDOHelper;
-import javax.jdo.PersistenceManager;
 import javax.jdo.annotations.Discriminator;
 import javax.jdo.annotations.DiscriminatorStrategy;
 import javax.jdo.annotations.IdentityType;
@@ -37,7 +33,17 @@ public class EmbeddedFieldMeta extends FieldMeta {
 		super(classMeta, ownerFieldMeta, nonEmbeddedFieldMeta.getFieldName(), nonEmbeddedFieldMeta.getRole());
 		this.nonEmbeddedFieldMeta = nonEmbeddedFieldMeta;
 		this.nonEmbeddedFieldMeta_fieldID = nonEmbeddedFieldMeta.getFieldID();
-		setUniqueScope(null); // is set in jdoPreStore
+
+		if (nonEmbeddedFieldMeta_fieldID < 0)
+			throw new IllegalStateException("nonEmbeddedFieldMeta not yet persisted: " + nonEmbeddedFieldMeta);
+
+//		setUniqueScope(null); // is set in jdoPreStore
+		FieldMeta embeddingFieldMeta = getEmbeddingFieldMeta();
+		long embeddingFieldMeta_fieldID = embeddingFieldMeta.getFieldID();
+		if (embeddingFieldMeta_fieldID < 0)
+			throw new IllegalStateException("embeddingFieldMeta not yet persisted: " + embeddingFieldMeta);
+
+		setUniqueScope(UNIQUE_SCOPE_PREFIX_EMBEDDED_FIELD_META + embeddingFieldMeta_fieldID);
 	}
 
 	@Override
@@ -87,55 +93,55 @@ public class EmbeddedFieldMeta extends FieldMeta {
 		return getClassMeta().getEmbeddingFieldMeta();
 	}
 
-	@Override
-	public void jdoPreStore() {
-		super.jdoPreStore();
-		if (getUniqueScope() == null || !getUniqueScope().startsWith(UNIQUE_SCOPE_PREFIX_EMBEDDED_FIELD_META)) {
-			setUniqueScope("TEMPORARY_" + UUID.randomUUID());
+//	@Override
+//	public void jdoPreStore() {
+//		super.jdoPreStore();
+//		if (getUniqueScope() == null || !getUniqueScope().startsWith(UNIQUE_SCOPE_PREFIX_EMBEDDED_FIELD_META)) {
+//			setUniqueScope("TEMPORARY_" + UUID.randomUUID());
+//
+//			PostStoreRunnableManager.getInstance().addRunnable(new Runnable() {
+//				@Override
+//				public void run() {
+//					PersistenceManager pm = JDOHelper.getPersistenceManager(EmbeddedFieldMeta.this);
+//
+//					if (nonEmbeddedFieldMeta_fieldID < 0 && nonEmbeddedFieldMeta != null) {
+//						nonEmbeddedFieldMeta = pm.makePersistent(nonEmbeddedFieldMeta);
+//						nonEmbeddedFieldMeta_fieldID = nonEmbeddedFieldMeta.getFieldID();
+//					}
+//
+//					if (nonEmbeddedFieldMeta_fieldID < 0)
+//						throw new IllegalStateException("nonEmbeddedFieldMeta_fieldID < 0");
+//
+//					EmbeddedClassMeta classMeta = pm.makePersistent(getClassMeta());
+//					FieldMeta embeddingFieldMeta = pm.makePersistent(classMeta.getEmbeddingFieldMeta());
+//					if (embeddingFieldMeta == null)
+//						setUniqueScopePostponedInPostStore(pm, 1);
+//					else
+//						setUniqueScope(UNIQUE_SCOPE_PREFIX_EMBEDDED_FIELD_META + embeddingFieldMeta.getFieldID());
+//
+//					pm.flush();
+//				}
+//			});
+//		}
+//	}
 
-			PostStoreRunnableManager.getInstance().addRunnable(new Runnable() {
-				@Override
-				public void run() {
-					PersistenceManager pm = JDOHelper.getPersistenceManager(EmbeddedFieldMeta.this);
-
-					if (nonEmbeddedFieldMeta_fieldID < 0 && nonEmbeddedFieldMeta != null) {
-						nonEmbeddedFieldMeta = pm.makePersistent(nonEmbeddedFieldMeta);
-						nonEmbeddedFieldMeta_fieldID = nonEmbeddedFieldMeta.getFieldID();
-					}
-
-					if (nonEmbeddedFieldMeta_fieldID < 0)
-						throw new IllegalStateException("nonEmbeddedFieldMeta_fieldID < 0");
-
-					EmbeddedClassMeta classMeta = pm.makePersistent(getClassMeta());
-					FieldMeta embeddingFieldMeta = pm.makePersistent(classMeta.getEmbeddingFieldMeta());
-					if (embeddingFieldMeta == null)
-						setUniqueScopePostponedInPostStore(pm, 1);
-					else
-						setUniqueScope(UNIQUE_SCOPE_PREFIX_EMBEDDED_FIELD_META + embeddingFieldMeta.getFieldID());
-
-					pm.flush();
-				}
-			});
-		}
-	}
-
-	protected void setUniqueScopePostponedInPostStore(final PersistenceManager pm, final int postponeCounter) {
-		PostStoreRunnableManager.getInstance().addRunnable(new Runnable() {
-			@Override
-			public void run() {
-				FieldMeta embeddingFieldMeta = pm.makePersistent(getEmbeddingFieldMeta());
-				if (embeddingFieldMeta == null) {
-					final int maxPostponeCounter = 30;
-					if (postponeCounter > maxPostponeCounter)
-						throw new IllegalStateException("postponeCounter > maxPostponeCounter :: " + postponeCounter + " > " + maxPostponeCounter);
-
-					setUniqueScopePostponedInPostStore(pm, postponeCounter + 1);
-				}
-				else
-					setUniqueScope(UNIQUE_SCOPE_PREFIX_EMBEDDED_FIELD_META + embeddingFieldMeta.getFieldID());
-			}
-		});
-	}
+//	protected void setUniqueScopePostponedInPostStore(final PersistenceManager pm, final int postponeCounter) {
+//		PostStoreRunnableManager.getInstance().addRunnable(new Runnable() {
+//			@Override
+//			public void run() {
+//				FieldMeta embeddingFieldMeta = pm.makePersistent(getEmbeddingFieldMeta());
+//				if (embeddingFieldMeta == null) {
+//					final int maxPostponeCounter = 30;
+//					if (postponeCounter > maxPostponeCounter)
+//						throw new IllegalStateException("postponeCounter > maxPostponeCounter :: " + postponeCounter + " > " + maxPostponeCounter);
+//
+//					setUniqueScopePostponedInPostStore(pm, postponeCounter + 1);
+//				}
+//				else
+//					setUniqueScope(UNIQUE_SCOPE_PREFIX_EMBEDDED_FIELD_META + embeddingFieldMeta.getFieldID());
+//			}
+//		});
+//	}
 
 	@Override
 	public void jdoPostDetach(Object o) {

@@ -20,6 +20,7 @@ import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 
+import org.cumulus4j.store.DummyCryptoManager;
 import org.cumulus4j.store.crypto.CryptoManager;
 import org.cumulus4j.store.crypto.CryptoSession;
 import org.cumulus4j.store.test.framework.CleanupUtil;
@@ -127,7 +128,7 @@ public class CompatibilityTest {
 	private PersistenceManager createPersistenceManager(PersistenceManagerFactory pmf) {
 		PersistenceManager pm = pmf.getPersistenceManager();
 		pm.setProperty(CryptoManager.PROPERTY_CRYPTO_MANAGER_ID, "dummy");
-		String keyStoreID = "dummy1";
+		String keyStoreID = DummyCryptoManager.KEY_STORE_ID_COMPATIBILITY_TEST;
 		pm.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, keyStoreID + '_' + UUID.randomUUID() + '*' + UUID.randomUUID());
 		return pm;
 	}

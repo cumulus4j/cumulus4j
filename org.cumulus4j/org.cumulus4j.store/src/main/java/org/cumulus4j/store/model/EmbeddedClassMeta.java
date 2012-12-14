@@ -4,11 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.jdo.JDOHelper;
-import javax.jdo.PersistenceManager;
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.Discriminator;
 import javax.jdo.annotations.DiscriminatorStrategy;
@@ -72,9 +69,16 @@ public class EmbeddedClassMeta extends ClassMeta {
 
 		this.nonEmbeddedClassMeta = nonEmbeddedClassMeta;
 		this.nonEmbeddedClassMeta_classID = nonEmbeddedClassMeta.getClassID();
+		if (nonEmbeddedClassMeta_classID < 0)
+			throw new IllegalStateException("nonEmbeddedClassMeta not yet persisted: " + nonEmbeddedClassMeta);
+
 		this.embeddingFieldMeta = embeddingFieldMeta;
 		this.embeddingFieldMeta_fieldID = embeddingFieldMeta.getFieldID();
-		setUniqueScope(null); // set in jdoPreStore, because id not assigned, yet
+		if (embeddingFieldMeta_fieldID < 0)
+			throw new IllegalStateException("embeddingFieldMeta not yet persisted: " + embeddingFieldMeta);
+
+//		setUniqueScope(null); // set in jdoPreStore, because id not assigned, yet
+		setUniqueScope(UNIQUE_SCOPE_PREFIX_EMBEDDED_CLASS_META + embeddingFieldMeta_fieldID);
 	}
 
 	@Override
@@ -121,47 +125,47 @@ public class EmbeddedClassMeta extends ClassMeta {
 		return embeddingFieldMeta;
 	}
 
-	@Override
-	public void jdoPreStore() {
-		super.jdoPreStore();
-		if (getUniqueScope() == null || !getUniqueScope().startsWith(UNIQUE_SCOPE_PREFIX_EMBEDDED_CLASS_META)) {
-			setUniqueScope("TEMPORARY_" + UUID.randomUUID());
-			if (nonEmbeddedClassMeta_classID < 0)
-				nonEmbeddedClassMeta_classID = nextTemp_nonEmbeddedClassMeta_classID.decrementAndGet();
-
-			if (embeddingFieldMeta_fieldID < 0)
-				embeddingFieldMeta_fieldID = nextTemp_embeddingFieldMeta_fieldID.decrementAndGet();
-
-			PostStoreRunnableManager.getInstance().addRunnable(new Runnable() {
-				@Override
-				public void run() {
-					PersistenceManager pm = JDOHelper.getPersistenceManager(EmbeddedClassMeta.this);
-
-					if (nonEmbeddedClassMeta != null)
-						nonEmbeddedClassMeta = pm.makePersistent(nonEmbeddedClassMeta);
-
-					if (nonEmbeddedClassMeta_classID < 0 && nonEmbeddedClassMeta != null)
-						nonEmbeddedClassMeta_classID = nonEmbeddedClassMeta.getClassID();
-
-					if (nonEmbeddedClassMeta_classID < 0)
-						throw new IllegalStateException("nonEmbeddedClassMeta_classID < 0");
-
-					if (embeddingFieldMeta != null)
-						embeddingFieldMeta = pm.makePersistent(embeddingFieldMeta);
-
-					if (embeddingFieldMeta_fieldID < 0 && embeddingFieldMeta != null)
-						embeddingFieldMeta_fieldID = embeddingFieldMeta.getFieldID();
-
-					if (embeddingFieldMeta_fieldID < 0)
-						throw new IllegalStateException("embeddingFieldMeta_fieldID < 0");
-
-					setUniqueScope(UNIQUE_SCOPE_PREFIX_EMBEDDED_CLASS_META + embeddingFieldMeta.getFieldID());
-
-					pm.flush();
-				}
-			});
-		}
-	}
+//	@Override
+//	public void jdoPreStore() {
+//		super.jdoPreStore();
+//		if (getUniqueScope() == null || !getUniqueScope().startsWith(UNIQUE_SCOPE_PREFIX_EMBEDDED_CLASS_META)) {
+//			setUniqueScope("TEMPORARY_" + UUID.randomUUID());
+//			if (nonEmbeddedClassMeta_classID < 0)
+//				nonEmbeddedClassMeta_classID = nextTemp_nonEmbeddedClassMeta_classID.decrementAndGet();
+//
+//			if (embeddingFieldMeta_fieldID < 0)
+//				embeddingFieldMeta_fieldID = nextTemp_embeddingFieldMeta_fieldID.decrementAndGet();
+//
+//			PostStoreRunnableManager.getInstance().addRunnable(new Runnable() {
+//				@Override
+//				public void run() {
+//					PersistenceManager pm = JDOHelper.getPersistenceManager(EmbeddedClassMeta.this);
+//
+//					if (nonEmbeddedClassMeta != null)
+//						nonEmbeddedClassMeta = pm.makePersistent(nonEmbeddedClassMeta);
+//
+//					if (nonEmbeddedClassMeta_classID < 0 && nonEmbeddedClassMeta != null)
+//						nonEmbeddedClassMeta_classID = nonEmbeddedClassMeta.getClassID();
+//
+//					if (nonEmbeddedClassMeta_classID < 0)
+//						throw new IllegalStateException("nonEmbeddedClassMeta_classID < 0");
+//
+//					if (embeddingFieldMeta != null)
+//						embeddingFieldMeta = pm.makePersistent(embeddingFieldMeta);
+//
+//					if (embeddingFieldMeta_fieldID < 0 && embeddingFieldMeta != null)
+//						embeddingFieldMeta_fieldID = embeddingFieldMeta.getFieldID();
+//
+//					if (embeddingFieldMeta_fieldID < 0)
+//						throw new IllegalStateException("embeddingFieldMeta_fieldID < 0");
+//
+//					setUniqueScope(UNIQUE_SCOPE_PREFIX_EMBEDDED_CLASS_META + embeddingFieldMeta.getFieldID());
+//
+//					pm.flush();
+//				}
+//			});
+//		}
+//	}
 
 	private static AtomicLong nextTemp_nonEmbeddedClassMeta_classID = new AtomicLong();
 	private static AtomicLong nextTemp_embeddingFieldMeta_fieldID = new AtomicLong();

@@ -41,6 +41,8 @@ import org.cumulus4j.store.crypto.Plaintext;
  */
 public class DummyCryptoManager extends AbstractCryptoManager
 {
+	public static final String KEY_STORE_ID_COMPATIBILITY_TEST = "COMPATIBILITYTEST"; // no special characters!
+
 	@Override
 	protected CryptoSession createCryptoSession() {
 		return new DummySession();
@@ -95,17 +97,20 @@ public class DummyCryptoManager extends AbstractCryptoManager
 				if (cipher == null) {
 					// key length: 128 bits
 					byte[] dummyKey = { 'D', 'e', 'r', ' ', 'F', 'e', 'r', 'd', ' ', 'h', 'a', 't', ' ', 'v', 'i', 'e' };
-					try {
-						byte[] keyStoreIDBytes = keyStoreID.getBytes("UTF-8");
-						int keyIdx = -1;
-						for (int i = 0; i < keyStoreIDBytes.length; ++i) {
-							if (++keyIdx >= dummyKey.length)
-								keyIdx = 0;
 
-							dummyKey[keyIdx] ^= keyStoreIDBytes[i];
+					if (!KEY_STORE_ID_COMPATIBILITY_TEST.equals(keyStoreID)) {
+						try {
+							byte[] keyStoreIDBytes = keyStoreID.getBytes("UTF-8");
+							int keyIdx = -1;
+							for (int i = 0; i < keyStoreIDBytes.length; ++i) {
+								if (++keyIdx >= dummyKey.length)
+									keyIdx = 0;
+
+								dummyKey[keyIdx] ^= keyStoreIDBytes[i];
+							}
+						} catch (UnsupportedEncodingException e) {
+							throw new RuntimeException(e);
 						}
-					} catch (UnsupportedEncodingException e) {
-						throw new RuntimeException(e);
 					}
 
 					try {

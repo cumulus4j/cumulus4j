@@ -46,7 +46,6 @@ import org.cumulus4j.store.model.FieldMetaDAO;
 import org.cumulus4j.store.model.FieldMetaRole;
 import org.cumulus4j.store.model.IndexEntryFactoryRegistry;
 import org.cumulus4j.store.model.PostDetachRunnableManager;
-import org.cumulus4j.store.model.PostStoreRunnableManager;
 import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.NucleusContext;
 import org.datanucleus.api.jdo.JDOPersistenceManagerFactory;
@@ -466,6 +465,15 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 		return result;
 	}
 
+	public ClassMeta getAttachedClassMeta(ExecutionContext ec, PersistenceManager pm, Class<?> clazz)
+	{
+		ClassMeta classMeta = new ClassMetaDAO(pm).getClassMeta(clazz, false);
+		if (classMeta == null) {
+			classMeta = registerClass(ec, pm, clazz);
+		}
+		return classMeta;
+	}
+
 	private ClassMeta registerClass(ExecutionContext ec, PersistenceManager pm, Class<?> clazz)
 	{
 		logger.debug("registerClass: clazz={}", clazz == null ? null : clazz.getName());
@@ -474,14 +482,17 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 			throw new IllegalArgumentException("The class " + clazz.getName() + " does not have persistence-meta-data! Is it persistence-capable? Is it enhanced?");
 
 		ClassMeta classMeta = new ClassMetaDAO(pm).getClassMeta(clazz, false);
-		boolean classExists = (classMeta != null);
 
-		final PostStoreRunnableManager postStoreRunnableManager = PostStoreRunnableManager.getInstance();
-		postStoreRunnableManager.enterScope();
-		try {
+		List<FieldMeta> primaryFieldMetas = new ArrayList<FieldMeta>();
+//		final PostStoreRunnableManager postStoreRunnableManager = PostStoreRunnableManager.getInstance();
+//		postStoreRunnableManager.enterScope();
+//		try {
 
-			if (!classExists) {
-				classMeta = new ClassMeta(clazz);
+			if (classMeta == null) {
+				// We need to find this class already, because embedded-handling might be recursive.
+				// Additionally, we have our IDs immediately this way and can store long-field-references
+				// without any problem.
+				classMeta = pm.makePersistent(new ClassMeta(clazz));
 			}
 
 			Class<?> superclass = clazz.getSuperclass();
@@ -555,7 +566,8 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 				else {
 					primaryFieldMeta.removeAllSubFieldMetasExcept();
 				}
-				setEmbeddedClassMeta(ec, primaryFieldMeta);
+//				setEmbeddedClassMeta(ec, primaryFieldMeta); // defer due to possible recursion to this method!
+				primaryFieldMetas.add(primaryFieldMeta);
 			}
 
 			for (FieldMeta fieldMeta : new ArrayList<FieldMeta>(classMeta.getFieldMetas())) {
@@ -566,16 +578,23 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 				classMeta.removeFieldMeta(fieldMeta);
 			}
 
-			if (!classExists) {
-				// Persist the new class and its fields in one call, minimising updates
-				classMeta = pm.makePersistent(classMeta);
-			}
 			pm.flush(); // Get exceptions as soon as possible by forcing a flush here
 
-		} finally {
-			postStoreRunnableManager.exitScope();
-			pm.flush(); // Get exceptions as soon as possible by forcing a flush here
-		}
+//		} finally {
+//			postStoreRunnableManager.exitScope();
+//			pm.flush(); // Get exceptions as soon as possible by forcing a flush here
+//		}
+
+//		postStoreRunnableManager.enterScope();
+//		try {
+			for (FieldMeta primaryFieldMeta : primaryFieldMetas) {
+				setEmbeddedClassMeta(ec, primaryFieldMeta);
+				pm.flush(); // Get exceptions as soon as possible by forcing a flush here
+			}
+//		} finally {
+//			postStoreRunnableManager.exitScope();
+//			pm.flush(); // Get exceptions as soon as possible by forcing a flush here
+//		}
 
 		return classMeta;
 	}

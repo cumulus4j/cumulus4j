@@ -142,8 +142,8 @@ implements DetachCallback, StoreCallback
 	@NotPersistent
 	private EmbeddedClassMeta embeddedClassMeta;
 
-	@NotPersistent
-	private Set<EmbeddedClassMeta> embeddedClassMetasToBeDeleted;
+//	@NotPersistent
+//	private Set<EmbeddedClassMeta> embeddedClassMetasToBeDeleted;
 
 	/**
 	 * Internal constructor. This exists only for JDO and should not be used by application code!
@@ -238,8 +238,13 @@ implements DetachCallback, StoreCallback
 		if (this.classMeta != null && !this.classMeta.equals(classMeta))
 			throw new IllegalStateException("Cannot modify this this.classMeta!");
 
+		if (this.classMeta_classID != null && this.classMeta_classID.longValue() != classMeta.getClassID())
+			throw new IllegalStateException("Cannot modify this this.classMeta!");
+
 		this.classMeta = classMeta;
 		this.classMeta_classID = classMeta == null ? null : classMeta.getClassID();
+		if (this.classMeta_classID != null && this.classMeta_classID.longValue() < 0)
+			throw new IllegalStateException("classMeta not persisted yet: " + classMeta);
 	}
 
 	/**
@@ -262,8 +267,13 @@ implements DetachCallback, StoreCallback
 		if (this.ownerFieldMeta != null && !this.ownerFieldMeta.equals(ownerFieldMeta))
 			throw new IllegalStateException("Cannot modify this this.ownerFieldMeta!");
 
+		if (this.ownerFieldMeta_fieldID != null && this.ownerFieldMeta_fieldID.longValue() != ownerFieldMeta.getFieldID())
+			throw new IllegalStateException("Cannot modify this this.ownerFieldMeta!");
+
 		this.ownerFieldMeta = ownerFieldMeta;
 		this.ownerFieldMeta_fieldID = ownerFieldMeta == null ? null : ownerFieldMeta.getFieldID();
+		if (this.ownerFieldMeta_fieldID != null && this.ownerFieldMeta_fieldID.longValue() < 0)
+			throw new IllegalStateException("ownerFieldMeta not persisted yet: " + ownerFieldMeta);
 	}
 
 	/**
@@ -293,8 +303,9 @@ implements DetachCallback, StoreCallback
 	protected PersistenceManager getPersistenceManager() {
 		PersistenceManager pm = JDOHelper.getPersistenceManager(this);
 		if (pm == null) {
-			if (JDOHelper.getObjectId(this) != null)
-				throw new IllegalStateException("This FieldMeta instance is not new, but JDOHelper.getPersistenceManager(this) returned null! " + this);
+			throw new IllegalStateException("JDOHelper.getPersistenceManager(this) returned null! " + this);
+//			if (JDOHelper.getObjectId(this) != null)
+//				throw new IllegalStateException("This FieldMeta instance is not new, but JDOHelper.getPersistenceManager(this) returned null! " + this);
 		}
 		return pm;
 	}
@@ -333,19 +344,23 @@ implements DetachCallback, StoreCallback
 	}
 
 	public void setEmbeddedClassMeta(EmbeddedClassMeta embeddedClassMeta) {
-		EmbeddedClassMeta embeddedClassMetaOld = this.embeddedClassMeta;
-		if (embeddedClassMetaOld != null) {
-			if (this.embeddedClassMetasToBeDeleted == null)
-				this.embeddedClassMetasToBeDeleted = new HashSet<EmbeddedClassMeta>();
+		if (embeddedClassMeta != null && !JDOHelper.isDetached(embeddedClassMeta))
+			embeddedClassMeta = getPersistenceManager().makePersistent(embeddedClassMeta);
 
-			this.embeddedClassMetasToBeDeleted.add(embeddedClassMetaOld);
+		EmbeddedClassMeta embeddedClassMetaOld = this.embeddedClassMeta;
+		if (embeddedClassMetaOld != null && !embeddedClassMetaOld.equals(embeddedClassMeta)) {
+//			if (this.embeddedClassMetasToBeDeleted == null)
+//				this.embeddedClassMetasToBeDeleted = new HashSet<EmbeddedClassMeta>();
+//
+//			this.embeddedClassMetasToBeDeleted.add(embeddedClassMetaOld);
+			getPersistenceManager().deletePersistent(embeddedClassMetaOld);
 		}
 
 		this.embeddedClassMeta = embeddedClassMeta;
 		this.embeddedClassMetaLoaded = true;
 
-		if (this.embeddedClassMetasToBeDeleted != null)
-			this.embeddedClassMetasToBeDeleted.remove(embeddedClassMeta);
+//		if (this.embeddedClassMetasToBeDeleted != null)
+//			this.embeddedClassMetasToBeDeleted.remove(embeddedClassMeta);
 	}
 
 	public int getDataNucleusAbsoluteFieldNumber(ExecutionContext executionContext) {
@@ -413,11 +428,13 @@ implements DetachCallback, StoreCallback
 		if (getSubFieldMeta(subFieldMeta.getRole()) != null)
 			throw new IllegalArgumentException("There is already a subFieldMeta with role \"" + subFieldMeta.getRole() + "\"!");
 
+		subFieldMeta = getPersistenceManager().makePersistent(subFieldMeta);
+
 		subFieldMeta.setDataNucleusAbsoluteFieldNumber(dataNucleusAbsoluteFieldNumber);
 
-		PersistenceManager pm = getPersistenceManager();
-		if (pm != null) // If the pm is null, the subFieldMeta is persisted later (see jdoPreStore() below).
-			subFieldMeta = pm.makePersistent(subFieldMeta);
+//		PersistenceManager pm = getPersistenceManager();
+//		if (pm != null) // If the pm is null, the subFieldMeta is persisted later (see jdoPreStore() below).
+//			subFieldMeta = pm.makePersistent(subFieldMeta);
 
 		getRole2SubFieldMeta().put(subFieldMeta.getRole(), subFieldMeta);
 	}
@@ -428,9 +445,10 @@ implements DetachCallback, StoreCallback
 			throw new IllegalArgumentException("subFieldMeta.ownerFieldMeta != this");
 
 		getRole2SubFieldMeta().remove(subFieldMeta.getRole());
-		PersistenceManager pm = getPersistenceManager();
-		if (pm != null)
-			pm.deletePersistent(subFieldMeta);
+//		PersistenceManager pm = getPersistenceManager();
+//		if (pm != null)
+//			pm.deletePersistent(subFieldMeta);
+		getPersistenceManager().deletePersistent(subFieldMeta);
 	}
 
 	public void removeAllSubFieldMetasExcept(FieldMetaRole ... roles)
@@ -448,7 +466,8 @@ implements DetachCallback, StoreCallback
 			if (!rolesToKeep.contains(role)) {
 				FieldMeta subFieldMeta = getRole2SubFieldMeta().remove(role);
 
-				if (pm != null && subFieldMeta != null)
+//				if (pm != null && subFieldMeta != null)
+				if (subFieldMeta != null)
 					pm.deletePersistent(subFieldMeta);
 			}
 		}
@@ -469,7 +488,17 @@ implements DetachCallback, StoreCallback
 		if (!storeManager.getMetaDataManager().isClassPersistable(clazz.getName()))
 			return null;
 
-		ClassMeta result = storeManager.getClassMeta(executionContext, clazz);
+		ClassMeta result;
+		if (JDOHelper.isDetached(this))
+			result = storeManager.getClassMeta(executionContext, clazz);
+		else {
+			PersistenceManager pm = getPersistenceManager();
+			// We REQUIRE the pm to be present now. this.getPersistenceManager() sometimes returns null.
+			if (pm == null)
+				throw new IllegalStateException("this.getPersistenceManager() == null! Probably this instance is new. Persist it first!");
+
+			result = storeManager.getAttachedClassMeta(executionContext, pm, clazz);
+		}
 		return result;
 	}
 
@@ -709,17 +738,22 @@ implements DetachCallback, StoreCallback
 					postDetachRunnableManager.addRunnable(new Runnable() {
 						@Override
 						public void run() {
-							if (attached.classMeta_classID != null) {
-								detached.classMeta = detachedClassMetaModel == null ? null : detachedClassMetaModel.getClassMeta(attached.classMeta_classID, false);
-								if (detached.classMeta == null)
-									detached.classMeta = pm.detachCopy(attached.getClassMeta());
-							}
+							try {
+								if (attached.classMeta_classID != null) {
+									detached.classMeta = detachedClassMetaModel == null ? null : detachedClassMetaModel.getClassMeta(attached.classMeta_classID, false);
+									if (detached.classMeta == null)
+										detached.classMeta = pm.detachCopy(attached.getClassMeta());
+								}
 
-							if (attached.ownerFieldMeta_fieldID != null) {
-								DetachedClassMetaModel detachedClassMetaModel = DetachedClassMetaModel.getInstance();
-								detached.ownerFieldMeta = detachedClassMetaModel == null ? null : detachedClassMetaModel.getFieldMeta(attached.ownerFieldMeta_fieldID, false);
-								if (detached.ownerFieldMeta == null)
-									detached.ownerFieldMeta = pm.detachCopy(attached.getOwnerFieldMeta());
+								if (attached.ownerFieldMeta_fieldID != null) {
+									DetachedClassMetaModel detachedClassMetaModel = DetachedClassMetaModel.getInstance();
+									detached.ownerFieldMeta = detachedClassMetaModel == null ? null : detachedClassMetaModel.getFieldMeta(attached.ownerFieldMeta_fieldID, false);
+									if (detached.ownerFieldMeta == null)
+										detached.ownerFieldMeta = pm.detachCopy(attached.getOwnerFieldMeta());
+								}
+							} catch (Exception x) {
+								String className = classMeta != null ? classMeta.getClassName() : String.valueOf(classMeta_classID);
+								throw new RuntimeException("postDetachRunnable failed for class " + className + " and field " + fieldName + ": " + x, x);
 							}
 						}
 					});
@@ -800,46 +834,46 @@ implements DetachCallback, StoreCallback
 	@Override
 	public void jdoPreStore() {
 		logger.debug("jdoPreStore: {}", this);
-		final ClassMeta finalClassMeta = classMeta;
-		final FieldMeta finalOwnerFieldMeta = ownerFieldMeta;
-
-		PostStoreRunnableManager.getInstance().addRunnable(new Runnable() {
-			@Override
-			public void run() {
-				logger.debug("postStore: {}", this);
-				PersistenceManager pm = JDOHelper.getPersistenceManager(FieldMeta.this);
-
-				if (finalClassMeta != null) {
-					setClassMeta(pm.makePersistent(finalClassMeta));
-				}
-
-				if (finalOwnerFieldMeta != null) {
-					setOwnerFieldMeta(pm.makePersistent(finalOwnerFieldMeta));
-				}
-
-				if (embeddedClassMeta != null) {
-					embeddedClassMeta = pm.makePersistent(embeddedClassMeta);
-				}
-
-				if (role2SubFieldMeta != null) {
-					Map<FieldMetaRole, FieldMeta> persistentRole2SubFieldMeta2 = new HashMap<FieldMetaRole, FieldMeta>(role2SubFieldMeta.size());
-					for (FieldMeta subFieldMeta : role2SubFieldMeta.values()) {
-						// Usually the persistentSubFieldMeta is the same instance as subFieldMeta, but this is dependent on the configuration.
-						// This code here should work with all possible configurations. Marco :-)
-						FieldMeta persistentSubFieldMeta = pm.makePersistent(subFieldMeta);
-						persistentRole2SubFieldMeta2.put(persistentSubFieldMeta.getRole(), persistentSubFieldMeta);
-					}
-					role2SubFieldMeta = persistentRole2SubFieldMeta2;
-					pm.flush();
-				}
-
-				if (embeddedClassMetasToBeDeleted != null) {
-					for (EmbeddedClassMeta embeddedClassMeta : embeddedClassMetasToBeDeleted) {
-						pm.deletePersistent(embeddedClassMeta);
-					}
-					pm.flush();
-				}
-			}
-		});
+//		final ClassMeta finalClassMeta = classMeta;
+//		final FieldMeta finalOwnerFieldMeta = ownerFieldMeta;
+//
+//		PostStoreRunnableManager.getInstance().addRunnable(new Runnable() {
+//			@Override
+//			public void run() {
+//				logger.debug("postStore: {}", this);
+//				PersistenceManager pm = JDOHelper.getPersistenceManager(FieldMeta.this);
+//
+//				if (finalClassMeta != null) {
+//					setClassMeta(pm.makePersistent(finalClassMeta));
+//				}
+//
+//				if (finalOwnerFieldMeta != null) {
+//					setOwnerFieldMeta(pm.makePersistent(finalOwnerFieldMeta));
+//				}
+//
+//				if (embeddedClassMeta != null) {
+//					embeddedClassMeta = pm.makePersistent(embeddedClassMeta);
+//				}
+//
+//				if (role2SubFieldMeta != null) {
+//					Map<FieldMetaRole, FieldMeta> persistentRole2SubFieldMeta2 = new HashMap<FieldMetaRole, FieldMeta>(role2SubFieldMeta.size());
+//					for (FieldMeta subFieldMeta : role2SubFieldMeta.values()) {
+//						// Usually the persistentSubFieldMeta is the same instance as subFieldMeta, but this is dependent on the configuration.
+//						// This code here should work with all possible configurations. Marco :-)
+//						FieldMeta persistentSubFieldMeta = pm.makePersistent(subFieldMeta);
+//						persistentRole2SubFieldMeta2.put(persistentSubFieldMeta.getRole(), persistentSubFieldMeta);
+//					}
+//					role2SubFieldMeta = persistentRole2SubFieldMeta2;
+//					pm.flush();
+//				}
+//
+//				if (embeddedClassMetasToBeDeleted != null) {
+//					for (EmbeddedClassMeta embeddedClassMeta : embeddedClassMetasToBeDeleted) {
+//						pm.deletePersistent(embeddedClassMeta);
+//					}
+//					pm.flush();
+//				}
+//			}
+//		});
 	}
 }
