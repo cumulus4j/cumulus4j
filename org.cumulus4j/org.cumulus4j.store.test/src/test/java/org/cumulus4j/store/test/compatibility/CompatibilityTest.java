@@ -212,18 +212,43 @@ public class CompatibilityTest {
 
 	@Test
 	public void tryToReadDatastore_1_0_0() throws Exception {
-		tryToReadDatastore("1.0.0", true);
+		tryToReadDatastore(CompatibilityTestData.VERSION_1_0_0, new PrepareRunnable() {
+			@Override
+			public void run() throws Exception {
+				// This might be required, if switching the identity type of the column is not
+				// supported by the underlying database. Derby does not allow it, some might allow
+				// and for some others the new strategy and the legacy strategy might have the same
+				// result anyway. You should try it out for your database.
+				properties.put("cumulus4j.datanucleus.rdbms.useLegacyNativeValueStrategy", "true");
+
+				// Since DN does not change existing [unique] indices, we have to drop all of them.
+				// DN will automatically re-create them. Just changing does not work :-(
+				dropAllIndices(properties);
+			}
+		});
 	}
 
 	@Test
 	public void tryToReadDatastore_1_1_0() throws Exception {
-		tryToReadDatastore("1.1.0", false);
+		tryToReadDatastore(CompatibilityTestData.VERSION_1_1_0, null);
 	}
 
-	private void tryToReadDatastore(String version, boolean dropAllIndices) throws Exception {
+	/**
+	 * Preparations that a user/admin must do manually when upgrading from a certain version.
+	 */
+	private static abstract class PrepareRunnable {
+		protected Properties properties;
+		public abstract void run() throws Exception;
+	}
+
+	private void tryToReadDatastore(String version, PrepareRunnable prepareRunnable) throws Exception {
 		Properties properties = prepareOldDatastoreAndGetDataNucleusProperties(version);
-		if (dropAllIndices)
-			dropAllIndices(properties);
+
+		if (prepareRunnable != null) {
+			prepareRunnable.properties = properties;
+			prepareRunnable.run();
+			properties = prepareRunnable.properties;
+		}
 
 		PersistenceManagerFactory pmf = JDOHelper.getPersistenceManagerFactory(properties);
 		try {
