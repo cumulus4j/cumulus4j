@@ -150,6 +150,8 @@ implements StoreCallback
 
 		this.fieldMeta = fieldMeta;
 		this.fieldMeta_fieldID = fieldMeta == null ? -1 : fieldMeta.getFieldID();
+		if (this.fieldMeta_fieldID < 0)
+			throw new IllegalStateException("fieldMeta not persisted yet: " + fieldMeta);
 	}
 
 	/**
@@ -188,6 +190,8 @@ implements StoreCallback
 
 		this.classMeta = classMeta;
 		this.classMeta_classID = classMeta == null ? -1 : classMeta.getClassID();
+		if (this.classMeta_classID < 0)
+			throw new IllegalStateException("classMeta not persisted yet: " + classMeta);
 	}
 
 	/**
@@ -274,7 +278,7 @@ implements StoreCallback
 			throw new IllegalStateException("fieldMeta_fieldID < 0");
 
 		// Must allow this for updatability. At least temporarily. TODO find a better solution.
-//		if (classMeta_classID < 0)
-//			throw new IllegalStateException("classMeta_classID < 0");
+		if (classMeta_classID < 0)
+			throw new IllegalStateException("classMeta_classID < 0");
 	}
 }

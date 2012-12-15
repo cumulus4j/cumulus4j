@@ -22,6 +22,9 @@ import javax.jdo.PersistenceManager;
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
+import javax.jdo.annotations.Index;
+import javax.jdo.annotations.Indices;
+import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.NullValue;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
@@ -45,24 +48,33 @@ import org.cumulus4j.store.datastoreversion.command.IntroduceKeyStoreRefID;
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 @Version(strategy=VersionStrategy.VERSION_NUMBER)
 @Sequence(name="DataEntrySequence", datastoreSequence="DataEntrySequence", initialValue=0, strategy=SequenceStrategy.CONTIGUOUS)
-@Unique(members={"keyStoreRefID", "classMeta", "objectID"})
+@Unique(members={"keyStoreRefID", "classMeta_classID", "objectID"})
+@Indices({
+	@Index(members={"keyStoreRefID", "classMeta_classID"})
+})
 @Queries({
 	@Query(
-			name="getDataEntryByClassMetaAndObjectID",
-			value="SELECT UNIQUE WHERE this.keyStoreRefID == :keyStoreRefID && this.classMeta == :classMeta && this.objectID == :objectID"
+			name=DataEntry.NamedQueries.getDataEntryByClassMetaClassIDAndObjectID,
+			value="SELECT UNIQUE WHERE this.keyStoreRefID == :keyStoreRefID && this.classMeta_classID == :classMeta_classID && this.objectID == :objectID"
 	),
 	@Query(
-			name="getDataEntryIDByClassMetaAndObjectID",
-			value="SELECT UNIQUE this.dataEntryID WHERE this.keyStoreRefID == :keyStoreRefID && this.classMeta == :classMeta && this.objectID == :objectID"
+			name=DataEntry.NamedQueries.getDataEntryIDByClassMetaClassIDAndObjectID,
+			value="SELECT UNIQUE this.dataEntryID WHERE this.keyStoreRefID == :keyStoreRefID && this.classMeta_classID == :classMeta_classID && this.objectID == :objectID"
 	),
 	@Query(
-			name="getDataEntryIDsByClassMetaAndObjectIDNegated",
-			value="SELECT this.dataEntryID WHERE this.keyStoreRefID == :keyStoreRefID && this.classMeta == :classMeta && this.objectID != :notThisObjectID"
+			name=DataEntry.NamedQueries.getDataEntryIDsByClassMetaClassIDAndObjectIDNegated,
+			value="SELECT this.dataEntryID WHERE this.keyStoreRefID == :keyStoreRefID && this.classMeta_classID == :classMeta_classID && this.objectID != :notThisObjectID"
 	)
 })
 public class DataEntry
 implements StoreCallback
 {
+	protected static class NamedQueries {
+		public static final String getDataEntryByClassMetaClassIDAndObjectID = "getDataEntryByClassMetaClassIDAndObjectID";
+		public static final String getDataEntryIDByClassMetaClassIDAndObjectID = "getDataEntryIDByClassMetaClassIDAndObjectID";
+		public static final String getDataEntryIDsByClassMetaClassIDAndObjectIDNegated = "getDataEntryIDsByClassMetaClassIDAndObjectIDNegated";
+	}
+
 	@PrimaryKey
 	@Persistent(valueStrategy=IdGeneratorStrategy.NATIVE, sequence="DataEntrySequence")
 	private Long dataEntryID;
@@ -71,8 +83,12 @@ implements StoreCallback
 	@Column(defaultValue="0")
 	private int keyStoreRefID;
 
-	@Persistent(nullValue=NullValue.EXCEPTION)
+//	@Persistent(nullValue=NullValue.EXCEPTION)
+	@NotPersistent
 	private ClassMeta classMeta;
+
+	@Column(name="classMeta_classID_oid") // for downward-compatibility
+	private long classMeta_classID;
 
 	@Persistent(nullValue=NullValue.EXCEPTION)
 	@Column(length=255)
@@ -97,8 +113,12 @@ implements StoreCallback
 	 */
 	public DataEntry(ClassMeta classMeta, int keyStoreRefID, String objectID) {
 		this.classMeta = classMeta;
+		this.classMeta_classID = classMeta.getClassID();
 		this.keyStoreRefID = keyStoreRefID;
 		this.objectID = objectID;
+
+		if (this.classMeta_classID < 0)
+			throw new IllegalStateException("classMeta not persisted yet: " + classMeta);
 	}
 
 	/**
@@ -127,7 +147,21 @@ implements StoreCallback
 	 * @return the type of the entity.
 	 */
 	public ClassMeta getClassMeta() {
+		if (classMeta == null) {
+			if (classMeta_classID < 0)
+				return null;
+
+			classMeta = new ClassMetaDAO(getPersistenceManager()).getClassMeta(classMeta_classID, true);
+		}
 		return classMeta;
+	}
+
+	protected PersistenceManager getPersistenceManager() {
+		PersistenceManager pm = JDOHelper.getPersistenceManager(this);
+		if (pm == null) {
+			throw new IllegalStateException("JDOHelper.getPersistenceManager(this) returned null! " + this);
+		}
+		return pm;
 	}
 
 	/**
@@ -236,15 +270,15 @@ implements StoreCallback
 	@Override
 	public void jdoPreStore()
 	{
-		// We replace 'this.classMeta' by a persistent version, because it is a detached object
-		// which slows down the storing process immensely, as it is unnecessarily attached.
-		// Attaching an object is an expensive operation and we neither want nor need to
-		// update the ClassMeta object when persisting a new DataEntry.
-		PersistenceManager pm = JDOHelper.getPersistenceManager(this);
-		Object classMetaID = JDOHelper.getObjectId(classMeta);
-		if (classMetaID == null)
-			throw new IllegalStateException("JDOHelper.getObjectId(classMeta) returned null! this=" + this + " classMeta=" + classMeta);
-
-		classMeta = (ClassMeta) pm.getObjectById(classMetaID);
+//		// We replace 'this.classMeta' by a persistent version, because it is a detached object
+//		// which slows down the storing process immensely, as it is unnecessarily attached.
+//		// Attaching an object is an expensive operation and we neither want nor need to
+//		// update the ClassMeta object when persisting a new DataEntry.
+//		PersistenceManager pm = JDOHelper.getPersistenceManager(this);
+//		Object classMetaID = JDOHelper.getObjectId(classMeta);
+//		if (classMetaID == null)
+//			throw new IllegalStateException("JDOHelper.getObjectId(classMeta) returned null! this=" + this + " classMeta=" + classMeta);
+//
+//		classMeta = (ClassMeta) pm.getObjectById(classMetaID);
 	}
 }

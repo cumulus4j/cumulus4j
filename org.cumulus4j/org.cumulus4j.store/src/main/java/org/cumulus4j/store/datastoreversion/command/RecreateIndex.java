@@ -253,11 +253,13 @@ public class RecreateIndex extends AbstractDatastoreVersionCommand
 
 	protected List<DataEntryWithClassName> getDataEntries(long fromDataEntryIDIncl, Long toDataEntryIDExcl) {
 		Query q = pmData.newQuery(DataEntry.class);
-		q.setResult("this, this.classMeta.packageName, this.classMeta.simpleClassName");
+		q.declareVariables(ClassMeta.class.getName() + " classMeta");
+		q.setResult("this, classMeta.packageName, classMeta.simpleClassName");
 		StringBuilder filter = new StringBuilder();
 		Map<String, Object> params = new HashMap<String, Object>(2);
 
-		filter.append("this.keyStoreRefID == :keyStoreRefID");
+		filter.append("this.classMeta_classID == classMeta.classID");
+		filter.append(" && this.keyStoreRefID == :keyStoreRefID");
 		params.put("keyStoreRefID", keyStoreRefID);
 
 		if (fromDataEntryIDIncl > 0) { // required for GAE, because it throws an exception when querying for ID >= 0, saying that ID == 0 is illegal.

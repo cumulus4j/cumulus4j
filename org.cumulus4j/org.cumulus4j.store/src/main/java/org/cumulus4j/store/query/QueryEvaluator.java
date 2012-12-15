@@ -34,6 +34,7 @@ import org.cumulus4j.store.EncryptionHandler;
 import org.cumulus4j.store.PersistenceManagerConnection;
 import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.ClassMeta;
+import org.cumulus4j.store.model.ClassMetaDAO;
 import org.cumulus4j.store.model.DataEntry;
 import org.cumulus4j.store.model.EmbeddedClassMeta;
 import org.cumulus4j.store.query.eval.AbstractExpressionEvaluator;
@@ -474,21 +475,19 @@ public abstract class QueryEvaluator
 		javax.jdo.Query q = getPersistenceManagerForData().newQuery(DataEntry.class);
 		q.setResult("this.dataEntryID");
 
-		Object queryParam;
+
+		Map<String, Object> queryParams = new HashMap<String, Object>();
 		StringBuilder filter = new StringBuilder();
+
 		filter.append("this.keyStoreRefID == :keyStoreRefID && ");
-		if (candidateClassMetas.size() == 1) {
-			filter.append("this.classMeta == :classMeta");
-			queryParam = candidateClassMetas.iterator().next();
-		}
-		else {
-			filter.append(":classMetas.contains(this.classMeta)");
-			queryParam = candidateClassMetas;
-		}
+		queryParams.put("keyStoreRefID", cryptoContext.getKeyStoreRefID());
+
+		filter.append(ClassMetaDAO.getMultiClassMetaOrFilterPart(queryParams, candidateClassMetas));
+
 		q.setFilter(filter.toString());
 
 		@SuppressWarnings("unchecked")
-		Collection<Long> allDataEntryIDs = (Collection<Long>) q.execute(cryptoContext.getKeyStoreRefID(), queryParam);
+		Collection<Long> allDataEntryIDs = (Collection<Long>) q.executeWithMap(queryParams);
 		Set<Long> result = new HashSet<Long>(allDataEntryIDs);
 		q.closeAll();
 		return result;

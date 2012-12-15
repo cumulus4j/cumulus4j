@@ -1,1 +1,1 @@
-org.cumulus4j.store.model.gae.ObjectIdFactoryGae
+org.cumulus4j.store.model.ObjectIdFactory

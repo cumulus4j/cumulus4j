@@ -54,8 +54,8 @@ public class DataEntryDAO extends AbstractDAO {
 	 */
 	public DataEntry getDataEntry(ClassMeta classMeta, String objectID)
 	{
-		javax.jdo.Query q = pm.newNamedQuery(DataEntry.class, "getDataEntryByClassMetaAndObjectID");
-		return (DataEntry) q.execute(keyStoreRefID, classMeta, objectID);
+		javax.jdo.Query q = pm.newNamedQuery(DataEntry.class, DataEntry.NamedQueries.getDataEntryByClassMetaClassIDAndObjectID);
+		return (DataEntry) q.execute(keyStoreRefID, classMeta.getClassID(), objectID);
 		// UNIQUE query does not need to be closed, because there is no result list lingering.
 	}
 
@@ -85,8 +85,8 @@ public class DataEntryDAO extends AbstractDAO {
 	 */
 	public Long getDataEntryID(ClassMeta classMeta, String objectID)
 	{
-		javax.jdo.Query q = pm.newNamedQuery(DataEntry.class, "getDataEntryIDByClassMetaAndObjectID");
-		return (Long) q.execute(keyStoreRefID, classMeta, objectID);
+		javax.jdo.Query q = pm.newNamedQuery(DataEntry.class, DataEntry.NamedQueries.getDataEntryIDByClassMetaClassIDAndObjectID);
+		return (Long) q.execute(keyStoreRefID, classMeta.getClassID(), objectID);
 		// UNIQUE query does not need to be closed, because there is no result list lingering.
 	}
 
@@ -108,9 +108,9 @@ public class DataEntryDAO extends AbstractDAO {
 	 */
 	public Set<Long> getDataEntryIDsNegated(ClassMeta classMeta, String notThisObjectID)
 	{
-		javax.jdo.Query q = pm.newNamedQuery(DataEntry.class, "getDataEntryIDsByClassMetaAndObjectIDNegated");
+		javax.jdo.Query q = pm.newNamedQuery(DataEntry.class, DataEntry.NamedQueries.getDataEntryIDsByClassMetaClassIDAndObjectIDNegated);
 		@SuppressWarnings("unchecked")
-		Collection<Long> dataEntryIDsColl = (Collection<Long>) q.execute(keyStoreRefID, classMeta, notThisObjectID);
+		Collection<Long> dataEntryIDsColl = (Collection<Long>) q.execute(keyStoreRefID, classMeta.getClassID(), notThisObjectID);
 		Set<Long> dataEntryIDsSet = new HashSet<Long>(dataEntryIDsColl);
 		q.closeAll();
 		return dataEntryIDsSet;

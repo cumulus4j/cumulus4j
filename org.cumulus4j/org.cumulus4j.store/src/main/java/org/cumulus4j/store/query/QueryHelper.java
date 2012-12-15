@@ -20,8 +20,10 @@ package org.cumulus4j.store.query;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.jdo.PersistenceManager;
@@ -29,6 +31,7 @@ import javax.jdo.PersistenceManager;
 import org.cumulus4j.store.Cumulus4jStoreManager;
 import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.ClassMeta;
+import org.cumulus4j.store.model.ClassMetaDAO;
 import org.cumulus4j.store.model.DataEntry;
 import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.identity.IdentityUtils;
@@ -90,23 +93,23 @@ public class QueryHelper {
 	{
 		ExecutionContext ec = cryptoContext.getExecutionContext();
 		javax.jdo.Query q = pmData.newQuery(DataEntry.class);
-		q.setResult("this.classMeta, this.objectID");
+		q.declareVariables(ClassMeta.class.getName() + " classMeta");
+		q.setResult("classMeta, this.objectID");
 
-		Object queryParam_classMeta;
+		Map<String, Object> queryParams = new HashMap<String, Object>();
 		StringBuilder filter = new StringBuilder();
+
+		filter.append("this.classMeta_classID == classMeta.classID && ");
+
 		filter.append("this.keyStoreRefID == :keyStoreRefID && ");
-		if (candidateClassMetas.size() == 1) {
-			filter.append("this.classMeta == :classMeta");
-			queryParam_classMeta = candidateClassMetas.iterator().next();
-		}
-		else {
-			filter.append(":classMetas.contains(this.classMeta)");
-			queryParam_classMeta = candidateClassMetas;
-		}
+		queryParams.put("keyStoreRefID", cryptoContext.getKeyStoreRefID());
+
+		filter.append(ClassMetaDAO.getMultiClassMetaOrFilterPart(queryParams, candidateClassMetas));
+
 		q.setFilter(filter.toString());
 
 		@SuppressWarnings("unchecked")
-		Collection<Object[]> c = (Collection<Object[]>) q.execute(cryptoContext.getKeyStoreRefID(), queryParam_classMeta);
+		Collection<Object[]> c = (Collection<Object[]>) q.executeWithMap(queryParams);
 		List<Object> resultList = new ArrayList<Object>(c.size());
 		for (Object[] oa : c) {
 			ClassMeta classMeta = (ClassMeta) oa[0];
