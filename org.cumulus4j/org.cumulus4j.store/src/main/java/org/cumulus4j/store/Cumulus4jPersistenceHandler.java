@@ -341,6 +341,9 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			long fieldID = me.getKey();
 			Object fieldValue = me.getValue();
 			FieldMeta fieldMeta = classMeta.getFieldMeta(fieldID);
+			if (fieldMeta == null)
+				throw new IllegalStateException("fieldMeta not found: " + classMeta + ": fieldID=" + fieldID);
+
 			insertObjectIndex(cryptoContext, classMeta, dataEntry, fieldMeta, fieldValue);
 		}
 	}
@@ -356,6 +359,9 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			long embeddedFieldID = me.getKey();
 			Object embeddedFieldValue = me.getValue();
 			EmbeddedFieldMeta embeddedFieldMeta = (EmbeddedFieldMeta) ecm.getFieldMeta(embeddedFieldID);
+			if (embeddedFieldMeta == null)
+				throw new IllegalStateException("fieldMeta not found: " + classMeta + ": embeddedFieldID=" + embeddedFieldID);
+
 			insertObjectIndex(cryptoContext, embeddedClassMeta, dataEntry, embeddedFieldMeta, embeddedFieldValue);
 		}
 	}
@@ -365,6 +371,18 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 			FieldMeta fieldMeta, Object fieldValue
 	)
 	{
+		if (cryptoContext == null)
+			throw new IllegalArgumentException("cryptoContext == null");
+
+		if (classMeta == null)
+			throw new IllegalArgumentException("classMeta == null");
+
+		if (dataEntry == null)
+			throw new IllegalArgumentException("dataEntry == null");
+
+		if (fieldMeta == null)
+			throw new IllegalArgumentException("fieldMeta == null");
+
 		if (fieldValue instanceof EmbeddedObjectContainer) {
 			EmbeddedObjectContainer embeddedObjectContainer = (EmbeddedObjectContainer) fieldValue;
 			insertObjectIndex(cryptoContext, classMeta, dataEntry, fieldMeta, embeddedObjectContainer);

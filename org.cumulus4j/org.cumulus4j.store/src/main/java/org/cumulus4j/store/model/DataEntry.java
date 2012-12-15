@@ -50,7 +50,8 @@ import org.cumulus4j.store.datastoreversion.command.IntroduceKeyStoreRefID;
 @Sequence(name="DataEntrySequence", datastoreSequence="DataEntrySequence", initialValue=0, strategy=SequenceStrategy.CONTIGUOUS)
 @Unique(members={"keyStoreRefID", "classMeta_classID", "objectID"})
 @Indices({
-	@Index(members={"keyStoreRefID", "classMeta_classID"})
+	@Index(members={"keyStoreRefID", "classMeta_classID"}),
+	@Index(members={"classMeta_classID"})
 })
 @Queries({
 	@Query(
