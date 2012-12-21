@@ -16,7 +16,11 @@ What's new?
 	* Data store incompatibility: When upgrading an existing datastore, you have to manually drop all
 	unique indexes in the underlying database. They will then be automatically recreated (they only
 	cannot be automatically changed). Furthermore, you should be aware that Cumulus4j will need to
-	recreate its indexes.
+	recreate its indexes, what might take some time - and might require some handling in your software.
+
+	* New feature: Full support of the GAE with Google BigTable as underlying database. The key management
+	still needs to be done manually by your application code, but we plan to provide libraries for GWT in
+	one of the next versions. You're very welcome to contribute!
 
 	* New feature: Support multitenancy within one single underlying database. It was already possible to use a
 	Cumulus4j-based application in a multi-tenants-scenario by assigning a separate database to each tenant. 
@@ -27,8 +31,7 @@ What's new?
 	* New feature: Introduced version management for datastore upgrades (needed first time to transform the
 	old datastore structure into version 1.1.0).
 
-	* New feature: Full support (write, read, query) of embedded objects in 1-1-relations. Embedded 1-n-relations
-	are not supported, yet.
+	* New feature: Full support (write, read, query) of embedded objects in both 1-1- and 1-n-relations.
 
 	* Bugfix: If there is a common super-class having two direct sub-classes (siblings to each other)
 	and a query is performed on one of the sub-classes and that query filters by fields of the super-class,

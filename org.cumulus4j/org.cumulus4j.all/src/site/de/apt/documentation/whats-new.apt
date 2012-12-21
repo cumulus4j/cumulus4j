@@ -16,7 +16,13 @@ Was ist neu?
 	* Datenspeicherinkompatibilität: Um einen existierenden Datenspeicher auf die aktuelle Version upzugraden,
 	müssen Sie manuell alle eindeutigen Indizes der zugrundeliegenden Datenbank löschen. Diese werden dann automatisch
 	neu angelegt (sie können nur nicht automatisch verändert werden). Desweiteren sollten Sie beachten, daß
-	Cumulus4j seine Indizes neu erzeugen muß.
+	Cumulus4j seine Indizes neu erzeugen muß, was einiges an Zeit erfordern kann - und u.U. in Ihrer
+	Software berücksichtigt werden muß.
+
+	* Neues Feature: Vollständige Unterstützung der GAE mit Google-BigTable als zugrundeliegender Datenbank.
+	Die Schlüsselverwaltung muß noch manuell in Ihrem Applikations-Code erfolgen, aber wir planen, in einer
+	der folgenden Versionen auch eine Bibliothek für GWT zur Verfügugn zu stellen. Sie sind übrigens herzlich
+	eingeladen, uns dabei zu unterstützen!
 
 	* Neues Feature: Unterstützung mehrerer Mandanten in einer einzigen zugrundeliegenden Datenbank. Es war zwar
 	bereits zuvor möglich, eine Cumulus4j-basierte Applikation in einem Mehr-Mandanten-Szenario einzusetzen, indem
@@ -29,7 +35,7 @@ Was ist neu?
 	die alte Datenspeicherstruktur auf die neue Version 1.1.0 zu transformieren).
 
 	* Neues Feature: Vollständige Unterstützung (Schreiben, Lesen, Abfragen) von eingebetteten Objekten
-	in 1-1-Beziehungen. Eingebettete 1-n-Beziehungen werden noch nicht unterstützt.
+	in 1-1- und 1-n-Beziehungen.
 
 	* Fehlerbeseitigung: Wenn es eine gemeinsame Super-Klasse mit zwei direkten Sub-Klassen (die also in der
 	Ererbungshierarchie nebeneinander stehen) gibt und eine Abfrage auf eine der Sub-Klassen ausgeführt wird,
