@@ -1,0 +1,59 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<artifactId>org.cumulus4j.parent</artifactId>
+		<groupId>org.cumulus4j</groupId>
+		<version>1.1.0-SNAPSHOT</version>
+		<relativePath>../org.cumulus4j.parent/pom.xml</relativePath>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.cumulus4j.gae.test</groupId>
+	<artifactId>org.cumulus4j.gae.test.parent</artifactId>
+	<packaging>pom</packaging>
+	<description>GAE test parent POM</description>
+
+	<properties>
+	</properties>
+
+	<repositories>
+		<!--
+		Repositories here to be able to download parent-POM, if we build the GAE test stuff
+		completely independently (and don't have the parent-POM in the local repo, yet).
+		-->
+		<repository>
+			<id>dev.nightlabs.org-libs-releases-local</id>
+			<url>http://dev.nightlabs.org/maven-repository/libs-releases-local/</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
+		<repository>
+			<id>dev.nightlabs.org-libs-snapshots-local</id>
+			<url>http://dev.nightlabs.org/maven-repository/libs-snapshots-local/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</repository>
+	</repositories>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.cumulus4j.gae.test</groupId>
+				<artifactId>org.cumulus4j.gae.test.dummykeymanager</artifactId>
+				<version>${cumulus4j.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.google.appengine.orm</groupId>
+				<artifactId>datanucleus-appengine</artifactId>
+				<version>2.1.2-nl20121012</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+</project>
