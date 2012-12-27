@@ -92,14 +92,13 @@ public class QueryHelper {
 			Set<ClassMeta> candidateClassMetas)
 	{
 		ExecutionContext ec = cryptoContext.getExecutionContext();
+		Cumulus4jStoreManager storeManager = (Cumulus4jStoreManager) ec.getStoreManager();
+
 		javax.jdo.Query q = pmData.newQuery(DataEntry.class);
-		q.declareVariables(ClassMeta.class.getName() + " classMeta");
-		q.setResult("classMeta, this.objectID");
+		q.setResult("this.classMeta_classID, this.objectID");
 
 		Map<String, Object> queryParams = new HashMap<String, Object>();
 		StringBuilder filter = new StringBuilder();
-
-		filter.append("this.classMeta_classID == classMeta.classID && ");
 
 		filter.append("this.keyStoreRefID == :keyStoreRefID && ");
 		queryParams.put("keyStoreRefID", cryptoContext.getKeyStoreRefID());
@@ -112,7 +111,11 @@ public class QueryHelper {
 		Collection<Object[]> c = (Collection<Object[]>) q.executeWithMap(queryParams);
 		List<Object> resultList = new ArrayList<Object>(c.size());
 		for (Object[] oa : c) {
-			ClassMeta classMeta = (ClassMeta) oa[0];
+			Long classID = (Long) oa[0];
+			if (classID == null)
+				throw new IllegalStateException("Query returned classMeta_classID == null!");
+
+			ClassMeta classMeta = storeManager.getClassMeta(ec, classID, true);
 			String objectIDString = (String) oa[1];
 			Object obj = IdentityUtils.getObjectFromIdString(objectIDString, classMeta.getDataNucleusClassMetaData(ec), ec, true);
 			resultList.add(obj);

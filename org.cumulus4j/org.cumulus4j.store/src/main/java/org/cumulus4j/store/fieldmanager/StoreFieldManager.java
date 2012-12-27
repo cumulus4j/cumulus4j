@@ -32,7 +32,6 @@ import org.cumulus4j.store.model.EmbeddedObjectContainer;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.FieldMetaRole;
 import org.cumulus4j.store.model.ObjectContainer;
-import org.datanucleus.exceptions.NucleusDataStoreException;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.Relation;
@@ -40,7 +39,6 @@ import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.ObjectProvider;
 import org.datanucleus.store.fieldmanager.AbstractFieldManager;
 import org.datanucleus.store.types.sco.SCO;
-import org.datanucleus.store.types.sco.SCOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -173,9 +171,14 @@ public class StoreFieldManager extends AbstractFieldManager
 		int relationType = mmd.getRelationType(ec.getClassLoaderResolver());
 
 		// Replace any SCO field that isn't already a wrapper, with its wrapper object
+		// This is necessary to trigger persistence of related objects. We have to unwrap
+		// them later again to make sure we don't store SCOs in our object-container.
 		boolean[] secondClassMutableFieldFlags = dnClassMetaData.getSCOMutableMemberFlags();
 		if (secondClassMutableFieldFlags[fieldNumber] && !(value instanceof SCO))
-			value = op.wrapSCOField(fieldNumber, value, false, true, true);
+			value = op.wrapSCOField(fieldNumber, value, true, true, true); // 2012-12-27: switched forInsert to true, IMHO false was wrong before, but I'm not sure. Marco :-)
+
+		// We have to make sure we unwrap any SCO.
+		value = op.unwrapSCOField(fieldNumber, value, false);
 
 		if (relationType == Relation.NONE)
 			storeObjectFieldWithRelationTypeNone(fieldNumber, value, mmd, fieldMeta);
@@ -208,25 +211,26 @@ public class StoreFieldManager extends AbstractFieldManager
 			Object[] values = collection.toArray(new Object[collection.size()]);
 			objectContainer.setValue(fieldMeta.getFieldID(), values);
 		}
-		else if (mmd.hasMap()) {
-			// replace the special DN Map by a simple HashMap.
-			Map<?,?> valueMap = (Map<?, ?>) value;
-
-			Map<Object, Object> map;
-			@SuppressWarnings("unchecked")
-			Class<? extends Map<Object, Object>> instanceType = SCOUtils.getContainerInstanceType(mmd.getType(), mmd.getOrderMetaData() != null);
-			try {
-				map = instanceType.newInstance();
-			} catch (InstantiationException e) {
-				throw new NucleusDataStoreException(e.getMessage(), e);
-			} catch (IllegalAccessException e) {
-				throw new NucleusDataStoreException(e.getMessage(), e);
-			}
-
-			map.putAll(valueMap);
-
-			objectContainer.setValue(fieldMeta.getFieldID(), map);
-		}
+		// we unwrap now before, hence this is not needed anymore.
+//		else if (mmd.hasMap()) {
+//			// replace the special DN Map by a simple HashMap.
+//			Map<?,?> valueMap = (Map<?, ?>) value;
+//
+//			Map<Object, Object> map;
+//			@SuppressWarnings("unchecked")
+//			Class<? extends Map<Object, Object>> instanceType = SCOUtils.getContainerInstanceType(mmd.getType(), mmd.getOrderMetaData() != null);
+//			try {
+//				map = instanceType.newInstance();
+//			} catch (InstantiationException e) {
+//				throw new NucleusDataStoreException(e.getMessage(), e);
+//			} catch (IllegalAccessException e) {
+//				throw new NucleusDataStoreException(e.getMessage(), e);
+//			}
+//
+//			map.putAll(valueMap);
+//
+//			objectContainer.setValue(fieldMeta.getFieldID(), map);
+//		}
 		else // arrays are not managed (no special DN instances) and thus stored 'as is'...
 			objectContainer.setValue(fieldMeta.getFieldID(), value);
 	}
