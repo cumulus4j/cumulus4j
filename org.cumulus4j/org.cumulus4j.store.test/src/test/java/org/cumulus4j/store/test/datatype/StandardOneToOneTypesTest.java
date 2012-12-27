@@ -1,6 +1,8 @@
 package org.cumulus4j.store.test.datatype;
 
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,18 +43,25 @@ extends AbstractJDOTransactionalTestClearingDatabase
 
 	private static long random_nextLong(long limit) {
 		long val = random.nextLong();
-		return val % limit;
+		return Math.abs(val % limit);
 	}
 
 	private static StandardOneToOneTypesEntity createTestEntity() {
 		StandardOneToOneTypesEntity entity = new StandardOneToOneTypesEntity();
 		entity.setUuid(UUID.randomUUID());
 
-		// not every database can store arbitrary dates => we limit the range from year 0 to roughly 3000!
-		entity.setDate(new Date(random_nextLong(3000L * 365L * 24L * 3600L * 1000L)));
+		// not every database can store all imaginable dates => we limit the range (roughly) from year 0 to 3000!
+		entity.setDate(new Date(yearsToMillis(-1970) + random_nextLong(yearsToMillis(3000))));
+
+		entity.setBigDecimal(new BigDecimal(BigInteger.valueOf(random.nextLong()), random.nextInt(1000)));
+		entity.setBigInteger(BigInteger.valueOf(random.nextLong()));
 
 		// TODO fill ALL fields with random data!
 		return entity;
+	}
+
+	private static long yearsToMillis(long years) {
+		return years * 365L * 24L * 3600L * 1000L;
 	}
 
 	private static Map<UUID, StandardOneToOneTypesEntity> getTestEntitiesMap() {
@@ -100,7 +109,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 	private static void assertAllPropertiesEqual(StandardOneToOneTypesEntity expected, StandardOneToOneTypesEntity found) throws Exception {
 		Assert.assertEquals(expected.getUuid(), found.getUuid());
 
-		// TODO all other properties - maybe generically using reflection?!
+		// checking all other properties generically using reflection
 		for (Method method : expected.getClass().getMethods()) {
 			if (!method.getName().startsWith("get") && !method.getName().startsWith("is")) {
 				logger.trace("Ignoring non-getter method: {}", method.getName());

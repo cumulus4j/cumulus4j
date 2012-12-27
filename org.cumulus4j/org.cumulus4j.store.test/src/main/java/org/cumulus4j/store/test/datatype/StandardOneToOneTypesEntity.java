@@ -2,9 +2,11 @@ package org.cumulus4j.store.test.datatype;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.jdo.annotations.IdentityType;
+import javax.jdo.annotations.Join;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.PrimaryKey;
 
@@ -12,7 +14,8 @@ import org.nightlabs.util.Util;
 
 /**
  * Entity with all types that should be supported according to the JDO standard.
- * No {@link Collection} or other 1-n-relations, though! Only simple 1-to-1-fields.
+ * Though, the supported types include {@link Collection}, {@link Map} and other 1-n-relation-types,
+ * this class contains simple 1-to-1-fields and arrays of these simple types, only.
  */
 @PersistenceCapable(identityType=IdentityType.APPLICATION, objectIdClass=StandardOneToOneTypesEntityPK.class)
 public class StandardOneToOneTypesEntity
@@ -35,13 +38,21 @@ implements Serializable
 	private int intPrimitive;
 	private long longPrimitive;
 	private short shortPrimitive;
+	@Join
 	private boolean[] booleanPrimitiveArray;
+	@Join
 	private byte[] bytePrimitiveArray;
+	@Join
 	private char[] charPrimitiveArray;
+	@Join
 	private double[] doublePrimitiveArray;
+	@Join
 	private float[] floatPrimitiveArray;
+	@Join
 	private int[] intPrimitiveArray;
+	@Join
 	private long[] longPrimitiveArray;
+	@Join
 	private short[] shortPrimitiveArray;
 	private Boolean booleanObject;
 	private Byte byteObject;
@@ -64,10 +75,13 @@ implements Serializable
 
 
 	private String string;
+	@Join
 	private String[] stringArray;
 	private java.math.BigDecimal bigDecimal;
 	private java.math.BigInteger bigInteger;
+	@Join
 	private java.math.BigDecimal[] bigDecimalArray;
+	@Join
 	private java.math.BigInteger[] bigIntegerArray;
 	private java.sql.Date sqlDate;
 	private java.sql.Time sqlTime;
@@ -75,14 +89,18 @@ implements Serializable
 	private java.util.BitSet bitSet;
 	private java.util.Currency currency;
 	private java.util.Date date;
+	@Join
 	private java.util.Date[] dateArray;
 	private java.util.Locale locale;
+	@Join
 	private java.util.Locale[] localeArray;
 	private java.util.TimeZone timeZone;
 	private java.io.Serializable serializable;
 	private javax.jdo.spi.PersistenceCapable persistenceCapable;
+	@Join
 	private javax.jdo.spi.PersistenceCapable[] persistenceCapableArray;
 	private SizeEnum sizeEnum;
+	@Join
 	private SizeEnum[] sizeEnumArray;
 
 	public UUID getUuid() {
