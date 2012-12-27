@@ -157,6 +157,7 @@ public class JDOTransactionalRunner extends BlockJUnit4ClassRunner
 		}
 
 		if (target instanceof JDOTransactionalTest) {
+			((JDOTransactionalTest) target).setRunner(this);
 			((JDOTransactionalTest) target).setTestRunIndex(testRunIndex);
 		}
 
@@ -188,7 +189,7 @@ public class JDOTransactionalRunner extends BlockJUnit4ClassRunner
 		pm.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, keyStoreID + '_' + UUID.randomUUID() + '*' + UUID.randomUUID());
 	}
 
-	public static PersistenceManagerFactory createPersistenceManagerFactory()
+	public PersistenceManagerFactory createPersistenceManagerFactory()
 	{
 		return JDOHelper.getPersistenceManagerFactory(TestUtil.loadProperties("cumulus4j-test-datanucleus.properties"));
 	}
@@ -214,11 +215,11 @@ public class JDOTransactionalRunner extends BlockJUnit4ClassRunner
 		try {
 			statement.evaluate();
 
-			pm = transactionalTest.getPersistenceManager();
+			pm = transactionalTest == null ? null : transactionalTest.getPersistenceManager();
 			if (pm != null && !pm.isClosed() && pm.currentTransaction().isActive())
 				pm.currentTransaction().commit();
 		} finally {
-			pm = transactionalTest.getPersistenceManager();
+			pm = transactionalTest == null ? null : transactionalTest.getPersistenceManager();
 			if (pm != null && !pm.isClosed()) {
 				try {
 					if (pm.currentTransaction().isActive())

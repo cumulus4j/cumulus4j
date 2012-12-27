@@ -109,6 +109,23 @@
 				<groupId>org.datanucleus</groupId>
 				<artifactId>maven-datanucleus-plugin</artifactId>
 			</plugin>
+			<plugin>
+				<artifactId>maven-jar-plugin</artifactId>
+				<executions>
+					<execution>
+						<!--
+						We add the tests, because we need to test special datastores (e.g. GAE BigTable)
+						thoroughly. This does NOT replace the "default-jar" execution, but adds the
+						"test-jar" execution! Marco :-)
+						-->
+						<id>test-jar</id>
+						<phase>package</phase>
+						<goals>
+							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 

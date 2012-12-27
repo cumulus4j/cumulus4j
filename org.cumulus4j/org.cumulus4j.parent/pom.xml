@@ -442,6 +442,11 @@
 				<version>${cumulus4j.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.store.test</artifactId>
+				<version>${cumulus4j.version}</version>
+				<classifier>tests</classifier>
+			</dependency>
+			<dependency>
 				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.store.test.jpa</artifactId>
 				<version>${cumulus4j.version}</version>
 			</dependency>

@@ -143,7 +143,7 @@ extends AbstractJDOTransactionalTestClearingDatabase
 				commitAndBeginNewTransaction();
 
 
-				PersistenceManagerFactory pmf2 = JDOTransactionalRunner.createPersistenceManagerFactory();
+				PersistenceManagerFactory pmf2 = ((JDOTransactionalRunner)runner).createPersistenceManagerFactory();
 				PersistenceManager pm2 = pmf2.getPersistenceManager();
 				JDOTransactionalRunner.setEncryptionCoordinates(pm2, getTestRunIndex());
 				pm2.currentTransaction().begin();

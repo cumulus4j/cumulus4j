@@ -19,6 +19,8 @@ package org.cumulus4j.store.test.framework;
 
 import javax.jdo.PersistenceManager;
 
+import org.junit.runner.Runner;
+
 public interface JDOTransactionalTest
 {
 //	class State {
@@ -33,6 +35,9 @@ public interface JDOTransactionalTest
 //			testRunIndexThreadLocal.set(testRunIndex);
 //		}
 //	}
+
+	Runner getRunner();
+	void setRunner(Runner runner);
 
 	PersistenceManager getPersistenceManager();
 	void setPersistenceManager(PersistenceManager persistenceManager);

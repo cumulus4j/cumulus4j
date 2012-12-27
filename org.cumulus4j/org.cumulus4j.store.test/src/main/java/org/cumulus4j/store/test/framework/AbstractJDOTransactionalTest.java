@@ -21,10 +21,12 @@ import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 
 import org.junit.runner.RunWith;
+import org.junit.runner.Runner;
 
 @RunWith(JDOTransactionalRunner.class)
 public abstract class AbstractJDOTransactionalTest implements JDOTransactionalTest {
 
+	protected Runner runner;
 	protected PersistenceManagerFactory pmf;
 	protected PersistenceManager pm;
 
@@ -62,5 +64,14 @@ public abstract class AbstractJDOTransactionalTest implements JDOTransactionalTe
 	@Override
 	public void setTestRunIndex(int testRunIndex) {
 		this.testRunIndex = testRunIndex;
+	}
+
+	@Override
+	public Runner getRunner() {
+		return runner;
+	}
+	@Override
+	public void setRunner(Runner runner) {
+		this.runner = runner;
 	}
 }
