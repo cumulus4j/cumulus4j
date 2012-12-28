@@ -56,6 +56,7 @@ import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.MapMetaData.MapType;
 import org.datanucleus.store.AbstractStoreManager;
 import org.datanucleus.store.ExecutionContext;
+import org.datanucleus.store.Extent;
 import org.datanucleus.store.connection.ManagedConnection;
 import org.datanucleus.store.schema.SchemaAwareStoreManager;
 import org.slf4j.Logger;
@@ -876,5 +877,11 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 	public boolean isStrategyDatastoreAttributed(AbstractClassMetaData cmd, int absFieldNumber) {
 		// We emulate all strategies via our Cumulus4jIncrementGenerator - none is really datastore-attributed.
 		return false;
+	}
+
+	@Override
+	public Extent getExtent(ExecutionContext ec, @SuppressWarnings("rawtypes") Class c, boolean subclasses) {
+		getClassMeta(ec, c); // Ensure, we initialise our meta-data, too.
+		return super.getExtent(ec, c, subclasses);
 	}
 }
