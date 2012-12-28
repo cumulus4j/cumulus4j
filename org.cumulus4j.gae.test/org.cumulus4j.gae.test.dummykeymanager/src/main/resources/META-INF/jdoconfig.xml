@@ -27,6 +27,8 @@
        <property name="datanucleus.plugin.allowUserBundle" value="true"/>
        <property name="datanucleus.storeManagerType" value="cumulus4j"/>
 
+       <property name="cumulus4j.datanucleus.appengine.datastoreEnableXGTransactions" value="true"/>
+
        <!--
        We use the dummy-key-manager here, which means NO ENCRYPTION, but which still tests
        the underlying datastore with a real Cumulus4j store on top of it (i.e. it tests all

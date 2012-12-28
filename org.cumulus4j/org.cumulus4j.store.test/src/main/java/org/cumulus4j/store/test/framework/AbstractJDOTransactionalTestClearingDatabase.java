@@ -8,8 +8,14 @@ public class AbstractJDOTransactionalTestClearingDatabase extends AbstractJDOTra
 {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractJDOTransactionalTestClearingDatabase.class);
 
+	public static boolean clearDatabaseEnabled = true;
+
 	@BeforeClass
 	public static void clearDatabase() throws Exception {
+		if (!clearDatabaseEnabled) {
+			logger.info("clearDatabase: Clearing database is DISABLED! Skipping.");
+			return;
+		}
 		logger.info("clearDatabase: Clearing database (dropping all tables).");
 		CleanupUtil.dropAllTables();
 	}

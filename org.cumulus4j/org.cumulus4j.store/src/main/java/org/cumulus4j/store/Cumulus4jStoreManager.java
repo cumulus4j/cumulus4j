@@ -220,6 +220,9 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 		try {
 			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
 			PersistenceManager pm = pmConn.getDataPM();
+			CryptoContext cryptoContext = new CryptoContext(encryptionCoordinateSetManager, keyStoreRefManager, ec, pmConn);
+			datastoreVersionManager.applyOnce(cryptoContext);
+
 			ClassMetaDAO dao = new ClassMetaDAO(pm);
 			ClassMeta classMeta = dao.getClassMeta(classID, throwExceptionIfNotFound);
 			if (classMeta == null)
@@ -404,6 +407,9 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 		try {
 			PersistenceManagerConnection pmConn = (PersistenceManagerConnection)mconn.getConnection();
 			PersistenceManager pm = pmConn.getDataPM();
+
+			CryptoContext cryptoContext = new CryptoContext(encryptionCoordinateSetManager, keyStoreRefManager, ec, pmConn);
+			datastoreVersionManager.applyOnce(cryptoContext);
 
 			synchronized (this) { // Synchronise in case we have data and index backends // why? what about multiple instances? shouldn't the replication be safe? is this just for lower chance of exceptions (causing a rollback and being harmless)?
 				// Register the class

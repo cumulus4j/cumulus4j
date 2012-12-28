@@ -182,6 +182,11 @@ public class JDOTransactionalRunner extends BlockJUnit4ClassRunner
 		});
 	}
 
+	public void setEncryptionCoordinates(PersistenceManager pm)
+	{
+		setEncryptionCoordinates(pm, testRunIndex);
+	}
+
 	public static void setEncryptionCoordinates(PersistenceManager pm, int testRunIndex)
 	{
 		pm.setProperty(CryptoManager.PROPERTY_CRYPTO_MANAGER_ID, "dummy");
@@ -208,7 +213,7 @@ public class JDOTransactionalRunner extends BlockJUnit4ClassRunner
 			}
 
 			pm = pmf.getPersistenceManager();
-			setEncryptionCoordinates(pm, testRunIndex);
+			setEncryptionCoordinates(pm);
 			transactionalTest.setPersistenceManager(pm);
 			pm.currentTransaction().begin();
 		}

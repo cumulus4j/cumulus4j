@@ -52,6 +52,14 @@ public class GaeCumulus4jDummyKeyManagerTest {
 
 	@After
 	public void after() {
+		if (pm != null)
+			pm.close();
+		pm = null;
+
+		if (pmf != null)
+			pmf.close();
+		pmf = null;
+
 		helper.tearDown();
 	}
 
