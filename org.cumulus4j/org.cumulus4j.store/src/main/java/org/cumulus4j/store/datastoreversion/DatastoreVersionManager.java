@@ -12,6 +12,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.jdo.FetchPlan;
 import javax.jdo.PersistenceManager;
@@ -61,7 +62,7 @@ public class DatastoreVersionManager {
 
 	private Cumulus4jStoreManager storeManager;
 	private Set<Integer> performedKeyStoreRefIDs = Collections.synchronizedSet(new HashSet<Integer>());
-	private volatile boolean performedGlobally = false;
+	private AtomicBoolean performedGlobally = new AtomicBoolean();
 
 	public DatastoreVersionManager(Cumulus4jStoreManager storeManager) {
 		if (storeManager == null)
@@ -72,24 +73,34 @@ public class DatastoreVersionManager {
 
 	public void applyOnce(CryptoContext cryptoContext) {
 		final Integer keyStoreRefID = cryptoContext.getKeyStoreRefID();
-		if (performedKeyStoreRefIDs.contains(keyStoreRefID))
-			return;
 
-		synchronized (this) {
-			if (performedKeyStoreRefIDs.contains(keyStoreRefID))
-				return;
+		// We do not need synchronisation here, because the 'performedKeyStoreRefIDs' is a synchronized set
+		// and only one single thread will succeed in adding the keyStoreRefID.
 
-			if (!performedGlobally) {
-				apply(cryptoContext, KeyStoreRef.GLOBAL_KEY_STORE_REF_ID);
+		boolean error1 = true;
+		try {
+			// Immediately set 'performed' to prevent endless recursions. Remove again in case of exception!
+			if (performedKeyStoreRefIDs.add(keyStoreRefID)) {
 
-				// only set performed, if we didn't encounter an exception => after apply(...)!
-				performedGlobally = true;
+				// Again no need for synchronisation because of AtomicBoolean 'performedGlobally'.
+				boolean error2 = true;
+				try {
+					if (performedGlobally.compareAndSet(false, true)) {
+						apply(cryptoContext, KeyStoreRef.GLOBAL_KEY_STORE_REF_ID);
+					}
+					error2 = false;
+				} finally {
+					if (error2)
+						performedGlobally.set(false);
+				}
+
+				apply(cryptoContext, keyStoreRefID);
 			}
 
-			apply(cryptoContext, keyStoreRefID);
-
-			// only set performed, if we didn't encounter an exception => after apply(...)!
-			performedKeyStoreRefIDs.add(keyStoreRefID);
+			error1 = false;
+		} finally {
+			if (error1)
+				performedKeyStoreRefIDs.remove(keyStoreRefID);
 		}
 	}
 
