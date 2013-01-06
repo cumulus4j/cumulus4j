@@ -15,7 +15,7 @@ FAQ - Frequently asked questions
 	{{{http://en.wikipedia.org/wiki/DataNucleus}DataNucleus}} access platform. 
 	Cumulus4j targets Java developers of cloud and web-based systems that use 
 	{{{http://en.wikipedia.org/wiki/Java_Persistence_API}JPA}} or {{{http://en.wikipedia.org/wiki/Java_Data_Objects}JDO}} for persistence.
-	 
+
 * Why not simply use an encrypted file system?
 
 	An encrypted file system (e.g. {{{http://en.wikipedia.org/wiki/Linux_Unified_Key_Setup}LUKS}},
@@ -26,15 +26,14 @@ FAQ - Frequently asked questions
 	and keys only in memory temporarily; data will never be written do the datastore in plain text.
 	Additionally, using functionality for indexing and querying data provided by the server 
 	increases the performance.
-	 
-	
+
 * Why does Cumulus4j separate its data?
 
 	Cumulus4j keeps two types of data, the actual application-data and index-data that is kept in order 
-	to implement efficient queries. In order to increase the security of your data Cumulus4j supports 
+	to implement efficient queries. In order to increase the security of your data, Cumulus4j supports 
 	the physical separation of these two, i.e. using separate infrastructure providers for each one.
-	
-* Is the encryption done on the server side?
+
+* Is the encryption done on the server-side?
 
 	Yes, currently Cumulus4j encrypts and decrypts the application-data while writing to and from the datastore;
 	see {{{./theory.html}the theory section}} for more details. The decrypted data should then be transferred
@@ -43,9 +42,15 @@ FAQ - Frequently asked questions
 * Isn't client-side encryption better?
 
 	Of course, the degree of data protection is much higher, if keys never leave the trusted environment of the client.
-	In its first project phase the Cumulus4j project provided server-side libraries. This is to ease integration into
-	existing applications as these libraries can be used mostly transparently to the developer.
-	However, in a coming phase of the project, starting early 2012, a possibility for client-side encryption will be provided, too.
+	However, many features like especially querying data are very hard to perform efficiently on the client-side.
+	Therefore, Cumulus4j currently does not (yet) provide any client-side encryption.
+
+	The Cumulus4j-team already developed plans for a full-featured client-side encryption including query-engine,
+	but implementing these plans is far from trivial. Since the degree of data-protection provided by Cumulus4j
+	already now is far higher than the current state-of-the-art, the team decided to focus on providing a reliable
+	and fast solution for the server-side, first. If the market as well as fellow developers (this is a free software
+	project!) are interested in both the current solution and the further development for data-protection
+	on the client-side, we're happy to implement the plans we already devised.
 
 * Where are the keys kept?
 
@@ -58,3 +63,11 @@ FAQ - Frequently asked questions
 	For this purpose, Cumulus4j provides two kinds of key-storage and key-management: A local, file-based key-store and a
 	web-service (key server). Both can be accessed by the user via a command-line application or by the developer via a unified API
 	(which is the same for both storage systems). See the {{{./key-store.html}key-store documentation}} for details.
+
+* How can I manage my data? My query program shows only BLOBs!
+
+	Since Cumulus4j encrypts all data before writing it into the underlying database, it is logical that you cannot
+	use your normal query program for managing your data. Either you extend your application with administration features
+	or you take a look at {{{http://vestigo.nightlabs.com}Vestigo - The JDO/JPA Query Tool And Browser}}. Vestigo supports
+	Cumulus4j and you can not only query your encrypted database on the object level without even noticing it's encrypted,
+	but also modify your persistent data.

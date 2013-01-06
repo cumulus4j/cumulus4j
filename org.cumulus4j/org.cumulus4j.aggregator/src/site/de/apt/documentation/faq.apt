@@ -44,10 +44,16 @@ Häufige Fragen (FAQ)
 * Verschlüsselung auf dem Client ist doch besser, oder?
 
 	Natürlich erreicht man einen besseren Schutz der Daten, wenn die Schlüssel niemals die sichere Umgebung des Clients verlassen.
-	Bisher stellt Cumulus4j serverseitige Bibliotheken zur Verfügung. Dies wurde vor allem deswegen als erstes entwickelt, da diese
-	Bibliotheken von Entwicklern nahezu ohne Änderungen in bestehende Projekte integriert werden können.
-	In einer weiteren Projektphase, die zu Beginn des Jahres 2012 startet, werden auch Möglichkeiten für clientseitige
-	Verschlüsselung entwickelt.   
+	Allerdings lassen sich viele Funktionen wie insbesondere die Abfrage von Daten nur sehr schwer in einer effizienten Form auf
+	Client-Seite umsetzen. Daher stellt Cumulus4j (bisher) noch keine client-seitige Verschlüsselung zur Verfügung.
+
+	Das Cumulus4j-Team hat bereits Pläne für eine vollständige, client-seitige Verschlüsselung inkl. Abfrage-Funktion,
+	doch diese Pläne umzusetzen, ist alles andere als trivial. Da der Grad der Datensicherheit, der bereits jetzt
+	von Cumulus4j bereitgestellt wird, jedoch deutlich höher als der sonst verwendete Stand der Technik ist,
+	entschied sich das Team, zunächst seinen Fokus darauf zu richten, eine verläßliche und schnelle Lösung für die
+	Server-Seite zur Verfügung zu stellen. Falls der Markt und andere Entwickler (dieses Projekt ist Freie Software!)
+	Interesse an sowohl der aktuellen Lösung als auch der weiteren Entwicklung der Datensicherheit auf Client-Seite haben,
+	werden wir gern die bereits erdachten Pläne umsetzen.
 
 * Wo speichert Cumulus4j die Schlüssel?
 
@@ -62,3 +68,12 @@ Häufige Fragen (FAQ)
 	Schlüsselspeicher und einen Web-Service (Schlüssel-Server). Beide können vom Benutzer via einer Kommandozeilenapplikation
 	oder vom Entwickler via einer einheitlichen API angesteuert werden (es gibt also keinen sichtbaren Unterschied zwischen den
 	beiden Speichersystemen). Weitere Details finden Sie in der {{{./key-store.html}Schlüsselspeicher-Dokumentation}}.
+
+* Wie kann ich meine Daten verwalten? Mein Abfrageprogramm zeigt nur BLOBs!
+
+	Da Cumulus4j alle Daten verschlüsselt, bevor sie in die zugrundeliegende Datenbank geschrieben werden, ist es nur
+	logisch, daß ein normales Abfrageprogramm nicht zur Verwaltung der Daten verwendet werden kann. Entweder Sie erweitern
+	Ihre Applikation also um Administrationsfunktionen oder Sie werfen einen Blick auf
+	{{{http://vestigo.nightlabs.com}Vestigo - The JDO/JPA Query Tool And Browser}}. Vestigo unterstützt Cumulus4j und Sie
+	können damit nicht nur Ihre verschlüsselte Datenbank auf Objektebene abfragen, ohne etwas von der Verschlüsselung
+	zu bemerken, sondern auch persistente Daten verändern.
