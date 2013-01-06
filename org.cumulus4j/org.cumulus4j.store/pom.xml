@@ -94,14 +94,14 @@
 				<finalName>${project.artifactId}-${project.version}-gae</finalName>
 
 				<!-- SNAPSHOT -->
+				<!--
 				<repositoryId>dev.nightlabs.org-libs-snapshots-local</repositoryId>
 				<repositoryUrl>http://dev.nightlabs.org/maven-repository/libs-snapshots-local</repositoryUrl>
+				-->
 
 				<!-- RELEASE -->
-				<!--
 				<repositoryId>dev.nightlabs.org-libs-releases-local</repositoryId>
 				<repositoryUrl>http://dev.nightlabs.org/maven-repository/libs-releases-local</repositoryUrl>
-				 -->
 			</properties>
 			
 			<build>
