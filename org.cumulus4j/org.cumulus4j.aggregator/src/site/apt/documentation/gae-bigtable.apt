@@ -1,0 +1,29 @@
+	---
+	GAE (Google App Engine) + BigTable
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2013-01-06
+
+GAE (Google App Engine) + BigTable
+
+	From version 1.1.0 on, Cumulus4j works with Google's BigTable as underlying datastore. But you need
+	{{{http://dev.nightlabs.org/maven-repository/webapp/browserepo.html?pathId=ext-releases-local%3Acom%2Fgoogle%2Fappengine%2Form%2Fdatanucleus-appengine%2F2.1.2-nl20121012%2Fdatanucleus-appengine-2.1.2-nl20121012.jar}datanucleus-appengine version 2.1.2-nl20121012}}
+	as well as DataNucleus 3.1.3. It does <<not>> work with the older versions currently still used by default
+	in the GAE! We recommend that you check the <<<pom.xml>>> files of the
+	{{{https://dev.nightlabs.org/svn/public/cumulus4j/tags/1.1.0/org.cumulus4j.gae.test/}org.cumulus4j.gae.test}} project group.
+	This project group is an integration test run automatically in our Jenkins to ensure compatibility with the GAE. 
+
+	However, <<BigTable-support is still experimental!>> There are known problems when using
+	{{{https://developers.google.com/appengine/docs/java/datastore/transactions}transactions}}, because GAE does
+	not allow more than
+	{{{https://developers.google.com/appengine/docs/java/datastore/overview#Transactions_and_Entity_Groups}5 entity groups}}
+	to be touched within a single transaction. Due to the architecture of Cumulus4j, these 5 entity
+	groups are already reached when persisting a single object with 4 indexed (queryable) fields.
+
+	If you intend to use Cumulus4j in the GAE, we therefore recommend to use
+	{{{https://developers.google.com/cloud-sql/}Google Cloud SQL}} as a short-term-solution.
+
+	Note, that the key management still needs to be done manually by your application code (no matter whether
+	using BigTable or Cloud-SQL), but we plan to provide libraries for GWT in one of the next versions. You're
+	very welcome to contribute!

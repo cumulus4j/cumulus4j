@@ -16,12 +16,12 @@ Was ist neu?
 	* Datenspeicherinkompatibilität: Um einen existierenden Datenspeicher auf die aktuelle Version upzugraden,
 	müssen Sie manuell alle eindeutigen Indizes der zugrundeliegenden Datenbank löschen. Diese werden dann automatisch
 	neu angelegt (sie können nur nicht automatisch verändert werden). Desweiteren sollten Sie beachten, daß
-	Cumulus4j seine Indizes neu erzeugen muß, was einiges an Zeit erfordern kann - und u.U. in Ihrer
-	Software berücksichtigt werden muß.
+	Cumulus4j {{{./recreate-indexes.html}seine Indizes neu erzeugen}} muß, was einiges an Zeit erfordern
+	kann - und u.U. in Ihrer Software berücksichtigt werden muß.
 
-	* Neues Feature: Vollständige Unterstützung der GAE mit Google-BigTable als zugrundeliegender Datenbank.
+	* Neues Feature: Unterstützung der {{{./gae-bigtable.html}GAE mit Google-BigTable}} als zugrundeliegender Datenbank.
 	Die Schlüsselverwaltung muß noch manuell in Ihrem Applikations-Code erfolgen, aber wir planen, in einer
-	der folgenden Versionen auch eine Bibliothek für GWT zur Verfügugn zu stellen. Sie sind übrigens herzlich
+	der folgenden Versionen auch eine Bibliothek für GWT zur Verfügung zu stellen. Sie sind übrigens herzlich
 	eingeladen, uns dabei zu unterstützen!
 
 	* Neues Feature: Unterstützung mehrerer Mandanten in einer einzigen zugrundeliegenden Datenbank. Es war zwar

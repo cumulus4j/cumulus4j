@@ -22,8 +22,8 @@ Willkommen bei Cumulus4j!
 
 * Verschlüsselung für größtmöglichen Datenschutz
 
-	Um diese Hürde zu überwinden, hat Cumulus4j das Ziel, eine sichere Architektur für vertrauenswürdige Rechnungswesenssoftware
-	im Internet zu erstellen. Die Anforderungen einer Rechnungswesenssoftware an eine vertrauenswürdige Datenbank
+	Um diese Hürde zu überwinden, stellt Cumulus4j eine sichere Architektur für vertrauenswürdige Rechnungswesenssoftware
+	im Internet zur Verfügung. Die Anforderungen einer Rechnungswesenssoftware an eine vertrauenswürdige Datenbank
 	ähneln natürlich weitgehend denen anderer Enterprise-Applikationen, so daß Cumulus4j für eine Vielzahl von Anwendungen
 	interessant ist.
 

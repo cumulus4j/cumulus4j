@@ -16,11 +16,12 @@ What's new?
 	* Data store incompatibility: When upgrading an existing datastore, you have to manually drop all
 	unique indexes in the underlying database. They will then be automatically recreated (they only
 	cannot be automatically changed). Furthermore, you should be aware that Cumulus4j will need to
-	recreate its indexes, what might take some time - and might require some handling in your software.
+	{{{./recreate-indexes.html}recreate its indexes}}, what might take some time - and might require
+	some handling in your software.
 
-	* New feature: Full support of the GAE with Google BigTable as underlying database. The key management
-	still needs to be done manually by your application code, but we plan to provide libraries for GWT in
-	one of the next versions. You're very welcome to contribute!
+	* New feature: Support of the {{{./gae-bigtable.html}GAE with Google BigTable}} as underlying database.
+	The key management still needs to be done manually by your application code, but we plan to provide
+	libraries for GWT in one of the next versions. You're very welcome to contribute!
 
 	* New feature: Support multitenancy within one single underlying database. It was already possible to use a
 	Cumulus4j-based application in a multi-tenants-scenario by assigning a separate database to each tenant. 

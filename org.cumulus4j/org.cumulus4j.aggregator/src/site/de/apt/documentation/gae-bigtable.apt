@@ -1,0 +1,32 @@
+	---
+	GAE (Google App Engine) + BigTable
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2013-01-06
+
+GAE (Google App Engine) + BigTable
+
+	Von Version 1.1.0 an arbeitet Cumulus4j mit Googles BigTable als zugrundeliegender Datenbank. Allerdings
+	benötigen Sie
+	{{{http://dev.nightlabs.org/maven-repository/webapp/browserepo.html?pathId=ext-releases-local%3Acom%2Fgoogle%2Fappengine%2Form%2Fdatanucleus-appengine%2F2.1.2-nl20121012%2Fdatanucleus-appengine-2.1.2-nl20121012.jar}datanucleus-appengine version 2.1.2-nl20121012}}
+	sowie DataNucleus 3.1.3. Es arbeitet <<nicht>> mit den älteren Versionen, die derzeit noch standardmäßig
+	in der GAE bereitgestellt werden! Wir empfehlen einen Blick in die <<<pom.xml>>>-Dateien der
+	{{{https://dev.nightlabs.org/svn/public/cumulus4j/tags/1.1.0/org.cumulus4j.gae.test/}org.cumulus4j.gae.test}}-Projektgruppe.
+	Diese Projektgruppe ist ein Integrationstest, der automatisch in unserem Jenkins durchläuft, um die Kompatibilität
+	mit der GAE zu gewährleisten.
+
+	Jedoch ist die BigTable-Unterstützung noch experimentell! Es gibt bekannte Probleme bei der Benutzung von
+	{{{https://developers.google.com/appengine/docs/java/datastore/transactions}Transaktionen}}, weil die GAE
+	nicht mehr als
+	{{{https://developers.google.com/appengine/docs/java/datastore/overview#Transactions_and_Entity_Groups}5 Entitätengruppen}}
+	innerhalb einer Transaktion erlaubt. Durch die Architektur von Cumulus4j sind diese 5 bereits erreicht, wenn
+	ein einzelnes Objekt mit 4 indizierten (abfragbaren) Feldern gespeichert wird.
+
+	Wenn Sie Cumulus4j in der GAE einsetzen möchten, empfehlen wir daher
+	{{{https://developers.google.com/cloud-sql/}Google-Cloud-SQL}} als kurzfristige Lösung zu verwenden. 
+
+	Beachten Sie bitte, daß die Schlüsselverwaltung noch manuell in Ihrem Applikations-Code erfolgen muß
+	(egal, ob BigTable oder Cloud-SQL zur Anwendung kommt). Allerdings planen wir, Bibliotheken für GWT in
+	einer der nächsten Versionen zur Verfügung zu stellen. Sie sind herzlich dazu eingeladen, uns bei der
+	Erstellung dieser Bibliotheken zu untersützen!

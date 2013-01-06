@@ -71,12 +71,16 @@ public class DatastoreVersionManager {
 		this.storeManager = storeManager;
 	}
 
-	public void applyOnce(CryptoContext cryptoContext) {
+	public synchronized void applyOnce(CryptoContext cryptoContext) {
 		final Integer keyStoreRefID = cryptoContext.getKeyStoreRefID();
 
 		// We do not need synchronisation here, because the 'performedKeyStoreRefIDs' is a synchronized set
 		// and only one single thread will succeed in adding the keyStoreRefID.
-
+		// WRONG! We do need synchronisation, because we must ensure that there is no access to the datastore,
+		// before it has been converted to the newest version. Hence this method is 'synchronized'.
+		// It's only the question how we can do this in a cluster-environment. But that does not matter, right now.
+		// We might later add some DB-based lock.
+		// Marco :-)
 		boolean error1 = true;
 		try {
 			// Immediately set 'performed' to prevent endless recursions. Remove again in case of exception!

@@ -1,0 +1,64 @@
+	---
+	Indizes neu erstellen
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2013-01-06
+
+Indizes neu erstellen
+
+	Cumulus4j ermöglicht es, Ihre Daten mit dem vollen Funktionsumfang der Abfragesprachen, die in JDO oder
+	JPA standardisiert sind (also JDOQL oder JPQL), abzufragen. Hierfür verwaltet Cumulus4j Indizes, die
+	zwar einen Klartext-Schlüssel aber chiffrierte Zeiger haben. Diese Indizes können gelöscht und neu erstellt
+	werden. Bei Updates ist dies manchmal notwendig.
+
+* Wann führt Cumulus4j eine Neu-Indizierung durch?
+
+	There is a <<<DatastoreVersion>>> persisted in the datastore having the <<<commandID>>> "RecreateIndex".
+	If this record is missing or the <<<commandVersion>>> is lower in the database than the one expected
+	by the code, then Cumulus4j performs a re-indexing (first deleting all existing indexes and then recreating
+	them).
+
+* Why do I have to care?
+
+	Re-indexing can take a very long time. How long exactly depends on your data. Whenever it is mentioned on the
+	{{{./whats-new.html}What's new?}} page that a new version of Cumulus4j requires to re-index, you definitely
+	should first try your upgrade on a staging system before touching the productive system. Needless to say that
+	this is a recommended practice for every update, but with reindexing being necessary, this is a MUST!
+
+	Especially, if the re-indexing takes very long, you might need to take this into account programmatically
+	(see below).
+
+* What does <<<WorkInProgressException>>> mean?
+
+	If recreating the indexes takes longer than a configurable time
+	(persistence-property <<<cumulus4j.DatastoreVersionCommand.applyWorkInProgressTimeout>>>) which is 10
+	seconds by default, a <<<org.cumulus4j.store.WorkInProgressException>>> is thrown.
+	
+	It is recommended that your application
+	catches this exception, commits the current transaction and then aborts its current operation. Nothing
+	of your application's data has been written to the datastore, yet, if this happens. Thus, it is safe to
+	commit. Note, that you actually must commit, if you ever want to get further behind this point. Otherwise
+	the re-indexing that has been done until now will be lost.
+
+* Recommended practice
+
+	It is recommended that you add a certain servlet which does nothing but perform a simple query or otherwise
+	access the datastore (e.g. <<<pm.getExtent(MyEntity.class)>>>). This should be done in a try-catch-block.
+	The catch-block expects the <<<WorkInProgressException>>> and causes the progress to be shown. Right now,
+	the <<<ProgressInfo>>> (in the exception) is still empty, but we'll provide detailed information in a future
+	version (you can see the progress in the log till then).
+
+* Why interrupt the work?
+
+	Many systems do not allow transactions to take forever. And even if they did, it is a bad idea to never commit
+	inbetween. Imagine, the re-index operation takes 2 hours and for whatever reason, it fails after 110 minutes:
+	Everything done till then would be lost. Committing inbetween means that only the remaining work needs to be
+	done in the following transactions - even if an error occurred.
+
+	Additionally, it is possible to show the progress of the database-upgrade this way (see the mentioned servlet
+	in "Recommended practice" above). This would not be possible, if the entire work would be done in one single
+	transaction.
+
+	Note, that this applies to all database-upgrades - not only the reindexing. Though, the reindexing is the only
+	one at the moment taking long enough for this mechanism to be necessary.

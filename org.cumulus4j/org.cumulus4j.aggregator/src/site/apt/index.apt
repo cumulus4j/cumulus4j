@@ -22,7 +22,7 @@ Welcome to Cumulus4j!
 
 * Encryption for maximized data privacy protection
 
-	To overcome this barrier, Cumulus4j aims at creating a secure architecture for trustworthy accounting software
+	To overcome this barrier, Cumulus4j provides a secure architecture for trustworthy accounting software
 	in the Internet. The demands on the trustworthy database made by an accounting software are naturally very similar
 	to those of other enterprise applications. Therefore, Cumulus4j is an interesting solution to a multitude of
 	applications.

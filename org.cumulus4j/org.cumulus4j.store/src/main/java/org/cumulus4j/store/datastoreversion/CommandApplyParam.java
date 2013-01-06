@@ -9,9 +9,14 @@ import org.cumulus4j.store.Cumulus4jStoreManager;
 import org.cumulus4j.store.WorkInProgressException;
 import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.DatastoreVersion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CommandApplyParam
 {
+	private static final Logger logger = LoggerFactory.getLogger(CommandApplyParam.class);
+	public static final String PROPERTY_KEY_TIMEOUT = "cumulus4j.DatastoreVersionCommand.applyWorkInProgressTimeout";
+
 	private Date applyStartTimestamp = new Date();
 	private Cumulus4jStoreManager storeManager;
 	private CryptoContext cryptoContext;
@@ -90,8 +95,26 @@ public class CommandApplyParam
 	 * @return the timeout in milliseconds.
 	 */
 	public long getDatastoreVersionCommandApplyWorkInProgressTimeout() {
-//		return 10L * 1000L;
-		return 90L * 1000L; // TODO return lower value!
+		long result = 10L * 1000L;
+		Object propertyValue = storeManager.getProperty(PROPERTY_KEY_TIMEOUT);
+		if (propertyValue == null)
+			return result;
+
+		long val;
+		try {
+			val = Long.parseLong(propertyValue.toString());
+		} catch (NumberFormatException x) {
+			logger.warn(String.format("Value for property '%s' is not a valid number!", PROPERTY_KEY_TIMEOUT), x);
+			return result;
+		}
+
+		if (val <= 0) {
+			logger.warn("Value for property '{}' is zero or negative, but must be positive!", PROPERTY_KEY_TIMEOUT);
+			return result;
+		}
+
+		result = val;
+		return result;
 	}
 
 	public Date getApplyStartTimestamp() {

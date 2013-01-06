@@ -201,6 +201,16 @@ em.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, "dummyKeyStoreID_" + UU
 
 	Anyway, the API is much easier to use than the low-level-code. So, there's really no reason why you shouldn't use the API.
 
+	To actually enable the real key manager, you'll have to set the following property in your persistence-properties:
+
+------
+cumulus4j.cryptoManagerID=keyManager
+------
+
+	Note that in step [2], you have set this to "dummy". Wherever you have set it in step [2] (in a properties-file,
+	the <<<persistence.xml>>> or in your code) - now, you must change it at the very same location to ensure the
+	correct value is used.
+
 * Questions or problems?
 
 	If you have any questions not answered by the web site or encounter any problems which you cannot solve yourself, please
