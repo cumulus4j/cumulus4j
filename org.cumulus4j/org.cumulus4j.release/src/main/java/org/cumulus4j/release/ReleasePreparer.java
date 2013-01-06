@@ -19,9 +19,10 @@ import org.w3c.dom.Text;
 public class ReleasePreparer {
 
 	// Set 'newMavenVersion' to the new desired  version. Then run the main method. It will update
-	// all files accordingly. See HOWTO-release.txt in project 'org.nightlabs.vestigo.all'.
-//	protected String newMavenVersion = "1.0.2";
-	protected String newMavenVersion = "1.1.0-SNAPSHOT";
+	// all files accordingly. Don't forget to create a tag in SVN after check-in! And don't forget
+	// to update the symlinks on the web-server after the release was successful.
+	protected String newMavenVersion = "1.1.0";
+//	protected String newMavenVersion = "1.1.1-SNAPSHOT";
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// DO NOT CHANGE ANYTHING BELOW THIS POINT, if you don't really want to improve this program.
