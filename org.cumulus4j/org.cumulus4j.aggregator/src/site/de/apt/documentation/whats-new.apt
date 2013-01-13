@@ -9,6 +9,18 @@ Was ist neu?
 
 ~~ !!! NEWEST VERSIONS FIRST !!! NEUESTE VERSIONEN ZUERST !!!
 
+* Was ist neu in 1.1.1?
+
+	Verglichen mit Version 1.1.0 gibt es folgende Änderungen:
+
+	* Fehlerbeseitigung: Ein Fehler beim Lesen der Verschlüsselungskoordinaten von der Datenbank wurde
+	behoben.
+
+~~	* Web-Seite: Die Verfügbarkeit einer zweiten Lizenz (Dual-Lizenzierung) wurde erwähnt. 
+
+	[]
+
+
 * Was ist neu in 1.1.0?
 
 	Verglichen mit Version 1.0.2 gibt es folgende Änderungen:

@@ -9,6 +9,16 @@ What's new?
 
 ~~ !!! NEWEST VERSIONS FIRST !!!
 
+* What's new in 1.1.1?
+
+	Compared to version 1.1.0, there are the following changes:
+
+	* Bugfix: Fixed a bug concerning reading of encryption coordinates from the datastore.
+
+~~	* Web site: Mentioned availability of 2nd licence (dual-licencing). 
+
+	[]
+
 * What's new in 1.1.0?
 
 	Compared to version 1.0.2, there are the following changes:

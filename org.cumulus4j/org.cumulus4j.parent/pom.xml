@@ -96,6 +96,9 @@
 			<!-- <url>http://www.gnu.org/licenses/agpl.html</url> -->
 			<url>http://www.gnu.org/licenses/agpl-3.0-standalone.html</url>
 		</license>
+		<license>
+			<name>Proprietary licence (dual-licencing)</name>
+		</license>
 	</licenses>
 
 	<scm>

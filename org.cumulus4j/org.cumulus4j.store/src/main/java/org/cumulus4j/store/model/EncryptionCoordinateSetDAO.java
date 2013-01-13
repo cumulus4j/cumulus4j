@@ -2,7 +2,7 @@ package org.cumulus4j.store.model;
 
 import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
-import javax.jdo.identity.IntIdentity;
+import javax.jdo.identity.LongIdentity;
 
 public class EncryptionCoordinateSetDAO extends AbstractDAO {
 
@@ -33,7 +33,7 @@ public class EncryptionCoordinateSetDAO extends AbstractDAO {
 	 */
 	public EncryptionCoordinateSet getEncryptionCoordinateSet(int encryptionCoordinateSetID)
 	{
-		IntIdentity id = new IntIdentity(EncryptionCoordinateSet.class, encryptionCoordinateSetID);
+		LongIdentity id = new LongIdentity(EncryptionCoordinateSet.class, encryptionCoordinateSetID);
 		try {
 			EncryptionCoordinateSet encryptionCoordinateSet = (EncryptionCoordinateSet) pm.getObjectById(id);
 			return encryptionCoordinateSet;
