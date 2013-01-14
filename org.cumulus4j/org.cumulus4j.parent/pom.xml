@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.cumulus4j</groupId>
 	<artifactId>org.cumulus4j.parent</artifactId>
-	<version>1.1.1-SNAPSHOT</version>
+	<version>1.1.1</version>
 	<packaging>pom</packaging>
 	<name>${project.artifactId}</name>
 	<description>Cumulus4j parent POM, i.e. the root-configuration from which all other POMs inherit common settings.</description>
@@ -93,9 +93,9 @@
 		<license>
 			<name>Dual licencing</name>
 			<comments>
-				Cumulus4j is free software available under two licences: The GNU Affero General Public License
-				(AGPL, see below) and a custom proprietary licence. In case, the conditions of the AGPL are not
-				acceptable for your project, please contact us and we can negotiate a custom licence.
+				Cumulus4j is free software available under the GNU Affero General Public License
+				(AGPL, see below). But if the conditions of the AGPL are not compatible with your
+				project, please contact us and we'll happily offer you a custom licence.
 			</comments>
 		</license>
 		<license>

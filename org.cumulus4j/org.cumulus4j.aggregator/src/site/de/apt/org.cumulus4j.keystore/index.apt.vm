@@ -7,7 +7,7 @@
 
 Modul org.cumulus4j.keystore
 
-	Der{{{../apidocs/index.html?org/cumulus4j/keystore/KeyStore.html} Key-Store}} verwaltet die Schlüssel sicher
+	Der{{{../../apidocs/index.html?org/cumulus4j/keystore/KeyStore.html} Key-Store}} verwaltet die Schlüssel sicher
 	im lokalen Dateisystem. Er ist {{{http://download.oracle.com/javase/6/docs/api/java/security/KeyStore.html}Java-KeyStore}}
 	ähnlich aber erfüllt die spezifischen Anforderungen von Cumulus4j.
 	

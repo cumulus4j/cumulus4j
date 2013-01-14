@@ -13,7 +13,7 @@ Modul org.cumulus4j.keymanager.back.webapp
 	Dieses Modul enthält nur die Kompilierinformationen (<<<pom.xml>>>) und eine Web-Applikation-Deklatration
 	(<<<WEB-INF/web.xml>>>). Die eigentliche REST-Implementierung ist in dem Modul 
 	{{{../org.cumulus4j.store.crypto.keymanager/}org.cumulus4j.store.crypto.keymanager}}, Im Pakete
-	{{{../apidocs/index.html?org/cumulus4j/store/crypto/keymanager/rest/package-summary.html}org.cumulus4j.store.crypto.keymanager.rest}}.
+	{{{../../apidocs/index.html?org/cumulus4j/store/crypto/keymanager/rest/package-summary.html}org.cumulus4j.store.crypto.keymanager.rest}}.
 
 * Maven
 

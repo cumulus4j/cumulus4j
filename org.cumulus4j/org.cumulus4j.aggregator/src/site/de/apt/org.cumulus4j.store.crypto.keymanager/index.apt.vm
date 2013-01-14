@@ -7,7 +7,7 @@
 
 Modul org.cumulus4j.store.crypto.keymanager
 
-	Implementierung von {{{../apidocs/index.html?org/cumulus4j/store/crypto/CryptoManager.html}CryptoManager}},
+	Implementierung von {{{../../apidocs/index.html?org/cumulus4j/store/crypto/CryptoManager.html}CryptoManager}},
 	die mit	einer Schlüsselverwaltung arbeitet, wie in {{{../documentation/deployment-scenarios.html}Betriebsszenarien}} dargestellt.
 
 	Dieses Modul ist ein Plugin für {{{../org.cumulus4j.store/}org.cumulus4j.store}}

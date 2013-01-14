@@ -15,7 +15,7 @@ Modul org.cumulus4j.keymanager.api
 	Der Einzige Unterschied zwsichen beiden Szenarien ist die URL des Key-Managers
 	(entweder "file:/some/directory" oder "http[s]://some-server.domain.tld/some-path").
 	
-	Siehe {{{../apidocs/index.html?org/cumulus4j/keymanager/api/package-summary.html}javadoc}} für Weitere Informationen.
+	Siehe {{{../../apidocs/index.html?org/cumulus4j/keymanager/api/package-summary.html}javadoc}} für weitere Informationen.
 
 * Maven
 

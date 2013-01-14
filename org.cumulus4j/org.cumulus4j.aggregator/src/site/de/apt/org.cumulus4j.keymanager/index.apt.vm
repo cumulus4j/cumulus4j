@@ -10,14 +10,14 @@ Modul org.cumulus4j.keymanager
 	Der Key-Manager schickt immer dann Schlüssel vom lokal verwalteten Key-Store zum Applikationsserver
 	wenn der Applikationsserver einen Schlüssel anfordert und der Client dies erlaubt.
 	
-	Der Key-Manager erhält ein {{{../apidocs/index.html?org/cumulus4j/keymanager/back/shared/Request.html}Request}}
+	Der Key-Manager erhält ein {{{../../apidocs/index.html?org/cumulus4j/keymanager/back/shared/Request.html}Request}}
 	vom Applikationsserver und verarbeitet ihn mit einem 
-	{{{../apidocs/index.html?org/cumulus4j/keymanager/channel/RequestHandler.html}RequestHandler}}.
+	{{{../../apidocs/index.html?org/cumulus4j/keymanager/channel/RequestHandler.html}RequestHandler}}.
 	Nach der Verarbeitung wird das Ergebnis zum Applikationsserver zurück geschickt 
-	({{{../apidocs/index.html?org/cumulus4j/keymanager/back/shared/Response.html}Response}}).
+	({{{../../apidocs/index.html?org/cumulus4j/keymanager/back/shared/Response.html}Response}}).
 	
 	Anfragen werden nur während einer gültigen und entsperrten 
-	{{{../apidocs/index.html?org/cumulus4j/keymanager/api/Session.html}crypto-session}} verarbeitet.
+	{{{../../apidocs/index.html?org/cumulus4j/keymanager/api/Session.html}crypto-session}} verarbeitet.
 
 * Maven
 
