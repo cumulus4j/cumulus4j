@@ -48,11 +48,13 @@ public class TestService
 
 	protected static synchronized PersistenceManagerFactory getPersistenceManagerFactory(boolean clean)
 	{
-		if (pmf == null && clean) {
-			try {
-				CleanupUtil.dropAllTables();
-			} catch (Exception e) {
-				throw new RuntimeException(e);
+		if (pmf == null) {
+			if (clean) {
+				try {
+					CleanupUtil.dropAllTables();
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
 			}
 			pmf = JDOHelper.getPersistenceManagerFactory(TestUtil.loadProperties("cumulus4j-test-datanucleus.properties"));
 		}
