@@ -23,6 +23,7 @@ import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -45,9 +46,9 @@ public class TestService
 {
 	private static PersistenceManagerFactory pmf;
 
-	protected static synchronized PersistenceManagerFactory getPersistenceManagerFactory()
+	protected static synchronized PersistenceManagerFactory getPersistenceManagerFactory(boolean clean)
 	{
-		if (pmf == null) {
+		if (pmf == null && clean) {
 			try {
 				CleanupUtil.dropAllTables();
 			} catch (Exception e) {
@@ -59,15 +60,14 @@ public class TestService
 		return pmf;
 	}
 
-	protected PersistenceManager getPersistenceManager(String cryptoManagerID, String cryptoSessionID)
+	protected PersistenceManager getPersistenceManager(String cryptoSessionID, boolean clean)
 	{
-		if (cryptoManagerID == null)
-			throw new IllegalArgumentException("cryptoManagerID == null");
-
 		if (cryptoSessionID == null)
 			throw new IllegalArgumentException("cryptoSessionID == null");
 
-		PersistenceManager pm = getPersistenceManagerFactory().getPersistenceManager();
+		final String cryptoManagerID = "keyManager";
+
+		PersistenceManager pm = getPersistenceManagerFactory(clean).getPersistenceManager();
 		pm.setProperty(CryptoManager.PROPERTY_CRYPTO_MANAGER_ID, cryptoManagerID);
 		pm.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, cryptoSessionID);
 		return pm;
@@ -76,8 +76,8 @@ public class TestService
 	@POST
 	@Produces(MediaType.TEXT_PLAIN)
 	public String testPost(
-			@QueryParam("cryptoManagerID") String cryptoManagerID,
-			@QueryParam("cryptoSessionID") String cryptoSessionID
+			@QueryParam("cryptoSessionID") String cryptoSessionID,
+			@QueryParam("clean") @DefaultValue("true") boolean clean
 	)
 	{
 		// We enforce a fresh start every time, because we execute this now with different key-servers / embedded key-stores:
@@ -86,11 +86,8 @@ public class TestService
 			pmf = null;
 		}
 
-		if (cryptoManagerID == null || cryptoManagerID.isEmpty())
-			cryptoManagerID = "keyManager";
-
 		StringBuilder resultSB = new StringBuilder();
-		PersistenceManager pm = getPersistenceManager(cryptoManagerID, cryptoSessionID);
+		PersistenceManager pm = getPersistenceManager(cryptoSessionID, clean);
 		try {
 			// tx1: persist some data
 			pm.currentTransaction().begin();
@@ -121,7 +118,7 @@ public class TestService
 				pm.currentTransaction().commit();
 			}
 
-			pm = getPersistenceManager(cryptoManagerID, cryptoSessionID);
+			pm = getPersistenceManager(cryptoSessionID, clean);
 			// TODO I just had this exception. Obviously the PM is closed when its tx is committed - this is IMHO wrong and a DN bug.
 			// I have to tell Andy.
 			// Marco :-)

@@ -84,18 +84,18 @@ public class IntegrationWithAppServerOnlyTest
 			AppServer appServer = new AppServer(appServerManager, "appServer1", URL_KEY_MANAGER_BACK_WEBAPP);
 			appServerManager.putAppServer(appServer);
 			Session session = appServer.getSessionManager().acquireSession(KEY_STORE_USER, KEY_STORE_PASSWORD);
-			invokeTestWithinServer(session.getCryptoSessionID());
+			invokeTestWithinServer(session.getCryptoSessionID(), true);
 			session.release();
 		} finally {
 			keyStoreFile.delete();
 		}
 	}
 
-	private void invokeTestWithinServer(String cryptoSessionID)
+	private void invokeTestWithinServer(String cryptoSessionID, boolean clean)
 	throws Exception
 	{
 		Client client = new Client();
-		String url = URL_TEST + "?cryptoSessionID=" + URLEncoder.encode(cryptoSessionID, IOUtil.CHARSET_NAME_UTF_8);
+		String url = URL_TEST + "?cryptoSessionID=" + URLEncoder.encode(cryptoSessionID, IOUtil.CHARSET_NAME_UTF_8) + "&clean=" + clean;
 		String result;
 		try {
 			result = client.resource(url).accept(MediaType.TEXT_PLAIN).post(String.class);
@@ -152,7 +152,7 @@ public class IntegrationWithAppServerOnlyTest
 			String cryptoSessionID = cryptoSession.acquire();
 			try {
 
-				invokeTestWithinServer(cryptoSessionID);
+				invokeTestWithinServer(cryptoSessionID, true);
 
 			} finally {
 				cryptoSession.release();
@@ -225,13 +225,24 @@ public class IntegrationWithAppServerOnlyTest
 
 			org.cumulus4j.keymanager.api.CryptoSession cryptoSession = keyManagerAPI.getCryptoSession(URL_KEY_MANAGER_BACK_WEBAPP);
 
-			// It does not matter here in this test, but in real code, WE MUST ALWAYS lock() after we did unlock()!!!
+			// It does not matter here in this test, but in real code, WE MUST ALWAYS release() after we did acquire()!!!
 			// Hence we do it here, too, in case someone copies the code ;-)
 			// Marco :-)
 			String cryptoSessionID = cryptoSession.acquire();
 			try {
 
-				invokeTestWithinServer(cryptoSessionID);
+				invokeTestWithinServer(cryptoSessionID, true);
+
+			} finally {
+				cryptoSession.release();
+			}
+
+			// The behaviour is different, depending on whether the datastore already exists (and has data) or not.
+			// Hence, we test it twice; this time with clean = false.
+			cryptoSessionID = cryptoSession.acquire();
+			try {
+
+				invokeTestWithinServer(cryptoSessionID, false);
 
 			} finally {
 				cryptoSession.release();
