@@ -31,35 +31,35 @@
 	<poweredBy>
 		<logo name="AX Business Solutions AG"
 			img="./images/logo-ax.png" 
-			href="http://www.ax-ag.com" 
+			href="http://www.ax-ag.com/" 
 			target="_blank" 
 			position="bannerRight"/>
 			
 		<logo name="FZI Forschungszentrum Informatik" 
 			img="./images/logo-fzi.png" 
-			href="http://www.fzi.de" 
+			href="http://www.fzi.de/"
 			target="_blank" 
 			position="bannerRight"/>
 			
 		<logo name="NightLabs Consulting GmbH"
 			img="./images/logo-nl.png" 
-			href="http://www.nightlabs.com" 
+			href="http://www.nightlabs.com/" 
 			target="_blank" 
 			position="bannerRight"/>
 	
 		<logo name="Federal Ministry of Education and Research"
 			img="./images/bmbf-139x87.png"
-			href="http://www.bmbf.de/en"
+			href="http://www.bmbf.de/en/"
 			target="_blank" />
 
 		<logo name="DataNucleus"
 			img="http://www.datanucleus.com/images/logos/DataNucleus_AccessPlatform_32.jpg"
-			href="http://www.datanucleus.org"
+			href="http://www.datanucleus.org/"
 			target="_blank" />
 
 		<logo name="BouncyCastle"
 			img="./images/TheLegionOfTheBouncyCastle.png"
-			href="http://www.bouncycastle.org"
+			href="http://www.bouncycastle.org/"
 			target="_blank" />
 
 		<logo name="SourceForge" href="http://sourceforge.net/projects/cumulus4j"
@@ -109,7 +109,7 @@
 		<menu name="Releases">
 			<item name="Latest development snapshot" href="../latest-dev/" />
 			<item name="Latest stable version" href="../latest-stable/" />
-			<item name="All releases" href="../latest-stable/releases" />
+			<item name="All releases" href="../latest-stable/releases/" />
 		</menu>
 	</body>
 

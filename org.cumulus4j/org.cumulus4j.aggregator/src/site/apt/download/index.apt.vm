@@ -74,7 +74,7 @@ Download
 	for each module.
 
 	Note, that you'll additionally need to package all required
-	{{{http://www.datanucleus.org/plugins/core/index.html}DataNucleus modules}}, too.
+	{{{http://www.datanucleus.org/plugins/}DataNucleus modules}}, too.
 	Which ones depends on your environment (e.g. the
 	{{{http://www.datanucleus.org/products/accessplatform_3_0/datastores.html}database backend}} you want to use,
 	as well as the

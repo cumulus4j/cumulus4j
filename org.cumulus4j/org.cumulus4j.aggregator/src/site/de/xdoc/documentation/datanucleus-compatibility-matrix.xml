@@ -15,8 +15,8 @@
 				ist, müssen beide Produkte zueinander kompatibel sein, um zusammenzuarbeiten.
 				Nicht jede Version von Cumulus4j kann mit jeder Version von DataNucleus verwendet
 				werden. Daher testen wir Cumulus4j vor jedem Release mit einigen Versionen von
-				<a href="http://www.datanucleus.org/plugins/core/">datanucleus-core</a> und
-				<a href="http://www.datanucleus.org/plugins/store.rdbms/">datanucleus-rdbms</a>.
+				<a href="http://www.datanucleus.org/plugins/core.html">datanucleus-core</a> und
+				<a href="http://www.datanucleus.org/plugins/store.rdbms.html">datanucleus-rdbms</a>.
 			</p>
 
 			<p>

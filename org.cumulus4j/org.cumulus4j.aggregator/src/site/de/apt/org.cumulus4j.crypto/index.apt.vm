@@ -9,10 +9,10 @@ Modul org.cumulus4j.crypto
 
 	API, die eine einheitliche Schnittstelle zur Benutzung verschiedener kryptographischer Algorithmen bietet.
 
-	Zum Beispiel bietet die {{{../apidocs/index.html?org/cumulus4j/crypto/Cipher.html}Cipher}} eine
+	Zum Beispiel bietet die {{{../../apidocs/index.html?org/cumulus4j/crypto/Cipher.html}Cipher}} eine
 	generische API für {{{http://en.wikipedia.org/wiki/Symmetric_encryption}symmetrische}} und
 	{{{http://en.wikipedia.org/wiki/Public-key_cryptography}asymmetrische}} Ver-/Entschlüsselung.
-	Ein anderes Beispiel ist {{{../apidocs/index.html?org/cumulus4j/crypto/MACCalculator.html}MACCalculator}}
+	Ein anderes Beispiel ist {{{../../apidocs/index.html?org/cumulus4j/crypto/MACCalculator.html}MACCalculator}}
 	welche benutzt werden kann um
 	{{{http://en.wikipedia.org/wiki/Message_authentication_code}Nachrichtenauthentifikations-Codes (message authentication codes)}}
 	zu berechnen.

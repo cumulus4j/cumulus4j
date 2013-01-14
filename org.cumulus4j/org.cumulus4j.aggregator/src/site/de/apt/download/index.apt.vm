@@ -75,7 +75,7 @@ Herunterladen
 	in der Dokumentation der einzelnen Module.
 
 	Bitte beachten Sie, daß Sie zusätzlich auch alle benötigten
-	{{{http://www.datanucleus.org/plugins/core/index.html}DataNucleus-Module}} mit in Ihre Applikation
+	{{{http://www.datanucleus.org/plugins/}DataNucleus-Module}} mit in Ihre Applikation
 	hinein packen müssen. Welche das genau sind, hängt von Ihrer konkreten Situation ab (z.B. dem
 	{{{http://www.datanucleus.org/products/accessplatform_3_0/datastores.html}Datenbank-System}}, das Sie
 	benutzen möchten, sowie der

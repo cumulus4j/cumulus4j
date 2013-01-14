@@ -182,7 +182,7 @@ em.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, "dummyKeyStoreID_" + UU
 
 ** [4] Enable the real key manager
 
-	The real {{{./org.cumulus4j.keymanager/index.html}key manager}} needs a real {{{./key-store.html}key store}}
+	The real {{{../org.cumulus4j.keymanager/index.html}key manager}} needs a real {{{./key-store.html}key store}}
 	(actually one for each mandator, if your application should have multi-client capability). You can create
 	a key-store (for your test) via code - once
 	for every test-run.	In a real-world-scenario, you'd probably either use our
@@ -192,7 +192,7 @@ em.setProperty(CryptoSession.PROPERTY_CRYPTO_SESSION_ID, "dummyKeyStoreID_" + UU
 	Note, that you need additional libraries - check our {{{./deployment-module-location-matrix.html}module-location-matrix}}
 	and maybe look into the <<<pom.xml>>> files, additionally.
 
-	In your client code, you should definitely use our {{{./org.cumulus4j.keymanager.api/index.html}key manager API}}! Don't
+	In your client code, you should definitely use our {{{../org.cumulus4j.keymanager.api/index.html}key manager API}}! Don't
 	be confused that our code in {{{../org.cumulus4j.integrationtest.webapp/index.html}org.cumulus4j.integrationtest.webapp}}
 	(class <<<IntegrationWithAppServerOnlyTest>>>) contains a low-level-test. After all, this is not only a demo project, but
 	also an integration test. Only the method <<<testTwoComputerScenarioWithUnifiedAPI()>>> is interesting for you
