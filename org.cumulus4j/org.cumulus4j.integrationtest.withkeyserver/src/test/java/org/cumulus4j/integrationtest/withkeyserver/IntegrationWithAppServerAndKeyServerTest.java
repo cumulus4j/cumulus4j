@@ -127,18 +127,21 @@ public class IntegrationWithAppServerAndKeyServerTest
 
 		Assert.assertEquals(acquireCryptoSessionResponse.getCryptoSessionID(), acquireSessionResponse2.getCryptoSessionID());
 
-		invokeTestWithinServer(cryptoSessionID, true);
+		invokeTestWithinServer(cryptoSessionID, true, false);
 
 		clientForKeyServer
 		.resource(URL_KEY_MANAGER_FRONT_WEBAPP_SERVICE_SESSION.replaceAll(Pattern.quote(KEY_STORE_ID_VAR), keyStoreID) + '/' + appServer.getAppServerID() + '/' + cryptoSessionID + "/release")
 		.post();
 	}
 
-	private void invokeTestWithinServer(String cryptoSessionID, boolean clean)
+	private void invokeTestWithinServer(String cryptoSessionID, boolean clean, boolean readBeforeWrite)
 	throws Exception
 	{
 		Client client = new Client();
-		String url = URL_TEST + "?cryptoSessionID=" + URLEncoder.encode(cryptoSessionID, IOUtil.CHARSET_NAME_UTF_8) + "&clean=" + clean;
+		String url = URL_TEST
+				+ "?cryptoSessionID=" + URLEncoder.encode(cryptoSessionID, IOUtil.CHARSET_NAME_UTF_8)
+				+ "&clean=" + clean
+				+ "&readBeforeWrite=" + readBeforeWrite;
 		String result;
 		try {
 			result = client.resource(url).accept(MediaType.TEXT_PLAIN).post(String.class);
@@ -194,7 +197,7 @@ public class IntegrationWithAppServerAndKeyServerTest
 		String cryptoSessionID = cryptoSession.acquire();
 		try {
 
-			invokeTestWithinServer(cryptoSessionID, true);
+			invokeTestWithinServer(cryptoSessionID, true, false);
 
 		} finally {
 			cryptoSession.release();
@@ -235,18 +238,27 @@ public class IntegrationWithAppServerAndKeyServerTest
 		String cryptoSessionID = cryptoSession.acquire();
 		try {
 
-			invokeTestWithinServer(cryptoSessionID, true);
+			invokeTestWithinServer(cryptoSessionID, true, false);
 
 		} finally {
 			cryptoSession.release();
 		}
 
 		// The behaviour is different, depending on whether the datastore already exists (and has data) or not.
-		// Hence, we test it twice; this time with clean = false.
+		// Hence, we test it twice; this time with clean = false (and once for each possible value of readBeforeWrite).
 		cryptoSessionID = cryptoSession.acquire();
 		try {
 
-			invokeTestWithinServer(cryptoSessionID, false);
+			invokeTestWithinServer(cryptoSessionID, false, false);
+
+		} finally {
+			cryptoSession.release();
+		}
+
+		cryptoSessionID = cryptoSession.acquire();
+		try {
+
+			invokeTestWithinServer(cryptoSessionID, false, true);
 
 		} finally {
 			cryptoSession.release();

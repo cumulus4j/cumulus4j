@@ -79,7 +79,8 @@ public class TestService
 	@Produces(MediaType.TEXT_PLAIN)
 	public String testPost(
 			@QueryParam("cryptoSessionID") String cryptoSessionID,
-			@QueryParam("clean") @DefaultValue("true") boolean clean
+			@QueryParam("clean") @DefaultValue("true") boolean clean,
+			@QueryParam("readBeforeWrite") @DefaultValue("true") boolean readBeforeWrite
 	)
 	{
 		// We enforce a fresh start every time, because we execute this now with different key-servers / embedded key-stores:
@@ -93,6 +94,14 @@ public class TestService
 		try {
 			// tx1: persist some data
 			pm.currentTransaction().begin();
+
+			if (readBeforeWrite) {
+				System.out.println("Reading Movies before writing:");
+				for (Iterator<Movie> it = pm.getExtent(Movie.class).iterator(); it.hasNext(); ) {
+					Movie movie = it.next();
+					System.out.println(" * " + movie.getName());
+				}
+			}
 
 			pm.getExtent(Movie.class);
 			{
