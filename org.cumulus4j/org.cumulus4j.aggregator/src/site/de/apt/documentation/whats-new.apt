@@ -16,10 +16,11 @@ Was ist neu?
 	* Fehlerbeseitigung: Ein Fehler beim Lesen der Verschlüsselungskoordinaten von der Datenbank wurde
 	behoben.
 
-~~	* Web-Seite: Die Verfügbarkeit einer zweiten Lizenz (Dual-Lizenzierung) wurde erwähnt. 
+	* Code aufgeräumt: Unnötige Klassen wurden entfernt (diese wurden für die GAE eingeführt, letztlich dann aber doch nicht mehr benötigt). 
+
+	* Web-Seite: Die Verfügbarkeit einer zweiten Lizenz (duales Lizenzsystem) wurde erwähnt. 
 
 	[]
-
 
 * Was ist neu in 1.1.0?
 

@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
+import javax.jdo.identity.LongIdentity;
 
 public class ClassMetaDAO extends AbstractDAO {
 
@@ -59,8 +60,7 @@ public class ClassMetaDAO extends AbstractDAO {
 
 	public ClassMeta getClassMeta(long classID, boolean throwExceptionIfNotFound)
 	{
-		// We cannot use pm.getObjectById(...), because GAE uses a GAE-specific identity
-		Object identity = ObjectIdFactory.getInstance().createObjectId(ClassMeta.class, classID);
+		Object identity = new LongIdentity(ClassMeta.class, classID);
 		try {
 			ClassMeta classMeta = (ClassMeta) pm.getObjectById(identity);
 			return classMeta;

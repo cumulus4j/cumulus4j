@@ -97,7 +97,7 @@
 		<menu name="About">
 			<item name="Contact" href="./about/contact.html" />
 			<item name="Imprint" href="./about/imprint.html" />
-			<item name="Licence" href="./license.html" />
+			<item name="Licence" href="./about/licence.html" />
 		</menu>
 
 		<menu ref="reports" inherit="bottom" />

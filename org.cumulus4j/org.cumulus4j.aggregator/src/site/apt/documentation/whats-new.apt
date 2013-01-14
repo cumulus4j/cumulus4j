@@ -15,7 +15,9 @@ What's new?
 
 	* Bugfix: Fixed a bug concerning reading of encryption coordinates from the datastore.
 
-~~	* Web site: Mentioned availability of 2nd licence (dual-licencing). 
+	* Code cleanup: Removed some unnecessary classes (were introduced for GAE, but finally not needed anymore). 
+
+	* Web site: Mentioned availability of 2nd licence (dual licencing). 
 
 	[]
 

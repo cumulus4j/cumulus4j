@@ -1,0 +1,37 @@
+	---
+	Licence
+	---
+	Marco หงุ่ยตระกูล-Schulze
+	---
+	2013-01-14
+
+Licence
+
+* Free software (AGPL)
+
+	Cumulus4j is {{{http://en.wikipedia.org/wiki/Free_software}free software}} primarily licenced under the
+	conditions of the {{{../license.html}GNU Affero General Public License (AGPL)}}.
+
+	In short, this means:
+
+	* You can use Cumulus4j for every purpose.
+	
+	* You're free to study how Cumulus4j works, and to change it to make it do what you wish. This implies
+	access to the {{{../download/index.html#Source}source codes}}.
+
+	* You can freely (re)distribute Cumulus4j.
+
+	* You have the freedom to improve Cumulus4j, and release your improvements (and modified versions in general)
+	to the public, so that the whole community benefits. This, too, implies access to the
+	{{{../download/index.html#Source}source codes}}.
+
+	* If you use Cumulus4j in your software, you're required to licence your software under the conditions
+	of the AGPL, too. Note, that this is not exclusive; your software can be licenced under multiple
+	licences - but one of them must be the AGPL.
+
+	[]
+
+* Dual licencing
+
+	If the AGPL is not compatible with your project, we can offer you a custom licence. Please simply
+	{{{./contact.html}contact us}}!
