@@ -67,7 +67,7 @@ Workspace-Setup Cumulus4j-DataNucleus-Plug-in
 
 ** {A: Step 3} (optional)
 
-	Open a console (aka shell), go to the directory <<<${workspace}/org.cumulus4j.all/>>> and run one of the following commands:
+	Open a console (aka shell), go to the directory <<<${workspace}/org.cumulus4j.aggregator/>>> and run one of the following commands:
 
 	* <<<MAVEN_OPTS='-Xmx256M -XX:MaxPermSize=128M -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled' mvn clean install>>>
 
@@ -79,7 +79,7 @@ Workspace-Setup Cumulus4j-DataNucleus-Plug-in
 
 	Maven will automatically download all dependencies (e.g. the DataNucleus nightly builds).
 
-	Alternatively, you can run Maven within your Eclipse IDE via a right-click on the project “org.cumulus4j.all”
+	Alternatively, you can run Maven within your Eclipse IDE via a right-click on the project “org.cumulus4j.aggregator”
 	and choosing "Run as..." => "Maven install" or "Maven build...".
 
 ** A: Step 4

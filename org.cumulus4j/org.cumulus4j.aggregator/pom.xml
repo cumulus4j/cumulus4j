@@ -9,7 +9,7 @@
 	<!--
 		Added the URL here again, even though the parent already declares it,
 		because that property seems not to be inherited directly, but instead
-		the artifactId "org.cumulus4j.all" is appended to the parent's URL,
+		the artifactId "org.cumulus4j.aggregator" is appended to the parent's URL,
 		which is definitely wrong for this aggregator. Marco.
 	-->
 	<url>http://www.cumulus4j.org/</url>
@@ -17,7 +17,7 @@
 	<!--
 		Added the SCM URL here again, even though the parent already declares
 		it, because that property seems not to be inherited directly, but
-		instead the artifactId "org.cumulus4j.all" is appended to the parent's
+		instead the artifactId "org.cumulus4j.aggregator" is appended to the parent's
 		SCM URL, which is definitely wrong for this aggregator. Marco.
 	-->
 	<scm>
@@ -55,7 +55,7 @@
 		<!--
 		We configure the site only here (and not in the parent), because it otherwise uploads all
 		modules individually, which we don't want. We want it to upload only the one from
-		org.cumulus4j.all.
+		org.cumulus4j.aggregator.
 
 		The property "distributionManagement.site.prefix" must be declared in the settings.xml
 		like this:
