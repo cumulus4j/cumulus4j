@@ -40,6 +40,7 @@ import org.cumulus4j.store.model.IndexEntry;
 import org.cumulus4j.store.model.IndexEntryContainerSize;
 import org.cumulus4j.store.model.Sequence2;
 import org.cumulus4j.store.resource.ResourceHelper;
+import org.datanucleus.ExecutionContext;
 import org.datanucleus.PersistenceConfiguration;
 import org.datanucleus.store.StoreManager;
 import org.datanucleus.store.connection.AbstractConnectionFactory;
@@ -270,9 +271,9 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 	}
 
 	@Override
-	public ManagedConnection createManagedConnection(Object poolKey, @SuppressWarnings("rawtypes") Map transactionOptions)
+	public ManagedConnection createManagedConnection(ExecutionContext ec, @SuppressWarnings("rawtypes") Map transactionOptions)
 	{
-		return new Cumulus4jManagedConnection(poolKey, transactionOptions);
+		return new Cumulus4jManagedConnection(ec, transactionOptions);
 	}
 
 	/**
@@ -281,7 +282,7 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 	 */
 	class Cumulus4jManagedConnection extends AbstractManagedConnection
 	{
-		private Object poolKey;
+		private ExecutionContext ec;
 
 		@SuppressWarnings({"rawtypes","unused"})
 		private Map options;
@@ -293,13 +294,13 @@ public class Cumulus4jConnectionFactory extends AbstractConnectionFactory
 			return new Cumulus4jXAResource((PersistenceManagerConnection)getConnection());
 		}
 
-		public Cumulus4jManagedConnection(Object poolKey, @SuppressWarnings("rawtypes") Map options) {
-			this.poolKey = poolKey;
+		public Cumulus4jManagedConnection(ExecutionContext ec, @SuppressWarnings("rawtypes") Map options) {
+			this.ec = ec;
 			this.options = options;
 		}
 
-		public Object getPoolKey() {
-			return poolKey;
+		public ExecutionContext getExecutionContext() {
+			return ec;
 		}
 
 		@Override

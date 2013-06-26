@@ -38,13 +38,13 @@ import org.cumulus4j.store.model.IndexEntryFactory;
 import org.cumulus4j.store.model.IndexEntryObjectRelationHelper;
 import org.cumulus4j.store.model.IndexValue;
 import org.cumulus4j.store.query.QueryEvaluator;
+import org.datanucleus.ExecutionContext;
 import org.datanucleus.metadata.AbstractMemberMetaData;
-import org.datanucleus.metadata.Relation;
+import org.datanucleus.metadata.RelationType;
 import org.datanucleus.query.expression.DyadicExpression;
 import org.datanucleus.query.expression.Expression;
 import org.datanucleus.query.expression.Expression.Operator;
 import org.datanucleus.query.expression.PrimaryExpression;
-import org.datanucleus.store.ExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,18 +154,18 @@ extends AbstractExpressionEvaluator<DyadicExpression>
 		CryptoContext cryptoContext = getQueryEvaluator().getCryptoContext();
 		ExecutionContext executionContext = getQueryEvaluator().getExecutionContext();
 		AbstractMemberMetaData mmd = fieldMeta.getDataNucleusMemberMetaData(executionContext);
-		int relationType = mmd.getRelationType(executionContext.getClassLoaderResolver());
+		RelationType relationType = mmd.getRelationType(executionContext.getClassLoaderResolver());
 
 		Object queryParam;
 		IndexEntryFactory indexEntryFactory;
-		if (Relation.NONE == relationType)
+		if (RelationType.NONE == relationType)
 		{
 			indexEntryFactory = getQueryEvaluator().getStoreManager().getIndexFactoryRegistry().getIndexEntryFactory(
 					getQueryEvaluator().getExecutionContext(), fieldMeta, true
 			);
 			queryParam = value;
 		}
-		else if (Relation.isRelationSingleValued(relationType))
+		else if (RelationType.isRelationSingleValued(relationType))
 		{
 			// Only "==" and "!=" are supported for object relations => check.
 			Operator op = getExpression().getOperator();

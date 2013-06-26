@@ -36,9 +36,9 @@ import org.cumulus4j.store.query.eval.ExpressionHelper;
 import org.cumulus4j.store.query.eval.InvokeExpressionEvaluator;
 import org.cumulus4j.store.query.eval.PrimaryExpressionResolver;
 import org.cumulus4j.store.query.eval.ResultDescriptor;
+import org.datanucleus.ExecutionContext;
 import org.datanucleus.query.expression.Expression;
 import org.datanucleus.query.expression.PrimaryExpression;
-import org.datanucleus.store.ExecutionContext;
 
 /**
  * Evaluator for "{String}.equals(arg)".

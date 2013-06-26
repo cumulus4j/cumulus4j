@@ -28,15 +28,15 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.cumulus4j.store.Cumulus4jStoreManager;
+import org.cumulus4j.store.UnsupportedDataTypeException;
 import org.datanucleus.ClassLoaderResolver;
+import org.datanucleus.ExecutionContext;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.ArrayMetaData;
 import org.datanucleus.metadata.CollectionMetaData;
 import org.datanucleus.metadata.MapMetaData;
 import org.datanucleus.plugin.ConfigurationElement;
 import org.datanucleus.plugin.PluginManager;
-import org.datanucleus.store.ExecutionContext;
-import org.datanucleus.store.exceptions.UnsupportedDataTypeException;
 import org.datanucleus.util.StringUtils;
 
 /**

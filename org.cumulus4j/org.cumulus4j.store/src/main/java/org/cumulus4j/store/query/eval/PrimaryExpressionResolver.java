@@ -37,11 +37,11 @@ import org.cumulus4j.store.model.IndexValue;
 import org.cumulus4j.store.model.ObjectContainer;
 import org.cumulus4j.store.query.MemberNotQueryableException;
 import org.cumulus4j.store.query.QueryEvaluator;
+import org.datanucleus.ExecutionContext;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.query.expression.VariableExpression;
 import org.datanucleus.query.symbol.Symbol;
-import org.datanucleus.store.ExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

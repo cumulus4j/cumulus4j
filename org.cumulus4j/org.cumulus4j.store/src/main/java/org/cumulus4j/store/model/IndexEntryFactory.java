@@ -28,7 +28,7 @@ import javax.jdo.PersistenceManager;
 import org.cumulus4j.store.Cumulus4jStoreManager;
 import org.cumulus4j.store.EncryptionHandler;
 import org.cumulus4j.store.crypto.CryptoContext;
-import org.datanucleus.store.ExecutionContext;
+import org.datanucleus.ExecutionContext;
 
 /**
  * <p>

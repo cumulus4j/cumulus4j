@@ -31,6 +31,7 @@ import javax.jdo.PersistenceManager;
 import javax.jdo.spi.JDOImplHelper;
 import javax.jdo.spi.PersistenceCapable;
 
+import org.cumulus4j.store.Cumulus4jPersistenceHandler;
 import org.cumulus4j.store.Cumulus4jStoreManager;
 import org.cumulus4j.store.EncryptionHandler;
 import org.cumulus4j.store.ObjectContainerHelper;
@@ -44,16 +45,15 @@ import org.cumulus4j.store.model.IndexEntry;
 import org.cumulus4j.store.model.IndexEntryObjectRelationHelper;
 import org.cumulus4j.store.model.IndexValue;
 import org.cumulus4j.store.model.ObjectContainer;
+import org.datanucleus.ExecutionContext;
 import org.datanucleus.exceptions.NucleusDataStoreException;
 import org.datanucleus.identity.IdentityUtils;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
-import org.datanucleus.metadata.Relation;
-import org.datanucleus.state.ObjectProviderFactory;
-import org.datanucleus.store.ExecutionContext;
-import org.datanucleus.store.ObjectProvider;
+import org.datanucleus.metadata.RelationType;
+import org.datanucleus.state.ObjectProvider;
 import org.datanucleus.store.fieldmanager.AbstractFieldManager;
-import org.datanucleus.store.types.sco.SCOUtils;
+import org.datanucleus.store.types.SCOUtils;
 
 /**
  * Manager for the process of fetching a user object from the datastore, handling the translation from the
@@ -175,7 +175,7 @@ public class FetchFieldManager extends AbstractFieldManager
 	protected long getThisDataEntryID()
 	{
 		if (thisDataEntryID < 0)
-			thisDataEntryID = new DataEntryDAO(pmData, cryptoContext.getKeyStoreRefID()).getDataEntryID(classMeta, op.getObjectId().toString());
+			thisDataEntryID = new DataEntryDAO(pmData, cryptoContext.getKeyStoreRefID()).getDataEntryID(classMeta, op.getExternalObjectId().toString());
 
 		return thisDataEntryID;
 	}
@@ -207,13 +207,13 @@ public class FetchFieldManager extends AbstractFieldManager
 			}
 		}
 
-		int relationType = mmd.getRelationType(ec.getClassLoaderResolver());
+		RelationType relationType = mmd.getRelationType(ec.getClassLoaderResolver());
 
-		if (relationType == Relation.NONE)
+		if (relationType == RelationType.NONE)
 			return fetchObjectFieldWithRelationTypeNone(fieldNumber, mmd, fieldMeta);
-		else if (Relation.isRelationSingleValued(relationType))
+		else if (RelationType.isRelationSingleValued(relationType))
 			return fetchObjectFieldWithRelationTypeSingleValue(fieldNumber, mmd, fieldMeta, mappedByDataEntryIDs);
-		else if (Relation.isRelationMultiValued(relationType))
+		else if (RelationType.isRelationMultiValued(relationType))
 		{
 			// Collection/Map/Array
 			if (mmd.hasCollection())
@@ -321,7 +321,7 @@ public class FetchFieldManager extends AbstractFieldManager
 		AbstractClassMetaData embeddedDNClassMeta = embeddedClassMeta.getDataNucleusClassMetaData(ec);
 		PersistenceCapable pc = JDOImplHelper.getInstance().newInstance(embeddedClass, null);
 
-		ObjectProvider embeddedOP = ObjectProviderFactory.newForEmbedded(ec, pc, false, op, fieldNumber);
+		ObjectProvider embeddedOP = ec.getNucleusContext().getObjectProviderFactory().newForEmbedded(ec, pc, false, op, fieldNumber);
 		embeddedOP.replaceFields(
 				embeddedDNClassMeta.getAllMemberPositions(),
 				new FetchFieldManager(embeddedOP, cryptoContext, embeddedClassMeta, embeddedDNClassMeta, embeddedObjectContainer)
@@ -369,7 +369,7 @@ public class FetchFieldManager extends AbstractFieldManager
 				if (ids == null)
 					array = null;
 				else {
-					if (ec.getStoreManager().getPersistenceHandler().useReferentialIntegrity()) {
+					if (((Cumulus4jPersistenceHandler)ec.getStoreManager().getPersistenceHandler()).useReferentialIntegrity()) {
 						// Directly fill the array.
 						int arrayLength = Array.getLength(ids);
 						array = Array.newInstance(elementType, arrayLength);

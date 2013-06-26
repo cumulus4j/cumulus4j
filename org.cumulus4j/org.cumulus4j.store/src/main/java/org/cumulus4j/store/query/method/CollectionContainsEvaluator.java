@@ -37,13 +37,13 @@ import org.cumulus4j.store.query.eval.ExpressionHelper;
 import org.cumulus4j.store.query.eval.InvokeExpressionEvaluator;
 import org.cumulus4j.store.query.eval.PrimaryExpressionResolver;
 import org.cumulus4j.store.query.eval.ResultDescriptor;
+import org.datanucleus.ExecutionContext;
 import org.datanucleus.query.QueryUtils;
 import org.datanucleus.query.expression.Expression;
 import org.datanucleus.query.expression.Literal;
 import org.datanucleus.query.expression.ParameterExpression;
 import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.query.expression.VariableExpression;
-import org.datanucleus.store.ExecutionContext;
 
 /**
  * Evaluator for "Collection.contains(element)".

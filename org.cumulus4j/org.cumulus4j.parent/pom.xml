@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.cumulus4j</groupId>
 	<artifactId>org.cumulus4j.parent</artifactId>
-	<version>1.1.2-SNAPSHOT</version>
+	<version>1.2.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>${project.artifactId}</name>
 	<description>Cumulus4j parent POM, i.e. the root-configuration from which all other POMs inherit common settings.</description>
@@ -33,10 +33,10 @@
 
 		<!-- BEGIN DataNucleus versions -->
 		<!-- default version -->
-		<datanucleus.dependency.version>3.1.3</datanucleus.dependency.version>
+		<datanucleus.dependency.version>3.2.3</datanucleus.dependency.version>
 
 		<!-- core -->
-		<datanucleus.core.dependency.version>${datanucleus.dependency.version}</datanucleus.core.dependency.version>
+		<datanucleus.core.dependency.version>3.2.4</datanucleus.core.dependency.version>
 
 		<!-- api -->
 		<datanucleus.api-jdo.dependency.version>${datanucleus.dependency.version}</datanucleus.api-jdo.dependency.version>
@@ -46,18 +46,18 @@
 		<datanucleus.rdbms.dependency.version>${datanucleus.dependency.version}</datanucleus.rdbms.dependency.version>
 
 		<!-- other storage back-ends -->
-		<datanucleus.mongodb.dependency.version>${datanucleus.dependency.version}</datanucleus.mongodb.dependency.version>
-		<datanucleus.hbase.dependency.version>3.1.2</datanucleus.hbase.dependency.version>
-		<datanucleus.excel.dependency.version>3.1.1</datanucleus.excel.dependency.version>
-		<datanucleus.odf.dependency.version>3.1.1</datanucleus.odf.dependency.version>
+		<datanucleus.mongodb.dependency.version>3.2.2</datanucleus.mongodb.dependency.version>
+		<datanucleus.hbase.dependency.version>3.2.1</datanucleus.hbase.dependency.version>
+		<datanucleus.excel.dependency.version>3.2.0-release</datanucleus.excel.dependency.version>
+		<datanucleus.odf.dependency.version>3.2.1</datanucleus.odf.dependency.version>
 
 		<!-- enhancer -->
 		<datanucleus.enhancer.dependency.version>3.1.1</datanucleus.enhancer.dependency.version>
 		<!-- maven plugin (for enhancing) -->
-		<datanucleus.maven.version>${datanucleus.dependency.version}</datanucleus.maven.version>
+		<datanucleus.maven.version>3.2.0-m1</datanucleus.maven.version>
 
 		<!-- javadoc -->
-		<datanucleus.javadoc.version>3.1</datanucleus.javadoc.version>
+		<datanucleus.javadoc.version>3.2</datanucleus.javadoc.version>
 		<!-- END DataNucleus versions -->
 
 

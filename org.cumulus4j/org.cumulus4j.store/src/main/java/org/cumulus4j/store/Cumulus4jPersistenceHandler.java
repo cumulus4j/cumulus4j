@@ -33,12 +33,12 @@ import org.cumulus4j.store.model.EmbeddedFieldMeta;
 import org.cumulus4j.store.model.EmbeddedObjectContainer;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.ObjectContainer;
+import org.datanucleus.ExecutionContext;
 import org.datanucleus.exceptions.NucleusObjectNotFoundException;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
+import org.datanucleus.state.ObjectProvider;
 import org.datanucleus.store.AbstractPersistenceHandler;
-import org.datanucleus.store.ExecutionContext;
-import org.datanucleus.store.ObjectProvider;
 import org.datanucleus.store.connection.ManagedConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,10 +60,15 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 	private IndexEntryAction addIndexEntryAction;
 	private IndexEntryAction removeIndexEntryAction;
 
-	public Cumulus4jPersistenceHandler(Cumulus4jStoreManager storeManager) {
-		if (storeManager == null)
-			throw new IllegalArgumentException("storeManager == null");
+	private static <T> T assertNotNull(String objectName, T object) {
+		if (object == null)
+			throw new IllegalArgumentException(objectName + " == null");
 
+		return object;
+	}
+
+	public Cumulus4jPersistenceHandler(Cumulus4jStoreManager storeManager) {
+		super(assertNotNull("storeManager", storeManager));
 		this.storeManager = storeManager;
 		this.encryptionCoordinateSetManager = storeManager.getEncryptionCoordinateSetManager();
 		this.keyStoreRefManager = storeManager.getKeyStoreRefManager();
@@ -513,10 +518,12 @@ public class Cumulus4jPersistenceHandler extends AbstractPersistenceHandler
 		return obj0 == obj1 || (obj0 != null && obj0.equals(obj1));
 	}
 
-	@Override
+// TODO what happened to this method? Was it moved or renamed? I don't find it.
+//	@Override
 	public boolean useReferentialIntegrity() {
 		// https://sourceforge.net/tracker/?func=detail&aid=3515527&group_id=517465&atid=2102914
-		return super.useReferentialIntegrity();
+//		return super.useReferentialIntegrity();
+		return false;
 	}
 
 	/**

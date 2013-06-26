@@ -34,8 +34,8 @@ import org.cumulus4j.store.model.ClassMeta;
 import org.cumulus4j.store.model.ClassMetaDAO;
 import org.cumulus4j.store.model.DataEntry;
 import org.datanucleus.ClassLoaderResolver;
+import org.datanucleus.ExecutionContext;
 import org.datanucleus.identity.IdentityUtils;
-import org.datanucleus.store.ExecutionContext;
 
 /**
  * Helper methods for querying.
@@ -138,7 +138,7 @@ public class QueryHelper {
 		Set<? extends Class<?>> candidateClasses;
 		if (withSubclasses) {
 			ClassLoaderResolver clr = ec.getClassLoaderResolver();
-			HashSet<String> classNames = storeMgr.getSubClassesForClass(candidateClass.getName(), true, clr);
+			Collection<String> classNames = storeMgr.getSubClassesForClass(candidateClass.getName(), true, clr);
 			Set<Class<?>> classes = new HashSet<Class<?>>(classNames.size() + 1);
 			classes.add(candidateClass);
 			for (String className : classNames) {

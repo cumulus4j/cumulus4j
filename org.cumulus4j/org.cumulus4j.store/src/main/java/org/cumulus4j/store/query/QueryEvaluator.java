@@ -50,6 +50,7 @@ import org.cumulus4j.store.query.eval.ResultDescriptor;
 import org.cumulus4j.store.query.eval.SubqueryExpressionEvaluator;
 import org.cumulus4j.store.query.eval.VariableExpressionEvaluator;
 import org.datanucleus.ClassLoaderResolver;
+import org.datanucleus.ExecutionContext;
 import org.datanucleus.identity.IdentityUtils;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.query.QueryUtils;
@@ -63,7 +64,6 @@ import org.datanucleus.query.expression.PrimaryExpression;
 import org.datanucleus.query.expression.SubqueryExpression;
 import org.datanucleus.query.expression.VariableExpression;
 import org.datanucleus.query.symbol.Symbol;
-import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.query.Query;
 
 /**

@@ -29,9 +29,9 @@ import org.cumulus4j.store.model.DataEntry;
 import org.cumulus4j.store.model.DataEntryDAO;
 import org.cumulus4j.store.model.EmbeddedObjectContainer;
 import org.cumulus4j.store.model.ObjectContainer;
+import org.datanucleus.ExecutionContext;
 import org.datanucleus.identity.IdentityUtils;
 import org.datanucleus.metadata.AbstractClassMetaData;
-import org.datanucleus.store.ExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -236,7 +236,7 @@ public final class ObjectContainerHelper
 
 			if (dataEntry == null) {
 				String message = String.format("DataEntry.getDataEntry(...) returned null for reference=\"%s\"!", reference);
-				if (ec.getNucleusContext().getStoreManager().getPersistenceHandler().useReferentialIntegrity())
+				if (((Cumulus4jPersistenceHandler)ec.getNucleusContext().getStoreManager().getPersistenceHandler()).useReferentialIntegrity())
 					throw new IllegalStateException(message);
 				else {
 					// https://sourceforge.net/tracker/?func=detail&aid=3515529&group_id=517465&atid=2102914

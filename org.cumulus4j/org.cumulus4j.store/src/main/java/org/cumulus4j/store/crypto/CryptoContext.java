@@ -6,7 +6,7 @@ import org.cumulus4j.store.EncryptionCoordinateSetManager;
 import org.cumulus4j.store.KeyStoreRefManager;
 import org.cumulus4j.store.PersistenceManagerConnection;
 import org.cumulus4j.store.model.KeyStoreRef;
-import org.datanucleus.store.ExecutionContext;
+import org.datanucleus.ExecutionContext;
 
 /**
  * Context for encryption and decryption.

@@ -8,8 +8,8 @@ import javax.jdo.annotations.InheritanceStrategy;
 import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.PersistenceCapable;
 
+import org.datanucleus.ExecutionContext;
 import org.datanucleus.metadata.AbstractMemberMetaData;
-import org.datanucleus.store.ExecutionContext;
 
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 @Inheritance(strategy=InheritanceStrategy.NEW_TABLE)

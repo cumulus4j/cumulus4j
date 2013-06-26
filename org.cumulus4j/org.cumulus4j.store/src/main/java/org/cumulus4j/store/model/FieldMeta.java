@@ -46,10 +46,10 @@ import javax.jdo.listener.DetachCallback;
 import javax.jdo.listener.StoreCallback;
 
 import org.cumulus4j.store.Cumulus4jStoreManager;
+import org.datanucleus.ExecutionContext;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.MetaDataManager;
-import org.datanucleus.store.ExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

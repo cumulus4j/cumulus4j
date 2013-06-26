@@ -19,7 +19,7 @@ import javax.jdo.annotations.Query;
 import javax.jdo.annotations.Unique;
 import javax.jdo.annotations.Uniques;
 
-import org.datanucleus.store.ExecutionContext;
+import org.datanucleus.ExecutionContext;
 
 @PersistenceCapable(identityType=IdentityType.APPLICATION, detachable="true")
 @Inheritance(strategy=InheritanceStrategy.NEW_TABLE)

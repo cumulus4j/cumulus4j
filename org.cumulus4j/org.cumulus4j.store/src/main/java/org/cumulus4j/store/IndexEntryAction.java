@@ -34,9 +34,9 @@ import org.cumulus4j.store.model.IndexEntryFactory;
 import org.cumulus4j.store.model.IndexEntryFactoryRegistry;
 import org.cumulus4j.store.model.IndexEntryObjectRelationHelper;
 import org.cumulus4j.store.model.IndexValue;
+import org.datanucleus.ExecutionContext;
 import org.datanucleus.metadata.AbstractMemberMetaData;
-import org.datanucleus.metadata.Relation;
-import org.datanucleus.store.ExecutionContext;
+import org.datanucleus.metadata.RelationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,8 +87,8 @@ public abstract class IndexEntryAction
 			}
 		}
 
-		int relationType = dnMemberMetaData.getRelationType(cryptoContext.getExecutionContext().getClassLoaderResolver());
-		if (Relation.NONE == relationType) {
+		RelationType relationType = dnMemberMetaData.getRelationType(cryptoContext.getExecutionContext().getClassLoaderResolver());
+		if (RelationType.NONE == relationType) {
 			// The field contains no other persistent entity. It might contain a collection/array/map, though.
 
 			if (dnMemberMetaData.hasCollection() || dnMemberMetaData.hasArray()) {
@@ -144,13 +144,13 @@ public abstract class IndexEntryAction
 				_perform(cryptoContext, indexEntry, dataEntryID);
 			}
 		}
-		else if (Relation.isRelationSingleValued(relationType)) {
+		else if (RelationType.isRelationSingleValued(relationType)) {
 			// 1-1-relationship to another persistence-capable object.
 			Long otherDataEntryID = ObjectContainerHelper.referenceToDataEntryID(cryptoContext, pmData, fieldValue);
 			IndexEntry indexEntry = getIndexEntryForObjectRelation(cryptoContext, pmIndex, fieldMeta, classMeta, otherDataEntryID);
 			_perform(cryptoContext, indexEntry, dataEntryID);
 		}
-		else if (Relation.isRelationMultiValued(relationType)) {
+		else if (RelationType.isRelationMultiValued(relationType)) {
 			// map, collection, array
 
 			if (dnMemberMetaData.hasMap()) { // Map.class.isAssignableFrom(dnMemberMetaData.getType())) {

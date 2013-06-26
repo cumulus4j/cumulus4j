@@ -45,8 +45,8 @@ import javax.jdo.listener.DetachCallback;
 import javax.jdo.listener.LoadCallback;
 import javax.jdo.listener.StoreCallback;
 
+import org.datanucleus.ExecutionContext;
 import org.datanucleus.metadata.AbstractClassMetaData;
-import org.datanucleus.store.ExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

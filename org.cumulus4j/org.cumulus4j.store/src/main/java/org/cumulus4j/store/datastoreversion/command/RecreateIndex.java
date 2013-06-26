@@ -26,8 +26,8 @@ import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.IndexEntry;
 import org.cumulus4j.store.model.ObjectContainer;
 import org.datanucleus.ClassLoaderResolver;
+import org.datanucleus.ExecutionContext;
 import org.datanucleus.metadata.AbstractMemberMetaData;
-import org.datanucleus.store.ExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

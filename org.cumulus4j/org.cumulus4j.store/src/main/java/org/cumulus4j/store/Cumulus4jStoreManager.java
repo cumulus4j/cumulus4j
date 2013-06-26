@@ -47,6 +47,7 @@ import org.cumulus4j.store.model.FieldMetaRole;
 import org.cumulus4j.store.model.IndexEntryFactoryRegistry;
 import org.cumulus4j.store.model.PostDetachRunnableManager;
 import org.datanucleus.ClassLoaderResolver;
+import org.datanucleus.ExecutionContext;
 import org.datanucleus.NucleusContext;
 import org.datanucleus.api.jdo.JDOPersistenceManagerFactory;
 import org.datanucleus.identity.OID;
@@ -54,8 +55,8 @@ import org.datanucleus.identity.SCOID;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.MapMetaData.MapType;
+import org.datanucleus.state.ObjectProvider;
 import org.datanucleus.store.AbstractStoreManager;
-import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.Extent;
 import org.datanucleus.store.connection.ManagedConnection;
 import org.datanucleus.store.schema.SchemaAwareStoreManager;
@@ -372,7 +373,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 
 	public List<ClassMeta> getSubClassMetas(ExecutionContext ec, String className, boolean includeDescendents) {
 		ClassLoaderResolver clr = ec.getClassLoaderResolver();
-		HashSet<String> subClassesForClass = getSubClassesForClass(className, includeDescendents, clr);
+		Collection<String> subClassesForClass = getSubClassesForClass(className, includeDescendents, clr);
 		List<ClassMeta> result = new ArrayList<ClassMeta>(subClassesForClass.size());
 		for (String subClassName : subClassesForClass) {
 			Class<?> subClass = clr.classForName(subClassName);
@@ -797,7 +798,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 	@Override
 	public void createSchema(Set<String> classNames, Properties props) {
 		Cumulus4jConnectionFactory cf =
-			(Cumulus4jConnectionFactory) connectionMgr.lookupConnectionFactory(txConnectionFactoryName);
+			(Cumulus4jConnectionFactory) connectionMgr.lookupConnectionFactory(primaryConnectionFactoryName);
 		JDOPersistenceManagerFactory pmfData = (JDOPersistenceManagerFactory) cf.getPMFData();
 		JDOPersistenceManagerFactory pmfIndex = (JDOPersistenceManagerFactory) cf.getPMFIndex();
 		if (pmfData.getNucleusContext().getStoreManager() instanceof SchemaAwareStoreManager) {
@@ -825,7 +826,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 	@Override
 	public void deleteSchema(Set<String> classNames, Properties props) {
 		Cumulus4jConnectionFactory cf =
-			(Cumulus4jConnectionFactory) connectionMgr.lookupConnectionFactory(txConnectionFactoryName);
+			(Cumulus4jConnectionFactory) connectionMgr.lookupConnectionFactory(primaryConnectionFactoryName);
 		JDOPersistenceManagerFactory pmfData = (JDOPersistenceManagerFactory) cf.getPMFData();
 		JDOPersistenceManagerFactory pmfIndex = (JDOPersistenceManagerFactory) cf.getPMFIndex();
 		if (pmfData.getNucleusContext().getStoreManager() instanceof SchemaAwareStoreManager) {
@@ -851,7 +852,7 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 	@Override
 	public void validateSchema(Set<String> classNames, Properties props) {
 		Cumulus4jConnectionFactory cf =
-			(Cumulus4jConnectionFactory) connectionMgr.lookupConnectionFactory(txConnectionFactoryName);
+			(Cumulus4jConnectionFactory) connectionMgr.lookupConnectionFactory(primaryConnectionFactoryName);
 		JDOPersistenceManagerFactory pmfData = (JDOPersistenceManagerFactory) cf.getPMFData();
 		JDOPersistenceManagerFactory pmfIndex = (JDOPersistenceManagerFactory) cf.getPMFIndex();
 		if (pmfData.getNucleusContext().getStoreManager() instanceof SchemaAwareStoreManager) {
@@ -889,5 +890,9 @@ public class Cumulus4jStoreManager extends AbstractStoreManager implements Schem
 	public Extent getExtent(ExecutionContext ec, @SuppressWarnings("rawtypes") Class c, boolean subclasses) {
 		getClassMeta(ec, c); // Ensure, we initialise our meta-data, too.
 		return super.getExtent(ec, c, subclasses);
+	}
+
+	public void assertReadOnlyForUpdateOfObject(ObjectProvider op) {
+		// TODO this method disappeared in DataNucleus 3.2 (it was still present in 3.1). Need to find out how to replace it!
 	}
 }

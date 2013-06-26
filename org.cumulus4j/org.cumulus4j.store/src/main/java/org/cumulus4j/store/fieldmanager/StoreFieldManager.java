@@ -32,13 +32,13 @@ import org.cumulus4j.store.model.EmbeddedObjectContainer;
 import org.cumulus4j.store.model.FieldMeta;
 import org.cumulus4j.store.model.FieldMetaRole;
 import org.cumulus4j.store.model.ObjectContainer;
+import org.datanucleus.ExecutionContext;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
-import org.datanucleus.metadata.Relation;
-import org.datanucleus.store.ExecutionContext;
-import org.datanucleus.store.ObjectProvider;
+import org.datanucleus.metadata.RelationType;
+import org.datanucleus.state.ObjectProvider;
 import org.datanucleus.store.fieldmanager.AbstractFieldManager;
-import org.datanucleus.store.types.sco.SCO;
+import org.datanucleus.store.types.SCO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -168,7 +168,7 @@ public class StoreFieldManager extends AbstractFieldManager
 			return;
 		}
 
-		int relationType = mmd.getRelationType(ec.getClassLoaderResolver());
+		RelationType relationType = mmd.getRelationType(ec.getClassLoaderResolver());
 
 		// Replace any SCO field that isn't already a wrapper, with its wrapper object
 		// This is necessary to trigger persistence of related objects. We have to unwrap
@@ -180,11 +180,11 @@ public class StoreFieldManager extends AbstractFieldManager
 		// We have to make sure we unwrap any SCO.
 		value = op.unwrapSCOField(fieldNumber, value, false);
 
-		if (relationType == Relation.NONE)
+		if (relationType == RelationType.NONE)
 			storeObjectFieldWithRelationTypeNone(fieldNumber, value, mmd, fieldMeta);
-		else if (Relation.isRelationSingleValued(relationType))
+		else if (RelationType.isRelationSingleValued(relationType))
 			storeObjectFieldWithRelationTypeSingleValue(fieldNumber, value, mmd, fieldMeta);
-		else if (Relation.isRelationMultiValued(relationType))
+		else if (RelationType.isRelationMultiValued(relationType))
 		{
 			// Collection/Map/Array
 			if (mmd.hasCollection())

@@ -23,7 +23,7 @@ import javax.jdo.PersistenceManager;
 
 import org.cumulus4j.store.Cumulus4jStoreManager;
 import org.cumulus4j.store.crypto.CryptoContext;
-import org.datanucleus.store.ExecutionContext;
+import org.datanucleus.ExecutionContext;
 
 /**
  * Helper to find an {@link IndexEntry} for an object relation (1-1, 1-n or m-n).

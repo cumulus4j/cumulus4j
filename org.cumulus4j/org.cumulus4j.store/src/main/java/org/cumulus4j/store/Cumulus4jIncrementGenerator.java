@@ -25,7 +25,6 @@ import org.cumulus4j.store.Cumulus4jConnectionFactory.Cumulus4jManagedConnection
 import org.cumulus4j.store.crypto.CryptoContext;
 import org.cumulus4j.store.model.Sequence2;
 import org.cumulus4j.store.model.Sequence2DAO;
-import org.datanucleus.store.ExecutionContext;
 import org.datanucleus.store.valuegenerator.AbstractDatastoreGenerator;
 import org.datanucleus.store.valuegenerator.ValueGenerationBlock;
 import org.datanucleus.store.valuegenerator.ValueGenerator;
@@ -77,7 +76,7 @@ public class Cumulus4jIncrementGenerator extends AbstractDatastoreGenerator
 			CryptoContext cryptoContext = new CryptoContext(
 					storeManager.getEncryptionCoordinateSetManager(),
 					storeManager.getKeyStoreRefManager(),
-					(ExecutionContext) mconn.getPoolKey(), // TODO find a better way! That this is the ExecutionContext is nowhere documented, but it works and unfortunately it is the only way to obtain it I found :-(
+					mconn.getExecutionContext(),
 					pmConn
 			);
 			storeManager.getDatastoreVersionManager().applyOnce(cryptoContext);
