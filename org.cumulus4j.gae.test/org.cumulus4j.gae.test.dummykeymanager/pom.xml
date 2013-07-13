@@ -2,7 +2,7 @@
 	<parent>
 		<artifactId>org.cumulus4j.gae.test.parent</artifactId>
 		<groupId>org.cumulus4j.gae.test</groupId>
-		<version>1.2.0-SNAPSHOT</version>
+		<version>1.2.0</version>
 		<relativePath>../org.cumulus4j.gae.test.parent/pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>

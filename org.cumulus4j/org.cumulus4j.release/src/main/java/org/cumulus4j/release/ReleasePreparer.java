@@ -24,10 +24,12 @@ public class ReleasePreparer {
 	// IMPORTANT: In org.cumulus4j.store/pom.xml the repository for deployment needs to be manually
 	// switched between release and snapshot versions!
 	//
-	// Don't forget to create a tag in SVN after check-in! And don't forget
-	// to update the symlinks on the web-server after the release was successful.
-//	protected String newMavenVersion = "1.2.0";
-	protected String newMavenVersion = "1.2.0-SNAPSHOT";
+	// Don't forget:
+	//   * to register the new version in "whats-new.apt" and "releases/index.apt",
+	//   * to create a tag in SVN after check-in!
+	//   * to update the symlinks on the web-server after the release was successful.
+	protected String newMavenVersion = "1.2.0";
+//	protected String newMavenVersion = "1.2.1-SNAPSHOT";
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// DO NOT CHANGE ANYTHING BELOW THIS POINT, if you don't really want to improve this program.
