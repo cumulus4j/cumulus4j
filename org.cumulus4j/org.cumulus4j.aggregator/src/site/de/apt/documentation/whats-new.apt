@@ -9,6 +9,16 @@ Was ist neu?
 
 ~~ !!! NEWEST VERSIONS FIRST !!! NEUESTE VERSIONEN ZUERST !!!
 
+* Was ist neu in {1.2.0}?
+
+	Verglichen mit Version 1.1.1 gibt es folgende Änderungen:
+
+	* Kompatibilität: Es gab eine Änderung in DataNucleus' Plugin-API von Version 3.1.x auf 3.2.x. Cumulus4j
+	1.2.0 funktioniert mit DataNucleus 3.2.x, aber nicht mit älteren Versionen!
+	Siehe {{{./datanucleus-compatibility-matrix.html}DataNucleus compatibility matrix}}.
+
+	[]
+
 * Was ist neu in {1.1.1}?
 
 	Verglichen mit Version 1.1.0 gibt es folgende Änderungen:
