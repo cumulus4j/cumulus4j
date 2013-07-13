@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.jdo.JDOHelper;
 import javax.jdo.Query;
 
 import junit.framework.Assert;
@@ -155,6 +156,7 @@ public class EmbeddedTest extends AbstractJDOTransactionalTestClearingDatabase {
 			// we assign c.instance_of_c.
 			c.setClass_c_id(cid_initial);
 			c = pm.makePersistent(c);
+			Object coid = JDOHelper.getObjectId(c);
 
 			B b = new B();
 			b.setClass_a_id(bid);
@@ -163,7 +165,16 @@ public class EmbeddedTest extends AbstractJDOTransactionalTestClearingDatabase {
 
 			// The following assignment should only apply to the non-embedded instance.
 			// At least this is how DN behaves without C4j.
-			b.getInstance_of_c().setClass_c_id(cid_modified);
+//			b.getInstance_of_c().setClass_c_id(cid_modified);
+
+			// Since version 3.2 of DataNucleus, it keeps the very same instance in RAM, which is IMHO
+			// correct, too. Maybe even more correct than the previous behaviour. However, it means that
+			// we now have to flush AND evict the L1 cache to make sure we modify solely the non-embedded
+			// instance.
+			pm.flush(); pm.evictAll();
+
+			c = (C) pm.getObjectById(coid);
+			c.setClass_c_id(cid_modified);
 		}
 
 		commitAndBeginNewTransaction();
