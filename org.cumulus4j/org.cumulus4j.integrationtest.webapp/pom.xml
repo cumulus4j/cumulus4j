@@ -35,6 +35,7 @@
 		<dependency>
 			<groupId>org.cumulus4j</groupId>
 			<artifactId>org.cumulus4j.testutil</artifactId>
+			<scope>compile</scope> <!-- Must be available in the test system. -->
 		</dependency>
 		<dependency>
 			<groupId>org.cumulus4j</groupId>
