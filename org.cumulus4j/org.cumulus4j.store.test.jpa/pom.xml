@@ -33,6 +33,11 @@
 		<dependency>
 			<groupId>org.cumulus4j</groupId>
 			<artifactId>org.cumulus4j.testutil</artifactId>
+			<scope>compile</scope>
+			<!--
+				scope=compile, because we have the test framework in the main
+				sources - not the test sources.
+			-->
 		</dependency>
 		<dependency>
 			<groupId>org.datanucleus</groupId>
