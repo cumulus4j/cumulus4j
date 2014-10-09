@@ -18,6 +18,8 @@
 			<artifactId>bcprov-jdk16</artifactId>
 <!--			<version>1.46</version> -->
 		</dependency>
+
+<!--
 		<dependency>
 			<groupId>org.nightlabs</groupId>
 			<artifactId>org.nightlabs.progress</artifactId>
@@ -28,6 +30,7 @@
 			<artifactId>org.nightlabs.util</artifactId>
 			<scope>test</scope>
 		</dependency>
+-->
 	</dependencies>
 
 	<build>

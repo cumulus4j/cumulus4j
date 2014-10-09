@@ -43,6 +43,7 @@
 				sources - not the test sources.
 			-->
 		</dependency>
+<!--
 		<dependency>
 			<groupId>org.nightlabs</groupId>
 			<artifactId>org.nightlabs.progress</artifactId>
@@ -51,6 +52,7 @@
 			<groupId>org.nightlabs</groupId>
 			<artifactId>org.nightlabs.util</artifactId>
 		</dependency>
+-->
 	</dependencies>
 	
 	<build>

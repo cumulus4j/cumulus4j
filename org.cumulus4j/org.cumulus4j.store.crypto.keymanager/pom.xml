@@ -40,7 +40,7 @@
 			<groupId>org.cumulus4j</groupId>
 			<artifactId>org.cumulus4j.keymanager.back.shared</artifactId>
 		</dependency>
-
+<!--
 		<dependency>
 			<groupId>org.nightlabs</groupId>
 			<artifactId>org.nightlabs.progress</artifactId>
@@ -51,6 +51,7 @@
 			<artifactId>org.nightlabs.util</artifactId>
 			<scope>test</scope>
 		</dependency>
+-->
 		<dependency>
 			<groupId>org.datanucleus</groupId>
 			<artifactId>datanucleus-core</artifactId>
