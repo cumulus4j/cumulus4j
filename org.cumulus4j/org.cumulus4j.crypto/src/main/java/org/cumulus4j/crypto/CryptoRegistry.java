@@ -1203,11 +1203,15 @@ public final class CryptoRegistry
 		if (publicKey instanceof RSAKeyParameters) {
 			RSAKeyParameters rsaPublicKey = (RSAKeyParameters) publicKey;
 
-			SubjectPublicKeyInfo info = new SubjectPublicKeyInfo(
-					new AlgorithmIdentifier(PKCSObjectIdentifiers.rsaEncryption, new DERNull()),
-					new RSAPublicKeyStructure(rsaPublicKey.getModulus(), rsaPublicKey.getExponent()).getDERObject()
-			);
-      return info.getDEREncoded();
+			try {
+				SubjectPublicKeyInfo info = new SubjectPublicKeyInfo(
+						new AlgorithmIdentifier(PKCSObjectIdentifiers.rsaEncryption, new DERNull()),
+						new RSAPublicKeyStructure(rsaPublicKey.getModulus(), rsaPublicKey.getExponent()).toASN1Primitive()
+				);
+				return info.getEncoded();
+			} catch (IOException x) {
+				throw new RuntimeException(x);
+			}
 		}
 
 		throw new UnsupportedOperationException("publicKey.class=\"" + publicKey.getClass().getName() + "\" not yet supported!");
@@ -1249,14 +1253,18 @@ public final class CryptoRegistry
 		if (privateKey instanceof RSAPrivateCrtKeyParameters) {
 			RSAPrivateCrtKeyParameters rsaPrivateKey = (RSAPrivateCrtKeyParameters) privateKey;
 
-			PrivateKeyInfo info = new PrivateKeyInfo(
-					new AlgorithmIdentifier(PKCSObjectIdentifiers.rsaEncryption, new DERNull()),
-					new RSAPrivateKeyStructure(
-							rsaPrivateKey.getModulus(), rsaPrivateKey.getPublicExponent(), rsaPrivateKey.getExponent(),
-							rsaPrivateKey.getP(), rsaPrivateKey.getQ(), rsaPrivateKey.getDP(),
-							rsaPrivateKey.getDQ(), rsaPrivateKey.getQInv()).getDERObject()
-			);
-      return info.getDEREncoded();
+			try {
+				PrivateKeyInfo info = new PrivateKeyInfo(
+						new AlgorithmIdentifier(PKCSObjectIdentifiers.rsaEncryption, new DERNull()),
+						new RSAPrivateKeyStructure(
+								rsaPrivateKey.getModulus(), rsaPrivateKey.getPublicExponent(), rsaPrivateKey.getExponent(),
+								rsaPrivateKey.getP(), rsaPrivateKey.getQ(), rsaPrivateKey.getDP(),
+								rsaPrivateKey.getDQ(), rsaPrivateKey.getQInv()).toASN1Primitive()
+				);
+				return info.getEncoded();
+			} catch (IOException x) {
+				throw new RuntimeException(x);
+			}
 		}
 
 		throw new UnsupportedOperationException("privateKey.class=\"" + privateKey.getClass().getName() + "\" not yet supported!");
