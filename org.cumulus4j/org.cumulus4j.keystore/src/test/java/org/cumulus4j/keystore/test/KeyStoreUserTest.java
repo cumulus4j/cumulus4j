@@ -23,11 +23,11 @@ import org.cumulus4j.keystore.AuthenticationException;
 import org.cumulus4j.keystore.CannotDeleteLastUserException;
 import org.cumulus4j.keystore.GeneratedKey;
 import org.cumulus4j.keystore.KeyStore;
+import org.cumulus4j.testutil.IOUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.nightlabs.util.IOUtil;
 
 public class KeyStoreUserTest
 {

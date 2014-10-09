@@ -45,6 +45,7 @@ import org.cumulus4j.store.crypto.CryptoManagerRegistry;
 import org.cumulus4j.store.crypto.keymanager.KeyManagerCryptoManager;
 import org.cumulus4j.store.crypto.keymanager.KeyManagerCryptoSession;
 import org.cumulus4j.store.crypto.keymanager.messagebroker.MessageBrokerRegistry;
+import org.cumulus4j.testutil.IOUtil;
 import org.datanucleus.ExecutionContext;
 import org.datanucleus.NucleusContext;
 import org.datanucleus.api.jdo.JDOPersistenceManagerFactory;
@@ -52,7 +53,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.nightlabs.util.IOUtil;
 
 public abstract class AbstractKeyManagerCryptoSessionTest
 {
@@ -73,7 +73,7 @@ public abstract class AbstractKeyManagerCryptoSessionTest
 	{
 		MockMessageBroker.setMockSharedInstance();
 		if (!(MessageBrokerRegistry.sharedInstance().getActiveMessageBroker() instanceof MockMessageBroker))
-			Assert.fail("Setting MockMessageBroker failed!");
+			Assert.fail("Setting Moc	kMessageBroker failed!");
 	}
 
 	private PersistenceManagerFactory pmf;

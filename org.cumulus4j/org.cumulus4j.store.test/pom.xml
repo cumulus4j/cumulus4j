@@ -53,6 +53,15 @@
 			<artifactId>org.cumulus4j.store</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.testutil</artifactId>
+			<scope>compile</scope>
+			<!--
+				scope=compile, because we have the test framework in the main
+				sources - not the test sources.
+			-->
+		</dependency>
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>compile</scope>
@@ -61,16 +70,6 @@
 				sources - not the test sources.
 			-->
 		</dependency>
-<!--
-		<dependency>
-			<groupId>org.nightlabs</groupId>
-			<artifactId>org.nightlabs.progress</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.nightlabs</groupId>
-			<artifactId>org.nightlabs.util</artifactId>
-		</dependency>
--->
 	</dependencies>
 	
 	<build>

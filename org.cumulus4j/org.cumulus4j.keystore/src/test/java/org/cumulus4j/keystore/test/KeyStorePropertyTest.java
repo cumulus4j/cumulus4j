@@ -26,10 +26,10 @@ import org.cumulus4j.keystore.KeyStore;
 import org.cumulus4j.keystore.prop.Long2LongSortedMapProperty;
 import org.cumulus4j.keystore.prop.LongProperty;
 import org.cumulus4j.keystore.prop.StringProperty;
+import org.cumulus4j.testutil.IOUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.nightlabs.util.IOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

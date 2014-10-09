@@ -27,8 +27,8 @@ import org.cumulus4j.keystore.prop.Long2LongSortedMapProperty;
 import org.cumulus4j.keystore.prop.LongProperty;
 import org.cumulus4j.keystore.prop.StringProperty;
 import org.cumulus4j.keystore.test.resource.ResourceHelper;
+import org.cumulus4j.testutil.IOUtil;
 import org.junit.Test;
-import org.nightlabs.util.IOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

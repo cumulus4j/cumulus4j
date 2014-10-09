@@ -1,9 +1,7 @@
 package org.cumulus4j.store.test.inheritance.sources;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 
-import javax.jdo.annotations.EmbeddedOnly;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 

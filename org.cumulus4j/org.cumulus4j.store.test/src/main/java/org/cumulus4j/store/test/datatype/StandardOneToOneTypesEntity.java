@@ -10,7 +10,7 @@ import javax.jdo.annotations.Join;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.PrimaryKey;
 
-import org.nightlabs.util.Util;
+import org.cumulus4j.testutil.Util;
 
 /**
  * Entity with all types that should be supported according to the JDO standard.

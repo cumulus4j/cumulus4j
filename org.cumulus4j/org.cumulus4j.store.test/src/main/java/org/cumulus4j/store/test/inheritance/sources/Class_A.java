@@ -2,7 +2,6 @@ package org.cumulus4j.store.test.inheritance.sources;
 
 import java.util.Date;
 
-import javax.jdo.annotations.Embedded;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.Inheritance;
 import javax.jdo.annotations.InheritanceStrategy;

@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-import org.nightlabs.util.IOUtil;
+import org.cumulus4j.testutil.IOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;

@@ -26,10 +26,10 @@ import org.cumulus4j.store.crypto.CryptoSession;
 import org.cumulus4j.store.datastoreversion.command.MinimumCumulus4jVersion;
 import org.cumulus4j.store.test.framework.CleanupUtil;
 import org.cumulus4j.store.test.framework.TestUtil;
+import org.cumulus4j.testutil.IOUtil;
+import org.cumulus4j.testutil.ReflectUtil;
+import org.cumulus4j.testutil.Util;
 import org.junit.Test;
-import org.nightlabs.util.IOUtil;
-import org.nightlabs.util.Util;
-import org.nightlabs.util.reflect.ReflectUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -2,8 +2,8 @@ package org.cumulus4j.store.model;
 
 import junit.framework.Assert;
 
+import org.cumulus4j.testutil.Stopwatch;
 import org.junit.Test;
-import org.nightlabs.util.Stopwatch;
 
 public class IndexValueTest {
 

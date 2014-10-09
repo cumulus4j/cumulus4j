@@ -1,7 +1,5 @@
 package org.cumulus4j.store.test.inheritance.sources;
 
-import javax.jdo.annotations.Column;
-import javax.jdo.annotations.Embedded;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 

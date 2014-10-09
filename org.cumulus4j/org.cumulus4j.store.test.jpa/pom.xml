@@ -31,6 +31,10 @@
 			<artifactId>org.cumulus4j.store.test</artifactId> <!-- need some framework stuff -->
 		</dependency>
 		<dependency>
+			<groupId>org.cumulus4j</groupId>
+			<artifactId>org.cumulus4j.testutil</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.datanucleus</groupId>
 			<artifactId>datanucleus-api-jpa</artifactId>
 		</dependency>
@@ -43,16 +47,6 @@
 				sources - not the test sources.
 			-->
 		</dependency>
-<!--
-		<dependency>
-			<groupId>org.nightlabs</groupId>
-			<artifactId>org.nightlabs.progress</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.nightlabs</groupId>
-			<artifactId>org.nightlabs.util</artifactId>
-		</dependency>
--->
 	</dependencies>
 	
 	<build>

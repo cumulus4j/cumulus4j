@@ -36,9 +36,9 @@ import javax.crypto.spec.SecretKeySpec;
 import junit.framework.Assert;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.cumulus4j.testutil.Stopwatch;
+import org.cumulus4j.testutil.Util;
 import org.junit.Test;
-import org.nightlabs.util.Stopwatch;
-import org.nightlabs.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

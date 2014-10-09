@@ -13,10 +13,10 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.cumulus4j.store.test.framework.AbstractJDOTransactionalTestClearingDatabase;
+import org.cumulus4j.testutil.Util;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.nightlabs.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -33,9 +33,9 @@ import org.cumulus4j.keymanager.front.shared.AcquireCryptoSessionResponse;
 import org.cumulus4j.keymanager.front.shared.AppServer;
 import org.cumulus4j.keymanager.front.shared.DateDependentKeyStrategyInitParam;
 import org.cumulus4j.keymanager.front.shared.PutAppServerResponse;
+import org.cumulus4j.testutil.IOUtil;
 import org.junit.Assert;
 import org.junit.Test;
-import org.nightlabs.util.IOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

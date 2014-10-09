@@ -25,9 +25,9 @@ import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.cumulus4j.crypto.CryptoRegistry;
 import org.cumulus4j.crypto.MACCalculator;
+import org.cumulus4j.testutil.Util;
 import org.junit.Assert;
 import org.junit.Test;
-import org.nightlabs.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

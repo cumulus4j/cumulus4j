@@ -23,12 +23,12 @@ import java.util.List;
 import org.cumulus4j.keystore.AuthenticationException;
 import org.cumulus4j.keystore.GeneratedKey;
 import org.cumulus4j.keystore.KeyStore;
+import org.cumulus4j.testutil.IOUtil;
+import org.cumulus4j.testutil.Stopwatch;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.nightlabs.util.IOUtil;
-import org.nightlabs.util.Stopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

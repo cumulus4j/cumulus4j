@@ -4,10 +4,10 @@ import java.io.File;
 
 import org.cumulus4j.keystore.DateDependentKeyStrategy;
 import org.cumulus4j.keystore.KeyStore;
+import org.cumulus4j.testutil.IOUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.nightlabs.util.IOUtil;
 
 public class DateDependentKeyStrategyTest {
 

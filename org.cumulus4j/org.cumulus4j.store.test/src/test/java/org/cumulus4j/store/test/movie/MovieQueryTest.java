@@ -26,10 +26,10 @@ import javax.jdo.Extent;
 import javax.jdo.Query;
 
 import org.cumulus4j.store.test.framework.AbstractJDOTransactionalTestClearingDatabase;
+import org.cumulus4j.testutil.Stopwatch;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.nightlabs.util.Stopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

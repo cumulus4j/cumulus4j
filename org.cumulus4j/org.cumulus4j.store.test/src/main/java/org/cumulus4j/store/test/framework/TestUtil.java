@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.PropertyConfigurator;
-import org.nightlabs.util.IOUtil;
+import org.cumulus4j.testutil.IOUtil;
 import org.slf4j.LoggerFactory;
 
 public class TestUtil
