@@ -457,7 +457,6 @@
 			<dependency>
 				<groupId>org.cumulus4j</groupId><artifactId>org.cumulus4j.testutil</artifactId>
 				<version>${cumulus4j.version}</version>
-				<scope>test</scope>
 			</dependency>
 			<!-- END Cumulus4j -->
 		
